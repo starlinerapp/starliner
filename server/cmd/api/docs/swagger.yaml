@@ -1,0 +1,21 @@
+definitions:
+  handler.RootResponse:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /:
+    get:
+      operationId: GetRoot
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RootResponse'
+      summary: Get Root
+      tags:
+      - root
+swagger: "2.0"

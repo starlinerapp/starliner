@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Rubik";
+  src: url("../assets/fonts/Rubik-Regular.ttf");
+}
+
+@theme {
+  --font-sans:
+    "Rubik", "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-gray-1: #00000003;
+  --color-gray-2: #00000006;
+  --color-gray-3: #0000000f;
+  --color-gray-4: #00000017;
+  --color-gray-5: #0000001f;
+  --color-gray-6: #00000026;
+  --color-gray-7: #00000031;
+  --color-gray-8: #00000044;
+  --color-gray-9: #00000072;
+  --color-gray-10: #0000007c;
+  --color-gray-11: #0000009b;
+  --color-gray-12: #000000df;
+
+  --color-violet-1: #5500AA03;
+  --color-violet-2: #4900FF07;
+  --color-violet-3: #4400EE0F;
+  --color-violet-4: #4300FF1B;
+  --color-violet-5: #3600FF26;
+  --color-violet-6: #3100FB35;
+  --color-violet-7: #2D01DD4A;
+  --color-violet-8: #2B00D066;
+  --color-violet-9: #2400B7A9;
+  --color-violet-10: #2300ABB2;
+  --color-violet-11: #1F0099AF;
+  --color-violet-12: #0B0043D9;
+
+  --color-mauve-1: #55005503;
+  --color-mauve-2: #2B005506;
+  --color-mauve-3: #30004010;
+  --color-mauve-4: #20003618;
+  --color-mauve-5: #20003820;
+  --color-mauve-6: #14003527;
+  --color-mauve-7: #10003332;
+  --color-mauve-8: #08003145;
+  --color-mauve-9: #05001D73;
+  --color-mauve-10: #0500197D;
+  --color-mauve-11: #0400119C;
+  --color-mauve-12: #020008E0;
+
+  --color-black-a12: rgba(0, 0, 0, 0.95);
+  --color-white-a12: rgba(255, 255, 255, 0.95);
+}
+
+@layer utilities {
+  .wiggle-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23bcbac7' fill-opacity='0.4'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");  }
+}
+
+html,
+body {
+  @apply bg-white-a12 text-mauve-12;
+}

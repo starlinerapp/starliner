@@ -1,0 +1,53 @@
+{
+  "name": "layerseven",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc",
+    "fmt": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
+    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons"
+  },
+  "dependencies": {
+    "@react-router/node": "^7.7.1",
+    "@react-router/serve": "^7.7.1",
+    "@tanstack/react-query": "^5.87.4",
+    "better-auth": "^1.3.8",
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.5",
+    "isbot": "^5.1.27",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.62.0",
+    "react-router": "^7.7.1",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@eslint/css": "^0.10.0",
+    "@react-router/dev": "^7.7.1",
+    "@svgr/cli": "^8.1.0",
+    "@tailwindcss/vite": "^4.1.12",
+    "@tanstack/eslint-plugin-query": "^5.86.0",
+    "@types/node": "^20",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "drizzle-kit": "^0.31.4",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.3.0",
+    "jiti": "^2.5.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^4.1.12",
+    "tsx": "^4.20.5",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.40.0",
+    "vite": "^6.3.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

@@ -1,0 +1,99 @@
+name: starliner
+
+services:
+  nginx:
+    restart: unless-stopped
+    image: nginx:stable-alpine
+    healthcheck:
+      test: "curl -f http://localhost:80 || exit 1"
+      interval: 5s
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/nginx/cert.crt:/etc/nginx/cert.crt:ro
+      - ./docker/nginx/private.key:/etc/nginx/private.key:ro
+    depends_on:
+      - client
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - server
+
+  client:
+    restart: unless-stopped
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: development-dependencies-env
+    command: sh -c "npm run dev -- --host 0.0.0.0"
+    environment:
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://dev.starliner.app}
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
+    volumes:
+      - ./client:/app
+      - node-modules-client:/app/node_modules
+    networks:
+      - server
+
+  server:
+    restart: unless-stopped
+    build:
+      context: ./server
+      dockerfile: Dockerfile.local
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./server:/app
+    networks:
+      - server
+
+  db:
+    restart: unless-stopped
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-main}
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d main'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - server
+
+  auth-db:
+    restart: unless-stopped
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB:-auth_db}
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d auth_db'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - server
+
+volumes:
+  node-modules-client:
+  auth-db-data:
+  db-data:
+
+networks:
+  server:
