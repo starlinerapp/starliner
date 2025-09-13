@@ -13,17 +13,21 @@
     "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons"
   },
   "dependencies": {
+    "@radix-ui/react-popover": "^1.1.15",
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
     "@tanstack/react-query": "^5.87.4",
     "better-auth": "^1.3.8",
+    "clsx": "^2.1.1",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
     "isbot": "^5.1.27",
+    "pg": "^8.16.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.62.0",
     "react-router": "^7.7.1",
+    "tailwind-merge": "^3.3.1",
     "zod": "^4.1.5"
   },
   "devDependencies": {
