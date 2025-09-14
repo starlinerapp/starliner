@@ -1,8 +1,8 @@
 import React from "react";
 import type { Route } from "../../.react-router/types/app/+types/root";
-import { auth } from "~/lib/auth.server";
 import { redirect } from "react-router";
 import Sidebar from "~/components/organisms/sidebar/Sidebar";
+import { auth } from "~/utils/auth/server";
 
 export function meta() {
   return [{ title: "Starliner" }, { name: "description", content: "" }];

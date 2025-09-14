@@ -5,9 +5,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Config struct{}
+type Config struct {
+	DBHost     string `mapstructure:"DB_HOST" validate:"required"`
+	DBPort     int    `mapstructure:"DB_PORT" validate:"required"`
+	DBUser     string `mapstructure:"DB_USER" validate:"required"`
+	DBPassword string `mapstructure:"DB_PASSWORD" validate:"required"`
+	DBName     string `mapstructure:"DB_NAME" validate:"required"`
+}
 
-var envs = []string{}
+var envs = []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME"}
 
 func LoadConfig() (Config, error) {
 	var config Config

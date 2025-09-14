@@ -1,9 +1,9 @@
 import React from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { authClient } from "~/lib/auth.client";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { NavLink, useNavigate } from "react-router";
 import Button from "~/components/atoms/button/Button";
+import { authClient } from "~/utils/auth/client";
 
 interface SignUpFormInput {
   email: string;
@@ -38,11 +38,11 @@ export default function SignUp() {
 
   return (
     <div className="flex w-[500px] flex-col gap-4">
-      <p className="flex items-center justify-end gap-1 text-sm font-light">
+      <p className="flex items-center justify-end gap-2 py-0.5 text-sm font-light">
         Already have an account?
         <NavLink
           to="/login"
-          className="flex cursor-pointer items-center gap-1 underline"
+          className="hover:bg-gray-4 flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline"
         >
           Sign in <ArrowRight className="w-3" />
         </NavLink>

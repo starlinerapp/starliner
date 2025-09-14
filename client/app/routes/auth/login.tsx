@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { authClient } from "~/lib/auth.client";
+import { authClient } from "~/utils/auth/client";
 
 interface LoginFormInput {
   email: string;
@@ -36,11 +36,11 @@ export default function Login() {
 
   return (
     <div className="flex w-[500px] flex-col gap-4">
-      <p className="flex items-center justify-end gap-1 text-sm font-light">
+      <p className="flex items-center justify-end gap-1.5 py-0.5 text-sm font-light">
         Don&#39;t have an account?
         <NavLink
           to="/signup"
-          className="flex cursor-pointer items-center gap-1 underline"
+          className="hover:bg-gray-4 flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline"
         >
           Sign up <ArrowRight className="w-3" />
         </NavLink>

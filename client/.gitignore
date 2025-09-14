@@ -4,3 +4,6 @@
 # React Router
 /.react-router/
 /build/
+
+# Generated API Client
+/app/api/client/generated

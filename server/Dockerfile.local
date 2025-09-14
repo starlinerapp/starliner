@@ -11,4 +11,4 @@ COPY . .
 
 ENTRYPOINT ["air", \
     "--build.cmd=go build -o build/server ./cmd/api/main.go", \
-    "--build.bin=./build/"]
+    "--build.bin=./build/server"]

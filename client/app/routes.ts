@@ -15,5 +15,14 @@ export default [
     route("login", "routes/auth/login.tsx"),
   ]),
 
-  ...prefix("api", [route("auth/*", "routes/api/auth.ts")]),
+  layout("routes/organizations/layout.tsx", [
+    route("/organizations/new", "routes/organizations/new.tsx"),
+  ]),
+
+  ...prefix("api", [
+    route("auth/*", "routes/api/auth.ts"),
+
+    // tRPC routes
+    route("trpc/*", "routes/api/trpc.ts"),
+  ]),
 ] satisfies RouteConfig;

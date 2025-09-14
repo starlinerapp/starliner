@@ -10,13 +10,19 @@
     "fmt": "prettier --write .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons"
+    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons",
+    "openapi:generate": "openapi-generator-cli generate -i http://localhost:9090/swagger/doc.json -g typescript-axios -o app/api/client/generated"
   },
   "dependencies": {
     "@radix-ui/react-popover": "^1.1.15",
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
     "@tanstack/react-query": "^5.87.4",
+    "@tanstack/react-query-devtools": "^5.87.4",
+    "@trpc/client": "^11.5.1",
+    "@trpc/server": "^11.5.1",
+    "@trpc/tanstack-react-query": "^11.5.1",
+    "axios": "^1.12.2",
     "better-auth": "^1.3.8",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.2",
@@ -27,6 +33,7 @@
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.62.0",
     "react-router": "^7.7.1",
+    "superjson": "^2.2.2",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.1.5"
   },

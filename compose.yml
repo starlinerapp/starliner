@@ -25,6 +25,8 @@ services:
       context: ./client
       dockerfile: Dockerfile
       target: development-dependencies-env
+    depends_on:
+      - auth-db
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
@@ -41,10 +43,17 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile.local
-    ports:
-      - "9090:9090"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: main
     volumes:
       - ./server:/app
+      - /app/build
     networks:
       - server
 

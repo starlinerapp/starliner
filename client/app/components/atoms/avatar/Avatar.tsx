@@ -1,8 +1,8 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { authClient } from "~/lib/auth.client";
 import * as Popover from "@radix-ui/react-popover";
 import { useNavigate } from "react-router";
+import { authClient } from "~/utils/auth/client";
 
 interface AvatarIconProps {
   name: string;
