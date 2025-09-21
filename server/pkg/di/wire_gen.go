@@ -9,6 +9,7 @@ package di
 import (
 	"starliner.app/pkg/api"
 	"starliner.app/pkg/api/handler"
+	"starliner.app/pkg/api/middleware"
 	"starliner.app/pkg/config"
 )
 
@@ -16,6 +17,7 @@ import (
 
 func InitializeAPI(cfg config.Config) (*http.Server, error) {
 	rootHandler := handler.NewRootHandler()
-	server := http.NewServer(rootHandler)
+	basicAuthMiddleware := middleware.NewBasicAuthMiddleware(cfg)
+	server := http.NewServer(rootHandler, basicAuthMiddleware)
 	return server, nil
 }

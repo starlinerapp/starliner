@@ -7,11 +7,13 @@ import (
 	"github.com/google/wire"
 	http "starliner.app/pkg/api"
 	"starliner.app/pkg/api/handler"
+	"starliner.app/pkg/api/middleware"
 	"starliner.app/pkg/config"
 )
 
 func InitializeAPI(cfg config.Config) (*http.Server, error) {
 	wire.Build(
+		middleware.NewBasicAuthMiddleware,
 		http.NewServer,
 		handler.NewRootHandler,
 	)

@@ -1,8 +1,12 @@
-import { publicProcedure } from "~/server/trpc";
+import { protectedProcedure } from "~/server/trpc";
 import { rootApiFactory } from "~/api/client";
+import { withAuthHeader } from "~/api/client/axios.server";
 
 export const rootRouter = {
-  getRoot: publicProcedure.query(async () => {
-    return await rootApiFactory.getRoot().then((res) => res.data);
+  getRoot: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user?.id;
+    return await rootApiFactory
+      .getRoot(withAuthHeader(userId))
+      .then((res) => res.data);
   }),
 };

@@ -32,6 +32,9 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://dev.starliner.app}
       AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
+      SERVER_BASE_URL: ${SERVER_BASE_URL:-server:9090}
+      SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
+      SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
@@ -42,15 +45,21 @@ services:
     restart: unless-stopped
     build:
       context: ./server
-      dockerfile: Dockerfile.local
+      dockerfile: Dockerfile
+      target: dev
     depends_on:
       - db
+    ports:
+      - "9090:9090"
+      - "40000:40000"
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: main
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
     volumes:
       - ./server:/app
       - /app/build
