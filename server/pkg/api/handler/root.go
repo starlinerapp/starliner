@@ -23,6 +23,6 @@ func NewRootHandler() *RootHandler {
 // @Success 200 {object} RootResponse
 // @Router / [get]
 func (rh *RootHandler) GetRoot(c *gin.Context) {
-	response := RootResponse{Message: "Hello World"}
+	response := RootResponse{Message: "Hello World!"}
 	c.JSON(http.StatusOK, response)
 }

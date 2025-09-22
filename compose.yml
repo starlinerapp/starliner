@@ -62,7 +62,6 @@ services:
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
     volumes:
       - ./server:/app
-      - /app/build
     networks:
       - server
 

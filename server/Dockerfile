@@ -11,9 +11,9 @@ RUN go mod download
 COPY . .
 
 ENTRYPOINT ["air", \
-    "--build.cmd=go build -gcflags='all=-N -l' -o ./build/server ./cmd/api/main.go", \
-    "--build.bin=./build/server", \
-    "--build.args_bin=exec --accept-multiclient --log --headless --listen=:40000 --api-version=2 ./build/server --"]
+  "--build.cmd=go build -gcflags='all=-N -l' -o ./build/server ./cmd/api/main.go", \
+  "--build.bin=./build/server", \
+  "--build.full_bin=dlv exec --accept-multiclient --headless --continue --log --listen=:40000 --api-version=2 ./build/server --"]
 
 FROM golang:1.25-alpine AS builder
 
