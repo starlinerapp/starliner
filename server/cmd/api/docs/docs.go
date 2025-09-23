@@ -31,6 +31,23 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user",
+                "operationId": "getUser",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.UserResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -41,17 +58,28 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "handler.UserResponse": {
+            "type": "object",
+            "properties": {
+                "better_auth_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
+	Title:            "Starliner API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

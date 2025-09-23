@@ -17,7 +17,7 @@ type Config struct {
 
 var envs = []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "BASIC_AUTH_USER", "BASIC_AUTH_PASSWORD"}
 
-func LoadConfig() (Config, error) {
+func LoadConfig() (*Config, error) {
 	var config Config
 
 	viper.AddConfigPath("./")
@@ -26,17 +26,17 @@ func LoadConfig() (Config, error) {
 
 	for _, env := range envs {
 		if err := viper.BindEnv(env); err != nil {
-			return config, err
+			return &config, err
 		}
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		return config, err
+		return &config, err
 	}
 
 	if err := validator.New().Struct(config); err != nil {
-		return config, err
+		return &config, err
 	}
 
-	return config, nil
+	return &config, nil
 }

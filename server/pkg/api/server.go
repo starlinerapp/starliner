@@ -14,16 +14,19 @@ type Server struct {
 }
 
 func NewServer(
-	rootHandler *handler.RootHandler,
 	auth *middleware.BasicAuthMiddleware,
+	user *middleware.UserMiddleware,
+	rootHandler *handler.RootHandler,
+	userHandler *handler.UserHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	engine.Use(auth.BasicAuth())
+	engine.Use(auth.WithBasicAuth(), user.WithUser())
 	engine.GET("/", rootHandler.GetRoot)
+	engine.GET("/me", userHandler.GetUser)
 
 	return &Server{engine: engine}
 }

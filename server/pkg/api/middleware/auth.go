@@ -6,14 +6,14 @@ import (
 )
 
 type BasicAuthMiddleware struct {
-	cfg config.Config
+	cfg *config.Config
 }
 
-func NewBasicAuthMiddleware(cfg config.Config) *BasicAuthMiddleware {
+func NewBasicAuthMiddleware(cfg *config.Config) *BasicAuthMiddleware {
 	return &BasicAuthMiddleware{cfg: cfg}
 }
 
-func (b *BasicAuthMiddleware) BasicAuth() gin.HandlerFunc {
+func (b *BasicAuthMiddleware) WithBasicAuth() gin.HandlerFunc {
 	user := b.cfg.BasicAuthUser
 	password := b.cfg.BasicAuthPassword
 

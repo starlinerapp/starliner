@@ -6,6 +6,8 @@ import (
 	"starliner.app/pkg/di"
 )
 
+// @title   Starliner API
+// @version 1.0
 func main() {
 	cfg, configErr := config.LoadConfig()
 	if configErr != nil {

@@ -23,7 +23,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function Home() {
   const trpc = useTRPC();
   const { data: root } = useQuery(trpc.root.getRoot.queryOptions());
+  const { data: user } = useQuery(trpc.user.getUser.queryOptions());
   console.log(root);
+  console.log(user);
 
   return (
     <div>

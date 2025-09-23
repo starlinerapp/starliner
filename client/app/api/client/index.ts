@@ -1,4 +1,8 @@
-import { Configuration, RootApiFactory } from "~/api/client/generated";
+import {
+  Configuration,
+  RootApiFactory,
+  UserApiFactory,
+} from "~/api/client/generated";
 import { serverEnv } from "~/env.server";
 import { axiosInstance } from "~/api/client/axios.server";
 
@@ -7,6 +11,12 @@ const configuration = new Configuration({
 });
 
 export const rootApiFactory = RootApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const userApiFactory = UserApiFactory(
   configuration,
   undefined,
   axiosInstance,

@@ -1,5 +1,5 @@
 {
-  "name": "layerseven",
+  "name": "Starliner",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons",
-    "openapi:generate": "openapi-generator-cli generate -i http://localhost:9090/swagger/doc.json -g typescript-axios -o app/api/client/generated"
+    "drizzle:generate": "npx drizzle-kit generate",
+    "drizzle:migrate": "npx drizzle-kit migrate",
+    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/docs/swagger.yaml' -g typescript-axios -o app/api/client/generated"
   },
   "dependencies": {
     "@radix-ui/react-popover": "^1.1.15",

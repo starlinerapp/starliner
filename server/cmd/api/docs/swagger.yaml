@@ -4,8 +4,17 @@ definitions:
       message:
         type: string
     type: object
+  handler.UserResponse:
+    properties:
+      better_auth_id:
+        type: string
+      user_id:
+        type: integer
+    type: object
 info:
   contact: {}
+  title: Starliner API
+  version: "1.0"
 paths:
   /:
     get:
@@ -18,4 +27,15 @@ paths:
       summary: Get Root
       tags:
       - root
+  /me:
+    get:
+      operationId: getUser
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+      summary: Get user
+      tags:
+      - user
 swagger: "2.0"

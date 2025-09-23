@@ -5,10 +5,10 @@ WORKDIR /app
 RUN go install github.com/air-verse/air@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
-COPY go.mod go.sum ./
+COPY ../../server/go.mod ../../server/go.sum ./
 RUN go mod download
 
-COPY . .
+COPY ../../server .
 
 ENTRYPOINT ["air", \
   "--build.cmd=go build -gcflags='all=-N -l' -o ./build/server ./cmd/api/main.go", \
@@ -19,10 +19,10 @@ FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY ../../server/go.mod ../../server/go.sum ./
 RUN go mod download
 
-COPY . .
+COPY ../../server .
 ENV CGO_ENABLED=0
 RUN go build -o server ./cmd/api/main.go
 

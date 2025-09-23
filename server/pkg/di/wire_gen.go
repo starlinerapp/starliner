@@ -7,17 +7,37 @@
 package di
 
 import (
+	"database/sql"
 	"starliner.app/pkg/api"
 	"starliner.app/pkg/api/handler"
 	"starliner.app/pkg/api/middleware"
 	"starliner.app/pkg/config"
+	"starliner.app/pkg/db"
+	"starliner.app/pkg/db/sqlc"
+	"starliner.app/pkg/repository"
+	"starliner.app/pkg/service"
 )
 
 // Injectors from wire.go:
 
-func InitializeAPI(cfg config.Config) (*http.Server, error) {
-	rootHandler := handler.NewRootHandler()
+func InitializeAPI(cfg *config.Config) (*http.Server, error) {
 	basicAuthMiddleware := middleware.NewBasicAuthMiddleware(cfg)
-	server := http.NewServer(rootHandler, basicAuthMiddleware)
+	sqlDB, err := db.Connect(cfg)
+	if err != nil {
+		return nil, err
+	}
+	queries := ProvideQueries(sqlDB)
+	userRepository := repository.NewUserRepository(queries)
+	userService := service.NewUserService(userRepository)
+	userMiddleware := middleware.NewUserMiddleware(userService)
+	rootHandler := handler.NewRootHandler()
+	userHandler := handler.NewUserHandler()
+	server := http.NewServer(basicAuthMiddleware, userMiddleware, rootHandler, userHandler)
 	return server, nil
+}
+
+// wire.go:
+
+func ProvideQueries(db2 *sql.DB) *sqlc.Queries {
+	return sqlc.New(db2)
 }

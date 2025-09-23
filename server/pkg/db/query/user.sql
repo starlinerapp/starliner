@@ -1,6 +1,12 @@
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    better_auth_id BIGSERIAL NOT NULL
-);
+-- name: CreateUser :one
+INSERT INTO "users" (
+    better_auth_id
+) VALUES (
+    $1
+)
+RETURNING *;
 
-CREATE INDEX ON users (better_auth_id)
+-- name: GetUserByBetterAuthId :one
+SELECT *
+FROM "users"
+WHERE better_auth_id = $1;
