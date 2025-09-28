@@ -4,7 +4,30 @@
 
 package sqlc
 
+import (
+	"time"
+)
+
+type Organization struct {
+	ID        int64
+	Name      string
+	Slug      string
+	OwnerID   int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Project struct {
+	ID             int64
+	Name           string
+	OrganizationID int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type User struct {
 	ID           int64
 	BetterAuthID string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

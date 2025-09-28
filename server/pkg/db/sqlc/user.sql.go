@@ -15,18 +15,23 @@ INSERT INTO "users" (
 ) VALUES (
     $1
 )
-RETURNING id, better_auth_id
+RETURNING id, better_auth_id, created_at, updated_at
 `
 
 func (q *Queries) CreateUser(ctx context.Context, betterAuthID string) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser, betterAuthID)
 	var i User
-	err := row.Scan(&i.ID, &i.BetterAuthID)
+	err := row.Scan(
+		&i.ID,
+		&i.BetterAuthID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
 const getUserByBetterAuthId = `-- name: GetUserByBetterAuthId :one
-SELECT id, better_auth_id
+SELECT id, better_auth_id, created_at, updated_at
 FROM "users"
 WHERE better_auth_id = $1
 `
@@ -34,6 +39,11 @@ WHERE better_auth_id = $1
 func (q *Queries) GetUserByBetterAuthId(ctx context.Context, betterAuthID string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByBetterAuthId, betterAuthID)
 	var i User
-	err := row.Scan(&i.ID, &i.BetterAuthID)
+	err := row.Scan(
+		&i.ID,
+		&i.BetterAuthID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }

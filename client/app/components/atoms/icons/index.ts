@@ -1,4 +1,5 @@
-export { default as ArrowRight } from "./ArrowRight";
-export { default as ChevronRight } from "./ChevronRight";
-export { default as Cog } from "./Cog";
-export { default as InboxStack } from "./InboxStack";
+export { default as ArrowRight } from './ArrowRight'
+export { default as ChevronRight } from './ChevronRight'
+export { default as Cog } from './Cog'
+export { default as InboxStack } from './InboxStack'
+export { default as Plus } from './Plus'

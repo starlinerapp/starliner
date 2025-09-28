@@ -3,26 +3,23 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"starliner.app/pkg/api/dto/response"
 )
 
 type RootHandler struct{}
-
-type RootResponse struct {
-	Message string `json:"message"`
-}
 
 func NewRootHandler() *RootHandler {
 	return &RootHandler{}
 }
 
 // GetRoot FindAll godoc
-// @Summary Get Root
+// @Summary Get root
 // @Tags root
-// @ID GetRoot
+// @ID getRoot
 // @Product JSON
-// @Success 200 {object} RootResponse
+// @Success 200 {object} response.Root
 // @Router / [get]
 func (rh *RootHandler) GetRoot(c *gin.Context) {
-	response := RootResponse{Message: "Hello World!"}
-	c.JSON(http.StatusOK, response)
+	res := response.Root{Message: "Hello World!"}
+	c.JSON(http.StatusOK, res)
 }

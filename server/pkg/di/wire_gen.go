@@ -32,7 +32,13 @@ func InitializeAPI(cfg *config.Config) (*http.Server, error) {
 	userMiddleware := middleware.NewUserMiddleware(userService)
 	rootHandler := handler.NewRootHandler()
 	userHandler := handler.NewUserHandler()
-	server := http.NewServer(basicAuthMiddleware, userMiddleware, rootHandler, userHandler)
+	organizationRepository := repository.NewOrganizationRepository(queries)
+	organizationService := service.NewOrganizationService(organizationRepository)
+	organizationHandler := handler.NewOrganizationHandler(organizationService)
+	projectRepository := repository.NewProjectRepository(queries)
+	projectService := service.NewProjectService(projectRepository, organizationRepository)
+	projectHandler := handler.NewProjectHandler(projectService)
+	server := http.NewServer(basicAuthMiddleware, userMiddleware, rootHandler, userHandler, organizationHandler, projectHandler)
 	return server, nil
 }
 

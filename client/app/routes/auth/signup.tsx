@@ -82,7 +82,7 @@ export default function SignUp() {
             {...register("username")}
           />
         </span>
-        <Button type="submit">
+        <Button className="mt-2" type="submit" size="md">
           Create account <ChevronRight className="w-4 stroke-3" />
         </Button>
         <p className="text-mauve-11 mt-1 text-xs">

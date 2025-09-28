@@ -1,5 +1,7 @@
 import {
   Configuration,
+  OrganizationApiFactory,
+  ProjectApiFactory,
   RootApiFactory,
   UserApiFactory,
 } from "~/api/client/generated";
@@ -17,6 +19,18 @@ export const rootApiFactory = RootApiFactory(
 );
 
 export const userApiFactory = UserApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const organizationApiFactory = OrganizationApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const projectApiFactory = ProjectApiFactory(
   configuration,
   undefined,
   axiosInstance,

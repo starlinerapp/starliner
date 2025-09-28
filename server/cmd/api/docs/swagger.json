@@ -11,13 +11,13 @@
                 "tags": [
                     "root"
                 ],
-                "summary": "Get Root",
-                "operationId": "GetRoot",
+                "summary": "Get root",
+                "operationId": "getRoot",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.RootResponse"
+                            "$ref": "#/definitions/response.Root"
                         }
                     }
                 }
@@ -28,30 +28,198 @@
                 "tags": [
                     "user"
                 ],
-                "summary": "Get user",
+                "summary": "Get current user",
                 "operationId": "getUser",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.UserResponse"
+                            "$ref": "#/definitions/response.User"
                         }
+                    }
+                }
+            }
+        },
+        "/organizations": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get user organizations",
+                "operationId": "getUserOrganizations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Organization"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Create organization",
+                "operationId": "createOrganization",
+                "parameters": [
+                    {
+                        "description": "Create Organization",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrganization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/projects": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get Organization Projects",
+                "operationId": "getOrganizationProjects",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Project"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects": {
+            "post": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Create Project",
+                "operationId": "createProject",
+                "parameters": [
+                    {
+                        "description": "Create Project",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
         }
     },
     "definitions": {
-        "handler.RootResponse": {
+        "request.CreateOrganization": {
             "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateProject": {
+            "type": "object",
+            "required": [
+                "name",
+                "organization_id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.Organization": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "owner_id",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Project": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Root": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
             "properties": {
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "handler.UserResponse": {
+        "response.User": {
             "type": "object",
+            "required": [
+                "better_auth_id",
+                "user_id"
+            ],
             "properties": {
                 "better_auth_id": {
                     "type": "string"

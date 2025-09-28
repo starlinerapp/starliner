@@ -39,11 +39,5 @@ wire: ## Generate wire_gen.go
 swag: ## Generate swagger docs
 	swag init -g ./cmd/api/main.go -o ./cmd/api/docs
 
-db-migrate-up: ## Apply all available database migrations
-	goose up
-
-db-migrate-down: ## Rollback a single database migration
-	goose down
-
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

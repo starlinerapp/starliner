@@ -24,13 +24,24 @@ func InitializeAPI(cfg *config.Config) (*http.Server, error) {
 	wire.Build(
 		db.Connect,
 		ProvideQueries,
+
 		repository.NewUserRepository,
+		repository.NewOrganizationRepository,
+		repository.NewProjectRepository,
+
 		service.NewUserService,
+		service.NewOrganizationService,
+		service.NewProjectService,
+
 		middleware.NewBasicAuthMiddleware,
 		middleware.NewUserMiddleware,
-		http.NewServer,
+
 		handler.NewRootHandler,
 		handler.NewUserHandler,
+		handler.NewOrganizationHandler,
+		handler.NewProjectHandler,
+
+		http.NewServer,
 	)
 
 	return &http.Server{}, nil

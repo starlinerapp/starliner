@@ -4,16 +4,29 @@ import React from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { authClient } from "~/utils/auth/client";
+import { useMutation } from "@tanstack/react-query";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface NewOrganizationFormInput {
   name: string;
 }
 
 export default function NewOrganization() {
+  const trpc = useTRPC();
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<NewOrganizationFormInput>();
+  const createOrganizationMutation = useMutation(
+    trpc.organization.createOrganization.mutationOptions(),
+  );
 
-  const onSubmit: SubmitHandler<NewOrganizationFormInput> = async (data) => {};
+  const onSubmit: SubmitHandler<NewOrganizationFormInput> = async (data) => {
+    createOrganizationMutation.mutate(
+      { name: data.name },
+      {
+        onSuccess: () => navigate("/"),
+      },
+    );
+  };
 
   async function handleSignOutClicked() {
     await authClient.signOut();
@@ -46,7 +59,7 @@ export default function NewOrganization() {
             {...register("name")}
           />
         </span>
-        <Button type="submit">
+        <Button type="submit" className="mt-2" size="md">
           Create Organization <ChevronRight className="w-4 stroke-3" />
         </Button>
       </form>

@@ -69,7 +69,7 @@ export default function Login() {
             {...register("password")}
           />
         </span>
-        <Button type="submit">
+        <Button className="mt-2" size="md" type="submit">
           Sign in <ChevronRight className="w-4 stroke-3" />
         </Button>
       </form>

@@ -14,6 +14,7 @@ import { type PropsWithChildren, useState } from "react";
 import type { inferRouterInputs } from "@trpc/server";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import type { AppRouter } from "~/server/main";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function createQueryClient() {
   return new QueryClient({
@@ -37,7 +38,7 @@ function createQueryClient() {
 let browserQueryClient: QueryClient | undefined = undefined;
 
 export const getQueryClient = () => {
-  if (typeof window !== "undefined") {
+  if (typeof window === "undefined") {
     return createQueryClient();
   }
   browserQueryClient ??= createQueryClient();
@@ -78,6 +79,7 @@ export function TRPCReactProvider({
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
         {children}
       </TRPCProvider>
+      <ReactQueryDevtools />
     </QueryClientProvider>
   );
 }
