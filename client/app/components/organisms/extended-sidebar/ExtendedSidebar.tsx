@@ -41,13 +41,13 @@ export default function ExtendedSidebar({
         <hr className="border-gray-4 border-t" />
         {isLoading ? (
           <>
-            <div className="flex flex-col gap-0.5 p-2">
-              <Skeleton className="h-7 w-32" />
+            <div className="p-4">
+              <Skeleton className="h-5 w-36" />
             </div>
-            <div className="flex flex-col gap-0.5 p-2">
-              <Skeleton className="h-7 w-48" />
-              <Skeleton className="h-7 w-36" />
-              <Skeleton className="h-7 w-52" />
+            <div className="flex flex-col gap-3 p-4">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-5 w-32" />
             </div>
           </>
         ) : (
