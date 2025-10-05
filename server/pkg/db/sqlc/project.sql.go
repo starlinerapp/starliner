@@ -42,16 +42,23 @@ const getOrganizationProjects = `-- name: GetOrganizationProjects :many
 SELECT
     projects.id as id,
     projects.name as name,
-    projects.organization_id as organization_id
+    projects.organization_id as organization_id,
+    environments.id as environment_id,
+    environments.name as environment_name,
+    environments.slug as environment_slug
 FROM projects
 INNER JOIN organizations ON projects.organization_id = organizations.id
+INNER JOIN environments ON projects.id = environments.project_id
 WHERE projects.organization_id = $1
 `
 
 type GetOrganizationProjectsRow struct {
-	ID             int64
-	Name           string
-	OrganizationID int64
+	ID              int64
+	Name            string
+	OrganizationID  int64
+	EnvironmentID   int64
+	EnvironmentName string
+	EnvironmentSlug string
 }
 
 func (q *Queries) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]GetOrganizationProjectsRow, error) {
@@ -63,7 +70,73 @@ func (q *Queries) GetOrganizationProjects(ctx context.Context, organizationID in
 	var items []GetOrganizationProjectsRow
 	for rows.Next() {
 		var i GetOrganizationProjectsRow
-		if err := rows.Scan(&i.ID, &i.Name, &i.OrganizationID); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.OrganizationID,
+			&i.EnvironmentID,
+			&i.EnvironmentName,
+			&i.EnvironmentSlug,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProject = `-- name: GetProject :many
+SELECT
+    projects.id as id,
+    projects.name as name,
+    projects.organization_id as organization_id,
+    environments.id as environment_id,
+    environments.name as environment_name,
+    environments.slug as environment_slug
+FROM projects
+INNER JOIN organizations ON projects.organization_id = organizations.id
+INNER JOIN environments ON projects.id = environments.project_id
+WHERE projects.id = $1
+AND organizations.owner_id = $2
+`
+
+type GetProjectParams struct {
+	ID      int64
+	OwnerID int64
+}
+
+type GetProjectRow struct {
+	ID              int64
+	Name            string
+	OrganizationID  int64
+	EnvironmentID   int64
+	EnvironmentName string
+	EnvironmentSlug string
+}
+
+func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetProjectRow, error) {
+	rows, err := q.db.QueryContext(ctx, getProject, arg.ID, arg.OwnerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetProjectRow
+	for rows.Next() {
+		var i GetProjectRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.OrganizationID,
+			&i.EnvironmentID,
+			&i.EnvironmentName,
+			&i.EnvironmentSlug,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

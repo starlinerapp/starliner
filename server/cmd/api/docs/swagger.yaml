@@ -1,4 +1,17 @@
 definitions:
+  request.CreateEnvironment:
+    properties:
+      name:
+        type: string
+      organization_id:
+        type: integer
+      project_id:
+        type: integer
+    required:
+    - name
+    - organization_id
+    - project_id
+    type: object
   request.CreateOrganization:
     properties:
       name:
@@ -15,6 +28,26 @@ definitions:
     required:
     - name
     - organization_id
+    type: object
+  request.GetProject:
+    properties:
+      id:
+        type: integer
+    required:
+    - id
+    type: object
+  response.Environment:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      slug:
+        type: string
+    required:
+    - id
+    - name
+    - slug
     type: object
   response.Organization:
     properties:
@@ -34,11 +67,16 @@ definitions:
     type: object
   response.Project:
     properties:
+      environments:
+        items:
+          $ref: '#/definitions/response.Environment'
+        type: array
       id:
         type: integer
       name:
         type: string
     required:
+    - environments
     - id
     - name
     type: object
@@ -75,6 +113,22 @@ paths:
       summary: Get root
       tags:
       - root
+  /environments:
+    post:
+      operationId: createEnvironment
+      parameters:
+      - description: Create Environment
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateEnvironment'
+      responses:
+        "201":
+          description: Created
+      summary: Create Environment
+      tags:
+      - environment
   /me:
     get:
       operationId: getUser
@@ -109,8 +163,8 @@ paths:
         schema:
           $ref: '#/definitions/request.CreateOrganization'
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
       summary: Create organization
       tags:
       - organization
@@ -134,6 +188,23 @@ paths:
       tags:
       - organization
   /projects:
+    get:
+      operationId: getProject
+      parameters:
+      - description: Get Project
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.GetProject'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Project'
+      summary: Get Project
+      tags:
+      - project
     post:
       operationId: createProject
       parameters:

@@ -23,4 +23,21 @@ export const projectRouter = {
         )
         .then((res) => res.data);
     }),
+  getProject: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await projectApiFactory
+        .getProject(
+          {
+            id: input.id,
+          },
+          withAuthHeader(userId),
+        )
+        .then((res) => res.data);
+    }),
 };

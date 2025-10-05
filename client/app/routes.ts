@@ -17,17 +17,25 @@ export default [
         route("new", "routes/dashboard/projects/new.tsx"),
         ...prefix(":id", [
           index("routes/dashboard/projects/[id]/index.tsx"),
-          layout("routes/dashboard/projects/[id]/layout.tsx", [
-            route(
-              "architecture",
-              "routes/dashboard/projects/[id]/architecture.tsx",
-            ),
-            route(
-              "observability",
-              "routes/dashboard/projects/[id]/observability.tsx",
-            ),
-            route("logs", "routes/dashboard/projects/[id]/logs.tsx"),
-            route("settings", "routes/dashboard/projects/[id]/settings.tsx"),
+          ...prefix(":environment", [
+            layout("routes/dashboard/projects/[id]/[environment]/layout.tsx", [
+              route(
+                "architecture",
+                "routes/dashboard/projects/[id]/[environment]/architecture.tsx",
+              ),
+              route(
+                "observability",
+                "routes/dashboard/projects/[id]/[environment]/observability.tsx",
+              ),
+              route(
+                "logs",
+                "routes/dashboard/projects/[id]/[environment]/logs.tsx",
+              ),
+              route(
+                "settings",
+                "routes/dashboard/projects/[id]/[environment]/settings.tsx",
+              ),
+            ]),
           ]),
         ]),
       ]),

@@ -1,5 +1,6 @@
 import {
   Configuration,
+  EnvironmentApiFactory,
   OrganizationApiFactory,
   ProjectApiFactory,
   RootApiFactory,
@@ -31,6 +32,12 @@ export const organizationApiFactory = OrganizationApiFactory(
 );
 
 export const projectApiFactory = ProjectApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const environmentApiFactory = EnvironmentApiFactory(
   configuration,
   undefined,
   axiosInstance,

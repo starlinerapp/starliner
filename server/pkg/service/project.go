@@ -2,36 +2,45 @@ package service
 
 import (
 	"context"
-	"errors"
 	"starliner.app/pkg/domain"
 	"starliner.app/pkg/repository"
+	"strings"
 )
 
 type ProjectService struct {
+	organizationService    *OrganizationService
 	projectRepository      *repository.ProjectRepository
 	organizationRepository *repository.OrganizationRepository
+	environmentRepository  *repository.EnvironmentRepository
 }
 
-func NewProjectService(projectRepository *repository.ProjectRepository, organizationRepository *repository.OrganizationRepository) *ProjectService {
-	return &ProjectService{projectRepository: projectRepository, organizationRepository: organizationRepository}
+func NewProjectService(projectRepository *repository.ProjectRepository, organizationRepository *repository.OrganizationRepository, environmentRepository *repository.EnvironmentRepository) *ProjectService {
+	return &ProjectService{projectRepository: projectRepository, organizationRepository: organizationRepository, environmentRepository: environmentRepository}
 }
 
 func (ps *ProjectService) CreateProject(ctx context.Context, name string, organizationId int64, userId int64) (*domain.Project, error) {
-	organizations, err := ps.organizationRepository.GetUserOrganizations(ctx, userId)
+	err := ps.organizationService.ValidateUserOrganization(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	found := false
-	for _, org := range organizations {
-		if org.Id == organizationId {
-			found = true
-			break
-		}
-	}
-	if !found {
-		return nil, errors.New("organization not found")
+	project, err := ps.projectRepository.CreateProject(ctx, name, organizationId)
+	if err != nil {
+		return nil, err
 	}
 
-	return ps.projectRepository.CreateProject(ctx, name, organizationId)
+	productionEnvName := "Production"
+	environment, err := ps.environmentRepository.CreateEnvironment(ctx, productionEnvName, strings.ToLower(productionEnvName), project.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	environments := []domain.Environment{*environment}
+	project.Environments = environments
+
+	return project, nil
+}
+
+func (ps *ProjectService) GetProject(ctx context.Context, projectId int64, userId int64) (*domain.Project, error) {
+	return ps.projectRepository.GetProject(ctx, projectId, userId)
 }

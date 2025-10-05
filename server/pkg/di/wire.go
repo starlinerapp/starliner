@@ -25,13 +25,15 @@ func InitializeAPI(cfg *config.Config) (*http.Server, error) {
 		db.Connect,
 		ProvideQueries,
 
-		repository.NewUserRepository,
-		repository.NewOrganizationRepository,
-		repository.NewProjectRepository,
-
 		service.NewUserService,
 		service.NewOrganizationService,
 		service.NewProjectService,
+		service.NewEnvironmentService,
+
+		repository.NewUserRepository,
+		repository.NewOrganizationRepository,
+		repository.NewProjectRepository,
+		repository.NewEnvironmentRepository,
 
 		middleware.NewBasicAuthMiddleware,
 		middleware.NewUserMiddleware,
@@ -40,6 +42,7 @@ func InitializeAPI(cfg *config.Config) (*http.Server, error) {
 		handler.NewUserHandler,
 		handler.NewOrganizationHandler,
 		handler.NewProjectHandler,
+		handler.NewEnvironmentHandler,
 
 		http.NewServer,
 	)

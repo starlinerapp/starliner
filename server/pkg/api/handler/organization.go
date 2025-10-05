@@ -26,7 +26,7 @@ func NewOrganizationHandler(organizationService *service.OrganizationService) *O
 // @ID createOrganization
 // @Product JSON
 // @Param data body request.CreateOrganization true "Create Organization"
-// @Success 200
+// @Success 201
 // @Router /organizations [post]
 func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 	currentUser := c.MustGet("user").(*domain.User)
@@ -96,9 +96,19 @@ func (oh *OrganizationHandler) GetOrganizationProjects(c *gin.Context) {
 
 	res := make([]response.Project, len(projects))
 	for i, project := range projects {
+		environments := make([]response.Environment, len(project.Environments))
+		for j, env := range project.Environments {
+			environments[j] = response.Environment{
+				Id:   env.Id,
+				Name: env.Name,
+				Slug: env.Slug,
+			}
+		}
+
 		res[i] = response.Project{
-			Id:   project.Id,
-			Name: project.Name,
+			Id:           project.Id,
+			Name:         project.Name,
+			Environments: environments,
 		}
 	}
 	c.JSON(http.StatusOK, res)

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"starliner.app/pkg/db/sqlc"
 	"starliner.app/pkg/domain"
 )
@@ -28,4 +29,35 @@ func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, org
 		Name:           project.Name,
 		OrganizationId: project.OrganizationID,
 	}, nil
+}
+
+func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, userId int64) (*domain.Project, error) {
+	rows, err := pr.queries.GetProject(ctx, sqlc.GetProjectParams{
+		ID:      projectId,
+		OwnerID: userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rows) == 0 {
+		return nil, fmt.Errorf("project not found")
+	}
+
+	project := &domain.Project{
+		Id:             rows[0].ID,
+		Name:           rows[0].Name,
+		OrganizationId: rows[0].OrganizationID,
+		Environments:   make([]domain.Environment, 0, len(rows)),
+	}
+
+	for _, row := range rows {
+		project.Environments = append(project.Environments, domain.Environment{
+			Id:   row.EnvironmentID,
+			Slug: row.EnvironmentSlug,
+			Name: row.EnvironmentName,
+		})
+	}
+
+	return project, nil
 }

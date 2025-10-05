@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+type Environment struct {
+	ID        int64
+	Name      string
+	Slug      string
+	ProjectID int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type Organization struct {
 	ID        int64
 	Name      string

@@ -32,6 +32,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments": {
+            "post": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Create Environment",
+                "operationId": "createEnvironment",
+                "parameters": [
+                    {
+                        "description": "Create Environment",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateEnvironment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "tags": [
@@ -86,8 +111,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK"
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
@@ -122,6 +147,32 @@ const docTemplate = `{
             }
         },
         "/projects": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project",
+                "operationId": "getProject",
+                "parameters": [
+                    {
+                        "description": "Get Project",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GetProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Project"
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "project"
@@ -148,6 +199,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "request.CreateEnvironment": {
+            "type": "object",
+            "required": [
+                "name",
+                "organization_id",
+                "project_id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "project_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.CreateOrganization": {
             "type": "object",
             "required": [
@@ -171,6 +241,36 @@ const docTemplate = `{
                 },
                 "organization_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.GetProject": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.Environment": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
                 }
             }
         },
@@ -200,10 +300,17 @@ const docTemplate = `{
         "response.Project": {
             "type": "object",
             "required": [
+                "environments",
                 "id",
                 "name"
             ],
             "properties": {
+                "environments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Environment"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
