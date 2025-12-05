@@ -37,7 +37,7 @@ func InitializeAPI(cfg *config.Config) (*http.Server, error) {
 	organizationHandler := handler.NewOrganizationHandler(organizationService)
 	projectRepository := repository.NewProjectRepository(queries)
 	environmentRepository := repository.NewEnvironmentRepository(queries)
-	projectService := service.NewProjectService(projectRepository, organizationRepository, environmentRepository)
+	projectService := service.NewProjectService(organizationService, projectRepository, organizationRepository, environmentRepository)
 	projectHandler := handler.NewProjectHandler(projectService)
 	environmentService := service.NewEnvironmentService(environmentRepository, organizationService)
 	environmentHandler := handler.NewEnvironmentHandler(environmentService)

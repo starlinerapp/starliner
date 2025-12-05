@@ -3,7 +3,7 @@ CREATE TABLE environments (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
-    project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,
+    project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()
 );

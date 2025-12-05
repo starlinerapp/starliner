@@ -1,27 +1,29 @@
-import { cn } from "~/utils/cn";
+import React, { useState, useEffect, useRef } from "react";
+import { NavLink, useLocation } from "react-router";
 import { motion } from "framer-motion";
-import React, { useEffect, useRef, useState } from "react";
+import { cn } from "~/utils/cn";
 
-interface NavigationBarProps<T extends string> {
-  items: readonly T[];
-  onSelect: (item: T) => void;
-  selected: T;
+type NavigationBarItem = {
+  title: string;
+  href: string;
+};
+
+interface NavigationBarProps {
+  items: NavigationBarItem[];
 }
 
-export default function NavigationBar<T extends string>({
-  items,
-  onSelect,
-  selected,
-}: NavigationBarProps<T>) {
+export default function LinkNavigationBar({ items }: NavigationBarProps) {
+  const location = useLocation();
+
   const [activeRect, setActiveRect] = useState({ left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const activeLink = Array.from(
-      containerRef.current.querySelectorAll<HTMLSpanElement>("span"),
-    ).find((span) => span.textContent === selected);
+    const activeLink = containerRef.current.querySelector<HTMLAnchorElement>(
+      `a[href="${location.pathname}"] span`,
+    );
 
     if (activeLink) {
       const rect = activeLink.getBoundingClientRect();
@@ -31,7 +33,7 @@ export default function NavigationBar<T extends string>({
         width: rect.width,
       });
     }
-  }, [selected]);
+  }, [location.pathname]);
 
   return (
     <div className="bg-violet-1">
@@ -39,21 +41,23 @@ export default function NavigationBar<T extends string>({
         ref={containerRef}
         className="border-mauve-6 text-mauve-11 relative flex w-full gap-4 border-b px-2 pt-2 pb-1 text-sm"
       >
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="relative z-10 cursor-pointer px-2 py-1.5"
-            onClick={() => onSelect(item)}
+        {items.map((link) => (
+          <NavLink
+            key={link.href}
+            to={link.href}
+            className="relative z-10 px-2 py-1.5"
           >
-            <span
-              className={cn(
-                "pb-2",
-                selected === item && "text-violet-11 font-semibold",
-              )}
-            >
-              {item}
-            </span>
-          </div>
+            {({ isActive }) => (
+              <span
+                className={cn(
+                  "pb-2",
+                  isActive && "text-violet-11 font-semibold",
+                )}
+              >
+                {link.title}
+              </span>
+            )}
+          </NavLink>
         ))}
 
         <motion.div

@@ -8,6 +8,7 @@ export async function createTRPCContext(opts: { headers: Headers }) {
     headers: opts.headers,
   });
   return {
+    session: authSession?.session,
     user: authSession?.user,
   };
 }

@@ -1,4 +1,4 @@
-import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
+import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { Outlet, useNavigate, useParams } from "react-router";
 import React, { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -97,7 +97,7 @@ export default function ProjectLayout() {
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="bg-violet-1 flex h-full flex-col">
       {isLoading ? (
         <div className="px-4 pt-4">
           <Skeleton className="h-7 w-32" />
@@ -176,7 +176,7 @@ export default function ProjectLayout() {
           </Dialog>
         </div>
       )}
-      <NavigationBar items={navigationBarItems} />
+      <LinkNavigationBar items={navigationBarItems} />
       <Outlet />
     </div>
   );
