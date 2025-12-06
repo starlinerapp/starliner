@@ -1,19 +1,18 @@
 # DtoRootResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**message** | **string** |  | [optional] [default to undefined]
+| Name        | Type       | Description | Notes                             |
+| ----------- | ---------- | ----------- | --------------------------------- |
+| **message** | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { DtoRootResponse } from './api';
+import { DtoRootResponse } from "./api";
 
 const instance: DtoRootResponse = {
-    message,
+  message,
 };
 ```
 

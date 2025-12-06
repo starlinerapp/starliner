@@ -1,40 +1,37 @@
 # CreateEnvironmentApi
 
-All URIs are relative to *http://localhost*
+All URIs are relative to _http://localhost_
 
-|Method | HTTP request | Description|
-|------------- | ------------- | -------------|
-|[**createEnvironment**](#createenvironment) | **POST** /environments | Create Environment|
+| Method                                      | HTTP request           | Description        |
+| ------------------------------------------- | ---------------------- | ------------------ |
+| [**createEnvironment**](#createenvironment) | **POST** /environments | Create Environment |
 
 # **createEnvironment**
-> createEnvironment(data)
 
+> createEnvironment(data)
 
 ### Example
 
 ```typescript
 import {
-    CreateEnvironmentApi,
-    Configuration,
-    RequestCreateEnvironment
-} from './api';
+  CreateEnvironmentApi,
+  Configuration,
+  RequestCreateEnvironment,
+} from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new CreateEnvironmentApi(configuration);
 
 let data: RequestCreateEnvironment; //Create Environment
 
-const { status, data } = await apiInstance.createEnvironment(
-    data
-);
+const { status, data } = await apiInstance.createEnvironment(data);
 ```
 
 ### Parameters
 
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **data** | **RequestCreateEnvironment**| Create Environment | |
-
+| Name     | Type                         | Description        | Notes |
+| -------- | ---------------------------- | ------------------ | ----- |
+| **data** | **RequestCreateEnvironment** | Create Environment |       |
 
 ### Return type
 
@@ -46,14 +43,13 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: Not defined
-
+- **Content-Type**: Not defined
+- **Accept**: Not defined
 
 ### HTTP response details
+
 | Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | OK |  -  |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-

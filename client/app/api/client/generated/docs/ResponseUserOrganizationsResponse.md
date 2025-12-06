@@ -1,19 +1,18 @@
 # ResponseUserOrganizationsResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**organizations** | [**Array&lt;ResponseOrganizationResponse&gt;**](ResponseOrganizationResponse.md) |  | [optional] [default to undefined]
+| Name              | Type                                                                             | Description | Notes                             |
+| ----------------- | -------------------------------------------------------------------------------- | ----------- | --------------------------------- |
+| **organizations** | [**Array&lt;ResponseOrganizationResponse&gt;**](ResponseOrganizationResponse.md) |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { ResponseUserOrganizationsResponse } from './api';
+import { ResponseUserOrganizationsResponse } from "./api";
 
 const instance: ResponseUserOrganizationsResponse = {
-    organizations,
+  organizations,
 };
 ```
 

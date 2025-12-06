@@ -1,19 +1,18 @@
 # RequestGetProject
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**id** | **number** |  | [default to undefined]
+| Name   | Type       | Description | Notes                  |
+| ------ | ---------- | ----------- | ---------------------- |
+| **id** | **number** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { RequestGetProject } from './api';
+import { RequestGetProject } from "./api";
 
 const instance: RequestGetProject = {
-    id,
+  id,
 };
 ```
 

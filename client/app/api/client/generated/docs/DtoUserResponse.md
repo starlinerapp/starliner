@@ -1,21 +1,20 @@
 # DtoUserResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**better_auth_id** | **string** |  | [optional] [default to undefined]
-**user_id** | **number** |  | [optional] [default to undefined]
+| Name               | Type       | Description | Notes                             |
+| ------------------ | ---------- | ----------- | --------------------------------- |
+| **better_auth_id** | **string** |             | [optional] [default to undefined] |
+| **user_id**        | **number** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { DtoUserResponse } from './api';
+import { DtoUserResponse } from "./api";
 
 const instance: DtoUserResponse = {
-    better_auth_id,
-    user_id,
+  better_auth_id,
+  user_id,
 };
 ```
 

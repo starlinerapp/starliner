@@ -1,25 +1,24 @@
 # ResponseOrganizationResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**id** | **number** |  | [optional] [default to undefined]
-**name** | **string** |  | [optional] [default to undefined]
-**owner_id** | **number** |  | [optional] [default to undefined]
-**slug** | **string** |  | [optional] [default to undefined]
+| Name         | Type       | Description | Notes                             |
+| ------------ | ---------- | ----------- | --------------------------------- |
+| **id**       | **number** |             | [optional] [default to undefined] |
+| **name**     | **string** |             | [optional] [default to undefined] |
+| **owner_id** | **number** |             | [optional] [default to undefined] |
+| **slug**     | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { ResponseOrganizationResponse } from './api';
+import { ResponseOrganizationResponse } from "./api";
 
 const instance: ResponseOrganizationResponse = {
-    id,
-    name,
-    owner_id,
-    slug,
+  id,
+  name,
+  owner_id,
+  slug,
 };
 ```
 

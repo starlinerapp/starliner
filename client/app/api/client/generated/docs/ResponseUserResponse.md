@@ -1,21 +1,20 @@
 # ResponseUserResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**better_auth_id** | **string** |  | [optional] [default to undefined]
-**user_id** | **number** |  | [optional] [default to undefined]
+| Name               | Type       | Description | Notes                             |
+| ------------------ | ---------- | ----------- | --------------------------------- |
+| **better_auth_id** | **string** |             | [optional] [default to undefined] |
+| **user_id**        | **number** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { ResponseUserResponse } from './api';
+import { ResponseUserResponse } from "./api";
 
 const instance: ResponseUserResponse = {
-    better_auth_id,
-    user_id,
+  better_auth_id,
+  user_id,
 };
 ```
 

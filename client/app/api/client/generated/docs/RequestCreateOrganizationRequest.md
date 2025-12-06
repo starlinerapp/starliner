@@ -1,19 +1,18 @@
 # RequestCreateOrganizationRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**name** | **string** |  | [optional] [default to undefined]
+| Name     | Type       | Description | Notes                             |
+| -------- | ---------- | ----------- | --------------------------------- |
+| **name** | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { RequestCreateOrganizationRequest } from './api';
+import { RequestCreateOrganizationRequest } from "./api";
 
 const instance: RequestCreateOrganizationRequest = {
-    name,
+  name,
 };
 ```
 

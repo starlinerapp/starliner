@@ -1,19 +1,18 @@
 # DtoCreateOrganizationRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**name** | **string** |  | [optional] [default to undefined]
+| Name     | Type       | Description | Notes                             |
+| -------- | ---------- | ----------- | --------------------------------- |
+| **name** | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { DtoCreateOrganizationRequest } from './api';
+import { DtoCreateOrganizationRequest } from "./api";
 
 const instance: DtoCreateOrganizationRequest = {
-    name,
+  name,
 };
 ```
 

@@ -1,19 +1,18 @@
 # HandlerRootResponse
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**message** | **string** |  | [optional] [default to undefined]
+| Name        | Type       | Description | Notes                             |
+| ----------- | ---------- | ----------- | --------------------------------- |
+| **message** | **string** |             | [optional] [default to undefined] |
 
 ## Example
 
 ```typescript
-import { HandlerRootResponse } from './api';
+import { HandlerRootResponse } from "./api";
 
 const instance: HandlerRootResponse = {
-    message,
+  message,
 };
 ```
 
