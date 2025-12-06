@@ -18,6 +18,6 @@ jobs:
 
       - name: Run linter
         uses: golangci/golangci-lint-action@v9
-        working-directory: server
         with:
           version: v2.6
+          working-directory: server
