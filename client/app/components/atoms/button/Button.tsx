@@ -1,0 +1,68 @@
+import React, {
+  type ButtonHTMLAttributes,
+  type PropsWithChildren,
+} from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "~/utils/cn";
+
+type ButtonProps = PropsWithChildren<ButtonHTMLAttributes<HTMLButtonElement>>;
+
+const buttonVariants = cva(
+  [
+    "flex",
+    "w-full",
+    "cursor-pointer",
+    "items-center",
+    "justify-center",
+    "gap-2",
+    "rounded-md",
+    "text-center",
+    "text-sm",
+    "border-1",
+  ],
+  {
+    variants: {
+      size: { sm: "p-2", md: "px-4 py-3" },
+      intent: {
+        primary: "bg-violet-10 hover:bg-violet-9 text-white",
+      },
+      disabled: {
+        false: null,
+        true: [
+          "text-mauve-11",
+          "bg-white",
+          "hover:bg-white",
+          "border-mauve-6",
+          "cursor-not-allowed",
+        ],
+      },
+    },
+    defaultVariants: {
+      size: "sm",
+      intent: "primary",
+      disabled: false,
+    },
+  },
+);
+
+export interface ButtonVariants
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "disabled">,
+    VariantProps<typeof buttonVariants> {}
+
+export default function Button({
+  children,
+  className,
+  size,
+  intent,
+  disabled,
+  ...props
+}: ButtonProps & ButtonVariants) {
+  return (
+    <button
+      className={cn(buttonVariants({ intent, size, disabled }), className)}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}

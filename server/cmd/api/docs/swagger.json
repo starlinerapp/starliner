@@ -1,0 +1,340 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Starliner API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "tags": [
+                    "root"
+                ],
+                "summary": "Get root",
+                "operationId": "getRoot",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Root"
+                        }
+                    }
+                }
+            }
+        },
+        "/environments": {
+            "post": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Create Environment",
+                "operationId": "createEnvironment",
+                "parameters": [
+                    {
+                        "description": "Create Environment",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateEnvironment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get current user",
+                "operationId": "getUser",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get user organizations",
+                "operationId": "getUserOrganizations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Organization"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Create organization",
+                "operationId": "createOrganization",
+                "parameters": [
+                    {
+                        "description": "Create Organization",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrganization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/projects": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get Organization Projects",
+                "operationId": "getOrganizationProjects",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Project"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project",
+                "operationId": "getProject",
+                "parameters": [
+                    {
+                        "description": "Get Project",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GetProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Project"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Create Project",
+                "operationId": "createProject",
+                "parameters": [
+                    {
+                        "description": "Create Project",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "request.CreateEnvironment": {
+            "type": "object",
+            "required": [
+                "name",
+                "organization_id",
+                "project_id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "project_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateOrganization": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateProject": {
+            "type": "object",
+            "required": [
+                "name",
+                "organization_id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.GetProject": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.Environment": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Organization": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "owner_id",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Project": {
+            "type": "object",
+            "required": [
+                "environments",
+                "id",
+                "name"
+            ],
+            "properties": {
+                "environments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Environment"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Root": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "required": [
+                "better_auth_id",
+                "user_id"
+            ],
+            "properties": {
+                "better_auth_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

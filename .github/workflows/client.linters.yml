@@ -1,0 +1,34 @@
+name: Client Linters
+
+on :
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  client-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.11.1'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: client
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: client
+
+      - name: Run format check
+        run: npx prettier --check "app/**/*.{ts,tsx}"
+        working-directory: client
+
+      - name: Run type check
+        run: npm run typecheck
+        working-directory: client

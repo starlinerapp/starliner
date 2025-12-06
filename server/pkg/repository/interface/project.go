@@ -1,0 +1,10 @@
+package interfaces
+
+import (
+	"context"
+	"starliner.app/pkg/domain"
+)
+
+type ProjectRepository interface {
+	CreateProject(ctx context.Context, name string, organizationId int64) (*domain.Project, error)
+}

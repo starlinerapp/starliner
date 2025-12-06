@@ -1,0 +1,23 @@
+name: Server Linters
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  server-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.24.3"
+
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.6
+          working-directory: server

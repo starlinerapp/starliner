@@ -1,0 +1,223 @@
+definitions:
+  request.CreateEnvironment:
+    properties:
+      name:
+        type: string
+      organization_id:
+        type: integer
+      project_id:
+        type: integer
+    required:
+    - name
+    - organization_id
+    - project_id
+    type: object
+  request.CreateOrganization:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  request.CreateProject:
+    properties:
+      name:
+        type: string
+      organization_id:
+        type: integer
+    required:
+    - name
+    - organization_id
+    type: object
+  request.GetProject:
+    properties:
+      id:
+        type: integer
+    required:
+    - id
+    type: object
+  response.Environment:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      slug:
+        type: string
+    required:
+    - id
+    - name
+    - slug
+    type: object
+  response.Organization:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      owner_id:
+        type: integer
+      slug:
+        type: string
+    required:
+    - id
+    - name
+    - owner_id
+    - slug
+    type: object
+  response.Project:
+    properties:
+      environments:
+        items:
+          $ref: '#/definitions/response.Environment'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - environments
+    - id
+    - name
+    type: object
+  response.Root:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  response.User:
+    properties:
+      better_auth_id:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - better_auth_id
+    - user_id
+    type: object
+info:
+  contact: {}
+  title: Starliner API
+  version: "1.0"
+paths:
+  /:
+    get:
+      operationId: getRoot
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Root'
+      summary: Get root
+      tags:
+      - root
+  /environments:
+    post:
+      operationId: createEnvironment
+      parameters:
+      - description: Create Environment
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateEnvironment'
+      responses:
+        "201":
+          description: Created
+      summary: Create Environment
+      tags:
+      - environment
+  /me:
+    get:
+      operationId: getUser
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.User'
+      summary: Get current user
+      tags:
+      - user
+  /organizations:
+    get:
+      operationId: getUserOrganizations
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Organization'
+            type: array
+      summary: Get user organizations
+      tags:
+      - organization
+    post:
+      operationId: createOrganization
+      parameters:
+      - description: Create Organization
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrganization'
+      responses:
+        "201":
+          description: Created
+      summary: Create organization
+      tags:
+      - organization
+  /organizations/{id}/projects:
+    get:
+      operationId: getOrganizationProjects
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Project'
+            type: array
+      summary: Get Organization Projects
+      tags:
+      - organization
+  /projects:
+    get:
+      operationId: getProject
+      parameters:
+      - description: Get Project
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.GetProject'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Project'
+      summary: Get Project
+      tags:
+      - project
+    post:
+      operationId: createProject
+      parameters:
+      - description: Create Project
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateProject'
+      responses:
+        "200":
+          description: OK
+      summary: Create Project
+      tags:
+      - project
+swagger: "2.0"
