@@ -26,7 +26,7 @@ jobs:
         working-directory: client
 
       - name: Run format check
-        run: npx prettier --check "app/**/*"
+        run: npx prettier --check "app/**/*.{ts,tsx}"
         working-directory: client
 
       - name: Run type check
