@@ -13,4 +13,5 @@ export const auth = betterAuth({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Session = typeof auth.$Infer.Session;
