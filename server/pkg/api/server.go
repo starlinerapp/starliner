@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"log"
 	_ "starliner.app/cmd/api/docs"
 	"starliner.app/pkg/api/handler"
 	"starliner.app/pkg/api/middleware"
@@ -53,5 +54,8 @@ func NewServer(
 }
 
 func (s *Server) Start() {
-	s.engine.Run(":9090")
+	err := s.engine.Run(":9090")
+	if err != nil {
+		log.Fatalln("Failed to start server")
+	}
 }

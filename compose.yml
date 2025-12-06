@@ -9,8 +9,8 @@ services:
       interval: 5s
     volumes:
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./.docker/nginx/cert.crt:/etc/nginx/cert.crt:ro
-      - ./.docker/nginx/private.key:/etc/nginx/private.key:ro
+      - ./.docker/nginx/ssl/dev.starliner.app.crt:/etc/nginx/dev.starliner.app.crt:ro
+      - ./.docker/nginx/ssl/dev.starliner.app.key:/etc/nginx/dev.starliner.app.key:ro
     depends_on:
       - client
     ports:
