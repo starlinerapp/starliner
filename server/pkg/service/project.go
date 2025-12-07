@@ -3,18 +3,18 @@ package service
 import (
 	"context"
 	"starliner.app/pkg/domain"
-	"starliner.app/pkg/repository"
+	interfaces "starliner.app/pkg/repository/interface"
 	"strings"
 )
 
 type ProjectService struct {
 	organizationService    *OrganizationService
-	projectRepository      *repository.ProjectRepository
-	organizationRepository *repository.OrganizationRepository
-	environmentRepository  *repository.EnvironmentRepository
+	projectRepository      interfaces.ProjectRepository
+	organizationRepository interfaces.OrganizationRepository
+	environmentRepository  interfaces.EnvironmentRepository
 }
 
-func NewProjectService(organizationService *OrganizationService, projectRepository *repository.ProjectRepository, organizationRepository *repository.OrganizationRepository, environmentRepository *repository.EnvironmentRepository) *ProjectService {
+func NewProjectService(organizationService *OrganizationService, projectRepository interfaces.ProjectRepository, organizationRepository interfaces.OrganizationRepository, environmentRepository interfaces.EnvironmentRepository) *ProjectService {
 	return &ProjectService{organizationService: organizationService, projectRepository: projectRepository, organizationRepository: organizationRepository, environmentRepository: environmentRepository}
 }
 

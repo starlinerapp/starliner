@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"starliner.app/pkg/db/sqlc"
 	"starliner.app/pkg/domain"
+	interfaces "starliner.app/pkg/repository/interface"
 )
 
 type ProjectRepository struct {
 	queries *sqlc.Queries
 }
 
-func NewProjectRepository(queries *sqlc.Queries) *ProjectRepository {
+var _ interfaces.ProjectRepository = (*ProjectRepository)(nil)
+
+func NewProjectRepository(queries *sqlc.Queries) interfaces.ProjectRepository {
 	return &ProjectRepository{queries: queries}
 }
 

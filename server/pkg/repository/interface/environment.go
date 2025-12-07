@@ -6,5 +6,5 @@ import (
 )
 
 type EnvironmentRepository interface {
-	CreateEnvironment(ctx context.Context, name string, projectId int64) (*domain.Environment, error)
+	CreateEnvironment(ctx context.Context, name string, slug string, projectId int64) (*domain.Environment, error)
 }

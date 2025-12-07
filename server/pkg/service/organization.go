@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 	"starliner.app/pkg/domain"
-	"starliner.app/pkg/repository"
+	interfaces "starliner.app/pkg/repository/interface"
 	"strings"
 )
 
 type OrganizationService struct {
-	organizationRepository *repository.OrganizationRepository
+	organizationRepository interfaces.OrganizationRepository
 }
 
-func NewOrganizationService(organizationRepository *repository.OrganizationRepository) *OrganizationService {
+func NewOrganizationService(organizationRepository interfaces.OrganizationRepository) *OrganizationService {
 	return &OrganizationService{
 		organizationRepository: organizationRepository,
 	}

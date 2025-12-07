@@ -4,13 +4,16 @@ import (
 	"context"
 	"starliner.app/pkg/db/sqlc"
 	"starliner.app/pkg/domain"
+	interfaces "starliner.app/pkg/repository/interface"
 )
 
 type OrganizationRepository struct {
 	queries *sqlc.Queries
 }
 
-func NewOrganizationRepository(queries *sqlc.Queries) *OrganizationRepository {
+var _ interfaces.OrganizationRepository = (*OrganizationRepository)(nil)
+
+func NewOrganizationRepository(queries *sqlc.Queries) interfaces.OrganizationRepository {
 	return &OrganizationRepository{queries: queries}
 }
 

@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 	"starliner.app/pkg/domain"
-	"starliner.app/pkg/repository"
+	interfaces "starliner.app/pkg/repository/interface"
 )
 
 type UserService struct {
-	userRepository *repository.UserRepository
+	userRepository interfaces.UserRepository
 }
 
-func NewUserService(userRepository *repository.UserRepository) *UserService {
+func NewUserService(userRepository interfaces.UserRepository) *UserService {
 	return &UserService{userRepository: userRepository}
 }
 
