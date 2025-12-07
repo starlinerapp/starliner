@@ -1,10 +1,14 @@
-package http
+package api
 
 import (
+	"context"
+	"errors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/fx"
 	"log"
+	"net/http"
 	_ "starliner.app/cmd/api/docs"
 	"starliner.app/pkg/api/handler"
 	"starliner.app/pkg/api/middleware"
@@ -53,9 +57,25 @@ func NewServer(
 	return &Server{engine: engine}
 }
 
-func (s *Server) Start() {
-	err := s.engine.Run(":9090")
-	if err != nil {
-		log.Fatalln("Failed to start server")
+func RegisterServer(lc fx.Lifecycle, s *Server) {
+	server := &http.Server{
+		Addr:    ":9090",
+		Handler: s.engine,
 	}
+
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go func() {
+				if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+					log.Fatalf("failed to start server: %v", err)
+				}
+			}()
+			log.Printf("Server listening on port 9090")
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			log.Printf("Shutting down server...")
+			return server.Shutdown(ctx)
+		},
+	})
 }

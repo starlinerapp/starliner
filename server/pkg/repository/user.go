@@ -6,13 +6,16 @@ import (
 	"errors"
 	"starliner.app/pkg/db/sqlc"
 	"starliner.app/pkg/domain"
+	interfaces "starliner.app/pkg/repository/interface"
 )
 
 type UserRepository struct {
 	queries *sqlc.Queries
 }
 
-func NewUserRepository(queries *sqlc.Queries) *UserRepository {
+var _ interfaces.UserRepository = (*UserRepository)(nil)
+
+func NewUserRepository(queries *sqlc.Queries) interfaces.UserRepository {
 	return &UserRepository{queries: queries}
 }
 

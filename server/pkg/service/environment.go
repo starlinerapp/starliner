@@ -3,16 +3,16 @@ package service
 import (
 	"context"
 	"starliner.app/pkg/domain"
-	"starliner.app/pkg/repository"
+	interfaces "starliner.app/pkg/repository/interface"
 	"strings"
 )
 
 type EnvironmentService struct {
 	organizationService   *OrganizationService
-	environmentRepository *repository.EnvironmentRepository
+	environmentRepository interfaces.EnvironmentRepository
 }
 
-func NewEnvironmentService(environmentRepository *repository.EnvironmentRepository, organizationService *OrganizationService) *EnvironmentService {
+func NewEnvironmentService(environmentRepository interfaces.EnvironmentRepository, organizationService *OrganizationService) *EnvironmentService {
 	return &EnvironmentService{environmentRepository: environmentRepository, organizationService: organizationService}
 }
 
