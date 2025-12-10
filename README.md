@@ -8,7 +8,7 @@ The repository is organized into three primary components:
 You can run the project locally in a few steps using Docker Compose.
 
 ### SSL Certificates
-Generate a self-signed ssh certificate using the following command:
+Generate a self-signed ssh certificate using the following command and add it to your trust store.
 ```bash
 openssl req -x509 -newkey rsa:4096 -sha256 -days 365 \
   -nodes -keyout .docker/nginx/ssl/dev.starliner.app.key -out .docker/nginx/ssl/dev.starliner.app.crt \
