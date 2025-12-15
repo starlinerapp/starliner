@@ -17,7 +17,7 @@ services:
       - "80:80"
       - "443:443"
     networks:
-      - server
+      - internal
 
   client:
     restart: unless-stopped
@@ -39,7 +39,7 @@ services:
       - ./client:/app
       - node-modules-client:/app/node_modules
     networks:
-      - server
+      - internal
 
   server:
     restart: unless-stopped
@@ -49,6 +49,7 @@ services:
       target: dev
     depends_on:
       - db
+      - s3
     ports:
       - "9090:9090"
       - "40000:40000"
@@ -60,10 +61,12 @@ services:
       DB_NAME: main
       BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
     volumes:
       - ./server:/app
     networks:
-      - server
+      - internal
 
   db:
     restart: unless-stopped
@@ -84,7 +87,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
-      - server
+      - internal
 
   auth-db:
     restart: unless-stopped
@@ -105,7 +108,90 @@ services:
     volumes:
       - auth-db-data:/var/lib/postgresql/data
     networks:
-      - server
+      - internal
+
+  master:
+    build:
+      context: .docker/seaweedfs
+      dockerfile: Dockerfile
+    ports:
+      - "9333:9333"
+      - "19333:19333"
+    command: "-v=1 master -volumeSizeLimitMB 100 -resumeState=false -ip=master -ip.bind=0.0.0.0 -port=9333 -mdir=/var/lib/seaweedfs/master"
+    volumes:
+      - ./seaweedfs/data/master:/var/lib/seaweedfs/master
+    restart: unless-stopped
+    networks:
+      - internal
+
+  volume1:
+    build:
+      context: .docker/seaweedfs
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+      - "18080:18080"
+    command: 'volume -dataCenter=dc1 -rack=v1 -mserver="master:9333" -port=8081 -preStopSeconds=1 -dir=/var/lib/seaweedfs/volume1'
+    volumes:
+      - ./seaweedfs/data/volume1:/var/lib/seaweedfs/volume1
+    depends_on:
+      - master
+    restart: unless-stopped
+    networks:
+      - internal
+
+  volume2:
+    build:
+      context: .docker/seaweedfs
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+      - "18082:18082"
+    command: 'volume -dataCenter=dc2 -rack=v2 -mserver="master:9333" -port=8082 -preStopSeconds=1 -dir=/var/lib/seaweedfs/volume2'
+    volumes:
+      - ./seaweedfs/data/volume2:/var/lib/seaweedfs/volume2
+    depends_on:
+      - master
+    restart: unless-stopped
+    networks:
+      - internal
+
+  filer:
+    build:
+      context: .docker/seaweedfs
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+      - "18888:18888"
+    command: 'filer -defaultReplicaPlacement=100 -iam -master="master:9333"'
+    volumes:
+      - ./seaweedfs/data/filer:/data
+    depends_on:
+      - master
+      - volume1
+      - volume2
+    restart: unless-stopped
+    networks:
+      - internal
+
+  s3:
+    build:
+      context: .docker/seaweedfs
+      dockerfile: Dockerfile
+    ports:
+      - "8333:8333"
+    command: '-v=9 s3 -filer="filer:8888" -ip.bind=0.0.0.0'
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+    depends_on:
+      - master
+      - volume1
+      - volume2
+      - filer
+    restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
   node-modules-client:
@@ -113,4 +199,4 @@ volumes:
   db-data:
 
 networks:
-  server:
+  internal:

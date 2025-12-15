@@ -5,6 +5,7 @@ import (
 	"starliner.app/pkg/api/handler"
 	"starliner.app/pkg/api/middleware"
 	"starliner.app/pkg/db"
+	"starliner.app/pkg/objectstore"
 	"starliner.app/pkg/repository"
 	"starliner.app/pkg/service"
 )
@@ -12,6 +13,7 @@ import (
 var Module = fx.Module(
 	"api",
 	db.Module,
+	objectstore.Module,
 	repository.Module,
 	service.Module,
 	middleware.Module,

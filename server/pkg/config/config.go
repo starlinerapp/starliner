@@ -6,16 +6,18 @@ import (
 )
 
 type Config struct {
-	DBHost            string `mapstructure:"DB_HOST" validate:"required"`
-	DBPort            int    `mapstructure:"DB_PORT" validate:"required"`
-	DBUser            string `mapstructure:"DB_USER" validate:"required"`
-	DBPassword        string `mapstructure:"DB_PASSWORD" validate:"required"`
-	DBName            string `mapstructure:"DB_NAME" validate:"required"`
-	BasicAuthUser     string `mapstructure:"BASIC_AUTH_USER" validate:"required"`
-	BasicAuthPassword string `mapstructure:"BASIC_AUTH_PASSWORD" validate:"required"`
+	DBHost             string `mapstructure:"DB_HOST" validate:"required"`
+	DBPort             int    `mapstructure:"DB_PORT" validate:"required"`
+	DBUser             string `mapstructure:"DB_USER" validate:"required"`
+	DBPassword         string `mapstructure:"DB_PASSWORD" validate:"required"`
+	DBName             string `mapstructure:"DB_NAME" validate:"required"`
+	BasicAuthUser      string `mapstructure:"BASIC_AUTH_USER" validate:"required"`
+	BasicAuthPassword  string `mapstructure:"BASIC_AUTH_PASSWORD" validate:"required"`
+	AWSAccessKeyId     string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
+	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 }
 
-var envs = []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "BASIC_AUTH_USER", "BASIC_AUTH_PASSWORD"}
+var envs = []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "BASIC_AUTH_USER", "BASIC_AUTH_PASSWORD", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"}
 
 func LoadConfig() (*Config, error) {
 	var config Config
