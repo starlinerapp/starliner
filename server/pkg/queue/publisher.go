@@ -1,8 +1,8 @@
 package queue
 
 import (
-	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
+	"google.golang.org/protobuf/proto"
 )
 
 type Publisher[T proto.Message] struct {

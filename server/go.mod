@@ -9,7 +9,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.94.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.29.0
-	github.com/golang/protobuf v1.5.4
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats.go v1.47.0
 	github.com/spf13/viper v1.21.0

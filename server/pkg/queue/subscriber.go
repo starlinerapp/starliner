@@ -1,8 +1,8 @@
 package queue
 
 import (
-	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"time"
 )
@@ -20,12 +20,18 @@ func (s *Subscriber[T]) Subscribe(subject string, durable string, cb func(T)) er
 		var m T
 		if err := proto.Unmarshal(msg.Data, m); err != nil {
 			log.Printf("failed to decode message: %v", err)
-			msg.Nak()
+			err := msg.Nak()
+			if err != nil {
+				return
+			}
 			return
 		}
 
 		cb(m)
-		msg.Ack()
+		err := msg.Ack()
+		if err != nil {
+			return
+		}
 	},
 		nats.Durable(durable),
 		nats.ManualAck(),
