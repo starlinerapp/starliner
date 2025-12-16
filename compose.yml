@@ -3,7 +3,9 @@ name: starliner
 services:
   nginx:
     restart: unless-stopped
-    image: nginx:stable-alpine
+    build:
+      context: .docker/nginx
+      dockerfile: Dockerfile
     healthcheck:
       test: "curl -f http://localhost:80 || exit 1"
       interval: 5s
@@ -26,7 +28,8 @@ services:
       dockerfile: .docker/client/Dockerfile
       target: development-dependencies-env
     depends_on:
-      - auth-db
+      auth-db:
+        condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
@@ -48,8 +51,10 @@ services:
       dockerfile: .docker/server/Dockerfile
       target: dev
     depends_on:
-      - db
-      - s3
+      db:
+        condition: service_healthy
+      s3:
+        condition: service_healthy
     ports:
       - "9090:9090"
       - "40000:40000"
@@ -121,6 +126,11 @@ services:
     volumes:
       - ./seaweedfs/data/master:/var/lib/seaweedfs/master
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9333 || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -135,8 +145,14 @@ services:
     volumes:
       - ./seaweedfs/data/volume1:/var/lib/seaweedfs/volume1
     depends_on:
-      - master
+      master:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://volume1:8081/status || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -151,8 +167,14 @@ services:
     volumes:
       - ./seaweedfs/data/volume2:/var/lib/seaweedfs/volume2
     depends_on:
-      - master
+      master:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://volume2:8082/status || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -167,10 +189,16 @@ services:
     volumes:
       - ./seaweedfs/data/filer:/data
     depends_on:
-      - master
-      - volume1
-      - volume2
+      volume1:
+        condition: service_healthy
+      volume2:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8888 || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -185,11 +213,14 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
     depends_on:
-      - master
-      - volume1
-      - volume2
-      - filer
+      filer:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8333/status || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
