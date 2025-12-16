@@ -14,6 +14,7 @@ type Config struct {
 	BasicAuthUser      string `mapstructure:"BASIC_AUTH_USER" validate:"required"`
 	BasicAuthPassword  string `mapstructure:"BASIC_AUTH_PASSWORD" validate:"required"`
 	S3EndpointUrl      string `mapstructure:"S3_ENDPOINT_URL" validate:"required"`
+	NatsUrl            string `mapstructure:"NATS_URL" validate:"required"`
 	AWSAccessKeyId     string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
 	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 }
@@ -27,6 +28,7 @@ var envs = []string{
 	"BASIC_AUTH_USER",
 	"BASIC_AUTH_PASSWORD",
 	"S3_ENDPOINT_URL",
+	"NATS_URL",
 	"AWS_ACCESS_KEY_ID",
 	"AWS_SECRET_ACCESS_KEY",
 }

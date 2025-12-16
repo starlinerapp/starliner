@@ -1,7 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { projectApiFactory } from "~/api/client";
-import { withAuthHeader } from "~/api/client/axios.server";
+import { projectApiFactory } from "~/server/api/client";
+import { withAuthHeader } from "~/server/api/client/axios.server";
 
 export const projectRouter = {
   createProject: protectedProcedure

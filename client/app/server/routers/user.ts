@@ -1,6 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
-import { userApiFactory } from "~/api/client";
-import { withAuthHeader } from "~/api/client/axios.server";
+import { userApiFactory } from "~/server/api/client";
+import { withAuthHeader } from "~/server/api/client/axios.server";
 
 export const userRouter = {
   getUser: protectedProcedure.query(async ({ ctx }) => {

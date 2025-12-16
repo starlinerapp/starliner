@@ -1,6 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
-import { rootApiFactory } from "~/api/client";
-import { withAuthHeader } from "~/api/client/axios.server";
+import { rootApiFactory } from "~/server/api/client";
+import { withAuthHeader } from "~/server/api/client/axios.server";
 
 export const rootRouter = {
   getRoot: protectedProcedure.query(async ({ ctx }) => {
