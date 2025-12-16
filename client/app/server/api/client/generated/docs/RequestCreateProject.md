@@ -1,21 +1,20 @@
 # RequestCreateProject
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**name** | **string** |  | [default to undefined]
-**organization_id** | **number** |  | [default to undefined]
+| Name                | Type       | Description | Notes                  |
+| ------------------- | ---------- | ----------- | ---------------------- |
+| **name**            | **string** |             | [default to undefined] |
+| **organization_id** | **number** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { RequestCreateProject } from './api';
+import { RequestCreateProject } from "./api";
 
 const instance: RequestCreateProject = {
-    name,
-    organization_id,
+  name,
+  organization_id,
 };
 ```
 
