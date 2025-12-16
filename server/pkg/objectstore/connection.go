@@ -27,8 +27,8 @@ func Connect(cfg *config.Config) (*s3.Client, error) {
 	}
 
 	client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String("http://s3:8333")
-		o.Region = "us-east-1"
+		o.BaseEndpoint = aws.String(cfg.S3EndpointUrl)
+		o.Region = "none"
 		o.UsePathStyle = true
 	})
 

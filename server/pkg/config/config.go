@@ -13,11 +13,23 @@ type Config struct {
 	DBName             string `mapstructure:"DB_NAME" validate:"required"`
 	BasicAuthUser      string `mapstructure:"BASIC_AUTH_USER" validate:"required"`
 	BasicAuthPassword  string `mapstructure:"BASIC_AUTH_PASSWORD" validate:"required"`
+	S3EndpointUrl      string `mapstructure:"S3_ENDPOINT_URL" validate:"required"`
 	AWSAccessKeyId     string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
 	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 }
 
-var envs = []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "BASIC_AUTH_USER", "BASIC_AUTH_PASSWORD", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"}
+var envs = []string{
+	"DB_HOST",
+	"DB_PORT",
+	"DB_USER",
+	"DB_PASSWORD",
+	"DB_NAME",
+	"BASIC_AUTH_USER",
+	"BASIC_AUTH_PASSWORD",
+	"S3_ENDPOINT_URL",
+	"AWS_ACCESS_KEY_ID",
+	"AWS_SECRET_ACCESS_KEY",
+}
 
 func LoadConfig() (*Config, error) {
 	var config Config
