@@ -3,4 +3,4 @@
 .docker/nginx/ssl/dev.starliner.app.crt
 .docker/nginx/ssl/dev.starliner.app.key
 
-seaweedfs/*
+.docker/seaweedfs/*

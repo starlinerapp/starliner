@@ -116,6 +116,33 @@ services:
     networks:
       - internal
 
+  nats:
+    restart: unless-stopped
+    build:
+      context: .docker/nats
+      dockerfile: Dockerfile
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - .docker/nats/nats.conf:/etc/nats/nats.conf
+      - nats-data:/data/jetstream
+    command: ["-c", "/etc/nats/nats.conf"]
+    networks:
+      - internal
+
+  nats-box:
+    restart: unless-stopped
+    build:
+      context: .docker/nats-box
+      dockerfile: Dockerfile
+    depends_on:
+      - nats
+    entrypoint: /bin/sh
+    tty: true
+    networks:
+      - internal
+
   master:
     build:
       context: .docker/seaweedfs
@@ -125,7 +152,7 @@ services:
       - "19333:19333"
     command: "-v=1 master -volumeSizeLimitMB 100 -resumeState=false -ip=master -ip.bind=0.0.0.0 -port=9333 -mdir=/var/lib/seaweedfs/master"
     volumes:
-      - ./seaweedfs/data/master:/var/lib/seaweedfs/master
+      - .docker/seaweedfs/data/master:/var/lib/seaweedfs/master
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:9333 || exit 1" ]
@@ -144,7 +171,7 @@ services:
       - "18080:18080"
     command: 'volume -dataCenter=dc1 -rack=v1 -mserver="master:9333" -port=8081 -preStopSeconds=1 -dir=/var/lib/seaweedfs/volume1'
     volumes:
-      - ./seaweedfs/data/volume1:/var/lib/seaweedfs/volume1
+      - .docker/seaweedfs/data/volume1:/var/lib/seaweedfs/volume1
     depends_on:
       master:
         condition: service_healthy
@@ -166,7 +193,7 @@ services:
       - "18082:18082"
     command: 'volume -dataCenter=dc2 -rack=v2 -mserver="master:9333" -port=8082 -preStopSeconds=1 -dir=/var/lib/seaweedfs/volume2'
     volumes:
-      - ./seaweedfs/data/volume2:/var/lib/seaweedfs/volume2
+      - .docker/seaweedfs/data/volume2:/var/lib/seaweedfs/volume2
     depends_on:
       master:
         condition: service_healthy
@@ -188,7 +215,7 @@ services:
       - "18888:18888"
     command: 'filer -defaultReplicaPlacement=100 -iam -master="master:9333"'
     volumes:
-      - ./seaweedfs/data/filer:/data
+      - .docker/seaweedfs/data/filer:/data
     depends_on:
       volume1:
         condition: service_healthy
@@ -229,6 +256,7 @@ volumes:
   node-modules-client:
   auth-db-data:
   db-data:
+  nats-data:
 
 networks:
   internal:
