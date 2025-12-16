@@ -147,32 +147,6 @@ const docTemplate = `{
             }
         },
         "/projects": {
-            "get": {
-                "tags": [
-                    "project"
-                ],
-                "summary": "Get Project",
-                "operationId": "getProject",
-                "parameters": [
-                    {
-                        "description": "Get Project",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.GetProject"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Project"
-                        }
-                    }
-                }
-            },
             "post": {
                 "tags": [
                     "project"
@@ -193,6 +167,32 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/projects/{id}": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project",
+                "operationId": "getProject",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Project"
+                        }
                     }
                 }
             }
@@ -240,17 +240,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "organization_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "request.GetProject": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
                     "type": "integer"
                 }
             }
@@ -344,6 +333,11 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
         }
     }
 }`

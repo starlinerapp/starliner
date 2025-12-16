@@ -7,6 +7,7 @@ import (
 	"starliner.app/pkg/api/dto/response"
 	"starliner.app/pkg/domain"
 	"starliner.app/pkg/service"
+	"strconv"
 )
 
 type ProjectHandler struct {
@@ -48,18 +49,18 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 // @Tags project
 // @ID getProject
 // @Product JSON
-// @Param data body request.GetProject true "Get Project"
+// @Param id path int true "Project ID"
 // @Success 200 {object} response.Project
-// @Router /projects [get]
+// @Router /projects/{id} [get]
 func (ph *ProjectHandler) GetProject(c *gin.Context) {
 	currentUser := c.MustGet("user").(*domain.User)
-	var projectReq request.GetProject
-	if err := c.BindJSON(&projectReq); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	project, err := ph.projectService.GetProject(c, projectReq.Id, currentUser.Id)
+	project, err := ph.projectService.GetProject(c, projectId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return

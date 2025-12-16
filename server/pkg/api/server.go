@@ -46,7 +46,7 @@ func NewServer(
 	projectRoutes := engine.Group("/projects")
 	{
 		projectRoutes.POST("", projectHandler.CreateProject)
-		projectRoutes.GET("", projectHandler.GetProject)
+		projectRoutes.GET("/:id", projectHandler.GetProject)
 	}
 
 	environmentRoutes := engine.Group("/environments")

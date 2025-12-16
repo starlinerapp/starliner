@@ -29,13 +29,6 @@ definitions:
     - name
     - organization_id
     type: object
-  request.GetProject:
-    properties:
-      id:
-        type: integer
-    required:
-    - id
-    type: object
   response.Environment:
     properties:
       id:
@@ -188,23 +181,6 @@ paths:
       tags:
       - organization
   /projects:
-    get:
-      operationId: getProject
-      parameters:
-      - description: Get Project
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.GetProject'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Project'
-      summary: Get Project
-      tags:
-      - project
     post:
       operationId: createProject
       parameters:
@@ -220,4 +196,24 @@ paths:
       summary: Create Project
       tags:
       - project
+  /projects/{id}:
+    get:
+      operationId: getProject
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Project'
+      summary: Get Project
+      tags:
+      - project
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"

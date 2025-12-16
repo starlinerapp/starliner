@@ -10,7 +10,6 @@ docs/ProjectApi.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateOrganization.md
 docs/RequestCreateProject.md
-docs/RequestGetProject.md
 docs/ResponseEnvironment.md
 docs/ResponseOrganization.md
 docs/ResponseProject.md

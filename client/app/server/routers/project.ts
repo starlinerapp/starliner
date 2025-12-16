@@ -32,12 +32,7 @@ export const projectRouter = {
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await projectApiFactory
-        .getProject(
-          {
-            id: input.id,
-          },
-          withAuthHeader(userId),
-        )
+        .getProject(input.id, withAuthHeader(userId))
         .then((res) => res.data);
     }),
 };
