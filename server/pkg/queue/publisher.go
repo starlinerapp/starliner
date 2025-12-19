@@ -13,12 +13,12 @@ func NewPublisher[T proto.Message](js nats.JetStreamContext) *Publisher[T] {
 	return &Publisher[T]{js: js}
 }
 
-func (p *Publisher[T]) Publish(subject string, msg T) error {
+func (p *Publisher[T]) Publish(subject Subject, msg T) error {
 	data, err := proto.Marshal(msg)
 	if err != nil {
 		return err
 	}
 
-	_, err = p.js.Publish(subject, data)
+	_, err = p.js.Publish(string(subject), data)
 	return err
 }

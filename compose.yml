@@ -75,6 +75,36 @@ services:
     networks:
       - internal
 
+  worker:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: .docker/worker/Dockerfile
+      target: dev
+    depends_on:
+      db:
+        condition: service_healthy
+      s3:
+        condition: service_healthy
+    ports:
+      - "40001:40001"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: main
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
+      NATS_URL: ${NATS_URL:-http://nats:4222}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+    volumes:
+      - ./server:/app
+    networks:
+      - internal
+
   db:
     restart: unless-stopped
     build:

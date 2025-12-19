@@ -51,7 +51,7 @@ func (ps *ProjectService) CreateProject(ctx context.Context, name string, organi
 		return nil, err
 	}
 
-	err = ps.projectPublisher.Publish("project.created", &v1.Project{
+	err = ps.projectPublisher.Publish(queue.ProjectCreated, &v1.Project{
 		Id:           project.Id,
 		Name:         project.Name,
 		Organization: project.OrganizationId,
