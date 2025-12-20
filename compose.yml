@@ -53,6 +53,7 @@ services:
       args:
         DEBUG_PORT: 40000
         MAIN_PKG: ./cmd/api/main.go
+        BINARY_NAME: server
     depends_on:
       db:
         condition: service_healthy
@@ -85,8 +86,9 @@ services:
       dockerfile: .docker/server/Dockerfile
       target: dev
       args:
-        DEBUG_PORT: 40000
+        DEBUG_PORT: 40001
         MAIN_PKG: ./cmd/worker/main.go
+        BINARY_NAME: worker
     ports:
       - "40001:40001"
 
