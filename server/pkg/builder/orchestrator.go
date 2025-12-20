@@ -26,7 +26,7 @@ func NewOrchestrator(
 
 func (o *Orchestrator) Start() error {
 	go func() {
-		err := o.projectCreatedSubscriber.Subscribe(queue.ProjectCreated, "orchestrator", o.handleProjectCreated)
+		err := o.projectCreatedSubscriber.Subscribe(queue.ProjectCreated, "projectCreated", o.handleProjectCreated)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}
