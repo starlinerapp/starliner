@@ -56,7 +56,9 @@ func (ps *ProjectService) CreateProject(ctx context.Context, name string, organi
 		Name:         project.Name,
 		Organization: project.OrganizationId,
 	})
-	log.Printf("error publishing: %v", err)
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
 
 	environments := []domain.Environment{*environment}
 	project.Environments = environments
