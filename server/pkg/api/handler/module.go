@@ -10,5 +10,6 @@ var Module = fx.Module(
 		NewEnvironmentHandler,
 		NewProjectHandler,
 		NewOrganizationHandler,
+		NewBuildHandler,
 	),
 )

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"io"
 	"log"
 )
 
@@ -34,4 +35,18 @@ func (c *S3Client) CreateBucket(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+func (c *S3Client) GetFile(ctx context.Context, key string) ([]byte, error) {
+	res, err := c.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(BucketName),
+		Key:    aws.String(key),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	return io.ReadAll(res.Body)
 }

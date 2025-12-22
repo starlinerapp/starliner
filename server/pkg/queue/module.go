@@ -10,14 +10,14 @@ var Module = fx.Module(
 	"queue",
 	fx.Provide(
 		Connect,
-		func(js nats.JetStreamContext) *Publisher[*v1.Project] {
-			return NewPublisher[*v1.Project](js)
+		func(js nats.JetStreamContext) *Publisher[*v1.Build] {
+			return NewPublisher[*v1.Build](js)
 		},
-		func(js nats.JetStreamContext) *Subscriber[*v1.Project] {
-			return NewSubscriber[*v1.Project](js)
+		func(js nats.JetStreamContext) *Subscriber[*v1.Build] {
+			return NewSubscriber[*v1.Build](js)
 		},
 	),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return EnsureStream(js, Projects, []Subject{ProjectCreated})
+		return EnsureStream(js, Builds, []Subject{BuildTriggered})
 	}),
 )

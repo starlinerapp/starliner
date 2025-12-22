@@ -32,6 +32,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/builds": {
+            "post": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Trigger Build",
+                "operationId": "triggerBuild",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments": {
             "post": {
                 "tags": [

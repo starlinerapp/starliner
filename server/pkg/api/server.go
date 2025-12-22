@@ -26,6 +26,7 @@ func NewServer(
 	organizationHandler *handler.OrganizationHandler,
 	projectHandler *handler.ProjectHandler,
 	environmentHandler *handler.EnvironmentHandler,
+	buildHandler *handler.BuildHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -52,6 +53,11 @@ func NewServer(
 	environmentRoutes := engine.Group("/environments")
 	{
 		environmentRoutes.POST("", environmentHandler.CreateEnvironment)
+	}
+
+	buildRoutes := engine.Group("/builds")
+	{
+		buildRoutes.POST("", buildHandler.TriggerBuild)
 	}
 
 	return &Server{engine: engine}

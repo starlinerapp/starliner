@@ -106,6 +106,21 @@ paths:
       summary: Get root
       tags:
       - root
+  /builds:
+    post:
+      operationId: triggerBuild
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Trigger Build
+      tags:
+      - build
   /environments:
     post:
       operationId: createEnvironment
