@@ -89,6 +89,9 @@ services:
         DEBUG_PORT: 40001
         MAIN_PKG: ./cmd/worker/main.go
         BINARY_NAME: worker
+    volumes:
+      - ./server:/app
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "40001:40001"
 

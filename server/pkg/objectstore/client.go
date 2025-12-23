@@ -37,7 +37,7 @@ func (c *S3Client) CreateBucket(ctx context.Context) error {
 	return nil
 }
 
-func (c *S3Client) GetFile(ctx context.Context, key string) ([]byte, error) {
+func (c *S3Client) GetObject(ctx context.Context, key string) (io.ReadCloser, error) {
 	res, err := c.client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(BucketName),
 		Key:    aws.String(key),
@@ -47,6 +47,5 @@ func (c *S3Client) GetFile(ctx context.Context, key string) ([]byte, error) {
 		return nil, err
 	}
 
-	defer res.Body.Close()
-	return io.ReadAll(res.Body)
+	return res.Body, nil
 }

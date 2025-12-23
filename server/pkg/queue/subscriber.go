@@ -1,7 +1,6 @@
 package queue
 
 import (
-	"context"
 	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/proto"
 	"log"
@@ -17,7 +16,7 @@ func NewSubscriber[T proto.Message](js nats.JetStreamContext) *Subscriber[T] {
 	return &Subscriber[T]{js: js}
 }
 
-func (s *Subscriber[T]) Subscribe(ctx context.Context, subject Subject, durable string, cb func(context.Context, T)) error {
+func (s *Subscriber[T]) Subscribe(subject Subject, durable string, cb func(T)) error {
 	_, err := s.js.Subscribe(string(subject), func(msg *nats.Msg) {
 		var t T
 		m := reflect.New(reflect.TypeOf(t).Elem()).Interface().(T)
@@ -31,7 +30,7 @@ func (s *Subscriber[T]) Subscribe(ctx context.Context, subject Subject, durable 
 			return
 		}
 
-		cb(ctx, m)
+		cb(m)
 		err := msg.Ack()
 		if err != nil {
 			return

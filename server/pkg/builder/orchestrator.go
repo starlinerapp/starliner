@@ -2,33 +2,48 @@ package builder
 
 import (
 	"context"
+	"dagger.io/dagger"
 	"go.uber.org/fx"
+	"io"
 	"log"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"starliner.app/pkg/objectstore"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
-	"starliner.app/pkg/utils"
+	"strings"
 )
 
 type Orchestrator struct {
 	objectstore     *objectstore.S3Client
 	buildSubscriber *queue.Subscriber[*v1.Build]
+	daggerClient    *dagger.Client
+}
+
+func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			return o.Start()
+		},
+	})
 }
 
 func NewOrchestrator(
 	objectstore *objectstore.S3Client,
 	buildSubscriber *queue.Subscriber[*v1.Build],
+	daggerClient *dagger.Client,
 ) *Orchestrator {
 	return &Orchestrator{
 		objectstore:     objectstore,
 		buildSubscriber: buildSubscriber,
+		daggerClient:    daggerClient,
 	}
 }
 
-func (o *Orchestrator) Start(ctx context.Context) error {
+func (o *Orchestrator) Start() error {
 	go func() {
-		err := o.buildSubscriber.Subscribe(ctx, queue.BuildTriggered, "buildTriggered", o.handleBuildTriggered)
+		err := o.buildSubscriber.Subscribe(queue.BuildTriggered, "buildTriggered", o.handleBuildTriggered)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}
@@ -37,7 +52,9 @@ func (o *Orchestrator) Start(ctx context.Context) error {
 	return nil
 }
 
-func (o *Orchestrator) handleBuildTriggered(ctx context.Context, build *v1.Build) {
+func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
+	ctx := context.Background()
+
 	workDir, err := os.MkdirTemp("", "build-*")
 	if err != nil {
 		log.Printf("failed to create temp dir: %v", err)
@@ -49,23 +66,41 @@ func (o *Orchestrator) handleBuildTriggered(ctx context.Context, build *v1.Build
 		}
 	}()
 
-	zip, err := o.objectstore.GetFile(ctx, build.S3Key)
+	body, err := o.objectstore.GetObject(ctx, build.S3Key)
 	if err != nil {
 		log.Printf("failed to get file from S3: %v", err)
 		return
 	}
+	defer body.Close()
 
-	err = utils.Unzip(zip, workDir)
+	tarFileName := filepath.Base(build.S3Key)
+	tarPath := filepath.Join(workDir, tarFileName)
+
+	f, err := os.Create(tarPath)
 	if err != nil {
-		log.Printf("failed to unzip file: %v", err)
+		log.Printf("failed to create tarball: %v", err)
 		return
 	}
-}
+	defer f.Close()
 
-func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			return o.Start(ctx)
-		},
-	})
+	if _, err := io.Copy(f, body); err != nil {
+		log.Printf("failed to write tarball: %v", err)
+		return
+	}
+
+	cmd := exec.Command("tar", "-xzf", tarPath, "-C", workDir)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		log.Printf("failed to extract tarball: %v, output: %s", err, string(out))
+		return
+	}
+
+	extractDirName := strings.TrimSuffix(tarFileName, ".tgz")
+	extractDir := filepath.Join(workDir, extractDirName)
+	_, err = o.daggerClient.Host().Directory(extractDir).DockerBuild().
+		Publish(ctx, "starliner/example-project:latest")
+
+	if err != nil {
+		log.Printf("failed to build docker image: %v", err)
+		return
+	}
 }

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"log"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
@@ -17,9 +16,9 @@ func NewBuildService(buildPublisher *queue.Publisher[*v1.Build]) *BuildService {
 	}
 }
 
-func (bs *BuildService) TriggerBuild(ctx context.Context) error {
+func (bs *BuildService) TriggerBuild() error {
 	err := bs.buildPublisher.Publish(queue.BuildTriggered, &v1.Build{
-		S3Key:          "example-project.zip",
+		S3Key:          "example-project.tgz",
 		DockerfilePath: ".",
 	})
 
