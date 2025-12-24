@@ -97,7 +97,7 @@ func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
 	extractDirName := strings.TrimSuffix(tarFileName, ".tgz")
 	extractDir := filepath.Join(workDir, extractDirName)
 	_, err = o.daggerClient.Host().Directory(extractDir).DockerBuild().
-		Publish(ctx, "starliner/example-project:latest")
+		Publish(ctx, "registry.dev:5000/starliner/example-project:latest")
 
 	if err != nil {
 		log.Printf("failed to build docker image: %v", err)

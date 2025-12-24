@@ -13,6 +13,8 @@ services:
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./.docker/nginx/ssl/dev.starliner.app.crt:/etc/nginx/dev.starliner.app.crt:ro
       - ./.docker/nginx/ssl/dev.starliner.app.key:/etc/nginx/dev.starliner.app.key:ro
+      - ./.docker/nginx/ssl/registry.dev.starliner.app.crt:/etc/nginx/registry.dev.starliner.app.crt:ro
+      - ./.docker/nginx/ssl/registry.dev.starliner.app.key:/etc/nginx/registry.dev.starliner.app.key:ro
     depends_on:
       - client
     ports:
@@ -89,6 +91,19 @@ services:
         DEBUG_PORT: 40001
         MAIN_PKG: ./cmd/worker/main.go
         BINARY_NAME: worker
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: main
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
+      NATS_URL: ${NATS_URL:-http://nats:4222}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+      _EXPERIMENTAL_DAGGER_RUNNER_HOST: tcp://dagger:1234
     volumes:
       - ./server:/app
       - /var/run/docker.sock:/var/run/docker.sock
@@ -273,11 +288,39 @@ services:
     networks:
       - internal
 
+  registry.dev:
+    build:
+      context: .docker/registry
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+    volumes:
+      - registry-data:/data
+    networks:
+      - internal
+
+  dagger:
+    build:
+      context: .docker/dagger
+      dockerfile: Dockerfile
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - .docker/dagger/engine.toml:/etc/dagger/engine.toml
+      - dagger-data:/var/lib/dagger
+    networks:
+      - internal
+
 volumes:
   node-modules-client:
   auth-db-data:
   db-data:
   nats-data:
+  registry-data:
+  dagger-data:
 
 networks:
   internal:
