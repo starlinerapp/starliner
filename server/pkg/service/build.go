@@ -21,8 +21,9 @@ func (bs *BuildService) TriggerBuild() error {
 		Organization:   "starliner",
 		Project:        "example",
 		Service:        "client",
-		S3Key:          "example-project.tgz",
-		DockerfilePath: ".",
+		S3Key:          "monorepo-example.tgz",
+		RootDirectory:  "./client",
+		DockerfilePath: "Dockerfile",
 	})
 
 	if err != nil {

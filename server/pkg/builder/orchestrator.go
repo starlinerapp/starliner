@@ -108,7 +108,11 @@ func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
 		build.Project,
 		build.Service,
 	)
-	_, err = o.daggerClient.Host().Directory(extractDir).DockerBuild().
+
+	projectDir := filepath.Join(extractDir, build.RootDirectory)
+	_, err = o.daggerClient.Host().
+		Directory(projectDir).
+		DockerBuild(dagger.DirectoryDockerBuildOpts{Dockerfile: build.DockerfilePath}).
 		Publish(ctx, imagePath+":latest")
 
 	if err != nil {
