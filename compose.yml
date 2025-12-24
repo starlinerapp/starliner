@@ -76,6 +76,7 @@ services:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
     volumes:
       - ./server:/app
     networks:
@@ -103,10 +104,10 @@ services:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
-      _EXPERIMENTAL_DAGGER_RUNNER_HOST: tcp://dagger:1234
+      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
+      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
     volumes:
       - ./server:/app
-      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "40001:40001"
 
@@ -288,6 +289,8 @@ services:
     networks:
       - internal
 
+  # Fully qualified hostname necessary, so Dagger’s internal DNS can resolve it
+  # See: https://github.com/dagger/dagger/issues/9439#issuecomment-3656217482
   registry.dev:
     build:
       context: .docker/registry

@@ -17,6 +17,7 @@ type Config struct {
 	NatsUrl            string `mapstructure:"NATS_URL" validate:"required"`
 	AWSAccessKeyId     string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
 	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
+	ImageRegistryUrl   string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
 }
 
 var envs = []string{
@@ -31,6 +32,7 @@ var envs = []string{
 	"NATS_URL",
 	"AWS_ACCESS_KEY_ID",
 	"AWS_SECRET_ACCESS_KEY",
+	"IMAGE_REGISTRY_URL",
 }
 
 func LoadConfig() (*Config, error) {

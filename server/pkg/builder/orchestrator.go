@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"starliner.app/pkg/config"
 	"starliner.app/pkg/objectstore"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
@@ -16,6 +17,7 @@ import (
 )
 
 type Orchestrator struct {
+	cfg             *config.Config
 	objectstore     *objectstore.S3Client
 	buildSubscriber *queue.Subscriber[*v1.Build]
 	daggerClient    *dagger.Client
@@ -30,11 +32,13 @@ func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
 }
 
 func NewOrchestrator(
+	cfg *config.Config,
 	objectstore *objectstore.S3Client,
 	buildSubscriber *queue.Subscriber[*v1.Build],
 	daggerClient *dagger.Client,
 ) *Orchestrator {
 	return &Orchestrator{
+		cfg:             cfg,
 		objectstore:     objectstore,
 		buildSubscriber: buildSubscriber,
 		daggerClient:    daggerClient,
@@ -97,7 +101,7 @@ func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
 	extractDirName := strings.TrimSuffix(tarFileName, ".tgz")
 	extractDir := filepath.Join(workDir, extractDirName)
 	_, err = o.daggerClient.Host().Directory(extractDir).DockerBuild().
-		Publish(ctx, "registry.dev:5000/starliner/example-project:latest")
+		Publish(ctx, o.cfg.ImageRegistryUrl+"/starliner/example-project:latest")
 
 	if err != nil {
 		log.Printf("failed to build docker image: %v", err)
