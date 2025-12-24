@@ -18,6 +18,9 @@ func NewBuildService(buildPublisher *queue.Publisher[*v1.Build]) *BuildService {
 
 func (bs *BuildService) TriggerBuild() error {
 	err := bs.buildPublisher.Publish(queue.BuildTriggered, &v1.Build{
+		Organization:   "starliner",
+		Project:        "example",
+		Service:        "client",
 		S3Key:          "example-project.tgz",
 		DockerfilePath: ".",
 	})

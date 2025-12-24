@@ -5,6 +5,9 @@ package proto.v1;
 option go_package = "starliner.app/proto/v1";
 
 message Build {
-  string s3Key = 1;
-  string dockerfilePath = 2;
+  string organization = 1;
+  string project = 2;
+  string service = 3;
+  string s3Key = 4;
+  string dockerfilePath = 5;
 }

@@ -25,7 +25,7 @@ func NewBuildHandler(buildService *service.BuildService) *BuildHandler {
 // @Success 200
 // @Router /builds [post]
 func (bh *BuildHandler) TriggerBuild(c *gin.Context) {
-	err := bh.buildService.TriggerBuild(c)
+	err := bh.buildService.TriggerBuild()
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return

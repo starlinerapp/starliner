@@ -23,8 +23,11 @@ const (
 
 type Build struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	S3Key          string                 `protobuf:"bytes,1,opt,name=s3Key,proto3" json:"s3Key,omitempty"`
-	DockerfilePath string                 `protobuf:"bytes,2,opt,name=dockerfilePath,proto3" json:"dockerfilePath,omitempty"`
+	Organization   string                 `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+	Project        string                 `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
+	Service        string                 `protobuf:"bytes,3,opt,name=service,proto3" json:"service,omitempty"`
+	S3Key          string                 `protobuf:"bytes,4,opt,name=s3Key,proto3" json:"s3Key,omitempty"`
+	DockerfilePath string                 `protobuf:"bytes,5,opt,name=dockerfilePath,proto3" json:"dockerfilePath,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -59,6 +62,27 @@ func (*Build) Descriptor() ([]byte, []int) {
 	return file_pkg_proto_v1_build_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *Build) GetOrganization() string {
+	if x != nil {
+		return x.Organization
+	}
+	return ""
+}
+
+func (x *Build) GetProject() string {
+	if x != nil {
+		return x.Project
+	}
+	return ""
+}
+
+func (x *Build) GetService() string {
+	if x != nil {
+		return x.Service
+	}
+	return ""
+}
+
 func (x *Build) GetS3Key() string {
 	if x != nil {
 		return x.S3Key
@@ -77,10 +101,13 @@ var File_pkg_proto_v1_build_proto protoreflect.FileDescriptor
 
 const file_pkg_proto_v1_build_proto_rawDesc = "" +
 	"\n" +
-	"\x18pkg/proto/v1/build.proto\x12\bproto.v1\"E\n" +
-	"\x05Build\x12\x14\n" +
-	"\x05s3Key\x18\x01 \x01(\tR\x05s3Key\x12&\n" +
-	"\x0edockerfilePath\x18\x02 \x01(\tR\x0edockerfilePathB\x18Z\x16starliner.app/proto/v1b\x06proto3"
+	"\x18pkg/proto/v1/build.proto\x12\bproto.v1\"\x9d\x01\n" +
+	"\x05Build\x12\"\n" +
+	"\forganization\x18\x01 \x01(\tR\forganization\x12\x18\n" +
+	"\aproject\x18\x02 \x01(\tR\aproject\x12\x18\n" +
+	"\aservice\x18\x03 \x01(\tR\aservice\x12\x14\n" +
+	"\x05s3Key\x18\x04 \x01(\tR\x05s3Key\x12&\n" +
+	"\x0edockerfilePath\x18\x05 \x01(\tR\x0edockerfilePathB\x18Z\x16starliner.app/proto/v1b\x06proto3"
 
 var (
 	file_pkg_proto_v1_build_proto_rawDescOnce sync.Once

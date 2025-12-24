@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"starliner.app/pkg/config"
 	"starliner.app/pkg/objectstore"
@@ -100,8 +101,15 @@ func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
 
 	extractDirName := strings.TrimSuffix(tarFileName, ".tgz")
 	extractDir := filepath.Join(workDir, extractDirName)
+
+	imagePath := path.Join(
+		o.cfg.ImageRegistryUrl,
+		build.Organization,
+		build.Project,
+		build.Service,
+	)
 	_, err = o.daggerClient.Host().Directory(extractDir).DockerBuild().
-		Publish(ctx, o.cfg.ImageRegistryUrl+"/starliner/example-project:latest")
+		Publish(ctx, imagePath+":latest")
 
 	if err != nil {
 		log.Printf("failed to build docker image: %v", err)
