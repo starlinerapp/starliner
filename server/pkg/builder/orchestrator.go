@@ -76,7 +76,12 @@ func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
 		log.Printf("failed to get file from S3: %v", err)
 		return
 	}
-	defer body.Close()
+	defer func(body io.ReadCloser) {
+		err := body.Close()
+		if err != nil {
+			log.Printf("failed to close file: %v", err)
+		}
+	}(body)
 
 	tarFileName := filepath.Base(build.S3Key)
 	tarPath := filepath.Join(workDir, tarFileName)
@@ -86,7 +91,12 @@ func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
 		log.Printf("failed to create tarball: %v", err)
 		return
 	}
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			log.Printf("failed to close tarball: %v", err)
+		}
+	}(f)
 
 	if _, err := io.Copy(f, body); err != nil {
 		log.Printf("failed to write tarball: %v", err)
