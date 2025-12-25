@@ -23,12 +23,13 @@ const (
 
 type Build struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Organization   string                 `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	Project        string                 `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
-	Service        string                 `protobuf:"bytes,3,opt,name=service,proto3" json:"service,omitempty"`
-	S3Key          string                 `protobuf:"bytes,4,opt,name=s3Key,proto3" json:"s3Key,omitempty"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Organization   string                 `protobuf:"bytes,2,opt,name=organization,proto3" json:"organization,omitempty"`
+	Project        string                 `protobuf:"bytes,3,opt,name=project,proto3" json:"project,omitempty"`
+	Service        string                 `protobuf:"bytes,4,opt,name=service,proto3" json:"service,omitempty"`
+	S3Key          string                 `protobuf:"bytes,5,opt,name=s3Key,proto3" json:"s3Key,omitempty"`
 	RootDirectory  string                 `protobuf:"bytes,6,opt,name=rootDirectory,proto3" json:"rootDirectory,omitempty"`
-	DockerfilePath string                 `protobuf:"bytes,5,opt,name=dockerfilePath,proto3" json:"dockerfilePath,omitempty"`
+	DockerfilePath string                 `protobuf:"bytes,7,opt,name=dockerfilePath,proto3" json:"dockerfilePath,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -61,6 +62,13 @@ func (x *Build) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Build.ProtoReflect.Descriptor instead.
 func (*Build) Descriptor() ([]byte, []int) {
 	return file_pkg_proto_v1_build_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Build) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 func (x *Build) GetOrganization() string {
@@ -109,14 +117,15 @@ var File_pkg_proto_v1_build_proto protoreflect.FileDescriptor
 
 const file_pkg_proto_v1_build_proto_rawDesc = "" +
 	"\n" +
-	"\x18pkg/proto/v1/build.proto\x12\bproto.v1\"\xc3\x01\n" +
-	"\x05Build\x12\"\n" +
-	"\forganization\x18\x01 \x01(\tR\forganization\x12\x18\n" +
-	"\aproject\x18\x02 \x01(\tR\aproject\x12\x18\n" +
-	"\aservice\x18\x03 \x01(\tR\aservice\x12\x14\n" +
-	"\x05s3Key\x18\x04 \x01(\tR\x05s3Key\x12$\n" +
+	"\x18pkg/proto/v1/build.proto\x12\bproto.v1\"\xd3\x01\n" +
+	"\x05Build\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
+	"\forganization\x18\x02 \x01(\tR\forganization\x12\x18\n" +
+	"\aproject\x18\x03 \x01(\tR\aproject\x12\x18\n" +
+	"\aservice\x18\x04 \x01(\tR\aservice\x12\x14\n" +
+	"\x05s3Key\x18\x05 \x01(\tR\x05s3Key\x12$\n" +
 	"\rrootDirectory\x18\x06 \x01(\tR\rrootDirectory\x12&\n" +
-	"\x0edockerfilePath\x18\x05 \x01(\tR\x0edockerfilePathB\x18Z\x16starliner.app/proto/v1b\x06proto3"
+	"\x0edockerfilePath\x18\a \x01(\tR\x0edockerfilePathB\x18Z\x16starliner.app/proto/v1b\x06proto3"
 
 var (
 	file_pkg_proto_v1_build_proto_rawDescOnce sync.Once

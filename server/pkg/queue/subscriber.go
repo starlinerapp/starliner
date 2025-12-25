@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/proto"
 	"log"
@@ -16,8 +17,9 @@ func NewSubscriber[T proto.Message](js nats.JetStreamContext) *Subscriber[T] {
 	return &Subscriber[T]{js: js}
 }
 
-func (s *Subscriber[T]) Subscribe(subject Subject, durable string, cb func(T)) error {
-	_, err := s.js.Subscribe(string(subject), func(msg *nats.Msg) {
+func (s *Subscriber[T]) Subscribe(subject Subject, identifier string, durable string, cb func(T)) error {
+	uniqueSubject := fmt.Sprintf("%s.%s", subject, identifier)
+	_, err := s.js.Subscribe(uniqueSubject, func(msg *nats.Msg) {
 		var t T
 		m := reflect.New(reflect.TypeOf(t).Elem()).Interface().(T)
 

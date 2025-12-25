@@ -48,7 +48,7 @@ func NewOrchestrator(
 
 func (o *Orchestrator) Start() error {
 	go func() {
-		err := o.buildSubscriber.Subscribe(queue.BuildTriggered, "buildTriggered", o.handleBuildTriggered)
+		err := o.buildSubscriber.Subscribe(queue.BuildTriggered, "*", "buildTriggered", o.handleBuildTriggered)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}
@@ -110,11 +110,11 @@ func (o *Orchestrator) handleBuildTriggered(build *v1.Build) {
 	)
 
 	projectDir := filepath.Join(extractDir, build.RootDirectory)
-	_, err = o.daggerClient.Host().
+	buildContainer := o.daggerClient.Host().
 		Directory(projectDir).
-		DockerBuild(dagger.DirectoryDockerBuildOpts{Dockerfile: build.DockerfilePath}).
-		Publish(ctx, imagePath+":latest")
+		DockerBuild(dagger.DirectoryDockerBuildOpts{Dockerfile: build.DockerfilePath})
 
+	_, err = buildContainer.Publish(ctx, imagePath+":latest")
 	if err != nil {
 		log.Printf("failed to build docker image: %v", err)
 		return

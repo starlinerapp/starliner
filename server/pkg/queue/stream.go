@@ -2,6 +2,7 @@ package queue
 
 import (
 	"errors"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"log"
 )
@@ -18,7 +19,7 @@ func EnsureStream(js nats.JetStreamContext, name Stream, subjects []Subject) err
 		// Stream doesn't exist, create it
 		s := make([]string, len(subjects))
 		for i, subject := range subjects {
-			s[i] = string(subject)
+			s[i] = fmt.Sprintf("%s.%s", subject, "*")
 		}
 
 		_, err := js.AddStream(&nats.StreamConfig{
@@ -44,8 +45,9 @@ func EnsureStream(js nats.JetStreamContext, name Stream, subjects []Subject) err
 
 	var newSubjects []string
 	for _, subj := range subjects {
-		if _, ok := existingSubjects[string(subj)]; !ok {
-			newSubjects = append(newSubjects, string(subj))
+		subjectPattern := fmt.Sprintf("%s.%s", subj, "*")
+		if _, ok := existingSubjects[subjectPattern]; !ok {
+			newSubjects = append(newSubjects, subjectPattern)
 		}
 	}
 
