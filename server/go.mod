@@ -3,12 +3,14 @@ module starliner.app
 go 1.24.3
 
 require (
+	dagger.io/dagger v0.19.8
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.6
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.94.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.29.0
+	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats.go v1.47.0
 	github.com/spf13/viper v1.21.0
@@ -20,7 +22,6 @@ require (
 )
 
 require (
-	dagger.io/dagger v0.19.8 // indirect
 	github.com/99designs/gqlgen v0.17.81 // indirect
 	github.com/Khan/genqlient v0.8.1 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -65,7 +66,6 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.19.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
@@ -80,7 +80,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.57.1 // indirect
-	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
