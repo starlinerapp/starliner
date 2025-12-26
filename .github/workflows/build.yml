@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/15-production-deployment-to-hetzner
 
 jobs:
   build-client:
@@ -147,7 +146,3 @@ jobs:
           platforms: linux/amd64
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/nats:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/nats:cache,mode=max
-
-
-            
-  
