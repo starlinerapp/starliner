@@ -39,6 +39,8 @@ RUN go build -o ${BINARY_NAME} ${MAIN_PKG}
 
 FROM scratch AS runner
 
+ARG BINARY_NAME
+
 WORKDIR /app
 
 COPY --from=builder /app/${BINARY_NAME} .
