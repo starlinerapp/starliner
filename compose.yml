@@ -4,8 +4,8 @@ services:
   nginx:
     restart: unless-stopped
     build:
-      context: .docker/nginx
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/nginx/Dockerfile
     healthcheck:
       test: "curl -f http://localhost:80 || exit 1"
       interval: 5s
@@ -51,7 +51,6 @@ services:
     build:
       context: .
       dockerfile: .docker/server/Dockerfile
-      target: dev
       args:
         DEBUG_PORT: 40000
         MAIN_PKG: ./cmd/api/main.go
@@ -87,7 +86,6 @@ services:
     build:
       context: .
       dockerfile: .docker/server/Dockerfile
-      target: dev
       args:
         DEBUG_PORT: 40001
         MAIN_PKG: ./cmd/worker/main.go
@@ -114,8 +112,8 @@ services:
   db:
     restart: unless-stopped
     build:
-      context: .docker/postgres
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/postgres/Dockerfile
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -135,8 +133,8 @@ services:
   auth-db:
     restart: unless-stopped
     build:
-      context: .docker/postgres
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/postgres/Dockerfile
     environment:
       POSTGRES_USER: ${AUTH_POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-postgres}
@@ -156,8 +154,8 @@ services:
   nats:
     restart: unless-stopped
     build:
-      context: .docker/nats
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/nats/Dockerfile
     ports:
       - "4222:4222"
       - "8222:8222"
@@ -181,8 +179,8 @@ services:
 
   master:
     build:
-      context: .docker/seaweedfs
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/seaweedfs/Dockerfile
     ports:
       - "9333:9333"
       - "19333:19333"
@@ -200,8 +198,8 @@ services:
 
   volume1:
     build:
-      context: .docker/seaweedfs
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/seaweedfs/Dockerfile
     ports:
       - "8081:8081"
       - "18080:18080"
@@ -222,8 +220,8 @@ services:
 
   volume2:
     build:
-      context: .docker/seaweedfs
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/seaweedfs/Dockerfile
     ports:
       - "8082:8082"
       - "18082:18082"
@@ -244,8 +242,8 @@ services:
 
   filer:
     build:
-      context: .docker/seaweedfs
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/seaweedfs/Dockerfile
     ports:
       - "8888:8888"
       - "18888:18888"
@@ -268,8 +266,8 @@ services:
 
   s3:
     build:
-      context: .docker/seaweedfs
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/seaweedfs/Dockerfile
     ports:
       - "8333:8333"
     command: '-v=9 s3 -filer="filer:8888" -ip.bind=0.0.0.0'
@@ -292,8 +290,8 @@ services:
   # See: https://github.com/dagger/dagger/issues/9439#issuecomment-3656217482
   registry.dev:
     build:
-      context: .docker/registry
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/registry/Dockerfile
     ports:
       - "5000:5000"
     restart: unless-stopped
@@ -306,8 +304,8 @@ services:
 
   dagger:
     build:
-      context: .docker/dagger
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/dagger/Dockerfile
     privileged: true
     restart: unless-stopped
     volumes:

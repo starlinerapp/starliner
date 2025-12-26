@@ -62,7 +62,7 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
           build-args: |
             MAIN_PKG=./cmd/api/main.go
-            BINARY_NAME: server
+            BINARY_NAME=server
 
   build-worker:
     runs-on: ubuntu-latest
@@ -92,7 +92,7 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:cache,mode=max
           build-args: |
             MAIN_PKG=./cmd/worker/main.go
-            BINARY_NAME: worker
+            BINARY_NAME=worker
 
   build-dagger:
     runs-on: ubuntu-latest
