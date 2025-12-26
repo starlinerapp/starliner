@@ -162,7 +162,6 @@ services:
       - "4222:4222"
       - "8222:8222"
     volumes:
-      - .docker/nats/nats.conf:/etc/nats/nats.conf
       - nats-data:/data/jetstream
     command: ["-c", "/etc/nats/nats.conf"]
     networks:
@@ -312,7 +311,6 @@ services:
     privileged: true
     restart: unless-stopped
     volumes:
-      - .docker/dagger/engine.toml:/etc/dagger/engine.toml
       - dagger-data:/var/lib/dagger
     networks:
       - internal

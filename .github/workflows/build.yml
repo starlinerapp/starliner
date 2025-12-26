@@ -1,0 +1,153 @@
+name: Build Images
+
+on:
+  push:
+    branches:
+      - main
+      - feature/15-production-deployment-to-hetzner
+
+jobs:
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push client image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/client/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache,mode=max
+
+  build-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push server image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/server/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
+          build-args: |
+            MAIN_PKG=./cmd/api/main.go
+            BINARY_NAME: server
+
+  build-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/server/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:cache,mode=max
+          build-args: |
+            MAIN_PKG=./cmd/worker/main.go
+            BINARY_NAME: worker
+
+  build-dagger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push dagger image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/dagger/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/dagger:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/dagger:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/dagger:cache,mode=max
+
+  build-nats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push nats image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/nats/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/nats:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/nats:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/nats:cache,mode=max
+
+
+            
+  

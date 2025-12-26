@@ -10,8 +10,6 @@ ENV BINARY_NAME=${BINARY_NAME}
 
 WORKDIR /app
 
-RUN apk add --no-cache docker-cli
-
 RUN go install github.com/air-verse/air@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
@@ -26,6 +24,9 @@ ENTRYPOINT ["air", \
   "--build.full_bin=dlv exec --accept-multiclient --headless --continue --log --listen=:${DEBUG_PORT} --api-version=2 ./build/${BINARY_NAME} --"]
 
 FROM golang:1.25-alpine AS builder
+
+ARG MAIN_PKG
+ARG BINARY_NAME
 
 WORKDIR /app
 
