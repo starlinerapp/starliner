@@ -12,6 +12,8 @@ WORKDIR /app
 
 RUN go install github.com/air-verse/air@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+ENV PATH=$PATH:/root/go/bin
 
 COPY ../../server/go.mod ../../server/go.sum ./
 RUN go mod download
@@ -37,12 +39,15 @@ COPY ../../server .
 ENV CGO_ENABLED=0
 RUN go build -o ${BINARY_NAME} ${MAIN_PKG}
 
-FROM scratch AS runner
+FROM golang:1.25-alpine AS runner
 
 ARG BINARY_NAME
 
 WORKDIR /app
 
 COPY --from=builder /app/${BINARY_NAME} ./app
+
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+ENV PATH=$PATH:/root/go/bin
 
 ENTRYPOINT [ "./app" ]
