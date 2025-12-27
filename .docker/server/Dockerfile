@@ -46,6 +46,7 @@ ARG BINARY_NAME
 WORKDIR /app
 
 COPY --from=builder /app/${BINARY_NAME} ./app
+COPY ../../server/.env .env
 
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 ENV PATH=$PATH:/root/go/bin
