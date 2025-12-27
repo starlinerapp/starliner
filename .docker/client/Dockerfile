@@ -16,6 +16,8 @@ RUN npm run build
 
 FROM node:22-alpine
 COPY ../../client/package.json ../../client/package-lock.json /app/
+COPY ../../client/drizzle/ /app/drizzle
+COPY ../../client/drizzle.config.ts /app/drizzle.config.ts
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
 WORKDIR /app
