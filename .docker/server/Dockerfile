@@ -43,6 +43,6 @@ ARG BINARY_NAME
 
 WORKDIR /app
 
-COPY --from=builder /app/${BINARY_NAME} .
+COPY --from=builder /app/${BINARY_NAME} ./app
 
-ENTRYPOINT [ "./${BINARY_NAME}" ]
+ENTRYPOINT [ "./app" ]
