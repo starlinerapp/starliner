@@ -14,8 +14,18 @@ type ProjectService struct {
 	environmentRepository  interfaces.EnvironmentRepository
 }
 
-func NewProjectService(organizationService *OrganizationService, projectRepository interfaces.ProjectRepository, organizationRepository interfaces.OrganizationRepository, environmentRepository interfaces.EnvironmentRepository) *ProjectService {
-	return &ProjectService{organizationService: organizationService, projectRepository: projectRepository, organizationRepository: organizationRepository, environmentRepository: environmentRepository}
+func NewProjectService(
+	organizationService *OrganizationService,
+	projectRepository interfaces.ProjectRepository,
+	organizationRepository interfaces.OrganizationRepository,
+	environmentRepository interfaces.EnvironmentRepository,
+) *ProjectService {
+	return &ProjectService{
+		organizationService:    organizationService,
+		projectRepository:      projectRepository,
+		organizationRepository: organizationRepository,
+		environmentRepository:  environmentRepository,
+	}
 }
 
 func (ps *ProjectService) CreateProject(ctx context.Context, name string, organizationId int64, userId int64) (*domain.Project, error) {

@@ -1,0 +1,1 @@
+FROM registry:3.0.0

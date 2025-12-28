@@ -3,7 +3,9 @@ name: starliner
 services:
   nginx:
     restart: unless-stopped
-    image: nginx:stable-alpine
+    build:
+      context: .docker/nginx
+      dockerfile: Dockerfile
     healthcheck:
       test: "curl -f http://localhost:80 || exit 1"
       interval: 5s
@@ -11,6 +13,8 @@ services:
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./.docker/nginx/ssl/dev.starliner.app.crt:/etc/nginx/dev.starliner.app.crt:ro
       - ./.docker/nginx/ssl/dev.starliner.app.key:/etc/nginx/dev.starliner.app.key:ro
+      - ./.docker/nginx/ssl/registry.dev.starliner.app.crt:/etc/nginx/registry.dev.starliner.app.crt:ro
+      - ./.docker/nginx/ssl/registry.dev.starliner.app.key:/etc/nginx/registry.dev.starliner.app.key:ro
     depends_on:
       - client
     ports:
@@ -26,7 +30,8 @@ services:
       dockerfile: .docker/client/Dockerfile
       target: development-dependencies-env
     depends_on:
-      - auth-db
+      auth-db:
+        condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
@@ -41,32 +46,70 @@ services:
     networks:
       - internal
 
-  server:
+  server: &server
     restart: unless-stopped
     build:
       context: .
       dockerfile: .docker/server/Dockerfile
       target: dev
+      args:
+        DEBUG_PORT: 40000
+        MAIN_PKG: ./cmd/api/main.go
+        BINARY_NAME: server
     depends_on:
-      - db
-      - s3
+      db:
+        condition: service_healthy
+      s3:
+        condition: service_healthy
     ports:
       - "9090:9090"
       - "40000:40000"
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: main
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-main}
       BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
+      NATS_URL: ${NATS_URL:-http://nats:4222}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
     volumes:
       - ./server:/app
     networks:
       - internal
+
+  worker:
+    <<: *server
+    build:
+      context: .
+      dockerfile: .docker/server/Dockerfile
+      target: dev
+      args:
+        DEBUG_PORT: 40001
+        MAIN_PKG: ./cmd/worker/main.go
+        BINARY_NAME: worker
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-main}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
+      NATS_URL: ${NATS_URL:-http://nats:4222}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
+      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
+    volumes:
+      - ./server:/app
+    ports:
+      - "40001:40001"
 
   db:
     restart: unless-stopped
@@ -110,6 +153,33 @@ services:
     networks:
       - internal
 
+  nats:
+    restart: unless-stopped
+    build:
+      context: .docker/nats
+      dockerfile: Dockerfile
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - .docker/nats/nats.conf:/etc/nats/nats.conf
+      - nats-data:/data/jetstream
+    command: ["-c", "/etc/nats/nats.conf"]
+    networks:
+      - internal
+
+  nats-box:
+    restart: unless-stopped
+    build:
+      context: .docker/nats-box
+      dockerfile: Dockerfile
+    depends_on:
+      - nats
+    entrypoint: /bin/sh
+    tty: true
+    networks:
+      - internal
+
   master:
     build:
       context: .docker/seaweedfs
@@ -119,8 +189,13 @@ services:
       - "19333:19333"
     command: "-v=1 master -volumeSizeLimitMB 100 -resumeState=false -ip=master -ip.bind=0.0.0.0 -port=9333 -mdir=/var/lib/seaweedfs/master"
     volumes:
-      - ./seaweedfs/data/master:/var/lib/seaweedfs/master
+      - .docker/seaweedfs/data/master:/var/lib/seaweedfs/master
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9333 || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -133,10 +208,16 @@ services:
       - "18080:18080"
     command: 'volume -dataCenter=dc1 -rack=v1 -mserver="master:9333" -port=8081 -preStopSeconds=1 -dir=/var/lib/seaweedfs/volume1'
     volumes:
-      - ./seaweedfs/data/volume1:/var/lib/seaweedfs/volume1
+      - .docker/seaweedfs/data/volume1:/var/lib/seaweedfs/volume1
     depends_on:
-      - master
+      master:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://volume1:8081/status || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -149,10 +230,16 @@ services:
       - "18082:18082"
     command: 'volume -dataCenter=dc2 -rack=v2 -mserver="master:9333" -port=8082 -preStopSeconds=1 -dir=/var/lib/seaweedfs/volume2'
     volumes:
-      - ./seaweedfs/data/volume2:/var/lib/seaweedfs/volume2
+      - .docker/seaweedfs/data/volume2:/var/lib/seaweedfs/volume2
     depends_on:
-      - master
+      master:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://volume2:8082/status || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -165,12 +252,18 @@ services:
       - "18888:18888"
     command: 'filer -defaultReplicaPlacement=100 -iam -master="master:9333"'
     volumes:
-      - ./seaweedfs/data/filer:/data
+      - .docker/seaweedfs/data/filer:/data
     depends_on:
-      - master
-      - volume1
-      - volume2
+      volume1:
+        condition: service_healthy
+      volume2:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8888 || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     networks:
       - internal
 
@@ -185,11 +278,42 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
     depends_on:
-      - master
-      - volume1
-      - volume2
-      - filer
+      filer:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8333/status || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - internal
+
+  # Fully qualified hostname necessary, so Dagger’s internal DNS can resolve it
+  # See: https://github.com/dagger/dagger/issues/9439#issuecomment-3656217482
+  registry.dev:
+    build:
+      context: .docker/registry
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+    volumes:
+      - registry-data:/data
+    networks:
+      - internal
+
+  dagger:
+    build:
+      context: .docker/dagger
+      dockerfile: Dockerfile
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - .docker/dagger/engine.toml:/etc/dagger/engine.toml
+      - dagger-data:/var/lib/dagger
     networks:
       - internal
 
@@ -197,6 +321,9 @@ volumes:
   node-modules-client:
   auth-db-data:
   db-data:
+  nats-data:
+  registry-data:
+  dagger-data:
 
 networks:
   internal:

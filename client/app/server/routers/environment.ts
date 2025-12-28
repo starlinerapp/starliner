@@ -1,7 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { environmentApiFactory } from "~/api/client";
-import { withAuthHeader } from "~/api/client/axios.server";
+import { withAuthHeader } from "~/server/api/client/axios.server";
+import { environmentApiFactory } from "~/server/api/client";
 
 export const environmentRouter = {
   createEnvironment: protectedProcedure

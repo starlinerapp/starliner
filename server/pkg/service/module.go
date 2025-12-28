@@ -8,4 +8,5 @@ var Module = fx.Module(
 	fx.Provide(NewEnvironmentService),
 	fx.Provide(NewProjectService),
 	fx.Provide(NewOrganizationService),
+	fx.Provide(NewBuildService),
 )

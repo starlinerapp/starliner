@@ -1,5 +1,6 @@
 .gitignore
 .npmignore
+.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -10,7 +11,6 @@ docs/ProjectApi.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateOrganization.md
 docs/RequestCreateProject.md
-docs/RequestGetProject.md
 docs/ResponseEnvironment.md
 docs/ResponseOrganization.md
 docs/ResponseProject.md

@@ -1,0 +1,9 @@
+debug = true
+insecure-entitlements = ["security.insecure"]
+
+[grpc]
+address = ["tcp://0.0.0.0:1234"]
+
+[registry."registry.dev:5000"]
+http = true
+insecure = true

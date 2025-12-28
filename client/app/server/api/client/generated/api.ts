@@ -99,19 +99,6 @@ export interface RequestCreateProject {
 /**
  *
  * @export
- * @interface RequestGetProject
- */
-export interface RequestGetProject {
-  /**
-   *
-   * @type {number}
-   * @memberof RequestGetProject
-   */
-  id: number;
-}
-/**
- *
- * @export
  * @interface ResponseEnvironment
  */
 export interface ResponseEnvironment {
@@ -792,17 +779,20 @@ export const ProjectApiAxiosParamCreator = function (
     /**
      *
      * @summary Get Project
-     * @param {RequestGetProject} data Get Project
+     * @param {number} id Project ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getProject: async (
-      data: RequestGetProject,
+      id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
-      // verify required parameter 'data' is not null or undefined
-      assertParamExists("getProject", "data", data);
-      const localVarPath = `/projects`;
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getProject", "id", id);
+      const localVarPath = `/projects/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -818,8 +808,6 @@ export const ProjectApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
-      localVarHeaderParameter["Content-Type"] = "application/json";
-
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -828,11 +816,6 @@ export const ProjectApiAxiosParamCreator = function (
         ...headersFromBaseOptions,
         ...options.headers,
       };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        data,
-        localVarRequestOptions,
-        configuration,
-      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -882,12 +865,12 @@ export const ProjectApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Get Project
-     * @param {RequestGetProject} data Get Project
+     * @param {number} id Project ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getProject(
-      data: RequestGetProject,
+      id: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (
@@ -896,7 +879,7 @@ export const ProjectApiFp = function (configuration?: Configuration) {
       ) => AxiosPromise<ResponseProject>
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getProject(
-        data,
+        id,
         options,
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
@@ -944,16 +927,16 @@ export const ProjectApiFactory = function (
     /**
      *
      * @summary Get Project
-     * @param {RequestGetProject} data Get Project
+     * @param {number} id Project ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getProject(
-      data: RequestGetProject,
+      id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<ResponseProject> {
       return localVarFp
-        .getProject(data, options)
+        .getProject(id, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -986,14 +969,14 @@ export class ProjectApi extends BaseAPI {
   /**
    *
    * @summary Get Project
-   * @param {RequestGetProject} data Get Project
+   * @param {number} id Project ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof ProjectApi
    */
-  public getProject(data: RequestGetProject, options?: RawAxiosRequestConfig) {
+  public getProject(id: number, options?: RawAxiosRequestConfig) {
     return ProjectApiFp(this.configuration)
-      .getProject(data, options)
+      .getProject(id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
