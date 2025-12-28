@@ -9,7 +9,7 @@ export default function Projects() {
   return (
     <div className="px-8 py-4">
       <div className="flex w-full items-center justify-between">
-        <h1 className="text-xl font-bold">Projects</h1>
+        <h1 className="text-xl font-bold">All Projects</h1>
         <Button
           className="w-32"
           onClick={() => navigate(`/${slug}/projects/new`)}
