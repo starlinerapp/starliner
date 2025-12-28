@@ -8,6 +8,7 @@ on:
 
 env:
   IMAGE_TAG: ${{ github.ref_name == 'develop' && 'develop' || 'latest' }}
+  ENVIRONMENT: ${{ github.ref_name == 'develop' && 'staging' || github.ref_name == 'main' && 'production' }}
 
 jobs:
   build-client:
@@ -110,3 +111,4 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           repository: 'starlinerapp/infrastructure'
           event-type: deploy_new_images
+          client-payload: '{"environment": "${{ env.ENVIRONMENT }}"}'
