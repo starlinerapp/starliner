@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+      - develop
+
+env:
+  IMAGE_TAG: ${{ github.ref_name == 'develop' && 'develop' || 'latest' }}
 
 jobs:
   build-client:
@@ -29,7 +32,7 @@ jobs:
           context: .
           file: .docker/client/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache,mode=max
@@ -56,7 +59,7 @@ jobs:
           context: .
           file: .docker/server/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
@@ -86,7 +89,7 @@ jobs:
           context: .
           file: .docker/server/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:latest
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:cache,mode=max
