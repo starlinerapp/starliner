@@ -7,13 +7,13 @@ ARG BINARY_NAME
 ENV MAIN_PKG=${MAIN_PKG}
 ENV DEBUG_PORT=${DEBUG_PORT}
 ENV BINARY_NAME=${BINARY_NAME}
+ENV PATH=/go/bin:${PATH}
 
 WORKDIR /app
 
-RUN apk add --no-cache docker-cli
-
 RUN go install github.com/air-verse/air@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 COPY ../../server/go.mod ../../server/go.sum ./
 RUN go mod download
@@ -27,6 +27,9 @@ ENTRYPOINT ["air", \
 
 FROM golang:1.25-alpine AS builder
 
+ARG MAIN_PKG
+ARG BINARY_NAME
+
 WORKDIR /app
 
 COPY ../../server/go.mod ../../server/go.sum ./
@@ -36,10 +39,15 @@ COPY ../../server .
 ENV CGO_ENABLED=0
 RUN go build -o ${BINARY_NAME} ${MAIN_PKG}
 
-FROM scratch AS runner
+FROM golang:1.25-alpine AS runner
+
+ARG BINARY_NAME
 
 WORKDIR /app
 
-COPY --from=builder /app/${BINARY_NAME} .
+COPY --from=builder /app/${BINARY_NAME} ./app
+COPY ../../server/.env .env
+COPY ../../server/pkg/db/migrations ./pkg/db/migrations
+COPY --from=dev /go/bin/goose /usr/local/bin/goose
 
-ENTRYPOINT [ "./${BINARY_NAME}" ]
+ENTRYPOINT [ "./app" ]

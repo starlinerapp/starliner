@@ -40,6 +40,17 @@ export default function OrganizationBadge() {
     );
   }, [organizations, slug]);
 
+  const { data: projects } = useQuery(
+    trpc.organization.getOrganizationProjects.queryOptions(
+      {
+        id: currentOrganization?.id ?? 0,
+      },
+      {
+        enabled: !!currentOrganization?.id,
+      },
+    ),
+  );
+
   return (
     <Popover.Root>
       <Popover.Trigger className="data-[state=open]:bg-violet-3 data-[state=open]:border-gray-4 hover:bg-violet-3 hover:border-gray-4 flex h-11 w-11 items-center justify-center self-center rounded-md border border-white">
@@ -61,7 +72,10 @@ export default function OrganizationBadge() {
                 <p className="text-gray-12 text-sm font-bold">
                   {currentOrganization?.name ?? ""}
                 </p>
-                <p className="text-gray-11 text-xs">0 Projects</p>
+                <p className="text-gray-11 text-xs">
+                  {projects?.length ?? 0}{" "}
+                  {projects?.length === 1 ? "Project" : "Projects"}
+                </p>
               </div>
             </div>
             <button
