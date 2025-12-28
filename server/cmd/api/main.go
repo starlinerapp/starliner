@@ -6,8 +6,9 @@ import (
 	"starliner.app/pkg/config"
 )
 
-// @title   Starliner API
+// @title Starliner API
 // @version 1.0
+// @securityDefinitions.basic BasicAuth
 func main() {
 	fx.New(
 		config.Module,

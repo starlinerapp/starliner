@@ -2,10 +2,10 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                              | HTTP request       | Description    |
-| ----------------------------------- | ------------------ | -------------- |
-| [**createProject**](#createproject) | **POST** /projects | Create Project |
-| [**getProject**](#getproject)       | **GET** /projects  | Get Project    |
+| Method                              | HTTP request           | Description    |
+| ----------------------------------- | ---------------------- | -------------- |
+| [**createProject**](#createproject) | **POST** /projects     | Create Project |
+| [**getProject**](#getproject)       | **GET** /projects/{id} | Get Project    |
 
 # **createProject**
 
@@ -53,26 +53,26 @@ No authorization required
 
 # **getProject**
 
-> ResponseProject getProject(data)
+> ResponseProject getProject()
 
 ### Example
 
 ```typescript
-import { ProjectApi, Configuration, RequestGetProject } from "./api";
+import { ProjectApi, Configuration } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
-let data: RequestGetProject; //Get Project
+let id: number; //Project ID (default to undefined)
 
-const { status, data } = await apiInstance.getProject(data);
+const { status, data } = await apiInstance.getProject(id);
 ```
 
 ### Parameters
 
-| Name     | Type                  | Description | Notes |
-| -------- | --------------------- | ----------- | ----- |
-| **data** | **RequestGetProject** | Get Project |       |
+| Name   | Type         | Description | Notes                 |
+| ------ | ------------ | ----------- | --------------------- |
+| **id** | [**number**] | Project ID  | defaults to undefined |
 
 ### Return type
 

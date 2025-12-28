@@ -1,13 +1,14 @@
 import {
-  Configuration,
-  EnvironmentApiFactory,
   OrganizationApiFactory,
-  ProjectApiFactory,
+  Configuration,
   RootApiFactory,
   UserApiFactory,
-} from "~/api/client/generated";
+  ProjectApiFactory,
+  EnvironmentApiFactory,
+} from "~/server/api/client/generated";
+
 import { serverEnv } from "~/env.server";
-import { axiosInstance } from "~/api/client/axios.server";
+import { axiosInstance } from "~/server/api/client/axios.server";
 
 const configuration = new Configuration({
   basePath: `http://${serverEnv.SERVER_BASE_URL}`,

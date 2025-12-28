@@ -1,6 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
-import { organizationApiFactory } from "~/api/client";
-import { withAuthHeader } from "~/api/client/axios.server";
+import { organizationApiFactory } from "~/server/api/client";
+import { withAuthHeader } from "~/server/api/client/axios.server";
 import { z } from "zod";
 
 export const organizationRouter = {
