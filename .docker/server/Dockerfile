@@ -11,10 +11,9 @@ ENV PATH=/go/bin:${PATH}
 
 WORKDIR /app
 
-RUN go install \
-    github.com/air-verse/air@latest \
-    github.com/go-delve/delve/cmd/dlv@latest \
-    github.com/pressly/goose/v3/cmd/goose@latest
+RUN go install github.com/air-verse/air@latest
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 COPY ../../server/go.mod ../../server/go.sum ./
 RUN go mod download
