@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/15-production-deployment-to-hetzner
+  workflow_dispatch:
 
 jobs:
   build-client:
