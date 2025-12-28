@@ -7,13 +7,14 @@ ARG BINARY_NAME
 ENV MAIN_PKG=${MAIN_PKG}
 ENV DEBUG_PORT=${DEBUG_PORT}
 ENV BINARY_NAME=${BINARY_NAME}
+ENV PATH=/go/bin:${PATH}
 
 WORKDIR /app
 
-RUN go install github.com/air-verse/air@latest
-RUN go install github.com/go-delve/delve/cmd/dlv@latest
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest
-ENV PATH=$PATH:/root/go/bin
+RUN go install \
+    github.com/air-verse/air@latest \
+    github.com/go-delve/delve/cmd/dlv@latest \
+    github.com/pressly/goose/v3/cmd/goose@latest
 
 COPY ../../server/go.mod ../../server/go.sum ./
 RUN go mod download
@@ -48,8 +49,6 @@ WORKDIR /app
 COPY --from=builder /app/${BINARY_NAME} ./app
 COPY ../../server/.env .env
 COPY ../../server/pkg/db/migrations ./pkg/db/migrations
-
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest
-ENV PATH=$PATH:/root/go/bin
+COPY --from=dev /go/bin/goose /usr/local/bin/goose
 
 ENTRYPOINT [ "./app" ]
