@@ -64,6 +64,7 @@ func NewServer(
 	clusterRoutes := engine.Group("/clusters")
 	{
 		clusterRoutes.POST("", clusterhandler.CreateCluster)
+		clusterRoutes.DELETE("/:id", clusterhandler.DeleteCluster)
 	}
 
 	return &Server{engine: engine}

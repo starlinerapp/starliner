@@ -152,6 +152,26 @@ paths:
       summary: Create Cluster
       tags:
       - cluster
+  /clusters/{id}:
+    delete:
+      operationId: deleteCluster
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Cluster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Delete Cluster
+      tags:
+      - cluster
   /environments:
     post:
       operationId: createEnvironment

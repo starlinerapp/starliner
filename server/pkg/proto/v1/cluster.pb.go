@@ -23,8 +23,9 @@ const (
 
 type Cluster struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	OrganizationId int64                  `protobuf:"varint,2,opt,name=organizationId,proto3" json:"organizationId,omitempty"`
+	Id             *int64                 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	OrganizationId int64                  `protobuf:"varint,3,opt,name=organizationId,proto3" json:"organizationId,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -59,6 +60,13 @@ func (*Cluster) Descriptor() ([]byte, []int) {
 	return file_pkg_proto_v1_cluster_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *Cluster) GetId() int64 {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return 0
+}
+
 func (x *Cluster) GetName() string {
 	if x != nil {
 		return x.Name
@@ -77,10 +85,12 @@ var File_pkg_proto_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_pkg_proto_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"\x1apkg/proto/v1/cluster.proto\x12\bproto.v1\"E\n" +
-	"\aCluster\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12&\n" +
-	"\x0eorganizationId\x18\x02 \x01(\x03R\x0eorganizationIdB\x18Z\x16starliner.app/proto/v1b\x06proto3"
+	"\x1apkg/proto/v1/cluster.proto\x12\bproto.v1\"a\n" +
+	"\aCluster\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\x03H\x00R\x02id\x88\x01\x01\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12&\n" +
+	"\x0eorganizationId\x18\x03 \x01(\x03R\x0eorganizationIdB\x05\n" +
+	"\x03_idB\x18Z\x16starliner.app/proto/v1b\x06proto3"
 
 var (
 	file_pkg_proto_v1_cluster_proto_rawDescOnce sync.Once
@@ -111,6 +121,7 @@ func file_pkg_proto_v1_cluster_proto_init() {
 	if File_pkg_proto_v1_cluster_proto != nil {
 		return
 	}
+	file_pkg_proto_v1_cluster_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
