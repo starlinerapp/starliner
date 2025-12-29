@@ -27,6 +27,6 @@ var Module = fx.Module(
 		return EnsureStream(js, Builds, []Subject{BuildTriggered})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return EnsureStream(js, Clusters, []Subject{CreateCluster})
+		return EnsureStream(js, Clusters, []Subject{CreateCluster, DeleteCluster})
 	}),
 )

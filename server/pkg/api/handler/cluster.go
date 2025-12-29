@@ -6,6 +6,7 @@ import (
 	"starliner.app/pkg/api/dto/request"
 	"starliner.app/pkg/domain"
 	"starliner.app/pkg/service"
+	"strconv"
 )
 
 type ClusterHandler struct {
@@ -59,5 +60,30 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
+	c.Status(http.StatusOK)
+}
+
+// DeleteCluster FindAll godoc
+// @Summary Delete Cluster
+// @Tags cluster
+// @ID deleteCluster
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Cluster ID"
+// @Product JSON
+// @Success 200
+// @Router /clusters/{id} [delete]
+func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
+	currentUser := c.MustGet("user").(*domain.User)
+	clusterId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = ch.clusterService.DeleteCluster(c, currentUser.Id, clusterId)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+	}
+
 	c.Status(http.StatusOK)
 }

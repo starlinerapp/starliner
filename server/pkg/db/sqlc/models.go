@@ -8,6 +8,17 @@ import (
 	"time"
 )
 
+type Cluster struct {
+	ID             int64
+	Name           string
+	Ipv4Address    string
+	PublicKey      string
+	PrivateKeyRef  string
+	OrganizationID int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type Environment struct {
 	ID        int64
 	Name      string

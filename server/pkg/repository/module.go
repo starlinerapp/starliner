@@ -8,4 +8,5 @@ var Module = fx.Module(
 	fx.Provide(NewOrganizationRepository),
 	fx.Provide(NewProjectRepository),
 	fx.Provide(NewUserRepository),
+	fx.Provide(NewClusterRepository),
 )
