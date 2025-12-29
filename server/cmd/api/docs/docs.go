@@ -55,6 +55,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/clusters": {
+            "post": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Create Cluster",
+                "operationId": "createCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Cluster",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCluster"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments": {
             "post": {
                 "tags": [
@@ -222,6 +254,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "request.CreateCluster": {
+            "type": "object",
+            "required": [
+                "name",
+                "organizationId"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "organizationId": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.CreateEnvironment": {
             "type": "object",
             "required": [

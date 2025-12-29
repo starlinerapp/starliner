@@ -10,7 +10,8 @@ import (
 type Stream string
 
 const (
-	Builds Stream = "builds"
+	Builds   Stream = "builds"
+	Clusters Stream = "clusters"
 )
 
 func EnsureStream(js nats.JetStreamContext, name Stream, subjects []Subject) error {

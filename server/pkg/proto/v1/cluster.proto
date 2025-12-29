@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/proto/v1";
+
+message Cluster {
+  string name = 1;
+  int64 organizationId = 2;
+}
