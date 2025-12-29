@@ -1,18 +1,19 @@
 # ResponseRoot
 
+
 ## Properties
 
-| Name        | Type       | Description | Notes                  |
-| ----------- | ---------- | ----------- | ---------------------- |
-| **message** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**message** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseRoot } from "./api";
+import { ResponseRoot } from './api';
 
 const instance: ResponseRoot = {
-  message,
+    message,
 };
 ```
 

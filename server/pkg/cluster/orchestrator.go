@@ -55,11 +55,7 @@ func (o *Orchestrator) Start() error {
 }
 
 func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
-	ctx := context.Background()
-	_, err := o.clusterRepository.CreateCluster(ctx, c.Name, "", "", "", c.OrganizationId)
-	if err != nil {
-		fmt.Printf("failed to persist cluster in database: %v", err)
-	}
+	fmt.Printf("create cluster: %s\n", c.Name)
 }
 
 func (o *Orchestrator) handleDeleteCluster(c *v1.Cluster) {

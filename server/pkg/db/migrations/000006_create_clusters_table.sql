@@ -2,9 +2,9 @@
 CREATE TABLE clusters (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    ipv4_address VARCHAR(255) NOT NULL,
-    public_key TEXT not null,
-    private_key_ref VARCHAR(255) NOT NULL,
+    ipv4_address VARCHAR(255),
+    public_key TEXT,
+    private_key_ref VARCHAR(255),
     organization_id BIGINT NOT NULL REFERENCES organizations(id),
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()

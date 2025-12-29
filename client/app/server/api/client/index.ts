@@ -5,6 +5,7 @@ import {
   UserApiFactory,
   ProjectApiFactory,
   EnvironmentApiFactory,
+  ClusterApiFactory,
 } from "~/server/api/client/generated";
 
 import { serverEnv } from "~/env.server";
@@ -39,6 +40,12 @@ export const projectApiFactory = ProjectApiFactory(
 );
 
 export const environmentApiFactory = EnvironmentApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const clusterApiFactory = ClusterApiFactory(
   configuration,
   undefined,
   axiosInstance,

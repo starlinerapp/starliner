@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createCluster = `-- name: CreateCluster :one
@@ -28,9 +29,9 @@ RETURNING id, name, ipv4_address, public_key, private_key_ref, organization_id, 
 
 type CreateClusterParams struct {
 	Name           string
-	Ipv4Address    string
-	PublicKey      string
-	PrivateKeyRef  string
+	Ipv4Address    sql.NullString
+	PublicKey      sql.NullString
+	PrivateKeyRef  sql.NullString
 	OrganizationID int64
 }
 
@@ -87,4 +88,55 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getOrganizationClusters = `-- name: GetOrganizationClusters :many
+SELECT
+    clusters.id as id,
+    clusters.name as name,
+    clusters.ipv4_address as ipv4_address,
+    clusters.public_key as public_key,
+    clusters.private_key_ref as private_key_ref,
+    clusters.organization_id as organization_id
+FROM clusters
+WHERE clusters.organization_id = $1
+`
+
+type GetOrganizationClustersRow struct {
+	ID             int64
+	Name           string
+	Ipv4Address    sql.NullString
+	PublicKey      sql.NullString
+	PrivateKeyRef  sql.NullString
+	OrganizationID int64
+}
+
+func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID int64) ([]GetOrganizationClustersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrganizationClusters, organizationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrganizationClustersRow
+	for rows.Next() {
+		var i GetOrganizationClustersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Ipv4Address,
+			&i.PublicKey,
+			&i.PrivateKeyRef,
+			&i.OrganizationID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

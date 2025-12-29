@@ -4,6 +4,7 @@ import { userRouter } from "~/server/routers/user";
 import { organizationRouter } from "~/server/routers/organization";
 import { projectRouter } from "~/server/routers/project";
 import { environmentRouter } from "~/server/routers/environment";
+import { clusterRouter } from "~/server/routers/cluster";
 
 export const appRouter = createTRPCRouter({
   root: rootRouter,
@@ -11,6 +12,7 @@ export const appRouter = createTRPCRouter({
   organization: organizationRouter,
   project: projectRouter,
   environment: environmentRouter,
+  cluster: clusterRouter,
 });
 
 export type AppRouter = typeof appRouter;

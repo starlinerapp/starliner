@@ -25,14 +25,18 @@ const buttonVariants = cva(
       size: { sm: "p-2", md: "px-4 py-3" },
       intent: {
         primary: "bg-violet-10 hover:bg-violet-9 text-white",
+        danger:
+          "text-red-11 font-bold border-gray-7 bg-gray-3 hover:text-white hover:bg-red-11 hover:border-red-8",
       },
       disabled: {
         false: null,
         true: [
           "text-mauve-11",
+          "hover:text-mauve-11",
           "bg-white",
           "hover:bg-white",
           "border-mauve-6",
+          "hover:border-mauve-6",
           "cursor-not-allowed",
         ],
       },

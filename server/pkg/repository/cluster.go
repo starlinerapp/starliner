@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"starliner.app/pkg/db/sqlc"
+	"starliner.app/pkg/db/utils"
 	"starliner.app/pkg/domain"
 	interfaces "starliner.app/pkg/repository/interface"
 )
@@ -26,9 +27,9 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 	return &domain.Cluster{
 		Id:             cluster.ID,
 		Name:           cluster.Name,
-		IPv4Address:    cluster.Ipv4Address,
-		PublicKey:      cluster.PublicKey,
-		PrivateKeyRef:  cluster.PrivateKeyRef,
+		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
+		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
+		PrivateKeyRef:  utils.PtrFromNullString(cluster.PrivateKeyRef),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 
@@ -37,16 +38,16 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 func (cr *ClusterRepository) CreateCluster(
 	ctx context.Context,
 	name string,
-	ipv4Address string,
-	publicKey string,
-	privateKeyRef string,
 	organizationId int64,
+	ipv4Address *string,
+	publicKey *string,
+	privateKeyRef *string,
 ) (*domain.Cluster, error) {
 	cluster, err := cr.queries.CreateCluster(ctx, sqlc.CreateClusterParams{
 		Name:           name,
-		Ipv4Address:    ipv4Address,
-		PublicKey:      publicKey,
-		PrivateKeyRef:  privateKeyRef,
+		Ipv4Address:    utils.NullStringFromPtr(ipv4Address),
+		PublicKey:      utils.NullStringFromPtr(publicKey),
+		PrivateKeyRef:  utils.NullStringFromPtr(privateKeyRef),
 		OrganizationID: organizationId,
 	})
 	if err != nil {
@@ -56,9 +57,9 @@ func (cr *ClusterRepository) CreateCluster(
 	return &domain.Cluster{
 		Id:             cluster.ID,
 		Name:           cluster.Name,
-		IPv4Address:    cluster.Ipv4Address,
-		PublicKey:      cluster.PublicKey,
-		PrivateKeyRef:  cluster.PrivateKeyRef,
+		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
+		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
+		PrivateKeyRef:  utils.PtrFromNullString(cluster.PrivateKeyRef),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 }

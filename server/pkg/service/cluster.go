@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
+	"fmt"
 	"log"
+	"starliner.app/pkg/domain"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
 	interfaces "starliner.app/pkg/repository/interface"
@@ -29,9 +30,13 @@ func NewClusterService(
 	}
 }
 
-func (cs *ClusterService) CreateCluster(name string, organizationId int64) error {
-	id := uuid.New().String()
-	err := cs.clusterPublisher.Publish(queue.CreateCluster, id, &v1.Cluster{
+func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organizationId int64) error {
+	cluster, err := cs.clusterRepository.CreateCluster(ctx, name, organizationId, nil, nil, nil)
+	if err != nil {
+		fmt.Printf("failed to persist cluster in database: %v", err)
+	}
+
+	err = cs.clusterPublisher.Publish(queue.CreateCluster, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
 		Name:           name,
 		OrganizationId: organizationId,
 	})
@@ -40,6 +45,29 @@ func (cs *ClusterService) CreateCluster(name string, organizationId int64) error
 	}
 
 	return nil
+}
+
+func (cs *ClusterService) GetCluster(ctx context.Context, id int64, userId int64) (*domain.Cluster, error) {
+	cluster, err := cs.clusterRepository.GetCluster(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	orgs, err := cs.organizationRepository.GetUserOrganizations(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	found := false
+	for _, org := range orgs {
+		if org.Id == cluster.OrganizationId {
+			found = true
+		}
+	}
+	if !found {
+		return nil, errors.New("organization not found")
+	}
+
+	return cluster, nil
 }
 
 func (cs *ClusterService) DeleteCluster(ctx context.Context, userId int64, clusterId int64) error {

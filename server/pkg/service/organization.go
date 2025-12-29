@@ -35,23 +35,21 @@ func (os *OrganizationService) GetUserOrganizations(ctx context.Context, userID 
 }
 
 func (os *OrganizationService) GetProjectsForUser(ctx context.Context, userID int64, organizationID int64) ([]domain.Project, error) {
-	organizations, err := os.organizationRepository.GetUserOrganizations(ctx, userID)
+	err := os.ValidateUserOrganization(ctx, userID, organizationID)
 	if err != nil {
 		return nil, err
 	}
 
-	found := false
-	for _, org := range organizations {
-		if org.Id == organizationID {
-			found = true
-			break
-		}
-	}
-	if !found {
-		return nil, errors.New("organization not found")
+	return os.organizationRepository.GetOrganizationProjects(ctx, organizationID)
+}
+
+func (os *OrganizationService) GetClustersForUser(ctx context.Context, userID int64, organizationID int64) ([]domain.Cluster, error) {
+	err := os.ValidateUserOrganization(ctx, organizationID, userID)
+	if err != nil {
+		return nil, err
 	}
 
-	return os.organizationRepository.GetOrganizationProjects(ctx, organizationID)
+	return os.organizationRepository.GetOrganizationClusters(ctx, organizationID)
 }
 
 func (os *OrganizationService) ValidateUserOrganization(ctx context.Context, organizationId int64, userId int64) error {
