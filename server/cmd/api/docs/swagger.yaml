@@ -1,4 +1,14 @@
 definitions:
+  request.CreateCluster:
+    properties:
+      name:
+        type: string
+      organizationId:
+        type: integer
+    required:
+    - name
+    - organizationId
+    type: object
   request.CreateEnvironment:
     properties:
       name:
@@ -121,6 +131,27 @@ paths:
       summary: Trigger Build
       tags:
       - build
+  /clusters:
+    post:
+      operationId: createCluster
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Create Cluster
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCluster'
+      responses:
+        "200":
+          description: OK
+      summary: Create Cluster
+      tags:
+      - cluster
   /environments:
     post:
       operationId: createEnvironment

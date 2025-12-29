@@ -27,6 +27,7 @@ func NewServer(
 	projectHandler *handler.ProjectHandler,
 	environmentHandler *handler.EnvironmentHandler,
 	buildHandler *handler.BuildHandler,
+	clusterhandler *handler.ClusterHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -58,6 +59,11 @@ func NewServer(
 	buildRoutes := engine.Group("/builds")
 	{
 		buildRoutes.POST("", buildHandler.TriggerBuild)
+	}
+
+	clusterRoutes := engine.Group("/clusters")
+	{
+		clusterRoutes.POST("", clusterhandler.CreateCluster)
 	}
 
 	return &Server{engine: engine}

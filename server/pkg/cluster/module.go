@@ -1,15 +1,11 @@
-package builder
+package cluster
 
 import (
 	"go.uber.org/fx"
-	"starliner.app/pkg/dagger"
-	"starliner.app/pkg/objectstore"
 )
 
 var Module = fx.Module(
-	"build",
-	objectstore.Module,
-	dagger.Module,
+	"cluster",
 	fx.Provide(
 		NewOrchestrator,
 	),
