@@ -88,6 +88,37 @@ const docTemplate = `{
             }
         },
         "/clusters/{id}": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get Cluster",
+                "operationId": "getCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Cluster"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "tags": [
                     "cluster"
@@ -198,6 +229,42 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Created"
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/clusters": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get Organization Clusters",
+                "operationId": "getOrganizationClusters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Cluster"
+                            }
+                        }
                     }
                 }
             }
@@ -341,6 +408,37 @@ const docTemplate = `{
                 },
                 "organization_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.Cluster": {
+            "type": "object",
+            "required": [
+                "id",
+                "ipv4Address",
+                "name",
+                "organizationId",
+                "privateKeyRef",
+                "publicKey"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "ipv4Address": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organizationId": {
+                    "type": "integer"
+                },
+                "privateKeyRef": {
+                    "type": "string"
+                },
+                "publicKey": {
+                    "type": "string"
                 }
             }
         },

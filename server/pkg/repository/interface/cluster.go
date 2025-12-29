@@ -9,10 +9,10 @@ type ClusterRepository interface {
 	CreateCluster(
 		ctx context.Context,
 		name string,
-		ipv4Address string,
-		publicKey string,
-		privateKeyRef string,
 		organizationId int64,
+		ipv4Address *string,
+		publicKey *string,
+		privateKeyRef *string,
 	) (*domain.Cluster, error)
 
 	GetCluster(

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"starliner.app/pkg/db/sqlc"
+	"starliner.app/pkg/db/utils"
 	"starliner.app/pkg/domain"
 	interfaces "starliner.app/pkg/repository/interface"
 )
@@ -86,4 +87,29 @@ func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, o
 	}
 
 	return projects, nil
+}
+
+func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, organizationID int64) ([]domain.Cluster, error) {
+	rows, err := or.queries.GetOrganizationClusters(ctx, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows == nil {
+		return []domain.Cluster{}, nil
+	}
+
+	clusters := make([]domain.Cluster, 0, len(rows))
+	for _, c := range rows {
+		clusters = append(clusters, domain.Cluster{
+			Id:             c.ID,
+			Name:           c.Name,
+			IPv4Address:    utils.PtrFromNullString(c.Ipv4Address),
+			PublicKey:      utils.PtrFromNullString(c.PublicKey),
+			PrivateKeyRef:  utils.PtrFromNullString(c.PrivateKeyRef),
+			OrganizationId: c.OrganizationID,
+		})
+	}
+
+	return clusters, nil
 }

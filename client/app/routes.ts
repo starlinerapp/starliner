@@ -40,6 +40,19 @@ export default [
         ]),
       ]),
 
+      ...prefix("clusters", [
+        index("routes/dashboard/clusters/index.tsx"),
+        route("all", "routes/dashboard/clusters/all.tsx"),
+        route("new", "routes/dashboard/clusters/new.tsx"),
+        ...prefix(":id", [
+          index("routes/dashboard/clusters/[id]/index.tsx"),
+          layout("routes/dashboard/clusters/[id]/layout.tsx", [
+            route("general", "routes/dashboard/clusters/[id]/general.tsx"),
+            route("settings", "routes/dashboard/clusters/[id]/settings.tsx"),
+          ]),
+        ]),
+      ]),
+
       route("settings", "routes/dashboard/settings.tsx"),
     ]),
   ]),

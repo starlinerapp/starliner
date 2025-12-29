@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"starliner.app/pkg/api/dto/request"
+	"starliner.app/pkg/api/dto/response"
 	"starliner.app/pkg/domain"
 	"starliner.app/pkg/service"
 	"strconv"
@@ -55,12 +56,46 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 		return
 	}
 
-	err = ch.clusterService.CreateCluster(cluster.Name, cluster.OrganizationID)
+	err = ch.clusterService.CreateCluster(c, cluster.Name, cluster.OrganizationID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.Status(http.StatusOK)
+}
+
+// GetCluster FindAll godoc
+// @Summary Get Cluster
+// @Tags cluster
+// @ID getCluster
+// @Param X-User-ID header string true "User ID"
+// @Product JSON
+// @Param id path int true "Cluster ID"
+// @Success 200 {object} response.Cluster
+// @Router /clusters/{id} [get]
+func (ch *ClusterHandler) GetCluster(c *gin.Context) {
+	currentUser := c.MustGet("user").(*domain.User)
+	clusterId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	cluster, err := ch.clusterService.GetCluster(c, clusterId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	res := response.Cluster{
+		Id:             clusterId,
+		Name:           cluster.Name,
+		IPv4Address:    cluster.IPv4Address,
+		PublicKey:      cluster.PublicKey,
+		PrivateKeyRef:  cluster.PrivateKeyRef,
+		OrganizationId: cluster.OrganizationId,
+	}
+	c.JSON(http.StatusOK, res)
 }
 
 // DeleteCluster FindAll godoc

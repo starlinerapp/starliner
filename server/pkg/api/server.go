@@ -43,6 +43,7 @@ func NewServer(
 		organizationRoutes.POST("", organizationHandler.CreateOrganization)
 		organizationRoutes.GET("", organizationHandler.GetUserOrganizations)
 		organizationRoutes.GET("/:id/projects", organizationHandler.GetOrganizationProjects)
+		organizationRoutes.GET("/:id/clusters", organizationHandler.GetOrganizationClusters)
 	}
 
 	projectRoutes := engine.Group("/projects")
@@ -64,6 +65,7 @@ func NewServer(
 	clusterRoutes := engine.Group("/clusters")
 	{
 		clusterRoutes.POST("", clusterhandler.CreateCluster)
+		clusterRoutes.GET("/:id", clusterhandler.GetCluster)
 		clusterRoutes.DELETE("/:id", clusterhandler.DeleteCluster)
 	}
 

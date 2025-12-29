@@ -11,7 +11,7 @@ import { caller } from "~/utils/trpc/server";
 import { auth } from "~/utils/auth/server";
 import Sidebar from "~/components/organisms/sidebar/Sidebar";
 import ExtendedSidebar from "~/components/organisms/extended-sidebar/ExtendedSidebar";
-import { Cog, InboxStack } from "~/components/atoms/icons";
+import { Cog, InboxStack, Servers } from "~/components/atoms/icons";
 import { OrganizationProvider } from "~/contexts/OrganizationContext";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
@@ -54,8 +54,14 @@ export default function Layout() {
   const { slug } = useParams<{ slug: string }>();
 
   const trpc = useTRPC();
-  const { data: projects, isLoading } = useQuery(
+  const { data: projects, isLoading: isProjectsLoading } = useQuery(
     trpc.organization.getOrganizationProjects.queryOptions({
+      id: organization.id,
+    }),
+  );
+
+  const { data: clusters, isLoading: isClustersLoading } = useQuery(
+    trpc.organization.getOrganizationClusters.queryOptions({
       id: organization.id,
     }),
   );
@@ -77,8 +83,30 @@ export default function Layout() {
         [
           ...(projects?.map((project) => ({
             id: `project-${project.id}`,
-            title: project.name,
+            title: project.name ?? "",
             href: `/${slug}/projects/${project.id}`,
+          })) ?? []),
+        ],
+      ],
+    },
+    {
+      id: "clusters",
+      title: "Clusters",
+      icon: <Servers />,
+      href: `/${slug}/clusters`,
+      extended: [
+        [
+          {
+            id: "all-clusters",
+            title: "All Clusters",
+            href: `/${slug}/clusters/all`,
+          },
+        ],
+        [
+          ...(clusters?.map((cluster) => ({
+            id: `cluster-${cluster.id}`,
+            title: cluster.name ?? "",
+            href: `/${slug}/clusters/${cluster.id}`,
           })) ?? []),
         ],
       ],
@@ -91,9 +119,9 @@ export default function Layout() {
     },
   ];
 
-  const activeItem =
-    sidebarItems.find((item) => location.pathname === item.href) ||
-    sidebarItems[0];
+  const activeItem = sidebarItems.find((item) =>
+    location.pathname.startsWith(item.href),
+  );
 
   return (
     <OrganizationProvider
@@ -103,9 +131,9 @@ export default function Layout() {
     >
       <Sidebar sidebarItems={sidebarItems}>
         <ExtendedSidebar
-          title={activeItem.title}
-          sections={activeItem.extended ?? []}
-          isLoading={isLoading}
+          title={activeItem?.title ?? ""}
+          sections={activeItem?.extended ?? []}
+          isLoading={isProjectsLoading || isClustersLoading}
         >
           <Outlet />
         </ExtendedSidebar>

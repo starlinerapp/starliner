@@ -113,3 +113,40 @@ func (oh *OrganizationHandler) GetOrganizationProjects(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, res)
 }
+
+// GetOrganizationClusters FindAll godoc
+// @Summary Get Organization Clusters
+// @Tags organization
+// @ID getOrganizationClusters
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Success 200 {array} response.Cluster
+// @Router /organizations/{id}/clusters [get]
+func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
+	currentUser := c.MustGet("user").(*domain.User)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	clusters, err := oh.organizationService.GetClustersForUser(c, currentUser.Id, organizationId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	res := make([]response.Cluster, len(clusters))
+	for i, cluster := range clusters {
+		res[i] = response.Cluster{
+			Id:             cluster.Id,
+			Name:           cluster.Name,
+			IPv4Address:    cluster.IPv4Address,
+			PublicKey:      cluster.PublicKey,
+			PrivateKeyRef:  cluster.PrivateKeyRef,
+			OrganizationId: cluster.OrganizationId,
+		}
+	}
+	c.JSON(http.StatusOK, res)
+}

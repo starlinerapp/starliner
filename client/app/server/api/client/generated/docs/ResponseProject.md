@@ -1,22 +1,23 @@
 # ResponseProject
 
+
 ## Properties
 
-| Name             | Type                                                           | Description | Notes                  |
-| ---------------- | -------------------------------------------------------------- | ----------- | ---------------------- |
-| **environments** | [**Array&lt;ResponseEnvironment&gt;**](ResponseEnvironment.md) |             | [default to undefined] |
-| **id**           | **number**                                                     |             | [default to undefined] |
-| **name**         | **string**                                                     |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**environments** | [**Array&lt;ResponseEnvironment&gt;**](ResponseEnvironment.md) |  | [default to undefined]
+**id** | **number** |  | [default to undefined]
+**name** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseProject } from "./api";
+import { ResponseProject } from './api';
 
 const instance: ResponseProject = {
-  environments,
-  id,
-  name,
+    environments,
+    id,
+    name,
 };
 ```
 

@@ -5,15 +5,16 @@
 package sqlc
 
 import (
+	"database/sql"
 	"time"
 )
 
 type Cluster struct {
 	ID             int64
 	Name           string
-	Ipv4Address    string
-	PublicKey      string
-	PrivateKeyRef  string
+	Ipv4Address    sql.NullString
+	PublicKey      sql.NullString
+	PrivateKeyRef  sql.NullString
 	OrganizationID int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
