@@ -6,3 +6,5 @@
 .docker/nginx/ssl/registry.dev.starliner.app.key
 
 .docker/seaweedfs/*
+
+.env

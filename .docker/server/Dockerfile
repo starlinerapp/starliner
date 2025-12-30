@@ -7,9 +7,12 @@ ARG BINARY_NAME
 ENV MAIN_PKG=${MAIN_PKG}
 ENV DEBUG_PORT=${DEBUG_PORT}
 ENV BINARY_NAME=${BINARY_NAME}
-ENV PATH=/go/bin:${PATH}
+ENV PATH=/go/bin:$PATH:/root/.pulumi/bin
 
 WORKDIR /app
+
+RUN apk add --no-cache bash curl
+RUN curl -fsSL https://get.pulumi.com | sh
 
 RUN go install github.com/air-verse/air@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest

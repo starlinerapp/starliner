@@ -36,6 +36,20 @@ func (or *OrganizationRepository) CreateOrganization(ctx context.Context, name s
 	}, nil
 }
 
+func (or *OrganizationRepository) GetOrganization(ctx context.Context, id int64) (*domain.Organization, error) {
+	organization, err := or.queries.GetOrganization(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.Organization{
+		Id:      organization.ID,
+		Name:    organization.Name,
+		Slug:    organization.Slug,
+		OwnerId: organization.OwnerID,
+	}, nil
+}
+
 func (or *OrganizationRepository) GetUserOrganizations(ctx context.Context, userId int64) ([]domain.Organization, error) {
 	organizations, err := or.queries.GetUserOrganizations(ctx, userId)
 	if err != nil {

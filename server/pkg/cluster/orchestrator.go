@@ -3,8 +3,12 @@ package cluster
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/pulumi/pulumi/sdk/v3/go/auto"
+	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"go.uber.org/fx"
 	"log"
+	"os"
 	"starliner.app/pkg/config"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
@@ -12,9 +16,10 @@ import (
 )
 
 type Orchestrator struct {
-	cfg               *config.Config
-	clusterRepository interfaces.ClusterRepository
-	clusterSubscriber *queue.Subscriber[*v1.Cluster]
+	cfg                    *config.Config
+	organizationRepository interfaces.OrganizationRepository
+	clusterRepository      interfaces.ClusterRepository
+	clusterSubscriber      *queue.Subscriber[*v1.Cluster]
 }
 
 func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
@@ -27,13 +32,15 @@ func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
 
 func NewOrchestrator(
 	cfg *config.Config,
+	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	clusterSubscriber *queue.Subscriber[*v1.Cluster],
 ) *Orchestrator {
 	return &Orchestrator{
-		cfg:               cfg,
-		clusterRepository: clusterRepository,
-		clusterSubscriber: clusterSubscriber,
+		cfg:                    cfg,
+		organizationRepository: organizationRepository,
+		clusterRepository:      clusterRepository,
+		clusterSubscriber:      clusterSubscriber,
 	}
 }
 
@@ -55,7 +62,58 @@ func (o *Orchestrator) Start() error {
 }
 
 func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
-	fmt.Printf("create cluster: %s\n", c.Name)
+	ctx := context.Background()
+	fmt.Printf("Create cluster %s\n", c.Name)
+	organization, err := o.organizationRepository.GetOrganization(ctx, c.OrganizationId)
+	if err != nil {
+		fmt.Printf("failed to get organization: %v", err)
+	}
+
+	projectName := fmt.Sprintf("%s-%s", organization.Name, c.Name)
+	stackName := auto.FullyQualifiedStackName("starliner", projectName, uuid.New().String())
+
+	s, err := auto.UpsertStackInlineSource(ctx, stackName, projectName, deployFunc)
+	if err != nil {
+		fmt.Printf("Failed to set up a workspace: %v\n", err)
+		return
+	}
+	fmt.Printf("Created/Selected stack %q\n", stackName)
+
+	// TODO: Use seaweedfs to store state instead of Pulumi cloud
+	w := s.Workspace()
+
+	fmt.Println("Installing Hetzner Cloud plugin")
+	err = w.InstallPlugin(ctx, "hcloud", "1.29")
+	if err != nil {
+		fmt.Printf("Failed to install program plugins: %v\n", err)
+		return
+	}
+	fmt.Println("Successfully installed Hetzner Cloud plugin")
+
+	fmt.Println("Starting refresh")
+	_, err = s.Refresh(ctx)
+	if err != nil {
+		fmt.Printf("Failed to refresh stack: %v\n", err)
+		return
+	}
+	fmt.Println("Refresh succeeded!")
+
+	fmt.Println("Starting update")
+	stdoutStreamer := optup.ProgressStreams(os.Stdout)
+	res, err := s.Up(ctx, stdoutStreamer)
+	if err != nil {
+		fmt.Printf("Failed to update stack: %v\n\n", err)
+		return
+	}
+	fmt.Println("Update succeeded!")
+
+	ip, ok := res.Outputs["serverIp"].Value.(string)
+	if !ok {
+		fmt.Println("Failed to unmarshall output")
+		return
+	}
+
+	fmt.Printf("Server ipv4: %s\n", ip)
 }
 
 func (o *Orchestrator) handleDeleteCluster(c *v1.Cluster) {

@@ -10,6 +10,11 @@ INSERT INTO organizations (
 )
 RETURNING *;
 
+-- name: GetOrganization :one
+SELECT *
+FROM organizations
+WHERE id = $1;
+
 -- name: GetUserOrganizations :many
 SELECT *
 FROM organizations
