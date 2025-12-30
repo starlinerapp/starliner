@@ -30,6 +30,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
+		PulumiStackId:  utils.PtrFromNullString(cluster.PulumiStackID),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 
@@ -60,6 +61,7 @@ func (cr *ClusterRepository) CreateCluster(
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
+		PulumiStackId:  utils.PtrFromNullString(cluster.PulumiStackID),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 }
@@ -80,6 +82,17 @@ func (cr *ClusterRepository) UpdateClusterIPv4Address(
 	return cr.queries.UpdateClusterIPv4Address(ctx, sqlc.UpdateClusterIPv4AddressParams{
 		Ipv4Address: utils.NullStringFromPtr(ipv4Address),
 		ID:          id,
+	})
+}
+
+func (cr *ClusterRepository) UpdateClusterPulumiStackId(
+	ctx context.Context,
+	id int64,
+	pulumiStackId *string,
+) error {
+	return cr.queries.UpdateClusterPulumiStackId(ctx, sqlc.UpdateClusterPulumiStackIdParams{
+		PulumiStackID: utils.NullStringFromPtr(pulumiStackId),
+		ID:            id,
 	})
 }
 

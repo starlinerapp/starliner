@@ -37,4 +37,10 @@ type ClusterRepository interface {
 		id int64,
 		ipv4Address *string,
 	) error
+
+	UpdateClusterPulumiStackId(
+		ctx context.Context,
+		id int64,
+		pulumiStackId *string,
+	) error
 }

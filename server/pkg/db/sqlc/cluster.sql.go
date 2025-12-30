@@ -24,7 +24,7 @@ INSERT INTO clusters (
     $4,
     $5
  )
-RETURNING id, name, ipv4_address, public_key, private_key, organization_id, created_at, updated_at
+RETURNING id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, created_at, updated_at
 `
 
 type CreateClusterParams struct {
@@ -51,6 +51,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		&i.PublicKey,
 		&i.PrivateKey,
 		&i.OrganizationID,
+		&i.PulumiStackID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -69,7 +70,7 @@ func (q *Queries) DeleteCluster(ctx context.Context, id int64) error {
 }
 
 const getCluster = `-- name: GetCluster :one
-SELECT id, name, ipv4_address, public_key, private_key, organization_id, created_at, updated_at
+SELECT id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, created_at, updated_at
 FROM clusters
 WHERE id = $1
 `
@@ -84,6 +85,7 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.PublicKey,
 		&i.PrivateKey,
 		&i.OrganizationID,
+		&i.PulumiStackID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -174,5 +176,22 @@ type UpdateClusterPublicPrivateKeysParams struct {
 
 func (q *Queries) UpdateClusterPublicPrivateKeys(ctx context.Context, arg UpdateClusterPublicPrivateKeysParams) error {
 	_, err := q.db.ExecContext(ctx, updateClusterPublicPrivateKeys, arg.PublicKey, arg.PrivateKey, arg.ID)
+	return err
+}
+
+const updateClusterPulumiStackId = `-- name: UpdateClusterPulumiStackId :exec
+UPDATE clusters
+SET
+    pulumi_stack_id = $1
+WHERE id = $2
+`
+
+type UpdateClusterPulumiStackIdParams struct {
+	PulumiStackID sql.NullString
+	ID            int64
+}
+
+func (q *Queries) UpdateClusterPulumiStackId(ctx context.Context, arg UpdateClusterPulumiStackIdParams) error {
+	_, err := q.db.ExecContext(ctx, updateClusterPulumiStackId, arg.PulumiStackID, arg.ID)
 	return err
 }

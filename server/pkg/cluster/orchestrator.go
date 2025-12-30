@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
+	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"go.uber.org/fx"
 	"log"
@@ -95,6 +96,11 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 	projectName := fmt.Sprintf("%s-%s", strings.ToLower(organization.Name), c.Name)
 	stackName := auto.FullyQualifiedStackName("organization", projectName, uuid.New().String())
 
+	err = o.clusterRepository.UpdateClusterPulumiStackId(ctx, c.Id, &stackName)
+	if err != nil {
+		fmt.Printf("failed to persist pulumi stack id: %v\n", err)
+	}
+
 	s, err := auto.UpsertStackInlineSource(ctx, stackName, projectName, deployFunc(DeployParams{
 		ServerName: projectName,
 		publicKey:  publicKey,
@@ -139,8 +145,51 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 
 func (o *Orchestrator) handleDeleteCluster(c *v1.Cluster) {
 	ctx := context.Background()
-	err := o.clusterRepository.DeleteCluster(ctx, c.Id)
+
+	cluster, err := o.clusterRepository.GetCluster(ctx, c.Id)
 	if err != nil {
-		fmt.Printf("failed to delete cluster from database: %v", err)
+		fmt.Printf("failed to get cluster from database: %v\n", err)
+		return
+	}
+
+	parts := strings.Split(*cluster.PulumiStackId, "/")
+	projectName := parts[1]
+
+	pubKeyBytes, err := base64.StdEncoding.DecodeString(*cluster.PublicKey)
+	if err != nil {
+		fmt.Printf("failed to decode public key: %v\n", err)
+		return
+	}
+
+	s, err := auto.SelectStackInlineSource(ctx, *cluster.PulumiStackId, projectName, deployFunc(DeployParams{
+		ServerName: projectName,
+		publicKey:  pubKeyBytes,
+	}))
+	if err != nil {
+		fmt.Printf("failed to select stack for deletion: %v\n", err)
+		return
+	}
+
+	w := s.Workspace()
+	err = w.InstallPlugin(ctx, "hcloud", "1.29")
+	if err != nil {
+		fmt.Printf("failed to install program plugins: %v\n", err)
+	}
+
+	_, err = s.Refresh(ctx)
+	if err != nil {
+		fmt.Printf("failed to refresh stack: %v\n", err)
+	}
+
+	stdoutStreamer := optdestroy.ProgressStreams(os.Stdout)
+	_, err = s.Destroy(ctx, stdoutStreamer)
+	if err != nil {
+		fmt.Printf("failed to destroy stack: %v\n", err)
+	}
+
+	err = o.clusterRepository.DeleteCluster(ctx, c.Id)
+	if err != nil {
+		fmt.Printf("failed to delete cluster from database: %v\n", err)
+		return
 	}
 }
