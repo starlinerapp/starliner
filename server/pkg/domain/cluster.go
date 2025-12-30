@@ -5,6 +5,6 @@ type Cluster struct {
 	Name           string
 	IPv4Address    *string
 	PublicKey      *string
-	PrivateKeyRef  *string
+	PrivateKey     *string
 	OrganizationId int64
 }

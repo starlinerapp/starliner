@@ -15,7 +15,7 @@ INSERT INTO clusters (
     name,
     ipv4_address,
     public_key,
-    private_key_ref,
+    private_key,
     organization_id
 ) VALUES (
     $1,
@@ -24,14 +24,14 @@ INSERT INTO clusters (
     $4,
     $5
  )
-RETURNING id, name, ipv4_address, public_key, private_key_ref, organization_id, created_at, updated_at
+RETURNING id, name, ipv4_address, public_key, private_key, organization_id, created_at, updated_at
 `
 
 type CreateClusterParams struct {
 	Name           string
 	Ipv4Address    sql.NullString
 	PublicKey      sql.NullString
-	PrivateKeyRef  sql.NullString
+	PrivateKey     sql.NullString
 	OrganizationID int64
 }
 
@@ -40,7 +40,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		arg.Name,
 		arg.Ipv4Address,
 		arg.PublicKey,
-		arg.PrivateKeyRef,
+		arg.PrivateKey,
 		arg.OrganizationID,
 	)
 	var i Cluster
@@ -49,7 +49,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		&i.Name,
 		&i.Ipv4Address,
 		&i.PublicKey,
-		&i.PrivateKeyRef,
+		&i.PrivateKey,
 		&i.OrganizationID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -69,7 +69,7 @@ func (q *Queries) DeleteCluster(ctx context.Context, id int64) error {
 }
 
 const getCluster = `-- name: GetCluster :one
-SELECT id, name, ipv4_address, public_key, private_key_ref, organization_id, created_at, updated_at
+SELECT id, name, ipv4_address, public_key, private_key, organization_id, created_at, updated_at
 FROM clusters
 WHERE id = $1
 `
@@ -82,7 +82,7 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.Name,
 		&i.Ipv4Address,
 		&i.PublicKey,
-		&i.PrivateKeyRef,
+		&i.PrivateKey,
 		&i.OrganizationID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -96,7 +96,7 @@ SELECT
     clusters.name as name,
     clusters.ipv4_address as ipv4_address,
     clusters.public_key as public_key,
-    clusters.private_key_ref as private_key_ref,
+    clusters.private_key as private_key,
     clusters.organization_id as organization_id
 FROM clusters
 WHERE clusters.organization_id = $1
@@ -107,7 +107,7 @@ type GetOrganizationClustersRow struct {
 	Name           string
 	Ipv4Address    sql.NullString
 	PublicKey      sql.NullString
-	PrivateKeyRef  sql.NullString
+	PrivateKey     sql.NullString
 	OrganizationID int64
 }
 
@@ -125,7 +125,7 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 			&i.Name,
 			&i.Ipv4Address,
 			&i.PublicKey,
-			&i.PrivateKeyRef,
+			&i.PrivateKey,
 			&i.OrganizationID,
 		); err != nil {
 			return nil, err
@@ -139,4 +139,40 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateClusterIPv4Address = `-- name: UpdateClusterIPv4Address :exec
+UPDATE clusters
+SET
+    ipv4_address = $1
+WHERE id = $2
+`
+
+type UpdateClusterIPv4AddressParams struct {
+	Ipv4Address sql.NullString
+	ID          int64
+}
+
+func (q *Queries) UpdateClusterIPv4Address(ctx context.Context, arg UpdateClusterIPv4AddressParams) error {
+	_, err := q.db.ExecContext(ctx, updateClusterIPv4Address, arg.Ipv4Address, arg.ID)
+	return err
+}
+
+const updateClusterPublicPrivateKeys = `-- name: UpdateClusterPublicPrivateKeys :exec
+UPDATE clusters
+SET
+    public_key = $1,
+    private_key = $2
+WHERE id = $3
+`
+
+type UpdateClusterPublicPrivateKeysParams struct {
+	PublicKey  sql.NullString
+	PrivateKey sql.NullString
+	ID         int64
+}
+
+func (q *Queries) UpdateClusterPublicPrivateKeys(ctx context.Context, arg UpdateClusterPublicPrivateKeysParams) error {
+	_, err := q.db.ExecContext(ctx, updateClusterPublicPrivateKeys, arg.PublicKey, arg.PrivateKey, arg.ID)
+	return err
 }

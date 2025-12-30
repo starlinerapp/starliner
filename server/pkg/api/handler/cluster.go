@@ -92,7 +92,7 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 		Name:           cluster.Name,
 		IPv4Address:    cluster.IPv4Address,
 		PublicKey:      cluster.PublicKey,
-		PrivateKeyRef:  cluster.PrivateKeyRef,
+		PrivateKey:     cluster.PrivateKey,
 		OrganizationId: cluster.OrganizationId,
 	}
 	c.JSON(http.StatusOK, res)

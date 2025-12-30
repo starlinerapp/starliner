@@ -144,7 +144,7 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 			Name:           cluster.Name,
 			IPv4Address:    cluster.IPv4Address,
 			PublicKey:      cluster.PublicKey,
-			PrivateKeyRef:  cluster.PrivateKeyRef,
+			PrivateKey:     cluster.PrivateKey,
 			OrganizationId: cluster.OrganizationId,
 		}
 	}
