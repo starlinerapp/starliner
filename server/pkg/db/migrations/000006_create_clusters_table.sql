@@ -1,11 +1,12 @@
 -- +goose Up
 CREATE TABLE clusters (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     ipv4_address VARCHAR(255),
     public_key TEXT,
     private_key TEXT,
     organization_id BIGINT NOT NULL REFERENCES organizations(id),
+    pulumi_stack_id TEXT,
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()
 );

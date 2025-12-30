@@ -47,3 +47,9 @@ UPDATE clusters
 SET
     ipv4_address = $1
 WHERE id = $2;
+
+-- name: UpdateClusterPulumiStackId :exec
+UPDATE clusters
+SET
+    pulumi_stack_id = $1
+WHERE id = $2;
