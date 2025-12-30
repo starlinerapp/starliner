@@ -29,7 +29,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		Name:           cluster.Name,
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
-		PrivateKeyRef:  utils.PtrFromNullString(cluster.PrivateKeyRef),
+		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 
@@ -47,7 +47,7 @@ func (cr *ClusterRepository) CreateCluster(
 		Name:           name,
 		Ipv4Address:    utils.NullStringFromPtr(ipv4Address),
 		PublicKey:      utils.NullStringFromPtr(publicKey),
-		PrivateKeyRef:  utils.NullStringFromPtr(privateKeyRef),
+		PrivateKey:     utils.NullStringFromPtr(privateKeyRef),
 		OrganizationID: organizationId,
 	})
 	if err != nil {
@@ -59,9 +59,28 @@ func (cr *ClusterRepository) CreateCluster(
 		Name:           cluster.Name,
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
-		PrivateKeyRef:  utils.PtrFromNullString(cluster.PrivateKeyRef),
+		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
+}
+
+func (cr *ClusterRepository) UpdateClusterPublicPrivateKey(ctx context.Context, id int64, publicKey *string, privateKey *string) error {
+	return cr.queries.UpdateClusterPublicPrivateKeys(ctx, sqlc.UpdateClusterPublicPrivateKeysParams{
+		PublicKey:  utils.NullStringFromPtr(publicKey),
+		PrivateKey: utils.NullStringFromPtr(privateKey),
+		ID:         id,
+	})
+}
+
+func (cr *ClusterRepository) UpdateClusterIPv4Address(
+	ctx context.Context,
+	id int64,
+	ipv4Address *string,
+) error {
+	return cr.queries.UpdateClusterIPv4Address(ctx, sqlc.UpdateClusterIPv4AddressParams{
+		Ipv4Address: utils.NullStringFromPtr(ipv4Address),
+		ID:          id,
+	})
 }
 
 func (cr *ClusterRepository) DeleteCluster(

@@ -36,7 +36,10 @@ func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organi
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
 
+	fmt.Printf("Cluster %d created successfully\n", cluster.Id)
+
 	err = cs.clusterPublisher.Publish(queue.CreateCluster, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
+		Id:             cluster.Id,
 		Name:           name,
 		OrganizationId: organizationId,
 	})
@@ -93,7 +96,7 @@ func (cs *ClusterService) DeleteCluster(ctx context.Context, userId int64, clust
 	}
 
 	err = cs.clusterPublisher.Publish(queue.DeleteCluster, strconv.FormatInt(clusterId, 10), &v1.Cluster{
-		Id:             &clusterId,
+		Id:             clusterId,
 		Name:           cluster.Name,
 		OrganizationId: cluster.OrganizationId,
 	})

@@ -120,7 +120,7 @@ func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, o
 			Name:           c.Name,
 			IPv4Address:    utils.PtrFromNullString(c.Ipv4Address),
 			PublicKey:      utils.PtrFromNullString(c.PublicKey),
-			PrivateKeyRef:  utils.PtrFromNullString(c.PrivateKeyRef),
+			PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
 			OrganizationId: c.OrganizationID,
 		})
 	}

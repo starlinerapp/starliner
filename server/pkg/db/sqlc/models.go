@@ -14,7 +14,7 @@ type Cluster struct {
 	Name           string
 	Ipv4Address    sql.NullString
 	PublicKey      sql.NullString
-	PrivateKeyRef  sql.NullString
+	PrivateKey     sql.NullString
 	OrganizationID int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time

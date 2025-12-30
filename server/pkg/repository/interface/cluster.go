@@ -12,7 +12,7 @@ type ClusterRepository interface {
 		organizationId int64,
 		ipv4Address *string,
 		publicKey *string,
-		privateKeyRef *string,
+		privateKey *string,
 	) (*domain.Cluster, error)
 
 	GetCluster(
@@ -23,5 +23,18 @@ type ClusterRepository interface {
 	DeleteCluster(
 		ctx context.Context,
 		id int64,
+	) error
+
+	UpdateClusterPublicPrivateKey(
+		ctx context.Context,
+		id int64,
+		publicKey *string,
+		privateKey *string,
+	) error
+
+	UpdateClusterIPv4Address(
+		ctx context.Context,
+		id int64,
+		ipv4Address *string,
 	) error
 }
