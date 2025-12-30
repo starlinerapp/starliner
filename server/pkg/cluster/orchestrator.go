@@ -13,6 +13,7 @@ import (
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
 	interfaces "starliner.app/pkg/repository/interface"
+	"strings"
 )
 
 type Orchestrator struct {
@@ -69,8 +70,8 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		fmt.Printf("failed to get organization: %v", err)
 	}
 
-	projectName := fmt.Sprintf("%s-%s", organization.Name, c.Name)
-	stackName := auto.FullyQualifiedStackName("starliner", projectName, uuid.New().String())
+	projectName := fmt.Sprintf("%s-%s", strings.ToLower(organization.Name), c.Name)
+	stackName := auto.FullyQualifiedStackName("organization", projectName, uuid.New().String())
 
 	s, err := auto.UpsertStackInlineSource(ctx, stackName, projectName, deployFunc)
 	if err != nil {
@@ -79,7 +80,6 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 	}
 	fmt.Printf("Created/Selected stack %q\n", stackName)
 
-	// TODO: Use seaweedfs to store state instead of Pulumi cloud
 	w := s.Workspace()
 
 	fmt.Println("Installing Hetzner Cloud plugin")

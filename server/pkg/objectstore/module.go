@@ -14,7 +14,7 @@ var Module = fx.Module(
 	fx.Invoke(func(c *S3Client, lc fx.Lifecycle) {
 		lc.Append(fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				return c.CreateBucket(ctx)
+				return c.CreateBuckets(ctx)
 			},
 		})
 	}),

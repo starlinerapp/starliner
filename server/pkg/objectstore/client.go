@@ -10,7 +10,8 @@ import (
 	"log"
 )
 
-const BucketName = "data"
+const AppBucketName = "data"
+const PulumiBucketName = "pulumi-backend"
 
 type S3Client struct {
 	client *s3.Client
@@ -20,26 +21,31 @@ func NewS3Client(client *s3.Client) *S3Client {
 	return &S3Client{client: client}
 }
 
-func (c *S3Client) CreateBucket(ctx context.Context) error {
-	createBucketParams := &s3.CreateBucketInput{
-		Bucket: aws.String(BucketName),
-	}
-	_, err := c.client.CreateBucket(ctx, createBucketParams)
-	if err != nil {
-		var bExists *types.BucketAlreadyExists
-		if errors.As(err, &bExists) {
-			return nil
+func (c *S3Client) CreateBuckets(ctx context.Context) error {
+	buckets := []string{AppBucketName, PulumiBucketName}
+
+	for _, bucketName := range buckets {
+		input := &s3.CreateBucketInput{
+			Bucket: aws.String(bucketName),
 		}
 
-		log.Printf("failed to create bucket: %v", err)
-		return err
+		_, err := c.client.CreateBucket(ctx, input)
+		if err != nil {
+			var bExists *types.BucketAlreadyExists
+			if errors.As(err, &bExists) {
+				continue
+			}
+			log.Printf("failed to create bucket %s: %v", bucketName, err)
+			return err
+		}
+
+		log.Printf("Bucket %s created successfully", bucketName)
 	}
 	return nil
 }
-
 func (c *S3Client) GetObject(ctx context.Context, key string) (io.ReadCloser, error) {
 	res, err := c.client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(BucketName),
+		Bucket: aws.String(AppBucketName),
 		Key:    aws.String(key),
 	})
 
