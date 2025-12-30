@@ -93,7 +93,10 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		fmt.Printf("failed to get organization: %v", err)
 	}
 
-	projectName := fmt.Sprintf("%s-%s", strings.ToLower(organization.Name), c.Name)
+	trimmed := strings.TrimSpace(c.Name)
+	clusterSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
+
+	projectName := fmt.Sprintf("%s-%s", strings.ToLower(organization.Name), clusterSlug)
 	stackName := auto.FullyQualifiedStackName("organization", projectName, uuid.New().String())
 
 	err = o.clusterRepository.UpdateClusterPulumiStackId(ctx, c.Id, &stackName)
