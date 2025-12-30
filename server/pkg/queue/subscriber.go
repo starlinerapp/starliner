@@ -31,12 +31,14 @@ func (s *Subscriber[T]) Subscribe(subject Subject, identifier string, durable st
 			}
 			return
 		}
+		defer func() {
+			if err := msg.Ack(); err != nil {
+				log.Printf("failed to ack message: %v", err)
+				return
+			}
+		}()
 
 		cb(m)
-		err := msg.Ack()
-		if err != nil {
-			return
-		}
 	},
 		nats.Durable(durable),
 		nats.ManualAck(),
