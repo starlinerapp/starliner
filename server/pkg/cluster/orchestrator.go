@@ -83,6 +83,10 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		fmt.Printf("failed to decode encryption key: %v\n", err)
 	}
 	encryptedPrivKeyStr, err := crypto.Encrypt(privKeyStr, encryptionKey)
+	if err != nil {
+		fmt.Printf("failed to encrypt private key: %v\n", err)
+	}
+
 	err = o.clusterRepository.UpdateClusterPublicPrivateKey(ctx, c.Id, &pubKeyStr, &encryptedPrivKeyStr)
 	if err != nil {
 		fmt.Printf("failed to persist cluster public private key: %v\n", err)
