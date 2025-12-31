@@ -11,7 +11,7 @@ ENV PATH=/go/bin:$PATH:/root/.pulumi/bin
 
 WORKDIR /app
 
-RUN apk add --no-cache bash curl
+RUN apk add --no-cache bash curl ansible openssh-client
 RUN curl -fsSL https://get.pulumi.com | sh
 
 RUN go install github.com/air-verse/air@latest
