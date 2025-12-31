@@ -4,22 +4,31 @@ import (
 	"context"
 	"crypto/ed25519"
 	"crypto/rand"
+	_ "embed"
 	"encoding/base64"
+	"encoding/pem"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"go.uber.org/fx"
+	"golang.org/x/crypto/ssh"
 	"log"
+	"net"
 	"os"
+	"os/exec"
 	"starliner.app/pkg/config"
 	"starliner.app/pkg/crypto"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
 	interfaces "starliner.app/pkg/repository/interface"
 	"strings"
+	"time"
 )
+
+//go:embed ansible/k3s.yaml
+var playbook string
 
 type Orchestrator struct {
 	cfg                    *config.Config
@@ -148,6 +157,84 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 	if err != nil {
 		fmt.Printf("Failed to persist cluster ip address: %v\n", err)
 	}
+
+	timeout := 30 * time.Second
+	err = waitForSSH(ip, timeout)
+	if err != nil {
+		fmt.Printf("SSH isn't available: %v\n", err)
+		return
+	}
+
+	// Install k3s
+	tmpPlaybook, err := os.CreateTemp("", "ansible-*.yml")
+	if err != nil {
+		fmt.Printf("Failed to create temp file: %v\n", err)
+	}
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			fmt.Printf("Failed to remove temp file: %v\n", err)
+		}
+	}(tmpPlaybook.Name())
+
+	_, err = tmpPlaybook.Write([]byte(playbook))
+	if err != nil {
+		fmt.Printf("Failed to write to temp file: %v\n", err)
+	}
+	err = tmpPlaybook.Close()
+	if err != nil {
+		return
+	}
+
+	tmpPrivateKey, err := os.CreateTemp("", "private-key-*.pem")
+	if err != nil {
+		fmt.Printf("Failed to create temp file: %v\n", err)
+	}
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			fmt.Printf("Failed to remove temp file: %v\n", err)
+		}
+	}(tmpPrivateKey.Name())
+
+	block, err := ssh.MarshalPrivateKey(privateKey, "")
+	if err != nil {
+		fmt.Printf("failed to marshal private key: %v\n", err)
+		return
+	}
+
+	pemBytes := pem.EncodeToMemory(block)
+	if pemBytes == nil {
+		fmt.Println("failed to encode private key to PEM")
+		return
+	}
+
+	_, err = tmpPrivateKey.Write(pemBytes)
+	if err != nil {
+		fmt.Printf("failed to write private key: %v\n", err)
+		return
+	}
+	err = tmpPrivateKey.Close()
+	if err != nil {
+		return
+	}
+
+	args := []string{
+		tmpPlaybook.Name(),
+		"-i", fmt.Sprintf("%s,", ip),
+		"-u", "root",
+		"--private-key", tmpPrivateKey.Name(),
+		"-e", "ansible_ssh_common_args='-o StrictHostKeyChecking=no'",
+		"-e", fmt.Sprintf("target_host=%s", ip),
+	}
+
+	out, err := exec.Command("ansible-playbook", args...).CombinedOutput()
+	fmt.Printf("Ansible output:\n%s\n", string(out))
+
+	if err != nil {
+		fmt.Printf("Failed to install k3s: %v\n", err)
+		return
+	}
 }
 
 func (o *Orchestrator) handleDeleteCluster(c *v1.Cluster) {
@@ -198,5 +285,23 @@ func (o *Orchestrator) handleDeleteCluster(c *v1.Cluster) {
 	if err != nil {
 		fmt.Printf("failed to delete cluster from database: %v\n", err)
 		return
+	}
+}
+
+func waitForSSH(ip string, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+
+	for {
+		conn, err := net.DialTimeout("tcp", net.JoinHostPort(ip, "22"), 5*time.Second)
+		if err == nil {
+			_ = conn.Close()
+			return nil
+		}
+
+		if time.Now().After(deadline) {
+			return fmt.Errorf("timeout waiting for ssh on %s", ip)
+		}
+
+		time.Sleep(5 * time.Second)
 	}
 }
