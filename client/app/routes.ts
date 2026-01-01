@@ -50,6 +50,12 @@ export default [
             route("general", "routes/dashboard/clusters/[id]/general.tsx"),
             route("settings", "routes/dashboard/clusters/[id]/settings.tsx"),
           ]),
+          ...prefix("resources", [
+            route(
+              "private-key",
+              "routes/dashboard/clusters/[id]/resources/private-key.tsx",
+            ),
+          ]),
         ]),
       ]),
 

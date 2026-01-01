@@ -143,6 +143,44 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 	return items, nil
 }
 
+const getUserCluster = `-- name: GetUserCluster :one
+SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.pulumi_stack_id
+FROM clusters c
+LEFT JOIN organizations o ON c.organization_id = o.id
+WHERE o.owner_id = $1
+AND c.id = $2
+`
+
+type GetUserClusterParams struct {
+	OwnerID int64
+	ID      int64
+}
+
+type GetUserClusterRow struct {
+	ID             int64
+	Name           string
+	Ipv4Address    sql.NullString
+	PublicKey      sql.NullString
+	PrivateKey     sql.NullString
+	OrganizationID int64
+	PulumiStackID  sql.NullString
+}
+
+func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) (GetUserClusterRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserCluster, arg.OwnerID, arg.ID)
+	var i GetUserClusterRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Ipv4Address,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.OrganizationID,
+		&i.PulumiStackID,
+	)
+	return i, err
+}
+
 const updateClusterIPv4Address = `-- name: UpdateClusterIPv4Address :exec
 UPDATE clusters
 SET

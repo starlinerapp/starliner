@@ -49,17 +49,11 @@ definitions:
         type: string
       organizationId:
         type: integer
-      privateKeyRef:
-        type: string
-      publicKey:
-        type: string
     required:
     - id
     - ipv4Address
     - name
     - organizationId
-    - privateKeyRef
-    - publicKey
     type: object
   response.Environment:
     properties:
@@ -213,6 +207,28 @@ paths:
           schema:
             $ref: '#/definitions/response.Cluster'
       summary: Get Cluster
+      tags:
+      - cluster
+  /clusters/{id}/private-key:
+    get:
+      operationId: getClusterPrivateKey
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Cluster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get Cluster Private Key
       tags:
       - cluster
   /environments:

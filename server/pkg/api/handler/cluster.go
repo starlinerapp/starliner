@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"starliner.app/pkg/api/dto/request"
-	"starliner.app/pkg/api/dto/response"
 	"starliner.app/pkg/domain"
 	"starliner.app/pkg/service"
 	"strconv"
@@ -81,21 +80,41 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 		return
 	}
 
-	cluster, err := ch.clusterService.GetCluster(c, clusterId, currentUser.Id)
+	cluster, err := ch.clusterService.GetUserCluster(c, currentUser.Id, clusterId)
+	if cluster == nil {
+		c.AbortWithStatusJSON(404, gin.H{"error": "Cluster not found"})
+	}
+
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
+	c.JSON(http.StatusOK, cluster)
+}
 
-	res := response.Cluster{
-		Id:             clusterId,
-		Name:           cluster.Name,
-		IPv4Address:    cluster.IPv4Address,
-		PublicKey:      cluster.PublicKey,
-		PrivateKey:     cluster.PrivateKey,
-		OrganizationId: cluster.OrganizationId,
+// GetClusterPrivateKey FindAll godoc
+// @Summary Get Cluster Private Key
+// @Tags cluster
+// @ID getClusterPrivateKey
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Cluster ID"
+// @Product application/octet-stream
+// @Success 200 {file} file
+// @Router /clusters/{id}/private-key [get]
+func (ch *ClusterHandler) GetClusterPrivateKey(c *gin.Context) {
+	currentUser := c.MustGet("user").(*domain.User)
+	clusterId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
 	}
-	c.JSON(http.StatusOK, res)
+	file, err := ch.clusterService.GetClusterPrivateKey(c, clusterId, currentUser.Id)
+
+	c.Header("Content-Disposition", "attachment; filename=private-key.pem")
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Length", strconv.Itoa(len(file)))
+
+	c.Data(http.StatusOK, "application/octet-stream", file)
 }
 
 // DeleteCluster FindAll godoc

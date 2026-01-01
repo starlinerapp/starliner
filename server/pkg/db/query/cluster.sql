@@ -14,6 +14,13 @@ INSERT INTO clusters (
  )
 RETURNING *;
 
+-- name: GetUserCluster :one
+SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.pulumi_stack_id
+FROM clusters c
+LEFT JOIN organizations o ON c.organization_id = o.id
+WHERE o.owner_id = $1
+AND c.id = $2;
+
 -- name: GetCluster :one
 SELECT *
 FROM clusters

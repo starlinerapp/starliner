@@ -148,6 +148,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/clusters/{id}/private-key": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get Cluster Private Key",
+                "operationId": "getClusterPrivateKey",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
         "/environments": {
             "post": {
                 "tags": [
@@ -417,9 +450,7 @@ const docTemplate = `{
                 "id",
                 "ipv4Address",
                 "name",
-                "organizationId",
-                "privateKeyRef",
-                "publicKey"
+                "organizationId"
             ],
             "properties": {
                 "id": {
@@ -433,12 +464,6 @@ const docTemplate = `{
                 },
                 "organizationId": {
                     "type": "integer"
-                },
-                "privateKeyRef": {
-                    "type": "string"
-                },
-                "publicKey": {
-                    "type": "string"
                 }
             }
         },

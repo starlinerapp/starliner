@@ -13,5 +13,11 @@ export const auth = betterAuth({
   },
 });
 
+export const getServerSession = async (request: Request) => {
+  return await auth.api.getSession({
+    headers: request.headers,
+  });
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type Session = typeof auth.$Infer.Session;
