@@ -145,18 +145,6 @@ export interface ResponseCluster {
    * @memberof ResponseCluster
    */
   organizationId: number;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseCluster
-   */
-  privateKeyRef: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseCluster
-   */
-  publicKey: string;
 }
 /**
  *
@@ -591,6 +579,59 @@ export const ClusterApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Get Cluster Private Key
+     * @param {string} xUserID User ID
+     * @param {number} id Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getClusterPrivateKey: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getClusterPrivateKey", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getClusterPrivateKey", "id", id);
+      const localVarPath = `/clusters/{id}/private-key`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -703,6 +744,40 @@ export const ClusterApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Get Cluster Private Key
+     * @param {string} xUserID User ID
+     * @param {number} id Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getClusterPrivateKey(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getClusterPrivateKey(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ClusterApi.getClusterPrivateKey"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -766,6 +841,23 @@ export const ClusterApiFactory = function (
     ): AxiosPromise<ResponseCluster> {
       return localVarFp
         .getCluster(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get Cluster Private Key
+     * @param {string} xUserID User ID
+     * @param {number} id Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getClusterPrivateKey(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<File> {
+      return localVarFp
+        .getClusterPrivateKey(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -832,6 +924,25 @@ export class ClusterApi extends BaseAPI {
   ) {
     return ClusterApiFp(this.configuration)
       .getCluster(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Cluster Private Key
+   * @param {string} xUserID User ID
+   * @param {number} id Cluster ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClusterApi
+   */
+  public getClusterPrivateKey(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ClusterApiFp(this.configuration)
+      .getClusterPrivateKey(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

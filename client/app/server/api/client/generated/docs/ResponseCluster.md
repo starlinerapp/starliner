@@ -8,8 +8,6 @@
 | **ipv4Address**    | **string** |             | [default to undefined] |
 | **name**           | **string** |             | [default to undefined] |
 | **organizationId** | **number** |             | [default to undefined] |
-| **privateKeyRef**  | **string** |             | [default to undefined] |
-| **publicKey**      | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -21,8 +19,6 @@ const instance: ResponseCluster = {
   ipv4Address,
   name,
   organizationId,
-  privateKeyRef,
-  publicKey,
 };
 ```
 

@@ -15,6 +15,12 @@ type ClusterRepository interface {
 		privateKey *string,
 	) (*domain.Cluster, error)
 
+	GetUserCluster(
+		ctx context.Context,
+		userId int64,
+		clusterId int64,
+	) (*domain.Cluster, error)
+
 	GetCluster(
 		ctx context.Context,
 		clusterId int64,

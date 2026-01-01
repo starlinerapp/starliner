@@ -27,7 +27,7 @@ func NewServer(
 	projectHandler *handler.ProjectHandler,
 	environmentHandler *handler.EnvironmentHandler,
 	buildHandler *handler.BuildHandler,
-	clusterhandler *handler.ClusterHandler,
+	clusterHandler *handler.ClusterHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -64,9 +64,10 @@ func NewServer(
 
 	clusterRoutes := engine.Group("/clusters")
 	{
-		clusterRoutes.POST("", clusterhandler.CreateCluster)
-		clusterRoutes.GET("/:id", clusterhandler.GetCluster)
-		clusterRoutes.DELETE("/:id", clusterhandler.DeleteCluster)
+		clusterRoutes.POST("", clusterHandler.CreateCluster)
+		clusterRoutes.GET("/:id", clusterHandler.GetCluster)
+		clusterRoutes.GET("/:id/private-key", clusterHandler.GetClusterPrivateKey)
+		clusterRoutes.DELETE("/:id", clusterHandler.DeleteCluster)
 	}
 
 	return &Server{engine: engine}

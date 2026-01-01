@@ -99,11 +99,11 @@ export default function ProjectLayout() {
   return (
     <div className="bg-violet-1 flex h-full flex-col">
       {isLoading ? (
-        <div className="px-4 pt-4">
+        <div className="bg-violet-1 px-4 pt-4">
           <Skeleton className="h-7 w-32" />
         </div>
       ) : (
-        <div className="flex items-center gap-3 px-4 pt-4">
+        <div className="bg-violet-1 flex items-center gap-3 px-4 pt-4">
           <h1 className="text-mauve-12 text-xl font-bold">
             {currentProject?.name}
           </h1>

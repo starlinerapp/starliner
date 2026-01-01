@@ -19,7 +19,27 @@ func NewClusterRepository(queries *sqlc.Queries) interfaces.ClusterRepository {
 }
 
 func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*domain.Cluster, error) {
-	cluster, err := cr.queries.GetCluster(ctx, clusterId)
+	c, err := cr.queries.GetCluster(ctx, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.Cluster{
+		Id:             c.ID,
+		Name:           c.Name,
+		IPv4Address:    utils.PtrFromNullString(c.Ipv4Address),
+		PublicKey:      utils.PtrFromNullString(c.PublicKey),
+		PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
+		PulumiStackId:  utils.PtrFromNullString(c.PulumiStackID),
+		OrganizationId: c.OrganizationID,
+	}, nil
+}
+
+func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, clusterId int64) (*domain.Cluster, error) {
+	cluster, err := cr.queries.GetUserCluster(ctx, sqlc.GetUserClusterParams{
+		OwnerID: userId,
+		ID:      clusterId,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +53,6 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		PulumiStackId:  utils.PtrFromNullString(cluster.PulumiStackID),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
-
 }
 
 func (cr *ClusterRepository) CreateCluster(
