@@ -18,6 +18,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"starliner.app/pkg/cluster/ansible"
 	"starliner.app/pkg/config"
 	"starliner.app/pkg/crypto"
 	v1 "starliner.app/pkg/proto/v1"
@@ -26,9 +27,6 @@ import (
 	"strings"
 	"time"
 )
-
-//go:embed ansible/k3s.yaml
-var playbook string
 
 type Orchestrator struct {
 	cfg                    *config.Config
@@ -177,7 +175,7 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		}
 	}(tmpPlaybook.Name())
 
-	_, err = tmpPlaybook.Write([]byte(playbook))
+	_, err = tmpPlaybook.Write([]byte(ansible.K3sPlaybook))
 	if err != nil {
 		fmt.Printf("Failed to write to temp file: %v\n", err)
 	}
@@ -297,11 +295,9 @@ func waitForSSH(ip string, timeout time.Duration) error {
 			_ = conn.Close()
 			return nil
 		}
-
 		if time.Now().After(deadline) {
 			return fmt.Errorf("timeout waiting for ssh on %s", ip)
 		}
-
 		time.Sleep(5 * time.Second)
 	}
 }
