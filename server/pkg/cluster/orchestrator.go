@@ -156,8 +156,7 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		fmt.Printf("Failed to persist cluster ip address: %v\n", err)
 	}
 
-	timeout := 30 * time.Second
-	err = waitForSSH(ip, timeout)
+	err = waitForSSH(ip, 30*time.Second)
 	if err != nil {
 		fmt.Printf("SSH isn't available: %v\n", err)
 		return
