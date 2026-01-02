@@ -51,11 +51,11 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 		Id:             rows[0].ID,
 		Name:           rows[0].Name,
 		OrganizationId: rows[0].OrganizationID,
-		Environments:   make([]domain.Environment, 0, len(rows)),
+		Environments:   make([]*domain.Environment, 0, len(rows)),
 	}
 
 	for _, row := range rows {
-		project.Environments = append(project.Environments, domain.Environment{
+		project.Environments = append(project.Environments, &domain.Environment{
 			Id:   row.EnvironmentID,
 			Slug: row.EnvironmentSlug,
 			Name: row.EnvironmentName,

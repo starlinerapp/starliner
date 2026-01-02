@@ -49,15 +49,15 @@ func (or *OrganizationRepository) GetOrganization(ctx context.Context, id int64)
 	}, nil
 }
 
-func (or *OrganizationRepository) GetUserOrganizations(ctx context.Context, userId int64) ([]domain.Organization, error) {
+func (or *OrganizationRepository) GetUserOrganizations(ctx context.Context, userId int64) ([]*domain.Organization, error) {
 	organizations, err := or.queries.GetUserOrganizations(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]domain.Organization, len(organizations))
+	result := make([]*domain.Organization, len(organizations))
 	for i, organization := range organizations {
-		result[i] = domain.Organization{
+		result[i] = &domain.Organization{
 			Id:      organization.ID,
 			Name:    organization.Name,
 			Slug:    organization.Slug,
@@ -68,7 +68,7 @@ func (or *OrganizationRepository) GetUserOrganizations(ctx context.Context, user
 	return result, nil
 }
 
-func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]domain.Project, error) {
+func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]*domain.Project, error) {
 	rows, err := or.queries.GetOrganizationProjects(ctx, organizationID)
 	if err != nil {
 		return nil, err
@@ -81,40 +81,40 @@ func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, o
 			proj = &domain.Project{
 				Id:             row.ID,
 				Name:           row.Name,
-				Environments:   []domain.Environment{},
+				Environments:   []*domain.Environment{},
 				OrganizationId: row.OrganizationID,
 			}
 			projectsMap[proj.Id] = proj
 		}
 
-		proj.Environments = append(proj.Environments, domain.Environment{
+		proj.Environments = append(proj.Environments, &domain.Environment{
 			Id:   row.EnvironmentID,
 			Slug: row.EnvironmentSlug,
 			Name: row.EnvironmentName,
 		})
 	}
 
-	projects := make([]domain.Project, 0, len(projectsMap))
+	projects := make([]*domain.Project, 0, len(projectsMap))
 	for _, p := range projectsMap {
-		projects = append(projects, *p)
+		projects = append(projects, p)
 	}
 
 	return projects, nil
 }
 
-func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, organizationID int64) ([]domain.Cluster, error) {
+func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, organizationID int64) ([]*domain.Cluster, error) {
 	rows, err := or.queries.GetOrganizationClusters(ctx, organizationID)
 	if err != nil {
 		return nil, err
 	}
 
 	if rows == nil {
-		return []domain.Cluster{}, nil
+		return []*domain.Cluster{}, nil
 	}
 
-	clusters := make([]domain.Cluster, 0, len(rows))
+	clusters := make([]*domain.Cluster, 0, len(rows))
 	for _, c := range rows {
-		clusters = append(clusters, domain.Cluster{
+		clusters = append(clusters, &domain.Cluster{
 			Id:             c.ID,
 			Name:           c.Name,
 			OrganizationId: c.OrganizationID,
