@@ -1,0 +1,3 @@
+client/app/server/api/client/generated/** linguist-generated=true
+server/pkg/db/sqlc/** linguist-generated=true
+server/cmd/api/docs/** linguist-generated=true
