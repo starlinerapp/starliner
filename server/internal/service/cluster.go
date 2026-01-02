@@ -24,6 +24,7 @@ type ClusterService struct {
 	cfg                    *config.Config
 	organizationRepository interfaces.OrganizationRepository
 	clusterRepository      interfaces.ClusterRepository
+	organizationService    *OrganizationService
 	clusterPublisher       *queue.Publisher[*v1.Cluster]
 }
 
@@ -31,17 +32,34 @@ func NewClusterService(
 	cfg *config.Config,
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
+	organizationService *OrganizationService,
 	clusterPublisher *queue.Publisher[*v1.Cluster],
 ) *ClusterService {
 	return &ClusterService{
 		cfg:                    cfg,
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
+		organizationService:    organizationService,
 		clusterPublisher:       clusterPublisher,
 	}
 }
 
-func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organizationId int64) (*model.Cluster, error) {
+func (cs *ClusterService) CreateCluster(ctx context.Context, userId int64, name string, organizationId int64) (*model.Cluster, error) {
+	orgs, err := cs.organizationService.GetUserOrganizations(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	found := false
+	for _, org := range orgs {
+		if org.Id == organizationId {
+			found = true
+		}
+	}
+	if !found {
+		return nil, fmt.Errorf("not permitted")
+	}
+
 	cluster, err := cs.clusterRepository.CreateCluster(ctx, name, organizationId)
 	if err != nil {
 		fmt.Printf("failed to persist cluster in database: %v", err)
@@ -56,13 +74,7 @@ func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organi
 		log.Printf("error publishing: %v", err)
 	}
 
-	return &model.Cluster{
-		Id:             cluster.Id,
-		Name:           cluster.Name,
-		Status:         cluster.Status,
-		IPv4Address:    cluster.IPv4Address,
-		OrganizationId: cluster.OrganizationId,
-	}, nil
+	return model.NewCluster(cluster), nil
 }
 
 func (cs *ClusterService) GetCluster(ctx context.Context, id int64) (*model.Cluster, error) {
@@ -71,13 +83,7 @@ func (cs *ClusterService) GetCluster(ctx context.Context, id int64) (*model.Clus
 		return nil, err
 	}
 
-	return &model.Cluster{
-		Id:             cluster.Id,
-		Name:           cluster.Name,
-		Status:         cluster.Status,
-		IPv4Address:    cluster.IPv4Address,
-		OrganizationId: cluster.OrganizationId,
-	}, nil
+	return model.NewCluster(cluster), nil
 }
 
 func (cs *ClusterService) GetUserCluster(ctx context.Context, userId int64, id int64) (*model.Cluster, error) {
@@ -86,17 +92,9 @@ func (cs *ClusterService) GetUserCluster(ctx context.Context, userId int64, id i
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
-
 		return nil, err
 	}
-
-	return &model.Cluster{
-		Id:             cluster.Id,
-		Name:           cluster.Name,
-		Status:         cluster.Status,
-		IPv4Address:    cluster.IPv4Address,
-		OrganizationId: cluster.OrganizationId,
-	}, nil
+	return model.NewCluster(cluster), nil
 }
 
 func (cs *ClusterService) GetClusterPrivateKey(ctx context.Context, id int64, userId int64) ([]byte, error) {

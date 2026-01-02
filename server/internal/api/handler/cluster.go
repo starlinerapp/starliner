@@ -38,36 +38,12 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	orgs, err := ch.organizationService.GetUserOrganizations(c.Request.Context(), currentUser.Id)
+	newCluster, err := ch.clusterService.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.OrganizationID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-
-	found := false
-	for _, org := range orgs {
-		if org.Id == cluster.OrganizationID {
-			found = true
-		}
-	}
-
-	if !found {
-		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Organization not found"})
-		return
-	}
-
-	newCluster, err := ch.clusterService.CreateCluster(c, cluster.Name, cluster.OrganizationID)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
-	c.JSON(http.StatusOK, &response.Cluster{
-		Id:             newCluster.Id,
-		Name:           newCluster.Name,
-		Status:         newCluster.Status,
-		IPv4Address:    newCluster.IPv4Address,
-		OrganizationId: newCluster.OrganizationId,
-	})
+	c.JSON(http.StatusOK, response.NewCluster(newCluster))
 }
 
 // GetCluster FindAll godoc
@@ -96,14 +72,7 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Cluster not found"})
 		return
 	}
-
-	c.JSON(http.StatusOK, &response.Cluster{
-		Id:             cluster.Id,
-		Name:           cluster.Name,
-		Status:         cluster.Status,
-		IPv4Address:    cluster.IPv4Address,
-		OrganizationId: cluster.OrganizationId,
-	})
+	c.JSON(http.StatusOK, response.NewCluster(cluster))
 }
 
 // GetClusterPrivateKey FindAll godoc

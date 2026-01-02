@@ -20,18 +20,12 @@ func (us *UserService) GetOrCreateUser(ctx context.Context, betterAuthID string)
 		return nil, err
 	}
 	if user != nil {
-		return &model.User{
-			Id:           user.Id,
-			BetterAuthId: user.BetterAuthId,
-		}, nil
+		return model.NewUser(user), nil
 	}
 
 	newUser, err := us.userRepository.CreateUser(ctx, betterAuthID)
 	if err != nil {
 		return nil, err
 	}
-	return &model.User{
-		Id:           newUser.Id,
-		BetterAuthId: newUser.BetterAuthId,
-	}, nil
+	return model.NewUser(newUser), nil
 }

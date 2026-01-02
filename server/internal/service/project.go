@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"starliner.app/internal/domain"
 	interfaces "starliner.app/internal/repository/interface"
 	"starliner.app/internal/service/model"
 	"strings"
@@ -45,21 +46,9 @@ func (ps *ProjectService) CreateProject(ctx context.Context, name string, organi
 		return nil, err
 	}
 
-	environments := []model.Environment{
-		{
-			Id:   environment.Id,
-			Slug: environment.Slug,
-			Name: environment.Name,
-		},
-	}
-
-	projectModel := &model.Project{
-		Id:             project.Id,
-		Name:           project.Name,
-		Environments:   environments,
-		OrganizationId: project.OrganizationId,
-	}
-	projectModel.Environments = environments
+	environmentsModel := model.NewEnvironments([]*domain.Environment{environment})
+	projectModel := model.NewProject(project)
+	projectModel.Environments = environmentsModel
 
 	return projectModel, nil
 }
@@ -69,20 +58,5 @@ func (ps *ProjectService) GetProject(ctx context.Context, projectId int64, userI
 	if err != nil {
 		return nil, err
 	}
-
-	environmentModels := make([]model.Environment, len(project.Environments))
-	for i, env := range project.Environments {
-		environmentModels[i] = model.Environment{
-			Id:   env.Id,
-			Slug: env.Slug,
-			Name: env.Name,
-		}
-	}
-
-	return &model.Project{
-		Id:             project.Id,
-		Name:           project.Name,
-		Environments:   environmentModels,
-		OrganizationId: project.OrganizationId,
-	}, nil
+	return model.NewProject(project), nil
 }

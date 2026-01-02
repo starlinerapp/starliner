@@ -57,21 +57,10 @@ func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
 	currentUser := c.MustGet("user").(*model.User)
 	organizations, err := oh.organizationService.GetUserOrganizations(c.Request.Context(), currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-
-	res := make([]response.Organization, len(organizations))
-	for i, org := range organizations {
-		res[i] = response.Organization{
-			Id:      org.Id,
-			Name:    org.Name,
-			Slug:    org.Slug,
-			OwnerId: org.OwnerId,
-		}
-	}
-
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, response.NewOrganizations(organizations))
 }
 
 // GetOrganizationProjects FindAll godoc
@@ -96,25 +85,7 @@ func (oh *OrganizationHandler) GetOrganizationProjects(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-
-	res := make([]response.Project, len(projects))
-	for i, project := range projects {
-		environments := make([]response.Environment, len(project.Environments))
-		for j, env := range project.Environments {
-			environments[j] = response.Environment{
-				Id:   env.Id,
-				Name: env.Name,
-				Slug: env.Slug,
-			}
-		}
-
-		res[i] = response.Project{
-			Id:           project.Id,
-			Name:         project.Name,
-			Environments: environments,
-		}
-	}
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, response.NewProjects(projects))
 }
 
 // GetOrganizationClusters FindAll godoc
@@ -139,15 +110,5 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-
-	res := make([]response.Cluster, len(clusters))
-	for i, cluster := range clusters {
-		res[i] = response.Cluster{
-			Id:             cluster.Id,
-			Name:           cluster.Name,
-			IPv4Address:    cluster.IPv4Address,
-			OrganizationId: cluster.OrganizationId,
-		}
-	}
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, response.NewClusters(clusters))
 }
