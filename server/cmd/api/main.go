@@ -2,8 +2,8 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"starliner.app/pkg/api"
-	"starliner.app/pkg/config"
+	"starliner.app/internal/api"
+	"starliner.app/internal/config"
 )
 
 // @title Starliner API

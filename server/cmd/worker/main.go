@@ -2,10 +2,10 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"starliner.app/pkg/builder"
-	"starliner.app/pkg/cluster"
-	"starliner.app/pkg/config"
-	"starliner.app/pkg/queue"
+	"starliner.app/internal/config"
+	"starliner.app/internal/core/builder"
+	"starliner.app/internal/core/cluster"
+	"starliner.app/internal/infrastructure/queue"
 )
 
 func main() {
