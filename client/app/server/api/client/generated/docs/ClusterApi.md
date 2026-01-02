@@ -11,7 +11,7 @@ All URIs are relative to _http://localhost_
 
 # **createCluster**
 
-> createCluster(data)
+> ResponseCluster createCluster(data)
 
 ### Example
 
@@ -36,7 +36,7 @@ const { status, data } = await apiInstance.createCluster(xUserID, data);
 
 ### Return type
 
-void (empty response body)
+**ResponseCluster**
 
 ### Authorization
 
@@ -45,7 +45,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 

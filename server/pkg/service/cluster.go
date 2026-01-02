@@ -13,6 +13,7 @@ import (
 	"starliner.app/pkg/api/dto/response"
 	"starliner.app/pkg/config"
 	"starliner.app/pkg/crypto"
+	"starliner.app/pkg/domain"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
 	interfaces "starliner.app/pkg/repository/interface"
@@ -40,8 +41,8 @@ func NewClusterService(
 	}
 }
 
-func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organizationId int64) error {
-	cluster, err := cs.clusterRepository.CreateCluster(ctx, name, organizationId, nil, nil, nil)
+func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organizationId int64) (*response.Cluster, error) {
+	cluster, err := cs.clusterRepository.CreateCluster(ctx, name, organizationId)
 	if err != nil {
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
@@ -55,7 +56,13 @@ func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organi
 		log.Printf("error publishing: %v", err)
 	}
 
-	return nil
+	return &response.Cluster{
+		Id:             cluster.Id,
+		Name:           cluster.Name,
+		Status:         cluster.Status,
+		IPv4Address:    cluster.IPv4Address,
+		OrganizationId: cluster.OrganizationId,
+	}, nil
 }
 
 func (cs *ClusterService) GetCluster(ctx context.Context, id int64) (*response.Cluster, error) {
@@ -67,6 +74,7 @@ func (cs *ClusterService) GetCluster(ctx context.Context, id int64) (*response.C
 	return &response.Cluster{
 		Id:             cluster.Id,
 		Name:           cluster.Name,
+		Status:         cluster.Status,
 		IPv4Address:    cluster.IPv4Address,
 		OrganizationId: cluster.OrganizationId,
 	}, nil
@@ -85,6 +93,7 @@ func (cs *ClusterService) GetUserCluster(ctx context.Context, userId int64, id i
 	return &response.Cluster{
 		Id:             cluster.Id,
 		Name:           cluster.Name,
+		Status:         cluster.Status,
 		IPv4Address:    cluster.IPv4Address,
 		OrganizationId: cluster.OrganizationId,
 	}, nil
@@ -133,6 +142,11 @@ func (cs *ClusterService) GetClusterPrivateKey(ctx context.Context, id int64, us
 
 func (cs *ClusterService) DeleteCluster(ctx context.Context, userId int64, clusterId int64) error {
 	cluster, err := cs.clusterRepository.GetUserCluster(ctx, userId, clusterId)
+	if err != nil {
+		return err
+	}
+
+	err = cs.clusterRepository.UpdateClusterStatus(ctx, clusterId, domain.ClusterDeleted)
 	if err != nil {
 		return err
 	}

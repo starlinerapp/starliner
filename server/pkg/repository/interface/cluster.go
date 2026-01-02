@@ -10,9 +10,6 @@ type ClusterRepository interface {
 		ctx context.Context,
 		name string,
 		organizationId int64,
-		ipv4Address *string,
-		publicKey *string,
-		privateKey *string,
 	) (*domain.Cluster, error)
 
 	GetUserCluster(
@@ -48,5 +45,11 @@ type ClusterRepository interface {
 		ctx context.Context,
 		id int64,
 		pulumiStackId *string,
+	) error
+
+	UpdateClusterStatus(
+		ctx context.Context,
+		id int64,
+		status domain.ClusterStatus,
 	) error
 }

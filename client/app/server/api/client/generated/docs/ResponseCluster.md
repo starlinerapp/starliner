@@ -2,12 +2,13 @@
 
 ## Properties
 
-| Name               | Type       | Description | Notes                  |
-| ------------------ | ---------- | ----------- | ---------------------- |
-| **id**             | **number** |             | [default to undefined] |
-| **ipv4Address**    | **string** |             | [default to undefined] |
-| **name**           | **string** |             | [default to undefined] |
-| **organizationId** | **number** |             | [default to undefined] |
+| Name               | Type                                              | Description | Notes                  |
+| ------------------ | ------------------------------------------------- | ----------- | ---------------------- |
+| **id**             | **number**                                        |             | [default to undefined] |
+| **ipv4Address**    | **string**                                        |             | [default to undefined] |
+| **name**           | **string**                                        |             | [default to undefined] |
+| **organizationId** | **number**                                        |             | [default to undefined] |
+| **status**         | [**DomainClusterStatus**](DomainClusterStatus.md) |             | [default to undefined] |
 
 ## Example
 
@@ -19,6 +20,7 @@ const instance: ResponseCluster = {
   ipv4Address,
   name,
   organizationId,
+  status,
 };
 ```
 

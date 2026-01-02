@@ -42,6 +42,21 @@ import {
 /**
  *
  * @export
+ * @enum {string}
+ */
+
+export const DomainClusterStatus = {
+  ClusterPending: "pending",
+  ClusterRunning: "running",
+  ClusterDeleted: "deleted",
+} as const;
+
+export type DomainClusterStatus =
+  (typeof DomainClusterStatus)[keyof typeof DomainClusterStatus];
+
+/**
+ *
+ * @export
  * @interface RequestCreateCluster
  */
 export interface RequestCreateCluster {
@@ -145,7 +160,14 @@ export interface ResponseCluster {
    * @memberof ResponseCluster
    */
   organizationId: number;
+  /**
+   *
+   * @type {DomainClusterStatus}
+   * @memberof ResponseCluster
+   */
+  status: DomainClusterStatus;
 }
+
 /**
  *
  * @export
@@ -655,7 +677,10 @@ export const ClusterApiFp = function (configuration?: Configuration) {
       data: RequestCreateCluster,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseCluster>
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createCluster(
         xUserID,
@@ -804,7 +829,7 @@ export const ClusterApiFactory = function (
       xUserID: string,
       data: RequestCreateCluster,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseCluster> {
       return localVarFp
         .createCluster(xUserID, data, options)
         .then((request) => request(axios, basePath));
