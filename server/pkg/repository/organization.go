@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"starliner.app/pkg/db/sqlc"
-	"starliner.app/pkg/db/utils"
 	"starliner.app/pkg/domain"
 	interfaces "starliner.app/pkg/repository/interface"
 )
@@ -118,9 +117,6 @@ func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, o
 		clusters = append(clusters, domain.Cluster{
 			Id:             c.ID,
 			Name:           c.Name,
-			IPv4Address:    utils.PtrFromNullString(c.Ipv4Address),
-			PublicKey:      utils.PtrFromNullString(c.PublicKey),
-			PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
 			OrganizationId: c.OrganizationID,
 		})
 	}

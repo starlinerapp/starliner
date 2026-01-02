@@ -82,7 +82,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Cluster"
+                        }
                     }
                 }
             }
@@ -384,6 +387,19 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.ClusterStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "running",
+                "deleted"
+            ],
+            "x-enum-varnames": [
+                "ClusterPending",
+                "ClusterRunning",
+                "ClusterDeleted"
+            ]
+        },
         "request.CreateCluster": {
             "type": "object",
             "required": [
@@ -450,7 +466,8 @@ const docTemplate = `{
                 "id",
                 "ipv4Address",
                 "name",
-                "organizationId"
+                "organizationId",
+                "status"
             ],
             "properties": {
                 "id": {
@@ -464,6 +481,18 @@ const docTemplate = `{
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "running",
+                        "deleted"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ClusterStatus"
+                        }
+                    ]
                 }
             }
         },

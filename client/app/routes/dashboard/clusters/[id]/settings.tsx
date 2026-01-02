@@ -1,27 +1,52 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 
 export default function Settings() {
-  const trpc = useTRPC();
+  const navigate = useNavigate();
   const organization = useOrganizationContext();
 
+  const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { id } = useParams<{
+  const { slug, id } = useParams<{
+    slug: string;
     id: string;
   }>();
 
-  const deleteClusterMutation = useMutation(
-    trpc.cluster.deleteCluster.mutationOptions({
-      onSuccess: async () => {
+  const { data: clusterData, error } = useQuery(
+    trpc.cluster.getCluster.queryOptions(
+      { id: Number(id) },
+      {
+        refetchInterval: 4000,
+      },
+    ),
+  );
+
+  useEffect(() => {
+    if (error) {
+      (async () => {
         await queryClient.invalidateQueries({
           queryKey: trpc.organization.getOrganizationClusters.queryKey({
             id: organization.id,
           }),
         });
+        navigate(`clusters/all`);
+      })();
+    }
+  }, [error]);
+
+  const deleteClusterMutation = useMutation(
+    trpc.cluster.deleteCluster.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.cluster.getCluster.queryKey({
+            id: Number(id),
+          }),
+        });
+        navigate(`/${slug}/clusters/${id}/general`);
       },
     }),
   );
@@ -43,6 +68,10 @@ export default function Settings() {
           <Button
             className="w-36"
             intent="danger"
+            disabled={
+              clusterData?.status === "pending" ||
+              clusterData?.status === "deleted"
+            }
             size="sm"
             onClick={() =>
               deleteClusterMutation.mutate({

@@ -19,13 +19,13 @@ export default function NewCluster() {
 
   const createClusterMutation = useMutation(
     trpc.cluster.createCluster.mutationOptions({
-      onSuccess: async () => {
+      onSuccess: async (newCluster) => {
         await queryClient.invalidateQueries({
           queryKey: trpc.organization.getOrganizationClusters.queryKey({
             id: organization.id,
           }),
         });
-        navigate(`/${organization.slug}/clusters/all`);
+        navigate(`/${organization.slug}/clusters/${newCluster.id}`);
       },
     }),
   );

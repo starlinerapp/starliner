@@ -27,6 +27,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 	return &domain.Cluster{
 		Id:             c.ID,
 		Name:           c.Name,
+		Status:         domain.ClusterStatus(c.Status),
 		IPv4Address:    utils.PtrFromNullString(c.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(c.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
@@ -47,6 +48,7 @@ func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, c
 	return &domain.Cluster{
 		Id:             cluster.ID,
 		Name:           cluster.Name,
+		Status:         domain.ClusterStatus(cluster.Status),
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
@@ -59,15 +61,9 @@ func (cr *ClusterRepository) CreateCluster(
 	ctx context.Context,
 	name string,
 	organizationId int64,
-	ipv4Address *string,
-	publicKey *string,
-	privateKeyRef *string,
 ) (*domain.Cluster, error) {
 	cluster, err := cr.queries.CreateCluster(ctx, sqlc.CreateClusterParams{
 		Name:           name,
-		Ipv4Address:    utils.NullStringFromPtr(ipv4Address),
-		PublicKey:      utils.NullStringFromPtr(publicKey),
-		PrivateKey:     utils.NullStringFromPtr(privateKeyRef),
 		OrganizationID: organizationId,
 	})
 	if err != nil {
@@ -77,10 +73,7 @@ func (cr *ClusterRepository) CreateCluster(
 	return &domain.Cluster{
 		Id:             cluster.ID,
 		Name:           cluster.Name,
-		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
-		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
-		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
-		PulumiStackId:  utils.PtrFromNullString(cluster.PulumiStackID),
+		Status:         domain.ClusterStatus(cluster.Status),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 }
@@ -120,4 +113,15 @@ func (cr *ClusterRepository) DeleteCluster(
 	id int64,
 ) error {
 	return cr.queries.DeleteCluster(ctx, id)
+}
+
+func (cr *ClusterRepository) UpdateClusterStatus(
+	ctx context.Context,
+	id int64,
+	status domain.ClusterStatus,
+) error {
+	return cr.queries.UpdateClusterStatus(ctx, sqlc.UpdateClusterStatusParams{
+		Status: sqlc.ClusterStatus(status),
+		ID:     id,
+	})
 }

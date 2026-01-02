@@ -1,4 +1,14 @@
 definitions:
+  domain.ClusterStatus:
+    enum:
+    - pending
+    - running
+    - deleted
+    type: string
+    x-enum-varnames:
+    - ClusterPending
+    - ClusterRunning
+    - ClusterDeleted
   request.CreateCluster:
     properties:
       name:
@@ -49,11 +59,19 @@ definitions:
         type: string
       organizationId:
         type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.ClusterStatus'
+        enum:
+        - pending
+        - running
+        - deleted
     required:
     - id
     - ipv4Address
     - name
     - organizationId
+    - status
     type: object
   response.Environment:
     properties:
@@ -165,6 +183,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.Cluster'
       summary: Create Cluster
       tags:
       - cluster

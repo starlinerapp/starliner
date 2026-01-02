@@ -6,6 +6,7 @@ common.ts
 configuration.ts
 docs/BuildApi.md
 docs/ClusterApi.md
+docs/DomainClusterStatus.md
 docs/EnvironmentApi.md
 docs/OrganizationApi.md
 docs/ProjectApi.md

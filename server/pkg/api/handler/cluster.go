@@ -28,7 +28,7 @@ func NewClusterHandler(clusterService *service.ClusterService, organizationServi
 // @Param X-User-ID header string true "User ID"
 // @Param data body request.CreateCluster true "Create Cluster"
 // @Product JSON
-// @Success 200
+// @Success 200 {object} response.Cluster
 // @Router /clusters [post]
 func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 	currentUser := c.MustGet("user").(*domain.User)
@@ -55,12 +55,12 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 		return
 	}
 
-	err = ch.clusterService.CreateCluster(c, cluster.Name, cluster.OrganizationID)
+	newCluster, err := ch.clusterService.CreateCluster(c, cluster.Name, cluster.OrganizationID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, newCluster)
 }
 
 // GetCluster FindAll godoc

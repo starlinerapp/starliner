@@ -13,7 +13,7 @@
     "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons",
     "drizzle:generate": "npx drizzle-kit generate",
     "drizzle:migrate": "npx drizzle-kit migrate",
-    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/docs/swagger.yaml' -g typescript-axios -o app/server/api/client/generated"
+    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/docs/swagger.yaml' -g typescript-axios -o app/server/api/client/generated && prettier app/server/api/client/generated --write"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

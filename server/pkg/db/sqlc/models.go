@@ -6,8 +6,53 @@ package sqlc
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
 )
+
+type ClusterStatus string
+
+const (
+	ClusterStatusPending ClusterStatus = "pending"
+	ClusterStatusRunning ClusterStatus = "running"
+	ClusterStatusDeleted ClusterStatus = "deleted"
+)
+
+func (e *ClusterStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ClusterStatus(s)
+	case string:
+		*e = ClusterStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ClusterStatus: %T", src)
+	}
+	return nil
+}
+
+type NullClusterStatus struct {
+	ClusterStatus ClusterStatus
+	Valid         bool // Valid is true if ClusterStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullClusterStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.ClusterStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ClusterStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullClusterStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ClusterStatus), nil
+}
 
 type Cluster struct {
 	ID             int64
@@ -17,6 +62,7 @@ type Cluster struct {
 	PrivateKey     sql.NullString
 	OrganizationID int64
 	PulumiStackID  sql.NullString
+	Status         ClusterStatus
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

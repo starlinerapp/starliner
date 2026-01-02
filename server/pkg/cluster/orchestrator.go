@@ -21,6 +21,7 @@ import (
 	"starliner.app/pkg/cluster/ansible"
 	"starliner.app/pkg/config"
 	"starliner.app/pkg/crypto"
+	"starliner.app/pkg/domain"
 	v1 "starliner.app/pkg/proto/v1"
 	"starliner.app/pkg/queue"
 	interfaces "starliner.app/pkg/repository/interface"
@@ -231,6 +232,11 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 	if err != nil {
 		fmt.Printf("Failed to install k3s: %v\n", err)
 		return
+	}
+
+	err = o.clusterRepository.UpdateClusterStatus(ctx, c.Id, domain.ClusterRunning)
+	if err != nil {
+		fmt.Printf("Failed to update cluster status: %v\n", err)
 	}
 }
 
