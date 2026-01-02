@@ -17,6 +17,7 @@ func NewRootHandler() *RootHandler {
 // @Tags root
 // @ID getRoot
 // @Product JSON
+// @Param X-User-ID header string true "User ID"
 // @Success 200 {object} response.Root
 // @Router / [get]
 func (rh *RootHandler) GetRoot(c *gin.Context) {

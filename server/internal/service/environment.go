@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"starliner.app/internal/domain"
 	interfaces "starliner.app/internal/repository/interface"
 	"strings"
 )
@@ -16,19 +15,18 @@ func NewEnvironmentService(environmentRepository interfaces.EnvironmentRepositor
 	return &EnvironmentService{environmentRepository: environmentRepository, organizationService: organizationService}
 }
 
-func (es *EnvironmentService) CreateEnvironment(ctx context.Context, name string, userId int64, organizationId int64, projectId int64) (*domain.Environment, error) {
+func (es *EnvironmentService) CreateEnvironment(ctx context.Context, name string, userId int64, organizationId int64, projectId int64) error {
 	err := es.organizationService.ValidateUserOrganization(ctx, organizationId, userId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	trimmed := strings.TrimSpace(name)
 	environmentSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
 
-	environment, err := es.environmentRepository.CreateEnvironment(ctx, name, environmentSlug, projectId)
+	_, err = es.environmentRepository.CreateEnvironment(ctx, name, environmentSlug, projectId)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return environment, nil
+	return nil
 }

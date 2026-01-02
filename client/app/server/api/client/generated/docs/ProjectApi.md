@@ -19,16 +19,18 @@ import { ProjectApi, Configuration, RequestCreateProject } from "./api";
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
+let xUserID: string; //User ID (default to undefined)
 let data: RequestCreateProject; //Create Project
 
-const { status, data } = await apiInstance.createProject(data);
+const { status, data } = await apiInstance.createProject(xUserID, data);
 ```
 
 ### Parameters
 
-| Name     | Type                     | Description    | Notes |
-| -------- | ------------------------ | -------------- | ----- |
-| **data** | **RequestCreateProject** | Create Project |       |
+| Name        | Type                     | Description    | Notes                 |
+| ----------- | ------------------------ | -------------- | --------------------- |
+| **data**    | **RequestCreateProject** | Create Project |                       |
+| **xUserID** | [**string**]             | User ID        | defaults to undefined |
 
 ### Return type
 
@@ -63,16 +65,18 @@ import { ProjectApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new ProjectApi(configuration);
 
+let xUserID: string; //User ID (default to undefined)
 let id: number; //Project ID (default to undefined)
 
-const { status, data } = await apiInstance.getProject(id);
+const { status, data } = await apiInstance.getProject(xUserID, id);
 ```
 
 ### Parameters
 
-| Name   | Type         | Description | Notes                 |
-| ------ | ------------ | ----------- | --------------------- |
-| **id** | [**number**] | Project ID  | defaults to undefined |
+| Name        | Type         | Description | Notes                 |
+| ----------- | ------------ | ----------- | --------------------- |
+| **xUserID** | [**string**] | User ID     | defaults to undefined |
+| **id**      | [**number**] | Project ID  | defaults to undefined |
 
 ### Return type
 

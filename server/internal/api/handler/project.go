@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"starliner.app/internal/api/dto/request"
 	"starliner.app/internal/api/dto/response"
-	"starliner.app/internal/domain"
 	"starliner.app/internal/service"
+	"starliner.app/internal/service/model"
 	"strconv"
 )
 
@@ -25,20 +25,21 @@ func NewProjectHandler(projectService *service.ProjectService) *ProjectHandler {
 // @Tags project
 // @ID createProject
 // @Product JSON
+// @Param X-User-ID header string true "User ID"
 // @Param data body request.CreateProject true "Create Project"
 // @Success 200
 // @Router /projects [post]
 func (ph *ProjectHandler) CreateProject(c *gin.Context) {
-	currentUser := c.MustGet("user").(*domain.User)
+	currentUser := c.MustGet("user").(*model.User)
 	var project request.CreateProject
 	if err := c.BindJSON(&project); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	_, err := ph.projectService.CreateProject(c, project.Name, project.OrganizationId, currentUser.Id)
+	_, err := ph.projectService.CreateProject(c.Request.Context(), project.Name, project.OrganizationId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.Status(http.StatusCreated)
@@ -49,20 +50,21 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 // @Tags project
 // @ID getProject
 // @Product JSON
+// @Param X-User-ID header string true "User ID"
 // @Param id path int true "Project ID"
 // @Success 200 {object} response.Project
 // @Router /projects/{id} [get]
 func (ph *ProjectHandler) GetProject(c *gin.Context) {
-	currentUser := c.MustGet("user").(*domain.User)
+	currentUser := c.MustGet("user").(*model.User)
 	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	project, err := ph.projectService.GetProject(c, projectId, currentUser.Id)
+	project, err := ph.projectService.GetProject(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 

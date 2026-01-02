@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"starliner.app/internal/api/dto/request"
 	"starliner.app/internal/api/dto/response"
-	"starliner.app/internal/domain"
 	"starliner.app/internal/service"
+	"starliner.app/internal/service/model"
 	"strconv"
 )
 
@@ -25,20 +25,21 @@ func NewOrganizationHandler(organizationService *service.OrganizationService) *O
 // @Tags organization
 // @ID createOrganization
 // @Product JSON
+// @Param X-User-ID header string true "User ID"
 // @Param data body request.CreateOrganization true "Create Organization"
 // @Success 201
 // @Router /organizations [post]
 func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
-	currentUser := c.MustGet("user").(*domain.User)
+	currentUser := c.MustGet("user").(*model.User)
 	var org request.CreateOrganization
 	if err := c.BindJSON(&org); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	_, err := oh.organizationService.CreateOrganization(c, org.Name, currentUser.Id)
+	err := oh.organizationService.CreateOrganization(c, org.Name, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.Status(http.StatusCreated)
@@ -49,11 +50,12 @@ func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 // @Tags organization
 // @ID getUserOrganizations
 // @Product JSON
+// @Param X-User-ID header string true "User ID"
 // @Success 200 {object} []response.Organization
 // @Router /organizations [get]
 func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
-	currentUser := c.MustGet("user").(*domain.User)
-	organizations, err := oh.organizationService.GetUserOrganizations(c, currentUser.Id)
+	currentUser := c.MustGet("user").(*model.User)
+	organizations, err := oh.organizationService.GetUserOrganizations(c.Request.Context(), currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return
@@ -77,18 +79,19 @@ func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
 // @Tags organization
 // @ID getOrganizationProjects
 // @Product JSON
+// @Param X-User-ID header string true "User ID"
 // @Param id path int true "Organization ID"
 // @Success 200 {array} response.Project
 // @Router /organizations/{id}/projects [get]
 func (oh *OrganizationHandler) GetOrganizationProjects(c *gin.Context) {
-	currentUser := c.MustGet("user").(*domain.User)
+	currentUser := c.MustGet("user").(*model.User)
 	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	projects, err := oh.organizationService.GetProjectsForUser(c, currentUser.Id, organizationId)
+	projects, err := oh.organizationService.GetProjectsForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
@@ -124,14 +127,14 @@ func (oh *OrganizationHandler) GetOrganizationProjects(c *gin.Context) {
 // @Success 200 {array} response.Cluster
 // @Router /organizations/{id}/clusters [get]
 func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
-	currentUser := c.MustGet("user").(*domain.User)
+	currentUser := c.MustGet("user").(*model.User)
 	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	clusters, err := oh.organizationService.GetClustersForUser(c, currentUser.Id, organizationId)
+	clusters, err := oh.organizationService.GetClustersForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
