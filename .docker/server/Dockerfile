@@ -50,7 +50,7 @@ WORKDIR /app
 
 COPY --from=builder /app/${BINARY_NAME} ./app
 COPY ../../server/.env .env
-COPY ../../server/pkg/db/migrations ./pkg/db/migrations
+COPY ../../server/pkg/infrastructure/db/migrations ./pkg/db/migrations
 COPY --from=dev /go/bin/goose /usr/local/bin/goose
 
 ENTRYPOINT [ "./app" ]
