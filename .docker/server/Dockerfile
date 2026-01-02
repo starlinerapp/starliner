@@ -48,6 +48,9 @@ ARG BINARY_NAME
 
 WORKDIR /app
 
+RUN apk add --no-cache bash curl ansible openssh-client
+RUN curl -fsSL https://get.pulumi.com | sh
+
 COPY --from=builder /app/${BINARY_NAME} ./app
 COPY ../../server/.env .env
 COPY ../../server/internal/infrastructure/db/migrations ./internal/db/migrations
