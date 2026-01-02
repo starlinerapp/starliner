@@ -142,6 +142,12 @@ paths:
   /:
     get:
       operationId: getRoot
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -255,6 +261,11 @@ paths:
     post:
       operationId: createEnvironment
       parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       - description: Create Environment
         in: body
         name: data
@@ -270,6 +281,12 @@ paths:
   /me:
     get:
       operationId: getUser
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -281,6 +298,12 @@ paths:
   /organizations:
     get:
       operationId: getUserOrganizations
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -294,6 +317,11 @@ paths:
     post:
       operationId: createOrganization
       parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       - description: Create Organization
         in: body
         name: data
@@ -334,6 +362,11 @@ paths:
     get:
       operationId: getOrganizationProjects
       parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       - description: Organization ID
         in: path
         name: id
@@ -353,6 +386,11 @@ paths:
     post:
       operationId: createProject
       parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       - description: Create Project
         in: body
         name: data
@@ -369,6 +407,11 @@ paths:
     get:
       operationId: getProject
       parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
       - description: Project ID
         in: path
         name: id

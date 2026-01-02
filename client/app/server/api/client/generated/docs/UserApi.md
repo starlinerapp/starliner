@@ -18,12 +18,16 @@ import { UserApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new UserApi(configuration);
 
-const { status, data } = await apiInstance.getUser();
+let xUserID: string; //User ID (default to undefined)
+
+const { status, data } = await apiInstance.getUser(xUserID);
 ```
 
 ### Parameters
 
-This endpoint does not have any parameters.
+| Name        | Type         | Description | Notes                 |
+| ----------- | ------------ | ----------- | --------------------- |
+| **xUserID** | [**string**] | User ID     | defaults to undefined |
 
 ### Return type
 

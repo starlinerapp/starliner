@@ -18,16 +18,18 @@ import { EnvironmentApi, Configuration, RequestCreateEnvironment } from "./api";
 const configuration = new Configuration();
 const apiInstance = new EnvironmentApi(configuration);
 
+let xUserID: string; //User ID (default to undefined)
 let data: RequestCreateEnvironment; //Create Environment
 
-const { status, data } = await apiInstance.createEnvironment(data);
+const { status, data } = await apiInstance.createEnvironment(xUserID, data);
 ```
 
 ### Parameters
 
-| Name     | Type                         | Description        | Notes |
-| -------- | ---------------------------- | ------------------ | ----- |
-| **data** | **RequestCreateEnvironment** | Create Environment |       |
+| Name        | Type                         | Description        | Notes                 |
+| ----------- | ---------------------------- | ------------------ | --------------------- |
+| **data**    | **RequestCreateEnvironment** | Create Environment |                       |
+| **xUserID** | [**string**]                 | User ID            | defaults to undefined |
 
 ### Return type
 

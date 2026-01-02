@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"golang.org/x/crypto/ssh"
 	"log"
-	"starliner.app/internal/api/dto/response"
 	"starliner.app/internal/config"
 	"starliner.app/internal/crypto"
 	"starliner.app/internal/domain"
 	"starliner.app/internal/infrastructure/queue"
 	"starliner.app/internal/infrastructure/queue/proto/v1"
 	interfaces "starliner.app/internal/repository/interface"
+	"starliner.app/internal/service/model"
 	"strconv"
 )
 
@@ -41,7 +41,7 @@ func NewClusterService(
 	}
 }
 
-func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organizationId int64) (*response.Cluster, error) {
+func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organizationId int64) (*model.Cluster, error) {
 	cluster, err := cs.clusterRepository.CreateCluster(ctx, name, organizationId)
 	if err != nil {
 		fmt.Printf("failed to persist cluster in database: %v", err)
@@ -56,7 +56,7 @@ func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organi
 		log.Printf("error publishing: %v", err)
 	}
 
-	return &response.Cluster{
+	return &model.Cluster{
 		Id:             cluster.Id,
 		Name:           cluster.Name,
 		Status:         cluster.Status,
@@ -65,13 +65,13 @@ func (cs *ClusterService) CreateCluster(ctx context.Context, name string, organi
 	}, nil
 }
 
-func (cs *ClusterService) GetCluster(ctx context.Context, id int64) (*response.Cluster, error) {
+func (cs *ClusterService) GetCluster(ctx context.Context, id int64) (*model.Cluster, error) {
 	cluster, err := cs.clusterRepository.GetCluster(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response.Cluster{
+	return &model.Cluster{
 		Id:             cluster.Id,
 		Name:           cluster.Name,
 		Status:         cluster.Status,
@@ -80,7 +80,7 @@ func (cs *ClusterService) GetCluster(ctx context.Context, id int64) (*response.C
 	}, nil
 }
 
-func (cs *ClusterService) GetUserCluster(ctx context.Context, userId int64, id int64) (*response.Cluster, error) {
+func (cs *ClusterService) GetUserCluster(ctx context.Context, userId int64, id int64) (*model.Cluster, error) {
 	cluster, err := cs.clusterRepository.GetUserCluster(ctx, userId, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -90,7 +90,7 @@ func (cs *ClusterService) GetUserCluster(ctx context.Context, userId int64, id i
 		return nil, err
 	}
 
-	return &response.Cluster{
+	return &model.Cluster{
 		Id:             cluster.Id,
 		Name:           cluster.Name,
 		Status:         cluster.Status,

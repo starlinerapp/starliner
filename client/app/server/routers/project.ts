@@ -1,7 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
 import { projectApiFactory } from "~/server/api/client";
-import { withAuthHeader } from "~/server/api/client/axios.server";
 
 export const projectRouter = {
   createProject: protectedProcedure
@@ -14,13 +13,10 @@ export const projectRouter = {
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await projectApiFactory
-        .createProject(
-          {
-            name: input.name,
-            organization_id: input.organizationId,
-          },
-          withAuthHeader(userId),
-        )
+        .createProject(userId, {
+          name: input.name,
+          organization_id: input.organizationId,
+        })
         .then((res) => res.data);
     }),
   getProject: protectedProcedure
@@ -32,7 +28,7 @@ export const projectRouter = {
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await projectApiFactory
-        .getProject(input.id, withAuthHeader(userId))
+        .getProject(userId, input.id)
         .then((res) => res.data);
     }),
 };

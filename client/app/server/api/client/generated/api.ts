@@ -983,14 +983,18 @@ export const EnvironmentApiAxiosParamCreator = function (
     /**
      *
      * @summary Create Environment
+     * @param {string} xUserID User ID
      * @param {RequestCreateEnvironment} data Create Environment
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createEnvironment: async (
+      xUserID: string,
       data: RequestCreateEnvironment,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("createEnvironment", "xUserID", xUserID);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("createEnvironment", "data", data);
       const localVarPath = `/environments`;
@@ -1011,6 +1015,9 @@ export const EnvironmentApiAxiosParamCreator = function (
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1044,18 +1051,24 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Create Environment
+     * @param {string} xUserID User ID
      * @param {RequestCreateEnvironment} data Create Environment
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async createEnvironment(
+      xUserID: string,
       data: RequestCreateEnvironment,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.createEnvironment(data, options);
+        await localVarAxiosParamCreator.createEnvironment(
+          xUserID,
+          data,
+          options,
+        );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["EnvironmentApi.createEnvironment"]?.[
@@ -1086,16 +1099,18 @@ export const EnvironmentApiFactory = function (
     /**
      *
      * @summary Create Environment
+     * @param {string} xUserID User ID
      * @param {RequestCreateEnvironment} data Create Environment
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createEnvironment(
+      xUserID: string,
       data: RequestCreateEnvironment,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .createEnvironment(data, options)
+        .createEnvironment(xUserID, data, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -1111,17 +1126,19 @@ export class EnvironmentApi extends BaseAPI {
   /**
    *
    * @summary Create Environment
+   * @param {string} xUserID User ID
    * @param {RequestCreateEnvironment} data Create Environment
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof EnvironmentApi
    */
   public createEnvironment(
+    xUserID: string,
     data: RequestCreateEnvironment,
     options?: RawAxiosRequestConfig,
   ) {
     return EnvironmentApiFp(this.configuration)
-      .createEnvironment(data, options)
+      .createEnvironment(xUserID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -1137,14 +1154,18 @@ export const OrganizationApiAxiosParamCreator = function (
     /**
      *
      * @summary Create organization
+     * @param {string} xUserID User ID
      * @param {RequestCreateOrganization} data Create Organization
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createOrganization: async (
+      xUserID: string,
       data: RequestCreateOrganization,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("createOrganization", "xUserID", xUserID);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("createOrganization", "data", data);
       const localVarPath = `/organizations`;
@@ -1165,6 +1186,9 @@ export const OrganizationApiAxiosParamCreator = function (
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1240,14 +1264,18 @@ export const OrganizationApiAxiosParamCreator = function (
     /**
      *
      * @summary Get Organization Projects
+     * @param {string} xUserID User ID
      * @param {number} id Organization ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getOrganizationProjects: async (
+      xUserID: string,
       id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getOrganizationProjects", "xUserID", xUserID);
       // verify required parameter 'id' is not null or undefined
       assertParamExists("getOrganizationProjects", "id", id);
       const localVarPath = `/organizations/{id}/projects`.replace(
@@ -1269,6 +1297,9 @@ export const OrganizationApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1286,12 +1317,16 @@ export const OrganizationApiAxiosParamCreator = function (
     /**
      *
      * @summary Get user organizations
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getUserOrganizations: async (
+      xUserID: string,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getUserOrganizations", "xUserID", xUserID);
       const localVarPath = `/organizations`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1308,6 +1343,9 @@ export const OrganizationApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1336,18 +1374,24 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Create organization
+     * @param {string} xUserID User ID
      * @param {RequestCreateOrganization} data Create Organization
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async createOrganization(
+      xUserID: string,
       data: RequestCreateOrganization,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.createOrganization(data, options);
+        await localVarAxiosParamCreator.createOrganization(
+          xUserID,
+          data,
+          options,
+        );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["OrganizationApi.createOrganization"]?.[
@@ -1401,11 +1445,13 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Get Organization Projects
+     * @param {string} xUserID User ID
      * @param {number} id Organization ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getOrganizationProjects(
+      xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -1415,7 +1461,11 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       ) => AxiosPromise<Array<ResponseProject>>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.getOrganizationProjects(id, options);
+        await localVarAxiosParamCreator.getOrganizationProjects(
+          xUserID,
+          id,
+          options,
+        );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["OrganizationApi.getOrganizationProjects"]?.[
@@ -1432,10 +1482,12 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Get user organizations
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getUserOrganizations(
+      xUserID: string,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (
@@ -1444,7 +1496,7 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       ) => AxiosPromise<Array<ResponseOrganization>>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.getUserOrganizations(options);
+        await localVarAxiosParamCreator.getUserOrganizations(xUserID, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["OrganizationApi.getUserOrganizations"]?.[
@@ -1475,16 +1527,18 @@ export const OrganizationApiFactory = function (
     /**
      *
      * @summary Create organization
+     * @param {string} xUserID User ID
      * @param {RequestCreateOrganization} data Create Organization
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createOrganization(
+      xUserID: string,
       data: RequestCreateOrganization,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .createOrganization(data, options)
+        .createOrganization(xUserID, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -1507,29 +1561,33 @@ export const OrganizationApiFactory = function (
     /**
      *
      * @summary Get Organization Projects
+     * @param {string} xUserID User ID
      * @param {number} id Organization ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getOrganizationProjects(
+      xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<Array<ResponseProject>> {
       return localVarFp
-        .getOrganizationProjects(id, options)
+        .getOrganizationProjects(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Get user organizations
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getUserOrganizations(
+      xUserID: string,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<Array<ResponseOrganization>> {
       return localVarFp
-        .getUserOrganizations(options)
+        .getUserOrganizations(xUserID, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -1545,17 +1603,19 @@ export class OrganizationApi extends BaseAPI {
   /**
    *
    * @summary Create organization
+   * @param {string} xUserID User ID
    * @param {RequestCreateOrganization} data Create Organization
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof OrganizationApi
    */
   public createOrganization(
+    xUserID: string,
     data: RequestCreateOrganization,
     options?: RawAxiosRequestConfig,
   ) {
     return OrganizationApiFp(this.configuration)
-      .createOrganization(data, options)
+      .createOrganization(xUserID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -1581,27 +1641,36 @@ export class OrganizationApi extends BaseAPI {
   /**
    *
    * @summary Get Organization Projects
+   * @param {string} xUserID User ID
    * @param {number} id Organization ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof OrganizationApi
    */
-  public getOrganizationProjects(id: number, options?: RawAxiosRequestConfig) {
+  public getOrganizationProjects(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
     return OrganizationApiFp(this.configuration)
-      .getOrganizationProjects(id, options)
+      .getOrganizationProjects(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
   /**
    *
    * @summary Get user organizations
+   * @param {string} xUserID User ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof OrganizationApi
    */
-  public getUserOrganizations(options?: RawAxiosRequestConfig) {
+  public getUserOrganizations(
+    xUserID: string,
+    options?: RawAxiosRequestConfig,
+  ) {
     return OrganizationApiFp(this.configuration)
-      .getUserOrganizations(options)
+      .getUserOrganizations(xUserID, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -1617,14 +1686,18 @@ export const ProjectApiAxiosParamCreator = function (
     /**
      *
      * @summary Create Project
+     * @param {string} xUserID User ID
      * @param {RequestCreateProject} data Create Project
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createProject: async (
+      xUserID: string,
       data: RequestCreateProject,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("createProject", "xUserID", xUserID);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("createProject", "data", data);
       const localVarPath = `/projects`;
@@ -1645,6 +1718,9 @@ export const ProjectApiAxiosParamCreator = function (
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1667,14 +1743,18 @@ export const ProjectApiAxiosParamCreator = function (
     /**
      *
      * @summary Get Project
+     * @param {string} xUserID User ID
      * @param {number} id Project ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getProject: async (
+      xUserID: string,
       id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getProject", "xUserID", xUserID);
       // verify required parameter 'id' is not null or undefined
       assertParamExists("getProject", "id", id);
       const localVarPath = `/projects/{id}`.replace(
@@ -1696,6 +1776,9 @@ export const ProjectApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1723,17 +1806,20 @@ export const ProjectApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Create Project
+     * @param {string} xUserID User ID
      * @param {RequestCreateProject} data Create Project
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async createProject(
+      xUserID: string,
       data: RequestCreateProject,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createProject(
+        xUserID,
         data,
         options,
       );
@@ -1753,11 +1839,13 @@ export const ProjectApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Get Project
+     * @param {string} xUserID User ID
      * @param {number} id Project ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getProject(
+      xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -1767,6 +1855,7 @@ export const ProjectApiFp = function (configuration?: Configuration) {
       ) => AxiosPromise<ResponseProject>
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getProject(
+        xUserID,
         id,
         options,
       );
@@ -1800,31 +1889,35 @@ export const ProjectApiFactory = function (
     /**
      *
      * @summary Create Project
+     * @param {string} xUserID User ID
      * @param {RequestCreateProject} data Create Project
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createProject(
+      xUserID: string,
       data: RequestCreateProject,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .createProject(data, options)
+        .createProject(xUserID, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Get Project
+     * @param {string} xUserID User ID
      * @param {number} id Project ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getProject(
+      xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<ResponseProject> {
       return localVarFp
-        .getProject(id, options)
+        .getProject(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -1840,31 +1933,38 @@ export class ProjectApi extends BaseAPI {
   /**
    *
    * @summary Create Project
+   * @param {string} xUserID User ID
    * @param {RequestCreateProject} data Create Project
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof ProjectApi
    */
   public createProject(
+    xUserID: string,
     data: RequestCreateProject,
     options?: RawAxiosRequestConfig,
   ) {
     return ProjectApiFp(this.configuration)
-      .createProject(data, options)
+      .createProject(xUserID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
   /**
    *
    * @summary Get Project
+   * @param {string} xUserID User ID
    * @param {number} id Project ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof ProjectApi
    */
-  public getProject(id: number, options?: RawAxiosRequestConfig) {
+  public getProject(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
     return ProjectApiFp(this.configuration)
-      .getProject(id, options)
+      .getProject(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -1880,12 +1980,16 @@ export const RootApiAxiosParamCreator = function (
     /**
      *
      * @summary Get root
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getRoot: async (
+      xUserID: string,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getRoot", "xUserID", xUserID);
       const localVarPath = `/`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1902,6 +2006,9 @@ export const RootApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1929,16 +2036,20 @@ export const RootApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Get root
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getRoot(
+      xUserID: string,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseRoot>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.getRoot(options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getRoot(
+        xUserID,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["RootApi.getRoot"]?.[localVarOperationServerIndex]
@@ -1968,12 +2079,16 @@ export const RootApiFactory = function (
     /**
      *
      * @summary Get root
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getRoot(options?: RawAxiosRequestConfig): AxiosPromise<ResponseRoot> {
+    getRoot(
+      xUserID: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseRoot> {
       return localVarFp
-        .getRoot(options)
+        .getRoot(xUserID, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -1989,13 +2104,14 @@ export class RootApi extends BaseAPI {
   /**
    *
    * @summary Get root
+   * @param {string} xUserID User ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof RootApi
    */
-  public getRoot(options?: RawAxiosRequestConfig) {
+  public getRoot(xUserID: string, options?: RawAxiosRequestConfig) {
     return RootApiFp(this.configuration)
-      .getRoot(options)
+      .getRoot(xUserID, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -2011,12 +2127,16 @@ export const UserApiAxiosParamCreator = function (
     /**
      *
      * @summary Get current user
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getUser: async (
+      xUserID: string,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getUser", "xUserID", xUserID);
       const localVarPath = `/me`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2033,6 +2153,9 @@ export const UserApiAxiosParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2060,16 +2183,20 @@ export const UserApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Get current user
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getUser(
+      xUserID: string,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseUser>
     > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.getUser(options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getUser(
+        xUserID,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["UserApi.getUser"]?.[localVarOperationServerIndex]
@@ -2099,12 +2226,16 @@ export const UserApiFactory = function (
     /**
      *
      * @summary Get current user
+     * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getUser(options?: RawAxiosRequestConfig): AxiosPromise<ResponseUser> {
+    getUser(
+      xUserID: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseUser> {
       return localVarFp
-        .getUser(options)
+        .getUser(xUserID, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -2120,13 +2251,14 @@ export class UserApi extends BaseAPI {
   /**
    *
    * @summary Get current user
+   * @param {string} xUserID User ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof UserApi
    */
-  public getUser(options?: RawAxiosRequestConfig) {
+  public getUser(xUserID: string, options?: RawAxiosRequestConfig) {
     return UserApiFp(this.configuration)
-      .getUser(options)
+      .getUser(xUserID, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

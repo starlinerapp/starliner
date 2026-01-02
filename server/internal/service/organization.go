@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"errors"
-	"starliner.app/internal/domain"
 	interfaces "starliner.app/internal/repository/interface"
+	"starliner.app/internal/service/model"
 	"strings"
 )
 
@@ -18,38 +18,90 @@ func NewOrganizationService(organizationRepository interfaces.OrganizationReposi
 	}
 }
 
-func (os *OrganizationService) CreateOrganization(ctx context.Context, name string, ownerID int64) (*domain.Organization, error) {
+func (os *OrganizationService) CreateOrganization(ctx context.Context, name string, ownerID int64) error {
 	trimmed := strings.TrimSpace(name)
 	organizationSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
 
-	organization, err := os.organizationRepository.CreateOrganization(ctx, name, organizationSlug, ownerID)
+	_, err := os.organizationRepository.CreateOrganization(ctx, name, organizationSlug, ownerID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (os *OrganizationService) GetUserOrganizations(ctx context.Context, userID int64) ([]model.Organization, error) {
+	organizations, err := os.organizationRepository.GetUserOrganizations(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return organization, nil
+	organizationModels := make([]model.Organization, len(organizations))
+	for i, org := range organizations {
+		organizationModels[i] = model.Organization{
+			Id:      org.Id,
+			Name:    org.Name,
+			Slug:    org.Slug,
+			OwnerId: org.OwnerId,
+		}
+	}
+	return organizationModels, nil
 }
 
-func (os *OrganizationService) GetUserOrganizations(ctx context.Context, userID int64) ([]domain.Organization, error) {
-	return os.organizationRepository.GetUserOrganizations(ctx, userID)
-}
-
-func (os *OrganizationService) GetProjectsForUser(ctx context.Context, userID int64, organizationID int64) ([]domain.Project, error) {
+func (os *OrganizationService) GetProjectsForUser(ctx context.Context, userID int64, organizationID int64) ([]model.Project, error) {
 	err := os.ValidateUserOrganization(ctx, userID, organizationID)
 	if err != nil {
 		return nil, err
 	}
 
-	return os.organizationRepository.GetOrganizationProjects(ctx, organizationID)
+	projects, err := os.organizationRepository.GetOrganizationProjects(ctx, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	projectsModels := make([]model.Project, len(projects))
+	for i, p := range projects {
+		environmentModel := make([]model.Environment, len(p.Environments))
+		for j, env := range p.Environments {
+			environmentModel[j] = model.Environment{
+				Id:   env.Id,
+				Slug: env.Slug,
+				Name: env.Name,
+			}
+		}
+
+		projectsModels[i] = model.Project{
+			Id:             p.Id,
+			Name:           p.Name,
+			Environments:   environmentModel,
+			OrganizationId: p.OrganizationId,
+		}
+	}
+
+	return projectsModels, nil
 }
 
-func (os *OrganizationService) GetClustersForUser(ctx context.Context, userID int64, organizationID int64) ([]domain.Cluster, error) {
+func (os *OrganizationService) GetClustersForUser(ctx context.Context, userID int64, organizationID int64) ([]model.Cluster, error) {
 	err := os.ValidateUserOrganization(ctx, organizationID, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return os.organizationRepository.GetOrganizationClusters(ctx, organizationID)
+	clusters, err := os.organizationRepository.GetOrganizationClusters(ctx, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	clusterModels := make([]model.Cluster, len(clusters))
+	for i, org := range clusters {
+		clusterModels[i] = model.Cluster{
+			Id:             org.Id,
+			Name:           org.Name,
+			Status:         org.Status,
+			IPv4Address:    org.IPv4Address,
+			OrganizationId: org.OrganizationId,
+		}
+	}
+	return clusterModels, nil
 }
 
 func (os *OrganizationService) ValidateUserOrganization(ctx context.Context, organizationId int64, userId int64) error {

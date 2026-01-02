@@ -25,16 +25,18 @@ import {
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
 
+let xUserID: string; //User ID (default to undefined)
 let data: RequestCreateOrganization; //Create Organization
 
-const { status, data } = await apiInstance.createOrganization(data);
+const { status, data } = await apiInstance.createOrganization(xUserID, data);
 ```
 
 ### Parameters
 
-| Name     | Type                          | Description         | Notes |
-| -------- | ----------------------------- | ------------------- | ----- |
-| **data** | **RequestCreateOrganization** | Create Organization |       |
+| Name        | Type                          | Description         | Notes                 |
+| ----------- | ----------------------------- | ------------------- | --------------------- |
+| **data**    | **RequestCreateOrganization** | Create Organization |                       |
+| **xUserID** | [**string**]                  | User ID             | defaults to undefined |
 
 ### Return type
 
@@ -115,16 +117,18 @@ import { OrganizationApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
 
+let xUserID: string; //User ID (default to undefined)
 let id: number; //Organization ID (default to undefined)
 
-const { status, data } = await apiInstance.getOrganizationProjects(id);
+const { status, data } = await apiInstance.getOrganizationProjects(xUserID, id);
 ```
 
 ### Parameters
 
-| Name   | Type         | Description     | Notes                 |
-| ------ | ------------ | --------------- | --------------------- |
-| **id** | [**number**] | Organization ID | defaults to undefined |
+| Name        | Type         | Description     | Notes                 |
+| ----------- | ------------ | --------------- | --------------------- |
+| **xUserID** | [**string**] | User ID         | defaults to undefined |
+| **id**      | [**number**] | Organization ID | defaults to undefined |
 
 ### Return type
 
@@ -159,12 +163,16 @@ import { OrganizationApi, Configuration } from "./api";
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
 
-const { status, data } = await apiInstance.getUserOrganizations();
+let xUserID: string; //User ID (default to undefined)
+
+const { status, data } = await apiInstance.getUserOrganizations(xUserID);
 ```
 
 ### Parameters
 
-This endpoint does not have any parameters.
+| Name        | Type         | Description | Notes                 |
+| ----------- | ------------ | ----------- | --------------------- |
+| **xUserID** | [**string**] | User ID     | defaults to undefined |
 
 ### Return type
 

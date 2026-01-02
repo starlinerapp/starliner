@@ -22,6 +22,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get root",
                 "operationId": "getRoot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -193,6 +202,13 @@ const docTemplate = `{
                 "operationId": "createEnvironment",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Create Environment",
                         "name": "data",
                         "in": "body",
@@ -216,6 +232,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get current user",
                 "operationId": "getUser",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -233,6 +258,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get user organizations",
                 "operationId": "getUserOrganizations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -252,6 +286,13 @@ const docTemplate = `{
                 "summary": "Create organization",
                 "operationId": "createOrganization",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Create Organization",
                         "name": "data",
@@ -314,6 +355,13 @@ const docTemplate = `{
                 "operationId": "getOrganizationProjects",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "Organization ID",
                         "name": "id",
@@ -343,6 +391,13 @@ const docTemplate = `{
                 "operationId": "createProject",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Create Project",
                         "name": "data",
                         "in": "body",
@@ -367,6 +422,13 @@ const docTemplate = `{
                 "summary": "Get Project",
                 "operationId": "getProject",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Project ID",

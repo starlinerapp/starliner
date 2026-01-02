@@ -1,6 +1,5 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { withAuthHeader } from "~/server/api/client/axios.server";
 import { environmentApiFactory } from "~/server/api/client";
 
 export const environmentRouter = {
@@ -15,14 +14,11 @@ export const environmentRouter = {
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await environmentApiFactory
-        .createEnvironment(
-          {
-            name: input.name,
-            organization_id: input.organizationId,
-            project_id: input.projectId,
-          },
-          withAuthHeader(userId),
-        )
+        .createEnvironment(userId, {
+          name: input.name,
+          organization_id: input.organizationId,
+          project_id: input.projectId,
+        })
         .then((res) => res.data);
     }),
 };

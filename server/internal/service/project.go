@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"starliner.app/internal/domain"
 	interfaces "starliner.app/internal/repository/interface"
+	"starliner.app/internal/service/model"
 	"strings"
 )
 
@@ -28,7 +28,7 @@ func NewProjectService(
 	}
 }
 
-func (ps *ProjectService) CreateProject(ctx context.Context, name string, organizationId int64, userId int64) (*domain.Project, error) {
+func (ps *ProjectService) CreateProject(ctx context.Context, name string, organizationId int64, userId int64) (*model.Project, error) {
 	err := ps.organizationService.ValidateUserOrganization(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
@@ -45,12 +45,44 @@ func (ps *ProjectService) CreateProject(ctx context.Context, name string, organi
 		return nil, err
 	}
 
-	environments := []domain.Environment{*environment}
-	project.Environments = environments
+	environments := []model.Environment{
+		{
+			Id:   environment.Id,
+			Slug: environment.Slug,
+			Name: environment.Name,
+		},
+	}
 
-	return project, nil
+	projectModel := &model.Project{
+		Id:             project.Id,
+		Name:           project.Name,
+		Environments:   environments,
+		OrganizationId: project.OrganizationId,
+	}
+	projectModel.Environments = environments
+
+	return projectModel, nil
 }
 
-func (ps *ProjectService) GetProject(ctx context.Context, projectId int64, userId int64) (*domain.Project, error) {
-	return ps.projectRepository.GetProject(ctx, projectId, userId)
+func (ps *ProjectService) GetProject(ctx context.Context, projectId int64, userId int64) (*model.Project, error) {
+	project, err := ps.projectRepository.GetProject(ctx, projectId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	environmentModels := make([]model.Environment, len(project.Environments))
+	for i, env := range project.Environments {
+		environmentModels[i] = model.Environment{
+			Id:   env.Id,
+			Slug: env.Slug,
+			Name: env.Name,
+		}
+	}
+
+	return &model.Project{
+		Id:             project.Id,
+		Name:           project.Name,
+		Environments:   environmentModels,
+		OrganizationId: project.OrganizationId,
+	}, nil
 }
