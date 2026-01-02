@@ -116,12 +116,12 @@ func (cs *ClusterService) GetClusterPrivateKey(ctx context.Context, id int64, us
 
 	decryptedPrivateKey, err := crypto.Decrypt(*cluster.PrivateKey, encryptionKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt private key: %v\n", err)
+		return nil, fmt.Errorf("failed to decrypt private key: %v", err)
 	}
 
 	keyBytes, err := base64.StdEncoding.DecodeString(decryptedPrivateKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode private key: %v\n", err)
+		return nil, fmt.Errorf("failed to decode private key: %v", err)
 	}
 
 	privateKey := ed25519.PrivateKey(keyBytes)
@@ -129,7 +129,7 @@ func (cs *ClusterService) GetClusterPrivateKey(ctx context.Context, id int64, us
 	// Serialize to OpenSSH format
 	block, err := ssh.MarshalPrivateKey(privateKey, "")
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal private key: %v\n", err)
+		return nil, fmt.Errorf("failed to marshal private key: %v", err)
 	}
 
 	pemBytes := pem.EncodeToMemory(block)
