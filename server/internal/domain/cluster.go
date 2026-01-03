@@ -16,5 +16,6 @@ type Cluster struct {
 	PublicKey      *string
 	PrivateKey     *string
 	PulumiStackId  *string
+	Kubeconfig     *string
 	OrganizationId int64
 }
