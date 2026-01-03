@@ -125,3 +125,14 @@ func (cr *ClusterRepository) UpdateClusterStatus(
 		ID:     id,
 	})
 }
+
+func (cr *ClusterRepository) UpdateClusterKubeconfig(
+	ctx context.Context,
+	id int64,
+	kubeconfig *string,
+) error {
+	return cr.queries.UpdateClusterKubeconfig(ctx, sqlc.UpdateClusterKubeconfigParams{
+		Kubeconfig: utils.NullStringFromPtr(kubeconfig),
+		ID:         id,
+	})
+}

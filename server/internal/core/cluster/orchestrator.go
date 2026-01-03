@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	_ "embed"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"github.com/google/uuid"
@@ -90,6 +91,7 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 	if err != nil {
 		fmt.Printf("failed to decode encryption key: %v\n", err)
 	}
+
 	encryptedPrivKeyStr, err := crypto.Encrypt(privKeyStr, encryptionKey)
 	if err != nil {
 		fmt.Printf("failed to encrypt private key: %v\n", err)
@@ -226,12 +228,50 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		"-e", fmt.Sprintf("target_host=%s", ip),
 	}
 
-	out, err := exec.Command("ansible-playbook", args...).CombinedOutput()
-	fmt.Printf("Ansible output:\n%s\n", string(out))
+	cmd := exec.Command("ansible-playbook", args...)
+	cmd.Env = append(
+		cmd.Env,
+		"ANSIBLE_STDOUT_CALLBACK=json",
+		"ANSIBLE_DEPRECATION_WARNINGS=False",
+	)
 
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Failed to install k3s: %v\n", err)
 		return
+	}
+
+	var ansibleData ansible.Output
+	if err := json.Unmarshal(out, &ansibleData); err != nil {
+		fmt.Printf("Failed to parse ansible output: %v\n", err)
+		return
+	}
+
+	var kubeconfigBase64 string
+	for _, play := range ansibleData.Plays {
+		for _, task := range play.Tasks {
+			for _, host := range task.Hosts {
+				if host.Content != "" {
+					kubeconfigBase64 = host.Content
+					break
+				}
+			}
+		}
+	}
+
+	kubeconfig, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
+	if err != nil {
+		fmt.Printf("failed to decode kubeconfig: %v\n", err)
+	}
+	encryptedKubeconfig, err := crypto.Encrypt(string(kubeconfig), encryptionKey)
+	if err != nil {
+		fmt.Printf("failed to encrypt kubeconfig: %v\n", err)
+	}
+
+	encryptedKubeconfigBase64 := base64.StdEncoding.EncodeToString([]byte(encryptedKubeconfig))
+	err = o.clusterRepository.UpdateClusterKubeconfig(ctx, c.Id, &encryptedKubeconfigBase64)
+	if err != nil {
+		fmt.Printf("Failed to persist kubeconfig: %v\n", err)
 	}
 
 	err = o.clusterRepository.UpdateClusterStatus(ctx, c.Id, domain.ClusterRunning)
