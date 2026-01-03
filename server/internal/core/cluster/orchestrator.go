@@ -268,6 +268,17 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 			}
 		}
 	}
+	kubeconfigDecoded, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
+	if err != nil {
+		fmt.Printf("failed to decode kubeconfig: %v\n", err)
+	}
+
+	kubeconfig := strings.ReplaceAll(
+		string(kubeconfigDecoded),
+		"https://127.0.0.1:",
+		fmt.Sprintf("https://%s:", ip),
+	)
+	kubeconfigBase64 = base64.StdEncoding.EncodeToString([]byte(kubeconfig))
 
 	encryptedKubeconfig, err := crypto.Encrypt(kubeconfigBase64, encryptionKey)
 	if err != nil {
