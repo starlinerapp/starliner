@@ -60,9 +60,9 @@ export default function General() {
   const status = statusMap[clusterData?.status ?? "pending"];
 
   return (
-    <div className="w-3/5 p-4">
-      <div className="border-mauve-6 rounded-md border-1">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-sm font-bold uppercase">
+    <div className="w-full p-4 xl:w-3/5">
+      <div className="border-mauve-6 rounded-md border-1 text-sm">
+        <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
           Details
         </div>
         <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
@@ -70,7 +70,7 @@ export default function General() {
             <h1 className="text-mauve-12">Status</h1>
           </div>
           {isLoading ? (
-            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-5 w-24" />
           ) : (
             <span className="flex items-center gap-3">
               <LiveIndicator type={liveIndicatorType} />
@@ -83,7 +83,7 @@ export default function General() {
             <h1 className="text-mauve-12">IPv4 Address</h1>
           </div>
           {isLoading || clusterData?.status === "pending" ? (
-            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-5 w-32" />
           ) : (
             <CopyToClipboard
               className="text-mauve-11"
@@ -96,7 +96,7 @@ export default function General() {
             <h1 className="text-mauve-12">User</h1>
           </div>
           {isLoading || clusterData?.status === "pending" ? (
-            <Skeleton className="h-6 w-14" />
+            <Skeleton className="h-5 w-14" />
           ) : (
             <CopyToClipboard className="text-mauve-11" text="root" />
           )}
@@ -104,7 +104,7 @@ export default function General() {
         <div className="flex items-center justify-between px-4 py-2">
           <div>
             <h1 className="text-mauve-12">SSH Key</h1>
-            <p className="text-mauve-11 text-sm">
+            <p className="text-mauve-11 text-xs">
               You can use the SSH key to access the cluster.
             </p>
           </div>

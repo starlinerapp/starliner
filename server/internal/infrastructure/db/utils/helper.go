@@ -19,3 +19,20 @@ func NullStringFromPtr(s *string) sql.NullString {
 		Valid:  true,
 	}
 }
+
+func PtrFromNullInt64(ni sql.NullInt64) *int64 {
+	if ni.Valid {
+		return &ni.Int64
+	}
+	return nil
+}
+
+func NullInt64FromPtr(i *int64) sql.NullInt64 {
+	if i == nil {
+		return sql.NullInt64{Valid: false}
+	}
+	return sql.NullInt64{
+		Int64: *i,
+		Valid: true,
+	}
+}

@@ -91,6 +91,7 @@ type Project struct {
 	OrganizationID int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	ClusterID      sql.NullInt64
 }
 
 type User struct {

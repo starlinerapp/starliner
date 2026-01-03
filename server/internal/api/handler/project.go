@@ -27,7 +27,7 @@ func NewProjectHandler(projectService *service.ProjectService) *ProjectHandler {
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
 // @Param data body request.CreateProject true "Create Project"
-// @Success 200
+// @Success 200 {object} response.Project
 // @Router /projects [post]
 func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 	currentUser := c.MustGet("user").(*model.User)
@@ -37,12 +37,12 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 		return
 	}
 
-	_, err := ph.projectService.CreateProject(c.Request.Context(), project.Name, project.OrganizationId, currentUser.Id)
+	newProject, err := ph.projectService.CreateProject(c.Request.Context(), project.Name, project.OrganizationId, project.ClusterId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, response.NewProject(newProject))
 }
 
 // GetProject FindAll godoc
@@ -67,20 +67,5 @@ func (ph *ProjectHandler) GetProject(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-
-	environments := make([]response.Environment, len(project.Environments))
-	for i, env := range project.Environments {
-		environments[i] = response.Environment{
-			Id:   env.Id,
-			Name: env.Name,
-			Slug: env.Slug,
-		}
-	}
-
-	res := response.Project{
-		Id:           project.Id,
-		Name:         project.Name,
-		Environments: environments,
-	}
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, response.NewProject(project))
 }

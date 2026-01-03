@@ -5,4 +5,5 @@ type Project struct {
 	Name           string
 	Environments   []*Environment
 	OrganizationId int64
+	ClusterId      *int64
 }

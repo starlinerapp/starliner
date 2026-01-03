@@ -409,7 +409,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Project"
+                        }
                     }
                 }
             }
@@ -510,10 +513,14 @@ const docTemplate = `{
         "request.CreateProject": {
             "type": "object",
             "required": [
+                "cluster_id",
                 "name",
                 "organization_id"
             ],
             "properties": {
+                "cluster_id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -603,11 +610,15 @@ const docTemplate = `{
         "response.Project": {
             "type": "object",
             "required": [
+                "clusterId",
                 "environments",
                 "id",
                 "name"
             ],
             "properties": {
+                "clusterId": {
+                    "type": "integer"
+                },
                 "environments": {
                     "type": "array",
                     "items": {

@@ -41,11 +41,14 @@ definitions:
     type: object
   request.CreateProject:
     properties:
+      cluster_id:
+        type: integer
       name:
         type: string
       organization_id:
         type: integer
     required:
+    - cluster_id
     - name
     - organization_id
     type: object
@@ -104,6 +107,8 @@ definitions:
     type: object
   response.Project:
     properties:
+      clusterId:
+        type: integer
       environments:
         items:
           $ref: '#/definitions/response.Environment'
@@ -113,6 +118,7 @@ definitions:
       name:
         type: string
     required:
+    - clusterId
     - environments
     - id
     - name
@@ -400,6 +406,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.Project'
       summary: Create Project
       tags:
       - project

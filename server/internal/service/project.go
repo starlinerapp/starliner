@@ -29,13 +29,13 @@ func NewProjectService(
 	}
 }
 
-func (ps *ProjectService) CreateProject(ctx context.Context, name string, organizationId int64, userId int64) (*model.Project, error) {
+func (ps *ProjectService) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64) (*model.Project, error) {
 	err := ps.organizationService.ValidateUserOrganization(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	project, err := ps.projectRepository.CreateProject(ctx, name, organizationId)
+	project, err := ps.projectRepository.CreateProject(ctx, name, organizationId, clusterId)
 	if err != nil {
 		return nil, err
 	}
