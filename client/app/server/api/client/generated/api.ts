@@ -1754,6 +1754,59 @@ export const ProjectApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Delete Project
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteProject: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deleteProject", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("deleteProject", "id", id);
+      const localVarPath = `/projects/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get Project
      * @param {string} xUserID User ID
      * @param {number} id Project ID
@@ -1853,6 +1906,39 @@ export const ProjectApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Delete Project
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteProject(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteProject(
+        xUserID,
+        id,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ProjectApi.deleteProject"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Project
      * @param {string} xUserID User ID
      * @param {number} id Project ID
@@ -1920,6 +2006,23 @@ export const ProjectApiFactory = function (
     },
     /**
      *
+     * @summary Delete Project
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteProject(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deleteProject(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Project
      * @param {string} xUserID User ID
      * @param {number} id Project ID
@@ -1961,6 +2064,25 @@ export class ProjectApi extends BaseAPI {
   ) {
     return ProjectApiFp(this.configuration)
       .createProject(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Delete Project
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public deleteProject(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .deleteProject(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

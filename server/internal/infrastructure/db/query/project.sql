@@ -37,3 +37,11 @@ FROM projects
 INNER JOIN organizations ON projects.organization_id = organizations.id
 INNER JOIN environments ON projects.id = environments.project_id
 WHERE projects.organization_id = $1;
+
+-- name: DeleteProject :exec
+DELETE
+FROM projects p
+USING organizations o
+WHERE p.organization_id = o.id
+    AND p.id = $1
+    AND o.owner_id = $2;
