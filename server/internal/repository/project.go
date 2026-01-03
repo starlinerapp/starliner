@@ -68,3 +68,10 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 
 	return project, nil
 }
+
+func (pr *ProjectRepository) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
+	return pr.queries.DeleteProject(ctx, sqlc.DeleteProjectParams{
+		ID:      projectId,
+		OwnerID: userId,
+	})
+}

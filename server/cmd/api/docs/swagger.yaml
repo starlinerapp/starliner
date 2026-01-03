@@ -412,6 +412,25 @@ paths:
       tags:
       - project
   /projects/{id}:
+    delete:
+      operationId: deleteProject
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Delete Project
+      tags:
+      - project
     get:
       operationId: getProject
       parameters:

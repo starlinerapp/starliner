@@ -33,4 +33,16 @@ export const projectRouter = {
         .getProject(userId, input.id)
         .then((res) => res.data);
     }),
+  deleteProject: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await projectApiFactory
+        .deleteProject(userId, input.id)
+        .then((res) => res.data);
+    }),
 };

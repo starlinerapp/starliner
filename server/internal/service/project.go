@@ -77,3 +77,7 @@ func (ps *ProjectService) GetProject(ctx context.Context, projectId int64, userI
 	}
 	return model.NewProject(project), nil
 }
+
+func (ps *ProjectService) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
+	return ps.projectRepository.DeleteProject(ctx, projectId, userId)
+}

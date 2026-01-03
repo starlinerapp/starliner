@@ -69,3 +69,27 @@ func (ph *ProjectHandler) GetProject(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.NewProject(project))
 }
+
+// DeleteProject FindAll godoc
+// @Summary Delete Project
+// @Tags project
+// @ID deleteProject
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Project ID"
+// @Success 200
+// @Router /projects/{id} [delete]
+func (ph *ProjectHandler) DeleteProject(c *gin.Context) {
+	currentUser := c.MustGet("user").(*model.User)
+	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = ph.projectService.DeleteProject(c.Request.Context(), projectId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+	c.Status(http.StatusOK)
+}
