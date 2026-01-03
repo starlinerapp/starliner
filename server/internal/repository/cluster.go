@@ -32,6 +32,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		PublicKey:      utils.PtrFromNullString(c.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
 		PulumiStackId:  utils.PtrFromNullString(c.PulumiStackID),
+		Kubeconfig:     utils.PtrFromNullString(c.Kubeconfig),
 		OrganizationId: c.OrganizationID,
 	}, nil
 }

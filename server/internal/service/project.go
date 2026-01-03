@@ -2,9 +2,13 @@ package service
 
 import (
 	"context"
+	"log"
 	"starliner.app/internal/domain"
+	"starliner.app/internal/infrastructure/queue"
+	v1 "starliner.app/internal/infrastructure/queue/proto/v1"
 	interfaces "starliner.app/internal/repository/interface"
 	"starliner.app/internal/service/model"
+	"strconv"
 	"strings"
 )
 
@@ -13,6 +17,7 @@ type ProjectService struct {
 	projectRepository      interfaces.ProjectRepository
 	organizationRepository interfaces.OrganizationRepository
 	environmentRepository  interfaces.EnvironmentRepository
+	projectPublisher       *queue.Publisher[*v1.Project]
 }
 
 func NewProjectService(
@@ -20,12 +25,14 @@ func NewProjectService(
 	projectRepository interfaces.ProjectRepository,
 	organizationRepository interfaces.OrganizationRepository,
 	environmentRepository interfaces.EnvironmentRepository,
+	projectPublisher *queue.Publisher[*v1.Project],
 ) *ProjectService {
 	return &ProjectService{
 		organizationService:    organizationService,
 		projectRepository:      projectRepository,
 		organizationRepository: organizationRepository,
 		environmentRepository:  environmentRepository,
+		projectPublisher:       projectPublisher,
 	}
 }
 
@@ -44,6 +51,16 @@ func (ps *ProjectService) CreateProject(ctx context.Context, name string, organi
 	environment, err := ps.environmentRepository.CreateEnvironment(ctx, productionEnvName, strings.ToLower(productionEnvName), project.Id)
 	if err != nil {
 		return nil, err
+	}
+
+	err = ps.projectPublisher.Publish(queue.CreateProject, strconv.FormatInt(project.Id, 10), &v1.Project{
+		Id:             project.Id,
+		Name:           project.Name,
+		OrganizationId: project.OrganizationId,
+		ClusterId:      *project.ClusterId,
+	})
+	if err != nil {
+		log.Printf("error publishing: %v", err)
 	}
 
 	environmentsModel := model.NewEnvironments([]*domain.Environment{environment})

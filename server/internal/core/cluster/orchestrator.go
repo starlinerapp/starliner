@@ -35,6 +35,7 @@ type Orchestrator struct {
 	organizationRepository interfaces.OrganizationRepository
 	clusterRepository      interfaces.ClusterRepository
 	clusterSubscriber      *queue.Subscriber[*v1.Cluster]
+	projectSubscriber      *queue.Subscriber[*v1.Project]
 }
 
 func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
@@ -50,12 +51,14 @@ func NewOrchestrator(
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	clusterSubscriber *queue.Subscriber[*v1.Cluster],
+	projectSubscriber *queue.Subscriber[*v1.Project],
 ) *Orchestrator {
 	return &Orchestrator{
 		cfg:                    cfg,
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
 		clusterSubscriber:      clusterSubscriber,
+		projectSubscriber:      projectSubscriber,
 	}
 }
 
@@ -69,6 +72,13 @@ func (o *Orchestrator) Start() error {
 
 	go func() {
 		err := o.clusterSubscriber.Subscribe(queue.DeleteCluster, "*", "deleteCluster", o.handleDeleteCluster)
+		if err != nil {
+			log.Fatalf("failed to subscribe to queue: %v", err)
+		}
+	}()
+
+	go func() {
+		err := o.projectSubscriber.Subscribe(queue.CreateProject, "*", "createProject", o.handleCreateProject)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}
@@ -259,17 +269,12 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		}
 	}
 
-	kubeconfig, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
-	if err != nil {
-		fmt.Printf("failed to decode kubeconfig: %v\n", err)
-	}
-	encryptedKubeconfig, err := crypto.Encrypt(string(kubeconfig), encryptionKey)
+	encryptedKubeconfig, err := crypto.Encrypt(kubeconfigBase64, encryptionKey)
 	if err != nil {
 		fmt.Printf("failed to encrypt kubeconfig: %v\n", err)
 	}
 
-	encryptedKubeconfigBase64 := base64.StdEncoding.EncodeToString([]byte(encryptedKubeconfig))
-	err = o.clusterRepository.UpdateClusterKubeconfig(ctx, c.Id, &encryptedKubeconfigBase64)
+	err = o.clusterRepository.UpdateClusterKubeconfig(ctx, c.Id, &encryptedKubeconfig)
 	if err != nil {
 		fmt.Printf("Failed to persist kubeconfig: %v\n", err)
 	}
@@ -327,6 +332,33 @@ func (o *Orchestrator) handleDeleteCluster(c *v1.Cluster) {
 	err = o.clusterRepository.DeleteCluster(ctx, c.Id)
 	if err != nil {
 		fmt.Printf("failed to delete cluster from database: %v\n", err)
+		return
+	}
+}
+
+func (o *Orchestrator) handleCreateProject(p *v1.Project) {
+	ctx := context.Background()
+
+	cluster, err := o.clusterRepository.GetCluster(ctx, p.ClusterId)
+	if err != nil {
+		fmt.Printf("failed to get cluster from database: %v\n", err)
+		return
+	}
+
+	encryptionKey, err := base64.StdEncoding.DecodeString(o.cfg.EncryptionKeyBase64)
+	if err != nil {
+		fmt.Printf("failed to decode encryption key: %v\n", err)
+	}
+
+	kubeconfigBase64, err := crypto.Decrypt(*cluster.Kubeconfig, encryptionKey)
+	if err != nil {
+		fmt.Printf("failed to decrypt kubeconfig: %v\n", err)
+		return
+	}
+
+	_, err = base64.StdEncoding.DecodeString(kubeconfigBase64)
+	if err != nil {
+		fmt.Printf("failed to decode kubeconfig: %v\n", err)
 		return
 	}
 }

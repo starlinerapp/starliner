@@ -22,11 +22,20 @@ var Module = fx.Module(
 		func(js nats.JetStreamContext) *Subscriber[*v1.Cluster] {
 			return NewSubscriber[*v1.Cluster](js)
 		},
+		func(js nats.JetStreamContext) *Publisher[*v1.Project] {
+			return NewPublisher[*v1.Project](js)
+		},
+		func(js nats.JetStreamContext) *Subscriber[*v1.Project] {
+			return NewSubscriber[*v1.Project](js)
+		},
 	),
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return EnsureStream(js, Builds, []Subject{BuildTriggered})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return EnsureStream(js, Clusters, []Subject{CreateCluster, DeleteCluster})
+	}),
+	fx.Invoke(func(js nats.JetStreamContext) error {
+		return EnsureStream(js, Projects, []Subject{CreateProject})
 	}),
 )
