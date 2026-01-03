@@ -1,9 +1,9 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "pkg/db/query"
-    schema: "pkg/db/migrations"
+    queries: "internal/infrastructure/db/query"
+    schema: "internal/infrastructure/db/migrations"
     gen:
       go:
         package: "sqlc"
-        out: "pkg/db/sqlc"
+        out: "internal/infrastructure/db/sqlc"
