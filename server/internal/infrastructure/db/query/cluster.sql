@@ -57,3 +57,9 @@ UPDATE clusters
 SET
     status = $1
 WHERE id = $2;
+
+-- name: UpdateClusterKubeconfig :exec
+UPDATE clusters
+SET
+    kubeconfig = $1
+where id = $2;

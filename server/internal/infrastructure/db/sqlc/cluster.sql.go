@@ -18,7 +18,7 @@ INSERT INTO clusters (
     $1,
     $2
  )
-RETURNING id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, status, created_at, updated_at
+RETURNING id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, status, created_at, updated_at, kubeconfig
 `
 
 type CreateClusterParams struct {
@@ -40,6 +40,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Kubeconfig,
 	)
 	return i, err
 }
@@ -56,7 +57,7 @@ func (q *Queries) DeleteCluster(ctx context.Context, id int64) error {
 }
 
 const getCluster = `-- name: GetCluster :one
-SELECT id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, status, created_at, updated_at
+SELECT id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, status, created_at, updated_at, kubeconfig
 FROM clusters
 WHERE id = $1
 `
@@ -75,6 +76,7 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Kubeconfig,
 	)
 	return i, err
 }
@@ -171,6 +173,23 @@ type UpdateClusterIPv4AddressParams struct {
 
 func (q *Queries) UpdateClusterIPv4Address(ctx context.Context, arg UpdateClusterIPv4AddressParams) error {
 	_, err := q.db.ExecContext(ctx, updateClusterIPv4Address, arg.Ipv4Address, arg.ID)
+	return err
+}
+
+const updateClusterKubeconfig = `-- name: UpdateClusterKubeconfig :exec
+UPDATE clusters
+SET
+    kubeconfig = $1
+where id = $2
+`
+
+type UpdateClusterKubeconfigParams struct {
+	Kubeconfig sql.NullString
+	ID         int64
+}
+
+func (q *Queries) UpdateClusterKubeconfig(ctx context.Context, arg UpdateClusterKubeconfigParams) error {
+	_, err := q.db.ExecContext(ctx, updateClusterKubeconfig, arg.Kubeconfig, arg.ID)
 	return err
 }
 

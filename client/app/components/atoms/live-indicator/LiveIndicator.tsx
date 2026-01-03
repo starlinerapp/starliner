@@ -11,17 +11,17 @@ export default function LiveIndicator({ type }: LiveIndicatorProps) {
       <span
         className={cn(
           "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-          type === "warning" && "bg-orange-500",
-          type === "success" && "bg-green-500",
-          type === "error" && "bg-red-500",
+          type === "warning" && "bg-amber-10",
+          type === "success" && "bg-grass-10",
+          type === "error" && "bg-red-10",
         )}
       ></span>
       <span
         className={cn(
           "relative inline-flex size-3 rounded-full",
-          type === "warning" && "bg-orange-400",
-          type === "success" && "bg-green-400",
-          type === "error" && "bg-red-400",
+          type === "warning" && "bg-amber-9",
+          type === "success" && "bg-grass-9",
+          type === "error" && "bg-red-9",
         )}
       ></span>
     </span>

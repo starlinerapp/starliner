@@ -65,6 +65,7 @@ type Cluster struct {
 	Status         ClusterStatus
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	Kubeconfig     sql.NullString
 }
 
 type Environment struct {

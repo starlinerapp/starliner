@@ -52,4 +52,10 @@ type ClusterRepository interface {
 		id int64,
 		status domain.ClusterStatus,
 	) error
+
+	UpdateClusterKubeconfig(
+		ctx context.Context,
+		id int64,
+		kubeconfig *string,
+	) error
 }

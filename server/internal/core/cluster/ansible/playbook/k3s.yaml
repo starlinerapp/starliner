@@ -5,3 +5,8 @@
       shell: curl -sfL https://get.k3s.io | sh -
       args:
         creates: /usr/local/bin/k3s
+
+    - name: Read kubeconfig
+      slurp:
+        src: /etc/rancher/k3s/k3s.yaml
+      register: kubeconfig
