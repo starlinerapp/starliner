@@ -9,7 +9,7 @@ All URIs are relative to _http://localhost_
 
 # **createProject**
 
-> createProject(data)
+> ResponseProject createProject(data)
 
 ### Example
 
@@ -34,7 +34,7 @@ const { status, data } = await apiInstance.createProject(xUserID, data);
 
 ### Return type
 
-void (empty response body)
+**ResponseProject**
 
 ### Authorization
 
@@ -43,7 +43,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 

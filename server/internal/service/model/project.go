@@ -7,6 +7,7 @@ type Project struct {
 	Name           string
 	Environments   []*Environment
 	OrganizationId int64
+	ClusterId      *int64
 }
 
 func NewProject(p *domain.Project) *Project {
@@ -23,6 +24,7 @@ func NewProject(p *domain.Project) *Project {
 		Name:           p.Name,
 		Environments:   environments,
 		OrganizationId: p.OrganizationId,
+		ClusterId:      p.ClusterId,
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"starliner.app/internal/domain"
 	"starliner.app/internal/infrastructure/db/sqlc"
+	"starliner.app/internal/infrastructure/db/utils"
 	interfaces "starliner.app/internal/repository/interface"
 )
 
@@ -18,10 +19,11 @@ func NewProjectRepository(queries *sqlc.Queries) interfaces.ProjectRepository {
 	return &ProjectRepository{queries: queries}
 }
 
-func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, organizationId int64) (*domain.Project, error) {
+func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64) (*domain.Project, error) {
 	project, err := pr.queries.CreateProject(ctx, sqlc.CreateProjectParams{
 		Name:           name,
 		OrganizationID: organizationId,
+		ClusterID:      utils.NullInt64FromPtr(&clusterId),
 	})
 	if err != nil {
 		return nil, err
@@ -31,6 +33,7 @@ func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, org
 		Id:             project.ID,
 		Name:           project.Name,
 		OrganizationId: project.OrganizationID,
+		ClusterId:      utils.PtrFromNullInt64(project.ClusterID),
 	}, nil
 }
 
@@ -51,6 +54,7 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 		Id:             rows[0].ID,
 		Name:           rows[0].Name,
 		OrganizationId: rows[0].OrganizationID,
+		ClusterId:      utils.PtrFromNullInt64(rows[0].ClusterID),
 		Environments:   make([]*domain.Environment, 0, len(rows)),
 	}
 

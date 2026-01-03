@@ -7,26 +7,30 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (
     name,
-    organization_id
+    organization_id,
+    cluster_id
 ) VALUES (
     $1,
-    $2
+    $2,
+    $3
 )
-RETURNING id, name, organization_id, created_at, updated_at
+RETURNING id, name, organization_id, created_at, updated_at, cluster_id
 `
 
 type CreateProjectParams struct {
 	Name           string
 	OrganizationID int64
+	ClusterID      sql.NullInt64
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
-	row := q.db.QueryRowContext(ctx, createProject, arg.Name, arg.OrganizationID)
+	row := q.db.QueryRowContext(ctx, createProject, arg.Name, arg.OrganizationID, arg.ClusterID)
 	var i Project
 	err := row.Scan(
 		&i.ID,
@@ -34,6 +38,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.OrganizationID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ClusterID,
 	)
 	return i, err
 }
@@ -96,6 +101,7 @@ SELECT
     projects.id as id,
     projects.name as name,
     projects.organization_id as organization_id,
+    projects.cluster_id as cluster_id,
     environments.id as environment_id,
     environments.name as environment_name,
     environments.slug as environment_slug
@@ -115,6 +121,7 @@ type GetProjectRow struct {
 	ID              int64
 	Name            string
 	OrganizationID  int64
+	ClusterID       sql.NullInt64
 	EnvironmentID   int64
 	EnvironmentName string
 	EnvironmentSlug string
@@ -133,6 +140,7 @@ func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetPr
 			&i.ID,
 			&i.Name,
 			&i.OrganizationID,
+			&i.ClusterID,
 			&i.EnvironmentID,
 			&i.EnvironmentName,
 			&i.EnvironmentSlug,

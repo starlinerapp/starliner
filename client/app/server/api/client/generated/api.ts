@@ -119,6 +119,12 @@ export interface RequestCreateOrganization {
 export interface RequestCreateProject {
   /**
    *
+   * @type {number}
+   * @memberof RequestCreateProject
+   */
+  cluster_id: number;
+  /**
+   *
    * @type {string}
    * @memberof RequestCreateProject
    */
@@ -230,6 +236,12 @@ export interface ResponseOrganization {
  * @interface ResponseProject
  */
 export interface ResponseProject {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseProject
+   */
+  clusterId: number;
   /**
    *
    * @type {Array<ResponseEnvironment>}
@@ -1816,7 +1828,10 @@ export const ProjectApiFp = function (configuration?: Configuration) {
       data: RequestCreateProject,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseProject>
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createProject(
         xUserID,
@@ -1898,7 +1913,7 @@ export const ProjectApiFactory = function (
       xUserID: string,
       data: RequestCreateProject,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseProject> {
       return localVarFp
         .createProject(xUserID, data, options)
         .then((request) => request(axios, basePath));
