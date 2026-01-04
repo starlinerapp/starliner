@@ -1,4 +1,4 @@
-package cluster
+package provisioner
 
 import (
 	"crypto/ed25519"
