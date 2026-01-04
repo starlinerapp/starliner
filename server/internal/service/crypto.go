@@ -1,8 +1,11 @@
 package service
 
 import (
+	"crypto/ed25519"
 	"encoding/base64"
+	"encoding/pem"
 	"fmt"
+	"golang.org/x/crypto/ssh"
 	"starliner.app/internal/config"
 	"starliner.app/internal/crypto"
 )
@@ -39,4 +42,17 @@ func (cs *CryptoService) Decrypt(ciphertext string) (string, error) {
 		return "", err
 	}
 	return decrypted, nil
+}
+
+func (cs *CryptoService) EncodePrivateKeyToPEM(privateKey ed25519.PrivateKey) ([]byte, error) {
+	block, err := ssh.MarshalPrivateKey(privateKey, "")
+	if err != nil {
+		return nil, err
+	}
+
+	pemBytes := pem.EncodeToMemory(block)
+	if pemBytes == nil {
+		return nil, err
+	}
+	return pemBytes, nil
 }

@@ -2,16 +2,11 @@ package service
 
 import (
 	"context"
-	"crypto/ed25519"
 	"database/sql"
 	"encoding/base64"
-	"encoding/pem"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"log"
-	"starliner.app/internal/config"
-	"starliner.app/internal/crypto"
 	"starliner.app/internal/domain"
 	"starliner.app/internal/infrastructure/queue"
 	"starliner.app/internal/infrastructure/queue/proto/v1"
@@ -21,25 +16,25 @@ import (
 )
 
 type ClusterService struct {
-	cfg                    *config.Config
 	organizationRepository interfaces.OrganizationRepository
 	clusterRepository      interfaces.ClusterRepository
 	organizationService    *OrganizationService
+	cryptoService          *CryptoService
 	clusterPublisher       *queue.Publisher[*v1.Cluster]
 }
 
 func NewClusterService(
-	cfg *config.Config,
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	organizationService *OrganizationService,
+	cryptoService *CryptoService,
 	clusterPublisher *queue.Publisher[*v1.Cluster],
 ) *ClusterService {
 	return &ClusterService{
-		cfg:                    cfg,
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
 		organizationService:    organizationService,
+		cryptoService:          cryptoService,
 		clusterPublisher:       clusterPublisher,
 	}
 }
@@ -107,12 +102,7 @@ func (cs *ClusterService) GetClusterPrivateKey(ctx context.Context, id int64, us
 	}
 
 	// The private key was first base64 encoded and then encrypted
-	encryptionKey, err := base64.StdEncoding.DecodeString(cs.cfg.EncryptionKeyBase64)
-	if err != nil {
-		fmt.Printf("failed to decode encryption key: %v\n", err)
-	}
-
-	decryptedPrivateKey, err := crypto.Decrypt(*cluster.PrivateKey, encryptionKey)
+	decryptedPrivateKey, err := cs.cryptoService.Decrypt(*cluster.PrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt private key: %v", err)
 	}
@@ -122,19 +112,10 @@ func (cs *ClusterService) GetClusterPrivateKey(ctx context.Context, id int64, us
 		return nil, fmt.Errorf("failed to decode private key: %v", err)
 	}
 
-	privateKey := ed25519.PrivateKey(keyBytes)
-
-	// Serialize to OpenSSH format
-	block, err := ssh.MarshalPrivateKey(privateKey, "")
+	pemBytes, err := cs.cryptoService.EncodePrivateKeyToPEM(keyBytes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal private key: %v", err)
+		return nil, fmt.Errorf("failed to encode private key to PEM: %v", err)
 	}
-
-	pemBytes := pem.EncodeToMemory(block)
-	if pemBytes == nil {
-		return nil, fmt.Errorf("failed to encode private key to PEM")
-	}
-
 	return pemBytes, nil
 }
 
