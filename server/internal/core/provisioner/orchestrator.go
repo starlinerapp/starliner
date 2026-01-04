@@ -6,14 +6,12 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"go.uber.org/fx"
-	"golang.org/x/crypto/ssh"
 	"log"
 	"net"
 	"os"
@@ -190,18 +188,11 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		}
 	}(tmpPrivateKey.Name())
 
-	block, err := ssh.MarshalPrivateKey(privateKey, "")
+	pemBytes, err := o.cryptoService.EncodePrivateKeyToPEM(privateKey)
 	if err != nil {
-		fmt.Printf("failed to marshal private key: %v\n", err)
+		fmt.Printf("failed to encode private key to PEM: %v\n", err)
 		return
 	}
-
-	pemBytes := pem.EncodeToMemory(block)
-	if pemBytes == nil {
-		fmt.Println("failed to encode private key to PEM")
-		return
-	}
-
 	_, err = tmpPrivateKey.Write(pemBytes)
 	if err != nil {
 		fmt.Printf("failed to write private key: %v\n", err)
