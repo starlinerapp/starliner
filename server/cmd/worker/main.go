@@ -5,14 +5,20 @@ import (
 	"starliner.app/internal/config"
 	"starliner.app/internal/core/builder"
 	"starliner.app/internal/core/cluster"
+	"starliner.app/internal/core/provisioner"
+	"starliner.app/internal/infrastructure/db"
 	"starliner.app/internal/infrastructure/queue"
+	"starliner.app/internal/repository"
 )
 
 func main() {
 	fx.New(
 		config.Module,
+		db.Module,
+		repository.Module,
 		queue.Module,
 		builder.Module,
+		provisioner.Module,
 		cluster.Module,
 	).Run()
 }
