@@ -13,17 +13,16 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"starliner.app/internal/config"
 	"starliner.app/internal/core/cluster/helm"
-	"starliner.app/internal/crypto"
 	"starliner.app/internal/infrastructure/queue"
 	"starliner.app/internal/infrastructure/queue/proto/v1"
 	interfaces "starliner.app/internal/repository/interface"
+	"starliner.app/internal/service"
 )
 
 type Orchestrator struct {
-	cfg               *config.Config
 	clusterRepository interfaces.ClusterRepository
+	cryptoService     *service.CryptoService
 	projectSubscriber *queue.Subscriber[*v1.Project]
 }
 
@@ -36,13 +35,13 @@ func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
 }
 
 func NewOrchestrator(
-	cfg *config.Config,
 	clusterRepository interfaces.ClusterRepository,
+	cryptoService *service.CryptoService,
 	projectSubscriber *queue.Subscriber[*v1.Project],
 ) *Orchestrator {
 	return &Orchestrator{
-		cfg:               cfg,
 		clusterRepository: clusterRepository,
+		cryptoService:     cryptoService,
 		projectSubscriber: projectSubscriber,
 	}
 }
@@ -66,17 +65,11 @@ func (o *Orchestrator) handleCreateProject(p *v1.Project) {
 		return
 	}
 
-	encryptionKey, err := base64.StdEncoding.DecodeString(o.cfg.EncryptionKeyBase64)
-	if err != nil {
-		fmt.Printf("failed to decode encryption key: %v\n", err)
-	}
-
-	kubeconfigBase64, err := crypto.Decrypt(*cluster.Kubeconfig, encryptionKey)
+	kubeconfigBase64, err := o.cryptoService.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		fmt.Printf("failed to decrypt kubeconfig: %v\n", err)
 		return
 	}
-
 	kubeconfigBytes, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
 	if err != nil {
 		fmt.Printf("failed to decode kubeconfig: %v\n", err)

@@ -18,19 +18,18 @@ import (
 	"net"
 	"os"
 	"os/exec"
-	"starliner.app/internal/config"
 	"starliner.app/internal/core/provisioner/ansible"
-	"starliner.app/internal/crypto"
 	"starliner.app/internal/domain"
 	"starliner.app/internal/infrastructure/queue"
 	v1 "starliner.app/internal/infrastructure/queue/proto/v1"
 	interfaces "starliner.app/internal/repository/interface"
+	"starliner.app/internal/service"
 	"strings"
 	"time"
 )
 
 type Orchestrator struct {
-	cfg                    *config.Config
+	cryptoService          *service.CryptoService
 	organizationRepository interfaces.OrganizationRepository
 	clusterRepository      interfaces.ClusterRepository
 	clusterSubscriber      *queue.Subscriber[*v1.Cluster]
@@ -45,13 +44,13 @@ func RegisterOrchestrator(lc fx.Lifecycle, o *Orchestrator) {
 }
 
 func NewOrchestrator(
-	cfg *config.Config,
+	cryptoService *service.CryptoService,
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	clusterSubscriber *queue.Subscriber[*v1.Cluster],
 ) *Orchestrator {
 	return &Orchestrator{
-		cfg:                    cfg,
+		cryptoService:          cryptoService,
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
 		clusterSubscriber:      clusterSubscriber,
@@ -86,12 +85,7 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 	pubKeyStr := base64.StdEncoding.EncodeToString(publicKey)
 	privKeyStr := base64.StdEncoding.EncodeToString(privateKey)
 
-	encryptionKey, err := base64.StdEncoding.DecodeString(o.cfg.EncryptionKeyBase64)
-	if err != nil {
-		fmt.Printf("failed to decode encryption key: %v\n", err)
-	}
-
-	encryptedPrivKeyStr, err := crypto.Encrypt(privKeyStr, encryptionKey)
+	encryptedPrivKeyStr, err := o.cryptoService.Encrypt(privKeyStr)
 	if err != nil {
 		fmt.Printf("failed to encrypt private key: %v\n", err)
 	}
@@ -160,7 +154,7 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 
 	err = waitForSSH(ip, 30*time.Second)
 	if err != nil {
-		fmt.Printf("SSH isn't available: %v\n", err)
+		fmt.Printf("SSH not available: %v\n", err)
 		return
 	}
 
@@ -268,8 +262,7 @@ func (o *Orchestrator) handleCreateCluster(c *v1.Cluster) {
 		fmt.Sprintf("https://%s:", ip),
 	)
 	kubeconfigBase64 = base64.StdEncoding.EncodeToString([]byte(kubeconfig))
-
-	encryptedKubeconfig, err := crypto.Encrypt(kubeconfigBase64, encryptionKey)
+	encryptedKubeconfig, err := o.cryptoService.Encrypt(kubeconfigBase64)
 	if err != nil {
 		fmt.Printf("failed to encrypt kubeconfig: %v\n", err)
 	}

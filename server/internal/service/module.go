@@ -10,4 +10,5 @@ var Module = fx.Module(
 	fx.Provide(NewOrganizationService),
 	fx.Provide(NewBuildService),
 	fx.Provide(NewClusterService),
+	fx.Provide(NewCryptoService),
 )
