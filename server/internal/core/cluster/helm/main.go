@@ -2,7 +2,6 @@ package helm
 
 import (
 	"embed"
-	_ "embed"
 )
 
 //go:embed template
