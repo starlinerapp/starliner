@@ -9,6 +9,7 @@ import (
 	"starliner.app/internal/infrastructure/db"
 	"starliner.app/internal/infrastructure/queue"
 	"starliner.app/internal/repository"
+	"starliner.app/internal/service"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 		config.Module,
 		db.Module,
 		repository.Module,
+		service.Module,
 		queue.Module,
 		builder.Module,
 		provisioner.Module,
