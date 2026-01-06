@@ -108,7 +108,7 @@ export default function General() {
               You can use the SSH key to access the cluster.
             </p>
           </div>
-          {isLoading ? (
+          {isLoading || clusterData?.status === "pending" ? (
             <Skeleton className="h-7 w-32" />
           ) : (
             <a
