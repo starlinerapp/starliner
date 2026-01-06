@@ -2,8 +2,8 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"starliner.app/internal/api"
-	"starliner.app/internal/config"
+	"starliner.app/internal/conf"
+	"starliner.app/internal/presentation/http"
 )
 
 // @title Starliner API
@@ -11,7 +11,7 @@ import (
 // @securityDefinitions.basic BasicAuth
 func main() {
 	fx.New(
-		config.Module,
-		api.Module,
+		conf.Module,
+		http.Module,
 	).Run()
 }
