@@ -1,9 +1,9 @@
-package queue
+package nats
 
 import (
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
-	"starliner.app/internal/infrastructure/queue/proto/v1"
+	"starliner.app/internal/infrastructure/nats/proto/v1"
 )
 
 var Module = fx.Module(

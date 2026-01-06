@@ -6,7 +6,7 @@ import (
 	"errors"
 	"starliner.app/internal/domain/entity"
 	"starliner.app/internal/domain/repository/interface"
-	"starliner.app/internal/infrastructure/db/sqlc"
+	"starliner.app/internal/infrastructure/postgres/sqlc"
 )
 
 type UserRepository struct {

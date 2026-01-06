@@ -3,10 +3,17 @@ package ssh
 import (
 	"fmt"
 	"net"
+	"starliner.app/internal/domain/port"
 	"time"
 )
 
-func WaitForSSH(ip string, timeout time.Duration) error {
+type SSH struct{}
+
+func NewSSH() port.SSH {
+	return &SSH{}
+}
+
+func (ssh *SSH) WaitForSSH(ip string, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 
 	for {

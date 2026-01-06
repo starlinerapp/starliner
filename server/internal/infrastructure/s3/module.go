@@ -1,8 +1,9 @@
-package objectstore
+package s3
 
 import (
 	"context"
 	"go.uber.org/fx"
+	"starliner.app/internal/domain/port"
 )
 
 var Module = fx.Module(
@@ -11,7 +12,7 @@ var Module = fx.Module(
 		Connect,
 		NewS3Client,
 	),
-	fx.Invoke(func(c *S3Client, lc fx.Lifecycle) {
+	fx.Invoke(func(c port.ObjectStore, lc fx.Lifecycle) {
 		lc.Append(fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				return c.CreateBuckets(ctx)

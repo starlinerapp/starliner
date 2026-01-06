@@ -11,24 +11,24 @@ import (
 	"path"
 	"path/filepath"
 	"starliner.app/internal/conf"
-	"starliner.app/internal/infrastructure/objectstore"
-	"starliner.app/internal/infrastructure/queue"
-	"starliner.app/internal/infrastructure/queue/proto/v1"
+	"starliner.app/internal/domain/port"
+	"starliner.app/internal/infrastructure/nats"
+	"starliner.app/internal/infrastructure/nats/proto/v1"
 	"strings"
 )
 
 type BuildApplication struct {
 	cfg            *conf.Config
-	objectstore    *objectstore.S3Client
+	objectstore    port.ObjectStore
 	daggerClient   *dagger.Client
-	buildPublisher *queue.Publisher[*v1.Build]
+	buildPublisher *nats.Publisher[*v1.Build]
 }
 
 func NewBuildApplication(
 	cfg *conf.Config,
-	objectstore *objectstore.S3Client,
+	objectstore port.ObjectStore,
 	daggerClient *dagger.Client,
-	buildPublisher *queue.Publisher[*v1.Build],
+	buildPublisher *nats.Publisher[*v1.Build],
 ) *BuildApplication {
 	return &BuildApplication{
 		cfg:            cfg,
@@ -40,7 +40,7 @@ func NewBuildApplication(
 
 func (ba *BuildApplication) TriggerBuild() error {
 	buildId := uuid.New().String()
-	err := ba.buildPublisher.Publish(queue.BuildTriggered, buildId, &v1.Build{
+	err := ba.buildPublisher.Publish(nats.BuildTriggered, buildId, &v1.Build{
 		Id:             buildId,
 		Organization:   "starliner",
 		Project:        "example",

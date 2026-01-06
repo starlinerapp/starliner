@@ -3,7 +3,6 @@ package crypto
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/pem"
@@ -12,13 +11,14 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io"
 	"starliner.app/internal/conf"
+	"starliner.app/internal/domain/port"
 )
 
 type Crypto struct {
 	cfg *conf.Config
 }
 
-func NewCrypto(cfg *conf.Config) *Crypto {
+func NewCrypto(cfg *conf.Config) port.Crypto {
 	return &Crypto{cfg: cfg}
 }
 
@@ -48,7 +48,7 @@ func (c *Crypto) Decrypt(ciphertext string) (string, error) {
 	return decrypted, nil
 }
 
-func (c *Crypto) EncodePrivateKeyToPEM(privateKey ed25519.PrivateKey) ([]byte, error) {
+func (c *Crypto) EncodePrivateKeyToPEM(privateKey []byte) ([]byte, error) {
 	block, err := ssh.MarshalPrivateKey(privateKey, "")
 	if err != nil {
 		return nil, err

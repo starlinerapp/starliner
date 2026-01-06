@@ -1,9 +1,9 @@
-package db
+package postgres
 
 import (
 	"database/sql"
 	"go.uber.org/fx"
-	"starliner.app/internal/infrastructure/db/sqlc"
+	"starliner.app/internal/infrastructure/postgres/sqlc"
 )
 
 func NewQueries(db *sql.DB) *sqlc.Queries {
@@ -11,7 +11,7 @@ func NewQueries(db *sql.DB) *sqlc.Queries {
 }
 
 var Module = fx.Module(
-	"db",
+	"postgres",
 	fx.Provide(
 		Connect,
 		NewQueries,

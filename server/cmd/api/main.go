@@ -2,7 +2,16 @@ package main
 
 import (
 	"go.uber.org/fx"
+	"starliner.app/internal/application"
 	"starliner.app/internal/conf"
+	"starliner.app/internal/domain/repository"
+	"starliner.app/internal/domain/service"
+	"starliner.app/internal/infrastructure/crypto"
+	"starliner.app/internal/infrastructure/dagger"
+	"starliner.app/internal/infrastructure/nats"
+	"starliner.app/internal/infrastructure/postgres"
+	"starliner.app/internal/infrastructure/s3"
+	"starliner.app/internal/infrastructure/ssh"
 	"starliner.app/internal/presentation/http"
 )
 
@@ -12,6 +21,15 @@ import (
 func main() {
 	fx.New(
 		conf.Module,
+		postgres.Module,
+		nats.Module,
+		s3.Module,
+		dagger.Module,
+		crypto.Module,
+		ssh.Module,
+		repository.Module,
+		application.Module,
+		service.Module,
 		http.Module,
 	).Run()
 }

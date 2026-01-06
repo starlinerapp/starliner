@@ -17,15 +17,14 @@ import (
 	"os"
 	"os/exec"
 	"starliner.app/internal/domain/entity"
+	"starliner.app/internal/domain/port"
 	interfaces "starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
 	"starliner.app/internal/infrastructure/ansible"
-	"starliner.app/internal/infrastructure/crypto"
+	"starliner.app/internal/infrastructure/nats"
+	"starliner.app/internal/infrastructure/nats/proto/v1"
 	"starliner.app/internal/infrastructure/pulumi"
-	"starliner.app/internal/infrastructure/queue"
-	"starliner.app/internal/infrastructure/queue/proto/v1"
-	"starliner.app/internal/infrastructure/ssh"
 	"strconv"
 	"strings"
 	"time"
@@ -35,21 +34,24 @@ type ClusterApplication struct {
 	organizationRepository interfaces.OrganizationRepository
 	clusterRepository      interfaces.ClusterRepository
 	organizationService    *service.OrganizationService
-	crypto                 *crypto.Crypto
-	clusterPublisher       *queue.Publisher[*v1.Cluster]
+	ssh                    port.SSH
+	crypto                 port.Crypto
+	clusterPublisher       *nats.Publisher[*v1.Cluster]
 }
 
 func NewClusterApplication(
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	organizationService *service.OrganizationService,
-	crypto *crypto.Crypto,
-	clusterPublisher *queue.Publisher[*v1.Cluster],
+	ssh port.SSH,
+	crypto port.Crypto,
+	clusterPublisher *nats.Publisher[*v1.Cluster],
 ) *ClusterApplication {
 	return &ClusterApplication{
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
 		organizationService:    organizationService,
+		ssh:                    ssh,
 		crypto:                 crypto,
 		clusterPublisher:       clusterPublisher,
 	}
@@ -66,7 +68,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
 
-	err = ca.clusterPublisher.Publish(queue.CreateCluster, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
+	err = ca.clusterPublisher.Publish(nats.CreateCluster, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
 		Id:             cluster.Id,
 		Name:           name,
 		OrganizationId: organizationId,
@@ -136,7 +138,7 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 		return err
 	}
 
-	err = ca.clusterPublisher.Publish(queue.DeleteCluster, strconv.FormatInt(clusterId, 10), &v1.Cluster{
+	err = ca.clusterPublisher.Publish(nats.DeleteCluster, strconv.FormatInt(clusterId, 10), &v1.Cluster{
 		Id:             clusterId,
 		Name:           cluster.Name,
 		OrganizationId: cluster.OrganizationId,
@@ -226,7 +228,7 @@ func (ca *ClusterApplication) HandleCreateCluster(c *v1.Cluster) {
 		fmt.Printf("Failed to persist cluster ip address: %v\n", err)
 	}
 
-	err = ssh.WaitForSSH(ip, 30*time.Second)
+	err = ca.ssh.WaitForSSH(ip, 30*time.Second)
 	if err != nil {
 		fmt.Printf("SSH not available: %v\n", err)
 		return

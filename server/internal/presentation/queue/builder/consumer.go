@@ -5,12 +5,12 @@ import (
 	"go.uber.org/fx"
 	"log"
 	"starliner.app/internal/application"
-	"starliner.app/internal/infrastructure/queue"
-	"starliner.app/internal/infrastructure/queue/proto/v1"
+	"starliner.app/internal/infrastructure/nats"
+	"starliner.app/internal/infrastructure/nats/proto/v1"
 )
 
 type Consumer struct {
-	buildSubscriber  *queue.Subscriber[*v1.Build]
+	buildSubscriber  *nats.Subscriber[*v1.Build]
 	buildApplication *application.BuildApplication
 }
 
@@ -23,7 +23,7 @@ func RegisterConsumer(lc fx.Lifecycle, o *Consumer) {
 }
 
 func NewConsumer(
-	buildSubscriber *queue.Subscriber[*v1.Build],
+	buildSubscriber *nats.Subscriber[*v1.Build],
 	buildApplication *application.BuildApplication,
 ) *Consumer {
 	return &Consumer{
@@ -34,7 +34,7 @@ func NewConsumer(
 
 func (o *Consumer) Start() error {
 	go func() {
-		err := o.buildSubscriber.Subscribe(queue.BuildTriggered, "*", "buildTriggered", o.buildApplication.HandleBuildTriggered)
+		err := o.buildSubscriber.Subscribe(nats.BuildTriggered, "*", "buildTriggered", o.buildApplication.HandleBuildTriggered)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}
