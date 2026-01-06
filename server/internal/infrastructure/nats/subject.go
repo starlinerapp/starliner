@@ -1,4 +1,4 @@
-package queue
+package nats
 
 type Subject string
 

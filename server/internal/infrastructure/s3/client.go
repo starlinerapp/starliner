@@ -1,4 +1,4 @@
-package objectstore
+package s3
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"io"
 	"log"
+	"starliner.app/internal/domain/port"
 )
 
 const AppBucketName = "data"
@@ -17,7 +18,7 @@ type S3Client struct {
 	client *s3.Client
 }
 
-func NewS3Client(client *s3.Client) *S3Client {
+func NewS3Client(client *s3.Client) port.ObjectStore {
 	return &S3Client{client: client}
 }
 

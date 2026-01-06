@@ -12,35 +12,35 @@ import (
 	"os"
 	"path/filepath"
 	"starliner.app/internal/domain/entity"
+	"starliner.app/internal/domain/port"
 	interfaces "starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
-	"starliner.app/internal/infrastructure/crypto"
 	"starliner.app/internal/infrastructure/helm"
-	"starliner.app/internal/infrastructure/queue"
-	v1 "starliner.app/internal/infrastructure/queue/proto/v1"
+	"starliner.app/internal/infrastructure/nats"
+	v1 "starliner.app/internal/infrastructure/nats/proto/v1"
 	"strconv"
 	"strings"
 )
 
 type ProjectApplication struct {
-	crypto                 *crypto.Crypto
+	crypto                 port.Crypto
 	organizationService    *service.OrganizationService
 	projectRepository      interfaces.ProjectRepository
 	clusterRepository      interfaces.ClusterRepository
 	organizationRepository interfaces.OrganizationRepository
 	environmentRepository  interfaces.EnvironmentRepository
-	projectPublisher       *queue.Publisher[*v1.Project]
+	projectPublisher       *nats.Publisher[*v1.Project]
 }
 
 func NewProjectApplication(
-	crypto *crypto.Crypto,
+	crypto port.Crypto,
 	organizationService *service.OrganizationService,
 	projectRepository interfaces.ProjectRepository,
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	environmentRepository interfaces.EnvironmentRepository,
-	projectPublisher *queue.Publisher[*v1.Project],
+	projectPublisher *nats.Publisher[*v1.Project],
 ) *ProjectApplication {
 	return &ProjectApplication{
 		crypto:                 crypto,
@@ -70,7 +70,7 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 		return nil, err
 	}
 
-	err = ps.projectPublisher.Publish(queue.CreateProject, strconv.FormatInt(project.Id, 10), &v1.Project{
+	err = ps.projectPublisher.Publish(nats.CreateProject, strconv.FormatInt(project.Id, 10), &v1.Project{
 		Id:             project.Id,
 		Name:           project.Name,
 		OrganizationId: project.OrganizationId,

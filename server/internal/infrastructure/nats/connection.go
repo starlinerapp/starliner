@@ -1,4 +1,4 @@
-package queue
+package nats
 
 import (
 	"github.com/nats-io/nats.go"
