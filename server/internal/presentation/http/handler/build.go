@@ -7,12 +7,12 @@ import (
 )
 
 type BuildHandler struct {
-	buildService *application.BuildApplication
+	buildApplication *application.BuildApplication
 }
 
-func NewBuildHandler(buildService *application.BuildApplication) *BuildHandler {
+func NewBuildHandler(buildApplication *application.BuildApplication) *BuildHandler {
 	return &BuildHandler{
-		buildService: buildService,
+		buildApplication: buildApplication,
 	}
 }
 
@@ -25,7 +25,7 @@ func NewBuildHandler(buildService *application.BuildApplication) *BuildHandler {
 // @Success 200
 // @Router /builds [post]
 func (bh *BuildHandler) TriggerBuild(c *gin.Context) {
-	err := bh.buildService.TriggerBuild()
+	err := bh.buildApplication.TriggerBuild()
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return

@@ -11,12 +11,12 @@ import (
 )
 
 type OrganizationHandler struct {
-	organizationService *application.OrganizationApplication
+	organizationApplication *application.OrganizationApplication
 }
 
-func NewOrganizationHandler(organizationService *application.OrganizationApplication) *OrganizationHandler {
+func NewOrganizationHandler(organizationApplication *application.OrganizationApplication) *OrganizationHandler {
 	return &OrganizationHandler{
-		organizationService: organizationService,
+		organizationApplication: organizationApplication,
 	}
 }
 
@@ -37,7 +37,7 @@ func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 		return
 	}
 
-	err := oh.organizationService.CreateOrganization(c, org.Name, currentUser.Id)
+	err := oh.organizationApplication.CreateOrganization(c, org.Name, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -55,7 +55,7 @@ func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 // @Router /organizations [get]
 func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizations, err := oh.organizationService.GetUserOrganizations(c.Request.Context(), currentUser.Id)
+	organizations, err := oh.organizationApplication.GetUserOrganizations(c.Request.Context(), currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -80,7 +80,7 @@ func (oh *OrganizationHandler) GetOrganizationProjects(c *gin.Context) {
 		return
 	}
 
-	projects, err := oh.organizationService.GetProjectsForUser(c.Request.Context(), currentUser.Id, organizationId)
+	projects, err := oh.organizationApplication.GetProjectsForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
@@ -105,7 +105,7 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 		return
 	}
 
-	clusters, err := oh.organizationService.GetClustersForUser(c.Request.Context(), currentUser.Id, organizationId)
+	clusters, err := oh.organizationApplication.GetClustersForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return

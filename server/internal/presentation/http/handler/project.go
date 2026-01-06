@@ -11,12 +11,12 @@ import (
 )
 
 type ProjectHandler struct {
-	projectService *application.ProjectApplication
+	projectApplication *application.ProjectApplication
 }
 
-func NewProjectHandler(projectService *application.ProjectApplication) *ProjectHandler {
+func NewProjectHandler(projectApplication *application.ProjectApplication) *ProjectHandler {
 	return &ProjectHandler{
-		projectService: projectService,
+		projectApplication: projectApplication,
 	}
 }
 
@@ -37,7 +37,7 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 		return
 	}
 
-	newProject, err := ph.projectService.CreateProject(c.Request.Context(), project.Name, project.OrganizationId, project.ClusterId, currentUser.Id)
+	newProject, err := ph.projectApplication.CreateProject(c.Request.Context(), project.Name, project.OrganizationId, project.ClusterId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -62,7 +62,7 @@ func (ph *ProjectHandler) GetProject(c *gin.Context) {
 		return
 	}
 
-	project, err := ph.projectService.GetProject(c.Request.Context(), projectId, currentUser.Id)
+	project, err := ph.projectApplication.GetProject(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -87,7 +87,7 @@ func (ph *ProjectHandler) DeleteProject(c *gin.Context) {
 		return
 	}
 
-	err = ph.projectService.DeleteProject(c.Request.Context(), projectId, currentUser.Id)
+	err = ph.projectApplication.DeleteProject(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 	}

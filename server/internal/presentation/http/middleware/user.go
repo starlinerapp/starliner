@@ -8,11 +8,11 @@ import (
 )
 
 type UserMiddleware struct {
-	userService *application.UserApplication
+	userApplication *application.UserApplication
 }
 
-func NewUserMiddleware(userService *application.UserApplication) *UserMiddleware {
-	return &UserMiddleware{userService: userService}
+func NewUserMiddleware(userApplication *application.UserApplication) *UserMiddleware {
+	return &UserMiddleware{userApplication: userApplication}
 }
 
 func (u *UserMiddleware) WithUser() gin.HandlerFunc {
@@ -23,7 +23,7 @@ func (u *UserMiddleware) WithUser() gin.HandlerFunc {
 			return
 		}
 
-		user, err := u.userService.GetOrCreateUser(c, userId)
+		user, err := u.userApplication.GetOrCreateUser(c, userId)
 		if err != nil {
 			log.Printf("failed to get or create user")
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
