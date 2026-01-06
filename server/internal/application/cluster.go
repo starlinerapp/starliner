@@ -22,10 +22,7 @@ import (
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
 	"starliner.app/internal/infrastructure/ansible"
-	"starliner.app/internal/infrastructure/nats"
-	"starliner.app/internal/infrastructure/nats/proto/v1"
 	"starliner.app/internal/infrastructure/pulumi"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -36,7 +33,7 @@ type ClusterApplication struct {
 	organizationService    *service.OrganizationService
 	ssh                    port.SSH
 	crypto                 port.Crypto
-	clusterPublisher       *nats.Publisher[*v1.Cluster]
+	queue                  port.Queue
 }
 
 func NewClusterApplication(
@@ -45,7 +42,7 @@ func NewClusterApplication(
 	organizationService *service.OrganizationService,
 	ssh port.SSH,
 	crypto port.Crypto,
-	clusterPublisher *nats.Publisher[*v1.Cluster],
+	queue port.Queue,
 ) *ClusterApplication {
 	return &ClusterApplication{
 		organizationRepository: organizationRepository,
@@ -53,7 +50,7 @@ func NewClusterApplication(
 		organizationService:    organizationService,
 		ssh:                    ssh,
 		crypto:                 crypto,
-		clusterPublisher:       clusterPublisher,
+		queue:                  queue,
 	}
 }
 
@@ -68,11 +65,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
 
-	err = ca.clusterPublisher.Publish(nats.CreateCluster, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
-		Id:             cluster.Id,
-		Name:           name,
-		OrganizationId: organizationId,
-	})
+	err = ca.queue.PublishCreateCluster(cluster)
 	if err != nil {
 		log.Printf("error publishing: %v", err)
 	}
@@ -138,11 +131,7 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 		return err
 	}
 
-	err = ca.clusterPublisher.Publish(nats.DeleteCluster, strconv.FormatInt(clusterId, 10), &v1.Cluster{
-		Id:             clusterId,
-		Name:           cluster.Name,
-		OrganizationId: cluster.OrganizationId,
-	})
+	err = ca.queue.PublishDeleteCluster(cluster)
 	if err != nil {
 		log.Printf("error publishing: %v", err)
 	}
@@ -150,7 +139,7 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 	return nil
 }
 
-func (ca *ClusterApplication) HandleCreateCluster(c *v1.Cluster) {
+func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
 	ctx := context.Background()
 
 	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
@@ -347,7 +336,7 @@ func (ca *ClusterApplication) HandleCreateCluster(c *v1.Cluster) {
 	}
 }
 
-func (ca *ClusterApplication) HandleDeleteCluster(c *v1.Cluster) {
+func (ca *ClusterApplication) HandleDeleteCluster(c *entity.Cluster) {
 	ctx := context.Background()
 
 	cluster, err := ca.clusterRepository.GetCluster(ctx, c.Id)

@@ -3,6 +3,7 @@ package crypto
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/pem"
@@ -49,7 +50,7 @@ func (c *Crypto) Decrypt(ciphertext string) (string, error) {
 }
 
 func (c *Crypto) EncodePrivateKeyToPEM(privateKey []byte) ([]byte, error) {
-	block, err := ssh.MarshalPrivateKey(privateKey, "")
+	block, err := ssh.MarshalPrivateKey(ed25519.PrivateKey(privateKey), "")
 	if err != nil {
 		return nil, err
 	}

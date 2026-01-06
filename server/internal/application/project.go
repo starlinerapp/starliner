@@ -17,20 +17,17 @@ import (
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
 	"starliner.app/internal/infrastructure/helm"
-	"starliner.app/internal/infrastructure/nats"
-	v1 "starliner.app/internal/infrastructure/nats/proto/v1"
-	"strconv"
 	"strings"
 )
 
 type ProjectApplication struct {
-	crypto                 port.Crypto
 	organizationService    *service.OrganizationService
 	projectRepository      interfaces.ProjectRepository
 	clusterRepository      interfaces.ClusterRepository
 	organizationRepository interfaces.OrganizationRepository
 	environmentRepository  interfaces.EnvironmentRepository
-	projectPublisher       *nats.Publisher[*v1.Project]
+	crypto                 port.Crypto
+	queue                  port.Queue
 }
 
 func NewProjectApplication(
@@ -40,7 +37,7 @@ func NewProjectApplication(
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	environmentRepository interfaces.EnvironmentRepository,
-	projectPublisher *nats.Publisher[*v1.Project],
+	queue port.Queue,
 ) *ProjectApplication {
 	return &ProjectApplication{
 		crypto:                 crypto,
@@ -49,7 +46,7 @@ func NewProjectApplication(
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
 		environmentRepository:  environmentRepository,
-		projectPublisher:       projectPublisher,
+		queue:                  queue,
 	}
 }
 
@@ -70,12 +67,7 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 		return nil, err
 	}
 
-	err = ps.projectPublisher.Publish(nats.CreateProject, strconv.FormatInt(project.Id, 10), &v1.Project{
-		Id:             project.Id,
-		Name:           project.Name,
-		OrganizationId: project.OrganizationId,
-		ClusterId:      *project.ClusterId,
-	})
+	err = ps.queue.PublishCreateProject(project)
 	if err != nil {
 		log.Printf("error publishing: %v", err)
 	}
@@ -99,10 +91,10 @@ func (ps *ProjectApplication) DeleteProject(ctx context.Context, projectId int64
 	return ps.projectRepository.DeleteProject(ctx, projectId, userId)
 }
 
-func (ps *ProjectApplication) HandleCreateProject(p *v1.Project) {
+func (ps *ProjectApplication) HandleCreateProject(p *entity.Project) {
 	ctx := context.Background()
 
-	cluster, err := ps.clusterRepository.GetCluster(ctx, p.ClusterId)
+	cluster, err := ps.clusterRepository.GetCluster(ctx, *p.ClusterId)
 	if err != nil {
 		fmt.Printf("failed to get cluster from database: %v\n", err)
 		return
