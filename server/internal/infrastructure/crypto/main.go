@@ -49,6 +49,10 @@ func (c *Crypto) Decrypt(ciphertext string) (string, error) {
 	return decrypted, nil
 }
 
+func (c *Crypto) GenerateKeyPair() (publicKey []byte, privateKey []byte, err error) {
+	return ed25519.GenerateKey(rand.Reader)
+}
+
 func (c *Crypto) EncodePrivateKeyToPEM(privateKey []byte) ([]byte, error) {
 	block, err := ssh.MarshalPrivateKey(ed25519.PrivateKey(privateKey), "")
 	if err != nil {
