@@ -2,8 +2,6 @@ package application
 
 import (
 	"context"
-	"crypto/ed25519"
-	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
@@ -141,8 +139,7 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 
 func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
 	ctx := context.Background()
-
-	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	publicKey, privateKey, err := ca.crypto.GenerateKeyPair()
 	if err != nil {
 		fmt.Printf("failed to generate ed25519 keypair: %v\n", err)
 	}
