@@ -7,10 +7,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"log"
-	"starliner.app/internal/config"
+	"starliner.app/internal/conf"
 )
 
-func Connect(cfg *config.Config) (*s3.Client, error) {
+func Connect(cfg *conf.Config) (*s3.Client, error) {
 	awsCfg, err := awsConfig.LoadDefaultConfig(
 		context.Background(),
 		awsConfig.WithCredentialsProvider(credentials.StaticCredentialsProvider{

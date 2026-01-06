@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"starliner.app/internal/config"
+	"starliner.app/internal/conf"
 )
 
-func Connect(cfg *config.Config) (*sql.DB, error) {
+func Connect(cfg *conf.Config) (*sql.DB, error) {
 	var connString = fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DBHost,

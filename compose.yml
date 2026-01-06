@@ -78,6 +78,10 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
+      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
+      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
+      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
     volumes:
       - ./server:/app
     networks:
@@ -93,24 +97,6 @@ services:
         DEBUG_PORT: 40001
         MAIN_PKG: ./cmd/worker/main.go
         BINARY_NAME: worker
-    environment:
-      DB_HOST: ${DB_HOST:-db}
-      DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      DB_NAME: ${DB_NAME:-main}
-      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
-      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
-      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
-      NATS_URL: ${NATS_URL:-http://nats:4222}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
-      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
-      ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
-      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
-      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
-      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
-      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
     volumes:
       - ./server:/app
     ports:

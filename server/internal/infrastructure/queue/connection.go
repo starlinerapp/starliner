@@ -3,10 +3,10 @@ package queue
 import (
 	"github.com/nats-io/nats.go"
 	"log"
-	"starliner.app/internal/config"
+	"starliner.app/internal/conf"
 )
 
-func Connect(cfg *config.Config) (nats.JetStreamContext, error) {
+func Connect(cfg *conf.Config) (nats.JetStreamContext, error) {
 	nc, err := nats.Connect(cfg.NatsUrl)
 	if err != nil {
 		log.Printf("failed to connect to NATS: %v", err)
