@@ -9,11 +9,11 @@ import (
 )
 
 type EnvironmentHandler struct {
-	environmentService *application.EnvironmentApplication
+	environmentApplication *application.EnvironmentApplication
 }
 
-func NewEnvironmentHandler(environmentService *application.EnvironmentApplication) *EnvironmentHandler {
-	return &EnvironmentHandler{environmentService: environmentService}
+func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplication) *EnvironmentHandler {
+	return &EnvironmentHandler{environmentApplication: environmentApplication}
 }
 
 // CreateEnvironment FindAll godoc
@@ -33,7 +33,7 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 		return
 	}
 
-	err := eh.environmentService.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID)
+	err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return

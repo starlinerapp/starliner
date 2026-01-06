@@ -11,14 +11,14 @@ import (
 )
 
 type ClusterHandler struct {
-	clusterService      *application.ClusterApplication
-	organizationService *application.OrganizationApplication
+	clusterApplication      *application.ClusterApplication
+	organizationApplication *application.OrganizationApplication
 }
 
-func NewClusterHandler(clusterService *application.ClusterApplication, organizationService *application.OrganizationApplication) *ClusterHandler {
+func NewClusterHandler(clusterApplication *application.ClusterApplication, organizationApplication *application.OrganizationApplication) *ClusterHandler {
 	return &ClusterHandler{
-		clusterService:      clusterService,
-		organizationService: organizationService,
+		clusterApplication:      clusterApplication,
+		organizationApplication: organizationApplication,
 	}
 }
 
@@ -38,7 +38,7 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	newCluster, err := ch.clusterService.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.OrganizationID)
+	newCluster, err := ch.clusterApplication.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.OrganizationID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -63,7 +63,7 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 		return
 	}
 
-	cluster, err := ch.clusterService.GetUserCluster(c.Request.Context(), currentUser.Id, clusterId)
+	cluster, err := ch.clusterApplication.GetUserCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -91,7 +91,7 @@ func (ch *ClusterHandler) GetClusterPrivateKey(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	file, err := ch.clusterService.GetClusterPrivateKey(c.Request.Context(), clusterId, currentUser.Id)
+	file, err := ch.clusterApplication.GetClusterPrivateKey(c.Request.Context(), clusterId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -121,7 +121,7 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 		return
 	}
 
-	err = ch.clusterService.DeleteCluster(c.Request.Context(), currentUser.Id, clusterId)
+	err = ch.clusterApplication.DeleteCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 	}
