@@ -11,36 +11,35 @@ import (
 	"path"
 	"path/filepath"
 	"starliner.app/internal/conf"
+	"starliner.app/internal/domain/entity"
 	"starliner.app/internal/domain/port"
-	"starliner.app/internal/infrastructure/nats"
-	"starliner.app/internal/infrastructure/nats/proto/v1"
 	"strings"
 )
 
 type BuildApplication struct {
-	cfg            *conf.Config
-	objectstore    port.ObjectStore
-	daggerClient   *dagger.Client
-	buildPublisher *nats.Publisher[*v1.Build]
+	cfg          *conf.Config
+	daggerClient *dagger.Client
+	objectstore  port.ObjectStore
+	queue        port.Queue
 }
 
 func NewBuildApplication(
 	cfg *conf.Config,
-	objectstore port.ObjectStore,
 	daggerClient *dagger.Client,
-	buildPublisher *nats.Publisher[*v1.Build],
+	objectstore port.ObjectStore,
+	queue port.Queue,
 ) *BuildApplication {
 	return &BuildApplication{
-		cfg:            cfg,
-		objectstore:    objectstore,
-		daggerClient:   daggerClient,
-		buildPublisher: buildPublisher,
+		cfg:          cfg,
+		objectstore:  objectstore,
+		daggerClient: daggerClient,
+		queue:        queue,
 	}
 }
 
 func (ba *BuildApplication) TriggerBuild() error {
 	buildId := uuid.New().String()
-	err := ba.buildPublisher.Publish(nats.BuildTriggered, buildId, &v1.Build{
+	err := ba.queue.PublishBuildTriggered(&entity.Build{
 		Id:             buildId,
 		Organization:   "starliner",
 		Project:        "example",
@@ -57,7 +56,7 @@ func (ba *BuildApplication) TriggerBuild() error {
 	return nil
 }
 
-func (ba *BuildApplication) HandleBuildTriggered(build *v1.Build) {
+func (ba *BuildApplication) HandleBuildTriggered(build *entity.Build) {
 	ctx := context.Background()
 
 	workDir, err := os.MkdirTemp("", "build-*")

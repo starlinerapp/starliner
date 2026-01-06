@@ -8,7 +8,7 @@ import (
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/infrastructure/crypto"
 	"starliner.app/internal/infrastructure/dagger"
-	"starliner.app/internal/infrastructure/nats"
+	"starliner.app/internal/infrastructure/nats/queue"
 	"starliner.app/internal/infrastructure/postgres"
 	"starliner.app/internal/infrastructure/s3"
 	"starliner.app/internal/infrastructure/ssh"
@@ -21,7 +21,7 @@ func main() {
 	fx.New(
 		conf.Module,
 		postgres.Module,
-		nats.Module,
+		queue.Module,
 		s3.Module,
 		dagger.Module,
 		crypto.Module,
