@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -13,13 +12,11 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"log"
 	"os"
-	"os/exec"
 	"starliner.app/internal/domain/entity"
 	"starliner.app/internal/domain/port"
 	interfaces "starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
-	"starliner.app/internal/infrastructure/ansible"
 	"starliner.app/internal/infrastructure/pulumi"
 	"strings"
 	"time"
@@ -30,6 +27,7 @@ type ClusterApplication struct {
 	clusterRepository      interfaces.ClusterRepository
 	organizationService    *service.OrganizationService
 	ssh                    port.SSH
+	install                port.Install
 	crypto                 port.Crypto
 	queue                  port.Queue
 }
@@ -39,6 +37,7 @@ func NewClusterApplication(
 	clusterRepository interfaces.ClusterRepository,
 	organizationService *service.OrganizationService,
 	ssh port.SSH,
+	install port.Install,
 	crypto port.Crypto,
 	queue port.Queue,
 ) *ClusterApplication {
@@ -47,6 +46,7 @@ func NewClusterApplication(
 		clusterRepository:      clusterRepository,
 		organizationService:    organizationService,
 		ssh:                    ssh,
+		install:                install,
 		crypto:                 crypto,
 		queue:                  queue,
 	}
@@ -220,103 +220,8 @@ func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
 		return
 	}
 
-	// Install k3s
-	tmpPlaybook, err := os.CreateTemp("", "ansible-*.yml")
-	if err != nil {
-		fmt.Printf("Failed to create temp file: %v\n", err)
-	}
-	defer func(name string) {
-		err := os.Remove(name)
-		if err != nil {
-			fmt.Printf("Failed to remove temp file: %v\n", err)
-		}
-	}(tmpPlaybook.Name())
-
-	_, err = tmpPlaybook.Write([]byte(ansible.K3sPlaybook))
-	if err != nil {
-		fmt.Printf("Failed to write to temp file: %v\n", err)
-	}
-	err = tmpPlaybook.Close()
-	if err != nil {
-		return
-	}
-
-	tmpPrivateKey, err := os.CreateTemp("", "private-key-*.pem")
-	if err != nil {
-		fmt.Printf("Failed to create temp file: %v\n", err)
-	}
-	defer func(name string) {
-		err := os.Remove(name)
-		if err != nil {
-			fmt.Printf("Failed to remove temp file: %v\n", err)
-		}
-	}(tmpPrivateKey.Name())
-
-	pemBytes, err := ca.crypto.EncodePrivateKeyToPEM(privateKey)
-	if err != nil {
-		fmt.Printf("failed to encode private key to PEM: %v\n", err)
-		return
-	}
-	_, err = tmpPrivateKey.Write(pemBytes)
-	if err != nil {
-		fmt.Printf("failed to write private key: %v\n", err)
-		return
-	}
-	err = tmpPrivateKey.Close()
-	if err != nil {
-		return
-	}
-
-	args := []string{
-		tmpPlaybook.Name(),
-		"-i", fmt.Sprintf("%s,", ip),
-		"-u", "root",
-		"--private-key", tmpPrivateKey.Name(),
-		"-e", "ansible_ssh_common_args='-o StrictHostKeyChecking=no'",
-		"-e", fmt.Sprintf("target_host=%s", ip),
-	}
-
-	cmd := exec.Command("ansible-playbook", args...)
-	cmd.Env = append(
-		cmd.Env,
-		"ANSIBLE_STDOUT_CALLBACK=json",
-		"ANSIBLE_DEPRECATION_WARNINGS=False",
-	)
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Failed to install k3s: %v\n", err)
-		return
-	}
-
-	var ansibleData ansible.Output
-	if err := json.Unmarshal(out, &ansibleData); err != nil {
-		fmt.Printf("Failed to parse ansible output: %v\n", err)
-		return
-	}
-
-	var kubeconfigBase64 string
-	for _, play := range ansibleData.Plays {
-		for _, task := range play.Tasks {
-			for _, host := range task.Hosts {
-				if host.Content != "" {
-					kubeconfigBase64 = host.Content
-					break
-				}
-			}
-		}
-	}
-	kubeconfigDecoded, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
-	if err != nil {
-		fmt.Printf("failed to decode kubeconfig: %v\n", err)
-	}
-
-	kubeconfig := strings.ReplaceAll(
-		string(kubeconfigDecoded),
-		"https://127.0.0.1:",
-		fmt.Sprintf("https://%s:", ip),
-	)
-	kubeconfigBase64 = base64.StdEncoding.EncodeToString([]byte(kubeconfig))
+	kubeconfig, err := ca.install.InstallK3s(ip, privateKey)
+	kubeconfigBase64 := base64.StdEncoding.EncodeToString([]byte(kubeconfig))
 	encryptedKubeconfig, err := ca.crypto.Encrypt(kubeconfigBase64)
 	if err != nil {
 		fmt.Printf("failed to encrypt kubeconfig: %v\n", err)
