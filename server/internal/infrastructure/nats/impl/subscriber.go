@@ -1,4 +1,4 @@
-package queue
+package nats
 
 import (
 	"starliner.app/internal/domain/entity"

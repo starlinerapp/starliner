@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"dagger.io/dagger"
 	"github.com/google/uuid"
 	"io"
 	"log"
@@ -17,23 +16,23 @@ import (
 )
 
 type BuildApplication struct {
-	cfg          *conf.Config
-	daggerClient *dagger.Client
-	objectstore  port.ObjectStore
-	queue        port.Queue
+	cfg         *conf.Config
+	docker      port.Docker
+	objectstore port.ObjectStore
+	queue       port.Queue
 }
 
 func NewBuildApplication(
 	cfg *conf.Config,
-	daggerClient *dagger.Client,
+	docker port.Docker,
 	objectstore port.ObjectStore,
 	queue port.Queue,
 ) *BuildApplication {
 	return &BuildApplication{
-		cfg:          cfg,
-		objectstore:  objectstore,
-		daggerClient: daggerClient,
-		queue:        queue,
+		cfg:         cfg,
+		objectstore: objectstore,
+		docker:      docker,
+		queue:       queue,
 	}
 }
 
@@ -117,13 +116,10 @@ func (ba *BuildApplication) HandleBuildTriggered(build *entity.Build) {
 		build.Project,
 		build.Service,
 	)
-
+	tag := imagePath + ":latest"
 	projectDir := filepath.Join(extractDir, build.RootDirectory)
-	buildContainer := ba.daggerClient.Host().
-		Directory(projectDir).
-		DockerBuild(dagger.DirectoryDockerBuildOpts{Dockerfile: build.DockerfilePath})
 
-	_, err = buildContainer.Publish(ctx, imagePath+":latest")
+	err = ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag)
 	if err != nil {
 		log.Printf("failed to build docker image: %v", err)
 		return
