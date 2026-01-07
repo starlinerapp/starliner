@@ -9,7 +9,7 @@ import (
 	"starliner.app/internal/infrastructure/crypto"
 	"starliner.app/internal/infrastructure/dagger"
 	"starliner.app/internal/infrastructure/dagger/impl/docker"
-	"starliner.app/internal/infrastructure/nats/impl"
+	"starliner.app/internal/infrastructure/nats/impl/queue"
 	"starliner.app/internal/infrastructure/postgres"
 	"starliner.app/internal/infrastructure/s3"
 	"starliner.app/internal/infrastructure/ssh"
@@ -24,8 +24,8 @@ func main() {
 		conf.Module,
 		postgres.Module,
 		dagger.Module,
-		docker.docker.Module,
-		nats.Module,
+		docker.Module,
+		queue.Module,
 		s3.Module,
 		crypto.Module,
 		ssh.Module,
