@@ -53,7 +53,7 @@ RUN curl -fsSL https://get.pulumi.com | sh
 
 COPY --from=builder /app/${BINARY_NAME} ./app
 COPY ../../server/.env .env
-COPY ../../server/internal/infrastructure/postgres/migrations ./internal/postgres/migrations
+COPY ../../server/internal/infrastructure/postgres/migrations ./internal/infrastructure/postgres/migrations
 COPY --from=dev /go/bin/goose /usr/local/bin/goose
 
 ENTRYPOINT [ "./app" ]
