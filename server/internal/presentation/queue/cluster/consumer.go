@@ -2,7 +2,6 @@ package cluster
 
 import (
 	"context"
-	_ "embed"
 	"go.uber.org/fx"
 	"log"
 	"starliner.app/internal/application"
