@@ -10,6 +10,7 @@ import (
 	"starliner.app/internal/infrastructure/crypto"
 	"starliner.app/internal/infrastructure/dagger"
 	"starliner.app/internal/infrastructure/dagger/impl/docker"
+	"starliner.app/internal/infrastructure/helm"
 	"starliner.app/internal/infrastructure/nats/impl/queue"
 	"starliner.app/internal/infrastructure/postgres"
 	"starliner.app/internal/infrastructure/pulumi"
@@ -29,6 +30,7 @@ func main() {
 		docker.Module,
 		ansible.Module,
 		pulumi.Module,
+		helm.Module,
 		queue.Module,
 		s3.Module,
 		crypto.Module,
