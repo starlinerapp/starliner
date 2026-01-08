@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: deps deps-cleancache swag proto lint fix help
+.PHONY: deps deps-cleancache swag proto lint fix upgrade help
 
 GOCMD=go
 
