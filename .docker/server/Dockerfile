@@ -48,6 +48,8 @@ ARG BINARY_NAME
 
 WORKDIR /app
 
+ENV PATH=/root/.pulumi/bin:$PATH
+
 RUN apk add --no-cache bash curl ansible openssh-client
 RUN curl -fsSL https://get.pulumi.com | sh
 
