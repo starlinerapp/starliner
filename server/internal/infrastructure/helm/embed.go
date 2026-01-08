@@ -4,5 +4,5 @@ import (
 	"embed"
 )
 
-//go:embed template
-var Chart embed.FS
+//go:embed nginx
+var NginxChart embed.FS

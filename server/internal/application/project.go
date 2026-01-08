@@ -4,10 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"helm.sh/helm/v4/pkg/action"
-	"helm.sh/helm/v4/pkg/chart/v2/loader"
-	"io/fs"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,7 +12,6 @@ import (
 	interfaces "starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
-	"starliner.app/internal/infrastructure/helm"
 	"strings"
 )
 
@@ -26,26 +21,29 @@ type ProjectApplication struct {
 	clusterRepository      interfaces.ClusterRepository
 	organizationRepository interfaces.OrganizationRepository
 	environmentRepository  interfaces.EnvironmentRepository
+	deploy                 port.Deploy
 	crypto                 port.Crypto
 	queue                  port.Queue
 }
 
 func NewProjectApplication(
-	crypto port.Crypto,
 	organizationService *service.OrganizationService,
 	projectRepository interfaces.ProjectRepository,
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
 	environmentRepository interfaces.EnvironmentRepository,
+	deploy port.Deploy,
+	crypto port.Crypto,
 	queue port.Queue,
 ) *ProjectApplication {
 	return &ProjectApplication{
-		crypto:                 crypto,
 		organizationService:    organizationService,
 		projectRepository:      projectRepository,
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
 		environmentRepository:  environmentRepository,
+		deploy:                 deploy,
+		crypto:                 crypto,
 		queue:                  queue,
 	}
 }
@@ -111,7 +109,7 @@ func (ps *ProjectApplication) HandleCreateProject(p *entity.Project) {
 		return
 	}
 
-	tmpDir, err := os.MkdirTemp("", "helm-chart-*")
+	tmpDir, err := os.MkdirTemp("", "kubeconfig-*")
 	if err != nil {
 		fmt.Printf("failed to create temp directory: %v\n", err)
 		return
@@ -130,62 +128,7 @@ func (ps *ProjectApplication) HandleCreateProject(p *entity.Project) {
 		return
 	}
 
-	err = fs.WalkDir(helm.Chart, "template", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		relPath, err := filepath.Rel("template", path)
-		if err != nil {
-			return err
-		}
-
-		destPath := filepath.Join(tmpDir, relPath)
-		if d.IsDir() {
-			return os.MkdirAll(destPath, 0755)
-		}
-
-		data, err := helm.Chart.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(destPath, data, 0644)
-	})
-	if err != nil {
-		fmt.Printf("failed to copy helm chart: %v\n", err)
-		return
-	}
-
-	chart, err := loader.Load(tmpDir)
-	if err != nil {
-		fmt.Printf("failed to load helm chart: %v\n", err)
-		return
-	}
-
-	configFlags := genericclioptions.NewConfigFlags(false)
-	configFlags.KubeConfig = &kubeconfigPath
-
-	actionConfig := new(action.Configuration)
-	if err := actionConfig.Init(
-		configFlags,
-		"default",
-		"secret",
-	); err != nil {
-		fmt.Printf("failed to initialize helm action configuration: %v\n", err)
-		return
-	}
-
-	install := action.NewInstall(actionConfig)
-	install.ReleaseName = "test-release"
-	install.Namespace = "default"
-	install.WaitStrategy = "watcher"
-
-	fmt.Printf("Installing helm chart")
-	_, err = install.Run(chart, map[string]interface{}{
-		"ingress": map[string]interface{}{
-			"host": fmt.Sprintf("%s.nip.io", *cluster.IPv4Address),
-		},
-	})
+	err = ps.deploy.DeployNginx(*cluster.IPv4Address, kubeconfigPath)
 	if err != nil {
 		fmt.Printf("failed to install helm chart: %v\n", err)
 		return
