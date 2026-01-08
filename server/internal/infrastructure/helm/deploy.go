@@ -83,6 +83,9 @@ func (d *Deploy) DeployNginx(ip string, kubeconfigPath string) error {
 			"host": fmt.Sprintf("%s.nip.io", ip),
 		},
 	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

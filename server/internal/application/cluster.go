@@ -190,6 +190,11 @@ func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
 	}
 
 	kubeconfig, err := ca.install.InstallK3s(ip, privateKey)
+	if err != nil {
+		fmt.Printf("Failed to install k3s: %v\n", err)
+		return
+	}
+
 	kubeconfigBase64 := base64.StdEncoding.EncodeToString([]byte(kubeconfig))
 	encryptedKubeconfig, err := ca.crypto.Encrypt(kubeconfigBase64)
 	if err != nil {
