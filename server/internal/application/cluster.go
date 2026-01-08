@@ -6,18 +6,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/pulumi/pulumi/sdk/v3/go/auto"
-	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
-	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"log"
-	"os"
 	"starliner.app/internal/domain/entity"
 	"starliner.app/internal/domain/port"
 	interfaces "starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
-	"starliner.app/internal/infrastructure/pulumi"
 	"strings"
 	"time"
 )
@@ -28,6 +22,7 @@ type ClusterApplication struct {
 	organizationService    *service.OrganizationService
 	ssh                    port.SSH
 	install                port.Install
+	provision              port.Provision
 	crypto                 port.Crypto
 	queue                  port.Queue
 }
@@ -38,6 +33,7 @@ func NewClusterApplication(
 	organizationService *service.OrganizationService,
 	ssh port.SSH,
 	install port.Install,
+	provision port.Provision,
 	crypto port.Crypto,
 	queue port.Queue,
 ) *ClusterApplication {
@@ -47,6 +43,7 @@ func NewClusterApplication(
 		organizationService:    organizationService,
 		ssh:                    ssh,
 		install:                install,
+		provision:              provision,
 		crypto:                 crypto,
 		queue:                  queue,
 	}
@@ -166,46 +163,18 @@ func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
 	clusterSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
 
 	projectName := fmt.Sprintf("%s-%s", strings.ToLower(organization.Name), clusterSlug)
-	stackName := auto.FullyQualifiedStackName("organization", projectName, uuid.New().String())
+	provisioningId, ip, err := ca.provision.ProvisionServer(ctx, projectName, publicKey)
 
-	err = ca.clusterRepository.UpdateClusterPulumiStackId(ctx, c.Id, &stackName)
-	if err != nil {
-		fmt.Printf("failed to persist pulumi stack id: %v\n", err)
+	// Persist provisioningId regardless of outcome, to enable cleanup
+	if provisioningId != "" {
+		err = ca.clusterRepository.UpdateClusterPulumiStackId(ctx, c.Id, &provisioningId)
+		if err != nil {
+			fmt.Printf("failed to persist pulumi stack id: %v\n", err)
+		}
 	}
 
-	s, err := auto.UpsertStackInlineSource(ctx, stackName, projectName, pulumi.DeployFunc(pulumi.DeployParams{
-		ServerName: projectName,
-		PublicKey:  publicKey,
-	}))
 	if err != nil {
-		fmt.Printf("failed to set up a workspace: %v\n", err)
-		return
-	}
-
-	w := s.Workspace()
-
-	err = w.InstallPlugin(ctx, "hcloud", "1.29")
-	if err != nil {
-		fmt.Printf("Failed to install program plugins: %v\n", err)
-		return
-	}
-
-	_, err = s.Refresh(ctx)
-	if err != nil {
-		fmt.Printf("Failed to refresh stack: %v\n", err)
-		return
-	}
-
-	stdoutStreamer := optup.ProgressStreams(os.Stdout)
-	res, err := s.Up(ctx, stdoutStreamer)
-	if err != nil {
-		fmt.Printf("Failed to update stack: %v\n\n", err)
-		return
-	}
-
-	ip, ok := res.Outputs["serverIp"].Value.(string)
-	if !ok {
-		fmt.Println("Failed to unmarshall output")
+		fmt.Printf("failed to provision server: %v\n", err)
 		return
 	}
 
@@ -240,46 +209,16 @@ func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
 
 func (ca *ClusterApplication) HandleDeleteCluster(c *entity.Cluster) {
 	ctx := context.Background()
-
 	cluster, err := ca.clusterRepository.GetCluster(ctx, c.Id)
 	if err != nil {
 		fmt.Printf("failed to get cluster from database: %v\n", err)
 		return
 	}
 
-	parts := strings.Split(*cluster.PulumiStackId, "/")
-	projectName := parts[1]
-
-	pubKeyBytes, err := base64.StdEncoding.DecodeString(*cluster.PublicKey)
+	err = ca.provision.DeleteServer(ctx, *cluster.PulumiStackId)
 	if err != nil {
-		fmt.Printf("failed to decode public key: %v\n", err)
+		fmt.Printf("failed to delete server: %v\n", err)
 		return
-	}
-
-	s, err := auto.SelectStackInlineSource(ctx, *cluster.PulumiStackId, projectName, pulumi.DeployFunc(pulumi.DeployParams{
-		ServerName: projectName,
-		PublicKey:  pubKeyBytes,
-	}))
-	if err != nil {
-		fmt.Printf("failed to select stack for deletion: %v\n", err)
-		return
-	}
-
-	w := s.Workspace()
-	err = w.InstallPlugin(ctx, "hcloud", "1.29")
-	if err != nil {
-		fmt.Printf("failed to install program plugins: %v\n", err)
-	}
-
-	_, err = s.Refresh(ctx)
-	if err != nil {
-		fmt.Printf("failed to refresh stack: %v\n", err)
-	}
-
-	stdoutStreamer := optdestroy.ProgressStreams(os.Stdout)
-	_, err = s.Destroy(ctx, stdoutStreamer)
-	if err != nil {
-		fmt.Printf("failed to destroy stack: %v\n", err)
 	}
 
 	err = ca.clusterRepository.DeleteCluster(ctx, c.Id)

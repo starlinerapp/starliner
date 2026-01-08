@@ -12,6 +12,7 @@ import (
 	"starliner.app/internal/infrastructure/dagger/impl/docker"
 	"starliner.app/internal/infrastructure/nats/impl/queue"
 	"starliner.app/internal/infrastructure/postgres"
+	"starliner.app/internal/infrastructure/pulumi"
 	"starliner.app/internal/infrastructure/s3"
 	"starliner.app/internal/infrastructure/ssh"
 	"starliner.app/internal/presentation/http"
@@ -27,6 +28,7 @@ func main() {
 		dagger.Module,
 		docker.Module,
 		ansible.Module,
+		pulumi.Module,
 		queue.Module,
 		s3.Module,
 		crypto.Module,
