@@ -6,7 +6,7 @@ import (
 	"starliner.app/internal/application"
 	"starliner.app/internal/domain/value"
 	"starliner.app/internal/presentation/http/dto/request"
-	response2 "starliner.app/internal/presentation/http/dto/response"
+	"starliner.app/internal/presentation/http/dto/response"
 	"strconv"
 )
 
@@ -60,7 +60,7 @@ func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusOK, response2.NewOrganizations(organizations))
+	c.JSON(http.StatusOK, response.NewOrganizations(organizations))
 }
 
 // GetOrganizationProjects FindAll godoc
@@ -85,7 +85,7 @@ func (oh *OrganizationHandler) GetOrganizationProjects(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	c.JSON(http.StatusOK, response2.NewProjects(projects))
+	c.JSON(http.StatusOK, response.NewProjects(projects))
 }
 
 // GetOrganizationClusters FindAll godoc
@@ -110,5 +110,5 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-	c.JSON(http.StatusOK, response2.NewClusters(clusters))
+	c.JSON(http.StatusOK, response.NewClusters(clusters))
 }

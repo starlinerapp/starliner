@@ -10,8 +10,8 @@ import (
 	"log"
 	"net/http"
 	_ "starliner.app/cmd/api/docs"
-	handler2 "starliner.app/internal/presentation/http/handler"
-	middleware2 "starliner.app/internal/presentation/http/middleware"
+	"starliner.app/internal/presentation/http/handler"
+	"starliner.app/internal/presentation/http/middleware"
 )
 
 type Server struct {
@@ -19,15 +19,15 @@ type Server struct {
 }
 
 func NewServer(
-	auth *middleware2.BasicAuthMiddleware,
-	user *middleware2.UserMiddleware,
-	rootHandler *handler2.RootHandler,
-	userHandler *handler2.UserHandler,
-	organizationHandler *handler2.OrganizationHandler,
-	projectHandler *handler2.ProjectHandler,
-	environmentHandler *handler2.EnvironmentHandler,
-	buildHandler *handler2.BuildHandler,
-	clusterHandler *handler2.ClusterHandler,
+	auth *middleware.BasicAuthMiddleware,
+	user *middleware.UserMiddleware,
+	rootHandler *handler.RootHandler,
+	userHandler *handler.UserHandler,
+	organizationHandler *handler.OrganizationHandler,
+	projectHandler *handler.ProjectHandler,
+	environmentHandler *handler.EnvironmentHandler,
+	buildHandler *handler.BuildHandler,
+	clusterHandler *handler.ClusterHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
