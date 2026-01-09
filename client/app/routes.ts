@@ -27,8 +27,8 @@ export default [
                       "routes/dashboard/projects/[id]/[environment]/architecture/index.tsx",
                     ),
                     route(
-                      "github",
-                      "routes/dashboard/projects/[id]/[environment]/architecture/github.tsx",
+                      "git",
+                      "routes/dashboard/projects/[id]/[environment]/architecture/git.tsx",
                     ),
                     route(
                       "database",
