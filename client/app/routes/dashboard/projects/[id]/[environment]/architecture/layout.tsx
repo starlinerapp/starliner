@@ -17,8 +17,8 @@ export default function Layout() {
 
   const navigationBarItems = [
     {
-      title: "Github Repository",
-      href: `/${slug}/projects/${id}/${environment}/architecture/github`,
+      title: "Git Repository",
+      href: `/${slug}/projects/${id}/${environment}/architecture/git`,
     },
     {
       title: "Database",

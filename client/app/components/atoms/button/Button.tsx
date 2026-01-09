@@ -25,7 +25,7 @@ const buttonVariants = cva(
       size: { sm: "p-2", md: "px-4 py-3" },
       intent: {
         primary: "bg-violet-10 hover:bg-violet-9 text-white",
-        secondary: "bg-white border-mauve-6 hover:bg-mauve-1 text-mauve-12",
+        secondary: "bg-white border-mauve-7 hover:bg-mauve-1 text-mauve-12",
         danger:
           "text-red-11 font-bold border-gray-7 bg-gray-3 hover:text-white hover:bg-red-11 hover:border-red-8",
       },

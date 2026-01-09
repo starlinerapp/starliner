@@ -9,4 +9,5 @@ export { default as GitBranch } from "./GitBranch";
 export { default as InboxStack } from "./InboxStack";
 export { default as LinkOut } from "./LinkOut";
 export { default as Plus } from "./Plus";
+export { default as Postgres } from "./Postgres";
 export { default as Servers } from "./Servers";

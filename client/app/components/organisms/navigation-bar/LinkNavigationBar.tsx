@@ -66,7 +66,7 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
             {({ isActive }) => (
               <span
                 className={cn(
-                  "pb-2",
+                  "truncate pb-2",
                   isActive && "text-violet-11 font-semibold",
                 )}
               >
