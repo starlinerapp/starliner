@@ -1,4 +1,4 @@
-import type { Route } from "../../../../../../.react-router/types/app/routes/dashboard/clusters/[id]/+types/general";
+import type { Route } from "./+types/private-key";
 import { getServerSession } from "~/utils/auth/server";
 import { clusterApiFactory } from "~/server/api/client";
 

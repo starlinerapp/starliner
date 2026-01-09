@@ -19,9 +19,23 @@ export default [
           index("routes/dashboard/projects/[id]/index.tsx"),
           ...prefix(":environment", [
             layout("routes/dashboard/projects/[id]/[environment]/layout.tsx", [
-              route(
-                "architecture",
-                "routes/dashboard/projects/[id]/[environment]/architecture.tsx",
+              layout(
+                "routes/dashboard/projects/[id]/[environment]/architecture/layout.tsx",
+                [
+                  ...prefix("architecture", [
+                    index(
+                      "routes/dashboard/projects/[id]/[environment]/architecture/index.tsx",
+                    ),
+                    route(
+                      "github",
+                      "routes/dashboard/projects/[id]/[environment]/architecture/github.tsx",
+                    ),
+                    route(
+                      "database",
+                      "routes/dashboard/projects/[id]/[environment]/architecture/database.tsx",
+                    ),
+                  ]),
+                ],
               ),
               route(
                 "observability",

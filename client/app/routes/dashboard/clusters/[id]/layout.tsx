@@ -6,7 +6,7 @@ import { useTRPC } from "~/utils/trpc/react";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { caller } from "~/utils/trpc/server";
-import type { Route } from "./+types";
+import type { Route } from "./+types/layout";
 
 export async function loader(loaderArgs: Route.LoaderArgs) {
   const { params } = loaderArgs;
