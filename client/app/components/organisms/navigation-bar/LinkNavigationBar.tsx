@@ -21,9 +21,25 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const activeLink = containerRef.current.querySelector<HTMLAnchorElement>(
-      `a[href="${location.pathname}"] span`,
-    );
+    const links = containerRef.current.querySelectorAll<HTMLAnchorElement>("a");
+    let activeLink: HTMLSpanElement | null = null;
+
+    // Find the link that matches the current path or is a parent path
+    for (const link of links) {
+      const href = link.getAttribute("href");
+      if (href && location.pathname.startsWith(href)) {
+        const span = link.querySelector<HTMLSpanElement>("span");
+        // Prefer longer matches (more specific paths)
+        if (
+          span &&
+          (!activeLink ||
+            href.length >
+              (activeLink.closest("a")?.getAttribute("href")?.length || 0))
+        ) {
+          activeLink = span;
+        }
+      }
+    }
 
     if (activeLink) {
       const rect = activeLink.getBoundingClientRect();

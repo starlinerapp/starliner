@@ -1,4 +1,4 @@
-import type { Route } from "../../../.react-router/types/app/+types/root";
+import type { Route } from "./+types/layout";
 import { Outlet, redirect } from "react-router";
 import React from "react";
 import { auth } from "~/utils/auth/server";

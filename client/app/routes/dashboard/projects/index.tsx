@@ -1,5 +1,5 @@
 import React from "react";
-import type { Route } from "../../../../.react-router/types/app/+types/root";
+import type { Route } from "./+types/index";
 import { redirect } from "react-router";
 
 export function meta() {
