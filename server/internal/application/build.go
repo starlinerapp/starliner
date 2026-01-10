@@ -10,8 +10,8 @@ import (
 	"path"
 	"path/filepath"
 	"starliner.app/internal/conf"
-	"starliner.app/internal/domain/entity"
 	"starliner.app/internal/domain/port"
+	"starliner.app/internal/domain/value"
 	"strings"
 )
 
@@ -38,7 +38,7 @@ func NewBuildApplication(
 
 func (ba *BuildApplication) TriggerBuild() error {
 	buildId := uuid.New().String()
-	err := ba.queue.PublishBuildTriggered(&entity.Build{
+	err := ba.queue.PublishBuildTriggered(&value.BuildMessage{
 		Id:             buildId,
 		Organization:   "starliner",
 		Project:        "example",
@@ -55,7 +55,7 @@ func (ba *BuildApplication) TriggerBuild() error {
 	return nil
 }
 
-func (ba *BuildApplication) HandleBuildTriggered(build *entity.Build) {
+func (ba *BuildApplication) HandleBuildTriggered(build *value.BuildMessage) {
 	ctx := context.Background()
 
 	workDir, err := os.MkdirTemp("", "build-*")

@@ -1,9 +1,34 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Postgres } from "~/components/atoms/icons";
+import { useTRPC } from "~/utils/trpc/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router";
 
 export default function Database() {
-  function handleDeployClicked() {}
+  const { id, environment } = useParams();
+  const trpc = useTRPC();
+
+  const { data: project } = useQuery(
+    trpc.project.getProject.queryOptions({ id: Number(id) }),
+  );
+
+  const currentEnvironment = useMemo(
+    () => project?.environments.find((e) => e.slug === environment),
+    [project, environment],
+  );
+
+  const createDatabaseMutation = useMutation(
+    trpc.environment.deployDatabase.mutationOptions(),
+  );
+
+  function handleDeployClicked() {
+    if (!currentEnvironment) return;
+
+    createDatabaseMutation.mutate({
+      id: currentEnvironment.id,
+    });
+  }
 
   return (
     <div className="border-mauve-6 flex max-w-full min-w-[350px] items-center justify-between gap-4 overflow-hidden rounded-md border px-4 py-3 text-sm">

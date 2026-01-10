@@ -18,7 +18,7 @@ func NewDeploy() port.Deploy {
 	return &Deploy{}
 }
 
-func (d *Deploy) DeployNginx(ip string, kubeconfigPath string) error {
+func (d *Deploy) DeployPostgres(kubeconfigPath string) error {
 	tmpDir, err := os.MkdirTemp("", "helm-chart-*")
 	if err != nil {
 		return err
@@ -30,12 +30,12 @@ func (d *Deploy) DeployNginx(ip string, kubeconfigPath string) error {
 		}
 	}()
 
-	err = fs.WalkDir(NginxChart, "nginx", func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(PostgresChart, "postgres", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel("nginx", path)
+		relPath, err := filepath.Rel("postgres", path)
 		if err != nil {
 			return err
 		}
@@ -45,7 +45,7 @@ func (d *Deploy) DeployNginx(ip string, kubeconfigPath string) error {
 			return os.MkdirAll(destPath, 0755)
 		}
 
-		data, err := NginxChart.ReadFile(path)
+		data, err := PostgresChart.ReadFile(path)
 		if err != nil {
 			return err
 		}
@@ -78,11 +78,7 @@ func (d *Deploy) DeployNginx(ip string, kubeconfigPath string) error {
 	install.WaitStrategy = "watcher"
 
 	fmt.Printf("Installing helm chart")
-	_, err = install.Run(chart, map[string]interface{}{
-		"ingress": map[string]interface{}{
-			"host": fmt.Sprintf("%s.nip.io", ip),
-		},
-	})
+	_, err = install.Run(chart, map[string]interface{}{})
 	if err != nil {
 		return err
 	}

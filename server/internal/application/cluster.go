@@ -60,7 +60,11 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
 
-	err = ca.queue.PublishCreateCluster(cluster)
+	err = ca.queue.PublishCreateCluster(&value.ClusterMessage{
+		Id:             cluster.Id,
+		Name:           cluster.Name,
+		OrganizationId: cluster.OrganizationId,
+	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
 	}
@@ -126,7 +130,11 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 		return err
 	}
 
-	err = ca.queue.PublishDeleteCluster(cluster)
+	err = ca.queue.PublishDeleteCluster(&value.ClusterMessage{
+		Id:             cluster.Id,
+		Name:           cluster.Name,
+		OrganizationId: cluster.OrganizationId,
+	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
 	}
@@ -134,7 +142,7 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 	return nil
 }
 
-func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
+func (ca *ClusterApplication) HandleCreateCluster(c *value.ClusterMessage) {
 	ctx := context.Background()
 	publicKey, privateKey, err := ca.crypto.GenerateKeyPair()
 	if err != nil {
@@ -212,7 +220,7 @@ func (ca *ClusterApplication) HandleCreateCluster(c *entity.Cluster) {
 	}
 }
 
-func (ca *ClusterApplication) HandleDeleteCluster(c *entity.Cluster) {
+func (ca *ClusterApplication) HandleDeleteCluster(c *value.ClusterMessage) {
 	ctx := context.Background()
 	cluster, err := ca.clusterRepository.GetCluster(ctx, c.Id)
 	if err != nil {

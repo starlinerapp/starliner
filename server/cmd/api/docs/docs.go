@@ -225,6 +225,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}/databases": {
+            "post": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Deploy database to environment",
+                "operationId": "deployDatabase",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Database",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployDatabase"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "tags": [
@@ -480,19 +519,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.ClusterStatus": {
-            "type": "string",
-            "enum": [
-                "pending",
-                "running",
-                "deleted"
-            ],
-            "x-enum-varnames": [
-                "ClusterPending",
-                "ClusterRunning",
-                "ClusterDeleted"
-            ]
-        },
         "request.CreateCluster": {
             "type": "object",
             "required": [
@@ -557,6 +583,33 @@ const docTemplate = `{
                 }
             }
         },
+        "request.Database": {
+            "type": "string",
+            "enum": [
+                "postgres"
+            ],
+            "x-enum-varnames": [
+                "Postgres"
+            ]
+        },
+        "request.DeployDatabase": {
+            "type": "object",
+            "required": [
+                "database"
+            ],
+            "properties": {
+                "database": {
+                    "enum": [
+                        "postgres"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Database"
+                        }
+                    ]
+                }
+            }
+        },
         "response.Cluster": {
             "type": "object",
             "required": [
@@ -587,11 +640,24 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.ClusterStatus"
+                            "$ref": "#/definitions/response.ClusterStatus"
                         }
                     ]
                 }
             }
+        },
+        "response.ClusterStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "running",
+                "deleted"
+            ],
+            "x-enum-varnames": [
+                "ClusterStatusPending",
+                "ClusterStatusRunning",
+                "ClusterStatusDeleted"
+            ]
         },
         "response.Environment": {
             "type": "object",

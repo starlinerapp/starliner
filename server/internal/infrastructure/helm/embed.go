@@ -4,5 +4,5 @@ import (
 	"embed"
 )
 
-//go:embed nginx
-var NginxChart embed.FS
+//go:embed postgres
+var PostgresChart embed.FS
