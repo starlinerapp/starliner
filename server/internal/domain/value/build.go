@@ -1,6 +1,6 @@
-package entity
+package value
 
-type Build struct {
+type BuildMessage struct {
 	Id             string
 	Organization   string
 	Project        string

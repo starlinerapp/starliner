@@ -6,6 +6,7 @@ import (
 	"starliner.app/internal/application"
 	"starliner.app/internal/domain/value"
 	"starliner.app/internal/presentation/http/dto/request"
+	"strconv"
 )
 
 type EnvironmentHandler struct {
@@ -39,4 +40,40 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusCreated)
+}
+
+// DeployDatabase FindAll godoc
+// @Summary Deploy database to environment
+// @Tags environment
+// @ID deployDatabase
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Param data body request.DeployDatabase true "Deploy Database"
+// @Product JSON
+// @Success 200
+// @Router /environments/{id}/databases [post]
+func (eh *EnvironmentHandler) DeployDatabase(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	var body request.DeployDatabase
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = eh.environmentApplication.DeployDatabase(
+		c.Request.Context(),
+		currentUser.Id,
+		environmentId,
+		value.Database(body.Database),
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
 }

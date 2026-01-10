@@ -41,3 +41,62 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 	)
 	return i, err
 }
+
+const getEnvironmentAuthorizedUsers = `-- name: GetEnvironmentAuthorizedUsers :many
+SELECT u.id
+FROM environments
+INNER JOIN projects p ON p.id = environments.project_id
+INNER JOIN organizations o ON o.id = p.organization_id
+INNER JOIN users u ON o.owner_id = u.id
+WHERE environments.id = $1
+`
+
+func (q *Queries) GetEnvironmentAuthorizedUsers(ctx context.Context, id int64) ([]int64, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentAuthorizedUsers, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEnvironmentCluster = `-- name: GetEnvironmentCluster :one
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.pulumi_stack_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig
+FROM environments
+INNER JOIN projects ON projects.id = environments.project_id
+INNER JOIN clusters ON projects.cluster_id = clusters.id
+WHERE environments.id = $1
+`
+
+func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentCluster, id)
+	var i Cluster
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Ipv4Address,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.OrganizationID,
+		&i.PulumiStackID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Kubeconfig,
+	)
+	return i, err
+}

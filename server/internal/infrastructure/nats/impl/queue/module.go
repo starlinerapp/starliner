@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	Builds   nats.Stream = "builds"
-	Clusters nats.Stream = "clusters"
-	Projects nats.Stream = "projects"
+	Builds      nats.Stream = "builds"
+	Clusters    nats.Stream = "clusters"
+	Deployments nats.Stream = "deployments"
 )
 
 var Module = fx.Module(
@@ -28,6 +28,6 @@ var Module = fx.Module(
 		return nats.EnsureStream(js, Clusters, []nats.Subject{CreateCluster, DeleteCluster})
 	}),
 	fx.Invoke(func(js natsgo.JetStreamContext) error {
-		return nats.EnsureStream(js, Projects, []nats.Subject{CreateProject})
+		return nats.EnsureStream(js, Deployments, []nats.Subject{DeployDatabase})
 	}),
 )

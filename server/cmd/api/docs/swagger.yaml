@@ -1,14 +1,4 @@
 definitions:
-  domain.ClusterStatus:
-    enum:
-    - pending
-    - running
-    - deleted
-    type: string
-    x-enum-varnames:
-    - ClusterPending
-    - ClusterRunning
-    - ClusterDeleted
   request.CreateCluster:
     properties:
       name:
@@ -52,6 +42,22 @@ definitions:
     - name
     - organization_id
     type: object
+  request.Database:
+    enum:
+    - postgres
+    type: string
+    x-enum-varnames:
+    - Postgres
+  request.DeployDatabase:
+    properties:
+      database:
+        allOf:
+        - $ref: '#/definitions/request.Database'
+        enum:
+        - postgres
+    required:
+    - database
+    type: object
   response.Cluster:
     properties:
       id:
@@ -64,7 +70,7 @@ definitions:
         type: integer
       status:
         allOf:
-        - $ref: '#/definitions/domain.ClusterStatus'
+        - $ref: '#/definitions/response.ClusterStatus'
         enum:
         - pending
         - running
@@ -76,6 +82,16 @@ definitions:
     - organizationId
     - status
     type: object
+  response.ClusterStatus:
+    enum:
+    - pending
+    - running
+    - deleted
+    type: string
+    x-enum-varnames:
+    - ClusterStatusPending
+    - ClusterStatusRunning
+    - ClusterStatusDeleted
   response.Environment:
     properties:
       id:
@@ -282,6 +298,32 @@ paths:
         "201":
           description: Created
       summary: Create Environment
+      tags:
+      - environment
+  /environments/{id}/databases:
+    post:
+      operationId: deployDatabase
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Deploy Database
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeployDatabase'
+      responses:
+        "200":
+          description: OK
+      summary: Deploy database to environment
       tags:
       - environment
   /me:

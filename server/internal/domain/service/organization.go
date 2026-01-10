@@ -32,7 +32,7 @@ func (os *OrganizationService) ValidateUserInOrg(ctx context.Context, organizati
 		}
 	}
 	if !found {
-		return errors.New("organization not found")
+		return errors.New("user not in organization")
 	}
 	return nil
 }

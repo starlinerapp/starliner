@@ -21,4 +21,18 @@ export const environmentRouter = {
         })
         .then((res) => res.data);
     }),
+  deployDatabase: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await environmentApiFactory
+        .deployDatabase(userId, input.id, {
+          database: "postgres",
+        })
+        .then((res) => res.data);
+    }),
 };
