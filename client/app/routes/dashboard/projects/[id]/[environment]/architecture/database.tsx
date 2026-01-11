@@ -19,7 +19,7 @@ export default function Database() {
   );
 
   const createDatabaseMutation = useMutation(
-    trpc.environment.deployDatabase.mutationOptions(),
+    trpc.deployment.deployDatabase.mutationOptions(),
   );
 
   function handleDeployClicked() {

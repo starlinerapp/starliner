@@ -9,8 +9,8 @@ import (
 )
 
 type Consumer struct {
-	environmentApplication *application.EnvironmentApplication
-	queue                  port.Queue
+	deploymentApplication *application.DeploymentApplication
+	queue                 port.Queue
 }
 
 func RegisterConsumer(lc fx.Lifecycle, o *Consumer) {
@@ -22,18 +22,18 @@ func RegisterConsumer(lc fx.Lifecycle, o *Consumer) {
 }
 
 func NewConsumer(
-	environmentApplication *application.EnvironmentApplication,
+	deploymentApplication *application.DeploymentApplication,
 	queue port.Queue,
 ) *Consumer {
 	return &Consumer{
-		environmentApplication: environmentApplication,
-		queue:                  queue,
+		deploymentApplication: deploymentApplication,
+		queue:                 queue,
 	}
 }
 
 func (o *Consumer) Start() error {
 	go func() {
-		err := o.queue.SubscribeToDeployDatabase(o.environmentApplication.HandleDeployDatabase)
+		err := o.queue.SubscribeToDeployDatabase(o.deploymentApplication.HandleDeployDatabase)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}

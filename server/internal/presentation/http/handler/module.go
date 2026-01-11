@@ -12,5 +12,6 @@ var Module = fx.Module(
 		NewOrganizationHandler,
 		NewBuildHandler,
 		NewClusterHandler,
+		NewDeploymentHandler,
 	),
 )
