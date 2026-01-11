@@ -193,6 +193,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/databases": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy databases",
+                "operationId": "deployDatabase",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Database",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployDatabase"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments": {
             "post": {
                 "tags": [
@@ -221,45 +253,6 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Created"
-                    }
-                }
-            }
-        },
-        "/environments/{id}/databases": {
-            "post": {
-                "tags": [
-                    "environment"
-                ],
-                "summary": "Deploy database to environment",
-                "operationId": "deployDatabase",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Environment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Deploy Database",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.DeployDatabase"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     }
                 }
             }
@@ -595,7 +588,8 @@ const docTemplate = `{
         "request.DeployDatabase": {
             "type": "object",
             "required": [
-                "database"
+                "database",
+                "environmentId"
             ],
             "properties": {
                 "database": {
@@ -607,6 +601,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.Database"
                         }
                     ]
+                },
+                "environmentId": {
+                    "type": "integer"
                 }
             }
         },

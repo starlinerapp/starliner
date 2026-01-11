@@ -42,21 +42,6 @@ import {
 /**
  *
  * @export
- * @enum {string}
- */
-
-export const EntityClusterStatus = {
-  ClusterPending: "pending",
-  ClusterRunning: "running",
-  ClusterDeleted: "deleted",
-} as const;
-
-export type EntityClusterStatus =
-  (typeof EntityClusterStatus)[keyof typeof EntityClusterStatus];
-
-/**
- *
- * @export
  * @interface RequestCreateCluster
  */
 export interface RequestCreateCluster {
@@ -161,6 +146,12 @@ export interface RequestDeployDatabase {
    * @memberof RequestDeployDatabase
    */
   database: RequestDatabase;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployDatabase
+   */
+  environmentId: number;
 }
 
 /**
@@ -195,11 +186,26 @@ export interface ResponseCluster {
   organizationId: number;
   /**
    *
-   * @type {EntityClusterStatus}
+   * @type {ResponseClusterStatus}
    * @memberof ResponseCluster
    */
-  status: EntityClusterStatus;
+  status: ResponseClusterStatus;
 }
+
+/**
+ *
+ * @export
+ * @enum {string}
+ */
+
+export const ResponseClusterStatus = {
+  ClusterStatusPending: "pending",
+  ClusterStatusRunning: "running",
+  ClusterStatusDeleted: "deleted",
+} as const;
+
+export type ResponseClusterStatus =
+  (typeof ResponseClusterStatus)[keyof typeof ResponseClusterStatus];
 
 /**
  *
@@ -1012,31 +1018,31 @@ export class ClusterApi extends BaseAPI {
 }
 
 /**
- * EnvironmentApi - axios parameter creator
+ * DeploymentApi - axios parameter creator
  * @export
  */
-export const EnvironmentApiAxiosParamCreator = function (
+export const DeploymentApiAxiosParamCreator = function (
   configuration?: Configuration,
 ) {
   return {
     /**
      *
-     * @summary Create Environment
+     * @summary Deploy databases
      * @param {string} xUserID User ID
-     * @param {RequestCreateEnvironment} data Create Environment
+     * @param {RequestDeployDatabase} data Deploy Database
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createEnvironment: async (
+    deployDatabase: async (
       xUserID: string,
-      data: RequestCreateEnvironment,
+      data: RequestDeployDatabase,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("createEnvironment", "xUserID", xUserID);
+      assertParamExists("deployDatabase", "xUserID", xUserID);
       // verify required parameter 'data' is not null or undefined
-      assertParamExists("createEnvironment", "data", data);
-      const localVarPath = `/environments`;
+      assertParamExists("deployDatabase", "data", data);
+      const localVarPath = `/deployments/databases`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -1076,31 +1082,137 @@ export const EnvironmentApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+  };
+};
+
+/**
+ * DeploymentApi - functional programming interface
+ * @export
+ */
+export const DeploymentApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator =
+    DeploymentApiAxiosParamCreator(configuration);
+  return {
     /**
      *
-     * @summary Deploy database to environment
+     * @summary Deploy databases
      * @param {string} xUserID User ID
-     * @param {number} id Environment ID
      * @param {RequestDeployDatabase} data Deploy Database
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deployDatabase: async (
+    async deployDatabase(
       xUserID: string,
-      id: number,
       data: RequestDeployDatabase,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deployDatabase(
+        xUserID,
+        data,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.deployDatabase"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * DeploymentApi - factory interface
+ * @export
+ */
+export const DeploymentApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
+  const localVarFp = DeploymentApiFp(configuration);
+  return {
+    /**
+     *
+     * @summary Deploy databases
+     * @param {string} xUserID User ID
+     * @param {RequestDeployDatabase} data Deploy Database
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployDatabase(
+      xUserID: string,
+      data: RequestDeployDatabase,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deployDatabase(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * DeploymentApi - object-oriented interface
+ * @export
+ * @class DeploymentApi
+ * @extends {BaseAPI}
+ */
+export class DeploymentApi extends BaseAPI {
+  /**
+   *
+   * @summary Deploy databases
+   * @param {string} xUserID User ID
+   * @param {RequestDeployDatabase} data Deploy Database
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public deployDatabase(
+    xUserID: string,
+    data: RequestDeployDatabase,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .deployDatabase(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * EnvironmentApi - axios parameter creator
+ * @export
+ */
+export const EnvironmentApiAxiosParamCreator = function (
+  configuration?: Configuration,
+) {
+  return {
+    /**
+     *
+     * @summary Create Environment
+     * @param {string} xUserID User ID
+     * @param {RequestCreateEnvironment} data Create Environment
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createEnvironment: async (
+      xUserID: string,
+      data: RequestCreateEnvironment,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("deployDatabase", "xUserID", xUserID);
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists("deployDatabase", "id", id);
+      assertParamExists("createEnvironment", "xUserID", xUserID);
       // verify required parameter 'data' is not null or undefined
-      assertParamExists("deployDatabase", "data", data);
-      const localVarPath = `/environments/{id}/databases`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
+      assertParamExists("createEnvironment", "data", data);
+      const localVarPath = `/environments`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -1185,42 +1297,6 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
-    /**
-     *
-     * @summary Deploy database to environment
-     * @param {string} xUserID User ID
-     * @param {number} id Environment ID
-     * @param {RequestDeployDatabase} data Deploy Database
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async deployDatabase(
-      xUserID: string,
-      id: number,
-      data: RequestDeployDatabase,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
-    > {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.deployDatabase(
-        xUserID,
-        id,
-        data,
-        options,
-      );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["EnvironmentApi.deployDatabase"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
   };
 };
 
@@ -1252,25 +1328,6 @@ export const EnvironmentApiFactory = function (
         .createEnvironment(xUserID, data, options)
         .then((request) => request(axios, basePath));
     },
-    /**
-     *
-     * @summary Deploy database to environment
-     * @param {string} xUserID User ID
-     * @param {number} id Environment ID
-     * @param {RequestDeployDatabase} data Deploy Database
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deployDatabase(
-      xUserID: string,
-      id: number,
-      data: RequestDeployDatabase,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
-      return localVarFp
-        .deployDatabase(xUserID, id, data, options)
-        .then((request) => request(axios, basePath));
-    },
   };
 };
 
@@ -1297,27 +1354,6 @@ export class EnvironmentApi extends BaseAPI {
   ) {
     return EnvironmentApiFp(this.configuration)
       .createEnvironment(xUserID, data, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @summary Deploy database to environment
-   * @param {string} xUserID User ID
-   * @param {number} id Environment ID
-   * @param {RequestDeployDatabase} data Deploy Database
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof EnvironmentApi
-   */
-  public deployDatabase(
-    xUserID: string,
-    id: number,
-    data: RequestDeployDatabase,
-    options?: RawAxiosRequestConfig,
-  ) {
-    return EnvironmentApiFp(this.configuration)
-      .deployDatabase(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

@@ -6,9 +6,12 @@ import (
 
 var Module = fx.Module(
 	"repository",
-	fx.Provide(NewEnvironmentRepository),
-	fx.Provide(NewOrganizationRepository),
-	fx.Provide(NewProjectRepository),
-	fx.Provide(NewUserRepository),
-	fx.Provide(NewClusterRepository),
+	fx.Provide(
+		NewEnvironmentRepository,
+		NewOrganizationRepository,
+		NewProjectRepository,
+		NewUserRepository,
+		NewClusterRepository,
+		NewDeploymentRepository,
+	),
 )

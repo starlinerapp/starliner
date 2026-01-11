@@ -2,13 +2,13 @@
 
 ## Properties
 
-| Name               | Type                                              | Description | Notes                  |
-| ------------------ | ------------------------------------------------- | ----------- | ---------------------- |
-| **id**             | **number**                                        |             | [default to undefined] |
-| **ipv4Address**    | **string**                                        |             | [default to undefined] |
-| **name**           | **string**                                        |             | [default to undefined] |
-| **organizationId** | **number**                                        |             | [default to undefined] |
-| **status**         | [**EntityClusterStatus**](EntityClusterStatus.md) |             | [default to undefined] |
+| Name               | Type                                                  | Description | Notes                  |
+| ------------------ | ----------------------------------------------------- | ----------- | ---------------------- |
+| **id**             | **number**                                            |             | [default to undefined] |
+| **ipv4Address**    | **string**                                            |             | [default to undefined] |
+| **name**           | **string**                                            |             | [default to undefined] |
+| **organizationId** | **number**                                            |             | [default to undefined] |
+| **status**         | [**ResponseClusterStatus**](ResponseClusterStatus.md) |             | [default to undefined] |
 
 ## Example
 

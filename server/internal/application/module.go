@@ -6,10 +6,13 @@ import (
 
 var Module = fx.Module(
 	"application",
-	fx.Provide(NewUserApplication),
-	fx.Provide(NewEnvironmentApplication),
-	fx.Provide(NewProjectApplication),
-	fx.Provide(NewOrganizationApplication),
-	fx.Provide(NewBuildApplication),
-	fx.Provide(NewClusterApplication),
+	fx.Provide(
+		NewUserApplication,
+		NewEnvironmentApplication,
+		NewProjectApplication,
+		NewOrganizationApplication,
+		NewBuildApplication,
+		NewClusterApplication,
+		NewDeploymentApplication,
+	),
 )

@@ -68,6 +68,14 @@ type Cluster struct {
 	Kubeconfig     sql.NullString
 }
 
+type Deployment struct {
+	ID            int32
+	Name          string
+	EnvironmentID int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type Environment struct {
 	ID        int64
 	Name      string

@@ -2,9 +2,10 @@
 
 ## Properties
 
-| Name         | Type                                      | Description | Notes                  |
-| ------------ | ----------------------------------------- | ----------- | ---------------------- |
-| **database** | [**RequestDatabase**](RequestDatabase.md) |             | [default to undefined] |
+| Name              | Type                                      | Description | Notes                  |
+| ----------------- | ----------------------------------------- | ----------- | ---------------------- |
+| **database**      | [**RequestDatabase**](RequestDatabase.md) |             | [default to undefined] |
+| **environmentId** | **number**                                |             | [default to undefined] |
 
 ## Example
 
@@ -13,6 +14,7 @@ import { RequestDeployDatabase } from "./api";
 
 const instance: RequestDeployDatabase = {
   database,
+  environmentId,
 };
 ```
 

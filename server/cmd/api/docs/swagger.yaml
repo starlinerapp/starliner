@@ -55,8 +55,11 @@ definitions:
         - $ref: '#/definitions/request.Database'
         enum:
         - postgres
+      environmentId:
+        type: integer
     required:
     - database
+    - environmentId
     type: object
   response.Cluster:
     properties:
@@ -279,6 +282,27 @@ paths:
       summary: Get Cluster Private Key
       tags:
       - cluster
+  /deployments/databases:
+    post:
+      operationId: deployDatabase
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deploy Database
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeployDatabase'
+      responses:
+        "200":
+          description: OK
+      summary: Deploy databases
+      tags:
+      - deployment
   /environments:
     post:
       operationId: createEnvironment
@@ -298,32 +322,6 @@ paths:
         "201":
           description: Created
       summary: Create Environment
-      tags:
-      - environment
-  /environments/{id}/databases:
-    post:
-      operationId: deployDatabase
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Environment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Deploy Database
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.DeployDatabase'
-      responses:
-        "200":
-          description: OK
-      summary: Deploy database to environment
       tags:
       - environment
   /me:
