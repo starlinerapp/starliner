@@ -1,5 +1,5 @@
 package port
 
 type Deploy interface {
-	DeployPostgres(kubeconfigPath string) error
+	DeployPostgres(releaseName string, kubeconfigPath string) error
 }

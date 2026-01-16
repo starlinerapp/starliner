@@ -6,6 +6,7 @@ import (
 	"helm.sh/helm/v4/pkg/chart/v2/loader"
 	"io/fs"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"log"
 	"os"
 	"path/filepath"
 	"starliner.app/internal/domain/port"
@@ -18,7 +19,7 @@ func NewDeploy() port.Deploy {
 	return &Deploy{}
 }
 
-func (d *Deploy) DeployPostgres(kubeconfigPath string) error {
+func (d *Deploy) DeployPostgres(releaseName string, kubeconfigPath string) error {
 	tmpDir, err := os.MkdirTemp("", "helm-chart-*")
 	if err != nil {
 		return err
@@ -73,11 +74,13 @@ func (d *Deploy) DeployPostgres(kubeconfigPath string) error {
 	}
 
 	install := action.NewInstall(actionConfig)
-	install.ReleaseName = "test-release"
+	release := "postgres-" + releaseName
+
+	install.ReleaseName = release
 	install.Namespace = "default"
 	install.WaitStrategy = "watcher"
 
-	fmt.Printf("Installing helm chart")
+	log.Println("Installing helm chart " + release + "...")
 	_, err = install.Run(chart, map[string]interface{}{})
 	if err != nil {
 		return err

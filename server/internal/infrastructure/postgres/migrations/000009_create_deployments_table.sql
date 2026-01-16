@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE deployments (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     environment_id BIGINT NOT NULL REFERENCES environments(id) ON DELETE RESTRICT,
     created_at timestamptz NOT NULL DEFAULT NOW(),

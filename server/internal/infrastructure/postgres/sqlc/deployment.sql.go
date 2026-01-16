@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const createDeployment = `-- name: CreateDeployment :exec
+const createDeployment = `-- name: CreateDeployment :one
 INSERT INTO deployments (
     name,
     environment_id
@@ -17,6 +17,7 @@ INSERT INTO deployments (
     $1,
     $2
 )
+RETURNING id, name, environment_id, created_at, updated_at
 `
 
 type CreateDeploymentParams struct {
@@ -24,7 +25,15 @@ type CreateDeploymentParams struct {
 	EnvironmentID int64
 }
 
-func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) error {
-	_, err := q.db.ExecContext(ctx, createDeployment, arg.Name, arg.EnvironmentID)
-	return err
+func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (Deployment, error) {
+	row := q.db.QueryRowContext(ctx, createDeployment, arg.Name, arg.EnvironmentID)
+	var i Deployment
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.EnvironmentID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

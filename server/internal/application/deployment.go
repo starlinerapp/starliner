@@ -11,6 +11,7 @@ import (
 	interfaces "starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/domain/service"
 	"starliner.app/internal/domain/value"
+	"strconv"
 )
 
 type DeploymentApplication struct {
@@ -59,18 +60,20 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	deployment, err := da.deploymentRepository.CreateDeployment(ctx, string(database), environmentId)
+	if err != nil {
+		return err
+	}
+
 	err = da.queue.PublishDeployDatabase(&value.DeploymentMessage{
-		ClusterId: cluster.Id,
-		Database:  database,
+		DeploymentId: deployment.Id,
+		ClusterId:    cluster.Id,
+		Database:     database,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
 	}
 
-	err = da.deploymentRepository.CreateDeployment(ctx, string(database), environmentId)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -111,7 +114,7 @@ func (da *DeploymentApplication) HandleDeployDatabase(d *value.DeploymentMessage
 		return
 	}
 
-	err = da.deploy.DeployPostgres(kubeconfigPath)
+	err = da.deploy.DeployPostgres(strconv.FormatInt(d.DeploymentId, 10), kubeconfigPath)
 	if err != nil {
 		fmt.Printf("failed to install helm chart: %v\n", err)
 		return

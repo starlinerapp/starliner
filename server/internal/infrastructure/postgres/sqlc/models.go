@@ -69,7 +69,7 @@ type Cluster struct {
 }
 
 type Deployment struct {
-	ID            int32
+	ID            int64
 	Name          string
 	EnvironmentID int64
 	CreatedAt     time.Time
