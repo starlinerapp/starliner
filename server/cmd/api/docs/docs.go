@@ -257,6 +257,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}/deployments": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Deployments",
+                "operationId": "getEnvironmentDeployments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Deployment"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "tags": [
@@ -655,6 +691,17 @@ const docTemplate = `{
                 "ClusterStatusRunning",
                 "ClusterStatusDeleted"
             ]
+        },
+        "response.Deployment": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
         },
         "response.Environment": {
             "type": "object",

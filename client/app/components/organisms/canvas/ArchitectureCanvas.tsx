@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   addEdge,
   applyEdgeChanges,
@@ -8,14 +8,36 @@ import {
   Controls,
   type Edge,
   type Node,
+  type NodeTypes,
   type OnConnect,
   type OnEdgesChange,
   type OnNodesChange,
   ReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useTRPC } from "~/utils/trpc/react";
+import { useQuery } from "@tanstack/react-query";
+import type { ResponseEnvironment } from "~/server/api/client/generated";
 
-export default function ArchitectureCanvas() {
+interface ArchitectureCanvasProps {
+  environment: ResponseEnvironment;
+}
+
+export default function ArchitectureCanvas({
+  environment,
+}: ArchitectureCanvasProps) {
+  const trpc = useTRPC();
+  const { data: deployments } = useQuery(
+    trpc.environment.getEnvironmentDeployments.queryOptions(
+      {
+        id: environment?.id,
+      },
+      {
+        refetchInterval: 2000, // 2 seconds
+      },
+    ),
+  );
+
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
@@ -33,6 +55,18 @@ export default function ArchitectureCanvas() {
     (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
+
+  useEffect(() => {
+    if (!deployments) return;
+
+    const newNodes = deployments.map((deployment) => ({
+      id: Math.random().toString(),
+      position: { x: 0, y: 0 },
+      data: { label: deployment.name },
+    }));
+
+    setNodes(newNodes);
+  }, [deployments]);
 
   return (
     <div className="h-full w-full">

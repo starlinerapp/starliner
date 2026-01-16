@@ -6,6 +6,8 @@ import (
 	"starliner.app/internal/application"
 	"starliner.app/internal/domain/value"
 	"starliner.app/internal/presentation/http/dto/request"
+	"starliner.app/internal/presentation/http/dto/response"
+	"strconv"
 )
 
 type EnvironmentHandler struct {
@@ -39,4 +41,29 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusCreated)
+}
+
+// GetEnvironmentDeployments FindAll godoc
+// @Summary Get Environment Deployments
+// @Tags environment
+// @ID getEnvironmentDeployments
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Success 200 {array} response.Deployment
+// @Router /environments/{id}/deployments [get]
+func (eh *EnvironmentHandler) GetEnvironmentDeployments(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	deployments, err := eh.environmentApplication.GetEnvironmentDeployments(c.Request.Context(), environmentId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.NewDeployments(deployments))
 }

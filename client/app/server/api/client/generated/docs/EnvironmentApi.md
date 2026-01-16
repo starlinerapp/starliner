@@ -2,9 +2,10 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                      | HTTP request           | Description        |
-| ------------------------------------------- | ---------------------- | ------------------ |
-| [**createEnvironment**](#createenvironment) | **POST** /environments | Create Environment |
+| Method                                                      | HTTP request                           | Description                 |
+| ----------------------------------------------------------- | -------------------------------------- | --------------------------- |
+| [**createEnvironment**](#createenvironment)                 | **POST** /environments                 | Create Environment          |
+| [**getEnvironmentDeployments**](#getenvironmentdeployments) | **GET** /environments/{id}/deployments | Get Environment Deployments |
 
 # **createEnvironment**
 
@@ -49,5 +50,54 @@ No authorization required
 | Status code | Description | Response headers |
 | ----------- | ----------- | ---------------- |
 | **201**     | Created     | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getEnvironmentDeployments**
+
+> Array<ResponseDeployment> getEnvironmentDeployments()
+
+### Example
+
+```typescript
+import { EnvironmentApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new EnvironmentApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let id: number; //Environment ID (default to undefined)
+
+const { status, data } = await apiInstance.getEnvironmentDeployments(
+  xUserID,
+  id,
+);
+```
+
+### Parameters
+
+| Name        | Type         | Description    | Notes                 |
+| ----------- | ------------ | -------------- | --------------------- |
+| **xUserID** | [**string**] | User ID        | defaults to undefined |
+| **id**      | [**number**] | Environment ID | defaults to undefined |
+
+### Return type
+
+**Array<ResponseDeployment>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

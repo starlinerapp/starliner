@@ -95,6 +95,13 @@ definitions:
     - ClusterStatusPending
     - ClusterStatusRunning
     - ClusterStatusDeleted
+  response.Deployment:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   response.Environment:
     properties:
       id:
@@ -322,6 +329,30 @@ paths:
         "201":
           description: Created
       summary: Create Environment
+      tags:
+      - environment
+  /environments/{id}/deployments:
+    get:
+      operationId: getEnvironmentDeployments
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Deployment'
+            type: array
+      summary: Get Environment Deployments
       tags:
       - environment
   /me:
