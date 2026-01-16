@@ -10,6 +10,7 @@ enum DatabaseType {
 }
 
 message Deployment {
-  int64 clusterId = 1;
-  DatabaseType database = 2;
+  int64 deploymentId = 1;
+  int64 clusterId = 2;
+  DatabaseType database = 3;
 }

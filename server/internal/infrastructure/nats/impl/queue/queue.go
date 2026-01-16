@@ -76,8 +76,9 @@ func (q *Queue) PublishDeployDatabase(deployment *value.DeploymentMessage) error
 	}()
 
 	return q.deploymentPublisher.Publish(DeployDatabase, "*", &v1.Deployment{
-		ClusterId: deployment.ClusterId,
-		Database:  protoDB,
+		DeploymentId: deployment.DeploymentId,
+		ClusterId:    deployment.ClusterId,
+		Database:     protoDB,
 	})
 }
 
@@ -118,8 +119,9 @@ func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *value.ClusterMess
 func (q *Queue) SubscribeToDeployDatabase(handler func(deployment *value.DeploymentMessage)) error {
 	return q.deploymentSubscriber.Subscribe(DeployDatabase, "*", "deployDatabase", func(cluster *v1.Deployment) {
 		handler(&value.DeploymentMessage{
-			ClusterId: cluster.ClusterId,
-			Database:  value.Database(cluster.Database),
+			DeploymentId: cluster.DeploymentId,
+			ClusterId:    cluster.ClusterId,
+			Database:     value.Database(cluster.Database),
 		})
 	})
 }

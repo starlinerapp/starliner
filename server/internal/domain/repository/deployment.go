@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"starliner.app/internal/domain/entity"
 	interfaces "starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/infrastructure/postgres/sqlc"
 )
@@ -16,9 +17,18 @@ func NewDeploymentRepository(queries *sqlc.Queries) interfaces.DeploymentReposit
 	return &DeploymentRepository{queries: queries}
 }
 
-func (dr *DeploymentRepository) CreateDeployment(ctx context.Context, name string, environmentId int64) error {
-	return dr.queries.CreateDeployment(ctx, sqlc.CreateDeploymentParams{
+func (dr *DeploymentRepository) CreateDeployment(ctx context.Context, name string, environmentId int64) (deployment *entity.Deployment, err error) {
+	d, err := dr.queries.CreateDeployment(ctx, sqlc.CreateDeploymentParams{
 		Name:          name,
 		EnvironmentID: environmentId,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Deployment{
+		Id:            d.ID,
+		Name:          d.Name,
+		EnvironmentId: d.EnvironmentID,
+	}, nil
 }

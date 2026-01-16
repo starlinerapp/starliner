@@ -69,8 +69,9 @@ func (DatabaseType) EnumDescriptor() ([]byte, []int) {
 
 type Deployment struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClusterId     int64                  `protobuf:"varint,1,opt,name=clusterId,proto3" json:"clusterId,omitempty"`
-	Database      DatabaseType           `protobuf:"varint,2,opt,name=database,proto3,enum=proto.v1.DatabaseType" json:"database,omitempty"`
+	DeploymentId  int64                  `protobuf:"varint,1,opt,name=deploymentId,proto3" json:"deploymentId,omitempty"`
+	ClusterId     int64                  `protobuf:"varint,2,opt,name=clusterId,proto3" json:"clusterId,omitempty"`
+	Database      DatabaseType           `protobuf:"varint,3,opt,name=database,proto3,enum=proto.v1.DatabaseType" json:"database,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -105,6 +106,13 @@ func (*Deployment) Descriptor() ([]byte, []int) {
 	return file_internal_infrastructure_nats_proto_v1_deployment_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *Deployment) GetDeploymentId() int64 {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return 0
+}
+
 func (x *Deployment) GetClusterId() int64 {
 	if x != nil {
 		return x.ClusterId
@@ -123,11 +131,12 @@ var File_internal_infrastructure_nats_proto_v1_deployment_proto protoreflect.Fil
 
 const file_internal_infrastructure_nats_proto_v1_deployment_proto_rawDesc = "" +
 	"\n" +
-	"6internal/infrastructure/nats/proto/v1/deployment.proto\x12\bproto.v1\"^\n" +
+	"6internal/infrastructure/nats/proto/v1/deployment.proto\x12\bproto.v1\"\x82\x01\n" +
 	"\n" +
-	"Deployment\x12\x1c\n" +
-	"\tclusterId\x18\x01 \x01(\x03R\tclusterId\x122\n" +
-	"\bdatabase\x18\x02 \x01(\x0e2\x16.proto.v1.DatabaseTypeR\bdatabase*-\n" +
+	"Deployment\x12\"\n" +
+	"\fdeploymentId\x18\x01 \x01(\x03R\fdeploymentId\x12\x1c\n" +
+	"\tclusterId\x18\x02 \x01(\x03R\tclusterId\x122\n" +
+	"\bdatabase\x18\x03 \x01(\x0e2\x16.proto.v1.DatabaseTypeR\bdatabase*-\n" +
 	"\fDatabaseType\x12\x0f\n" +
 	"\vUNSPECIFIED\x10\x00\x12\f\n" +
 	"\bPOSTGRES\x10\x01B\x18Z\x16starliner.app/proto/v1b\x06proto3"

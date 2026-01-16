@@ -1,6 +1,7 @@
 package value
 
 type DeploymentMessage struct {
-	ClusterId int64
-	Database  Database
+	DeploymentId int64
+	ClusterId    int64
+	Database     Database
 }
