@@ -18,6 +18,7 @@ docs/RequestDatabase.md
 docs/RequestDeployDatabase.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
+docs/ResponseDeployment.md
 docs/ResponseEnvironment.md
 docs/ResponseOrganization.md
 docs/ResponseProject.md

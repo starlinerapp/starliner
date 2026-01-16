@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -7,13 +7,24 @@ import {
 import ArchitectureCanvas from "~/components/organisms/canvas/ArchitectureCanvas";
 import { Outlet, useParams } from "react-router";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function Layout() {
+  const trpc = useTRPC();
   const { slug, id, environment } = useParams<{
     slug: string;
     id: string;
     environment: string;
   }>();
+
+  const { data: project } = useQuery(
+    trpc.project.getProject.queryOptions({ id: Number(id) }),
+  );
+  const currentEnvironment = useMemo(
+    () => project?.environments.find((e) => e.slug === environment),
+    [project, environment],
+  );
 
   const navigationBarItems = [
     {
@@ -32,7 +43,9 @@ export default function Layout() {
         defaultSize={70}
         className="border-mauve-6 h-full border-r-1"
       >
-        <ArchitectureCanvas />
+        {currentEnvironment && (
+          <ArchitectureCanvas environment={currentEnvironment} />
+        )}
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={30} className="flex h-full flex-col">

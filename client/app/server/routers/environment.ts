@@ -21,4 +21,16 @@ export const environmentRouter = {
         })
         .then((res) => res.data);
     }),
+  getEnvironmentDeployments: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await environmentApiFactory
+        .getEnvironmentDeployments(userId, input.id)
+        .then((res) => res.data);
+    }),
 };

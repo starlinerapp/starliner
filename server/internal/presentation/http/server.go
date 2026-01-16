@@ -57,6 +57,7 @@ func NewServer(
 	environmentRoutes := engine.Group("/environments")
 	{
 		environmentRoutes.POST("", environmentHandler.CreateEnvironment)
+		environmentRoutes.GET("/:id/deployments", environmentHandler.GetEnvironmentDeployments)
 	}
 
 	buildRoutes := engine.Group("/builds")

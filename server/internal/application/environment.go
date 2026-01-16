@@ -4,6 +4,7 @@ import (
 	"context"
 	"starliner.app/internal/domain/repository/interface"
 	"starliner.app/internal/domain/service"
+	"starliner.app/internal/domain/value"
 	"strings"
 )
 
@@ -42,4 +43,18 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		return err
 	}
 	return nil
+}
+
+func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*value.Deployment, error) {
+	deployments, err := ea.environmentRepository.GetEnvironmentDeployments(ctx, environmentId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	deploymentValues := make([]*value.Deployment, len(deployments))
+	for i, d := range deployments {
+		deploymentValues[i] = &value.Deployment{Name: d.Name}
+	}
+
+	return deploymentValues, nil
 }

@@ -37,3 +37,49 @@ func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentPara
 	)
 	return i, err
 }
+
+const getEnvironmentDeployments = `-- name: GetEnvironmentDeployments :many
+SELECT
+    deployments.id, deployments.name, deployments.environment_id, deployments.created_at, deployments.updated_at
+FROM deployments
+INNER JOIN environments ON deployments.environment_id = environments.id
+INNER JOIN projects ON environments.project_id = projects.id
+INNER JOIN organizations ON organizations.id = projects.organization_id
+INNER JOIN users ON users.id = organizations.owner_id
+WHERE environment_id = $1
+AND users.id = $2
+`
+
+type GetEnvironmentDeploymentsParams struct {
+	EnvironmentID int64
+	ID            int64
+}
+
+func (q *Queries) GetEnvironmentDeployments(ctx context.Context, arg GetEnvironmentDeploymentsParams) ([]Deployment, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentDeployments, arg.EnvironmentID, arg.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Deployment
+	for rows.Next() {
+		var i Deployment
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.EnvironmentID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
