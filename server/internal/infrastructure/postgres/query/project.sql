@@ -45,3 +45,17 @@ USING organizations o
 WHERE p.organization_id = o.id
     AND p.id = $1
     AND o.owner_id = $2;
+
+-- name: UpdateProjectName :exec
+UPDATE projects
+SET
+    name = $1
+WHERE id = $2;
+
+-- name: GetUserProject :one
+SELECT projects.*
+FROM projects
+INNER JOIN organizations ON projects.organization_id = organizations.id
+INNER JOIN users ON organizations.owner_id = users.id
+WHERE users.id = sqlc.arg(user_id)
+AND projects.id = sqlc.arg(project_id);

@@ -49,6 +49,7 @@ func NewServer(
 	projectRoutes := engine.Group("/projects")
 	{
 		projectRoutes.POST("", projectHandler.CreateProject)
+		projectRoutes.PUT("/:id", projectHandler.UpdateProjectName)
 		projectRoutes.GET("/:id", projectHandler.GetProject)
 		projectRoutes.DELETE("/:id", projectHandler.DeleteProject)
 	}

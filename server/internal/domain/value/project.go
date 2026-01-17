@@ -12,7 +12,7 @@ type Project struct {
 	ClusterId      *int64
 }
 
-func NewProject(p *entity.Project) *Project {
+func NewProject(p *entity.ProjectWithEnvironments) *Project {
 	environments := make([]*Environment, len(p.Environments))
 	for i, e := range p.Environments {
 		environments[i] = &Environment{
@@ -30,7 +30,7 @@ func NewProject(p *entity.Project) *Project {
 	}
 }
 
-func NewProjects(ps []*entity.Project) []*Project {
+func NewProjects(ps []*entity.ProjectWithEnvironments) []*Project {
 	projects := make([]*Project, len(ps))
 	for i, p := range ps {
 		projects[i] = NewProject(p)

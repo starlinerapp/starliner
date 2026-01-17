@@ -64,7 +64,7 @@ func (q *Queue) PublishDeleteCluster(cluster *entity.Cluster) error {
 	})
 }
 
-func (q *Queue) PublishCreateProject(project *entity.Project) error {
+func (q *Queue) PublishCreateProject(project *entity.ProjectWithEnvironments) error {
 	return q.projectPublisher.Publish(CreateProject, strconv.FormatInt(project.Id, 10), &v1.Project{
 		Id:             project.Id,
 		Name:           project.Name,
@@ -107,9 +107,9 @@ func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *entity.Cluster)) 
 	})
 }
 
-func (q *Queue) SubscribeToCreateProject(handler func(project *entity.Project)) error {
+func (q *Queue) SubscribeToCreateProject(handler func(project *entity.ProjectWithEnvironments)) error {
 	return q.projectSubscriber.Subscribe(CreateProject, "*", "createProject", func(project *v1.Project) {
-		handler(&entity.Project{
+		handler(&entity.ProjectWithEnvironments{
 			Id:             project.Id,
 			Name:           project.Name,
 			OrganizationId: project.OrganizationId,

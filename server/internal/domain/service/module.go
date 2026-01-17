@@ -6,5 +6,6 @@ var Module = fx.Module(
 	"service",
 	fx.Provide(
 		NewOrganizationService,
+		NewProjectService,
 	),
 )

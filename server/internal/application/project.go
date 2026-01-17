@@ -17,6 +17,7 @@ import (
 
 type ProjectApplication struct {
 	organizationService    *service.OrganizationService
+	projectService         *service.ProjectService
 	projectRepository      interfaces.ProjectRepository
 	clusterRepository      interfaces.ClusterRepository
 	organizationRepository interfaces.OrganizationRepository
@@ -28,6 +29,7 @@ type ProjectApplication struct {
 
 func NewProjectApplication(
 	organizationService *service.OrganizationService,
+	projectService *service.ProjectService,
 	projectRepository interfaces.ProjectRepository,
 	organizationRepository interfaces.OrganizationRepository,
 	clusterRepository interfaces.ClusterRepository,
@@ -38,6 +40,7 @@ func NewProjectApplication(
 ) *ProjectApplication {
 	return &ProjectApplication{
 		organizationService:    organizationService,
+		projectService:         projectService,
 		projectRepository:      projectRepository,
 		organizationRepository: organizationRepository,
 		clusterRepository:      clusterRepository,
@@ -77,6 +80,13 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 	return projectModel, nil
 }
 
+func (ps *ProjectApplication) UpdateProjectName(ctx context.Context, projectName string, projectId int64, userId int64) error {
+	if err := ps.projectService.ValidateUserHasPermission(ctx, projectId, userId); err != nil {
+		return err
+	}
+	return ps.projectRepository.UpdateProjectName(ctx, projectName, projectId)
+}
+
 func (ps *ProjectApplication) GetProject(ctx context.Context, projectId int64, userId int64) (*value.Project, error) {
 	project, err := ps.projectRepository.GetProject(ctx, projectId, userId)
 	if err != nil {
@@ -89,7 +99,7 @@ func (ps *ProjectApplication) DeleteProject(ctx context.Context, projectId int64
 	return ps.projectRepository.DeleteProject(ctx, projectId, userId)
 }
 
-func (ps *ProjectApplication) HandleCreateProject(p *entity.Project) {
+func (ps *ProjectApplication) HandleCreateProject(p *entity.ProjectWithEnvironments) {
 	ctx := context.Background()
 
 	cluster, err := ps.clusterRepository.GetCluster(ctx, *p.ClusterId)

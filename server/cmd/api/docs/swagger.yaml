@@ -1,5 +1,5 @@
 definitions:
-  domain.ClusterStatus:
+  entity.ClusterStatus:
     enum:
     - pending
     - running
@@ -52,6 +52,13 @@ definitions:
     - name
     - organization_id
     type: object
+  request.UpdateProjectName:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   response.Cluster:
     properties:
       id:
@@ -64,7 +71,7 @@ definitions:
         type: integer
       status:
         allOf:
-        - $ref: '#/definitions/domain.ClusterStatus'
+        - $ref: '#/definitions/entity.ClusterStatus'
         enum:
         - pending
         - running
@@ -450,6 +457,31 @@ paths:
           schema:
             $ref: '#/definitions/response.Project'
       summary: Get Project
+      tags:
+      - project
+    put:
+      operationId: updateProjectName
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Project Name
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProjectName'
+      responses:
+        "200":
+          description: OK
+      summary: Update Project Name
       tags:
       - project
 securityDefinitions:

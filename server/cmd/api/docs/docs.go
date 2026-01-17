@@ -449,6 +449,43 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Update Project Name",
+                "operationId": "updateProjectName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Project Name",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateProjectName"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
             "delete": {
                 "tags": [
                     "project"
@@ -480,7 +517,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.ClusterStatus": {
+        "entity.ClusterStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -557,6 +594,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateProjectName": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Cluster": {
             "type": "object",
             "required": [
@@ -587,7 +635,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/domain.ClusterStatus"
+                            "$ref": "#/definitions/entity.ClusterStatus"
                         }
                     ]
                 }

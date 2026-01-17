@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@eslint/css": "^0.10.0",
+    "@openapitools/openapi-generator-cli": "^2.27.0",
     "@react-router/dev": "^7.7.1",
     "@svgr/cli": "^8.1.0",
     "@tailwindcss/vite": "^4.1.12",

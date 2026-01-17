@@ -21,6 +21,17 @@ export const projectRouter = {
         })
         .then((res) => res.data);
     }),
+    updateProjectName: protectedProcedure
+        .input(
+            z.object({
+                name: z.string(),
+                projectId: z.number(),
+            })
+        ).mutation(async ({ input, ctx }) => {
+            const userId = ctx.user?.id;
+            return await projectApiFactory.updateProjectName(userId, input.projectId, {name: input.name})
+                .then(res => res.data);
+        }),
   getProject: protectedProcedure
     .input(
       z.object({

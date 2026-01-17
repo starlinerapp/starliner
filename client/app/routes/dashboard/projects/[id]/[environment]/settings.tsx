@@ -55,8 +55,25 @@ export default function ProjectSettings() {
   }, [projectNameInput]);
 
   const onSubmit: SubmitHandler<ProjectSettingsForm> = (data) => {
-    console.log(data);
+    updateProjectMutation.mutate({projectId: Number(id), name: data.projectName})
   }
+
+  const updateProjectMutation = useMutation(
+      trpc.project.updateProjectName.mutationOptions({
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: trpc.project.getProject.queryKey({
+              id: Number(id)
+            })
+          })
+          await queryClient.invalidateQueries({
+            queryKey: trpc.organization.getOrganizationProjects.queryKey({
+              id: organization.id,
+            }),
+          })
+        }
+      })
+  )
 
   const deleteProjectMutation = useMutation(
     trpc.project.deleteProject.mutationOptions({

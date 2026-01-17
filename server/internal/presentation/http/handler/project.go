@@ -45,6 +45,37 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.NewProject(newProject))
 }
 
+// UpdateProjectName FindAll godoc
+// @Summary Update Project Name
+// @Tags project
+// @ID updateProjectName
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Project ID"
+// @Param data body request.UpdateProjectName true "Update Project Name"
+// @Success 200
+// @Router /projects/{id} [put]
+func (ph *ProjectHandler) UpdateProjectName(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	var body request.UpdateProjectName
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = ph.projectApplication.UpdateProjectName(c.Request.Context(), body.Name, projectId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.Status(http.StatusOK)
+}
+
 // GetProject FindAll godoc
 // @Summary Get Project
 // @Tags project

@@ -45,14 +45,14 @@ import {
  * @enum {string}
  */
 
-export const DomainClusterStatus = {
+export const EntityClusterStatus = {
   ClusterPending: "pending",
   ClusterRunning: "running",
   ClusterDeleted: "deleted",
 } as const;
 
-export type DomainClusterStatus =
-  (typeof DomainClusterStatus)[keyof typeof DomainClusterStatus];
+export type EntityClusterStatus =
+  (typeof EntityClusterStatus)[keyof typeof EntityClusterStatus];
 
 /**
  *
@@ -139,6 +139,19 @@ export interface RequestCreateProject {
 /**
  *
  * @export
+ * @interface RequestUpdateProjectName
+ */
+export interface RequestUpdateProjectName {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateProjectName
+   */
+  name: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseCluster
  */
 export interface ResponseCluster {
@@ -168,10 +181,10 @@ export interface ResponseCluster {
   organizationId: number;
   /**
    *
-   * @type {DomainClusterStatus}
+   * @type {EntityClusterStatus}
    * @memberof ResponseCluster
    */
-  status: DomainClusterStatus;
+  status: EntityClusterStatus;
 }
 
 /**
@@ -1858,6 +1871,70 @@ export const ProjectApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Update Project Name
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {RequestUpdateProjectName} data Update Project Name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateProjectName: async (
+      xUserID: string,
+      id: number,
+      data: RequestUpdateProjectName,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("updateProjectName", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("updateProjectName", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("updateProjectName", "data", data);
+      const localVarPath = `/projects/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -1973,6 +2050,43 @@ export const ProjectApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Update Project Name
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {RequestUpdateProjectName} data Update Project Name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateProjectName(
+      xUserID: string,
+      id: number,
+      data: RequestUpdateProjectName,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.updateProjectName(
+          xUserID,
+          id,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ProjectApi.updateProjectName"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -2036,6 +2150,25 @@ export const ProjectApiFactory = function (
     ): AxiosPromise<ResponseProject> {
       return localVarFp
         .getProject(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Update Project Name
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {RequestUpdateProjectName} data Update Project Name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateProjectName(
+      xUserID: string,
+      id: number,
+      data: RequestUpdateProjectName,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .updateProjectName(xUserID, id, data, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -2102,6 +2235,27 @@ export class ProjectApi extends BaseAPI {
   ) {
     return ProjectApiFp(this.configuration)
       .getProject(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Update Project Name
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {RequestUpdateProjectName} data Update Project Name
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public updateProjectName(
+    xUserID: string,
+    id: number,
+    data: RequestUpdateProjectName,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .updateProjectName(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

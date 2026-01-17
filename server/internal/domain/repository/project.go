@@ -19,7 +19,7 @@ func NewProjectRepository(queries *sqlc.Queries) interfaces.ProjectRepository {
 	return &ProjectRepository{queries: queries}
 }
 
-func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64) (*entity.Project, error) {
+func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64) (*entity.ProjectWithEnvironments, error) {
 	project, err := pr.queries.CreateProject(ctx, sqlc.CreateProjectParams{
 		Name:           name,
 		OrganizationID: organizationId,
@@ -29,7 +29,7 @@ func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, org
 		return nil, err
 	}
 
-	return &entity.Project{
+	return &entity.ProjectWithEnvironments{
 		Id:             project.ID,
 		Name:           project.Name,
 		OrganizationId: project.OrganizationID,
@@ -37,7 +37,7 @@ func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, org
 	}, nil
 }
 
-func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, userId int64) (*entity.Project, error) {
+func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, userId int64) (*entity.ProjectWithEnvironments, error) {
 	rows, err := pr.queries.GetProject(ctx, sqlc.GetProjectParams{
 		ID:      projectId,
 		OwnerID: userId,
@@ -50,7 +50,7 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 		return nil, fmt.Errorf("project not found")
 	}
 
-	project := &entity.Project{
+	project := &entity.ProjectWithEnvironments{
 		Id:             rows[0].ID,
 		Name:           rows[0].Name,
 		OrganizationId: rows[0].OrganizationID,
@@ -69,9 +69,32 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 	return project, nil
 }
 
+func (pr *ProjectRepository) GetUserProject(ctx context.Context, userId int64, projectId int64) (*entity.Project, error) {
+	row, err := pr.queries.GetUserProject(ctx, sqlc.GetUserProjectParams{
+		UserID:    userId,
+		ProjectID: projectId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &entity.Project{
+		Id:             row.ID,
+		Name:           row.Name,
+		OrganisationId: row.OrganizationID,
+		ClusterId:      utils.PtrFromNullInt64(row.ClusterID),
+	}, nil
+}
+
 func (pr *ProjectRepository) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
 	return pr.queries.DeleteProject(ctx, sqlc.DeleteProjectParams{
 		ID:      projectId,
 		OwnerID: userId,
+	})
+}
+
+func (pr *ProjectRepository) UpdateProjectName(ctx context.Context, projectName string, projectId int64) error {
+	return pr.queries.UpdateProjectName(ctx, sqlc.UpdateProjectNameParams{
+		Name: projectName,
+		ID:   projectId,
 	})
 }

@@ -68,17 +68,17 @@ func (or *OrganizationRepository) GetUserOrganizations(ctx context.Context, user
 	return result, nil
 }
 
-func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]*entity.Project, error) {
+func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]*entity.ProjectWithEnvironments, error) {
 	rows, err := or.queries.GetOrganizationProjects(ctx, organizationID)
 	if err != nil {
 		return nil, err
 	}
 
-	projectsMap := make(map[int64]*entity.Project)
+	projectsMap := make(map[int64]*entity.ProjectWithEnvironments)
 	for _, row := range rows {
 		proj, exists := projectsMap[row.ID]
 		if !exists {
-			proj = &entity.Project{
+			proj = &entity.ProjectWithEnvironments{
 				Id:             row.ID,
 				Name:           row.Name,
 				Environments:   []*entity.Environment{},
@@ -94,7 +94,7 @@ func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, o
 		})
 	}
 
-	projects := make([]*entity.Project, 0, len(projectsMap))
+	projects := make([]*entity.ProjectWithEnvironments, 0, len(projectsMap))
 	for _, p := range projectsMap {
 		projects = append(projects, p)
 	}

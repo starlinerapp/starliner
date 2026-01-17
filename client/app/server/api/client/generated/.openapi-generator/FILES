@@ -6,7 +6,7 @@ common.ts
 configuration.ts
 docs/BuildApi.md
 docs/ClusterApi.md
-docs/DomainClusterStatus.md
+docs/EntityClusterStatus.md
 docs/EnvironmentApi.md
 docs/OrganizationApi.md
 docs/ProjectApi.md
@@ -14,6 +14,7 @@ docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateOrganization.md
 docs/RequestCreateProject.md
+docs/RequestUpdateProjectName.md
 docs/ResponseCluster.md
 docs/ResponseEnvironment.md
 docs/ResponseOrganization.md

@@ -2,11 +2,12 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                              | HTTP request              | Description    |
-| ----------------------------------- | ------------------------- | -------------- |
-| [**createProject**](#createproject) | **POST** /projects        | Create Project |
-| [**deleteProject**](#deleteproject) | **DELETE** /projects/{id} | Delete Project |
-| [**getProject**](#getproject)       | **GET** /projects/{id}    | Get Project    |
+| Method                                      | HTTP request              | Description         |
+| ------------------------------------------- | ------------------------- | ------------------- |
+| [**createProject**](#createproject)         | **POST** /projects        | Create Project      |
+| [**deleteProject**](#deleteproject)         | **DELETE** /projects/{id} | Delete Project      |
+| [**getProject**](#getproject)               | **GET** /projects/{id}    | Get Project         |
+| [**updateProjectName**](#updateprojectname) | **PUT** /projects/{id}    | Update Project Name |
 
 # **createProject**
 
@@ -137,6 +138,54 @@ No authorization required
 
 - **Content-Type**: Not defined
 - **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateProjectName**
+
+> updateProjectName(data)
+
+### Example
+
+```typescript
+import { ProjectApi, Configuration, RequestUpdateProjectName } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new ProjectApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let id: number; //Project ID (default to undefined)
+let data: RequestUpdateProjectName; //Update Project Name
+
+const { status, data } = await apiInstance.updateProjectName(xUserID, id, data);
+```
+
+### Parameters
+
+| Name        | Type                         | Description         | Notes                 |
+| ----------- | ---------------------------- | ------------------- | --------------------- |
+| **data**    | **RequestUpdateProjectName** | Update Project Name |                       |
+| **xUserID** | [**string**]                 | User ID             | defaults to undefined |
+| **id**      | [**number**]                 | Project ID          | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
 
 ### HTTP response details
 

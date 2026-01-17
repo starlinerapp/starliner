@@ -176,3 +176,48 @@ func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetPr
 	}
 	return items, nil
 }
+
+const getUserProject = `-- name: GetUserProject :one
+SELECT projects.id, projects.name, projects.organization_id, projects.created_at, projects.updated_at, projects.cluster_id
+FROM projects
+INNER JOIN organizations ON projects.organization_id = organizations.id
+INNER JOIN users ON organizations.owner_id = users.id
+WHERE users.id = $1
+AND projects.id = $2
+`
+
+type GetUserProjectParams struct {
+	UserID    int64
+	ProjectID int64
+}
+
+func (q *Queries) GetUserProject(ctx context.Context, arg GetUserProjectParams) (Project, error) {
+	row := q.db.QueryRowContext(ctx, getUserProject, arg.UserID, arg.ProjectID)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.OrganizationID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ClusterID,
+	)
+	return i, err
+}
+
+const updateProjectName = `-- name: UpdateProjectName :exec
+UPDATE projects
+SET
+    name = $1
+WHERE id = $2
+`
+
+type UpdateProjectNameParams struct {
+	Name string
+	ID   int64
+}
+
+func (q *Queries) UpdateProjectName(ctx context.Context, arg UpdateProjectNameParams) error {
+	_, err := q.db.ExecContext(ctx, updateProjectName, arg.Name, arg.ID)
+	return err
+}
