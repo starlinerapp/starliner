@@ -17,9 +17,19 @@ func NewDeploymentRepository(queries *sqlc.Queries) interfaces.DeploymentReposit
 	return &DeploymentRepository{queries: queries}
 }
 
-func (dr *DeploymentRepository) CreateDeployment(ctx context.Context, name string, environmentId int64) (deployment *entity.Deployment, err error) {
-	d, err := dr.queries.CreateDeployment(ctx, sqlc.CreateDeploymentParams{
+func (dr *DeploymentRepository) CreateDatabaseDeployment(
+	ctx context.Context,
+	name string,
+	port string,
+	username string,
+	password string,
+	environmentId int64,
+) (deployment *entity.Deployment, err error) {
+	d, err := dr.queries.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
 		Name:          name,
+		Port:          port,
+		Username:      username,
+		Password:      password,
 		EnvironmentID: environmentId,
 	})
 	if err != nil {
@@ -27,7 +37,7 @@ func (dr *DeploymentRepository) CreateDeployment(ctx context.Context, name strin
 	}
 
 	return &entity.Deployment{
-		Id:            d.ID,
+		Id:            d.DeploymentID,
 		Name:          d.Name,
 		EnvironmentId: d.EnvironmentID,
 	}, nil

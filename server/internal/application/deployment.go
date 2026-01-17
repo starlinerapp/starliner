@@ -60,7 +60,14 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	deployment, err := da.deploymentRepository.CreateDeployment(ctx, string(database), environmentId)
+	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
+		ctx,
+		string(database),
+		"5432",
+		"postgres",
+		"test",
+		environmentId,
+	)
 	if err != nil {
 		return err
 	}

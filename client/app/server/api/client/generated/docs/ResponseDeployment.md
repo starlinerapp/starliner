@@ -2,9 +2,13 @@
 
 ## Properties
 
-| Name     | Type       | Description | Notes                  |
-| -------- | ---------- | ----------- | ---------------------- |
-| **name** | **string** |             | [default to undefined] |
+| Name         | Type       | Description | Notes                  |
+| ------------ | ---------- | ----------- | ---------------------- |
+| **id**       | **number** |             | [default to undefined] |
+| **name**     | **string** |             | [default to undefined] |
+| **password** | **string** |             | [default to undefined] |
+| **port**     | **string** |             | [default to undefined] |
+| **username** | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -12,7 +16,11 @@
 import { ResponseDeployment } from "./api";
 
 const instance: ResponseDeployment = {
+  id,
   name,
+  password,
+  port,
+  username,
 };
 ```
 

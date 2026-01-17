@@ -97,10 +97,22 @@ definitions:
     - ClusterStatusDeleted
   response.Deployment:
     properties:
+      id:
+        type: integer
       name:
         type: string
+      password:
+        type: string
+      port:
+        type: string
+      username:
+        type: string
     required:
+    - id
     - name
+    - password
+    - port
+    - username
     type: object
   response.Environment:
     properties:

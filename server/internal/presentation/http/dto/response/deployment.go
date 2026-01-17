@@ -3,11 +3,21 @@ package response
 import "starliner.app/internal/domain/value"
 
 type Deployment struct {
-	Name string `json:"name" binding:"required"`
+	Id       int64  `json:"id" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Port     string `json:"port" binding:"required"`
 }
 
 func NewDeployment(deployment *value.Deployment) Deployment {
-	return Deployment{Name: deployment.Name}
+	return Deployment{
+		Id:       deployment.Id,
+		Name:     deployment.Name,
+		Username: deployment.Username,
+		Password: deployment.Password,
+		Port:     deployment.Port,
+	}
 }
 
 func NewDeployments(deployments []*value.Deployment) []Deployment {
