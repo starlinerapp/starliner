@@ -215,10 +215,34 @@ export type ResponseClusterStatus =
 export interface ResponseDeployment {
   /**
    *
+   * @type {number}
+   * @memberof ResponseDeployment
+   */
+  id: number;
+  /**
+   *
    * @type {string}
    * @memberof ResponseDeployment
    */
   name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDeployment
+   */
+  password: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDeployment
+   */
+  port: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDeployment
+   */
+  username: string;
 }
 /**
  *

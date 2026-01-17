@@ -6,5 +6,12 @@ import (
 )
 
 type DeploymentRepository interface {
-	CreateDeployment(ctx context.Context, name string, environmentId int64) (deployment *entity.Deployment, err error)
+	CreateDatabaseDeployment(
+		ctx context.Context,
+		name string,
+		port string,
+		username string,
+		password string,
+		environmentId int64,
+	) (deployment *entity.Deployment, err error)
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addEdge,
   applyEdgeChanges,
@@ -18,6 +18,7 @@ import "@xyflow/react/dist/style.css";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import type { ResponseEnvironment } from "~/server/api/client/generated";
+import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -41,6 +42,12 @@ export default function ArchitectureCanvas({
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
+  const nodeTypes: NodeTypes = useMemo(() => {
+    return {
+      database: DatabaseNode,
+    };
+  }, []);
+
   const onNodesChange: OnNodesChange = useCallback(
     (changes) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -60,9 +67,16 @@ export default function ArchitectureCanvas({
     if (!deployments) return;
 
     const newNodes = deployments.map((deployment) => ({
-      id: Math.random().toString(),
+      id: deployment.name,
+      type: "database",
       position: { x: 0, y: 0 },
-      data: { label: deployment.name },
+      data: {
+        id: deployment.id,
+        serviceName: deployment.name,
+        port: deployment.port,
+        username: deployment.username,
+        password: deployment.password,
+      },
     }));
 
     setNodes(newNodes);
@@ -73,11 +87,15 @@ export default function ArchitectureCanvas({
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         proOptions={{ hideAttribution: true }}
         fitView
+        fitViewOptions={{
+          maxZoom: 1,
+        }}
       >
         <Background gap={20} color="#84828E" variant={BackgroundVariant.Dots} />
         <Controls />

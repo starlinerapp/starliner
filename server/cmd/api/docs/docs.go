@@ -695,10 +695,26 @@ const docTemplate = `{
         "response.Deployment": {
             "type": "object",
             "required": [
-                "name"
+                "id",
+                "name",
+                "password",
+                "port",
+                "username"
             ],
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

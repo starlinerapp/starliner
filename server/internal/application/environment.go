@@ -51,10 +51,5 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		return nil, err
 	}
 
-	deploymentValues := make([]*value.Deployment, len(deployments))
-	for i, d := range deployments {
-		deploymentValues[i] = &value.Deployment{Name: d.Name}
-	}
-
-	return deploymentValues, nil
+	return value.NewDeployments(deployments), nil
 }

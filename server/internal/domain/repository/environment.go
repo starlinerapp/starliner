@@ -64,7 +64,7 @@ func (er *EnvironmentRepository) GetEnvironmentCluster(ctx context.Context, envi
 }
 
 func (er *EnvironmentRepository) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.Deployment, error) {
-	rows, err := er.queries.GetEnvironmentDeployments(ctx, sqlc.GetEnvironmentDeploymentsParams{
+	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, sqlc.GetEnvironmentDatabaseDeploymentsParams{
 		EnvironmentID: environmentId,
 		ID:            userId,
 	})
@@ -75,8 +75,11 @@ func (er *EnvironmentRepository) GetEnvironmentDeployments(ctx context.Context, 
 	deployments := make([]*entity.Deployment, len(rows))
 	for i, d := range rows {
 		deployments[i] = &entity.Deployment{
-			Id:            d.ID,
+			Id:            d.DeploymentID,
 			Name:          d.Name,
+			Username:      d.Username,
+			Password:      d.Password,
+			Port:          d.Port,
 			EnvironmentId: d.EnvironmentID,
 		}
 	}
