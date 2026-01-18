@@ -2,21 +2,17 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"starliner.app/internal/application"
-	"starliner.app/internal/conf"
-	"starliner.app/internal/domain/repository"
-	"starliner.app/internal/domain/service"
-	"starliner.app/internal/infrastructure/ansible"
-	"starliner.app/internal/infrastructure/crypto"
-	"starliner.app/internal/infrastructure/dagger"
-	"starliner.app/internal/infrastructure/dagger/impl/docker"
-	"starliner.app/internal/infrastructure/helm"
-	"starliner.app/internal/infrastructure/nats/impl/queue"
-	"starliner.app/internal/infrastructure/postgres"
-	"starliner.app/internal/infrastructure/pulumi"
-	"starliner.app/internal/infrastructure/s3"
-	"starliner.app/internal/infrastructure/ssh"
-	"starliner.app/internal/presentation/http"
+	"starliner.app/internal/api/application"
+	"starliner.app/internal/api/domain/repository"
+	"starliner.app/internal/api/domain/service"
+	"starliner.app/internal/api/presentation/http"
+	"starliner.app/internal/core/conf"
+	coreRepository "starliner.app/internal/core/domain/repository"
+	"starliner.app/internal/core/infrastructure/crypto"
+	"starliner.app/internal/core/infrastructure/nats/impl/queue"
+	"starliner.app/internal/core/infrastructure/postgres"
+	"starliner.app/internal/core/infrastructure/s3"
+	"starliner.app/internal/provisioner/infrastructure/ssh"
 )
 
 // @title Starliner API
@@ -27,14 +23,10 @@ func main() {
 		conf.Module,
 		postgres.Module,
 		queue.Module,
-		docker.Module,
-		ansible.Module,
 		s3.Module,
-		dagger.Module,
-		pulumi.Module,
-		helm.Module,
 		crypto.Module,
 		ssh.Module,
+		coreRepository.Module,
 		repository.Module,
 		application.Module,
 		service.Module,

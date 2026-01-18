@@ -37,7 +37,7 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://dev.starliner.app}
       AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
-      SERVER_BASE_URL: ${SERVER_BASE_URL:-server:9090}
+      SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
     volumes:
@@ -46,16 +46,12 @@ services:
     networks:
       - internal
 
-  server: &server
+  server-api:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: .docker/server/Dockerfile
+      dockerfile: .docker/server/api/Dockerfile
       target: dev
-      args:
-        DEBUG_PORT: 40000
-        MAIN_PKG: ./cmd/api/main.go
-        BINARY_NAME: server
     depends_on:
       db:
         condition: service_healthy
@@ -87,20 +83,101 @@ services:
     networks:
       - internal
 
-  worker:
-    <<: *server
+  server-builder:
+    restart: unless-stopped
     build:
       context: .
-      dockerfile: .docker/server/Dockerfile
+      dockerfile: .docker/server/builder/Dockerfile
       target: dev
-      args:
-        DEBUG_PORT: 40001
-        MAIN_PKG: ./cmd/worker/main.go
-        BINARY_NAME: worker
-    volumes:
-      - ./server:/app
+    depends_on:
+      s3:
+        condition: service_healthy
     ports:
       - "40001:40001"
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-main}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
+      NATS_URL: ${NATS_URL:-http://nats:4222}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
+      ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
+      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
+      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
+      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
+    volumes:
+      - ./server:/app
+    networks:
+      - internal
+
+  server-cluster:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: .docker/server/cluster/Dockerfile
+      target: dev
+    ports:
+      - "40002:40002"
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-main}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
+      NATS_URL: ${NATS_URL:-http://nats:4222}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
+      ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
+      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
+      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
+      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
+    volumes:
+      - ./server:/app
+    networks:
+      - internal
+
+  server-provisioner:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: .docker/server/provisioner/Dockerfile
+      target: dev
+    ports:
+      - "40003:40003"
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-main}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
+      NATS_URL: ${NATS_URL:-http://nats:4222}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
+      IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
+      ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
+      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
+      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
+      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
+    volumes:
+      - ./server:/app
+    networks:
+      - internal
 
   db:
     restart: unless-stopped
