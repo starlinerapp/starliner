@@ -15,7 +15,7 @@ swag: ## Generate swagger docs
 	swag init -g ./cmd/api/main.go -o ./cmd/api/docs
 
 proto: ## Generate Go code from protobufs
-	protoc --go_out=. --go_opt=paths=source_relative $(shell find ./internal/infrastructure/nats/proto/v1 -name "*.proto")
+	protoc --go_out=. --go_opt=paths=source_relative $(shell find ./internal/core/infrastructure/nats/proto/v1 -name "*.proto")
 
 lint:
 	@golangci-lint run
