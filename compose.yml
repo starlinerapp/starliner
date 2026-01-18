@@ -74,10 +74,6 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
-      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
-      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
-      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
-      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
     volumes:
       - ./server:/app
     networks:
@@ -109,9 +105,6 @@ services:
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
       _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
-      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
-      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
-      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
     volumes:
       - ./server:/app
     networks:
@@ -139,10 +132,6 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
-      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
-      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
-      PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
-      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
     volumes:
       - ./server:/app
     networks:
@@ -170,7 +159,6 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.dev:5000}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
-      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
       PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
       PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
       HCLOUD_TOKEN: ${HCLOUD_TOKEN}
