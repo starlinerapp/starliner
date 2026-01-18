@@ -31,9 +31,9 @@ func NewConsumer(
 	}
 }
 
-func (o *Consumer) Start() error {
+func (c *Consumer) Start() error {
 	go func() {
-		err := o.queue.SubscribeToBuildTriggered(o.buildApplication.HandleBuildTriggered)
+		err := c.queue.SubscribeToBuildTriggered(c.buildApplication.HandleBuildTriggered)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}

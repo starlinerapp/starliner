@@ -50,7 +50,8 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: .docker/server/Dockerfile.local
+      dockerfile: .docker/server/Dockerfile
+      target: dev
       args:
         DEBUG_PORT: 40000
         MAIN_PKG: ./cmd/api/main.go
@@ -90,7 +91,8 @@ services:
     <<: *server
     build:
       context: .
-      dockerfile: .docker/server/Dockerfile.local
+      dockerfile: .docker/server/Dockerfile
+      target: dev
       args:
         DEBUG_PORT: 40001
         MAIN_PKG: ./cmd/worker/main.go
