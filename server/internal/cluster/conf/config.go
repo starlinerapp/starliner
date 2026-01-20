@@ -1,0 +1,50 @@
+package conf
+
+import (
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"reflect"
+)
+
+type Config struct {
+	NatsUrl             string `mapstructure:"NATS_URL" validate:"required"`
+	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
+}
+
+func LoadConfig() (*Config, error) {
+	var config Config
+
+	viper.AddConfigPath("./")
+	viper.SetConfigFile(".env")
+	err := viper.ReadInConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	cfgType := reflect.TypeOf(config)
+	for i := 0; i < cfgType.NumField(); i++ {
+		if env := cfgType.Field(i).Tag.Get("mapstructure"); env != "" {
+			if err := viper.BindEnv(env); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if err := viper.Unmarshal(&config); err != nil {
+		return &config, err
+	}
+
+	if err := validator.New().Struct(config); err != nil {
+		return &config, err
+	}
+
+	return &config, nil
+}
+
+func (c *Config) GetNatsUrl() string {
+	return c.NatsUrl
+}
+
+func (c *Config) GetEncryptionKeyBase64() string {
+	return c.EncryptionKeyBase64
+}

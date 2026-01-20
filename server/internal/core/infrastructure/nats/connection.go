@@ -6,8 +6,8 @@ import (
 	"starliner.app/internal/core/conf"
 )
 
-func Connect(cfg *conf.Config) (nats.JetStreamContext, error) {
-	nc, err := nats.Connect(cfg.NatsUrl)
+func Connect(cfg conf.NatsConfig) (nats.JetStreamContext, error) {
+	nc, err := nats.Connect(cfg.GetNatsUrl())
 	if err != nil {
 		log.Printf("failed to connect to NATS: %v", err)
 		return nil, err

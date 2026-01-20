@@ -3,10 +3,10 @@ package main
 import (
 	"go.uber.org/fx"
 	"starliner.app/internal/builder/application"
+	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/infrastructure/dagger"
 	"starliner.app/internal/builder/infrastructure/dagger/impl/docker"
 	builder "starliner.app/internal/builder/presentation/queue"
-	"starliner.app/internal/core/conf"
 	"starliner.app/internal/core/infrastructure/nats/impl/queue"
 	"starliner.app/internal/core/infrastructure/s3"
 )

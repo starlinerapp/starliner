@@ -16,15 +16,15 @@ import (
 )
 
 type Crypto struct {
-	cfg *conf.Config
+	cfg conf.CryptoConfig
 }
 
-func NewCrypto(cfg *conf.Config) port.Crypto {
+func NewCrypto(cfg conf.CryptoConfig) port.Crypto {
 	return &Crypto{cfg: cfg}
 }
 
 func (c *Crypto) Encrypt(plaintext string) (string, error) {
-	encryptionKey, err := base64.StdEncoding.DecodeString(c.cfg.EncryptionKeyBase64)
+	encryptionKey, err := base64.StdEncoding.DecodeString(c.cfg.GetEncryptionKeyBase64())
 	if err != nil {
 		fmt.Printf("failed to decode encryption key: %v\n", err)
 	}
@@ -37,7 +37,7 @@ func (c *Crypto) Encrypt(plaintext string) (string, error) {
 }
 
 func (c *Crypto) Decrypt(ciphertext string) (string, error) {
-	encryptionKey, err := base64.StdEncoding.DecodeString(c.cfg.EncryptionKeyBase64)
+	encryptionKey, err := base64.StdEncoding.DecodeString(c.cfg.GetEncryptionKeyBase64())
 	if err != nil {
 		fmt.Printf("failed to decode encryption key: %v\n", err)
 	}

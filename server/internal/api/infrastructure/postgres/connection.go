@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"starliner.app/internal/core/conf"
+	"starliner.app/internal/api/conf"
 )
 
 func Connect(cfg *conf.Config) (*sql.DB, error) {

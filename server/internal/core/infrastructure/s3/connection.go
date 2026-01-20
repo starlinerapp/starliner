@@ -10,13 +10,13 @@ import (
 	"starliner.app/internal/core/conf"
 )
 
-func Connect(cfg *conf.Config) (*s3.Client, error) {
+func Connect(cfg conf.S3Config) (*s3.Client, error) {
 	awsCfg, err := awsConfig.LoadDefaultConfig(
 		context.Background(),
 		awsConfig.WithCredentialsProvider(credentials.StaticCredentialsProvider{
 			Value: aws.Credentials{
-				AccessKeyID:     cfg.AWSAccessKeyId,
-				SecretAccessKey: cfg.AWSSecretAccessKey,
+				AccessKeyID:     cfg.GetAWSAccessKeyId(),
+				SecretAccessKey: cfg.GetAWSSecretAccessKey(),
 			},
 		}),
 	)
@@ -27,7 +27,7 @@ func Connect(cfg *conf.Config) (*s3.Client, error) {
 	}
 
 	client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String(cfg.S3EndpointUrl)
+		o.BaseEndpoint = aws.String(cfg.GetS3EndpointUrl())
 		o.Region = "none"
 		o.UsePathStyle = true
 	})

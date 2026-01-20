@@ -2,10 +2,10 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"starliner.app/internal/core/conf"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/nats/impl/queue"
 	"starliner.app/internal/provisioner/application"
+	"starliner.app/internal/provisioner/conf"
 	"starliner.app/internal/provisioner/infrastructure/ansible"
 	"starliner.app/internal/provisioner/infrastructure/pulumi"
 	"starliner.app/internal/provisioner/infrastructure/ssh"
