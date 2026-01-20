@@ -8,7 +8,7 @@ CREATE TABLE clusters (
     public_key TEXT,
     private_key TEXT,
     organization_id BIGINT NOT NULL REFERENCES organizations(id),
-    pulumi_stack_id TEXT,
+    provisioning_id TEXT,
     status cluster_status NOT NULL DEFAULT 'pending',
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()

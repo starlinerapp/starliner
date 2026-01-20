@@ -5,7 +5,7 @@ import (
 )
 
 var Module = fx.Module(
-	"provisioner",
+	"queue",
 	fx.Provide(NewConsumer),
 	fx.Invoke(RegisterConsumer),
 )

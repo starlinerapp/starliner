@@ -61,7 +61,7 @@ type Cluster struct {
 	PublicKey      sql.NullString
 	PrivateKey     sql.NullString
 	OrganizationID int64
-	PulumiStackID  sql.NullString
+	ProvisioningID sql.NullString
 	Status         ClusterStatus
 	CreatedAt      time.Time
 	UpdatedAt      time.Time

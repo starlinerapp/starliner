@@ -4,16 +4,16 @@ import (
 	"context"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
-	sqlc2 "starliner.app/internal/core/infrastructure/postgres/sqlc"
+	sqlc2 "starliner.app/internal/api/infrastructure/postgres/sqlc"
 )
 
 type DeploymentRepository struct {
 	queries *sqlc2.Queries
 }
 
-var _ _interface.DeploymentRepository = (*DeploymentRepository)(nil)
+var _ interfaces.DeploymentRepository = (*DeploymentRepository)(nil)
 
-func NewDeploymentRepository(queries *sqlc2.Queries) _interface.DeploymentRepository {
+func NewDeploymentRepository(queries *sqlc2.Queries) interfaces.DeploymentRepository {
 	return &DeploymentRepository{queries: queries}
 }
 
@@ -24,7 +24,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	username string,
 	password string,
 	environmentId int64,
-) (deployment *entity.Deployment, err error) {
+) (deployment *entity.DatabaseDeployment, err error) {
 	d, err := dr.queries.CreateDatabaseDeployment(ctx, sqlc2.CreateDatabaseDeploymentParams{
 		Name:          name,
 		Port:          port,
@@ -36,9 +36,25 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 		return nil, err
 	}
 
-	return &entity.Deployment{
+	return &entity.DatabaseDeployment{
 		Id:            d.DeploymentID,
 		Name:          d.Name,
 		EnvironmentId: d.EnvironmentID,
+	}, nil
+}
+
+func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error) {
+	res, err := dr.queries.GetUserDeployment(ctx, sqlc2.GetUserDeploymentParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Deployment{
+		Name:          res.Name,
+		Port:          res.Port,
+		EnvironmentId: res.EnvironmentID,
 	}, nil
 }

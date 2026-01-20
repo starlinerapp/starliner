@@ -25,7 +25,7 @@ var Module = fx.Module(
 		return nats.EnsureStream(js, Builds, []nats.Subject{BuildTriggered})
 	}),
 	fx.Invoke(func(js natsgo.JetStreamContext) error {
-		return nats.EnsureStream(js, Clusters, []nats.Subject{CreateCluster, DeleteCluster})
+		return nats.EnsureStream(js, Clusters, []nats.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted})
 	}),
 	fx.Invoke(func(js natsgo.JetStreamContext) error {
 		return nats.EnsureStream(js, Deployments, []nats.Subject{DeployDatabase})

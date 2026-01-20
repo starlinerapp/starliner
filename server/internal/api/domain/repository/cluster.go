@@ -3,18 +3,18 @@ package repository
 import (
 	"context"
 	"starliner.app/internal/api/domain/entity"
-	_interface "starliner.app/internal/core/domain/repository/interface"
-	"starliner.app/internal/core/infrastructure/postgres/sqlc"
-	"starliner.app/internal/core/infrastructure/postgres/utils"
+	"starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type ClusterRepository struct {
 	queries *sqlc.Queries
 }
 
-var _ _interface.ClusterRepository = (*ClusterRepository)(nil)
+var _ interfaces.ClusterRepository = (*ClusterRepository)(nil)
 
-func NewClusterRepository(queries *sqlc.Queries) _interface.ClusterRepository {
+func NewClusterRepository(queries *sqlc.Queries) interfaces.ClusterRepository {
 	return &ClusterRepository{queries: queries}
 }
 
@@ -31,7 +31,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		IPv4Address:    utils.PtrFromNullString(c.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(c.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
-		PulumiStackId:  utils.PtrFromNullString(c.PulumiStackID),
+		ProvisioningId: utils.PtrFromNullString(c.ProvisioningID),
 		Kubeconfig:     utils.PtrFromNullString(c.Kubeconfig),
 		OrganizationId: c.OrganizationID,
 	}, nil
@@ -53,7 +53,7 @@ func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, c
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
-		PulumiStackId:  utils.PtrFromNullString(cluster.PulumiStackID),
+		ProvisioningId: utils.PtrFromNullString(cluster.ProvisioningID),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 }
@@ -103,9 +103,9 @@ func (cr *ClusterRepository) UpdateClusterPulumiStackId(
 	id int64,
 	pulumiStackId *string,
 ) error {
-	return cr.queries.UpdateClusterPulumiStackId(ctx, sqlc.UpdateClusterPulumiStackIdParams{
-		PulumiStackID: utils.NullStringFromPtr(pulumiStackId),
-		ID:            id,
+	return cr.queries.UpdateClusterProvisioningId(ctx, sqlc.UpdateClusterProvisioningIdParams{
+		ProvisioningID: utils.NullStringFromPtr(pulumiStackId),
+		ID:             id,
 	})
 }
 

@@ -11,14 +11,14 @@ import (
 
 type ProjectApplication struct {
 	organizationService   *service.OrganizationService
-	projectRepository     _interface.ProjectRepository
-	environmentRepository _interface.EnvironmentRepository
+	projectRepository     interfaces.ProjectRepository
+	environmentRepository interfaces.EnvironmentRepository
 }
 
 func NewProjectApplication(
 	organizationService *service.OrganizationService,
-	projectRepository _interface.ProjectRepository,
-	environmentRepository _interface.EnvironmentRepository,
+	projectRepository interfaces.ProjectRepository,
+	environmentRepository interfaces.EnvironmentRepository,
 ) *ProjectApplication {
 	return &ProjectApplication{
 		organizationService:   organizationService,

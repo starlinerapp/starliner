@@ -1,4 +1,4 @@
-package _interface
+package interfaces
 
 import (
 	"context"
@@ -13,5 +13,7 @@ type DeploymentRepository interface {
 		username string,
 		password string,
 		environmentId int64,
-	) (deployment *entity.Deployment, err error)
+	) (deployment *entity.DatabaseDeployment, err error)
+
+	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
 }

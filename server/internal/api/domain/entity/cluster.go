@@ -15,7 +15,7 @@ type Cluster struct {
 	IPv4Address    *string
 	PublicKey      *string
 	PrivateKey     *string
-	PulumiStackId  *string
+	ProvisioningId *string
 	Kubeconfig     *string
 	OrganizationId int64
 }

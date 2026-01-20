@@ -4,17 +4,17 @@ import (
 	"context"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
-	"starliner.app/internal/core/infrastructure/postgres/sqlc"
-	"starliner.app/internal/core/infrastructure/postgres/utils"
+	"starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type EnvironmentRepository struct {
 	queries *sqlc.Queries
 }
 
-var _ _interface.EnvironmentRepository = (*EnvironmentRepository)(nil)
+var _ interfaces.EnvironmentRepository = (*EnvironmentRepository)(nil)
 
-func NewEnvironmentRepository(queries *sqlc.Queries) _interface.EnvironmentRepository {
+func NewEnvironmentRepository(queries *sqlc.Queries) interfaces.EnvironmentRepository {
 	return &EnvironmentRepository{queries: queries}
 }
 
@@ -57,13 +57,13 @@ func (er *EnvironmentRepository) GetEnvironmentCluster(ctx context.Context, envi
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
-		PulumiStackId:  utils.PtrFromNullString(cluster.PulumiStackID),
+		ProvisioningId: utils.PtrFromNullString(cluster.ProvisioningID),
 		Kubeconfig:     utils.PtrFromNullString(cluster.Kubeconfig),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 }
 
-func (er *EnvironmentRepository) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.Deployment, error) {
+func (er *EnvironmentRepository) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.DatabaseDeployment, error) {
 	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, sqlc.GetEnvironmentDatabaseDeploymentsParams{
 		EnvironmentID: environmentId,
 		ID:            userId,
@@ -72,9 +72,9 @@ func (er *EnvironmentRepository) GetEnvironmentDeployments(ctx context.Context, 
 		return nil, err
 	}
 
-	deployments := make([]*entity.Deployment, len(rows))
+	deployments := make([]*entity.DatabaseDeployment, len(rows))
 	for i, d := range rows {
-		deployments[i] = &entity.Deployment{
+		deployments[i] = &entity.DatabaseDeployment{
 			Id:            d.DeploymentID,
 			Name:          d.Name,
 			Username:      d.Username,

@@ -26,6 +26,11 @@ type Cluster struct {
 	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	OrganizationName string                 `protobuf:"bytes,3,opt,name=organizationName,proto3" json:"organizationName,omitempty"`
+	ProvisioningId   string                 `protobuf:"bytes,4,opt,name=provisioningId,proto3" json:"provisioningId,omitempty"`
+	Ipv4Address      string                 `protobuf:"bytes,5,opt,name=ipv4Address,proto3" json:"ipv4Address,omitempty"`
+	PublicKey        string                 `protobuf:"bytes,6,opt,name=publicKey,proto3" json:"publicKey,omitempty"`
+	PrivateKey       string                 `protobuf:"bytes,7,opt,name=privateKey,proto3" json:"privateKey,omitempty"`
+	KubeconfigBase64 string                 `protobuf:"bytes,8,opt,name=kubeconfigBase64,proto3" json:"kubeconfigBase64,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -81,15 +86,57 @@ func (x *Cluster) GetOrganizationName() string {
 	return ""
 }
 
+func (x *Cluster) GetProvisioningId() string {
+	if x != nil {
+		return x.ProvisioningId
+	}
+	return ""
+}
+
+func (x *Cluster) GetIpv4Address() string {
+	if x != nil {
+		return x.Ipv4Address
+	}
+	return ""
+}
+
+func (x *Cluster) GetPublicKey() string {
+	if x != nil {
+		return x.PublicKey
+	}
+	return ""
+}
+
+func (x *Cluster) GetPrivateKey() string {
+	if x != nil {
+		return x.PrivateKey
+	}
+	return ""
+}
+
+func (x *Cluster) GetKubeconfigBase64() string {
+	if x != nil {
+		return x.KubeconfigBase64
+	}
+	return ""
+}
+
 var File_internal_core_infrastructure_nats_proto_v1_cluster_proto protoreflect.FileDescriptor
 
 const file_internal_core_infrastructure_nats_proto_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	"8internal/core/infrastructure/nats/proto/v1/cluster.proto\x12\bproto.v1\"Y\n" +
+	"8internal/core/infrastructure/nats/proto/v1/cluster.proto\x12\bproto.v1\"\x8d\x02\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12*\n" +
-	"\x10organizationName\x18\x03 \x01(\tR\x10organizationNameB\x18Z\x16starliner.app/proto/v1b\x06proto3"
+	"\x10organizationName\x18\x03 \x01(\tR\x10organizationName\x12&\n" +
+	"\x0eprovisioningId\x18\x04 \x01(\tR\x0eprovisioningId\x12 \n" +
+	"\vipv4Address\x18\x05 \x01(\tR\vipv4Address\x12\x1c\n" +
+	"\tpublicKey\x18\x06 \x01(\tR\tpublicKey\x12\x1e\n" +
+	"\n" +
+	"privateKey\x18\a \x01(\tR\n" +
+	"privateKey\x12*\n" +
+	"\x10kubeconfigBase64\x18\b \x01(\tR\x10kubeconfigBase64B\x18Z\x16starliner.app/proto/v1b\x06proto3"
 
 var (
 	file_internal_core_infrastructure_nats_proto_v1_cluster_proto_rawDescOnce sync.Once

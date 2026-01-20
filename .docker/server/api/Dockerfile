@@ -35,7 +35,7 @@ WORKDIR /app
 
 COPY --from=builder /app/api ./api
 COPY ../../../server/.env .env
-COPY ../../../server/internal/core/infrastructure/postgres/migrations ./internal/core/infrastructure/postgres/migrations
+COPY ../../../server/internal/api/infrastructure/postgres/migrations ./internal/api/infrastructure/postgres/migrations
 COPY --from=dev /go/bin/goose /usr/local/bin/goose
 
 ENTRYPOINT [ "./api" ]

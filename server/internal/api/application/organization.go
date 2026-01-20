@@ -9,12 +9,12 @@ import (
 )
 
 type OrganizationApplication struct {
-	organizationRepository _interface.OrganizationRepository
+	organizationRepository interfaces.OrganizationRepository
 	organizationService    *service.OrganizationService
 }
 
 func NewOrganizationApplication(
-	organizationRepository _interface.OrganizationRepository,
+	organizationRepository interfaces.OrganizationRepository,
 	organizationService *service.OrganizationService,
 ) *OrganizationApplication {
 	return &OrganizationApplication{
