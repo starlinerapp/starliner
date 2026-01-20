@@ -7,10 +7,10 @@ import (
 )
 
 type EnvironmentService struct {
-	environmentRepository _interface.EnvironmentRepository
+	environmentRepository interfaces.EnvironmentRepository
 }
 
-func NewEnvironmentService(environmentRepository _interface.EnvironmentRepository) *EnvironmentService {
+func NewEnvironmentService(environmentRepository interfaces.EnvironmentRepository) *EnvironmentService {
 	return &EnvironmentService{
 		environmentRepository: environmentRepository,
 	}

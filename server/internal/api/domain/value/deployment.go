@@ -4,7 +4,7 @@ import (
 	"starliner.app/internal/api/domain/entity"
 )
 
-type Deployment struct {
+type DatabaseDeployment struct {
 	Id       int64
 	Name     string
 	Username string
@@ -12,8 +12,8 @@ type Deployment struct {
 	Port     string
 }
 
-func NewDeployment(d *entity.Deployment) *Deployment {
-	return &Deployment{
+func NewDatabaseDeployment(d *entity.DatabaseDeployment) *DatabaseDeployment {
+	return &DatabaseDeployment{
 		Id:       d.Id,
 		Name:     d.Name,
 		Username: d.Username,
@@ -22,10 +22,10 @@ func NewDeployment(d *entity.Deployment) *Deployment {
 	}
 }
 
-func NewDeployments(ds []*entity.Deployment) []*Deployment {
-	deployments := make([]*Deployment, len(ds))
+func NewDatabaseDeployments(ds []*entity.DatabaseDeployment) []*DatabaseDeployment {
+	deployments := make([]*DatabaseDeployment, len(ds))
 	for i, d := range ds {
-		deployments[i] = NewDeployment(d)
+		deployments[i] = NewDatabaseDeployment(d)
 	}
 	return deployments
 }

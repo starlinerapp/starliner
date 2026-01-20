@@ -8,23 +8,23 @@ import (
 	"fmt"
 	"log"
 	"starliner.app/internal/api/domain/entity"
+	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
-	"starliner.app/internal/core/domain/repository/interface"
 	coreValue "starliner.app/internal/core/domain/value"
 	"strconv"
 )
 
 type ClusterApplication struct {
-	clusterRepository   _interface.ClusterRepository
+	clusterRepository   interfaces.ClusterRepository
 	organizationService *service.OrganizationService
 	crypto              port.Crypto
 	queue               port.Queue
 }
 
 func NewClusterApplication(
-	clusterRepository _interface.ClusterRepository,
+	clusterRepository interfaces.ClusterRepository,
 	organizationService *service.OrganizationService,
 	crypto port.Crypto,
 	queue port.Queue,
@@ -48,7 +48,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
 
-	err = ca.queue.PublishCreateCluster(&coreValue.Cluster{
+	err = ca.queue.PublishCreateCluster(&coreValue.ProvisionCluster{
 		Id:               cluster.Id,
 		Name:             cluster.Name,
 		OrganizationName: strconv.FormatInt(cluster.OrganizationId, 10),
@@ -118,14 +118,58 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 		return err
 	}
 
-	err = ca.queue.PublishDeleteCluster(&coreValue.Cluster{
-		Id:               cluster.Id,
-		Name:             cluster.Name,
-		OrganizationName: strconv.FormatInt(cluster.OrganizationId, 10),
+	err = ca.queue.PublishDeleteCluster(&coreValue.DeleteCluster{
+		Id:             cluster.Id,
+		ProvisioningId: *cluster.ProvisioningId,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
 	}
 
 	return nil
+}
+
+func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) {
+	ctx := context.Background()
+	err := ca.clusterRepository.UpdateClusterPulumiStackId(ctx, c.Id, &c.ProvisioningId)
+	if err != nil {
+		fmt.Printf("failed to persist provisioning id: %v\n", err)
+	}
+
+	err = ca.clusterRepository.UpdateClusterIPv4Address(ctx, c.Id, &c.IPv4Address)
+	if err != nil {
+		fmt.Printf("Failed to persist cluster ip address: %v\n", err)
+	}
+
+	encryptedPrivKeyStr, err := ca.crypto.Encrypt(c.PrivateKey)
+	if err != nil {
+		log.Printf("failed to encrypt private key: %v\n", err)
+	}
+	err = ca.clusterRepository.UpdateClusterPublicPrivateKey(ctx, c.Id, &c.PublicKey, &encryptedPrivKeyStr)
+	if err != nil {
+		fmt.Printf("failed to persist cluster public private key: %v\n", err)
+	}
+
+	encryptedKubeconfig, err := ca.crypto.Encrypt(c.KubeconfigBase64)
+	if err != nil {
+		log.Printf("failed to encrypt kubeconfig: %v\n", err)
+	}
+	err = ca.clusterRepository.UpdateClusterKubeconfig(ctx, c.Id, &encryptedKubeconfig)
+	if err != nil {
+		fmt.Printf("Failed to persist kubeconfig: %v\n", err)
+	}
+
+	err = ca.clusterRepository.UpdateClusterStatus(ctx, c.Id, entity.ClusterRunning)
+	if err != nil {
+		fmt.Printf("Failed to update cluster status: %v\n", err)
+	}
+}
+
+func (ca *ClusterApplication) HandleClusterDeleted(c *coreValue.ClusterDeleted) {
+	ctx := context.Background()
+	err := ca.clusterRepository.DeleteCluster(ctx, c.Id)
+	if err != nil {
+		fmt.Printf("failed to delete cluster from database: %v\n", err)
+		return
+	}
 }

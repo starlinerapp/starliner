@@ -7,10 +7,10 @@ import (
 )
 
 type UserApplication struct {
-	userRepository _interface.UserRepository
+	userRepository interfaces.UserRepository
 }
 
-func NewUserApplication(userRepository _interface.UserRepository) *UserApplication {
+func NewUserApplication(userRepository interfaces.UserRepository) *UserApplication {
 	return &UserApplication{userRepository: userRepository}
 }
 

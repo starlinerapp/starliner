@@ -12,7 +12,7 @@ type Deployment struct {
 	Port     string `json:"port" binding:"required"`
 }
 
-func NewDeployment(deployment *value.Deployment) Deployment {
+func NewDeployment(deployment *value.DatabaseDeployment) Deployment {
 	return Deployment{
 		Id:       deployment.Id,
 		Name:     deployment.Name,
@@ -22,7 +22,7 @@ func NewDeployment(deployment *value.Deployment) Deployment {
 	}
 }
 
-func NewDeployments(deployments []*value.Deployment) []Deployment {
+func NewDeployments(deployments []*value.DatabaseDeployment) []Deployment {
 	var result []Deployment
 	for _, deployment := range deployments {
 		result = append(result, NewDeployment(deployment))

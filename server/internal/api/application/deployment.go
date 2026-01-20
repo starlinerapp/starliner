@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 	"log"
-	interfaces2 "starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
@@ -11,22 +11,28 @@ import (
 
 type DeploymentApplication struct {
 	environmentService    *service.EnvironmentService
-	environmentRepository interfaces2.EnvironmentRepository
-	deploymentRepository  interfaces2.DeploymentRepository
+	deploymentService     *service.DeploymentService
+	environmentRepository interfaces.EnvironmentRepository
+	deploymentRepository  interfaces.DeploymentRepository
 	queue                 port.Queue
+	crypto                port.Crypto
 }
 
 func NewDeploymentApplication(
 	environmentService *service.EnvironmentService,
-	environmentRepository interfaces2.EnvironmentRepository,
-	deploymentRepository interfaces2.DeploymentRepository,
+	deploymentService *service.DeploymentService,
+	environmentRepository interfaces.EnvironmentRepository,
+	deploymentRepository interfaces.DeploymentRepository,
 	queue port.Queue,
+	crypto port.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		environmentService:    environmentService,
+		deploymentService:     deploymentService,
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
 		queue:                 queue,
+		crypto:                crypto,
 	}
 }
 
@@ -58,13 +64,27 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
 	err = da.queue.PublishDeployDatabase(&value.Deployment{
-		DeploymentId: deployment.Id,
-		ClusterId:    cluster.Id,
-		Database:     database,
+		DeploymentId:     deployment.Id,
+		KubeconfigBase64: kubeconfigBase64,
+		Database:         database,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
+	}
+
+	return nil
+}
+
+func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentId int64, userId int64) error {
+	err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId)
+	if err != nil {
+		return err
 	}
 
 	return nil

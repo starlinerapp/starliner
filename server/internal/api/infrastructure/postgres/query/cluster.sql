@@ -9,7 +9,7 @@ INSERT INTO clusters (
 RETURNING *;
 
 -- name: GetUserCluster :one
-SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.pulumi_stack_id
+SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id
 FROM clusters c
 LEFT JOIN organizations o ON c.organization_id = o.id
 WHERE o.owner_id = $1
@@ -46,10 +46,10 @@ SET
     ipv4_address = $1
 WHERE id = $2;
 
--- name: UpdateClusterPulumiStackId :exec
+-- name: UpdateClusterProvisioningId :exec
 UPDATE clusters
 SET
-    pulumi_stack_id = $1
+    provisioning_id = $1
 WHERE id = $2;
 
 -- name: UpdateClusterStatus :exec

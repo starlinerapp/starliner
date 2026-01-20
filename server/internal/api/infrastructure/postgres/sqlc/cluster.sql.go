@@ -18,7 +18,7 @@ INSERT INTO clusters (
     $1,
     $2
  )
-RETURNING id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, status, created_at, updated_at, kubeconfig
+RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig
 `
 
 type CreateClusterParams struct {
@@ -36,7 +36,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		&i.PublicKey,
 		&i.PrivateKey,
 		&i.OrganizationID,
-		&i.PulumiStackID,
+		&i.ProvisioningID,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -57,7 +57,7 @@ func (q *Queries) DeleteCluster(ctx context.Context, id int64) error {
 }
 
 const getCluster = `-- name: GetCluster :one
-SELECT id, name, ipv4_address, public_key, private_key, organization_id, pulumi_stack_id, status, created_at, updated_at, kubeconfig
+SELECT id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig
 FROM clusters
 WHERE id = $1
 `
@@ -72,7 +72,7 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.PublicKey,
 		&i.PrivateKey,
 		&i.OrganizationID,
-		&i.PulumiStackID,
+		&i.ProvisioningID,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -120,7 +120,7 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 }
 
 const getUserCluster = `-- name: GetUserCluster :one
-SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.pulumi_stack_id
+SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id
 FROM clusters c
 LEFT JOIN organizations o ON c.organization_id = o.id
 WHERE o.owner_id = $1
@@ -140,7 +140,7 @@ type GetUserClusterRow struct {
 	PrivateKey     sql.NullString
 	OrganizationID int64
 	Status         ClusterStatus
-	PulumiStackID  sql.NullString
+	ProvisioningID sql.NullString
 }
 
 func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) (GetUserClusterRow, error) {
@@ -154,7 +154,7 @@ func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) 
 		&i.PrivateKey,
 		&i.OrganizationID,
 		&i.Status,
-		&i.PulumiStackID,
+		&i.ProvisioningID,
 	)
 	return i, err
 }
@@ -193,6 +193,23 @@ func (q *Queries) UpdateClusterKubeconfig(ctx context.Context, arg UpdateCluster
 	return err
 }
 
+const updateClusterProvisioningId = `-- name: UpdateClusterProvisioningId :exec
+UPDATE clusters
+SET
+    provisioning_id = $1
+WHERE id = $2
+`
+
+type UpdateClusterProvisioningIdParams struct {
+	ProvisioningID sql.NullString
+	ID             int64
+}
+
+func (q *Queries) UpdateClusterProvisioningId(ctx context.Context, arg UpdateClusterProvisioningIdParams) error {
+	_, err := q.db.ExecContext(ctx, updateClusterProvisioningId, arg.ProvisioningID, arg.ID)
+	return err
+}
+
 const updateClusterPublicPrivateKeys = `-- name: UpdateClusterPublicPrivateKeys :exec
 UPDATE clusters
 SET
@@ -209,23 +226,6 @@ type UpdateClusterPublicPrivateKeysParams struct {
 
 func (q *Queries) UpdateClusterPublicPrivateKeys(ctx context.Context, arg UpdateClusterPublicPrivateKeysParams) error {
 	_, err := q.db.ExecContext(ctx, updateClusterPublicPrivateKeys, arg.PublicKey, arg.PrivateKey, arg.ID)
-	return err
-}
-
-const updateClusterPulumiStackId = `-- name: UpdateClusterPulumiStackId :exec
-UPDATE clusters
-SET
-    pulumi_stack_id = $1
-WHERE id = $2
-`
-
-type UpdateClusterPulumiStackIdParams struct {
-	PulumiStackID sql.NullString
-	ID            int64
-}
-
-func (q *Queries) UpdateClusterPulumiStackId(ctx context.Context, arg UpdateClusterPulumiStackIdParams) error {
-	_, err := q.db.ExecContext(ctx, updateClusterPulumiStackId, arg.PulumiStackID, arg.ID)
 	return err
 }
 

@@ -1,17 +1,25 @@
 package port
 
 import (
-	value2 "starliner.app/internal/core/domain/value"
+	"starliner.app/internal/core/domain/value"
 )
 
 type Queue interface {
-	PublishBuildTriggered(build *value2.Build) error
-	PublishCreateCluster(cluster *value2.Cluster) error
-	PublishDeleteCluster(cluster *value2.Cluster) error
-	PublishDeployDatabase(deployment *value2.Deployment) error
+	PublishBuildTriggered(build *value.Build) error
+	SubscribeToBuildTriggered(handler func(build *value.Build)) error
 
-	SubscribeToBuildTriggered(handler func(build *value2.Build)) error
-	SubscribeToCreateCluster(handler func(cluster *value2.Cluster)) error
-	SubscribeToDeleteCluster(handler func(cluster *value2.Cluster)) error
-	SubscribeToDeployDatabase(handler func(deployment *value2.Deployment)) error
+	PublishCreateCluster(cluster *value.ProvisionCluster) error
+	SubscribeToCreateCluster(handler func(cluster *value.ProvisionCluster)) error
+
+	PublishClusterCreated(cluster *value.ClusterCreated) error
+	SubscribeToClusterCreated(handler func(cluster *value.ClusterCreated)) error
+
+	PublishClusterDeleted(cluster *value.ClusterDeleted) error
+	SubscribeToClusterDeleted(handler func(cluster *value.ClusterDeleted)) error
+
+	PublishDeleteCluster(cluster *value.DeleteCluster) error
+	SubscribeToDeleteCluster(handler func(cluster *value.DeleteCluster)) error
+
+	PublishDeployDatabase(deployment *value.Deployment) error
+	SubscribeToDeployDatabase(handler func(deployment *value.Deployment)) error
 }

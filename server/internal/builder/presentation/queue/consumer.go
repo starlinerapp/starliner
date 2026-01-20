@@ -13,10 +13,10 @@ type Consumer struct {
 	buildApplication *application.BuildApplication
 }
 
-func RegisterConsumer(lc fx.Lifecycle, o *Consumer) {
+func RegisterConsumer(lc fx.Lifecycle, c *Consumer) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			return o.Start()
+			return c.Start()
 		},
 	})
 }

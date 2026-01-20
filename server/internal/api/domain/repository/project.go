@@ -5,22 +5,22 @@ import (
 	"fmt"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
-	"starliner.app/internal/core/infrastructure/postgres/sqlc"
-	"starliner.app/internal/core/infrastructure/postgres/utils"
+	sqlc2 "starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type ProjectRepository struct {
-	queries *sqlc.Queries
+	queries *sqlc2.Queries
 }
 
-var _ _interface.ProjectRepository = (*ProjectRepository)(nil)
+var _ interfaces.ProjectRepository = (*ProjectRepository)(nil)
 
-func NewProjectRepository(queries *sqlc.Queries) _interface.ProjectRepository {
+func NewProjectRepository(queries *sqlc2.Queries) interfaces.ProjectRepository {
 	return &ProjectRepository{queries: queries}
 }
 
 func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64) (*entity.Project, error) {
-	project, err := pr.queries.CreateProject(ctx, sqlc.CreateProjectParams{
+	project, err := pr.queries.CreateProject(ctx, sqlc2.CreateProjectParams{
 		Name:           name,
 		OrganizationID: organizationId,
 		ClusterID:      utils.NullInt64FromPtr(&clusterId),
@@ -38,7 +38,7 @@ func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, org
 }
 
 func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, userId int64) (*entity.Project, error) {
-	rows, err := pr.queries.GetProject(ctx, sqlc.GetProjectParams{
+	rows, err := pr.queries.GetProject(ctx, sqlc2.GetProjectParams{
 		ID:      projectId,
 		OwnerID: userId,
 	})
@@ -70,7 +70,7 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 }
 
 func (pr *ProjectRepository) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
-	return pr.queries.DeleteProject(ctx, sqlc.DeleteProjectParams{
+	return pr.queries.DeleteProject(ctx, sqlc2.DeleteProjectParams{
 		ID:      projectId,
 		OwnerID: userId,
 	})

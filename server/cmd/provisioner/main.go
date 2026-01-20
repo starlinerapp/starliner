@@ -3,10 +3,8 @@ package main
 import (
 	"go.uber.org/fx"
 	"starliner.app/internal/core/conf"
-	"starliner.app/internal/core/domain/repository"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/nats/impl/queue"
-	"starliner.app/internal/core/infrastructure/postgres"
 	"starliner.app/internal/provisioner/application"
 	"starliner.app/internal/provisioner/infrastructure/ansible"
 	"starliner.app/internal/provisioner/infrastructure/pulumi"
@@ -22,8 +20,6 @@ func main() {
 		queue.Module,
 		pulumi.Module,
 		ansible.Module,
-		postgres.Module,
-		repository.Module,
 		application.Module,
 		provisioner.Module,
 	).Run()

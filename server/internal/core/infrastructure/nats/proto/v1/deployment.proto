@@ -11,6 +11,6 @@ enum DatabaseType {
 
 message Deployment {
   int64 deploymentId = 1;
-  int64 clusterId = 2;
+  string kubeconfigBase64  = 2;
   DatabaseType database = 3;
 }

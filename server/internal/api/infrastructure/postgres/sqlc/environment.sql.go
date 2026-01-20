@@ -75,7 +75,7 @@ func (q *Queries) GetEnvironmentAuthorizedUsers(ctx context.Context, id int64) (
 }
 
 const getEnvironmentCluster = `-- name: GetEnvironmentCluster :one
-SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.pulumi_stack_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig
 FROM environments
 INNER JOIN projects ON projects.id = environments.project_id
 INNER JOIN clusters ON projects.cluster_id = clusters.id
@@ -92,7 +92,7 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 		&i.PublicKey,
 		&i.PrivateKey,
 		&i.OrganizationID,
-		&i.PulumiStackID,
+		&i.ProvisioningID,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,

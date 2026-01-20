@@ -10,11 +10,11 @@ import (
 
 type EnvironmentApplication struct {
 	organizationService   *service.OrganizationService
-	environmentRepository _interface.EnvironmentRepository
+	environmentRepository interfaces.EnvironmentRepository
 }
 
 func NewEnvironmentApplication(
-	environmentRepository _interface.EnvironmentRepository,
+	environmentRepository interfaces.EnvironmentRepository,
 	organizationService *service.OrganizationService,
 ) *EnvironmentApplication {
 	return &EnvironmentApplication{
@@ -45,11 +45,11 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 	return nil
 }
 
-func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*value.Deployment, error) {
+func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*value.DatabaseDeployment, error) {
 	deployments, err := ea.environmentRepository.GetEnvironmentDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return value.NewDeployments(deployments), nil
+	return value.NewDatabaseDeployments(deployments), nil
 }

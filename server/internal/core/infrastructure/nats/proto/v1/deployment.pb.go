@@ -68,12 +68,12 @@ func (DatabaseType) EnumDescriptor() ([]byte, []int) {
 }
 
 type Deployment struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DeploymentId  int64                  `protobuf:"varint,1,opt,name=deploymentId,proto3" json:"deploymentId,omitempty"`
-	ClusterId     int64                  `protobuf:"varint,2,opt,name=clusterId,proto3" json:"clusterId,omitempty"`
-	Database      DatabaseType           `protobuf:"varint,3,opt,name=database,proto3,enum=proto.v1.DatabaseType" json:"database,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	DeploymentId     int64                  `protobuf:"varint,1,opt,name=deploymentId,proto3" json:"deploymentId,omitempty"`
+	KubeconfigBase64 string                 `protobuf:"bytes,2,opt,name=kubeconfigBase64,proto3" json:"kubeconfigBase64,omitempty"`
+	Database         DatabaseType           `protobuf:"varint,3,opt,name=database,proto3,enum=proto.v1.DatabaseType" json:"database,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Deployment) Reset() {
@@ -113,11 +113,11 @@ func (x *Deployment) GetDeploymentId() int64 {
 	return 0
 }
 
-func (x *Deployment) GetClusterId() int64 {
+func (x *Deployment) GetKubeconfigBase64() string {
 	if x != nil {
-		return x.ClusterId
+		return x.KubeconfigBase64
 	}
-	return 0
+	return ""
 }
 
 func (x *Deployment) GetDatabase() DatabaseType {
@@ -131,11 +131,11 @@ var File_internal_core_infrastructure_nats_proto_v1_deployment_proto protoreflec
 
 const file_internal_core_infrastructure_nats_proto_v1_deployment_proto_rawDesc = "" +
 	"\n" +
-	";internal/core/infrastructure/nats/proto/v1/deployment.proto\x12\bproto.v1\"\x82\x01\n" +
+	";internal/core/infrastructure/nats/proto/v1/deployment.proto\x12\bproto.v1\"\x90\x01\n" +
 	"\n" +
 	"Deployment\x12\"\n" +
-	"\fdeploymentId\x18\x01 \x01(\x03R\fdeploymentId\x12\x1c\n" +
-	"\tclusterId\x18\x02 \x01(\x03R\tclusterId\x122\n" +
+	"\fdeploymentId\x18\x01 \x01(\x03R\fdeploymentId\x12*\n" +
+	"\x10kubeconfigBase64\x18\x02 \x01(\tR\x10kubeconfigBase64\x122\n" +
 	"\bdatabase\x18\x03 \x01(\x0e2\x16.proto.v1.DatabaseTypeR\bdatabase*-\n" +
 	"\fDatabaseType\x12\x0f\n" +
 	"\vUNSPECIFIED\x10\x00\x12\f\n" +

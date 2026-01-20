@@ -4,21 +4,21 @@ import (
 	"context"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
-	"starliner.app/internal/core/infrastructure/postgres/sqlc"
+	sqlc2 "starliner.app/internal/api/infrastructure/postgres/sqlc"
 )
 
 type OrganizationRepository struct {
-	queries *sqlc.Queries
+	queries *sqlc2.Queries
 }
 
-var _ _interface.OrganizationRepository = (*OrganizationRepository)(nil)
+var _ interfaces.OrganizationRepository = (*OrganizationRepository)(nil)
 
-func NewOrganizationRepository(queries *sqlc.Queries) _interface.OrganizationRepository {
+func NewOrganizationRepository(queries *sqlc2.Queries) interfaces.OrganizationRepository {
 	return &OrganizationRepository{queries: queries}
 }
 
 func (or *OrganizationRepository) CreateOrganization(ctx context.Context, name string, slug string, ownerID int64) (*entity.Organization, error) {
-	organization, err := or.queries.CreateOrganization(ctx, sqlc.CreateOrganizationParams{
+	organization, err := or.queries.CreateOrganization(ctx, sqlc2.CreateOrganizationParams{
 		Name:    name,
 		Slug:    slug,
 		OwnerID: ownerID,
