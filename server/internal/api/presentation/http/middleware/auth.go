@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"starliner.app/internal/core/conf"
+	"starliner.app/internal/api/conf"
 )
 
 type BasicAuthMiddleware struct {

@@ -3,12 +3,12 @@ package main
 import (
 	"go.uber.org/fx"
 	"starliner.app/internal/api/application"
+	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/repository"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/infrastructure/postgres"
 	"starliner.app/internal/api/presentation/http"
 	"starliner.app/internal/api/presentation/queue/cluster"
-	"starliner.app/internal/core/conf"
 	"starliner.app/internal/core/infrastructure/crypto"
 	nats "starliner.app/internal/core/infrastructure/nats/impl/queue"
 	"starliner.app/internal/core/infrastructure/s3"
