@@ -319,7 +319,27 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Deploy databases
+      summary: Deploy database
+      tags:
+      - deployment
+  /deployments/databases/{id}:
+    delete:
+      operationId: deleteDatabase
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Delete database
       tags:
       - deployment
   /environments:

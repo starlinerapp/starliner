@@ -198,7 +198,7 @@ const docTemplate = `{
                 "tags": [
                     "deployment"
                 ],
-                "summary": "Deploy databases",
+                "summary": "Deploy database",
                 "operationId": "deployDatabase",
                 "parameters": [
                     {
@@ -216,6 +216,36 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/request.DeployDatabase"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/databases/{id}": {
+            "delete": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Delete database",
+                "operationId": "deleteDatabase",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {

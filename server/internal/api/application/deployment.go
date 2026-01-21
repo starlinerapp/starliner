@@ -52,6 +52,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	// TODO: Replace with real values
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
 		string(database),
@@ -72,7 +73,6 @@ func (da *DeploymentApplication) DeployDatabase(
 	err = da.queue.PublishDeployDatabase(&value.Deployment{
 		DeploymentId:     deployment.Id,
 		KubeconfigBase64: kubeconfigBase64,
-		Database:         database,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
@@ -85,6 +85,23 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 	err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId)
 	if err != nil {
 		return err
+	}
+
+	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+	err = da.queue.PublishDeleteDatabase(&value.Deployment{
+		DeploymentId:     deploymentId,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+	if err != nil {
+		log.Printf("error publishing: %v", err)
 	}
 
 	return nil

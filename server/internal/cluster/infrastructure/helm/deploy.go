@@ -74,14 +74,37 @@ func (d *Deploy) DeployPostgres(releaseName string, kubeconfigPath string) error
 	}
 
 	install := action.NewInstall(actionConfig)
-	release := "postgres-" + releaseName
 
-	install.ReleaseName = release
+	install.ReleaseName = releaseName
 	install.Namespace = "default"
 	install.WaitStrategy = "watcher"
 
-	log.Println("Installing helm chart " + release + "...")
+	log.Println("Installing helm chart " + releaseName + "...")
 	_, err = install.Run(chart, map[string]interface{}{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *Deploy) DeletePostgres(releaseName string, kubeconfigPath string) error {
+	configFlags := genericclioptions.NewConfigFlags(false)
+	configFlags.KubeConfig = &kubeconfigPath
+
+	actionConfig := new(action.Configuration)
+	if err := actionConfig.Init(
+		configFlags,
+		"default",
+		"secret",
+	); err != nil {
+		return err
+	}
+
+	uninstall := action.NewUninstall(actionConfig)
+	uninstall.WaitStrategy = "watcher"
+
+	_, err := uninstall.Run(releaseName)
 	if err != nil {
 		return err
 	}

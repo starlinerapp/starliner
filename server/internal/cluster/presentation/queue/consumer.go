@@ -38,5 +38,11 @@ func (c *Consumer) Start() error {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}
 	}()
+	go func() {
+		err := c.queue.SubscribeToDeleteDatabase(c.deploymentApplication.HandleDeleteDatabase)
+		if err != nil {
+			log.Fatalf("failed to subscribe to queue: %v", err)
+		}
+	}()
 	return nil
 }
