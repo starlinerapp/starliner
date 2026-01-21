@@ -22,4 +22,7 @@ type Queue interface {
 
 	PublishDeployDatabase(deployment *value.Deployment) error
 	SubscribeToDeployDatabase(handler func(deployment *value.Deployment)) error
+
+	PublishDeleteDatabase(deployment *value.Deployment) error
+	SubscribeToDeleteDatabase(handler func(deployment *value.Deployment)) error
 }

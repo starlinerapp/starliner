@@ -16,6 +16,7 @@ const (
 	DeleteCluster  nats.Subject = "delete.cluster"
 	ClusterDeleted nats.Subject = "cluster.deleted"
 	DeployDatabase nats.Subject = "deploy.database"
+	DeleteDatabase nats.Subject = "delete.database"
 )
 
 type Queue struct {
@@ -137,20 +138,9 @@ func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *value.DeleteClust
 }
 
 func (q *Queue) PublishDeployDatabase(deployment *value.Deployment) error {
-	var valueToProto = map[value.Database]v1.DatabaseType{
-		value.Postgres: v1.DatabaseType_POSTGRES,
-	}
-	protoDB := func() v1.DatabaseType {
-		if db, ok := valueToProto[deployment.Database]; ok {
-			return db
-		}
-		return v1.DatabaseType_UNSPECIFIED
-	}()
-
 	return q.deploymentPublisher.Publish(DeployDatabase, "*", &v1.Deployment{
 		DeploymentId:     deployment.DeploymentId,
 		KubeconfigBase64: deployment.KubeconfigBase64,
-		Database:         protoDB,
 	})
 }
 
@@ -159,7 +149,22 @@ func (q *Queue) SubscribeToDeployDatabase(handler func(deployment *value.Deploym
 		handler(&value.Deployment{
 			DeploymentId:     cluster.DeploymentId,
 			KubeconfigBase64: cluster.KubeconfigBase64,
-			Database:         value.Database(cluster.Database),
+		})
+	})
+}
+
+func (q *Queue) PublishDeleteDatabase(deployment *value.Deployment) error {
+	return q.deploymentPublisher.Publish(DeleteDatabase, "*", &v1.Deployment{
+		DeploymentId:     deployment.DeploymentId,
+		KubeconfigBase64: deployment.KubeconfigBase64,
+	})
+}
+
+func (q *Queue) SubscribeToDeleteDatabase(handler func(deployment *value.Deployment)) error {
+	return q.deploymentSubscriber.Subscribe(DeleteDatabase, "*", "deleteDatabase", func(cluster *v1.Deployment) {
+		handler(&value.Deployment{
+			DeploymentId:     cluster.DeploymentId,
+			KubeconfigBase64: cluster.KubeconfigBase64,
 		})
 	})
 }

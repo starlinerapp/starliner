@@ -58,6 +58,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 // @Tags deployment
 // @ID deleteDatabase
 // @Param X-User-ID header string true "User ID"
+// @Param id path int true "Deployment ID"
 // @Product JSON
 // @Success 200
 // @Router /deployments/databases/{id} [delete]

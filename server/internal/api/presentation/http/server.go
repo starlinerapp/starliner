@@ -76,6 +76,7 @@ func NewServer(
 	deploymentRoutes := engine.Group("/deployments")
 	{
 		deploymentRoutes.POST("/databases", deploymentHandler.DeployDatabase)
+		deploymentRoutes.DELETE("/databases/:id", deploymentHandler.DeleteDatabase)
 	}
 
 	return &Server{engine: engine}

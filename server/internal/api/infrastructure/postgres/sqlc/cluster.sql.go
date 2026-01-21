@@ -81,6 +81,36 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 	return i, err
 }
 
+const getDeploymentCluster = `-- name: GetDeploymentCluster :one
+SELECT
+    clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig
+FROM clusters
+INNER JOIN organizations ON organizations.id = clusters.organization_id
+INNER JOIN projects ON projects.organization_id = organizations.id
+INNER JOIN environments ON projects.id = environments.project_id
+INNER JOIN deployments ON environments.id = deployments.environment_id
+WHERE deployments.id = $1
+`
+
+func (q *Queries) GetDeploymentCluster(ctx context.Context, deploymentID int64) (Cluster, error) {
+	row := q.db.QueryRowContext(ctx, getDeploymentCluster, deploymentID)
+	var i Cluster
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Ipv4Address,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.OrganizationID,
+		&i.ProvisioningID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Kubeconfig,
+	)
+	return i, err
+}
+
 const getOrganizationClusters = `-- name: GetOrganizationClusters :many
 SELECT
     clusters.id as id,

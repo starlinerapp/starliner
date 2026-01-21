@@ -5,6 +5,7 @@ import (
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	sqlc2 "starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type DeploymentRepository struct {
@@ -56,5 +57,24 @@ func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId in
 		Name:          res.Name,
 		Port:          res.Port,
 		EnvironmentId: res.EnvironmentID,
+	}, nil
+}
+
+func (dr *DeploymentRepository) GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error) {
+	res, err := dr.queries.GetDeploymentCluster(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Cluster{
+		Id:             res.ID,
+		Name:           res.Name,
+		Status:         entity.ClusterStatus(res.Status),
+		IPv4Address:    utils.PtrFromNullString(res.Ipv4Address),
+		PublicKey:      utils.PtrFromNullString(res.PublicKey),
+		PrivateKey:     utils.PtrFromNullString(res.PrivateKey),
+		ProvisioningId: utils.PtrFromNullString(res.ProvisioningID),
+		Kubeconfig:     utils.PtrFromNullString(res.Kubeconfig),
+		OrganizationId: res.OrganizationID,
 	}, nil
 }

@@ -2,9 +2,11 @@ import React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import type { Node, NodeProps } from "@xyflow/react";
 import { Database, EllipsisVertical, Trash } from "~/components/atoms/icons";
+import { useTRPC } from "~/utils/trpc/react";
+import { useMutation } from "@tanstack/react-query";
 
 type DatabaseNode = Node<{
-  id: string;
+  id: number;
   serviceName: string;
   port: string;
   username: string;
@@ -42,12 +44,19 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
 }
 
 interface DatabaseContextMenuProps {
-  deploymentId: string;
+  deploymentId: number;
 }
 
 function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
+  const trpc = useTRPC();
+  const deleteDatabaseMutation = useMutation(
+    trpc.deployment.deleteDatabase.mutationOptions(),
+  );
+
   function handleDeleteClicked() {
-    console.log("Delete clicked - ", deploymentId);
+    deleteDatabaseMutation.mutate({
+      id: deploymentId,
+    });
   }
 
   return (
