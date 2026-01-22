@@ -6,7 +6,6 @@ import (
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
-	coreValue "starliner.app/internal/core/domain/value"
 	"strconv"
 )
 
@@ -44,7 +43,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
-		coreValue.Database(body.Database),
+		value.Database(body.Database),
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

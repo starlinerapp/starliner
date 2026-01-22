@@ -3,7 +3,7 @@ package port
 import "starliner.app/internal/core/domain/value"
 
 type Queue interface {
-	PublishBuildTriggered(build *value.Build) error
+	PublishBuildTriggered(build *value.TriggerBuild) error
 
 	PublishCreateCluster(cluster *value.ProvisionCluster) error
 	SubscribeToClusterCreated(handler func(cluster *value.ClusterCreated)) error

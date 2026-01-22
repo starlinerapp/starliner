@@ -1,11 +1,13 @@
 package queue
 
 import (
-	natsgo "github.com/nats-io/nats.go"
+	"encoding/json"
+	"fmt"
+	"github.com/nats-io/nats.go"
+	"log"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
-	"starliner.app/internal/core/infrastructure/nats/proto/v1"
 	"strconv"
 )
 
@@ -21,89 +23,88 @@ const (
 )
 
 type Queue struct {
-	buildPublisher       *jetstream.Publisher[*v1.Build]
-	clusterPublisher     *jetstream.Publisher[*v1.Cluster]
-	clusterSubscriber    *jetstream.Subscriber[*v1.Cluster]
-	deploymentPublisher  *jetstream.Publisher[*v1.Deployment]
-	deploymentSubscriber *jetstream.Subscriber[*v1.Deployment]
+	publisher  *jetstream.Publisher
+	subscriber *jetstream.Subscriber
 }
 
-func NewQueue(js natsgo.JetStreamContext) port.Queue {
+func NewQueue(js nats.JetStreamContext) port.Queue {
 	return &Queue{
-		buildPublisher:       jetstream.NewPublisher[*v1.Build](js),
-		clusterPublisher:     jetstream.NewPublisher[*v1.Cluster](js),
-		clusterSubscriber:    jetstream.NewSubscriber[*v1.Cluster](js),
-		deploymentPublisher:  jetstream.NewPublisher[*v1.Deployment](js),
-		deploymentSubscriber: jetstream.NewSubscriber[*v1.Deployment](js),
+		publisher:  jetstream.NewPublisher(js),
+		subscriber: jetstream.NewSubscriber(js),
 	}
 }
 
-func (q *Queue) PublishBuildTriggered(build *value.Build) error {
-	return q.buildPublisher.Publish(BuildTriggered, build.Id, &v1.Build{
-		Id:             build.Id,
-		Organization:   build.Organization,
-		Project:        build.Project,
-		Service:        build.Service,
-		S3Key:          build.S3Key,
-		RootDirectory:  build.RootDirectory,
-		DockerfilePath: build.DockerfilePath,
-	})
+func (q *Queue) PublishBuildTriggered(build *value.TriggerBuild) error {
+	data, err := json.Marshal(build)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(BuildTriggered, build.Id, data)
 }
 
 func (q *Queue) PublishCreateCluster(cluster *value.ProvisionCluster) error {
-	return q.clusterPublisher.Publish(CreateCluster, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
-		Id:               cluster.Id,
-		Name:             cluster.Name,
-		OrganizationName: cluster.OrganizationName,
-	})
+	data, err := json.Marshal(cluster)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(CreateCluster, strconv.FormatInt(cluster.Id, 10), data)
 }
 
 func (q *Queue) SubscribeToClusterCreated(handler func(cluster *value.ClusterCreated)) error {
-	return q.clusterSubscriber.Subscribe(ClusterCreated, "*", "clusterCreated", func(cluster *v1.Cluster) {
-		handler(&value.ClusterCreated{
-			Id:               cluster.Id,
-			ProvisioningId:   cluster.ProvisioningId,
-			IPv4Address:      cluster.Ipv4Address,
-			PublicKey:        cluster.PublicKey,
-			PrivateKey:       cluster.PrivateKey,
-			KubeconfigBase64: cluster.KubeconfigBase64,
-		})
+	return q.subscriber.Subscribe(ClusterCreated, "*", "clusterCreated", func(msg []byte) {
+		var c value.ClusterCreated
+		if err := json.Unmarshal(msg, &c); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&c)
 	})
 }
 
 func (q *Queue) SubscribeToClusterDeleted(handler func(cluster *value.ClusterDeleted)) error {
-	return q.clusterSubscriber.Subscribe(ClusterDeleted, "*", "clusterDeleted", func(cluster *v1.Cluster) {
-		handler(&value.ClusterDeleted{
-			Id: cluster.Id,
-		})
+	return q.subscriber.Subscribe(ClusterDeleted, "*", "clusterDeleted", func(msg []byte) {
+		var c value.ClusterDeleted
+		if err := json.Unmarshal(msg, &c); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&c)
 	})
 }
 
 func (q *Queue) PublishDeleteCluster(cluster *value.DeleteCluster) error {
-	return q.clusterPublisher.Publish(DeleteCluster, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
-		Id:             cluster.Id,
-		ProvisioningId: cluster.ProvisioningId,
-	})
+	data, err := json.Marshal(cluster)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(DeleteCluster, strconv.FormatInt(cluster.Id, 10), data)
 }
 
 func (q *Queue) PublishDeployDatabase(deployment *value.Deployment) error {
-	return q.deploymentPublisher.Publish(DeployDatabase, "*", &v1.Deployment{
-		DeploymentId:     deployment.DeploymentId,
-		KubeconfigBase64: deployment.KubeconfigBase64,
-	})
+	data, err := json.Marshal(deployment)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(DeployDatabase, "*", data)
 }
 
 func (q *Queue) PublishDeleteDatabase(deployment *value.Deployment) error {
-	return q.deploymentPublisher.Publish(DeleteDatabase, "*", &v1.Deployment{
-		DeploymentId:     deployment.DeploymentId,
-		KubeconfigBase64: deployment.KubeconfigBase64,
-	})
+	data, err := json.Marshal(deployment)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(DeleteDatabase, "*", data)
 }
 
 func (q *Queue) SubscribeToDatabaseDeleted(handler func(deployment *value.DeploymentDeleted)) error {
-	return q.deploymentSubscriber.Subscribe(DatabaseDeleted, "*", "databaseDeleted", func(deployment *v1.Deployment) {
-		handler(&value.DeploymentDeleted{
-			DeploymentId: deployment.DeploymentId,
-		})
+	return q.subscriber.Subscribe(DatabaseDeleted, "*", "databaseDeleted", func(msg []byte) {
+		var d value.DeploymentDeleted
+		if err := json.Unmarshal(msg, &d); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&d)
 	})
 }
