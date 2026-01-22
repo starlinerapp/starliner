@@ -78,3 +78,7 @@ func (dr *DeploymentRepository) GetDeploymentCluster(ctx context.Context, deploy
 		OrganizationId: res.OrganizationID,
 	}, nil
 }
+
+func (dr *DeploymentRepository) DeleteDeployment(ctx context.Context, deploymentId int64) error {
+	return dr.queries.DeleteDeployment(ctx, deploymentId)
+}

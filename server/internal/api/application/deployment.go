@@ -106,3 +106,11 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 
 	return nil
 }
+
+func (da *DeploymentApplication) HandleDatabaseDeleted(c *value.DeploymentDeleted) {
+	ctx := context.Background()
+	err := da.deploymentRepository.DeleteDeployment(ctx, c.DeploymentId)
+	if err != nil {
+		log.Printf("failed to delete deployment from database: %v\n", err)
+	}
+}

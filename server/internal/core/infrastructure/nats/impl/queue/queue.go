@@ -10,13 +10,14 @@ import (
 )
 
 const (
-	BuildTriggered nats.Subject = "build.triggered"
-	CreateCluster  nats.Subject = "create.cluster"
-	ClusterCreated nats.Subject = "cluster.created"
-	DeleteCluster  nats.Subject = "delete.cluster"
-	ClusterDeleted nats.Subject = "cluster.deleted"
-	DeployDatabase nats.Subject = "deploy.database"
-	DeleteDatabase nats.Subject = "delete.database"
+	BuildTriggered  nats.Subject = "build.triggered"
+	CreateCluster   nats.Subject = "create.cluster"
+	ClusterCreated  nats.Subject = "cluster.created"
+	DeleteCluster   nats.Subject = "delete.cluster"
+	ClusterDeleted  nats.Subject = "cluster.deleted"
+	DeployDatabase  nats.Subject = "deploy.database"
+	DeleteDatabase  nats.Subject = "delete.database"
+	DatabaseDeleted nats.Subject = "database.deleted"
 )
 
 type Queue struct {
@@ -165,6 +166,20 @@ func (q *Queue) SubscribeToDeleteDatabase(handler func(deployment *value.Deploym
 		handler(&value.Deployment{
 			DeploymentId:     cluster.DeploymentId,
 			KubeconfigBase64: cluster.KubeconfigBase64,
+		})
+	})
+}
+
+func (q *Queue) PublishDatabaseDeleted(deployment *value.DeploymentDeleted) error {
+	return q.deploymentPublisher.Publish(DatabaseDeleted, "*", &v1.Deployment{
+		DeploymentId: deployment.DeploymentId,
+	})
+}
+
+func (q *Queue) SubscribeToDatabaseDeleted(handler func(deployment *value.DeploymentDeleted)) error {
+	return q.deploymentSubscriber.Subscribe(DatabaseDeleted, "*", "databaseDeleted", func(deployment *v1.Deployment) {
+		handler(&value.DeploymentDeleted{
+			DeploymentId: deployment.DeploymentId,
 		})
 	})
 }

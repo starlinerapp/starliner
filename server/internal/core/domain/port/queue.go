@@ -25,4 +25,7 @@ type Queue interface {
 
 	PublishDeleteDatabase(deployment *value.Deployment) error
 	SubscribeToDeleteDatabase(handler func(deployment *value.Deployment)) error
+
+	PublishDatabaseDeleted(deployment *value.DeploymentDeleted) error
+	SubscribeToDatabaseDeleted(handler func(deployment *value.DeploymentDeleted)) error
 }

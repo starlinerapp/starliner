@@ -66,20 +66,34 @@ export default function ArchitectureCanvas({
   useEffect(() => {
     if (!deployments) return;
 
-    const newNodes = deployments.map((deployment) => ({
-      id: deployment.name,
-      type: "database",
-      position: { x: 0, y: 0 },
-      data: {
-        id: deployment.id,
-        serviceName: deployment.name,
-        port: deployment.port,
-        username: deployment.username,
-        password: deployment.password,
-      },
-    }));
+    setNodes((prevNodes) => {
+      const deploymentIds = new Set(deployments.map((d) => d.id));
 
-    setNodes(newNodes);
+      const remainingNodes = prevNodes.filter((node) =>
+        deploymentIds.has(Number(node.data.id)),
+      );
+
+      const nextNodes: Node[] = deployments.map((deployment) => {
+        const existing = remainingNodes.find(
+          (n) => n.data.id === deployment.id,
+        );
+
+        return {
+          id: String(deployment.id),
+          type: "database",
+          position: existing?.position ?? { x: 0, y: 0 },
+          data: {
+            id: deployment.id,
+            serviceName: deployment.name,
+            port: deployment.port,
+            username: deployment.username,
+            password: deployment.password,
+          },
+        };
+      });
+
+      return nextNodes;
+    });
   }, [deployments]);
 
   return (

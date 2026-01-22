@@ -23,7 +23,7 @@ func NewDeployment(deployment *value.DatabaseDeployment) Deployment {
 }
 
 func NewDeployments(deployments []*value.DatabaseDeployment) []Deployment {
-	var result []Deployment
+	result := make([]Deployment, 0, len(deployments))
 	for _, deployment := range deployments {
 		result = append(result, NewDeployment(deployment))
 	}

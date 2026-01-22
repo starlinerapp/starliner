@@ -9,20 +9,22 @@ import (
 	"starliner.app/internal/cluster/domain/port"
 	corePort "starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
-	"strconv"
 )
 
 type DeploymentApplication struct {
 	deploy port.Deploy
+	queue  corePort.Queue
 	crypto corePort.Crypto
 }
 
 func NewDeploymentApplication(
 	deploy port.Deploy,
+	queue corePort.Queue,
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		deploy: deploy,
+		queue:  queue,
 		crypto: crypto,
 	}
 }
@@ -53,7 +55,7 @@ func (da *DeploymentApplication) HandleDeployDatabase(d *value.Deployment) {
 		return
 	}
 
-	releaseName := "postgres-" + strconv.FormatInt(d.DeploymentId, 10)
+	releaseName := "postgres"
 	err = da.deploy.DeployPostgres(releaseName, kubeconfigPath)
 	if err != nil {
 		fmt.Printf("failed to install helm chart: %v\n", err)
@@ -87,11 +89,18 @@ func (da *DeploymentApplication) HandleDeleteDatabase(d *value.Deployment) {
 		return
 	}
 
-	releaseName := "postgres-" + strconv.FormatInt(d.DeploymentId, 10)
+	releaseName := "postgres"
 	err = da.deploy.DeletePostgres(releaseName, kubeconfigPath)
 	if err != nil {
 		fmt.Printf("failed to delete helm chart: %v\n", err)
 		return
 	}
 	log.Println("successfully deleted database from cluster")
+
+	err = da.queue.PublishDatabaseDeleted(&value.DeploymentDeleted{
+		DeploymentId: d.DeploymentId,
+	})
+	if err != nil {
+		fmt.Printf("failed to publish event: %v\n", err)
+	}
 }
