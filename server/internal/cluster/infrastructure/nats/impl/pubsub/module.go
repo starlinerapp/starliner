@@ -3,8 +3,8 @@ package pubsub
 import (
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
-	"starliner.app/internal/core/domain/port"
-	"starliner.app/internal/core/infrastructure/nats/natscore"
+	"starliner.app/internal/cluster/domain/port"
+	"starliner.app/internal/core/infrastructure/nats/core"
 )
 
 var Module = fx.Module(

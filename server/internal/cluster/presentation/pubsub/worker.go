@@ -3,7 +3,7 @@ package pubsub
 import (
 	"context"
 	"go.uber.org/fx"
-	"starliner.app/internal/core/domain/port"
+	"starliner.app/internal/cluster/domain/port"
 )
 
 type Worker struct {

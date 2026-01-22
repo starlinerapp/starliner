@@ -3,16 +3,16 @@ package application
 import (
 	"github.com/google/uuid"
 	"log"
-	corePort "starliner.app/internal/core/domain/port"
+	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
 type BuildApplication struct {
-	queue corePort.Queue
+	queue port.Queue
 }
 
 func NewBuildApplication(
-	queue corePort.Queue,
+	queue port.Queue,
 ) *BuildApplication {
 	return &BuildApplication{
 		queue: queue,

@@ -2,7 +2,7 @@ package pubsub
 
 import (
 	"github.com/nats-io/nats.go"
-	"starliner.app/internal/core/domain/port"
+	"starliner.app/internal/cluster/domain/port"
 )
 
 type Pubsub struct{}

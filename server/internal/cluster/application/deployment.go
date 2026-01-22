@@ -13,13 +13,13 @@ import (
 
 type DeploymentApplication struct {
 	deploy port.Deploy
-	queue  corePort.Queue
+	queue  port.Queue
 	crypto corePort.Crypto
 }
 
 func NewDeploymentApplication(
 	deploy port.Deploy,
-	queue corePort.Queue,
+	queue port.Queue,
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
