@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"log"
 	"starliner.app/internal/api/domain/entity"
+	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
-	"starliner.app/internal/core/domain/port"
+	corePort "starliner.app/internal/core/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
 	"strconv"
 )
@@ -19,14 +20,14 @@ import (
 type ClusterApplication struct {
 	clusterRepository   interfaces.ClusterRepository
 	organizationService *service.OrganizationService
-	crypto              port.Crypto
+	crypto              corePort.Crypto
 	queue               port.Queue
 }
 
 func NewClusterApplication(
 	clusterRepository interfaces.ClusterRepository,
 	organizationService *service.OrganizationService,
-	crypto port.Crypto,
+	crypto corePort.Crypto,
 	queue port.Queue,
 ) *ClusterApplication {
 	return &ClusterApplication{

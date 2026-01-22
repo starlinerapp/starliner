@@ -3,9 +3,10 @@ package application
 import (
 	"context"
 	"log"
+	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
-	"starliner.app/internal/core/domain/port"
+	corePort "starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
@@ -15,7 +16,7 @@ type DeploymentApplication struct {
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
 	queue                 port.Queue
-	crypto                port.Crypto
+	crypto                corePort.Crypto
 }
 
 func NewDeploymentApplication(
@@ -24,7 +25,7 @@ func NewDeploymentApplication(
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
 	queue port.Queue,
-	crypto port.Crypto,
+	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		environmentService:    environmentService,

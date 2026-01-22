@@ -6,8 +6,8 @@ import (
 	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/infrastructure/dagger"
 	"starliner.app/internal/builder/infrastructure/dagger/impl/docker"
-	builder "starliner.app/internal/builder/presentation/queue"
-	"starliner.app/internal/core/infrastructure/nats/impl/queue"
+	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
+	presentation "starliner.app/internal/builder/presentation/queue"
 	"starliner.app/internal/core/infrastructure/s3"
 )
 
@@ -19,6 +19,6 @@ func main() {
 		dagger.Module,
 		docker.Module,
 		application.Module,
-		builder.Module,
+		presentation.Module,
 	).Run()
 }

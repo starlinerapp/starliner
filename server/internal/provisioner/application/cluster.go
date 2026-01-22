@@ -16,7 +16,7 @@ type ClusterApplication struct {
 	ssh       port.SSH
 	install   port.Install
 	provision port.Provision
-	queue     corePort.Queue
+	queue     port.Queue
 	crypto    corePort.Crypto
 }
 
@@ -24,7 +24,7 @@ func NewClusterApplication(
 	ssh port.SSH,
 	install port.Install,
 	provision port.Provision,
-	queue corePort.Queue,
+	queue port.Queue,
 	crypto corePort.Crypto,
 ) *ClusterApplication {
 	return &ClusterApplication{

@@ -5,7 +5,7 @@ import (
 	"go.uber.org/fx"
 	"log"
 	"starliner.app/internal/api/application"
-	"starliner.app/internal/core/domain/port"
+	"starliner.app/internal/api/domain/port"
 )
 
 type Consumer struct {
