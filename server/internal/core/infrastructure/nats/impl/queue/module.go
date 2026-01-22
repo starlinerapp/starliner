@@ -4,30 +4,30 @@ import (
 	natsgo "github.com/nats-io/nats.go"
 	"go.uber.org/fx"
 	"starliner.app/internal/core/domain/port"
-	"starliner.app/internal/core/infrastructure/nats"
+	"starliner.app/internal/core/infrastructure/nats/jetstream"
 )
 
 const (
-	Builds      nats.Stream = "builds"
-	Clusters    nats.Stream = "clusters"
-	Deployments nats.Stream = "deployments"
+	Builds      jetstream.Stream = "builds"
+	Clusters    jetstream.Stream = "clusters"
+	Deployments jetstream.Stream = "deployments"
 )
 
 var Module = fx.Module(
 	"queue",
 	fx.Provide(
-		nats.Connect,
+		jetstream.Connect,
 		func(js natsgo.JetStreamContext) port.Queue {
 			return NewQueue(js)
 		},
 	),
 	fx.Invoke(func(js natsgo.JetStreamContext) error {
-		return nats.EnsureStream(js, Builds, []nats.Subject{BuildTriggered})
+		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered})
 	}),
 	fx.Invoke(func(js natsgo.JetStreamContext) error {
-		return nats.EnsureStream(js, Clusters, []nats.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted})
+		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted})
 	}),
 	fx.Invoke(func(js natsgo.JetStreamContext) error {
-		return nats.EnsureStream(js, Deployments, []nats.Subject{DeployDatabase, DeleteDatabase, DatabaseDeleted})
+		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{DeployDatabase, DeleteDatabase, DatabaseDeleted})
 	}),
 )

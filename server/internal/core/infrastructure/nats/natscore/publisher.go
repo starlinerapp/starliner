@@ -1,4 +1,4 @@
-package nats
+package natscore
 
 import (
 	"fmt"
@@ -6,12 +6,14 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+type Subject string
+
 type Publisher[T proto.Message] struct {
-	js nats.JetStreamContext
+	conn *nats.Conn
 }
 
-func NewPublisher[T proto.Message](js nats.JetStreamContext) *Publisher[T] {
-	return &Publisher[T]{js: js}
+func NewPublisher[T proto.Message](conn *nats.Conn) *Publisher[T] {
+	return &Publisher[T]{conn: conn}
 }
 
 func (p *Publisher[T]) Publish(subject Subject, identifier string, msg T) error {
@@ -21,6 +23,5 @@ func (p *Publisher[T]) Publish(subject Subject, identifier string, msg T) error 
 	}
 
 	uniqueSubject := fmt.Sprintf("%s.%s", subject, identifier)
-	_, err = p.js.Publish(uniqueSubject, data)
-	return err
+	return p.conn.Publish(uniqueSubject, data)
 }

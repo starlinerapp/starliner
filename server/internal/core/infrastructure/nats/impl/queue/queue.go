@@ -4,39 +4,39 @@ import (
 	natsgo "github.com/nats-io/nats.go"
 	"starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
-	"starliner.app/internal/core/infrastructure/nats"
+	"starliner.app/internal/core/infrastructure/nats/jetstream"
 	"starliner.app/internal/core/infrastructure/nats/proto/v1"
 	"strconv"
 )
 
 const (
-	BuildTriggered  nats.Subject = "build.triggered"
-	CreateCluster   nats.Subject = "create.cluster"
-	ClusterCreated  nats.Subject = "cluster.created"
-	DeleteCluster   nats.Subject = "delete.cluster"
-	ClusterDeleted  nats.Subject = "cluster.deleted"
-	DeployDatabase  nats.Subject = "deploy.database"
-	DeleteDatabase  nats.Subject = "delete.database"
-	DatabaseDeleted nats.Subject = "database.deleted"
+	BuildTriggered  jetstream.Subject = "build.triggered"
+	CreateCluster   jetstream.Subject = "create.cluster"
+	ClusterCreated  jetstream.Subject = "cluster.created"
+	DeleteCluster   jetstream.Subject = "delete.cluster"
+	ClusterDeleted  jetstream.Subject = "cluster.deleted"
+	DeployDatabase  jetstream.Subject = "deploy.database"
+	DeleteDatabase  jetstream.Subject = "delete.database"
+	DatabaseDeleted jetstream.Subject = "database.deleted"
 )
 
 type Queue struct {
-	buildPublisher       *nats.Publisher[*v1.Build]
-	buildSubscriber      *nats.Subscriber[*v1.Build]
-	clusterPublisher     *nats.Publisher[*v1.Cluster]
-	clusterSubscriber    *nats.Subscriber[*v1.Cluster]
-	deploymentPublisher  *nats.Publisher[*v1.Deployment]
-	deploymentSubscriber *nats.Subscriber[*v1.Deployment]
+	buildPublisher       *jetstream.Publisher[*v1.Build]
+	buildSubscriber      *jetstream.Subscriber[*v1.Build]
+	clusterPublisher     *jetstream.Publisher[*v1.Cluster]
+	clusterSubscriber    *jetstream.Subscriber[*v1.Cluster]
+	deploymentPublisher  *jetstream.Publisher[*v1.Deployment]
+	deploymentSubscriber *jetstream.Subscriber[*v1.Deployment]
 }
 
 func NewQueue(js natsgo.JetStreamContext) port.Queue {
 	return &Queue{
-		buildPublisher:       nats.NewPublisher[*v1.Build](js),
-		buildSubscriber:      nats.NewSubscriber[*v1.Build](js),
-		clusterPublisher:     nats.NewPublisher[*v1.Cluster](js),
-		clusterSubscriber:    nats.NewSubscriber[*v1.Cluster](js),
-		deploymentPublisher:  nats.NewPublisher[*v1.Deployment](js),
-		deploymentSubscriber: nats.NewSubscriber[*v1.Deployment](js),
+		buildPublisher:       jetstream.NewPublisher[*v1.Build](js),
+		buildSubscriber:      jetstream.NewSubscriber[*v1.Build](js),
+		clusterPublisher:     jetstream.NewPublisher[*v1.Cluster](js),
+		clusterSubscriber:    jetstream.NewSubscriber[*v1.Cluster](js),
+		deploymentPublisher:  jetstream.NewPublisher[*v1.Deployment](js),
+		deploymentSubscriber: jetstream.NewSubscriber[*v1.Deployment](js),
 	}
 }
 
