@@ -9,7 +9,7 @@ import (
 	"starliner.app/internal/provisioner/infrastructure/nats/impl/queue"
 	"starliner.app/internal/provisioner/infrastructure/pulumi"
 	"starliner.app/internal/provisioner/infrastructure/ssh"
-	presentation "starliner.app/internal/provisioner/presentation/queue"
+	provisionerqueue "starliner.app/internal/provisioner/presentation/queue"
 )
 
 func main() {
@@ -21,6 +21,6 @@ func main() {
 		pulumi.Module,
 		ansible.Module,
 		application.Module,
-		presentation.Module,
+		provisionerqueue.Module,
 	).Run()
 }

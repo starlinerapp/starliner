@@ -3,11 +3,14 @@ package pubsub
 import (
 	"context"
 	"go.uber.org/fx"
+	"log"
+	"starliner.app/internal/cluster/application"
 	"starliner.app/internal/cluster/domain/port"
 )
 
 type Worker struct {
-	pubsub port.Pubsub
+	deploymentApplication *application.DeploymentApplication
+	pubsub                port.Pubsub
 }
 
 func RegisterWorker(lc fx.Lifecycle, w *Worker) {
@@ -18,14 +21,19 @@ func RegisterWorker(lc fx.Lifecycle, w *Worker) {
 	})
 }
 
-func NewWorker(pubsub port.Pubsub) *Worker {
+func NewWorker(deploymentApplication *application.DeploymentApplication, pubsub port.Pubsub) *Worker {
 	return &Worker{
-		pubsub: pubsub,
+		deploymentApplication: deploymentApplication,
+		pubsub:                pubsub,
 	}
 }
 
 func (w *Worker) Start() error {
 	go func() {
+		err := w.pubsub.SubscribeToDeploymentStatusRequest(w.deploymentApplication.HandleRequestDeploymentStatus)
+		if err != nil {
+			log.Fatalf("failed to subscribe to pubsub: %v", err)
+		}
 	}()
 	return nil
 }

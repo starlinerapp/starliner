@@ -2,7 +2,9 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
@@ -17,6 +19,7 @@ type DeploymentApplication struct {
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
 	queue                 port.Queue
+	pubsub                port.Pubsub
 	crypto                corePort.Crypto
 }
 
@@ -26,6 +29,7 @@ func NewDeploymentApplication(
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
 	queue port.Queue,
+	pubsub port.Pubsub,
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
@@ -34,6 +38,7 @@ func NewDeploymentApplication(
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
 		queue:                 queue,
+		pubsub:                pubsub,
 		crypto:                crypto,
 	}
 }
@@ -115,4 +120,26 @@ func (da *DeploymentApplication) HandleDatabaseDeleted(c *coreValue.DeploymentDe
 	if err != nil {
 		log.Printf("failed to delete deployment from database: %v\n", err)
 	}
+}
+
+func (da *DeploymentApplication) RequestDeploymentStatus() error {
+	ctx := context.Background()
+	deployments, err := da.deploymentRepository.GetAllDeploymentsWithKubeconfig(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, d := range deployments {
+		go func(d *entity.DeploymentWithKubeconfig) {
+			fmt.Printf("publishing deployment status request for deployment %d\n", d.Deployment.Id)
+			err := da.pubsub.PublishDeploymentStatusRequest(coreValue.Deployment{
+				DeploymentId:     d.Deployment.Id,
+				KubeconfigBase64: *d.Kubeconfig,
+			})
+			if err != nil {
+				log.Printf("failed to publish: %v\n", err)
+			}
+		}(d)
+	}
+	return nil
 }

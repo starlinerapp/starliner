@@ -20,4 +20,6 @@ type DeploymentRepository interface {
 	GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error)
 
 	DeleteDeployment(ctx context.Context, deploymentId int64) error
+
+	GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error)
 }

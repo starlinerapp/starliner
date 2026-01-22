@@ -104,3 +104,7 @@ func (da *DeploymentApplication) HandleDeleteDatabase(d *value.Deployment) {
 		fmt.Printf("failed to publish event: %v\n", err)
 	}
 }
+
+func (da *DeploymentApplication) HandleRequestDeploymentStatus(d *value.Deployment) {
+	log.Println("received deployment status request")
+}
