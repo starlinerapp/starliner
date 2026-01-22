@@ -1,10 +1,12 @@
 package queue
 
 import (
-	natsgo "github.com/nats-io/nats.go"
+	"encoding/json"
+	"fmt"
+	"github.com/nats-io/nats.go"
+	"log"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
-	"starliner.app/internal/core/infrastructure/nats/proto/v1"
 	"starliner.app/internal/provisioner/domain/port"
 	"strconv"
 )
@@ -17,49 +19,49 @@ const (
 )
 
 type Queue struct {
-	clusterPublisher  *jetstream.Publisher[*v1.Cluster]
-	clusterSubscriber *jetstream.Subscriber[*v1.Cluster]
+	publisher  *jetstream.Publisher
+	subscriber *jetstream.Subscriber
 }
 
-func NewQueue(js natsgo.JetStreamContext) port.Queue {
+func NewQueue(js nats.JetStreamContext) port.Queue {
 	return &Queue{
-		clusterPublisher:  jetstream.NewPublisher[*v1.Cluster](js),
-		clusterSubscriber: jetstream.NewSubscriber[*v1.Cluster](js),
+		publisher:  jetstream.NewPublisher(js),
+		subscriber: jetstream.NewSubscriber(js),
 	}
 }
 
 func (q *Queue) SubscribeToCreateCluster(handler func(cluster *value.ProvisionCluster)) error {
-	return q.clusterSubscriber.Subscribe(CreateCluster, "*", "createCluster", func(cluster *v1.Cluster) {
-		handler(&value.ProvisionCluster{
-			Id:               cluster.Id,
-			Name:             cluster.Name,
-			OrganizationName: cluster.OrganizationName,
-		})
+	return q.subscriber.Subscribe(CreateCluster, "*", "createCluster", func(cluster []byte) {
+		var c value.ProvisionCluster
+		if err := json.Unmarshal(cluster, &c); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&c)
 	})
 }
 
 func (q *Queue) PublishClusterCreated(cluster *value.ClusterCreated) error {
-	return q.clusterPublisher.Publish(ClusterCreated, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
-		Id:               cluster.Id,
-		ProvisioningId:   cluster.ProvisioningId,
-		Ipv4Address:      cluster.IPv4Address,
-		PublicKey:        cluster.PublicKey,
-		PrivateKey:       cluster.PrivateKey,
-		KubeconfigBase64: cluster.KubeconfigBase64,
-	})
+	data, err := json.Marshal(cluster)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterCreated, strconv.FormatInt(cluster.Id, 10), data)
 }
 
 func (q *Queue) PublishClusterDeleted(cluster *value.ClusterDeleted) error {
-	return q.clusterPublisher.Publish(ClusterDeleted, strconv.FormatInt(cluster.Id, 10), &v1.Cluster{
-		Id: cluster.Id,
-	})
+	data, err := json.Marshal(cluster)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterDeleted, strconv.FormatInt(cluster.Id, 10), data)
 }
 
 func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *value.DeleteCluster)) error {
-	return q.clusterSubscriber.Subscribe(DeleteCluster, "*", "deleteCluster", func(cluster *v1.Cluster) {
-		handler(&value.DeleteCluster{
-			Id:             cluster.Id,
-			ProvisioningId: cluster.ProvisioningId,
-		})
+	return q.subscriber.Subscribe(DeleteCluster, "*", "deleteCluster", func(cluster []byte) {
+		var c value.DeleteCluster
+		if err := json.Unmarshal(cluster, &c); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&c)
 	})
 }

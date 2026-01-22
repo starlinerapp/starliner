@@ -33,7 +33,7 @@ func NewBuildApplication(
 	}
 }
 
-func (ba *BuildApplication) HandleBuildTriggered(build *value.Build) {
+func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
 
 	workDir, err := os.MkdirTemp("", "build-*")

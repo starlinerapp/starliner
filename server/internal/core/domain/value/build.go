@@ -1,6 +1,6 @@
 package value
 
-type Build struct {
+type TriggerBuild struct {
 	Id             string
 	Organization   string
 	Project        string

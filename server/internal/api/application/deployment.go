@@ -6,8 +6,9 @@ import (
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
+	"starliner.app/internal/api/domain/value"
 	corePort "starliner.app/internal/core/domain/port"
-	"starliner.app/internal/core/domain/value"
+	coreValue "starliner.app/internal/core/domain/value"
 )
 
 type DeploymentApplication struct {
@@ -71,7 +72,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	err = da.queue.PublishDeployDatabase(&value.Deployment{
+	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
 		KubeconfigBase64: kubeconfigBase64,
 	})
@@ -97,7 +98,7 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 	if err != nil {
 		return err
 	}
-	err = da.queue.PublishDeleteDatabase(&value.Deployment{
+	err = da.queue.PublishDeleteDatabase(&coreValue.Deployment{
 		DeploymentId:     deploymentId,
 		KubeconfigBase64: kubeconfigBase64,
 	})
@@ -108,7 +109,7 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 	return nil
 }
 
-func (da *DeploymentApplication) HandleDatabaseDeleted(c *value.DeploymentDeleted) {
+func (da *DeploymentApplication) HandleDatabaseDeleted(c *coreValue.DeploymentDeleted) {
 	ctx := context.Background()
 	err := da.deploymentRepository.DeleteDeployment(ctx, c.DeploymentId)
 	if err != nil {

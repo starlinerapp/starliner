@@ -21,7 +21,7 @@ func NewBuildApplication(
 
 func (ba *BuildApplication) TriggerBuild() error {
 	buildId := uuid.New().String()
-	err := ba.queue.PublishBuildTriggered(&value.Build{
+	err := ba.queue.PublishBuildTriggered(&value.TriggerBuild{
 		Id:             buildId,
 		Organization:   "starliner",
 		Project:        "example",

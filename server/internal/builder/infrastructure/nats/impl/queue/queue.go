@@ -1,11 +1,12 @@
 package queue
 
 import (
+	"encoding/json"
 	"github.com/nats-io/nats.go"
+	"log"
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
-	"starliner.app/internal/core/infrastructure/nats/proto/v1"
 )
 
 const (
@@ -13,25 +14,21 @@ const (
 )
 
 type Queue struct {
-	buildSubscriber *jetstream.Subscriber[*v1.Build]
+	subscriber *jetstream.Subscriber
 }
 
 func NewQueue(js nats.JetStreamContext) port.Queue {
 	return &Queue{
-		buildSubscriber: jetstream.NewSubscriber[*v1.Build](js),
+		subscriber: jetstream.NewSubscriber(js),
 	}
 }
 
-func (q *Queue) SubscribeToBuildTriggered(handler func(build *value.Build)) error {
-	return q.buildSubscriber.Subscribe(BuildTriggered, "*", "buildTriggered", func(build *v1.Build) {
-		handler(&value.Build{
-			Id:             build.Id,
-			Organization:   build.Organization,
-			Project:        build.Project,
-			Service:        build.Service,
-			S3Key:          build.S3Key,
-			RootDirectory:  build.RootDirectory,
-			DockerfilePath: build.DockerfilePath,
-		})
+func (q *Queue) SubscribeToBuildTriggered(handler func(build *value.TriggerBuild)) error {
+	return q.subscriber.Subscribe(BuildTriggered, "*", "buildTriggered", func(msg []byte) {
+		var b value.TriggerBuild
+		if err := json.Unmarshal(msg, &b); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&b)
 	})
 }
