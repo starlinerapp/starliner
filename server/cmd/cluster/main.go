@@ -8,7 +8,7 @@ import (
 	"starliner.app/internal/cluster/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/queue"
 	sub "starliner.app/internal/cluster/presentation/pubsub"
-	presentation "starliner.app/internal/cluster/presentation/queue"
+	clusterqueue "starliner.app/internal/cluster/presentation/queue"
 	"starliner.app/internal/core/infrastructure/crypto"
 )
 
@@ -20,7 +20,7 @@ func main() {
 		queue.Module,
 		pubsub.Module,
 		application.Module,
-		presentation.Module,
+		clusterqueue.Module,
 		sub.Module,
 	).Run()
 }

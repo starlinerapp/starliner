@@ -12,3 +12,11 @@ WHERE deployments.id = @deployment_id
 DELETE
 FROM deployments
 where id = $1;
+
+
+-- name: GetDeploymentsWithKubeconfig :many
+SELECT deployments.*, c.kubeconfig
+FROM deployments
+INNER JOIN environments ON deployments.environment_id = environments.id
+INNER JOIN projects ON environments.project_id = projects.id
+INNER JOIN clusters c on c.id = projects.cluster_id;

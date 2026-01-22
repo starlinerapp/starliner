@@ -6,10 +6,12 @@ import (
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/repository"
 	"starliner.app/internal/api/domain/service"
+	"starliner.app/internal/api/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
 	"starliner.app/internal/api/infrastructure/postgres"
 	"starliner.app/internal/api/presentation/http"
-	presentation "starliner.app/internal/api/presentation/queue/cluster"
+	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
+	"starliner.app/internal/api/presentation/scheduler"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/s3"
 	"starliner.app/internal/provisioner/infrastructure/ssh"
@@ -23,6 +25,7 @@ func main() {
 		conf.Module,
 		postgres.Module,
 		queue.Module,
+		pubsub.Module,
 		s3.Module,
 		crypto.Module,
 		ssh.Module,
@@ -30,6 +33,7 @@ func main() {
 		application.Module,
 		service.Module,
 		http.Module,
-		presentation.Module,
+		clusterqueue.Module,
+		scheduler.Module,
 	).Run()
 }

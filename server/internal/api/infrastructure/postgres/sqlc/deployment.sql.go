@@ -7,6 +7,8 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
+	"time"
 )
 
 const deleteDeployment = `-- name: DeleteDeployment :exec
@@ -18,6 +20,55 @@ where id = $1
 func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteDeployment, id)
 	return err
+}
+
+const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
+SELECT deployments.id, deployments.name, deployments.port, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig
+FROM deployments
+INNER JOIN environments ON deployments.environment_id = environments.id
+INNER JOIN projects ON environments.project_id = projects.id
+INNER JOIN clusters c on c.id = projects.cluster_id
+`
+
+type GetDeploymentsWithKubeconfigRow struct {
+	ID            int64
+	Name          string
+	Port          string
+	EnvironmentID int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Kubeconfig    sql.NullString
+}
+
+func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploymentsWithKubeconfigRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDeploymentsWithKubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDeploymentsWithKubeconfigRow
+	for rows.Next() {
+		var i GetDeploymentsWithKubeconfigRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Port,
+			&i.EnvironmentID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Kubeconfig,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserDeployment = `-- name: GetUserDeployment :one
