@@ -9,8 +9,9 @@ import (
 )
 
 type Consumer struct {
-	clusterApplication *application.ClusterApplication
-	queue              port.Queue
+	deploymentApplication *application.DeploymentApplication
+	clusterApplication    *application.ClusterApplication
+	queue                 port.Queue
 }
 
 func RegisterConsumer(lc fx.Lifecycle, c *Consumer) {
@@ -22,12 +23,14 @@ func RegisterConsumer(lc fx.Lifecycle, c *Consumer) {
 }
 
 func NewConsumer(
+	deploymentApplication *application.DeploymentApplication,
 	clusterApplication *application.ClusterApplication,
 	queue port.Queue,
 ) *Consumer {
 	return &Consumer{
-		clusterApplication: clusterApplication,
-		queue:              queue,
+		deploymentApplication: deploymentApplication,
+		clusterApplication:    clusterApplication,
+		queue:                 queue,
 	}
 }
 
@@ -41,6 +44,13 @@ func (c *Consumer) Start() error {
 
 	go func() {
 		err := c.queue.SubscribeToClusterDeleted(c.clusterApplication.HandleClusterDeleted)
+		if err != nil {
+			log.Fatalf("failed to subscribe to queue: %v", err)
+		}
+	}()
+
+	go func() {
+		err := c.queue.SubscribeToDatabaseDeleted(c.deploymentApplication.HandleDatabaseDeleted)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}

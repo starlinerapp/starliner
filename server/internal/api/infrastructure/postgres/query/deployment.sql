@@ -7,3 +7,8 @@ INNER JOIN organizations o on projects.organization_id = o.id
 INNER JOIN users ON o.owner_id = users.id
 WHERE deployments.id = @deployment_id
     AND users.id = @user_id;
+
+-- name: DeleteDeployment :exec
+DELETE
+FROM deployments
+where id = $1;

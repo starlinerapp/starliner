@@ -18,4 +18,6 @@ type DeploymentRepository interface {
 	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
 
 	GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error)
+
+	DeleteDeployment(ctx context.Context, deploymentId int64) error
 }

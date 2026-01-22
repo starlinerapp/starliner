@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const deleteDeployment = `-- name: DeleteDeployment :exec
+DELETE
+FROM deployments
+where id = $1
+`
+
+func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteDeployment, id)
+	return err
+}
+
 const getUserDeployment = `-- name: GetUserDeployment :one
 SELECT deployments.id, deployments.name, deployments.port, deployments.environment_id, deployments.created_at, deployments.updated_at
 FROM  deployments
