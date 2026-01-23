@@ -29,7 +29,7 @@ RUN go mod download
 
 COPY ../../../server .
 ENV CGO_ENABLED=0
-RUN go build -o provisioner ./build/provisioner
+RUN go build -o provisioner ./cmd/provisioner/main.go
 
 FROM golang:1.25-alpine AS runner
 
