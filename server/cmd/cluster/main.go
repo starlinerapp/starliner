@@ -5,6 +5,7 @@ import (
 	"starliner.app/internal/cluster/application"
 	"starliner.app/internal/cluster/conf"
 	"starliner.app/internal/cluster/infrastructure/helm"
+	"starliner.app/internal/cluster/infrastructure/k8s"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/queue"
 	sub "starliner.app/internal/cluster/presentation/pubsub"
@@ -17,6 +18,7 @@ func main() {
 		conf.Module,
 		crypto.Module,
 		helm.Module,
+		k8s.Module,
 		queue.Module,
 		pubsub.Module,
 		application.Module,

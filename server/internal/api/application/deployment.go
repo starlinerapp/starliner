@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
@@ -79,6 +78,7 @@ func (da *DeploymentApplication) DeployDatabase(
 
 	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
+		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {
@@ -89,7 +89,7 @@ func (da *DeploymentApplication) DeployDatabase(
 }
 
 func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentId int64, userId int64) error {
-	err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId)
+	deployment, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,8 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 		return err
 	}
 	err = da.queue.PublishDeleteDatabase(&coreValue.Deployment{
-		DeploymentId:     deploymentId,
+		DeploymentId:     deployment.Id,
+		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {
@@ -131,10 +132,15 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 
 	for _, d := range deployments {
 		go func(d *entity.DeploymentWithKubeconfig) {
-			fmt.Printf("publishing deployment status request for deployment %d\n", d.Deployment.Id)
-			err := da.pubsub.PublishDeploymentStatusRequest(coreValue.Deployment{
+			kubeconfigBase64, err := da.crypto.Decrypt(*d.Kubeconfig)
+			if err != nil {
+				log.Printf("failed to decrypt kubeconfig: %v\n", err)
+			}
+
+			err = da.pubsub.PublishDeploymentStatusRequest(coreValue.Deployment{
 				DeploymentId:     d.Deployment.Id,
-				KubeconfigBase64: *d.Kubeconfig,
+				DeploymentName:   d.Deployment.Name,
+				KubeconfigBase64: kubeconfigBase64,
 			})
 			if err != nil {
 				log.Printf("failed to publish: %v\n", err)
