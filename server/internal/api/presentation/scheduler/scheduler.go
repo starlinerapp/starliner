@@ -35,12 +35,9 @@ func (s *Scheduler) Start() error {
 		ticker := time.NewTicker(interval)
 		defer ticker.Stop()
 
-		for {
-			select {
-			case <-ticker.C:
-				if err := s.deploymentApplication.RequestDeploymentStatus(); err != nil {
-					log.Printf("failed to request deployment status: %v", err)
-				}
+		for range ticker.C {
+			if err := s.deploymentApplication.RequestDeploymentStatus(); err != nil {
+				log.Printf("failed to request deployment status: %v", err)
 			}
 		}
 	}()
