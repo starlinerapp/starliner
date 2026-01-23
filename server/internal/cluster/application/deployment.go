@@ -15,6 +15,7 @@ type DeploymentApplication struct {
 	deploy port.Deploy
 	health port.Health
 	queue  port.Queue
+	pubsub port.Pubsub
 	crypto corePort.Crypto
 }
 
@@ -22,12 +23,14 @@ func NewDeploymentApplication(
 	deploy port.Deploy,
 	health port.Health,
 	queue port.Queue,
+	pubsub port.Pubsub,
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		deploy: deploy,
 		health: health,
 		queue:  queue,
+		pubsub: pubsub,
 		crypto: crypto,
 	}
 }
@@ -138,5 +141,13 @@ func (da *DeploymentApplication) HandleRequestDeploymentStatus(d *value.Deployme
 	if err != nil {
 		log.Printf("failed to check pods health: %v\n", err)
 	}
-	log.Println(health.Status)
+
+	err = da.pubsub.PublishDeploymentStatusResponse(&value.HealthStatus{
+		DeploymentId: d.DeploymentId,
+		Health:       value.Health(health.Health),
+		Status:       health.Status,
+	})
+	if err != nil {
+		log.Printf("failed to publish deployment status: %v\n", err)
+	}
 }

@@ -10,14 +10,17 @@ import (
 )
 
 const DeploymentStatusRequest natscore.Subject = "deployment.status.request"
+const DeploymentStatusResponse natscore.Subject = "deployment.status.response"
 
 type Pubsub struct {
 	subscriber *natscore.Subscriber
+	publisher  *natscore.Publisher
 }
 
 func NewPubsub(conn *nats.Conn) port.Pubsub {
 	return &Pubsub{
 		subscriber: natscore.NewSubscriber(conn),
+		publisher:  natscore.NewPublisher(conn),
 	}
 }
 
@@ -29,4 +32,12 @@ func (p *Pubsub) SubscribeToDeploymentStatusRequest(handler func(deployment *val
 		}
 		handler(&d)
 	})
+}
+
+func (p *Pubsub) PublishDeploymentStatusResponse(health *value.HealthStatus) error {
+	d, err := json.Marshal(health)
+	if err != nil {
+		return err
+	}
+	return p.publisher.Publish(DeploymentStatusResponse, "*", d)
 }

@@ -7,17 +7,18 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createDatabaseDeployment = `-- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, environment_id)
-    VALUES ($1, $2, $3)
-    RETURNING id, name, port, environment_id, created_at, updated_at
+    INSERT INTO deployments (name, port, status, environment_id)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, name, port, status, environment_id, created_at, updated_at
 ),
 new_database_deployment AS (
     INSERT INTO database_deployments (deployment_id, username, password)
-    SELECT id, $4, $5 FROM new_deployment
+    SELECT id, $5, $6 FROM new_deployment
     RETURNING deployment_id, username, password, created_at, updated_at
 )
 SELECT
@@ -34,6 +35,7 @@ INNER JOIN new_database_deployment db ON d.id = db.deployment_id
 type CreateDatabaseDeploymentParams struct {
 	Name          string
 	Port          string
+	Status        sql.NullString
 	EnvironmentID int64
 	Username      string
 	Password      string
@@ -52,6 +54,7 @@ func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDataba
 	row := q.db.QueryRowContext(ctx, createDatabaseDeployment,
 		arg.Name,
 		arg.Port,
+		arg.Status,
 		arg.EnvironmentID,
 		arg.Username,
 		arg.Password,
@@ -73,6 +76,7 @@ SELECT
     d.id AS deployment_id,
     d.name,
     d.port,
+    d.status,
     d.environment_id,
     db.username,
     db.password
@@ -95,6 +99,7 @@ type GetEnvironmentDatabaseDeploymentsRow struct {
 	DeploymentID  int64
 	Name          string
 	Port          string
+	Status        sql.NullString
 	EnvironmentID int64
 	Username      string
 	Password      string
@@ -113,6 +118,7 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg Get
 			&i.DeploymentID,
 			&i.Name,
 			&i.Port,
+			&i.Status,
 			&i.EnvironmentID,
 			&i.Username,
 			&i.Password,

@@ -7,6 +7,7 @@ import (
 type DatabaseDeployment struct {
 	Id       int64
 	Name     string
+	Status   string
 	Username string
 	Password string
 	Port     string
@@ -16,6 +17,7 @@ func NewDatabaseDeployment(d *entity.DatabaseDeployment) *DatabaseDeployment {
 	return &DatabaseDeployment{
 		Id:       d.Id,
 		Name:     d.Name,
+		Status:   *d.Status,
 		Username: d.Username,
 		Password: d.Password,
 		Port:     d.Port,

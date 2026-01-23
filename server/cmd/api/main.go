@@ -10,6 +10,7 @@ import (
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
 	"starliner.app/internal/api/infrastructure/postgres"
 	"starliner.app/internal/api/presentation/http"
+	clusterpubsub "starliner.app/internal/api/presentation/pubsub/health"
 	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
 	"starliner.app/internal/api/presentation/scheduler"
 	"starliner.app/internal/core/infrastructure/crypto"
@@ -34,6 +35,7 @@ func main() {
 		service.Module,
 		http.Module,
 		clusterqueue.Module,
+		clusterpubsub.Module,
 		scheduler.Module,
 	).Run()
 }

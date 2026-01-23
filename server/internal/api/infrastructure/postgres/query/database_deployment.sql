@@ -1,12 +1,12 @@
 -- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, environment_id)
-    VALUES ($1, $2, $3)
+    INSERT INTO deployments (name, port, status, environment_id)
+    VALUES ($1, $2, $3, $4)
     RETURNING *
 ),
 new_database_deployment AS (
     INSERT INTO database_deployments (deployment_id, username, password)
-    SELECT id, $4, $5 FROM new_deployment
+    SELECT id, $5, $6 FROM new_deployment
     RETURNING *
 )
 SELECT
@@ -24,6 +24,7 @@ SELECT
     d.id AS deployment_id,
     d.name,
     d.port,
+    d.status,
     d.environment_id,
     db.username,
     db.password

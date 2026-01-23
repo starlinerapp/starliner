@@ -3,6 +3,7 @@ CREATE TABLE deployments (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     port VARCHAR(255) NOT NULL,
+    status VARCHAR(255),
     environment_id BIGINT NOT NULL REFERENCES environments(id) ON DELETE RESTRICT,
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()

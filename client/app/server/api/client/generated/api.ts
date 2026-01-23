@@ -242,6 +242,12 @@ export interface ResponseDeployment {
    * @type {string}
    * @memberof ResponseDeployment
    */
+  status: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDeployment
+   */
   username: string;
 }
 /**

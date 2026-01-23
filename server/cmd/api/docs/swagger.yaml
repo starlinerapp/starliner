@@ -105,6 +105,8 @@ definitions:
         type: string
       port:
         type: string
+      status:
+        type: string
       username:
         type: string
     required:
@@ -112,6 +114,7 @@ definitions:
     - name
     - password
     - port
+    - status
     - username
     type: object
   response.Environment:

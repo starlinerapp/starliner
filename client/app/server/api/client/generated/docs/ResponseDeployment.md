@@ -8,6 +8,7 @@
 | **name**     | **string** |             | [default to undefined] |
 | **password** | **string** |             | [default to undefined] |
 | **port**     | **string** |             | [default to undefined] |
+| **status**   | **string** |             | [default to undefined] |
 | **username** | **string** |             | [default to undefined] |
 
 ## Example
@@ -20,6 +21,7 @@ const instance: ResponseDeployment = {
   name,
   password,
   port,
+  status,
   username,
 };
 ```

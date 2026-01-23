@@ -7,6 +7,7 @@ import (
 type Deployment struct {
 	Id       int64  `json:"id" binding:"required"`
 	Name     string `json:"name" binding:"required"`
+	Status   string `json:"status" binding:"required"`
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 	Port     string `json:"port" binding:"required"`
@@ -16,6 +17,7 @@ func NewDeployment(deployment *value.DatabaseDeployment) Deployment {
 	return Deployment{
 		Id:       deployment.Id,
 		Name:     deployment.Name,
+		Status:   deployment.Status,
 		Username: deployment.Username,
 		Password: deployment.Password,
 		Port:     deployment.Port,
