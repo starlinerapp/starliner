@@ -38,7 +38,7 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache,mode=max
 
-  build-server:
+  build-server-api:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,21 +54,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push server image
+      - name: Build and push server-api image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: .docker/server/Dockerfile
+          file: .docker/server/api/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
-          build-args: |
-            MAIN_PKG=./cmd/api/main.go
-            BINARY_NAME=server
 
-  build-worker:
+  build-server-builder:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -84,25 +81,78 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push worker image
+      - name: Build and push server-builder image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: .docker/server/Dockerfile
+          file: .docker/server/builder/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:cache,mode=max
-          build-args: |
-            MAIN_PKG=./cmd/worker/main.go
-            BINARY_NAME=worker
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
+
+  build-server-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push server-cluster image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/server/cluster/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:${{ env.IMAGE_TAG }}
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
+
+  build-server-provisioner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push server-provisioner image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/server/provisioner/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:${{ env.IMAGE_TAG }}
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
 
   trigger-deployment:
     needs:
       - build-client
-      - build-server
-      - build-worker
+      - build-server-api
+      - build-server-builder
+      - build-server-cluster
+      - build-server-provisioner
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Deployment
