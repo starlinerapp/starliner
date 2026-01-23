@@ -41,5 +41,6 @@ RUN apk add --no-cache bash curl ansible openssh-client
 RUN curl -fsSL https://get.pulumi.com | sh
 
 COPY --from=builder /app/provisioner ./provisioner
+COPY ../../../server/.env .env
 
 ENTRYPOINT [ "./provisioner" ]

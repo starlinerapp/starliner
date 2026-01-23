@@ -33,5 +33,6 @@ FROM scratch AS runner
 WORKDIR /app
 
 COPY --from=builder /app/cluster ./cluster
+COPY ../../../server/.env .env
 
 ENTRYPOINT [ "./cluster" ]
