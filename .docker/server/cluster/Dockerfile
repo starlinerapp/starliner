@@ -28,7 +28,7 @@ COPY ../../../server .
 ENV CGO_ENABLED=0
 RUN go build -o cluster ./cmd/cluster/main.go
 
-FROM scratch AS runner
+FROM golang:1.25-alpine AS runner
 
 WORKDIR /app
 
