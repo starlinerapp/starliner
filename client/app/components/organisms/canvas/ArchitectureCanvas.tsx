@@ -85,6 +85,7 @@ export default function ArchitectureCanvas({
           data: {
             id: deployment.id,
             serviceName: deployment.name,
+            status: deployment.status,
             port: deployment.port,
             username: deployment.username,
             password: deployment.password,

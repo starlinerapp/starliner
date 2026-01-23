@@ -22,6 +22,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	ctx context.Context,
 	name string,
 	port string,
+	status string,
 	username string,
 	password string,
 	environmentId int64,
@@ -29,6 +30,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	d, err := dr.queries.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
 		Name:          name,
 		Port:          port,
+		Status:        utils.NullStringFromPtr(&status),
 		Username:      username,
 		Password:      password,
 		EnvironmentID: environmentId,
@@ -103,4 +105,11 @@ func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Cont
 		}
 	}
 	return deployments, nil
+}
+
+func (dr *DeploymentRepository) UpdateDeploymentStatus(ctx context.Context, deploymentId int64, status string) error {
+	return dr.queries.UpdateDeploymentStatus(ctx, sqlc.UpdateDeploymentStatusParams{
+		Status: utils.NullStringFromPtr(&status),
+		ID:     deploymentId,
+	})
 }

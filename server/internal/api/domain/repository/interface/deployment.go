@@ -10,6 +10,7 @@ type DeploymentRepository interface {
 		ctx context.Context,
 		name string,
 		port string,
+		status string,
 		username string,
 		password string,
 		environmentId int64,
@@ -22,4 +23,6 @@ type DeploymentRepository interface {
 	DeleteDeployment(ctx context.Context, deploymentId int64) error
 
 	GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error)
+
+	UpdateDeploymentStatus(ctx context.Context, deploymentId int64, status string) error
 }

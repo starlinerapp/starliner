@@ -4,10 +4,12 @@ import type { Node, NodeProps } from "@xyflow/react";
 import { Database, EllipsisVertical, Trash } from "~/components/atoms/icons";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
+import { cn } from "~/utils/cn";
 
 type DatabaseNode = Node<{
   id: number;
   serviceName: string;
+  status: string;
   port: string;
   username: string;
   password: string;
@@ -16,7 +18,7 @@ type DatabaseNode = Node<{
 export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
   return (
     <div className="bg-white-a12 text-mauve-11">
-      <div className="database-node border-mauve-6 bg-mauve-2 flex w-[300px] flex-col gap-2 rounded-md border-1 p-2">
+      <div className="database-node border-mauve-6 bg-mauve-2 flex w-[350px] flex-col gap-2 rounded-md border-1 p-2">
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
             <Database className="w-5" />
@@ -24,19 +26,33 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
           </div>
           <DatabaseContextMenu deploymentId={data.id} />
         </div>
-        <div className="bg-white-a12 border-mauve-6 flex flex-col gap-2 rounded-md border-1 p-2 text-sm">
-          <span className="flex justify-between">
-            <p>Port</p>
-            <p>{data.port}</p>
-          </span>
-          <span className="flex justify-between">
-            <p>Username</p>
-            <p>{data.username}</p>
-          </span>
-          <span className="flex justify-between">
-            <p>Password</p>
-            <p>{data.password}</p>
-          </span>
+        <div>
+          <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm">
+            <p>Status</p>
+            <span className="flex items-center gap-1.5">
+              <span
+                className={cn(
+                  "h-3 w-3 rounded-full",
+                  data.status === "healthy" ? "bg-grass-9" : "bg-red-9",
+                )}
+              ></span>
+              <p>{data.status}</p>
+            </span>
+          </div>
+          <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm">
+            <span className="flex justify-between">
+              <p>Port</p>
+              <p>{data.port}</p>
+            </span>
+            <span className="flex justify-between">
+              <p>Username</p>
+              <p>{data.username}</p>
+            </span>
+            <span className="flex justify-between">
+              <p>Password</p>
+              <p>{data.password}</p>
+            </span>
+          </div>
         </div>
       </div>
     </div>

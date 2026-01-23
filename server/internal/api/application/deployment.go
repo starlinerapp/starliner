@@ -63,6 +63,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		ctx,
 		string(database),
 		"5432",
+		"unhealthy",
 		"postgres",
 		"test",
 		environmentId,
@@ -137,7 +138,7 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				log.Printf("failed to decrypt kubeconfig: %v\n", err)
 			}
 
-			err = da.pubsub.PublishDeploymentStatusRequest(coreValue.Deployment{
+			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.Deployment{
 				DeploymentId:     d.Deployment.Id,
 				DeploymentName:   d.Deployment.Name,
 				KubeconfigBase64: kubeconfigBase64,
@@ -148,4 +149,12 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 		}(d)
 	}
 	return nil
+}
+
+func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValue.HealthStatus) {
+	ctx := context.Background()
+	err := da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
+	if err != nil {
+		log.Printf("failed to update deployment status: %v\n", err)
+	}
 }

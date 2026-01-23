@@ -77,6 +77,7 @@ func (er *EnvironmentRepository) GetEnvironmentDeployments(ctx context.Context, 
 		deployments[i] = &entity.DatabaseDeployment{
 			Id:            d.DeploymentID,
 			Name:          d.Name,
+			Status:        utils.PtrFromNullString(d.Status),
 			Username:      d.Username,
 			Password:      d.Password,
 			Port:          d.Port,

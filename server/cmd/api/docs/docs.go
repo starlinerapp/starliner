@@ -729,6 +729,7 @@ const docTemplate = `{
                 "name",
                 "password",
                 "port",
+                "status",
                 "username"
             ],
             "properties": {
@@ -742,6 +743,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "port": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "username": {

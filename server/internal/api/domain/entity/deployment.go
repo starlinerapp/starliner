@@ -10,6 +10,7 @@ type Deployment struct {
 type DatabaseDeployment struct {
 	Id            int64
 	Name          string
+	Status        *string
 	Username      string
 	Password      string
 	Port          string

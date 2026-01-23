@@ -80,6 +80,7 @@ type Deployment struct {
 	ID            int64
 	Name          string
 	Port          string
+	Status        sql.NullString
 	EnvironmentID int64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time

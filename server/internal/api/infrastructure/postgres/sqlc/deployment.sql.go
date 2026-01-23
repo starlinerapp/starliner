@@ -23,7 +23,7 @@ func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
 }
 
 const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
-SELECT deployments.id, deployments.name, deployments.port, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig
 FROM deployments
 INNER JOIN environments ON deployments.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id
@@ -34,6 +34,7 @@ type GetDeploymentsWithKubeconfigRow struct {
 	ID            int64
 	Name          string
 	Port          string
+	Status        sql.NullString
 	EnvironmentID int64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -53,6 +54,7 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 			&i.ID,
 			&i.Name,
 			&i.Port,
+			&i.Status,
 			&i.EnvironmentID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -72,7 +74,7 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 }
 
 const getUserDeployment = `-- name: GetUserDeployment :one
-SELECT deployments.id, deployments.name, deployments.port, deployments.environment_id, deployments.created_at, deployments.updated_at
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
 FROM  deployments
 INNER JOIN environments ON deployments.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id
@@ -94,9 +96,26 @@ func (q *Queries) GetUserDeployment(ctx context.Context, arg GetUserDeploymentPa
 		&i.ID,
 		&i.Name,
 		&i.Port,
+		&i.Status,
 		&i.EnvironmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const updateDeploymentStatus = `-- name: UpdateDeploymentStatus :exec
+UPDATE deployments
+SET status = $1
+WHERE id = $2
+`
+
+type UpdateDeploymentStatusParams struct {
+	Status sql.NullString
+	ID     int64
+}
+
+func (q *Queries) UpdateDeploymentStatus(ctx context.Context, arg UpdateDeploymentStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateDeploymentStatus, arg.Status, arg.ID)
+	return err
 }

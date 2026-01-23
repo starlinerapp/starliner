@@ -8,6 +8,11 @@ INNER JOIN users ON o.owner_id = users.id
 WHERE deployments.id = @deployment_id
     AND users.id = @user_id;
 
+-- name: UpdateDeploymentStatus :exec
+UPDATE deployments
+SET status = $1
+WHERE id = $2;
+
 -- name: DeleteDeployment :exec
 DELETE
 FROM deployments
