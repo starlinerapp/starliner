@@ -62,8 +62,8 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:cache,mode=max
 
   build-server-builder:
     runs-on: ubuntu-latest
@@ -89,8 +89,8 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:cache,mode=max
 
   build-server-cluster:
     runs-on: ubuntu-latest
@@ -116,8 +116,8 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:cache,mode=max
 
   build-server-provisioner:
     runs-on: ubuntu-latest
@@ -143,8 +143,8 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server:cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:cache,mode=max
 
   trigger-deployment:
     needs:
