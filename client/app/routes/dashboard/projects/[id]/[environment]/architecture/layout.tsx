@@ -28,8 +28,12 @@ export default function Layout() {
 
   const navigationBarItems = [
     {
-      title: "Git Repository",
+      title: "Git Repo",
       href: `/${slug}/projects/${id}/${environment}/architecture/git`,
+    },
+    {
+      title: "Ingress",
+      href: `/${slug}/projects/${id}/${environment}/architecture/ingress`,
     },
     {
       title: "Database",

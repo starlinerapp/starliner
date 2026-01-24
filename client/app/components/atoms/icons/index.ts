@@ -13,4 +13,5 @@ export { default as LinkOut } from "./LinkOut";
 export { default as Plus } from "./Plus";
 export { default as Postgres } from "./Postgres";
 export { default as Servers } from "./Servers";
+export { default as Traefik } from "./Traefik";
 export { default as Trash } from "./Trash";

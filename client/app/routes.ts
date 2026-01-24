@@ -31,6 +31,10 @@ export default [
                       "routes/dashboard/projects/[id]/[environment]/architecture/git.tsx",
                     ),
                     route(
+                      "ingress",
+                      "routes/dashboard/projects/[id]/[environment]/architecture/ingress.tsx",
+                    ),
+                    route(
                       "database",
                       "routes/dashboard/projects/[id]/[environment]/architecture/database.tsx",
                     ),
