@@ -16,13 +16,13 @@ jobs:
         with:
           go-version: "1.24.3"
 
+      - name: Install Arch-Go
+        run: go install -v github.com/arch-go/arch-go/v2@latest
+        working-directory: server
+
       - name: Run architecture check
-        uses: dadrus/arch-go-action@master
-        with:
-          version: v1.5.2
-          generate-report: true
-          verbose: true
-          working-directory: ./server
+        run: arch-go
+        working-directory: server
 
       - name: Run linter
         uses: golangci/golangci-lint-action@v9
