@@ -19,7 +19,7 @@ export default function Ingress() {
         size="sm"
         className="w-28 flex-shrink-0 py-1.5"
         onClick={() => {
-          console.log("Deploy clicked");
+          console.log("Deploy");
         }}
       >
         Deploy
