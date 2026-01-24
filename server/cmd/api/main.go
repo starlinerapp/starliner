@@ -15,7 +15,6 @@ import (
 	"starliner.app/internal/api/presentation/scheduler"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/s3"
-	"starliner.app/internal/provisioner/infrastructure/ssh"
 )
 
 // @title Starliner API
@@ -29,7 +28,6 @@ func main() {
 		pubsub.Module,
 		s3.Module,
 		crypto.Module,
-		ssh.Module,
 		repository.Module,
 		application.Module,
 		service.Module,

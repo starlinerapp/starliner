@@ -1,0 +1,58 @@
+version: 1
+threshold:
+  compliance: 100
+  coverage: 100
+dependenciesRules:
+  - package: "starliner.app/cmd/api.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/api.**"
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/cmd/builder.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/builder.**"
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/cmd/cluster.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/cluster.**"
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/cmd/provisioner.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/provisioner.**"
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/internal/core.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/internal/api.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/cmd/api/docs"
+        - "starliner.app/internal/api.**"
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/internal/builder.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/builder.**"
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/internal/cluster.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/cluster.**"
+        - "starliner.app/internal/core.**"
+
+  - package: "starliner.app/internal/provisioner.**"
+    shouldOnlyDependsOn:
+      internal:
+        - "starliner.app/internal/provisioner.**"
+        - "starliner.app/internal/core.**"
