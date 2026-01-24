@@ -18,7 +18,9 @@ export default function Ingress() {
       <Button
         size="sm"
         className="w-28 flex-shrink-0 py-1.5"
-        onClick={() => {}}
+        onClick={() => {
+          console.log("Deploy clicked");
+        }}
       >
         Deploy
         <ArrowRight className="w-4 stroke-2" />
