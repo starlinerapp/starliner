@@ -13,16 +13,16 @@ type IngressHost struct {
 }
 
 type DeployIngressArgs struct {
-	ReleaseName    string
-	KubeconfigPath string
-	Hosts          []IngressHost
+	ReleaseName      string
+	KubeconfigBase64 string
+	Hosts            []IngressHost
 }
 
 type Deploy interface {
-	DeployCloudNativePg(releaseName string, kubeconfigPath string) error
+	DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error
 
-	DeployPostgres(releaseName string, kubeconfigPath string) error
-	DeletePostgres(releaseName string, kubeconfigPath string) error
+	DeployPostgres(releaseName string, kubeconfigBase64 string) error
+	DeletePostgres(releaseName string, kubeconfigBase64 string) error
 
 	DeployIngress(args *DeployIngressArgs) error
 }

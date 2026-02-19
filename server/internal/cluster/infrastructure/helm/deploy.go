@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"encoding/base64"
 	"fmt"
 	"helm.sh/helm/v4/pkg/action"
 	"helm.sh/helm/v4/pkg/chart/v2/loader"
@@ -19,13 +20,82 @@ func NewDeploy() port.Deploy {
 	return &Deploy{}
 }
 
-func (d *Deploy) DeployCloudNativePg(releaseName string, kubeconfigPath string) error {
-	return withTempChartDir(CloudNativePgChart, func(tmpDir string) error {
-		chart, err := loader.Load(tmpDir)
-		if err != nil {
-			return err
-		}
+func (d *Deploy) DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error {
+	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
+		return withTempChartDir(CloudNativePgChart, func(tmpDir string) error {
+			chart, err := loader.Load(tmpDir)
+			if err != nil {
+				return err
+			}
 
+			configFlags := genericclioptions.NewConfigFlags(false)
+			configFlags.KubeConfig = &kubeconfigPath
+
+			actionConfig := new(action.Configuration)
+			if err := actionConfig.Init(
+				configFlags,
+				"default",
+				"secret",
+			); err != nil {
+				return err
+			}
+
+			install := action.NewInstall(actionConfig)
+
+			install.ReleaseName = releaseName
+			install.Namespace = "default"
+			install.WaitStrategy = "watcher"
+
+			log.Println("Installing helm chart " + releaseName + "...")
+			_, err = install.Run(chart, map[string]interface{}{})
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+	})
+}
+
+func (d *Deploy) DeployPostgres(releaseName string, kubeconfigBase64 string) error {
+	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
+		return withTempChartDir(PostgresChart, func(tmpDir string) error {
+			chart, err := loader.Load(tmpDir)
+			if err != nil {
+				return err
+			}
+
+			configFlags := genericclioptions.NewConfigFlags(false)
+			configFlags.KubeConfig = &kubeconfigPath
+
+			actionConfig := new(action.Configuration)
+			if err := actionConfig.Init(
+				configFlags,
+				"default",
+				"secret",
+			); err != nil {
+				return err
+			}
+
+			install := action.NewInstall(actionConfig)
+
+			install.ReleaseName = releaseName
+			install.Namespace = "default"
+			install.WaitStrategy = "watcher"
+
+			log.Println("Installing helm chart " + releaseName + "...")
+			_, err = install.Run(chart, map[string]interface{}{})
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+	})
+}
+
+func (d *Deploy) DeletePostgres(releaseName string, kubeconfigBase64 string) error {
+	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
 		configFlags := genericclioptions.NewConfigFlags(false)
 		configFlags.KubeConfig = &kubeconfigPath
 
@@ -38,142 +108,108 @@ func (d *Deploy) DeployCloudNativePg(releaseName string, kubeconfigPath string) 
 			return err
 		}
 
-		install := action.NewInstall(actionConfig)
+		uninstall := action.NewUninstall(actionConfig)
+		uninstall.WaitStrategy = "watcher"
 
-		install.ReleaseName = releaseName
-		install.Namespace = "default"
-		install.WaitStrategy = "watcher"
-
-		log.Println("Installing helm chart " + releaseName + "...")
-		_, err = install.Run(chart, map[string]interface{}{})
+		_, err := uninstall.Run(releaseName)
 		if err != nil {
 			return err
 		}
 
 		return nil
 	})
-}
-
-func (d *Deploy) DeployPostgres(releaseName string, kubeconfigPath string) error {
-	return withTempChartDir(PostgresChart, func(tmpDir string) error {
-		chart, err := loader.Load(tmpDir)
-		if err != nil {
-			return err
-		}
-
-		configFlags := genericclioptions.NewConfigFlags(false)
-		configFlags.KubeConfig = &kubeconfigPath
-
-		actionConfig := new(action.Configuration)
-		if err := actionConfig.Init(
-			configFlags,
-			"default",
-			"secret",
-		); err != nil {
-			return err
-		}
-
-		install := action.NewInstall(actionConfig)
-
-		install.ReleaseName = releaseName
-		install.Namespace = "default"
-		install.WaitStrategy = "watcher"
-
-		log.Println("Installing helm chart " + releaseName + "...")
-		_, err = install.Run(chart, map[string]interface{}{})
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-}
-
-func (d *Deploy) DeletePostgres(releaseName string, kubeconfigPath string) error {
-	configFlags := genericclioptions.NewConfigFlags(false)
-	configFlags.KubeConfig = &kubeconfigPath
-
-	actionConfig := new(action.Configuration)
-	if err := actionConfig.Init(
-		configFlags,
-		"default",
-		"secret",
-	); err != nil {
-		return err
-	}
-
-	uninstall := action.NewUninstall(actionConfig)
-	uninstall.WaitStrategy = "watcher"
-
-	_, err := uninstall.Run(releaseName)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
-	return withTempChartDir(IngressChart, func(tmpDir string) error {
-		chart, err := loader.Load(tmpDir)
-		if err != nil {
-			return err
-		}
+	return withTempKubeConfig(args.KubeconfigBase64, func(kubeconfigPath string) error {
+		return withTempChartDir(IngressChart, func(tmpDir string) error {
+			chart, err := loader.Load(tmpDir)
+			if err != nil {
+				return err
+			}
 
-		configFlags := genericclioptions.NewConfigFlags(false)
-		configFlags.KubeConfig = &args.KubeconfigPath
+			configFlags := genericclioptions.NewConfigFlags(false)
+			configFlags.KubeConfig = &kubeconfigPath
 
-		actionConfig := new(action.Configuration)
-		if err := actionConfig.Init(
-			configFlags,
-			"default",
-			"secret",
-		); err != nil {
-			return err
-		}
+			actionConfig := new(action.Configuration)
+			if err := actionConfig.Init(
+				configFlags,
+				"default",
+				"secret",
+			); err != nil {
+				return err
+			}
 
-		install := action.NewInstall(actionConfig)
+			install := action.NewInstall(actionConfig)
 
-		install.ReleaseName = args.ReleaseName
-		install.Namespace = "default"
-		install.WaitStrategy = "watcher"
+			install.ReleaseName = args.ReleaseName
+			install.Namespace = "default"
+			install.WaitStrategy = "watcher"
 
-		log.Println("Installing helm chart " + args.ReleaseName + "...")
+			log.Println("Installing helm chart " + args.ReleaseName + "...")
 
-		rules := make([]interface{}, 0, len(args.Hosts))
-		for _, host := range args.Hosts {
-			paths := make([]interface{}, 0, len(host.Paths))
-			for _, p := range host.Paths {
-				paths = append(paths, map[string]interface{}{
-					"path":     p.Path,
-					"pathType": p.PathType,
-					"service": map[string]interface{}{
-						"name": p.ServiceName,
-						"port": map[string]interface{}{
-							"number": p.ServicePort,
+			rules := make([]interface{}, 0, len(args.Hosts))
+			for _, host := range args.Hosts {
+				paths := make([]interface{}, 0, len(host.Paths))
+				for _, p := range host.Paths {
+					paths = append(paths, map[string]interface{}{
+						"path":     p.Path,
+						"pathType": p.PathType,
+						"service": map[string]interface{}{
+							"name": p.ServiceName,
+							"port": map[string]interface{}{
+								"number": p.ServicePort,
+							},
 						},
-					},
+					})
+				}
+
+				rules = append(rules, map[string]interface{}{
+					"host":  host.Host,
+					"paths": paths,
 				})
 			}
 
-			rules = append(rules, map[string]interface{}{
-				"host":  host.Host,
-				"paths": paths,
-			})
-		}
+			values := map[string]interface{}{
+				"ingress": map[string]interface{}{
+					"rules": rules,
+				},
+			}
+			_, err = install.Run(chart, values)
+			if err != nil {
+				return err
+			}
 
-		values := map[string]interface{}{
-			"ingress": map[string]interface{}{
-				"rules": rules,
-			},
-		}
-		_, err = install.Run(chart, values)
-		if err != nil {
-			return err
-		}
-
-		return nil
+			return nil
+		})
 	})
+}
+
+func withTempKubeConfig(kubeconfigBase64 string, fn func(path string) error) error {
+	kubeconfigBytes, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
+	if err != nil {
+		return fmt.Errorf("failed to decode kubeconfig: %v", err)
+
+	}
+
+	tmpDir, err := os.MkdirTemp("", "kubeconfig-*")
+	if err != nil {
+		return fmt.Errorf("failed to create temp directory: %v", err)
+	}
+	defer func() {
+		err := os.RemoveAll(tmpDir)
+		if err != nil {
+			fmt.Printf("failed to remove temp directory: %v", err)
+		}
+	}()
+
+	kubeconfigPath := filepath.Join(tmpDir, "kubeconfig")
+	err = os.WriteFile(kubeconfigPath, kubeconfigBytes, 0600)
+	if err != nil {
+		return fmt.Errorf("failed to write kubeconfig: %v", err)
+	}
+
+	return fn(kubeconfigPath)
 }
 
 func withTempChartDir(chartFS fs.FS, fn func(path string) error) error {
