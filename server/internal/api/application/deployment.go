@@ -65,7 +65,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		"5432",
 		"unhealthy",
 		"postgres",
-		"test",
+		"postgres",
 		environmentId,
 	)
 	if err != nil {
