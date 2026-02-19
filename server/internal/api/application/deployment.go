@@ -77,7 +77,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
+	err = da.queue.PublishDeployDatabase(&coreValue.DatabaseDeployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
@@ -104,7 +104,7 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 	if err != nil {
 		return err
 	}
-	err = da.queue.PublishDeleteDatabase(&coreValue.Deployment{
+	err = da.queue.PublishDeleteDatabase(&coreValue.DatabaseDeployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
@@ -124,6 +124,37 @@ func (da *DeploymentApplication) HandleDatabaseDeleted(c *coreValue.DeploymentDe
 	}
 }
 
+func (da *DeploymentApplication) DeployIngress(ctx context.Context, userId int64, environmentId int64) error {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Write to the database
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
+		DeploymentId:     0,
+		DeploymentName:   "ingress",
+		KubeconfigBase64: kubeconfigBase64,
+	})
+
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
+
+	return nil
+}
+
 func (da *DeploymentApplication) RequestDeploymentStatus() error {
 	ctx := context.Background()
 	deployments, err := da.deploymentRepository.GetAllDeploymentsWithKubeconfig(ctx)
@@ -138,7 +169,7 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				log.Printf("failed to decrypt kubeconfig: %v\n", err)
 			}
 
-			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.Deployment{
+			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.DatabaseDeployment{
 				DeploymentId:     d.Deployment.Id,
 				DeploymentName:   d.Deployment.Name,
 				KubeconfigBase64: kubeconfigBase64,

@@ -1,26 +1,18 @@
-import React, { useMemo } from "react";
+import React from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Postgres } from "~/components/atoms/icons";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useMutation } from "@tanstack/react-query";
+import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 
 export default function Database() {
-  const { id, environment } = useParams();
   const trpc = useTRPC();
-
-  const { data: project } = useQuery(
-    trpc.project.getProject.queryOptions({ id: Number(id) }),
-  );
-
-  const currentEnvironment = useMemo(
-    () => project?.environments.find((e) => e.slug === environment),
-    [project, environment],
-  );
 
   const createDatabaseMutation = useMutation(
     trpc.deployment.deployDatabase.mutationOptions(),
   );
+
+  const { environment: currentEnvironment } = useEnvironment();
 
   function handleDeployClicked() {
     if (!currentEnvironment) return;

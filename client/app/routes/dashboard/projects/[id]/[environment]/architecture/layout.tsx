@@ -5,10 +5,13 @@ import {
   ResizablePanelGroup,
 } from "~/components/atoms/resizable/Resizable";
 import ArchitectureCanvas from "~/components/organisms/canvas/ArchitectureCanvas";
-import { Outlet, useParams } from "react-router";
+import { Outlet, useOutletContext, useParams } from "react-router";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
+import type { ResponseEnvironment } from "~/server/api/client/generated";
+
+type ContextType = { environment: ResponseEnvironment };
 
 export default function Layout() {
   const trpc = useTRPC();
@@ -55,9 +58,13 @@ export default function Layout() {
       <ResizablePanel defaultSize={30} className="flex h-full flex-col">
         <LinkNavigationBar items={navigationBarItems} />
         <div className="p-4">
-          <Outlet />
+          <Outlet context={{ environment: currentEnvironment }} />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
   );
+}
+
+export function useEnvironment() {
+  return useOutletContext<ContextType>();
 }

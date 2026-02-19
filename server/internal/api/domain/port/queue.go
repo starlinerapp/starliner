@@ -11,8 +11,10 @@ type Queue interface {
 	PublishDeleteCluster(cluster *value.DeleteCluster) error
 	SubscribeToClusterDeleted(handler func(cluster *value.ClusterDeleted)) error
 
-	PublishDeployDatabase(deployment *value.Deployment) error
+	PublishDeployDatabase(deployment *value.DatabaseDeployment) error
 
-	PublishDeleteDatabase(deployment *value.Deployment) error
+	PublishDeleteDatabase(deployment *value.DatabaseDeployment) error
 	SubscribeToDatabaseDeleted(handler func(deployment *value.DeploymentDeleted)) error
+
+	PublishDeployIngress(deployment *value.IngressDeployment) error
 }

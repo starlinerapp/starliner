@@ -80,3 +80,33 @@ func (dh *DeploymentHandler) DeleteDatabase(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+// DeployIngress FindAll godoc
+// @Summary Deploy ingress
+// @Tags deployment
+// @ID deployIngress
+// @Param X-User-ID header string true "User ID"
+// @Param data body request.DeployIngress true "Deploy Ingress"
+// @Product JSON
+// @Success 200
+// @Router /deployments/ingresses [post]
+func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+
+	var body request.DeployIngress
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err := dh.deploymentApplication.DeployIngress(
+		c.Request.Context(),
+		currentUser.Id,
+		body.EnvironmentId,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
+}

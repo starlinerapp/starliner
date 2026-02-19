@@ -20,6 +20,7 @@ const (
 	DeployDatabase  jetstream.Subject = "deploy.database"
 	DeleteDatabase  jetstream.Subject = "delete.database"
 	DatabaseDeleted jetstream.Subject = "database.deleted"
+	DeployIngress   jetstream.Subject = "deploy.ingress"
 )
 
 type Queue struct {
@@ -81,7 +82,7 @@ func (q *Queue) PublishDeleteCluster(cluster *value.DeleteCluster) error {
 	return q.publisher.Publish(DeleteCluster, strconv.FormatInt(cluster.Id, 10), data)
 }
 
-func (q *Queue) PublishDeployDatabase(deployment *value.Deployment) error {
+func (q *Queue) PublishDeployDatabase(deployment *value.DatabaseDeployment) error {
 	data, err := json.Marshal(deployment)
 	if err != nil {
 		return fmt.Errorf("failed to marshal: %w", err)
@@ -90,7 +91,7 @@ func (q *Queue) PublishDeployDatabase(deployment *value.Deployment) error {
 	return q.publisher.Publish(DeployDatabase, "*", data)
 }
 
-func (q *Queue) PublishDeleteDatabase(deployment *value.Deployment) error {
+func (q *Queue) PublishDeleteDatabase(deployment *value.DatabaseDeployment) error {
 	data, err := json.Marshal(deployment)
 	if err != nil {
 		return fmt.Errorf("failed to marshal: %w", err)
@@ -107,4 +108,13 @@ func (q *Queue) SubscribeToDatabaseDeleted(handler func(deployment *value.Deploy
 		}
 		handler(&d)
 	})
+}
+
+func (q *Queue) PublishDeployIngress(deployment *value.IngressDeployment) error {
+	data, err := json.Marshal(deployment)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(DeployIngress, "*", data)
 }

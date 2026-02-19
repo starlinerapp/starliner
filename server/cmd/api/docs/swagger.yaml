@@ -61,6 +61,13 @@ definitions:
     - database
     - environmentId
     type: object
+  request.DeployIngress:
+    properties:
+      environmentId:
+        type: integer
+    required:
+    - environmentId
+    type: object
   response.Cluster:
     properties:
       id:
@@ -343,6 +350,27 @@ paths:
         "200":
           description: OK
       summary: Delete database
+      tags:
+      - deployment
+  /deployments/ingresses:
+    post:
+      operationId: deployIngress
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deploy Ingress
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeployIngress'
+      responses:
+        "200":
+          description: OK
+      summary: Deploy ingress
       tags:
       - deployment
   /environments:

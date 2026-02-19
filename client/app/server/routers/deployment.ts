@@ -30,4 +30,18 @@ export const deploymentRouter = {
         .deleteDatabase(userId, input.id)
         .then((res) => res.data);
     }),
+  deployIngress: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .deployIngress(userId, {
+          environmentId: input.id,
+        })
+        .then((res) => res.data);
+    }),
 };

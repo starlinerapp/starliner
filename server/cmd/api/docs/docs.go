@@ -255,6 +255,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/ingresses": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy ingress",
+                "operationId": "deployIngress",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Ingress",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployIngress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments": {
             "post": {
                 "tags": [
@@ -668,6 +700,17 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "environmentId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.DeployIngress": {
+            "type": "object",
+            "required": [
+                "environmentId"
+            ],
+            "properties": {
                 "environmentId": {
                     "type": "integer"
                 }

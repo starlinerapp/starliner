@@ -1,6 +1,12 @@
 package value
 
-type Deployment struct {
+type DatabaseDeployment struct {
+	DeploymentId     int64
+	DeploymentName   string
+	KubeconfigBase64 string
+}
+
+type IngressDeployment struct {
 	DeploymentId     int64
 	DeploymentName   string
 	KubeconfigBase64 string

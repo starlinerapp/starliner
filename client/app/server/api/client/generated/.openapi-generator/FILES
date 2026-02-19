@@ -16,6 +16,7 @@ docs/RequestCreateOrganization.md
 docs/RequestCreateProject.md
 docs/RequestDatabase.md
 docs/RequestDeployDatabase.md
+docs/RequestDeployIngress.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
 docs/ResponseDeployment.md

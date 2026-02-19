@@ -157,6 +157,19 @@ export interface RequestDeployDatabase {
 /**
  *
  * @export
+ * @interface RequestDeployIngress
+ */
+export interface RequestDeployIngress {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployIngress
+   */
+  environmentId: number;
+}
+/**
+ *
+ * @export
  * @interface ResponseCluster
  */
 export interface ResponseCluster {
@@ -1178,6 +1191,63 @@ export const DeploymentApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Deploy ingress
+     * @param {string} xUserID User ID
+     * @param {RequestDeployIngress} data Deploy Ingress
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployIngress: async (
+      xUserID: string,
+      data: RequestDeployIngress,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deployIngress", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("deployIngress", "data", data);
+      const localVarPath = `/deployments/ingresses`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -1255,6 +1325,39 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Deploy ingress
+     * @param {string} xUserID User ID
+     * @param {RequestDeployIngress} data Deploy Ingress
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deployIngress(
+      xUserID: string,
+      data: RequestDeployIngress,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deployIngress(
+        xUserID,
+        data,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.deployIngress"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -1303,6 +1406,23 @@ export const DeploymentApiFactory = function (
         .deployDatabase(xUserID, data, options)
         .then((request) => request(axios, basePath));
     },
+    /**
+     *
+     * @summary Deploy ingress
+     * @param {string} xUserID User ID
+     * @param {RequestDeployIngress} data Deploy Ingress
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployIngress(
+      xUserID: string,
+      data: RequestDeployIngress,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deployIngress(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
   };
 };
 
@@ -1348,6 +1468,25 @@ export class DeploymentApi extends BaseAPI {
   ) {
     return DeploymentApiFp(this.configuration)
       .deployDatabase(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Deploy ingress
+   * @param {string} xUserID User ID
+   * @param {RequestDeployIngress} data Deploy Ingress
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public deployIngress(
+    xUserID: string,
+    data: RequestDeployIngress,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .deployIngress(xUserID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

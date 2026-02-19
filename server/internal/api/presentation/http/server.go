@@ -77,6 +77,7 @@ func NewServer(
 	{
 		deploymentRoutes.POST("/databases", deploymentHandler.DeployDatabase)
 		deploymentRoutes.DELETE("/databases/:id", deploymentHandler.DeleteDatabase)
+		deploymentRoutes.POST("/ingresses", deploymentHandler.DeployIngress)
 	}
 
 	return &Server{engine: engine}

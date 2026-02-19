@@ -9,8 +9,8 @@ import (
 )
 
 type Worker struct {
-	deploymentApplication *application.DeploymentApplication
-	pubsub                port.Pubsub
+	statusApplication *application.StatusApplication
+	pubsub            port.Pubsub
 }
 
 func RegisterWorker(lc fx.Lifecycle, w *Worker) {
@@ -21,16 +21,16 @@ func RegisterWorker(lc fx.Lifecycle, w *Worker) {
 	})
 }
 
-func NewWorker(deploymentApplication *application.DeploymentApplication, pubsub port.Pubsub) *Worker {
+func NewWorker(statusApplication *application.StatusApplication, pubsub port.Pubsub) *Worker {
 	return &Worker{
-		deploymentApplication: deploymentApplication,
-		pubsub:                pubsub,
+		statusApplication: statusApplication,
+		pubsub:            pubsub,
 	}
 }
 
 func (w *Worker) Start() error {
 	go func() {
-		err := w.pubsub.SubscribeToDeploymentStatusRequest(w.deploymentApplication.HandleRequestDeploymentStatus)
+		err := w.pubsub.SubscribeToDeploymentStatusRequest(w.statusApplication.HandleRequestDeploymentStatus)
 		if err != nil {
 			log.Fatalf("failed to subscribe to pubsub: %v", err)
 		}
