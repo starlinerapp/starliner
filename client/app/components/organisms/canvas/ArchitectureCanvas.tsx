@@ -12,6 +12,7 @@ import {
   type OnConnect,
   type OnEdgesChange,
   type OnNodesChange,
+  Position,
   ReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -82,6 +83,7 @@ export default function ArchitectureCanvas({
           id: String(deployment.id),
           type: "database",
           position: existing?.position ?? { x: 0, y: 0 },
+          sourcePosition: Position.Left,
           data: {
             id: deployment.id,
             serviceName: deployment.name,
@@ -108,6 +110,7 @@ export default function ArchitectureCanvas({
         onConnect={onConnect}
         proOptions={{ hideAttribution: true }}
         fitView
+        maxZoom={1}
         fitViewOptions={{
           maxZoom: 1,
         }}

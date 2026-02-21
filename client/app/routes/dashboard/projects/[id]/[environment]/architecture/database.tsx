@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "~/components/atoms/button/Button";
-import { ArrowRight, Postgres } from "~/components/atoms/icons";
+import { ArrowRight } from "~/components/atoms/icons";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
@@ -25,7 +25,6 @@ export default function Database() {
   return (
     <div className="border-mauve-6 flex max-w-full min-w-[350px] items-center justify-between gap-4 overflow-hidden rounded-md border px-4 py-3 text-sm">
       <div className="flex min-w-0 flex-1 items-center gap-4">
-        <Postgres className="h-9 w-9 flex-shrink-0" />
         <div className="flex min-w-0 flex-col gap-0.5">
           <p className="truncate font-medium">PostgreSQL</p>
           <p className="text-mauve-11 truncate text-xs">

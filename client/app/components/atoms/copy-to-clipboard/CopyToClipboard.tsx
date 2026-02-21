@@ -10,10 +10,15 @@ import { cn } from "~/utils/cn";
 
 interface CopyToClipboardProps {
   text: string;
+  masked?: boolean;
   className?: string;
 }
 
-const CopyToClipboard = ({ text, className }: CopyToClipboardProps) => {
+const CopyToClipboard = ({
+  text,
+  masked = false,
+  className,
+}: CopyToClipboardProps) => {
   const [mouseLeft, ref] = useMouseLeave();
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
@@ -44,10 +49,11 @@ const CopyToClipboard = ({ text, className }: CopyToClipboardProps) => {
             onClick={handleCopy}
             className={cn(
               "hover:bg-gray-4 flex cursor-pointer flex-row gap-1 rounded-md px-2 align-middle",
+              masked && "font-mono",
               className,
             )}
           >
-            {text}
+            {masked ? "•••••" : text}
           </p>
         </TooltipTrigger>
         <TooltipContent>
