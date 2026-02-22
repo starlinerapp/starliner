@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	DeployDatabase  jetstream.Subject = "deploy.database"
-	DeleteDatabase  jetstream.Subject = "delete.database"
-	DatabaseDeleted jetstream.Subject = "database.deleted"
-	DeployIngress   jetstream.Subject = "deploy.ingress"
+	DeployApplication jetstream.Subject = "deploy.application"
+	DeployDatabase    jetstream.Subject = "deploy.database"
+	DeleteDatabase    jetstream.Subject = "delete.database"
+	DatabaseDeleted   jetstream.Subject = "database.deleted"
+	DeployIngress     jetstream.Subject = "deploy.ingress"
 )
 
 type Queue struct {
@@ -28,6 +29,16 @@ func NewQueue(js nats.JetStreamContext) port.Queue {
 		publisher:  jetstream.NewPublisher(js),
 		subscriber: jetstream.NewSubscriber(js),
 	}
+}
+
+func (q *Queue) SubscribeToDeployApplication(handler func(deployment *value.ApplicationDeployment)) error {
+	return q.subscriber.Subscribe(DeployApplication, "*", "deployApplication", func(msg []byte) {
+		var d value.ApplicationDeployment
+		if err := json.Unmarshal(msg, &d); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&d)
+	})
 }
 
 func (q *Queue) SubscribeToDeployDatabase(handler func(deployment *value.DatabaseDeployment)) error {

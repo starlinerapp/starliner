@@ -42,6 +42,41 @@ func NewDeploymentApplication(
 	}
 }
 
+func (da *DeploymentApplication) DeployApplication(
+	ctx context.Context,
+	userId int64,
+	environmentId int64,
+) error {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	err = da.queue.PublishDeployApplication(&coreValue.ApplicationDeployment{
+		DeploymentId:     0,
+		DeploymentName:   "nextjs",
+		KubeconfigBase64: kubeconfigBase64,
+		ImageRepository:  "instanetk/nextjs",
+		ImageTag:         "sha-38f953b",
+		Port:             3000,
+	})
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
+
+	return nil
+}
+
 func (da *DeploymentApplication) DeployDatabase(
 	ctx context.Context,
 	userId int64,

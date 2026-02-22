@@ -48,6 +48,13 @@ definitions:
     type: string
     x-enum-varnames:
     - Postgres
+  request.DeployApplication:
+    properties:
+      environmentId:
+        type: integer
+    required:
+    - environmentId
+    type: object
   request.DeployDatabase:
     properties:
       database:
@@ -311,6 +318,27 @@ paths:
       summary: Get Cluster Private Key
       tags:
       - cluster
+  /deployments/applications:
+    post:
+      operationId: deployApplication
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deploy Application
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeployApplication'
+      responses:
+        "200":
+          description: OK
+      summary: Deploy application
+      tags:
+      - deployment
   /deployments/databases:
     post:
       operationId: deployDatabase

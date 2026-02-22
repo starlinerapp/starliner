@@ -19,6 +19,14 @@ type DeployIngressArgs struct {
 }
 
 type Deploy interface {
+	DeployApplication(
+		releaseName string,
+		kubeconfigBase64 string,
+		imageRepository string,
+		imageTag string,
+		port int,
+	) error
+
 	DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error
 
 	DeployPostgres(releaseName string, kubeconfigBase64 string) error

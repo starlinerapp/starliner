@@ -193,6 +193,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/applications": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy application",
+                "operationId": "deployApplication",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Application",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployApplication"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/deployments/databases": {
             "post": {
                 "tags": [
@@ -682,6 +714,17 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "Postgres"
             ]
+        },
+        "request.DeployApplication": {
+            "type": "object",
+            "required": [
+                "environmentId"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                }
+            }
         },
         "request.DeployDatabase": {
             "type": "object",

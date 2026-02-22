@@ -4,6 +4,9 @@ import (
 	"embed"
 )
 
+//go:embed application
+var ApplicationChart embed.FS
+
 //go:embed cloudnative-pg
 var CloudNativePgChart embed.FS
 

@@ -23,12 +23,12 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 		KubeconfigBase64: i.KubeconfigBase64,
 		Hosts: []port.IngressHost{
 			{
-				Host: "46.225.14.208.nip.io",
+				Host: "46.225.185.132.nip.io",
 				Paths: []port.IngressPath{
 					{
 						Path:        "/",
 						PathType:    "Prefix",
-						ServiceName: "cnpg-webhook-service",
+						ServiceName: "nextjs",
 						ServicePort: 80,
 					},
 				},

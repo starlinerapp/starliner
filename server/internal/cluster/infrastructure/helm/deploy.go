@@ -7,7 +7,6 @@ import (
 	"helm.sh/helm/v4/pkg/chart/v2/loader"
 	"io/fs"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"log"
 	"os"
 	"path/filepath"
 	"starliner.app/internal/cluster/domain/port"
@@ -18,6 +17,55 @@ type Deploy struct {
 
 func NewDeploy() port.Deploy {
 	return &Deploy{}
+}
+
+func (d *Deploy) DeployApplication(
+	releaseName string,
+	kubeconfigBase64 string,
+	imageRepository string,
+	imageTag string,
+	port int,
+) error {
+	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
+		return withTempChartDir(ApplicationChart, func(tmpDir string) error {
+			chart, err := loader.Load(tmpDir)
+			if err != nil {
+				return err
+			}
+
+			configFlags := genericclioptions.NewConfigFlags(false)
+			configFlags.KubeConfig = &kubeconfigPath
+
+			actionConfig := new(action.Configuration)
+			if err := actionConfig.Init(
+				configFlags,
+				"default",
+				"secret",
+			); err != nil {
+				return err
+			}
+
+			install := action.NewInstall(actionConfig)
+
+			install.ReleaseName = releaseName
+			install.Namespace = "default"
+			install.WaitStrategy = "watcher"
+
+			_, err = install.Run(chart, map[string]interface{}{
+				"image": map[string]interface{}{
+					"repository": imageRepository,
+					"tag":        imageTag,
+				},
+				"port":       80,
+				"targetPort": port,
+			})
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+	})
 }
 
 func (d *Deploy) DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error {
@@ -46,7 +94,6 @@ func (d *Deploy) DeployCloudNativePg(releaseName string, kubeconfigBase64 string
 			install.Namespace = "default"
 			install.WaitStrategy = "watcher"
 
-			log.Println("Installing helm chart " + releaseName + "...")
 			_, err = install.Run(chart, map[string]interface{}{})
 			if err != nil {
 				return err
@@ -83,7 +130,6 @@ func (d *Deploy) DeployPostgres(releaseName string, kubeconfigBase64 string) err
 			install.Namespace = "default"
 			install.WaitStrategy = "watcher"
 
-			log.Println("Installing helm chart " + releaseName + "...")
 			_, err = install.Run(chart, map[string]interface{}{})
 			if err != nil {
 				return err
@@ -145,8 +191,6 @@ func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
 			install.ReleaseName = args.ReleaseName
 			install.Namespace = "default"
 			install.WaitStrategy = "watcher"
-
-			log.Println("Installing helm chart " + args.ReleaseName + "...")
 
 			rules := make([]interface{}, 0, len(args.Hosts))
 			for _, host := range args.Hosts {

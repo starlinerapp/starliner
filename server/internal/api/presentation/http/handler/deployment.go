@@ -21,6 +21,36 @@ func NewDeploymentHandler(
 	}
 }
 
+// DeployApplication FindAll godoc
+// @Summary Deploy application
+// @Tags deployment
+// @ID deployApplication
+// @Param X-User-ID header string true "User ID"
+// @Param data body request.DeployApplication true "Deploy Application"
+// @Product JSON
+// @Success 200
+// @Router /deployments/applications [post]
+func (dh *DeploymentHandler) DeployApplication(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+
+	var body request.DeployApplication
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err := dh.deploymentApplication.DeployApplication(
+		c.Request.Context(),
+		currentUser.Id,
+		body.EnvironmentId,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
+}
+
 // DeployDatabase FindAll godoc
 // @Summary Deploy database
 // @Tags deployment
