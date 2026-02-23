@@ -157,6 +157,19 @@ export interface RequestDeployDatabase {
 /**
  *
  * @export
+ * @interface RequestDeployImage
+ */
+export interface RequestDeployImage {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployImage
+   */
+  environmentId: number;
+}
+/**
+ *
+ * @export
  * @interface RequestDeployIngress
  */
 export interface RequestDeployIngress {
@@ -1193,6 +1206,63 @@ export const DeploymentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Deploy image
+     * @param {string} xUserID User ID
+     * @param {RequestDeployImage} data Deploy Image
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployImage: async (
+      xUserID: string,
+      data: RequestDeployImage,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deployImage", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("deployImage", "data", data);
+      const localVarPath = `/deployments/images`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Deploy ingress
      * @param {string} xUserID User ID
      * @param {RequestDeployIngress} data Deploy Ingress
@@ -1327,6 +1397,39 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Deploy image
+     * @param {string} xUserID User ID
+     * @param {RequestDeployImage} data Deploy Image
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deployImage(
+      xUserID: string,
+      data: RequestDeployImage,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deployImage(
+        xUserID,
+        data,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.deployImage"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Deploy ingress
      * @param {string} xUserID User ID
      * @param {RequestDeployIngress} data Deploy Ingress
@@ -1408,6 +1511,23 @@ export const DeploymentApiFactory = function (
     },
     /**
      *
+     * @summary Deploy image
+     * @param {string} xUserID User ID
+     * @param {RequestDeployImage} data Deploy Image
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployImage(
+      xUserID: string,
+      data: RequestDeployImage,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deployImage(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Deploy ingress
      * @param {string} xUserID User ID
      * @param {RequestDeployIngress} data Deploy Ingress
@@ -1468,6 +1588,25 @@ export class DeploymentApi extends BaseAPI {
   ) {
     return DeploymentApiFp(this.configuration)
       .deployDatabase(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Deploy image
+   * @param {string} xUserID User ID
+   * @param {RequestDeployImage} data Deploy Image
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public deployImage(
+    xUserID: string,
+    data: RequestDeployImage,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .deployImage(xUserID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

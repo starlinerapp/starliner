@@ -6,7 +6,7 @@ const (
 	Postgres Database = "postgres"
 )
 
-type DeployApplication struct {
+type DeployImage struct {
 	EnvironmentId int64 `json:"environmentId" binding:"required"`
 }
 

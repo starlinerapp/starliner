@@ -28,7 +28,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 					{
 						Path:        "/",
 						PathType:    "Prefix",
-						ServiceName: "nextjs",
+						ServiceName: "example-project",
 						ServicePort: 80,
 					},
 				},

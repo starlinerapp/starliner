@@ -12,16 +12,16 @@ import (
 )
 
 const (
-	BuildTriggered    jetstream.Subject = "build.triggered"
-	CreateCluster     jetstream.Subject = "create.cluster"
-	ClusterCreated    jetstream.Subject = "cluster.created"
-	DeleteCluster     jetstream.Subject = "delete.cluster"
-	ClusterDeleted    jetstream.Subject = "cluster.deleted"
-	DeployApplication jetstream.Subject = "deploy.application"
-	DeployDatabase    jetstream.Subject = "deploy.database"
-	DeleteDatabase    jetstream.Subject = "delete.database"
-	DatabaseDeleted   jetstream.Subject = "database.deleted"
-	DeployIngress     jetstream.Subject = "deploy.ingress"
+	BuildTriggered  jetstream.Subject = "build.triggered"
+	CreateCluster   jetstream.Subject = "create.cluster"
+	ClusterCreated  jetstream.Subject = "cluster.created"
+	DeleteCluster   jetstream.Subject = "delete.cluster"
+	ClusterDeleted  jetstream.Subject = "cluster.deleted"
+	DeployImage     jetstream.Subject = "deploy.image"
+	DeployDatabase  jetstream.Subject = "deploy.database"
+	DeleteDatabase  jetstream.Subject = "delete.database"
+	DatabaseDeleted jetstream.Subject = "database.deleted"
+	DeployIngress   jetstream.Subject = "deploy.ingress"
 )
 
 type Queue struct {
@@ -83,13 +83,13 @@ func (q *Queue) PublishDeleteCluster(cluster *value.DeleteCluster) error {
 	return q.publisher.Publish(DeleteCluster, strconv.FormatInt(cluster.Id, 10), data)
 }
 
-func (q *Queue) PublishDeployApplication(deployment *value.ApplicationDeployment) error {
+func (q *Queue) PublishDeployImage(deployment *value.ImageDeployment) error {
 	data, err := json.Marshal(deployment)
 	if err != nil {
 		return fmt.Errorf("failed to marshal: %w", err)
 	}
 
-	return q.publisher.Publish(DeployApplication, "*", data)
+	return q.publisher.Publish(DeployImage, "*", data)
 }
 
 func (q *Queue) PublishDeployDatabase(deployment *value.DatabaseDeployment) error {

@@ -42,7 +42,7 @@ func NewDeploymentApplication(
 	}
 }
 
-func (da *DeploymentApplication) DeployApplication(
+func (da *DeploymentApplication) DeployImage(
 	ctx context.Context,
 	userId int64,
 	environmentId int64,
@@ -62,12 +62,12 @@ func (da *DeploymentApplication) DeployApplication(
 		return err
 	}
 
-	err = da.queue.PublishDeployApplication(&coreValue.ApplicationDeployment{
+	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     0,
-		DeploymentName:   "nextjs",
+		DeploymentName:   "example-project",
 		KubeconfigBase64: kubeconfigBase64,
-		ImageRepository:  "instanetk/nextjs",
-		ImageTag:         "sha-38f953b",
+		ImageRepository:  "liangleon/example-project",
+		ImageTag:         "latest",
 		Port:             3000,
 	})
 	if err != nil {

@@ -1,6 +1,6 @@
 package value
 
-type ApplicationDeployment struct {
+type ImageDeployment struct {
 	DeploymentId     int64
 	DeploymentName   string
 	KubeconfigBase64 string

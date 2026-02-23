@@ -19,7 +19,7 @@ type DeployIngressArgs struct {
 }
 
 type Deploy interface {
-	DeployApplication(
+	DeployImage(
 		releaseName string,
 		kubeconfigBase64 string,
 		imageRepository string,

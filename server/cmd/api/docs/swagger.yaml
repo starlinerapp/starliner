@@ -48,13 +48,6 @@ definitions:
     type: string
     x-enum-varnames:
     - Postgres
-  request.DeployApplication:
-    properties:
-      environmentId:
-        type: integer
-    required:
-    - environmentId
-    type: object
   request.DeployDatabase:
     properties:
       database:
@@ -66,6 +59,13 @@ definitions:
         type: integer
     required:
     - database
+    - environmentId
+    type: object
+  request.DeployImage:
+    properties:
+      environmentId:
+        type: integer
+    required:
     - environmentId
     type: object
   request.DeployIngress:
@@ -318,27 +318,6 @@ paths:
       summary: Get Cluster Private Key
       tags:
       - cluster
-  /deployments/applications:
-    post:
-      operationId: deployApplication
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Deploy Application
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.DeployApplication'
-      responses:
-        "200":
-          description: OK
-      summary: Deploy application
-      tags:
-      - deployment
   /deployments/databases:
     post:
       operationId: deployDatabase
@@ -378,6 +357,27 @@ paths:
         "200":
           description: OK
       summary: Delete database
+      tags:
+      - deployment
+  /deployments/images:
+    post:
+      operationId: deployImage
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deploy Image
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeployImage'
+      responses:
+        "200":
+          description: OK
+      summary: Deploy image
       tags:
       - deployment
   /deployments/ingresses:

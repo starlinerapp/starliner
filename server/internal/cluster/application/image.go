@@ -6,17 +6,17 @@ import (
 	"starliner.app/internal/core/domain/value"
 )
 
-type ApplicationApplication struct {
+type ImageApplication struct {
 	deploy port.Deploy
 }
 
-func NewApplicationApplication(deploy port.Deploy) *ApplicationApplication {
-	return &ApplicationApplication{deploy: deploy}
+func NewImageApplication(deploy port.Deploy) *ImageApplication {
+	return &ImageApplication{deploy: deploy}
 }
 
-func (aa *ApplicationApplication) HandleDeployApplication(a *value.ApplicationDeployment) {
+func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
 	releaseName := a.DeploymentName
-	err := aa.deploy.DeployApplication(
+	err := ia.deploy.DeployImage(
 		releaseName,
 		a.KubeconfigBase64,
 		a.ImageRepository,

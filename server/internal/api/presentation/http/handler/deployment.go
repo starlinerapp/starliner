@@ -21,25 +21,25 @@ func NewDeploymentHandler(
 	}
 }
 
-// DeployApplication FindAll godoc
-// @Summary Deploy application
+// DeployImage FindAll godoc
+// @Summary Deploy image
 // @Tags deployment
-// @ID deployApplication
+// @ID deployImage
 // @Param X-User-ID header string true "User ID"
-// @Param data body request.DeployApplication true "Deploy Application"
+// @Param data body request.DeployImage true "Deploy Image"
 // @Product JSON
 // @Success 200
-// @Router /deployments/applications [post]
-func (dh *DeploymentHandler) DeployApplication(c *gin.Context) {
+// @Router /deployments/images [post]
+func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 
-	var body request.DeployApplication
+	var body request.DeployImage
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	err := dh.deploymentApplication.DeployApplication(
+	err := dh.deploymentApplication.DeployImage(
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,

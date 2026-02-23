@@ -24,7 +24,7 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
         position={Position.Left}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
-      <div className="database-node border-mauve-6 bg-mauve-2 flex w-[350px] flex-col gap-2 rounded-md border-1 p-2">
+      <div className="database-node border-mauve-6 bg-mauve-2 flex w-[350px] flex-col gap-2 rounded-md border-1 p-2 shadow-md">
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
             <Database className="w-5" />
@@ -33,7 +33,7 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
           <DatabaseContextMenu deploymentId={data.id} />
         </div>
         <div>
-          <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm">
+          <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm shadow-md">
             <p>Status</p>
             <span className="flex items-center gap-1.5">
               <span
@@ -45,7 +45,7 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
               <p>{data.status}</p>
             </span>
           </div>
-          <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm">
+          <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
             <span className="flex justify-between">
               <p>Port</p>
               <CopyToClipboard className="text-mauve-11" text={data.port} />

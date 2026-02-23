@@ -7,7 +7,7 @@ import (
 var Module = fx.Module(
 	"application",
 	fx.Provide(
-		NewApplicationApplication,
+		NewImageApplication,
 		NewDatabaseApplication,
 		NewIngressApplication,
 		NewStatusApplication,

@@ -25,7 +25,7 @@ func NewDeploy() port.Deploy {
 	return &Deploy{}
 }
 
-func (d *Deploy) DeployApplication(
+func (d *Deploy) DeployImage(
 	releaseName string,
 	kubeconfigBase64 string,
 	imageRepository string,

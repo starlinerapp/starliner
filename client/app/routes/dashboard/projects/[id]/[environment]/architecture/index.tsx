@@ -12,7 +12,7 @@ export async function loader(loaderArgs: Route.LoaderArgs) {
   });
 
   throw redirect(
-    `/${params.slug}/projects/${params.id}/${project.environments[0].slug}/architecture/git`,
+    `/${params.slug}/projects/${params.id}/${project.environments[0].slug}/architecture/image`,
   );
 }
 
