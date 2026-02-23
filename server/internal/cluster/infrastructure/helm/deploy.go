@@ -12,6 +12,12 @@ import (
 	"starliner.app/internal/cluster/domain/port"
 )
 
+const (
+	defaultNamespace    = "default"
+	defaultStorage      = "secret"
+	defaultWaitStrategy = "watcher"
+)
+
 type Deploy struct {
 }
 
@@ -26,207 +32,117 @@ func (d *Deploy) DeployApplication(
 	imageTag string,
 	port int,
 ) error {
-	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		return withTempChartDir(ApplicationChart, func(tmpDir string) error {
-			chart, err := loader.Load(tmpDir)
-			if err != nil {
-				return err
-			}
-
-			configFlags := genericclioptions.NewConfigFlags(false)
-			configFlags.KubeConfig = &kubeconfigPath
-
-			actionConfig := new(action.Configuration)
-			if err := actionConfig.Init(
-				configFlags,
-				"default",
-				"secret",
-			); err != nil {
-				return err
-			}
-
-			install := action.NewInstall(actionConfig)
-
-			install.ReleaseName = releaseName
-			install.Namespace = "default"
-			install.WaitStrategy = "watcher"
-
-			_, err = install.Run(chart, map[string]interface{}{
-				"image": map[string]interface{}{
-					"repository": imageRepository,
-					"tag":        imageTag,
-				},
-				"port":       80,
-				"targetPort": port,
-			})
-			if err != nil {
-				return err
-			}
-
-			return nil
-		})
+	return installChart(ApplicationChart, releaseName, kubeconfigBase64, map[string]interface{}{
+		"image": map[string]interface{}{
+			"repository": imageRepository,
+			"tag":        imageTag,
+		},
+		"port":       80,
+		"targetPort": port,
 	})
 }
 
 func (d *Deploy) DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error {
-	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		return withTempChartDir(CloudNativePgChart, func(tmpDir string) error {
-			chart, err := loader.Load(tmpDir)
-			if err != nil {
-				return err
-			}
-
-			configFlags := genericclioptions.NewConfigFlags(false)
-			configFlags.KubeConfig = &kubeconfigPath
-
-			actionConfig := new(action.Configuration)
-			if err := actionConfig.Init(
-				configFlags,
-				"default",
-				"secret",
-			); err != nil {
-				return err
-			}
-
-			install := action.NewInstall(actionConfig)
-
-			install.ReleaseName = releaseName
-			install.Namespace = "default"
-			install.WaitStrategy = "watcher"
-
-			_, err = install.Run(chart, map[string]interface{}{})
-			if err != nil {
-				return err
-			}
-
-			return nil
-		})
-	})
+	return installChart(CloudNativePgChart, releaseName, kubeconfigBase64, nil)
 }
 
 func (d *Deploy) DeployPostgres(releaseName string, kubeconfigBase64 string) error {
+	return installChart(PostgresChart, releaseName, kubeconfigBase64, nil)
+}
+
+func (d *Deploy) DeletePostgres(releaseName string, kubeconfigBase64 string) error {
+	return uninstallChart(releaseName, kubeconfigBase64)
+}
+
+func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
+	rules := make([]interface{}, 0, len(args.Hosts))
+	for _, host := range args.Hosts {
+		paths := make([]interface{}, 0, len(host.Paths))
+		for _, p := range host.Paths {
+			paths = append(paths, map[string]interface{}{
+				"path":     p.Path,
+				"pathType": p.PathType,
+				"service": map[string]interface{}{
+					"name": p.ServiceName,
+					"port": map[string]interface{}{
+						"number": p.ServicePort,
+					},
+				},
+			})
+		}
+
+		rules = append(rules, map[string]interface{}{
+			"host":  host.Host,
+			"paths": paths,
+		})
+	}
+
+	values := map[string]interface{}{
+		"ingress": map[string]interface{}{
+			"rules": rules,
+		},
+	}
+	return installChart(IngressChart, args.ReleaseName, args.KubeconfigBase64, values)
+}
+
+func installChart(
+	chartFS fs.FS,
+	releaseName string,
+	kubeconfigBase64 string,
+	values map[string]interface{},
+) error {
 	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		return withTempChartDir(PostgresChart, func(tmpDir string) error {
-			chart, err := loader.Load(tmpDir)
+		return withTempChartDir(chartFS, func(chartDir string) error {
+			ch, err := loader.Load(chartDir)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to load chart from %q: %w", chartDir, err)
 			}
 
-			configFlags := genericclioptions.NewConfigFlags(false)
-			configFlags.KubeConfig = &kubeconfigPath
+			cfg, err := newActionConfig(kubeconfigPath, defaultNamespace)
 
-			actionConfig := new(action.Configuration)
-			if err := actionConfig.Init(
-				configFlags,
-				"default",
-				"secret",
-			); err != nil {
-				return err
-			}
-
-			install := action.NewInstall(actionConfig)
-
+			install := action.NewInstall(cfg)
 			install.ReleaseName = releaseName
-			install.Namespace = "default"
-			install.WaitStrategy = "watcher"
+			install.Namespace = defaultNamespace
+			install.WaitStrategy = defaultWaitStrategy
 
-			_, err = install.Run(chart, map[string]interface{}{})
-			if err != nil {
-				return err
+			if values == nil {
+				values = map[string]interface{}{}
 			}
 
+			if _, err := install.Run(ch, values); err != nil {
+				return fmt.Errorf("helm install %q failed: %w", releaseName, err)
+			}
 			return nil
 		})
 	})
 }
 
-func (d *Deploy) DeletePostgres(releaseName string, kubeconfigBase64 string) error {
+func uninstallChart(releaseName string, kubeconfigBase64 string) error {
 	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		configFlags := genericclioptions.NewConfigFlags(false)
-		configFlags.KubeConfig = &kubeconfigPath
-
-		actionConfig := new(action.Configuration)
-		if err := actionConfig.Init(
-			configFlags,
-			"default",
-			"secret",
-		); err != nil {
-			return err
-		}
-
-		uninstall := action.NewUninstall(actionConfig)
-		uninstall.WaitStrategy = "watcher"
-
-		_, err := uninstall.Run(releaseName)
+		cfg, err := newActionConfig(kubeconfigPath, defaultNamespace)
 		if err != nil {
 			return err
 		}
 
+		uninstall := action.NewUninstall(cfg)
+		uninstall.WaitStrategy = defaultWaitStrategy
+
+		if _, err = uninstall.Run(releaseName); err != nil {
+			return fmt.Errorf("helm uninstall %q failed: %w", releaseName, err)
+		}
 		return nil
 	})
 }
 
-func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
-	return withTempKubeConfig(args.KubeconfigBase64, func(kubeconfigPath string) error {
-		return withTempChartDir(IngressChart, func(tmpDir string) error {
-			chart, err := loader.Load(tmpDir)
-			if err != nil {
-				return err
-			}
+func newActionConfig(kubeconfigPath string, namespace string) (*action.Configuration, error) {
+	flags := genericclioptions.NewConfigFlags(false)
+	flags.KubeConfig = &kubeconfigPath
 
-			configFlags := genericclioptions.NewConfigFlags(false)
-			configFlags.KubeConfig = &kubeconfigPath
-
-			actionConfig := new(action.Configuration)
-			if err := actionConfig.Init(
-				configFlags,
-				"default",
-				"secret",
-			); err != nil {
-				return err
-			}
-
-			install := action.NewInstall(actionConfig)
-
-			install.ReleaseName = args.ReleaseName
-			install.Namespace = "default"
-			install.WaitStrategy = "watcher"
-
-			rules := make([]interface{}, 0, len(args.Hosts))
-			for _, host := range args.Hosts {
-				paths := make([]interface{}, 0, len(host.Paths))
-				for _, p := range host.Paths {
-					paths = append(paths, map[string]interface{}{
-						"path":     p.Path,
-						"pathType": p.PathType,
-						"service": map[string]interface{}{
-							"name": p.ServiceName,
-							"port": map[string]interface{}{
-								"number": p.ServicePort,
-							},
-						},
-					})
-				}
-
-				rules = append(rules, map[string]interface{}{
-					"host":  host.Host,
-					"paths": paths,
-				})
-			}
-
-			values := map[string]interface{}{
-				"ingress": map[string]interface{}{
-					"rules": rules,
-				},
-			}
-			_, err = install.Run(chart, values)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		})
-	})
+	cfg := new(action.Configuration)
+	if err := cfg.Init(flags, namespace, defaultStorage); err != nil {
+		return nil, fmt.Errorf("failed to init helm action config: %w", err)
+	}
+	return cfg, nil
 }
 
 func withTempKubeConfig(kubeconfigBase64 string, fn func(path string) error) error {
