@@ -43,6 +43,9 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
+		body.Name,
+		body.Tag,
+		body.Port,
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

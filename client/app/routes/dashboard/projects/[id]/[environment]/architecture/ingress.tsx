@@ -22,16 +22,13 @@ export default function Ingress() {
   }
 
   return (
-    <div className="border-mauve-6 flex max-w-full min-w-[350px] items-center justify-between gap-4 overflow-hidden rounded-md border px-4 py-3 text-sm">
-      <div className="flex min-w-0 flex-1 items-center gap-4">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <p className="truncate font-medium">Traefik</p>
-          <p className="text-mauve-11 truncate text-xs">
-            Make your HTTP(S) network service available
-          </p>
-        </div>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <p>Traefik</p>
+        <p className="text-mauve-11 truncate text-sm">
+          Make your HTTP(S) network service available
+        </p>
       </div>
-
       <Button
         size="sm"
         className="w-28 flex-shrink-0 py-1.5"

@@ -65,8 +65,17 @@ definitions:
     properties:
       environmentId:
         type: integer
+      name:
+        type: string
+      port:
+        type: integer
+      tag:
+        type: string
     required:
     - environmentId
+    - name
+    - port
+    - tag
     type: object
   request.DeployIngress:
     properties:

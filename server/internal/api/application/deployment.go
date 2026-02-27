@@ -46,6 +46,9 @@ func (da *DeploymentApplication) DeployImage(
 	ctx context.Context,
 	userId int64,
 	environmentId int64,
+	name string,
+	tag string,
+	port int,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -66,9 +69,9 @@ func (da *DeploymentApplication) DeployImage(
 		DeploymentId:     0,
 		DeploymentName:   "example-project",
 		KubeconfigBase64: kubeconfigBase64,
-		ImageRepository:  "liangleon/example-project",
-		ImageTag:         "latest",
-		Port:             3000,
+		ImageRepository:  name,
+		ImageTag:         tag,
+		Port:             port,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)

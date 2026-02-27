@@ -7,7 +7,10 @@ const (
 )
 
 type DeployImage struct {
-	EnvironmentId int64 `json:"environmentId" binding:"required"`
+	EnvironmentId int64  `json:"environmentId" binding:"required"`
+	Name          string `json:"name" binding:"required"`
+	Tag           string `json:"tag" binding:"required"`
+	Port          int    `json:"port" binding:"required"`
 }
 
 type DeployDatabase struct {

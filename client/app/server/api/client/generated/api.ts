@@ -166,6 +166,24 @@ export interface RequestDeployImage {
    * @memberof RequestDeployImage
    */
   environmentId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  name: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployImage
+   */
+  port: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  tag: string;
 }
 /**
  *

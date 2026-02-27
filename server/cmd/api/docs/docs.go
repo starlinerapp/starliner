@@ -740,11 +740,23 @@ const docTemplate = `{
         "request.DeployImage": {
             "type": "object",
             "required": [
-                "environmentId"
+                "environmentId",
+                "name",
+                "port",
+                "tag"
             ],
             "properties": {
                 "environmentId": {
                     "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "tag": {
+                    "type": "string"
                 }
             }
         },
