@@ -741,19 +741,23 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "environmentId",
-                "name",
+                "imageName",
                 "port",
+                "serviceName",
                 "tag"
             ],
             "properties": {
                 "environmentId": {
                     "type": "integer"
                 },
-                "name": {
+                "imageName": {
                     "type": "string"
                 },
                 "port": {
                     "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
                 },
                 "tag": {
                     "type": "string"

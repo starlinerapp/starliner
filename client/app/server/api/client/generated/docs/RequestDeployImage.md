@@ -5,8 +5,9 @@
 | Name              | Type       | Description | Notes                  |
 | ----------------- | ---------- | ----------- | ---------------------- |
 | **environmentId** | **number** |             | [default to undefined] |
-| **name**          | **string** |             | [default to undefined] |
+| **imageName**     | **string** |             | [default to undefined] |
 | **port**          | **number** |             | [default to undefined] |
+| **serviceName**   | **string** |             | [default to undefined] |
 | **tag**           | **string** |             | [default to undefined] |
 
 ## Example
@@ -16,8 +17,9 @@ import { RequestDeployImage } from "./api";
 
 const instance: RequestDeployImage = {
   environmentId,
-  name,
+  imageName,
   port,
+  serviceName,
   tag,
 };
 ```

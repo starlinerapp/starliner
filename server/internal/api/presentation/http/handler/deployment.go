@@ -43,7 +43,8 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
-		body.Name,
+		body.ServiceName,
+		body.ImageName,
 		body.Tag,
 		body.Port,
 	)

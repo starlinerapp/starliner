@@ -171,13 +171,19 @@ export interface RequestDeployImage {
    * @type {string}
    * @memberof RequestDeployImage
    */
-  name: string;
+  imageName: string;
   /**
    *
    * @type {number}
    * @memberof RequestDeployImage
    */
   port: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  serviceName: string;
   /**
    *
    * @type {string}

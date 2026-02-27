@@ -8,7 +8,8 @@ const (
 
 type DeployImage struct {
 	EnvironmentId int64  `json:"environmentId" binding:"required"`
-	Name          string `json:"name" binding:"required"`
+	ServiceName   string `json:"serviceName" binding:"required"`
+	ImageName     string `json:"imageName" binding:"required"`
 	Tag           string `json:"tag" binding:"required"`
 	Port          int    `json:"port" binding:"required"`
 }

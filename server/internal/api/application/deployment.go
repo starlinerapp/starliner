@@ -46,7 +46,8 @@ func (da *DeploymentApplication) DeployImage(
 	ctx context.Context,
 	userId int64,
 	environmentId int64,
-	name string,
+	serviceName string,
+	imageName string,
 	tag string,
 	port int,
 ) error {
@@ -67,9 +68,9 @@ func (da *DeploymentApplication) DeployImage(
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     0,
-		DeploymentName:   "example-project",
+		DeploymentName:   serviceName,
 		KubeconfigBase64: kubeconfigBase64,
-		ImageRepository:  name,
+		ImageRepository:  imageName,
 		ImageTag:         tag,
 		Port:             port,
 	})

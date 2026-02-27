@@ -7,7 +7,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 
 interface ImageFormInput {
-  name: string;
+  serviceName: string;
+  imageName: string;
   tag: string;
   port: number | undefined;
 }
@@ -22,7 +23,8 @@ export default function Image() {
   const { environment: currentEnvironment } = useEnvironment();
 
   const { register, handleSubmit, watch, reset } = useForm<ImageFormInput>();
-  const nameInput = watch("name", "");
+  const serviceNameInput = watch("serviceName", "");
+  const imageNameInput = watch("imageName", "");
   const tagInput = watch("tag", "");
   const portInput = watch("port", undefined);
 
@@ -32,7 +34,8 @@ export default function Image() {
     createImageMutation.mutate(
       {
         id: currentEnvironment.id,
-        name: data.name,
+        serviceName: data.serviceName,
+        imageName: data.imageName,
         tag: data.tag,
         port: data.port,
       },
@@ -53,13 +56,26 @@ export default function Image() {
         </p>
       </div>
       <div className="flex flex-col gap-1">
+        <p className="text-sm">Service Name</p>
+        <div className="flex gap-2">
+          <input
+            className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+            type="text"
+            placeholder="Name*"
+            {...register("serviceName", {
+              required: true,
+            })}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
         <p className="text-sm">Image</p>
         <div className="flex items-center gap-2">
           <input
             className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
             type="text"
             placeholder="Name*"
-            {...register("name", { required: true })}
+            {...register("imageName", { required: true })}
           />
           {":"}
           <input
@@ -84,7 +100,9 @@ export default function Image() {
       <Button
         size="sm"
         className="w-28 flex-shrink-0 py-1.5"
-        disabled={!nameInput || !tagInput || !portInput}
+        disabled={
+          !serviceNameInput || !imageNameInput || !tagInput || !portInput
+        }
       >
         Deploy
         <ArrowRight className="w-4 stroke-2" />

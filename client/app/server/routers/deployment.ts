@@ -7,7 +7,8 @@ export const deploymentRouter = {
     .input(
       z.object({
         id: z.number(),
-        name: z.string(),
+        serviceName: z.string(),
+        imageName: z.string(),
         tag: z.string(),
         port: z.number(),
       }),
@@ -17,7 +18,8 @@ export const deploymentRouter = {
       return await deploymentApiFactory
         .deployImage(userId, {
           environmentId: input.id,
-          name: input.name,
+          serviceName: input.serviceName,
+          imageName: input.imageName,
           tag: input.tag,
           port: input.port,
         })
