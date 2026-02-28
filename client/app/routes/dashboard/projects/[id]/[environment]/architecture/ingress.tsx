@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { ArrowRight, Plus } from "~/components/atoms/icons";
+import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { cn } from "~/utils/cn";
 
 interface Path {
   path: string;
@@ -85,11 +86,23 @@ export default function Ingress() {
                     <div className="border-mauve-6 absolute -left-6.5 h-6 w-6 rounded-bl-md border-b-2 border-l-2" />
 
                     <div className="flex w-full gap-1">
-                      <input
-                        className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-32 rounded-md border p-2 text-sm"
-                        type="text"
-                        placeholder="Path Type*"
-                      />
+                      <div className="relative min-w-24">
+                        <select
+                          className={cn(
+                            "border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm",
+                            "text-mauve-11",
+                          )}
+                        >
+                          {["Prefix", "Exact"].map((pathType, i) => (
+                            <option key={i} value={pathType}>
+                              {pathType}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                          <ChevronDown width={15} className="stroke-mauve-10" />
+                        </div>
+                      </div>
                       <input
                         className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-24 rounded-md border p-2 text-sm"
                         type="text"
@@ -100,12 +113,24 @@ export default function Ingress() {
                     <div className="border-mauve-6 relative ml-1 flex flex-col gap-1 border-l-2 pl-6">
                       {/* Inner L connector */}
                       <div className="border-mauve-6 absolute -left-0.5 h-6 w-6 rounded-bl-md border-b-2 border-l-2" />
-
-                      <input
-                        className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-32 rounded-md border p-2 text-sm"
-                        type="text"
-                        placeholder="Service*"
-                      />
+                      <div className="relative min-w-48">
+                        <select
+                          className={cn(
+                            "border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 p-2 text-sm",
+                            "text-mauve-11",
+                          )}
+                          disabled={false}
+                        >
+                          {["example-project"].map((cluster, i) => (
+                            <option key={i} value={cluster}>
+                              {cluster}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                          <ChevronDown width={15} className="stroke-mauve-10" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
