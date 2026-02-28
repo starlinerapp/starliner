@@ -10,6 +10,7 @@ export { default as EllipsisVertical } from "./EllipsisVertical";
 export { default as ExclamationTriangle } from "./ExclamationTriangle";
 export { default as InboxStack } from "./InboxStack";
 export { default as LinkOut } from "./LinkOut";
+export { default as Minus } from "./Minus";
 export { default as Plus } from "./Plus";
 export { default as Servers } from "./Servers";
 export { default as Shuffle } from "./Shuffle";
