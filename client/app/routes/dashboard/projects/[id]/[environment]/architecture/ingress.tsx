@@ -84,16 +84,16 @@ export default function Ingress() {
                     {/* L connector */}
                     <div className="border-mauve-6 absolute -left-6.5 h-6 w-6 rounded-bl-md border-b-2 border-l-2" />
 
-                    <div className="flex w-full gap-2">
+                    <div className="flex w-full gap-1">
                       <input
                         className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-32 rounded-md border p-2 text-sm"
                         type="text"
-                        placeholder="Path*"
+                        placeholder="Path Type*"
                       />
                       <input
                         className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-24 rounded-md border p-2 text-sm"
                         type="text"
-                        placeholder="Path Type*"
+                        placeholder="Path*"
                       />
                     </div>
 
