@@ -174,7 +174,7 @@ function HostEditor({
         <button
           type="button"
           onClick={onRemove}
-          className="border-mauve-6 text-mauve-7 absolute top-[15px] -left-2 z-10 flex h-4 w-4 cursor-pointer items-center justify-center rounded border-[1.5px] bg-white"
+          className="border-mauve-6 hover:border-violet-9 hover:text-violet-9 text-mauve-7 absolute top-[15px] -left-2 z-10 flex h-4 w-4 cursor-pointer items-center justify-center rounded border-[1.5px] bg-white"
         >
           <Minus className="stroke-3" />
         </button>
@@ -208,7 +208,7 @@ function HostEditor({
                 <button
                   type="button"
                   onClick={() => removePath(pathIndex)}
-                  className="border-mauve-6 text-mauve-7 absolute top-[15px] -left-8 z-10 flex h-4 w-4 cursor-pointer items-center justify-center rounded border-[1.5px] bg-white"
+                  className="border-mauve-6 hover:border-violet-9 hover:text-violet-9 text-mauve-7 absolute top-[15px] -left-8 z-10 flex h-4 w-4 cursor-pointer items-center justify-center rounded border-[1.5px] bg-white"
                 >
                   <Minus className="stroke-3" />
                 </button>
