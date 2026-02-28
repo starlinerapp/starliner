@@ -255,7 +255,7 @@ function HostEditor({
 
         <Button
           intent="text"
-          className="p-1 pl-10"
+          className="p-1 pl-7"
           type="button"
           onClick={() => appendPath({ ...emptyPathEntry })}
         >
