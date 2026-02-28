@@ -190,14 +190,14 @@ function HostEditor({
               placeholder="Host*"
               {...register(`hosts.${hostIndex}.name`)}
             />
-            <div className="flex">
-              {clusterIp ? (
-                <p className="text-mauve-11 text-sm">.{clusterIp}</p>
-              ) : (
-                <Skeleton className="h-5 w-24" />
-              )}
-              <p className="text-mauve-11 text-sm">.nip.io</p>
-            </div>
+            {clusterIp ? (
+              <div className="border-mauve-6 text-mauve-11 flex cursor-not-allowed rounded-md border-1 p-2 text-sm">
+                <p>.{clusterIp}</p>
+                <p>.nip.io</p>
+              </div>
+            ) : (
+              <Skeleton className="h-full w-56" />
+            )}
           </div>
         </div>
 
@@ -286,7 +286,7 @@ function HostEditor({
 
         <Button
           intent="text"
-          className="p-1 pl-7"
+          className="py-1"
           type="button"
           onClick={() => appendPath({ ...emptyPathEntry })}
         >
