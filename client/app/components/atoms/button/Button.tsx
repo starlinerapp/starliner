@@ -28,6 +28,7 @@ const buttonVariants = cva(
         secondary: "bg-white border-mauve-7 hover:bg-mauve-1 text-mauve-12",
         danger:
           "text-red-11 font-bold border-gray-7 bg-gray-3 hover:text-white hover:bg-red-11 hover:border-red-8",
+        text: "p-1 text-xs border-0 justify-start font-medium p-0 gap-1 text-violet-11",
       },
       disabled: {
         false: null,
