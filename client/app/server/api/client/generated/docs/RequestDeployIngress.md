@@ -2,9 +2,10 @@
 
 ## Properties
 
-| Name              | Type       | Description | Notes                  |
-| ----------------- | ---------- | ----------- | ---------------------- |
-| **environmentId** | **number** |             | [default to undefined] |
+| Name              | Type                                                         | Description | Notes                  |
+| ----------------- | ------------------------------------------------------------ | ----------- | ---------------------- |
+| **environmentId** | **number**                                                   |             | [default to undefined] |
+| **ingressHosts**  | [**Array&lt;RequestIngressHost&gt;**](RequestIngressHost.md) |             | [default to undefined] |
 
 ## Example
 
@@ -13,6 +14,7 @@ import { RequestDeployIngress } from "./api";
 
 const instance: RequestDeployIngress = {
   environmentId,
+  ingressHosts,
 };
 ```
 

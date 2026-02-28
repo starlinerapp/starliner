@@ -18,6 +18,8 @@ docs/RequestDatabase.md
 docs/RequestDeployDatabase.md
 docs/RequestDeployImage.md
 docs/RequestDeployIngress.md
+docs/RequestIngressHost.md
+docs/RequestIngressPath.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
 docs/ResponseDatabaseDeployment.md

@@ -178,7 +178,7 @@ func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.Deployment
 	}
 }
 
-func (da *DeploymentApplication) DeployIngress(ctx context.Context, userId int64, environmentId int64) error {
+func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []value.IngressHost, userId int64, environmentId int64) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
@@ -205,18 +205,27 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, userId int64
 		return err
 	}
 
+	coreHosts := make([]coreValue.IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		ch := coreValue.IngressHost{
+			Host: h.Host + "." + *cluster.IPv4Address + ".nip.io",
+		}
+		ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
+
+		for _, p := range h.Paths {
+			ch.Paths = append(ch.Paths, coreValue.IngressPath{
+				Path:        p.Path,
+				PathType:    coreValue.PathType(p.PathType),
+				ServiceName: p.ServiceName,
+				ServicePort: 80,
+			})
+		}
+
+		coreHosts = append(coreHosts, ch)
+	}
+
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
-		IngressHosts: []coreValue.IngressHost{{
-			Host: "example." + *cluster.IPv4Address + ".nip.io",
-			Paths: []coreValue.IngressPath{
-				{
-					Path:        "/",
-					PathType:    "Prefix",
-					ServiceName: "example-project",
-					ServicePort: 80,
-				},
-			},
-		}},
+		IngressHosts:     coreHosts,
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,

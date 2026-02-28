@@ -84,8 +84,41 @@ definitions:
     properties:
       environmentId:
         type: integer
+      ingressHosts:
+        items:
+          $ref: '#/definitions/request.IngressHost'
+        type: array
     required:
     - environmentId
+    - ingressHosts
+    type: object
+  request.IngressHost:
+    properties:
+      host:
+        type: string
+      paths:
+        items:
+          $ref: '#/definitions/request.IngressPath'
+        type: array
+    required:
+    - host
+    - paths
+    type: object
+  request.IngressPath:
+    properties:
+      path:
+        type: string
+      pathType:
+        enum:
+        - Prefix
+        - Exact
+        type: string
+      serviceName:
+        type: string
+    required:
+    - path
+    - pathType
+    - serviceName
     type: object
   response.Cluster:
     properties:

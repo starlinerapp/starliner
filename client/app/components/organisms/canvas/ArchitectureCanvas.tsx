@@ -75,6 +75,7 @@ export default function ArchitectureCanvas({
       const nextIds = new Set<string>([
         ...deployments.databases.map((d) => `database:${d.id}`),
         ...deployments.images.map((i) => `image:${i.id}`),
+        ...deployments.ingresses.map((i) => `ingress:${i.id}`),
       ]);
 
       const remainingNodes = prevNodes.filter((n) => nextIds.has(n.id));

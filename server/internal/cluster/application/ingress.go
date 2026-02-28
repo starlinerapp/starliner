@@ -38,7 +38,7 @@ func toPortIngressHosts(in []value.IngressHost) []port.IngressHost {
 		for _, p := range h.Paths {
 			paths = append(paths, port.IngressPath{
 				Path:        p.Path,
-				PathType:    p.PathType,
+				PathType:    port.PathType(p.PathType),
 				ServiceName: p.ServiceName,
 				ServicePort: p.ServicePort,
 			})

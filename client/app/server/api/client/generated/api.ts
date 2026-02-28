@@ -203,7 +203,66 @@ export interface RequestDeployIngress {
    * @memberof RequestDeployIngress
    */
   environmentId: number;
+  /**
+   *
+   * @type {Array<RequestIngressHost>}
+   * @memberof RequestDeployIngress
+   */
+  ingressHosts: Array<RequestIngressHost>;
 }
+/**
+ *
+ * @export
+ * @interface RequestIngressHost
+ */
+export interface RequestIngressHost {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressHost
+   */
+  host: string;
+  /**
+   *
+   * @type {Array<RequestIngressPath>}
+   * @memberof RequestIngressHost
+   */
+  paths: Array<RequestIngressPath>;
+}
+/**
+ *
+ * @export
+ * @interface RequestIngressPath
+ */
+export interface RequestIngressPath {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressPath
+   */
+  path: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressPath
+   */
+  pathType: RequestIngressPathPathTypeEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressPath
+   */
+  serviceName: string;
+}
+
+export const RequestIngressPathPathTypeEnum = {
+  Prefix: "Prefix",
+  Exact: "Exact",
+} as const;
+
+export type RequestIngressPathPathTypeEnum =
+  (typeof RequestIngressPathPathTypeEnum)[keyof typeof RequestIngressPathPathTypeEnum];
+
 /**
  *
  * @export

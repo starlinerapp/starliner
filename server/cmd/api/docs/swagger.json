@@ -755,11 +755,59 @@
         "request.DeployIngress": {
             "type": "object",
             "required": [
-                "environmentId"
+                "environmentId",
+                "ingressHosts"
             ],
             "properties": {
                 "environmentId": {
                     "type": "integer"
+                },
+                "ingressHosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressHost"
+                    }
+                }
+            }
+        },
+        "request.IngressHost": {
+            "type": "object",
+            "required": [
+                "host",
+                "paths"
+            ],
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressPath"
+                    }
+                }
+            }
+        },
+        "request.IngressPath": {
+            "type": "object",
+            "required": [
+                "path",
+                "pathType",
+                "serviceName"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "pathType": {
+                    "type": "string",
+                    "enum": [
+                        "Prefix",
+                        "Exact"
+                    ]
+                },
+                "serviceName": {
+                    "type": "string"
                 }
             }
         },

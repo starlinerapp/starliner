@@ -19,6 +19,18 @@ type DeployDatabase struct {
 	Database      Database `json:"database" binding:"required,oneof=postgres"`
 }
 
+type IngressPath struct {
+	Path        string `json:"path" binding:"required"`
+	PathType    string `json:"pathType" binding:"required,oneof=Prefix Exact"`
+	ServiceName string `json:"serviceName" binding:"required"`
+}
+
+type IngressHost struct {
+	Host  string        `json:"host" binding:"required"`
+	Paths []IngressPath `json:"paths" binding:"required"`
+}
+
 type DeployIngress struct {
-	EnvironmentId int64 `json:"environmentId" binding:"required"`
+	EnvironmentId int64         `json:"environmentId" binding:"required"`
+	IngressHosts  []IngressHost `json:"ingressHosts" binding:"required"`
 }

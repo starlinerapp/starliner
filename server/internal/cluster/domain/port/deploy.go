@@ -1,8 +1,15 @@
 package port
 
+type PathType string
+
+const (
+	Prefix PathType = "Prefix"
+	Exact  PathType = "Exact"
+)
+
 type IngressPath struct {
 	Path        string
-	PathType    string
+	PathType    PathType
 	ServiceName string
 	ServicePort int
 }

@@ -24,7 +24,7 @@ func (da *DeploymentApplication) HandleDeleteDeployment(d *value.Deployment) {
 	if err != nil {
 		log.Printf("failed to delete helm chart: %v\n", err)
 	}
-	log.Println("successfully deleted database from cluster")
+	log.Println("successfully deleted deployment")
 
 	err = da.queue.PublishDeploymentDeleted(&value.DeploymentDeleted{
 		DeploymentId: d.DeploymentId,

@@ -10,11 +10,31 @@ type Deployments struct {
 	Images    []*ImageDeployment
 }
 
-type IngressDeployment struct {
-	Id          int64
+type PathType string
+
+const (
+	Prefix PathType = "Prefix"
+	Exact  PathType = "Exact"
+)
+
+type IngressPath struct {
+	Path        string
+	PathType    PathType
 	ServiceName string
-	Status      string
-	Port        string
+	ServicePort int
+}
+
+type IngressHost struct {
+	Host  string
+	Paths []IngressPath
+}
+
+type IngressDeployment struct {
+	Id           int64
+	ServiceName  string
+	Status       string
+	Port         string
+	IngressHosts []IngressHost
 }
 
 func NewIngressDeployment(d *entity.IngressDeployment) *IngressDeployment {

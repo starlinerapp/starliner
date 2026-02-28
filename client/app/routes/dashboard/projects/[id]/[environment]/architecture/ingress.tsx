@@ -77,6 +77,14 @@ export default function Ingress() {
     if (!currentEnvironment) return;
     createIngressMutation.mutate({
       id: currentEnvironment.id,
+      ingressHosts: data.hosts.map((h) => ({
+        host: h.name,
+        paths: h.paths.map((p) => ({
+          path: p.path,
+          pathType: p.pathType as "Prefix" | "Exact",
+          serviceName: p.service,
+        })),
+      })),
     });
   };
 
@@ -260,7 +268,7 @@ function HostEditor({
                     <option value="" disabled>
                       Service*
                     </option>
-                    {["example-project"].map((svc) => (
+                    {["example-project", "test-rest-api"].map((svc) => (
                       <option key={svc} value={svc}>
                         {svc}
                       </option>

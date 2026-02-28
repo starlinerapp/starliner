@@ -6,6 +6,7 @@ import (
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
+	"starliner.app/internal/api/presentation/http/mapper"
 	"strconv"
 )
 
@@ -106,6 +107,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 
 	err := dh.deploymentApplication.DeployIngress(
 		c.Request.Context(),
+		mapper.MapHosts(body.IngressHosts),
 		currentUser.Id,
 		body.EnvironmentId,
 	)
