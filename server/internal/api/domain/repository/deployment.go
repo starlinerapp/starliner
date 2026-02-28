@@ -18,6 +18,38 @@ func NewDeploymentRepository(queries *sqlc.Queries) interfaces.DeploymentReposit
 	return &DeploymentRepository{queries: queries}
 }
 
+func (dr *DeploymentRepository) CreateImageDeployment(
+	ctx context.Context,
+	serviceName string,
+	imageName string,
+	tag string,
+	port string,
+	status string,
+	environmentId int64,
+) (deployment *entity.ImageDeployment, err error) {
+	d, err := dr.queries.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
+		Port:          port,
+		Status:        utils.NullStringFromPtr(&status),
+		EnvironmentID: environmentId,
+		Tag:           tag,
+		ServiceName:   serviceName,
+		ImageName:     imageName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.ImageDeployment{
+		Id:            d.DeploymentID,
+		Status:        utils.PtrFromNullString(d.Status),
+		ServiceName:   d.ServiceName,
+		ImageName:     d.ImageName,
+		Tag:           d.ImageTag,
+		Port:          d.Port,
+		EnvironmentId: d.EnvironmentID,
+	}, nil
+}
+
 func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	ctx context.Context,
 	name string,

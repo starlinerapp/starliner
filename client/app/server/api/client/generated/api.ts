@@ -260,45 +260,64 @@ export type ResponseClusterStatus =
 /**
  *
  * @export
- * @interface ResponseDeployment
+ * @interface ResponseDatabaseDeployment
  */
-export interface ResponseDeployment {
+export interface ResponseDatabaseDeployment {
   /**
    *
    * @type {number}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   id: number;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   name: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   password: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   port: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   status: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   username: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseDeployments
+ */
+export interface ResponseDeployments {
+  /**
+   *
+   * @type {Array<ResponseDatabaseDeployment>}
+   * @memberof ResponseDeployments
+   */
+  databases: Array<ResponseDatabaseDeployment>;
+  /**
+   *
+   * @type {Array<ResponseImageDeployment>}
+   * @memberof ResponseDeployments
+   */
+  images: Array<ResponseImageDeployment>;
 }
 /**
  *
@@ -324,6 +343,49 @@ export interface ResponseEnvironment {
    * @memberof ResponseEnvironment
    */
   slug: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseImageDeployment
+ */
+export interface ResponseImageDeployment {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseImageDeployment
+   */
+  id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  imageName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  port: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  serviceName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  status: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  tag: string;
 }
 /**
  *
@@ -1833,7 +1895,7 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
       (
         axios?: AxiosInstance,
         basePath?: string,
-      ) => AxiosPromise<Array<ResponseDeployment>>
+      ) => AxiosPromise<ResponseDeployments>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.getEnvironmentDeployments(
@@ -1897,7 +1959,7 @@ export const EnvironmentApiFactory = function (
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<Array<ResponseDeployment>> {
+    ): AxiosPromise<ResponseDeployments> {
       return localVarFp
         .getEnvironmentDeployments(xUserID, id, options)
         .then((request) => request(axios, basePath));

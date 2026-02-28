@@ -20,8 +20,10 @@ docs/RequestDeployImage.md
 docs/RequestDeployIngress.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
-docs/ResponseDeployment.md
+docs/ResponseDatabaseDeployment.md
+docs/ResponseDeployments.md
 docs/ResponseEnvironment.md
+docs/ResponseImageDeployment.md
 docs/ResponseOrganization.md
 docs/ResponseProject.md
 docs/ResponseRoot.md

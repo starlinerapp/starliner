@@ -45,11 +45,19 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 	return nil
 }
 
-func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*value.DatabaseDeployment, error) {
-	deployments, err := ea.environmentRepository.GetEnvironmentDeployments(ctx, environmentId, userId)
+func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) (*value.Deployments, error) {
+	images, err := ea.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return value.NewDatabaseDeployments(deployments), nil
+	databases, err := ea.environmentRepository.GetEnvironmentDatabaseDeployments(ctx, environmentId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &value.Deployments{
+		Databases: value.NewDatabaseDeployments(databases),
+		Images:    value.NewImageDeployments(images),
+	}, nil
 }

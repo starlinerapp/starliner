@@ -378,10 +378,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.Deployment"
-                            }
+                            "$ref": "#/definitions/response.Deployments"
                         }
                     }
                 }
@@ -824,7 +821,7 @@ const docTemplate = `{
                 "ClusterStatusDeleted"
             ]
         },
-        "response.Deployment": {
+        "response.DatabaseDeployment": {
             "type": "object",
             "required": [
                 "id",
@@ -855,6 +852,27 @@ const docTemplate = `{
                 }
             }
         },
+        "response.Deployments": {
+            "type": "object",
+            "required": [
+                "databases",
+                "images"
+            ],
+            "properties": {
+                "databases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DatabaseDeployment"
+                    }
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ImageDeployment"
+                    }
+                }
+            }
+        },
         "response.Environment": {
             "type": "object",
             "required": [
@@ -870,6 +888,37 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ImageDeployment": {
+            "type": "object",
+            "required": [
+                "id",
+                "imageName",
+                "port",
+                "serviceName",
+                "status",
+                "tag"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tag": {
                     "type": "string"
                 }
             }

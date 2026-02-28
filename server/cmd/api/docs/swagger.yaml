@@ -121,7 +121,7 @@ definitions:
     - ClusterStatusPending
     - ClusterStatusRunning
     - ClusterStatusDeleted
-  response.Deployment:
+  response.DatabaseDeployment:
     properties:
       id:
         type: integer
@@ -143,6 +143,20 @@ definitions:
     - status
     - username
     type: object
+  response.Deployments:
+    properties:
+      databases:
+        items:
+          $ref: '#/definitions/response.DatabaseDeployment'
+        type: array
+      images:
+        items:
+          $ref: '#/definitions/response.ImageDeployment'
+        type: array
+    required:
+    - databases
+    - images
+    type: object
   response.Environment:
     properties:
       id:
@@ -155,6 +169,28 @@ definitions:
     - id
     - name
     - slug
+    type: object
+  response.ImageDeployment:
+    properties:
+      id:
+        type: integer
+      imageName:
+        type: string
+      port:
+        type: string
+      serviceName:
+        type: string
+      status:
+        type: string
+      tag:
+        type: string
+    required:
+    - id
+    - imageName
+    - port
+    - serviceName
+    - status
+    - tag
     type: object
   response.Organization:
     properties:
@@ -452,9 +488,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/response.Deployment'
-            type: array
+            $ref: '#/definitions/response.Deployments'
       summary: Get Environment Deployments
       tags:
       - environment

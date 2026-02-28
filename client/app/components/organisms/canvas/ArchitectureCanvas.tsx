@@ -20,6 +20,7 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import type { ResponseEnvironment } from "~/server/api/client/generated";
 import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
+import ImageNode from "~/components/atoms/nodes/ImageNode";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -46,6 +47,7 @@ export default function ArchitectureCanvas({
   const nodeTypes: NodeTypes = useMemo(() => {
     return {
       database: DatabaseNode,
+      image: ImageNode,
     };
   }, []);
 
@@ -68,22 +70,23 @@ export default function ArchitectureCanvas({
     if (!deployments) return;
 
     setNodes((prevNodes) => {
-      const deploymentIds = new Set(deployments.map((d) => d.id));
+      const nextIds = new Set<string>([
+        ...deployments.databases.map((d) => `database:${d.id}`),
+        ...deployments.images.map((i) => `image:${i.id}`),
+      ]);
 
-      const remainingNodes = prevNodes.filter((node) =>
-        deploymentIds.has(Number(node.data.id)),
-      );
+      const remainingNodes = prevNodes.filter((n) => nextIds.has(n.id));
 
-      const nextNodes: Node[] = deployments.map((deployment) => {
-        const existing = remainingNodes.find(
-          (n) => n.data.id === deployment.id,
-        );
+      const dbNodes: Node[] = deployments.databases.map((deployment) => {
+        const id = `database:${deployment.id}`;
+        const existing = remainingNodes.find((n) => n.id === id);
 
         return {
-          id: String(deployment.id),
+          id,
           type: "database",
           position: existing?.position ?? { x: 0, y: 0 },
-          sourcePosition: Position.Left,
+          sourcePosition: Position.Right,
+          targetPosition: Position.Left,
           data: {
             id: deployment.id,
             serviceName: deployment.name,
@@ -95,7 +98,28 @@ export default function ArchitectureCanvas({
         };
       });
 
-      return nextNodes;
+      const imageNodes: Node[] = deployments.images.map((deployment) => {
+        const id = `image:${deployment.id}`;
+        const existing = remainingNodes.find((n) => n.id === id);
+
+        return {
+          id,
+          type: "image",
+          position: existing?.position ?? { x: 0, y: 0 },
+          sourcePosition: Position.Right,
+          targetPosition: Position.Left,
+          data: {
+            id: deployment.id,
+            serviceName: deployment.serviceName,
+            status: deployment.status,
+            port: deployment.port,
+            imageName: deployment.imageName,
+            tag: deployment.tag,
+          },
+        };
+      });
+
+      return [...dbNodes, ...imageNodes];
     });
   }, [deployments]);
 

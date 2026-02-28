@@ -10,6 +10,7 @@ import (
 	"starliner.app/internal/api/domain/value"
 	corePort "starliner.app/internal/core/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
+	"strconv"
 )
 
 type DeploymentApplication struct {
@@ -61,13 +62,24 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	// TODO: status shouldn't be hardcoded
+	deployment, err := da.deploymentRepository.CreateImageDeployment(
+		ctx,
+		serviceName,
+		imageName,
+		tag,
+		strconv.Itoa(port),
+		"unhealthy",
+		environmentId,
+	)
+
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
 	}
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
-		DeploymentId:     0,
+		DeploymentId:     deployment.Id,
 		DeploymentName:   serviceName,
 		KubeconfigBase64: kubeconfigBase64,
 		ImageRepository:  imageName,

@@ -6,6 +6,16 @@ import (
 )
 
 type DeploymentRepository interface {
+	CreateImageDeployment(
+		ctx context.Context,
+		serviceName string,
+		imageName string,
+		tag string,
+		port string,
+		status string,
+		environmentId int64,
+	) (deployment *entity.ImageDeployment, err error)
+
 	CreateDatabaseDeployment(
 		ctx context.Context,
 		name string,
