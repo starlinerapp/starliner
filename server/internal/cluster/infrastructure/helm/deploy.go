@@ -99,6 +99,9 @@ func installChart(
 			}
 
 			cfg, err := newActionConfig(kubeconfigPath, defaultNamespace)
+			if err != nil {
+				return err
+			}
 
 			install := action.NewInstall(cfg)
 			install.ReleaseName = releaseName

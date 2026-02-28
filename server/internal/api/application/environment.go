@@ -46,6 +46,11 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 }
 
 func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) (*value.Deployments, error) {
+	ingresses, err := ea.environmentRepository.GetEnvironmentIngressDeployments(ctx, environmentId, userId)
+	if err != nil {
+		return nil, err
+	}
+
 	images, err := ea.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
@@ -59,5 +64,6 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 	return &value.Deployments{
 		Databases: value.NewDatabaseDeployments(databases),
 		Images:    value.NewImageDeployments(images),
+		Ingresses: value.NewIngressDeployments(ingresses),
 	}, nil
 }

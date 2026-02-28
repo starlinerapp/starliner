@@ -847,7 +847,8 @@
             "type": "object",
             "required": [
                 "databases",
-                "images"
+                "images",
+                "ingresses"
             ],
             "properties": {
                 "databases": {
@@ -860,6 +861,12 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.ImageDeployment"
+                    }
+                },
+                "ingresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressDeployment"
                     }
                 }
             }
@@ -910,6 +917,29 @@
                     "type": "string"
                 },
                 "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.IngressDeployment": {
+            "type": "object",
+            "required": [
+                "id",
+                "port",
+                "serviceName",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

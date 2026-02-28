@@ -16,6 +16,14 @@ type DeploymentRepository interface {
 		environmentId int64,
 	) (deployment *entity.ImageDeployment, err error)
 
+	CreateIngressDeployment(
+		ctx context.Context,
+		serviceName string,
+		port string,
+		status string,
+		environmentId int64,
+	) (*entity.IngressDeployment, error)
+
 	CreateDatabaseDeployment(
 		ctx context.Context,
 		name string,

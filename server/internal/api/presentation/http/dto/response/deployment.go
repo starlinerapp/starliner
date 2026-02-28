@@ -5,8 +5,33 @@ import (
 )
 
 type Deployments struct {
+	Ingresses []IngressDeployment  `json:"ingresses" binding:"required"`
 	Databases []DatabaseDeployment `json:"databases" binding:"required"`
 	Images    []ImageDeployment    `json:"images" binding:"required"`
+}
+
+type IngressDeployment struct {
+	Id          int64  `json:"id" binding:"required"`
+	ServiceName string `json:"serviceName" binding:"required"`
+	Status      string `json:"status" binding:"required"`
+	Port        string `json:"port" binding:"required"`
+}
+
+func NewIngressDeployment(ingressDeployment *value.IngressDeployment) IngressDeployment {
+	return IngressDeployment{
+		Id:          ingressDeployment.Id,
+		ServiceName: ingressDeployment.ServiceName,
+		Status:      ingressDeployment.Status,
+		Port:        ingressDeployment.Port,
+	}
+}
+
+func NewIngressDeployments(ingressDeployments []*value.IngressDeployment) []IngressDeployment {
+	result := make([]IngressDeployment, 0, len(ingressDeployments))
+	for _, deployment := range ingressDeployments {
+		result = append(result, NewIngressDeployment(deployment))
+	}
+	return result
 }
 
 type ImageDeployment struct {
@@ -67,6 +92,7 @@ func NewDatabaseDeployments(databaseDeployments []*value.DatabaseDeployment) []D
 
 func NewDeployments(deployments *value.Deployments) Deployments {
 	return Deployments{
+		Ingresses: NewIngressDeployments(deployments.Ingresses),
 		Databases: NewDatabaseDeployments(deployments.Databases),
 		Images:    NewImageDeployments(deployments.Images),
 	}

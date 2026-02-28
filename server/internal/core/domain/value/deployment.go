@@ -15,11 +15,23 @@ type Deployment struct {
 	KubeconfigBase64 string
 }
 
+type IngressPath struct {
+	Path        string
+	PathType    string
+	ServiceName string
+	ServicePort int
+}
+
+type IngressHost struct {
+	Host  string
+	Paths []IngressPath
+}
+
 type IngressDeployment struct {
-	HostName         string
 	DeploymentId     int64
 	DeploymentName   string
 	KubeconfigBase64 string
+	IngressHosts     []IngressHost
 }
 
 type DeploymentDeleted struct {

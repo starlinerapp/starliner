@@ -856,7 +856,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "databases",
-                "images"
+                "images",
+                "ingresses"
             ],
             "properties": {
                 "databases": {
@@ -869,6 +870,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.ImageDeployment"
+                    }
+                },
+                "ingresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressDeployment"
                     }
                 }
             }
@@ -919,6 +926,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.IngressDeployment": {
+            "type": "object",
+            "required": [
+                "id",
+                "port",
+                "serviceName",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

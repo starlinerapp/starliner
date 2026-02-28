@@ -6,6 +6,7 @@
 | ------------- | ---------------------------------------------------------------------------- | ----------- | ---------------------- |
 | **databases** | [**Array&lt;ResponseDatabaseDeployment&gt;**](ResponseDatabaseDeployment.md) |             | [default to undefined] |
 | **images**    | [**Array&lt;ResponseImageDeployment&gt;**](ResponseImageDeployment.md)       |             | [default to undefined] |
+| **ingresses** | [**Array&lt;ResponseIngressDeployment&gt;**](ResponseIngressDeployment.md)   |             | [default to undefined] |
 
 ## Example
 
@@ -15,6 +16,7 @@ import { ResponseDeployments } from "./api";
 const instance: ResponseDeployments = {
   databases,
   images,
+  ingresses,
 };
 ```
 

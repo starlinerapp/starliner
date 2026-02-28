@@ -1,7 +1,8 @@
 package entity
 
-type Deployment struct {
+type IngressDeployment struct {
 	Id            int64
+	Status        *string
 	Name          string
 	Port          string
 	EnvironmentId int64
@@ -23,6 +24,13 @@ type DatabaseDeployment struct {
 	Status        *string
 	Username      string
 	Password      string
+	Port          string
+	EnvironmentId int64
+}
+
+type Deployment struct {
+	Id            int64
+	Name          string
 	Port          string
 	EnvironmentId int64
 }

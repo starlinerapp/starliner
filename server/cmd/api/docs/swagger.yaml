@@ -153,9 +153,14 @@ definitions:
         items:
           $ref: '#/definitions/response.ImageDeployment'
         type: array
+      ingresses:
+        items:
+          $ref: '#/definitions/response.IngressDeployment'
+        type: array
     required:
     - databases
     - images
+    - ingresses
     type: object
   response.Environment:
     properties:
@@ -191,6 +196,22 @@ definitions:
     - serviceName
     - status
     - tag
+    type: object
+  response.IngressDeployment:
+    properties:
+      id:
+        type: integer
+      port:
+        type: string
+      serviceName:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - port
+    - serviceName
+    - status
     type: object
   response.Organization:
     properties:

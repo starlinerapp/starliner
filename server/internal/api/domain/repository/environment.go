@@ -87,6 +87,29 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 	return deployments, nil
 }
 
+func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.IngressDeployment, error) {
+	rows, err := er.queries.GetEnvironmentIngressDeployments(ctx, sqlc.GetEnvironmentIngressDeploymentsParams{
+		EnvironmentID: environmentId,
+		ID:            userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	deployments := make([]*entity.IngressDeployment, len(rows))
+	for i, d := range rows {
+		deployments[i] = &entity.IngressDeployment{
+			Id:            d.DeploymentID,
+			Name:          d.ServiceName,
+			Status:        utils.PtrFromNullString(d.Status),
+			Port:          d.Port,
+			EnvironmentId: d.EnvironmentID,
+		}
+	}
+
+	return deployments, nil
+}
+
 func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.DatabaseDeployment, error) {
 	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, sqlc.GetEnvironmentDatabaseDeploymentsParams{
 		EnvironmentID: environmentId,

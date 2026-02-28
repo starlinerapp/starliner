@@ -12,4 +12,5 @@ export { default as InboxStack } from "./InboxStack";
 export { default as LinkOut } from "./LinkOut";
 export { default as Plus } from "./Plus";
 export { default as Servers } from "./Servers";
+export { default as Shuffle } from "./Shuffle";
 export { default as Trash } from "./Trash";

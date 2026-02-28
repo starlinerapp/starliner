@@ -21,6 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ResponseEnvironment } from "~/server/api/client/generated";
 import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
+import IngressNode from "~/components/atoms/nodes/IngressNode";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -48,6 +49,7 @@ export default function ArchitectureCanvas({
     return {
       database: DatabaseNode,
       image: ImageNode,
+      ingress: IngressNode,
     };
   }, []);
 
@@ -119,7 +121,26 @@ export default function ArchitectureCanvas({
         };
       });
 
-      return [...dbNodes, ...imageNodes];
+      const ingressNodes: Node[] = deployments.ingresses.map((deployment) => {
+        const id = `ingress:${deployment.id}`;
+        const existing = remainingNodes.find((n) => n.id === id);
+
+        return {
+          id,
+          type: "ingress",
+          position: existing?.position ?? { x: 0, y: 0 },
+          sourcePosition: Position.Right,
+          targetPosition: Position.Left,
+          data: {
+            id: deployment.id,
+            serviceName: deployment.serviceName,
+            status: deployment.status,
+            port: deployment.port,
+          },
+        };
+      });
+
+      return [...dbNodes, ...imageNodes, ...ingressNodes];
     });
   }, [deployments]);
 

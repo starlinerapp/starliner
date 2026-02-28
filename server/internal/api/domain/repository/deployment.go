@@ -50,9 +50,34 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	}, nil
 }
 
+func (dr *DeploymentRepository) CreateIngressDeployment(
+	ctx context.Context,
+	serviceName string,
+	port string,
+	status string,
+	environmentId int64,
+) (*entity.IngressDeployment, error) {
+	d, err := dr.queries.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
+		Name:          serviceName,
+		Port:          port,
+		Status:        utils.NullStringFromPtr(&status),
+		EnvironmentID: environmentId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.IngressDeployment{
+		Id:            d.DeploymentID,
+		Name:          d.DeploymentName,
+		Port:          d.DeploymentPort,
+		EnvironmentId: d.DeploymentEnvironmentID,
+	}, nil
+}
+
 func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	ctx context.Context,
-	name string,
+	serviceName string,
 	port string,
 	status string,
 	username string,
@@ -60,7 +85,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	environmentId int64,
 ) (deployment *entity.DatabaseDeployment, err error) {
 	d, err := dr.queries.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
-		Name:          name,
+		Name:          serviceName,
 		Port:          port,
 		Status:        utils.NullStringFromPtr(&status),
 		Username:      username,

@@ -318,6 +318,12 @@ export interface ResponseDeployments {
    * @memberof ResponseDeployments
    */
   images: Array<ResponseImageDeployment>;
+  /**
+   *
+   * @type {Array<ResponseIngressDeployment>}
+   * @memberof ResponseDeployments
+   */
+  ingresses: Array<ResponseIngressDeployment>;
 }
 /**
  *
@@ -386,6 +392,37 @@ export interface ResponseImageDeployment {
    * @memberof ResponseImageDeployment
    */
   tag: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseIngressDeployment
+ */
+export interface ResponseIngressDeployment {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseIngressDeployment
+   */
+  id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressDeployment
+   */
+  port: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressDeployment
+   */
+  serviceName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressDeployment
+   */
+  status: string;
 }
 /**
  *

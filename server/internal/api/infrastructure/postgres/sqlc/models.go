@@ -109,6 +109,24 @@ type IngressDeployment struct {
 	UpdatedAt    time.Time
 }
 
+type IngressHost struct {
+	ID           int64
+	DeploymentID int64
+	Host         string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type IngressPath struct {
+	ID            int64
+	IngressHostID int64
+	DeploymentID  int64
+	Path          string
+	PathType      string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type Organization struct {
 	ID        int64
 	Name      string

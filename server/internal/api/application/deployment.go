@@ -72,6 +72,9 @@ func (da *DeploymentApplication) DeployImage(
 		"unhealthy",
 		environmentId,
 	)
+	if err != nil {
+		return err
+	}
 
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
@@ -186,21 +189,36 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, userId int64
 		return err
 	}
 
-	// TODO: Write to the database
+	deployment, err := da.deploymentRepository.CreateIngressDeployment(
+		ctx,
+		"ingress",
+		"80",
+		"unhealthy",
+		environmentId,
+	)
+	if err != nil {
+		return err
+	}
 
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
 	}
 
-	ip := ""
-	if cluster.IPv4Address != nil {
-		ip = *cluster.IPv4Address
-	}
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
-		HostName:         ip + ".nip.io",
-		DeploymentId:     0,
-		DeploymentName:   "ingress",
+		IngressHosts: []coreValue.IngressHost{{
+			Host: "example." + *cluster.IPv4Address + ".nip.io",
+			Paths: []coreValue.IngressPath{
+				{
+					Path:        "/",
+					PathType:    "Prefix",
+					ServiceName: "example-project",
+					ServicePort: 80,
+				},
+			},
+		}},
+		DeploymentId:     deployment.Id,
+		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 

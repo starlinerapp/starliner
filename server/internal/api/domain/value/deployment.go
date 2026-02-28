@@ -5,8 +5,33 @@ import (
 )
 
 type Deployments struct {
+	Ingresses []*IngressDeployment
 	Databases []*DatabaseDeployment
 	Images    []*ImageDeployment
+}
+
+type IngressDeployment struct {
+	Id          int64
+	ServiceName string
+	Status      string
+	Port        string
+}
+
+func NewIngressDeployment(d *entity.IngressDeployment) *IngressDeployment {
+	return &IngressDeployment{
+		Id:          d.Id,
+		ServiceName: d.Name,
+		Status:      *d.Status,
+		Port:        d.Port,
+	}
+}
+
+func NewIngressDeployments(ds []*entity.IngressDeployment) []*IngressDeployment {
+	deployments := make([]*IngressDeployment, len(ds))
+	for i, d := range ds {
+		deployments[i] = NewIngressDeployment(d)
+	}
+	return deployments
 }
 
 type ImageDeployment struct {

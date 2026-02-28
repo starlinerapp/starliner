@@ -86,35 +86,6 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// DeleteDeployment FindAll godoc
-// @Summary Delete deployment
-// @Tags deployment
-// @ID deleteDeployment
-// @Param X-User-ID header string true "User ID"
-// @Param id path int true "Deployment ID"
-// @Product JSON
-// @Success 200
-// @Router /deployments/{id} [delete]
-func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
-	currentUser := c.MustGet("user").(*value.User)
-	deploymentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	err = dh.deploymentApplication.DeleteDeployment(
-		c.Request.Context(),
-		deploymentId,
-		currentUser.Id,
-	)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-	}
-
-	c.Status(http.StatusOK)
-}
-
 // DeployIngress FindAll godoc
 // @Summary Deploy ingress
 // @Tags deployment
@@ -137,6 +108,35 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// DeleteDeployment FindAll godoc
+// @Summary Delete deployment
+// @Tags deployment
+// @ID deleteDeployment
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Deployment ID"
+// @Product JSON
+// @Success 200
+// @Router /deployments/{id} [delete]
+func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	deploymentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = dh.deploymentApplication.DeleteDeployment(
+		c.Request.Context(),
+		deploymentId,
+		currentUser.Id,
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
