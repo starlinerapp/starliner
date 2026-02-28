@@ -11,7 +11,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import type { ResponseEnvironment } from "~/server/api/client/generated";
 
-type ContextType = { environment: ResponseEnvironment };
+type ContextType = {
+  environment: ResponseEnvironment;
+  clusterId: number | undefined;
+};
 
 export default function Layout() {
   const trpc = useTRPC();
@@ -58,7 +61,12 @@ export default function Layout() {
       <ResizablePanel defaultSize={30} className="flex h-full flex-col">
         <LinkNavigationBar items={navigationBarItems} />
         <div className="p-4">
-          <Outlet context={{ environment: currentEnvironment }} />
+          <Outlet
+            context={{
+              environment: currentEnvironment,
+              clusterId: project?.clusterId,
+            }}
+          />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>

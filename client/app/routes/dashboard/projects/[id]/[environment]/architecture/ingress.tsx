@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowRight, ChevronDown, Minus, Plus } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { cn } from "~/utils/cn";
 import {
@@ -11,6 +11,7 @@ import {
   type Control,
   type UseFormRegister,
 } from "react-hook-form";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 interface Path {
   path: string;
@@ -35,7 +36,14 @@ export default function Ingress() {
   const createIngressMutation = useMutation(
     trpc.deployment.deployIngress.mutationOptions(),
   );
-  const { environment: currentEnvironment } = useEnvironment();
+  const { environment: currentEnvironment, clusterId } = useEnvironment();
+
+  const { data: clusterData } = useQuery(
+    trpc.cluster.getCluster.queryOptions(
+      { id: clusterId! },
+      { enabled: !!clusterId },
+    ),
+  );
 
   const { control, register, handleSubmit, watch } = useForm<IngressFormInput>({
     defaultValues: { hosts: [emptyHostEntry] },
@@ -67,7 +75,9 @@ export default function Ingress() {
 
   const onSubmit = (data: IngressFormInput) => {
     if (!currentEnvironment) return;
-    console.log(data);
+    createIngressMutation.mutate({
+      id: currentEnvironment.id,
+    });
   };
 
   return (
@@ -91,6 +101,7 @@ export default function Ingress() {
                 hostIndex={hostIndex}
                 showRemove={hostIndex > 0}
                 onRemove={() => removeHost(hostIndex)}
+                clusterIp={clusterData?.ipv4Address}
               />
             </div>
           ))}
@@ -129,6 +140,7 @@ interface HostEditorProps {
   hostIndex: number;
   showRemove?: boolean;
   onRemove?: () => void;
+  clusterIp: string | undefined;
 }
 
 function HostEditor({
@@ -137,6 +149,7 @@ function HostEditor({
   hostIndex,
   showRemove,
   onRemove,
+  clusterIp,
 }: HostEditorProps) {
   const {
     fields: pathFields,
@@ -162,12 +175,22 @@ function HostEditor({
       <div className="border-mauve-6 relative flex flex-col gap-1 border-l-2 pl-6">
         <div className="flex gap-2">
           <div className="border-mauve-6 absolute -left-0.5 h-6 w-6 rounded-bl-md border-b-2 border-l-2" />
-          <input
-            className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
-            type="text"
-            placeholder="Host*"
-            {...register(`hosts.${hostIndex}.name`)}
-          />
+          <div className="flex w-full items-center gap-1">
+            <input
+              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+              type="text"
+              placeholder="Host*"
+              {...register(`hosts.${hostIndex}.name`)}
+            />
+            <div className="flex">
+              {clusterIp ? (
+                <p className="text-mauve-11 text-sm">.{clusterIp}</p>
+              ) : (
+                <Skeleton className="h-5 w-24" />
+              )}
+              <p className="text-mauve-11 text-sm">.nip.io</p>
+            </div>
+          </div>
         </div>
 
         <div className="border-mauve-6 relative flex flex-col gap-3 border-l-2 pl-6">
