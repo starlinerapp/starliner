@@ -24,7 +24,7 @@ func NewPubsub(conn *nats.Conn) port.Pubsub {
 	}
 }
 
-func (p *Pubsub) PublishDeploymentStatusRequest(deployment *coreValue.DatabaseDeployment) error {
+func (p *Pubsub) PublishDeploymentStatusRequest(deployment *coreValue.Deployment) error {
 	d, err := json.Marshal(deployment)
 	if err != nil {
 		return err

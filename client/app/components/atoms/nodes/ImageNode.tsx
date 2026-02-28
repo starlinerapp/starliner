@@ -1,8 +1,11 @@
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { CodeBracket } from "~/components/atoms/icons";
+import { CodeBracket, EllipsisVertical, Trash } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import React from "react";
+import * as Popover from "@radix-ui/react-popover";
+import { useTRPC } from "~/utils/trpc/react";
+import { useMutation } from "@tanstack/react-query";
 
 type ImageNode = Node<{
   id: number;
@@ -27,6 +30,7 @@ export default function ImageNode({ data }: NodeProps<ImageNode>) {
             <CodeBracket className="w-5" />
             <p>{data.serviceName}</p>
           </div>
+          <ImageContextMenu deploymentId={data.id} />
         </div>
         <div>
           <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm shadow-md">
@@ -61,5 +65,49 @@ export default function ImageNode({ data }: NodeProps<ImageNode>) {
         </div>
       </div>
     </div>
+  );
+}
+
+interface ImageContextMenuProps {
+  deploymentId: number;
+}
+
+function ImageContextMenu({ deploymentId }: ImageContextMenuProps) {
+  const trpc = useTRPC();
+  const deleteDeploymentMutation = useMutation(
+    trpc.deployment.deleteDeployment.mutationOptions(),
+  );
+
+  function handleDeleteClicked() {
+    deleteDeploymentMutation.mutate({
+      id: deploymentId,
+    });
+  }
+
+  return (
+    <Popover.Root>
+      <Popover.Trigger className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1">
+        <EllipsisVertical className="w-6" />
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          side="bottom"
+          align="start"
+          className="border-gray-6 m-2 rounded-md border bg-white shadow-md"
+        >
+          <div className="flex min-w-[120px] flex-col p-0.5">
+            <Popover.Close asChild>
+              <button
+                className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
+                onClick={handleDeleteClicked}
+              >
+                <Trash className="w-5" />
+                <p>Delete</p>
+              </button>
+            </Popover.Close>
+          </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }

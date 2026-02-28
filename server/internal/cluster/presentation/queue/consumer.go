@@ -9,10 +9,11 @@ import (
 )
 
 type Consumer struct {
-	imageApplication    *application.ImageApplication
-	databaseApplication *application.DatabaseApplication
-	ingressApplication  *application.IngressApplication
-	queue               port.Queue
+	deploymentApplication *application.DeploymentApplication
+	imageApplication      *application.ImageApplication
+	databaseApplication   *application.DatabaseApplication
+	ingressApplication    *application.IngressApplication
+	queue                 port.Queue
 }
 
 func RegisterConsumer(lc fx.Lifecycle, c *Consumer) {
@@ -24,16 +25,18 @@ func RegisterConsumer(lc fx.Lifecycle, c *Consumer) {
 }
 
 func NewConsumer(
+	deploymentApplication *application.DeploymentApplication,
 	imageApplication *application.ImageApplication,
-	deploymentApplication *application.DatabaseApplication,
+	databaseApplication *application.DatabaseApplication,
 	ingressApplication *application.IngressApplication,
 	queue port.Queue,
 ) *Consumer {
 	return &Consumer{
-		imageApplication:    imageApplication,
-		databaseApplication: deploymentApplication,
-		ingressApplication:  ingressApplication,
-		queue:               queue,
+		deploymentApplication: deploymentApplication,
+		imageApplication:      imageApplication,
+		databaseApplication:   databaseApplication,
+		ingressApplication:    ingressApplication,
+		queue:                 queue,
 	}
 }
 
@@ -51,7 +54,7 @@ func (c *Consumer) Start() error {
 		}
 	}()
 	go func() {
-		err := c.queue.SubscribeToDeleteDatabase(c.databaseApplication.HandleDeleteDatabase)
+		err := c.queue.SubscribeToDeleteDeployment(c.deploymentApplication.HandleDeleteDeployment)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)
 		}

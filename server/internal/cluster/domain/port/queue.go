@@ -5,9 +5,9 @@ import "starliner.app/internal/core/domain/value"
 type Queue interface {
 	SubscribeToDeployImage(handler func(deployment *value.ImageDeployment)) error
 
-	SubscribeToDeployDatabase(handler func(deployment *value.DatabaseDeployment)) error
-	SubscribeToDeleteDatabase(handler func(deployment *value.DatabaseDeployment)) error
-	PublishDatabaseDeleted(deployment *value.DeploymentDeleted) error
+	SubscribeToDeployDatabase(handler func(deployment *value.Deployment)) error
+	SubscribeToDeleteDeployment(handler func(deployment *value.Deployment)) error
+	PublishDeploymentDeleted(deployment *value.DeploymentDeleted) error
 
 	SubscribeToDeployIngress(handler func(deployment *value.IngressDeployment)) error
 }

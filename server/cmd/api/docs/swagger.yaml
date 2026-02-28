@@ -366,6 +366,26 @@ paths:
       summary: Get Cluster Private Key
       tags:
       - cluster
+  /deployments/{id}:
+    delete:
+      operationId: deleteDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Delete deployment
+      tags:
+      - deployment
   /deployments/databases:
     post:
       operationId: deployDatabase
@@ -385,26 +405,6 @@ paths:
         "200":
           description: OK
       summary: Deploy database
-      tags:
-      - deployment
-  /deployments/databases/{id}:
-    delete:
-      operationId: deleteDatabase
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Deployment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-      summary: Delete database
       tags:
       - deployment
   /deployments/images:

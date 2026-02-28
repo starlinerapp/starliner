@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	DeployImage     jetstream.Subject = "deploy.image"
-	DeployDatabase  jetstream.Subject = "deploy.database"
-	DeleteDatabase  jetstream.Subject = "delete.database"
-	DatabaseDeleted jetstream.Subject = "database.deleted"
-	DeployIngress   jetstream.Subject = "deploy.ingress"
+	DeployImage       jetstream.Subject = "deploy.image"
+	DeployDatabase    jetstream.Subject = "deploy.database"
+	DeployIngress     jetstream.Subject = "deploy.ingress"
+	DeleteDeployment  jetstream.Subject = "delete.deployment"
+	DeploymentDeleted jetstream.Subject = "deployment.deleted"
 )
 
 type Queue struct {
@@ -41,9 +41,9 @@ func (q *Queue) SubscribeToDeployImage(handler func(deployment *value.ImageDeplo
 	})
 }
 
-func (q *Queue) SubscribeToDeployDatabase(handler func(deployment *value.DatabaseDeployment)) error {
+func (q *Queue) SubscribeToDeployDatabase(handler func(deployment *value.Deployment)) error {
 	return q.subscriber.Subscribe(DeployDatabase, "*", "deployDatabase", func(msg []byte) {
-		var d value.DatabaseDeployment
+		var d value.Deployment
 		if err := json.Unmarshal(msg, &d); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
 		}
@@ -51,9 +51,9 @@ func (q *Queue) SubscribeToDeployDatabase(handler func(deployment *value.Databas
 	})
 }
 
-func (q *Queue) SubscribeToDeleteDatabase(handler func(deployment *value.DatabaseDeployment)) error {
-	return q.subscriber.Subscribe(DeleteDatabase, "*", "deleteDatabase", func(msg []byte) {
-		var d value.DatabaseDeployment
+func (q *Queue) SubscribeToDeleteDeployment(handler func(deployment *value.Deployment)) error {
+	return q.subscriber.Subscribe(DeleteDeployment, "*", "deleteDeployment", func(msg []byte) {
+		var d value.Deployment
 		if err := json.Unmarshal(msg, &d); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
 		}
@@ -71,11 +71,11 @@ func (q *Queue) SubscribeToDeployIngress(handler func(deployment *value.IngressD
 	})
 }
 
-func (q *Queue) PublishDatabaseDeleted(deployment *value.DeploymentDeleted) error {
+func (q *Queue) PublishDeploymentDeleted(deployment *value.DeploymentDeleted) error {
 	data, err := json.Marshal(deployment)
 	if err != nil {
 		return fmt.Errorf("failed to marshal: %w", err)
 	}
 
-	return q.publisher.Publish(DatabaseDeleted, strconv.FormatInt(deployment.DeploymentId, 10), data)
+	return q.publisher.Publish(DeploymentDeleted, strconv.FormatInt(deployment.DeploymentId, 10), data)
 }

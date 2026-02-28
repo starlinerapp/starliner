@@ -25,7 +25,7 @@ func NewStatusApplication(
 	}
 }
 
-func (sa *StatusApplication) HandleRequestDeploymentStatus(d *value.DatabaseDeployment) {
+func (sa *StatusApplication) HandleRequestDeploymentStatus(d *value.Deployment) {
 	kubeconfigBytes, err := base64.StdEncoding.DecodeString(d.KubeconfigBase64)
 	if err != nil {
 		fmt.Printf("failed to decode kubeconfig: %v\n", err)

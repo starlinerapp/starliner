@@ -31,7 +31,7 @@ func NewDatabaseApplication(
 	}
 }
 
-func (da *DatabaseApplication) HandleDeployDatabase(d *value.DatabaseDeployment) {
+func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 	// TODO: Check if Cluster CRD is already installed, install otherwise
 	err := da.deploy.DeployCloudNativePg("cloudnative-pg", d.KubeconfigBase64)
 	if err != nil {
@@ -42,21 +42,5 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.DatabaseDeployment)
 	err = da.deploy.DeployPostgres(releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy database: %v\n", err)
-	}
-}
-
-func (da *DatabaseApplication) HandleDeleteDatabase(d *value.DatabaseDeployment) {
-	releaseName := d.DeploymentName
-	err := da.deploy.DeletePostgres(releaseName, d.KubeconfigBase64)
-	if err != nil {
-		log.Printf("failed to delete helm chart: %v\n", err)
-	}
-	log.Println("successfully deleted database from cluster")
-
-	err = da.queue.PublishDatabaseDeleted(&value.DeploymentDeleted{
-		DeploymentId: d.DeploymentId,
-	})
-	if err != nil {
-		log.Printf("failed to publish event: %v\n", err)
 	}
 }

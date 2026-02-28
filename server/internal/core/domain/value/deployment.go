@@ -9,7 +9,7 @@ type ImageDeployment struct {
 	Port             int
 }
 
-type DatabaseDeployment struct {
+type Deployment struct {
 	DeploymentId     int64
 	DeploymentName   string
 	KubeconfigBase64 string

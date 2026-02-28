@@ -24,9 +24,9 @@ func NewPubsub(conn *nats.Conn) port.Pubsub {
 	}
 }
 
-func (p *Pubsub) SubscribeToDeploymentStatusRequest(handler func(deployment *value.DatabaseDeployment)) error {
+func (p *Pubsub) SubscribeToDeploymentStatusRequest(handler func(deployment *value.Deployment)) error {
 	return p.subscriber.Subscribe(DeploymentStatusRequest, "*", func(msg []byte) {
-		var d value.DatabaseDeployment
+		var d value.Deployment
 		if err := json.Unmarshal(msg, &d); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
 		}

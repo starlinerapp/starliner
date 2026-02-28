@@ -13,10 +13,10 @@ type Queue interface {
 
 	PublishDeployImage(deployment *value.ImageDeployment) error
 
-	PublishDeployDatabase(deployment *value.DatabaseDeployment) error
+	PublishDeployDatabase(deployment *value.Deployment) error
 
-	PublishDeleteDatabase(deployment *value.DatabaseDeployment) error
-	SubscribeToDatabaseDeleted(handler func(deployment *value.DeploymentDeleted)) error
+	PublishDeleteDeployment(deployment *value.Deployment) error
+	SubscribeToDeploymentDeleted(handler func(deployment *value.DeploymentDeleted)) error
 
 	PublishDeployIngress(deployment *value.IngressDeployment) error
 }

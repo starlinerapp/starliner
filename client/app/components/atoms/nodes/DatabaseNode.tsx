@@ -75,12 +75,12 @@ interface DatabaseContextMenuProps {
 
 function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
   const trpc = useTRPC();
-  const deleteDatabaseMutation = useMutation(
-    trpc.deployment.deleteDatabase.mutationOptions(),
+  const deleteDeploymentMutation = useMutation(
+    trpc.deployment.deleteDeployment.mutationOptions(),
   );
 
   function handleDeleteClicked() {
-    deleteDatabaseMutation.mutate({
+    deleteDeploymentMutation.mutate({
       id: deploymentId,
     });
   }

@@ -1182,22 +1182,22 @@ export const DeploymentApiAxiosParamCreator = function (
   return {
     /**
      *
-     * @summary Delete database
+     * @summary Delete deployment
      * @param {string} xUserID User ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteDatabase: async (
+    deleteDeployment: async (
       xUserID: string,
       id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("deleteDatabase", "xUserID", xUserID);
+      assertParamExists("deleteDeployment", "xUserID", xUserID);
       // verify required parameter 'id' is not null or undefined
-      assertParamExists("deleteDatabase", "id", id);
-      const localVarPath = `/deployments/databases/{id}`.replace(
+      assertParamExists("deleteDeployment", "id", id);
+      const localVarPath = `/deployments/{id}`.replace(
         `{${"id"}}`,
         encodeURIComponent(String(id)),
       );
@@ -1417,27 +1417,24 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
-     * @summary Delete database
+     * @summary Delete deployment
      * @param {string} xUserID User ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async deleteDatabase(
+    async deleteDeployment(
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDatabase(
-        xUserID,
-        id,
-        options,
-      );
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.deleteDeployment(xUserID, id, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["DeploymentApi.deleteDatabase"]?.[
+        operationServerMap["DeploymentApi.deleteDeployment"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -1563,19 +1560,19 @@ export const DeploymentApiFactory = function (
   return {
     /**
      *
-     * @summary Delete database
+     * @summary Delete deployment
      * @param {string} xUserID User ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteDatabase(
+    deleteDeployment(
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .deleteDatabase(xUserID, id, options)
+        .deleteDeployment(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -1641,20 +1638,20 @@ export const DeploymentApiFactory = function (
 export class DeploymentApi extends BaseAPI {
   /**
    *
-   * @summary Delete database
+   * @summary Delete deployment
    * @param {string} xUserID User ID
    * @param {number} id Deployment ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DeploymentApi
    */
-  public deleteDatabase(
+  public deleteDeployment(
     xUserID: string,
     id: number,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .deleteDatabase(xUserID, id, options)
+      .deleteDeployment(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

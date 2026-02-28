@@ -225,36 +225,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/deployments/databases/{id}": {
-            "delete": {
-                "tags": [
-                    "deployment"
-                ],
-                "summary": "Delete database",
-                "operationId": "deleteDatabase",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Deployment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/deployments/images": {
             "post": {
                 "tags": [
@@ -310,6 +280,36 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/request.DeployIngress"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/{id}": {
+            "delete": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Delete deployment",
+                "operationId": "deleteDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {

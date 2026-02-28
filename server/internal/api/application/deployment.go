@@ -128,7 +128,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	err = da.queue.PublishDeployDatabase(&coreValue.DatabaseDeployment{
+	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
@@ -140,7 +140,7 @@ func (da *DeploymentApplication) DeployDatabase(
 	return nil
 }
 
-func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentId int64, userId int64) error {
+func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymentId int64, userId int64) error {
 	deployment, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
 	if err != nil {
 		return err
@@ -155,7 +155,7 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 	if err != nil {
 		return err
 	}
-	err = da.queue.PublishDeleteDatabase(&coreValue.DatabaseDeployment{
+	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
@@ -167,7 +167,7 @@ func (da *DeploymentApplication) DeleteDatabase(ctx context.Context, deploymentI
 	return nil
 }
 
-func (da *DeploymentApplication) HandleDatabaseDeleted(c *coreValue.DeploymentDeleted) {
+func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.DeploymentDeleted) {
 	ctx := context.Background()
 	err := da.deploymentRepository.DeleteDeployment(ctx, c.DeploymentId)
 	if err != nil {
@@ -225,7 +225,7 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				log.Printf("failed to decrypt kubeconfig: %v\n", err)
 			}
 
-			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.DatabaseDeployment{
+			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.Deployment{
 				DeploymentId:     d.Deployment.Id,
 				DeploymentName:   d.Deployment.Name,
 				KubeconfigBase64: kubeconfigBase64,

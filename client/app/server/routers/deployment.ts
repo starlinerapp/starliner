@@ -40,7 +40,7 @@ export const deploymentRouter = {
         })
         .then((res) => res.data);
     }),
-  deleteDatabase: protectedProcedure
+  deleteDeployment: protectedProcedure
     .input(
       z.object({
         id: z.number(),
@@ -49,7 +49,7 @@ export const deploymentRouter = {
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await deploymentApiFactory
-        .deleteDatabase(userId, input.id)
+        .deleteDeployment(userId, input.id)
         .then((res) => res.data);
     }),
   deployIngress: protectedProcedure

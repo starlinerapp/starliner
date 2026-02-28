@@ -2,16 +2,16 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                | HTTP request                           | Description     |
-| ------------------------------------- | -------------------------------------- | --------------- |
-| [**deleteDatabase**](#deletedatabase) | **DELETE** /deployments/databases/{id} | Delete database |
-| [**deployDatabase**](#deploydatabase) | **POST** /deployments/databases        | Deploy database |
-| [**deployImage**](#deployimage)       | **POST** /deployments/images           | Deploy image    |
-| [**deployIngress**](#deployingress)   | **POST** /deployments/ingresses        | Deploy ingress  |
+| Method                                    | HTTP request                    | Description       |
+| ----------------------------------------- | ------------------------------- | ----------------- |
+| [**deleteDeployment**](#deletedeployment) | **DELETE** /deployments/{id}    | Delete deployment |
+| [**deployDatabase**](#deploydatabase)     | **POST** /deployments/databases | Deploy database   |
+| [**deployImage**](#deployimage)           | **POST** /deployments/images    | Deploy image      |
+| [**deployIngress**](#deployingress)       | **POST** /deployments/ingresses | Deploy ingress    |
 
-# **deleteDatabase**
+# **deleteDeployment**
 
-> deleteDatabase()
+> deleteDeployment()
 
 ### Example
 
@@ -24,7 +24,7 @@ const apiInstance = new DeploymentApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Deployment ID (default to undefined)
 
-const { status, data } = await apiInstance.deleteDatabase(xUserID, id);
+const { status, data } = await apiInstance.deleteDeployment(xUserID, id);
 ```
 
 ### Parameters
