@@ -36,14 +36,7 @@ export default function Ingress() {
   const createIngressMutation = useMutation(
     trpc.deployment.deployIngress.mutationOptions(),
   );
-  const { environment: currentEnvironment, clusterId } = useEnvironment();
-
-  const { data: clusterData } = useQuery(
-    trpc.cluster.getCluster.queryOptions(
-      { id: clusterId! },
-      { enabled: !!clusterId },
-    ),
-  );
+  const { environment: currentEnvironment } = useEnvironment();
 
   const { control, register, handleSubmit, watch } = useForm<IngressFormInput>({
     defaultValues: { hosts: [emptyHostEntry] },
@@ -109,7 +102,6 @@ export default function Ingress() {
                 hostIndex={hostIndex}
                 showRemove={hostIndex > 0}
                 onRemove={() => removeHost(hostIndex)}
-                clusterIp={clusterData?.ipv4Address}
               />
             </div>
           ))}
@@ -148,7 +140,6 @@ interface HostEditorProps {
   hostIndex: number;
   showRemove?: boolean;
   onRemove?: () => void;
-  clusterIp: string | undefined;
 }
 
 function HostEditor({
@@ -157,8 +148,23 @@ function HostEditor({
   hostIndex,
   showRemove,
   onRemove,
-  clusterIp,
 }: HostEditorProps) {
+  const trpc = useTRPC();
+
+  const { environment, clusterId } = useEnvironment();
+  const { data: clusterData } = useQuery(
+    trpc.cluster.getCluster.queryOptions(
+      { id: clusterId! },
+      { enabled: !!clusterId },
+    ),
+  );
+
+  const { data: deploymentsData } = useQuery(
+    trpc.environment.getEnvironmentDeployments.queryOptions({
+      id: environment?.id,
+    }),
+  );
+
   const {
     fields: pathFields,
     append: appendPath,
@@ -190,9 +196,9 @@ function HostEditor({
               placeholder="Host*"
               {...register(`hosts.${hostIndex}.name`)}
             />
-            {clusterIp ? (
+            {clusterData?.ipv4Address ? (
               <div className="border-mauve-6 text-mauve-11 flex cursor-not-allowed rounded-md border-1 p-2 text-sm">
-                <p>.{clusterIp}</p>
+                <p>.{clusterData?.ipv4Address}</p>
                 <p>.nip.io</p>
               </div>
             ) : (
@@ -268,9 +274,9 @@ function HostEditor({
                     <option value="" disabled>
                       Service*
                     </option>
-                    {["example-project", "test-rest-api"].map((svc) => (
-                      <option key={svc} value={svc}>
-                        {svc}
+                    {deploymentsData?.images.map((d, i) => (
+                      <option key={i} value={d.serviceName}>
+                        {d.serviceName}
                       </option>
                     ))}
                   </select>
