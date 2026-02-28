@@ -16,6 +16,7 @@ type DatabaseDeployment struct {
 }
 
 type IngressDeployment struct {
+	HostName         string
 	DeploymentId     int64
 	DeploymentName   string
 	KubeconfigBase64 string

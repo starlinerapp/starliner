@@ -23,7 +23,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 		KubeconfigBase64: i.KubeconfigBase64,
 		Hosts: []port.IngressHost{
 			{
-				Host: "49.12.234.153.nip.io",
+				Host: i.HostName,
 				Paths: []port.IngressPath{
 					{
 						Path:        "/",

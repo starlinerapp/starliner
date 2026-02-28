@@ -181,7 +181,12 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, userId int64
 		return err
 	}
 
+	ip := ""
+	if cluster.IPv4Address != nil {
+		ip = *cluster.IPv4Address
+	}
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
+		HostName:         ip + ".nip.io",
 		DeploymentId:     0,
 		DeploymentName:   "ingress",
 		KubeconfigBase64: kubeconfigBase64,
