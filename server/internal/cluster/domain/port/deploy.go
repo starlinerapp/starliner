@@ -37,7 +37,7 @@ type Deploy interface {
 	DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error
 
 	DeployPostgres(releaseName string, kubeconfigBase64 string) error
-	DeletePostgres(releaseName string, kubeconfigBase64 string) error
+	DeleteDeployment(releaseName string, kubeconfigBase64 string) error
 
 	DeployIngress(args *DeployIngressArgs) error
 }

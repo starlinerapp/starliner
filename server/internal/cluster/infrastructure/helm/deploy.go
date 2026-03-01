@@ -4,12 +4,14 @@ import (
 	"encoding/base64"
 	"fmt"
 	"helm.sh/helm/v4/pkg/action"
+	v2 "helm.sh/helm/v4/pkg/chart/v2"
 	"helm.sh/helm/v4/pkg/chart/v2/loader"
 	"io/fs"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"os"
 	"path/filepath"
 	"starliner.app/internal/cluster/domain/port"
+	"time"
 )
 
 const (
@@ -50,8 +52,8 @@ func (d *Deploy) DeployPostgres(releaseName string, kubeconfigBase64 string) err
 	return installChart(PostgresChart, releaseName, kubeconfigBase64, nil)
 }
 
-func (d *Deploy) DeletePostgres(releaseName string, kubeconfigBase64 string) error {
-	return uninstallChart(releaseName, kubeconfigBase64)
+func (d *Deploy) DeleteDeployment(releaseName string, kubeconfigBase64 string) error {
+	return uninstallRelease(releaseName, kubeconfigBase64)
 }
 
 func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
@@ -103,24 +105,56 @@ func installChart(
 				return err
 			}
 
-			install := action.NewInstall(cfg)
-			install.ReleaseName = releaseName
-			install.Namespace = defaultNamespace
-			install.WaitStrategy = defaultWaitStrategy
-
 			if values == nil {
 				values = map[string]interface{}{}
 			}
 
-			if _, err := install.Run(ch, values); err != nil {
-				return fmt.Errorf("helm install %q failed: %w", releaseName, err)
+			if releaseExists(cfg, releaseName) {
+				return upgradeChart(cfg, releaseName, ch, values)
 			}
-			return nil
+			return installNewChart(cfg, releaseName, ch, values)
 		})
 	})
 }
 
-func uninstallChart(releaseName string, kubeconfigBase64 string) error {
+func releaseExists(cfg *action.Configuration, releaseName string) bool {
+	hist := action.NewHistory(cfg)
+	hist.Max = 1
+	releases, err := hist.Run(releaseName)
+	return err == nil && len(releases) > 0
+}
+
+func installNewChart(cfg *action.Configuration, releaseName string, ch *v2.Chart, values map[string]interface{}) error {
+	install := action.NewInstall(cfg)
+	install.ReleaseName = releaseName
+	install.Namespace = defaultNamespace
+	install.Timeout = 5 * time.Minute
+	install.WaitStrategy = defaultWaitStrategy
+	install.WaitForJobs = true
+	install.CreateNamespace = true
+
+	if _, err := install.Run(ch, values); err != nil {
+		return fmt.Errorf("helm install %q failed: %w", releaseName, err)
+	}
+	return nil
+}
+
+func upgradeChart(cfg *action.Configuration, releaseName string, ch *v2.Chart, values map[string]interface{}) error {
+	upgrade := action.NewUpgrade(cfg)
+	upgrade.Namespace = defaultNamespace
+	upgrade.Timeout = 5 * time.Minute
+	upgrade.WaitStrategy = defaultWaitStrategy
+	upgrade.WaitForJobs = true
+	upgrade.RollbackOnFailure = true
+	upgrade.CleanupOnFail = true
+
+	if _, err := upgrade.Run(releaseName, ch, values); err != nil {
+		return fmt.Errorf("helm upgrade %q failed: %w", releaseName, err)
+	}
+	return nil
+}
+
+func uninstallRelease(releaseName string, kubeconfigBase64 string) error {
 	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
 		cfg, err := newActionConfig(kubeconfigPath, defaultNamespace)
 		if err != nil {

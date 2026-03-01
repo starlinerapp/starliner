@@ -189,6 +189,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []valu
 		return err
 	}
 
+	// TODO: Save Hosts to database so that it can be displayed on the frontend
 	deployment, err := da.deploymentRepository.CreateIngressDeployment(
 		ctx,
 		"ingress",
