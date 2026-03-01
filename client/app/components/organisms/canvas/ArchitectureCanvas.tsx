@@ -121,20 +121,8 @@ export default function ArchitectureCanvas({
     const rawEdges: Edge[] = [];
     // rawEdges.push({
     //   id: "e1",
-    //   source: "ingress:73",
-    //   target: "image:60",
-    //   type: "smoothstep",
-    // });
-    // rawEdges.push({
-    //   id: "e2",
-    //   source: "ingress:73",
-    //   target: "image:62",
-    //   type: "smoothstep",
-    // });
-    // rawEdges.push({
-    //   id: "e3",
-    //   source: "image:62",
-    //   target: "database:74",
+    //   source: "ingress:76",
+    //   target: "image:75",
     //   type: "smoothstep",
     // });
 
@@ -157,6 +145,7 @@ export default function ArchitectureCanvas({
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeOrigin={[0, 0.5]}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
