@@ -27,6 +27,8 @@ docs/ResponseDeployments.md
 docs/ResponseEnvironment.md
 docs/ResponseImageDeployment.md
 docs/ResponseIngressDeployment.md
+docs/ResponseIngressHost.md
+docs/ResponseIngressPath.md
 docs/ResponseOrganization.md
 docs/ResponseProject.md
 docs/ResponseRoot.md

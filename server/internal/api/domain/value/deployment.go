@@ -21,12 +21,11 @@ type IngressPath struct {
 	Path        string
 	PathType    PathType
 	ServiceName string
-	ServicePort int
 }
 
 type IngressHost struct {
 	Host  string
-	Paths []IngressPath
+	Paths []*IngressPath
 }
 
 type IngressDeployment struct {
@@ -34,15 +33,16 @@ type IngressDeployment struct {
 	ServiceName  string
 	Status       string
 	Port         string
-	IngressHosts []IngressHost
+	IngressHosts []*IngressHost
 }
 
 func NewIngressDeployment(d *entity.IngressDeployment) *IngressDeployment {
 	return &IngressDeployment{
-		Id:          d.Id,
-		ServiceName: d.Name,
-		Status:      *d.Status,
-		Port:        d.Port,
+		Id:           d.Id,
+		ServiceName:  d.Name,
+		Status:       *d.Status,
+		Port:         d.Port,
+		IngressHosts: mapIngressHosts(d.IngressHosts),
 	}
 }
 
@@ -52,6 +52,47 @@ func NewIngressDeployments(ds []*entity.IngressDeployment) []*IngressDeployment 
 		deployments[i] = NewIngressDeployment(d)
 	}
 	return deployments
+}
+
+func mapIngressHosts(hosts []*entity.IngressHost) []*IngressHost {
+	if hosts == nil {
+		return nil
+	}
+
+	result := make([]*IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		if h == nil {
+			continue
+		}
+
+		result = append(result, &IngressHost{
+			Host:  h.Host,
+			Paths: mapIngressPaths(h.Paths),
+		})
+	}
+
+	return result
+}
+
+func mapIngressPaths(paths []*entity.IngressPath) []*IngressPath {
+	if paths == nil {
+		return nil
+	}
+
+	result := make([]*IngressPath, 0, len(paths))
+	for _, p := range paths {
+		if p == nil {
+			continue
+		}
+
+		result = append(result, &IngressPath{
+			Path:        p.Path,
+			PathType:    PathType(p.PathType),
+			ServiceName: p.ServiceName,
+		})
+	}
+
+	return result
 }
 
 type ImageDeployment struct {

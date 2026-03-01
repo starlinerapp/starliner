@@ -180,7 +180,7 @@ func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.Deployment
 	}
 }
 
-func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []value.IngressHost, userId int64, environmentId int64) error {
+func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*value.IngressHost, userId int64, environmentId int64) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
@@ -211,7 +211,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []valu
 	coreHosts := make([]coreValue.IngressHost, 0, len(hosts))
 	for _, h := range hosts {
 		ch := coreValue.IngressHost{
-			Host: h.Host + "." + *cluster.IPv4Address + ".nip.io",
+			Host: h.Host,
 		}
 		ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
 

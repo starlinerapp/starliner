@@ -460,6 +460,12 @@ export interface ResponseImageDeployment {
 export interface ResponseIngressDeployment {
   /**
    *
+   * @type {Array<ResponseIngressHost>}
+   * @memberof ResponseIngressDeployment
+   */
+  hosts: Array<ResponseIngressHost>;
+  /**
+   *
    * @type {number}
    * @memberof ResponseIngressDeployment
    */
@@ -483,6 +489,59 @@ export interface ResponseIngressDeployment {
    */
   status: string;
 }
+/**
+ *
+ * @export
+ * @interface ResponseIngressHost
+ */
+export interface ResponseIngressHost {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressHost
+   */
+  host: string;
+  /**
+   *
+   * @type {Array<ResponseIngressPath>}
+   * @memberof ResponseIngressHost
+   */
+  paths: Array<ResponseIngressPath>;
+}
+/**
+ *
+ * @export
+ * @interface ResponseIngressPath
+ */
+export interface ResponseIngressPath {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressPath
+   */
+  path: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressPath
+   */
+  pathType: ResponseIngressPathPathTypeEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressPath
+   */
+  serviceName: string;
+}
+
+export const ResponseIngressPathPathTypeEnum = {
+  Prefix: "Prefix",
+  Exact: "Exact",
+} as const;
+
+export type ResponseIngressPathPathTypeEnum =
+  (typeof ResponseIngressPathPathTypeEnum)[keyof typeof ResponseIngressPathPathTypeEnum];
+
 /**
  *
  * @export

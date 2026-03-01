@@ -36,7 +36,13 @@ export default function Ingress() {
   const createIngressMutation = useMutation(
     trpc.deployment.deployIngress.mutationOptions(),
   );
-  const { environment: currentEnvironment } = useEnvironment();
+  const { environment: currentEnvironment, clusterId } = useEnvironment();
+  const { data: clusterData } = useQuery(
+    trpc.cluster.getCluster.queryOptions(
+      { id: clusterId! },
+      { enabled: !!clusterId },
+    ),
+  );
 
   const { control, register, handleSubmit, watch, reset } =
     useForm<IngressFormInput>({
@@ -73,7 +79,7 @@ export default function Ingress() {
       {
         id: currentEnvironment.id,
         ingressHosts: data.hosts.map((h) => ({
-          host: h.name,
+          host: h.name + `.${clusterData?.ipv4Address}.nip.io`,
           paths: h.paths.map((p) => ({
             path: p.path,
             pathType: p.pathType as "Prefix" | "Exact",

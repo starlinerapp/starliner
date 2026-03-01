@@ -23,7 +23,7 @@ type DeploymentRepository interface {
 		port string,
 		status string,
 		environmentId int64,
-		hosts []value.IngressHost,
+		hosts []*value.IngressHost,
 	) (*entity.IngressDeployment, error)
 
 	CreateDatabaseDeployment(

@@ -114,6 +114,7 @@ export default function ArchitectureCanvas({
           serviceName: ing.serviceName,
           status: ing.status,
           port: ing.port,
+          hosts: ing.hosts,
         },
       })),
     ];

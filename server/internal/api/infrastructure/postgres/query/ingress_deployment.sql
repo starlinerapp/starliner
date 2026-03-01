@@ -33,16 +33,25 @@ RETURNING id, ingress_host_id, deployment_id, path, path_type;
 -- name: GetEnvironmentIngressDeployments :many
 SELECT
     d.id AS deployment_id,
-    d.name AS service_name,
+    d.name AS deployment_name,
     d.port,
     d.status,
-    d.environment_id
+    d.environment_id,
+    ih.id           AS host_id,
+    ih.host         AS host,
+    ip.id           AS path_id,
+    ip.path         AS path,
+    ip.path_type    AS path_type,
+    svc.name        AS service_name
 FROM deployments d
 INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
 INNER JOIN organizations ON organizations.id = projects.organization_id
 INNER JOIN users ON users.id = organizations.owner_id
-WHERE environment_id = $1
+LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
+LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
+LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+WHERE d.environment_id = $1
 AND users.id = $2
 ORDER BY d.id DESC;

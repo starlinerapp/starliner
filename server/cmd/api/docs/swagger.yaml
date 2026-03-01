@@ -232,6 +232,10 @@ definitions:
     type: object
   response.IngressDeployment:
     properties:
+      hosts:
+        items:
+          $ref: '#/definitions/response.IngressHost'
+        type: array
       id:
         type: integer
       port:
@@ -241,10 +245,39 @@ definitions:
       status:
         type: string
     required:
+    - hosts
     - id
     - port
     - serviceName
     - status
+    type: object
+  response.IngressHost:
+    properties:
+      host:
+        type: string
+      paths:
+        items:
+          $ref: '#/definitions/response.IngressPath'
+        type: array
+    required:
+    - host
+    - paths
+    type: object
+  response.IngressPath:
+    properties:
+      path:
+        type: string
+      pathType:
+        enum:
+        - Prefix
+        - Exact
+        type: string
+      serviceName:
+        type: string
+    required:
+    - path
+    - pathType
+    - serviceName
     type: object
   response.Organization:
     properties:

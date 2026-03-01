@@ -10,11 +10,23 @@ type Deployments struct {
 	Images    []ImageDeployment    `json:"images" binding:"required"`
 }
 
-type IngressDeployment struct {
-	Id          int64  `json:"id" binding:"required"`
+type IngressPath struct {
+	Path        string `json:"path" binding:"required"`
+	PathType    string `json:"pathType" binding:"required,oneof=Prefix Exact"`
 	ServiceName string `json:"serviceName" binding:"required"`
-	Status      string `json:"status" binding:"required"`
-	Port        string `json:"port" binding:"required"`
+}
+
+type IngressHost struct {
+	Host  string        `json:"host" binding:"required"`
+	Paths []IngressPath `json:"paths" binding:"required"`
+}
+
+type IngressDeployment struct {
+	Id          int64         `json:"id" binding:"required"`
+	ServiceName string        `json:"serviceName" binding:"required"`
+	Status      string        `json:"status" binding:"required"`
+	Port        string        `json:"port" binding:"required"`
+	Hosts       []IngressHost `json:"hosts" binding:"required"`
 }
 
 func NewIngressDeployment(ingressDeployment *value.IngressDeployment) IngressDeployment {
@@ -23,7 +35,27 @@ func NewIngressDeployment(ingressDeployment *value.IngressDeployment) IngressDep
 		ServiceName: ingressDeployment.ServiceName,
 		Status:      ingressDeployment.Status,
 		Port:        ingressDeployment.Port,
+		Hosts:       mapHostsFromValue(ingressDeployment.IngressHosts),
 	}
+}
+
+func mapHostsFromValue(hosts []*value.IngressHost) []IngressHost {
+	out := make([]IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		paths := make([]IngressPath, 0, len(h.Paths))
+		for _, p := range h.Paths {
+			paths = append(paths, IngressPath{
+				Path:        p.Path,
+				PathType:    string(p.PathType),
+				ServiceName: p.ServiceName,
+			})
+		}
+		out = append(out, IngressHost{
+			Host:  h.Host,
+			Paths: paths,
+		})
+	}
+	return out
 }
 
 func NewIngressDeployments(ingressDeployments []*value.IngressDeployment) []IngressDeployment {

@@ -60,7 +60,7 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	port string,
 	status string,
 	environmentId int64,
-	hosts []value.IngressHost,
+	hosts []*value.IngressHost,
 ) (*entity.IngressDeployment, error) {
 	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
@@ -71,8 +71,7 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	}()
 
 	qtx := dr.queries.WithTx(tx)
-
-	d, err := dr.queries.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
+	d, err := qtx.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
 		Name:          serviceName,
 		Port:          port,
 		Status:        utils.NullStringFromPtr(&status),
@@ -92,9 +91,17 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 		}
 
 		for _, p := range h.Paths {
-			_, err := qtx.CreateIngressPath(ctx, sqlc.CreateIngressPathParams{
+			deployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
+				Name:          p.ServiceName,
+				EnvironmentID: environmentId,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			_, err = qtx.CreateIngressPath(ctx, sqlc.CreateIngressPathParams{
 				IngressHostID: createdHost.ID,
-				DeploymentID:  createdHost.DeploymentID,
+				DeploymentID:  deployment.ID,
 				Path:          p.Path,
 				PathType:      string(p.PathType),
 			})
@@ -103,7 +110,6 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 			}
 		}
 	}
-
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}

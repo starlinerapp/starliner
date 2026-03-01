@@ -981,12 +981,19 @@ const docTemplate = `{
         "response.IngressDeployment": {
             "type": "object",
             "required": [
+                "hosts",
                 "id",
                 "port",
                 "serviceName",
                 "status"
             ],
             "properties": {
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressHost"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -997,6 +1004,47 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.IngressHost": {
+            "type": "object",
+            "required": [
+                "host",
+                "paths"
+            ],
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressPath"
+                    }
+                }
+            }
+        },
+        "response.IngressPath": {
+            "type": "object",
+            "required": [
+                "path",
+                "pathType",
+                "serviceName"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "pathType": {
+                    "type": "string",
+                    "enum": [
+                        "Prefix",
+                        "Exact"
+                    ]
+                },
+                "serviceName": {
                     "type": "string"
                 }
             }

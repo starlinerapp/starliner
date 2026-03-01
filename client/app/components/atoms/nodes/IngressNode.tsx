@@ -1,17 +1,19 @@
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { EllipsisVertical, Shuffle, Trash } from "~/components/atoms/icons";
-import { cn } from "~/utils/cn";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import React from "react";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import * as Popover from "@radix-ui/react-popover";
+import type { ResponseIngressHost } from "~/server/api/client/generated";
+import { cn } from "~/utils/cn";
 
 type IngressNode = Node<{
   id: number;
   serviceName: string;
   status: string;
   port: string;
+  hosts: ResponseIngressHost[];
 }>;
 
 export default function IngressNode({ data }: NodeProps<IngressNode>) {
@@ -31,23 +33,56 @@ export default function IngressNode({ data }: NodeProps<IngressNode>) {
           <IngressContextMenu deploymentId={data.id} />
         </div>
         <div>
-          <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm shadow-md">
-            <p>Status</p>
-            <span className="flex items-center gap-1.5">
-              <span
-                className={cn(
-                  "h-3 w-3 rounded-full",
-                  data.status === "healthy" ? "bg-grass-9" : "bg-red-9",
-                )}
-              ></span>
-              <p>{data.status}</p>
-            </span>
-          </div>
           <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
-            <span className="flex justify-between">
-              <p>Port</p>
-              <CopyToClipboard className="text-mauve-11" text={data.port} />
-            </span>
+            <div className="flex flex-col">
+              <p>Ingress</p>
+              {data.hosts.map((host, hostIndex) => {
+                return (
+                  <div key={hostIndex} className="relative">
+                    <div
+                      className={cn(
+                        "border-mauve-6 relative flex flex-col gap-1 border-l-2 pl-6",
+                        hostIndex === 0 ? "pt-1" : "pt-2",
+                      )}
+                    >
+                      <div className="border-mauve-6 absolute -left-[2px] h-3 w-5 rounded-bl-md border-b-2 border-l-2" />
+                      <div>
+                        <CopyToClipboard
+                          className="text-mauve-11 px-1 text-sm font-medium"
+                          text={host.host}
+                        />
+                      </div>
+                      <div className="border-mauve-6 relative flex flex-col gap-2 border-l-2 pl-6">
+                        {host.paths?.map((path, pathIndex) => {
+                          return (
+                            <div
+                              key={pathIndex}
+                              className="relative flex flex-col gap-1"
+                            >
+                              <div className="border-mauve-6 absolute -left-6.5 h-3 w-5 rounded-bl-md border-b-2 border-l-2" />
+                              <div className="flex items-center gap-2 text-sm">
+                                <div className="flex min-w-0 items-center gap-2">
+                                  {path.pathType ? (
+                                    <span className="border-indigo-6 bg-violet-2 text-violet-11 shrink-0 rounded border px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-wide uppercase">
+                                      {path.pathType}
+                                    </span>
+                                  ) : null}
+                                  <span className="truncate">{path.path}</span>
+                                </div>
+                                <p className="text-xs">maps to</p>
+                                <span className="bg-mauve-3 text-mauve-11 ring-mauve-5 shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset">
+                                  {path.serviceName}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

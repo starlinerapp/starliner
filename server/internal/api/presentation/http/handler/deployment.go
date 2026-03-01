@@ -107,7 +107,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 
 	err := dh.deploymentApplication.DeployIngress(
 		c.Request.Context(),
-		mapper.MapHosts(body.IngressHosts),
+		mapper.MapHostsFromRequest(body.IngressHosts),
 		currentUser.Id,
 		body.EnvironmentId,
 	)

@@ -8,6 +8,14 @@ INNER JOIN users ON o.owner_id = users.id
 WHERE deployments.id = @deployment_id
     AND users.id = @user_id;
 
+-- name: GetEnvironmentDeploymentByName :one
+SELECT deployments.*
+FROM deployments
+INNER JOIN environments ON deployments.environment_id = environments.id
+WHERE deployments.name = $1
+    AND environment_id = $2;
+;
+
 -- name: UpdateDeploymentStatus :exec
 UPDATE deployments
 SET status = $1
