@@ -97,3 +97,29 @@ func (q *Queries) GetUserOrganizations(ctx context.Context, ownerID int64) ([]Or
 	}
 	return items, nil
 }
+
+const upsertProvisioningCredential = `-- name: UpsertProvisioningCredential :exec
+INSERT INTO provisioning_credentials (
+    organization_id,
+    provider,
+    secret
+) VALUES (
+  $1,
+  $2,
+  $3
+)
+ON CONFLICT (organization_id, provider)
+DO UPDATE SET
+  secret = EXCLUDED.secret
+`
+
+type UpsertProvisioningCredentialParams struct {
+	OrganizationID int64
+	Provider       Provider
+	Secret         string
+}
+
+func (q *Queries) UpsertProvisioningCredential(ctx context.Context, arg UpsertProvisioningCredentialParams) error {
+	_, err := q.db.ExecContext(ctx, upsertProvisioningCredential, arg.OrganizationID, arg.Provider, arg.Secret)
+	return err
+}

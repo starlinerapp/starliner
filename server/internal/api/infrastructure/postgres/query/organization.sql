@@ -19,3 +19,17 @@ WHERE id = $1;
 SELECT *
 FROM organizations
 WHERE owner_id = $1;
+
+-- name: UpsertProvisioningCredential :exec
+INSERT INTO provisioning_credentials (
+    organization_id,
+    provider,
+    secret
+) VALUES (
+  $1,
+  $2,
+  $3
+)
+ON CONFLICT (organization_id, provider)
+DO UPDATE SET
+  secret = EXCLUDED.secret;

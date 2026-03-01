@@ -45,4 +45,19 @@ export const organizationRouter = {
         .getOrganizationClusters(userId, input.id)
         .then((res) => res.data);
     }),
+  upsertHetznerCredential: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        apiKey: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await organizationApiFactory
+        .upsertHetznerCredential(userId, input.id, {
+          apiKey: input.apiKey,
+        })
+        .then((res) => res.data);
+    }),
 };

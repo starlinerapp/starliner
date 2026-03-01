@@ -5,19 +5,23 @@ import (
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/core/domain/port"
 	"strings"
 )
 
 type OrganizationApplication struct {
+	crypto                 port.Crypto
 	organizationRepository interfaces.OrganizationRepository
 	organizationService    *service.OrganizationService
 }
 
 func NewOrganizationApplication(
+	crypto port.Crypto,
 	organizationRepository interfaces.OrganizationRepository,
 	organizationService *service.OrganizationService,
 ) *OrganizationApplication {
 	return &OrganizationApplication{
+		crypto:                 crypto,
 		organizationRepository: organizationRepository,
 		organizationService:    organizationService,
 	}
@@ -66,4 +70,19 @@ func (oa *OrganizationApplication) GetClustersForUser(ctx context.Context, userI
 		return nil, err
 	}
 	return value.NewClusters(clusters), nil
+}
+
+func (oa *OrganizationApplication) UpsertHetznerCredential(ctx context.Context, userID int64, organizationID int64, apiKey string) error {
+	err := oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
+	if err != nil {
+		return err
+	}
+
+	apiKeyEncrypted, err := oa.crypto.Encrypt(apiKey)
+	if err != nil {
+		return err
+	}
+
+	err = oa.organizationRepository.UpsertProvisioningCredentials(ctx, organizationID, apiKeyEncrypted, value.HetznerCredential)
+	return err
 }

@@ -54,6 +54,47 @@ func (ns NullClusterStatus) Value() (driver.Value, error) {
 	return string(ns.ClusterStatus), nil
 }
 
+type Provider string
+
+const (
+	ProviderHetzner Provider = "hetzner"
+)
+
+func (e *Provider) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Provider(s)
+	case string:
+		*e = Provider(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Provider: %T", src)
+	}
+	return nil
+}
+
+type NullProvider struct {
+	Provider Provider
+	Valid    bool // Valid is true if Provider is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullProvider) Scan(value interface{}) error {
+	if value == nil {
+		ns.Provider, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Provider.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullProvider) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Provider), nil
+}
+
 type Cluster struct {
 	ID             int64
 	Name           string
@@ -152,6 +193,15 @@ type Project struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	ClusterID      sql.NullInt64
+}
+
+type ProvisioningCredential struct {
+	ID             int64
+	OrganizationID int64
+	Provider       Provider
+	Secret         string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type User struct {

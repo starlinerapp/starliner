@@ -165,7 +165,7 @@ const docTemplate = `{
                 "tags": [
                     "cluster"
                 ],
-                "summary": "Get Cluster Private Name",
+                "summary": "Get Cluster Private Key",
                 "operationId": "getClusterPrivateKey",
                 "parameters": [
                     {
@@ -541,6 +541,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizations/{id}/settings/credential/hetzner": {
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Upsert Hetzner Provisioning Credential",
+                "operationId": "upsertHetznerCredential",
+                "parameters": [
+                    {
+                        "description": "Upsert Hetzner Credential",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpsertHetznerCredential"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/projects": {
             "post": {
                 "tags": [
@@ -838,6 +877,17 @@ const docTemplate = `{
                     ]
                 },
                 "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpsertHetznerCredential": {
+            "type": "object",
+            "required": [
+                "apiKey"
+            ],
+            "properties": {
+                "apiKey": {
                     "type": "string"
                 }
             }

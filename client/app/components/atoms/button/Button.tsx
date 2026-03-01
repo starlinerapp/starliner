@@ -22,7 +22,7 @@ const buttonVariants = cva(
   ],
   {
     variants: {
-      size: { sm: "p-2", md: "px-4 py-3" },
+      size: { xs: "p-1.5", sm: "p-2", md: "px-4 py-3" },
       intent: {
         primary: "bg-violet-10 hover:bg-violet-9 text-white",
         secondary: "bg-white border-mauve-7 hover:bg-mauve-1 text-mauve-12",

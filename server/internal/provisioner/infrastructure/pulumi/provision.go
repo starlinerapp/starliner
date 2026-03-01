@@ -79,6 +79,14 @@ func (p *Provision) ProvisionServer(ctx context.Context, name string, publicKey 
 		return stackName, "", err
 	}
 
+	err = s.SetConfig(ctx, "hcloud:token", auto.ConfigValue{
+		Value:  "",
+		Secret: true,
+	})
+	if err != nil {
+		return stackName, "", err
+	}
+
 	w := s.Workspace()
 	err = w.InstallPlugin(ctx, "hcloud", "1.29")
 	if err != nil {
