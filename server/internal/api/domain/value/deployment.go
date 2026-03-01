@@ -95,6 +95,11 @@ func mapIngressPaths(paths []*entity.IngressPath) []*IngressPath {
 	return result
 }
 
+type EnvVar struct {
+	Name  string
+	Value string
+}
+
 type ImageDeployment struct {
 	Id          int64
 	ServiceName string
@@ -102,6 +107,7 @@ type ImageDeployment struct {
 	ImageName   string
 	Tag         string
 	Port        string
+	EnvVars     []*EnvVar
 }
 
 func NewImageDeployment(d *entity.ImageDeployment) *ImageDeployment {

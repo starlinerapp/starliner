@@ -20,6 +20,11 @@ SELECT
 FROM new_deployment d
 INNER JOIN new_image_deployment img_d ON d.id = img_d.deployment_id;
 
+-- name: CreateImageEnvVar :one
+INSERT INTO image_environment_vars (deployment_id, name, value)
+VALUES (@deployment_id, @name, @value)
+RETURNING *;
+
 -- name: GetEnvironmentImageDeployments :many
 SELECT
     d.id AS deployment_id,

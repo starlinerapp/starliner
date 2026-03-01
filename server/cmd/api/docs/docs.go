@@ -165,7 +165,7 @@ const docTemplate = `{
                 "tags": [
                     "cluster"
                 ],
-                "summary": "Get Cluster Private Key",
+                "summary": "Get Cluster Private Name",
                 "operationId": "getClusterPrivateKey",
                 "parameters": [
                     {
@@ -738,6 +738,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "environmentId",
+                "envs",
                 "imageName",
                 "port",
                 "serviceName",
@@ -746,6 +747,12 @@ const docTemplate = `{
             "properties": {
                 "environmentId": {
                     "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
                 },
                 "imageName": {
                     "type": "string"
@@ -776,6 +783,21 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/request.IngressHost"
                     }
+                }
+            }
+        },
+        "request.EnvVar": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },

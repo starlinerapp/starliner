@@ -156,7 +156,7 @@
                 "tags": [
                     "cluster"
                 ],
-                "summary": "Get Cluster Private Key",
+                "summary": "Get Cluster Private Name",
                 "operationId": "getClusterPrivateKey",
                 "parameters": [
                     {
@@ -729,6 +729,7 @@
             "type": "object",
             "required": [
                 "environmentId",
+                "envs",
                 "imageName",
                 "port",
                 "serviceName",
@@ -737,6 +738,12 @@
             "properties": {
                 "environmentId": {
                     "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
                 },
                 "imageName": {
                     "type": "string"
@@ -767,6 +774,21 @@
                     "items": {
                         "$ref": "#/definitions/request.IngressHost"
                     }
+                }
+            }
+        },
+        "request.EnvVar": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },

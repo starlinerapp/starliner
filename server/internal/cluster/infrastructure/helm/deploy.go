@@ -28,19 +28,25 @@ func NewDeploy() port.Deploy {
 }
 
 func (d *Deploy) DeployImage(
-	releaseName string,
-	kubeconfigBase64 string,
-	imageRepository string,
-	imageTag string,
-	port int,
+	args *port.DeployImageArgs,
 ) error {
-	return installChart(ApplicationChart, releaseName, kubeconfigBase64, map[string]interface{}{
+	envValues := make([]map[string]interface{}, 0, len(args.EnvVars))
+
+	for _, e := range args.EnvVars {
+		envValues = append(envValues, map[string]interface{}{
+			"name":  e.Name,
+			"value": e.Value,
+		})
+	}
+
+	return installChart(ApplicationChart, args.ReleaseName, args.KubeconfigBase64, map[string]interface{}{
 		"image": map[string]interface{}{
-			"repository": imageRepository,
-			"tag":        imageTag,
+			"repository": args.ImageRepository,
+			"tag":        args.ImageTag,
 		},
 		"port":       80,
-		"targetPort": port,
+		"targetPort": args.Port,
+		"env":        envValues,
 	})
 }
 

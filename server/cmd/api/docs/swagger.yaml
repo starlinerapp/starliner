@@ -65,6 +65,10 @@ definitions:
     properties:
       environmentId:
         type: integer
+      envs:
+        items:
+          $ref: '#/definitions/request.EnvVar'
+        type: array
       imageName:
         type: string
       port:
@@ -75,6 +79,7 @@ definitions:
         type: string
     required:
     - environmentId
+    - envs
     - imageName
     - port
     - serviceName
@@ -91,6 +96,16 @@ definitions:
     required:
     - environmentId
     - ingressHosts
+    type: object
+  request.EnvVar:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
     type: object
   request.IngressHost:
     properties:
@@ -450,7 +465,7 @@ paths:
           description: OK
           schema:
             type: file
-      summary: Get Cluster Private Key
+      summary: Get Cluster Private Name
       tags:
       - cluster
   /deployments/{id}:

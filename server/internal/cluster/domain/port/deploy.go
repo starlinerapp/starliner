@@ -25,14 +25,22 @@ type DeployIngressArgs struct {
 	Hosts            []IngressHost
 }
 
+type EnvVar struct {
+	Name  string
+	Value string
+}
+
+type DeployImageArgs struct {
+	ReleaseName      string
+	KubeconfigBase64 string
+	ImageRepository  string
+	ImageTag         string
+	Port             int
+	EnvVars          []*EnvVar
+}
+
 type Deploy interface {
-	DeployImage(
-		releaseName string,
-		kubeconfigBase64 string,
-		imageRepository string,
-		imageTag string,
-		port int,
-	) error
+	DeployImage(args *DeployImageArgs) error
 
 	DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error
 
