@@ -48,6 +48,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 		body.ImageName,
 		body.Tag,
 		body.Port,
+		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

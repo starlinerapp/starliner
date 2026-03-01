@@ -23,3 +23,14 @@ func MapHostsFromRequest(hosts []request.IngressHost) []*value.IngressHost {
 	}
 	return out
 }
+
+func MapEnvVarsFromRequest(envVars []request.EnvVar) []*value.EnvVar {
+	out := make([]*value.EnvVar, 0, len(envVars))
+	for _, e := range envVars {
+		out = append(out, &value.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+	return out
+}

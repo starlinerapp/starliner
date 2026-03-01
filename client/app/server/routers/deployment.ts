@@ -22,6 +22,14 @@ export const deploymentRouter = {
         imageName: z.string(),
         tag: z.string(),
         port: z.number(),
+        envs: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -33,6 +41,7 @@ export const deploymentRouter = {
           imageName: input.imageName,
           tag: input.tag,
           port: input.port,
+          envs: input.envs,
         })
         .then((res) => res.data);
     }),

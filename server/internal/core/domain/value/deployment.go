@@ -1,5 +1,10 @@
 package value
 
+type EnvVar struct {
+	Name  string
+	Value string
+}
+
 type ImageDeployment struct {
 	DeploymentId     int64
 	DeploymentName   string
@@ -7,6 +12,7 @@ type ImageDeployment struct {
 	ImageRepository  string
 	ImageTag         string
 	Port             int
+	EnvVars          []*EnvVar
 }
 
 type Deployment struct {

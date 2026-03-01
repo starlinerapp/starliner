@@ -18,6 +18,7 @@ docs/RequestDatabase.md
 docs/RequestDeployDatabase.md
 docs/RequestDeployImage.md
 docs/RequestDeployIngress.md
+docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
 docs/ResponseCluster.md

@@ -103,6 +103,15 @@ type ImageDeployment struct {
 	UpdatedAt    time.Time
 }
 
+type ImageEnvironmentVar struct {
+	ID           int64
+	DeploymentID int64
+	Name         string
+	Value        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type IngressDeployment struct {
 	DeploymentID int64
 	CreatedAt    time.Time

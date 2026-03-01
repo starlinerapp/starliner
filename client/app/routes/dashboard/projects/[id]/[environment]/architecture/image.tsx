@@ -1,16 +1,22 @@
 import React from "react";
 import Button from "~/components/atoms/button/Button";
-import { ArrowRight } from "~/components/atoms/icons";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { ArrowRight, Plus } from "~/components/atoms/icons";
+import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+
+interface EnvVar {
+  name: string;
+  value: string;
+}
 
 interface ImageFormInput {
   serviceName: string;
   imageName: string;
   tag: string;
   port: number | undefined;
+  envs: EnvVar[];
 }
 
 export default function Image() {
@@ -22,7 +28,14 @@ export default function Image() {
 
   const { environment: currentEnvironment } = useEnvironment();
 
-  const { register, handleSubmit, watch, reset } = useForm<ImageFormInput>();
+  const { register, handleSubmit, watch, reset, control } =
+    useForm<ImageFormInput>();
+
+  const { fields, append } = useFieldArray({
+    control,
+    name: "envs",
+  });
+
   const serviceNameInput = watch("serviceName", "");
   const imageNameInput = watch("imageName", "");
   const tagInput = watch("tag", "");
@@ -31,6 +44,10 @@ export default function Image() {
   const onSubmit: SubmitHandler<ImageFormInput> = (data) => {
     if (!data.port) return;
 
+    const sanitizedEnv = (data.envs ?? []).filter(
+      (e) => e.name.trim() !== "" || e.value.trim() !== "",
+    );
+
     createImageMutation.mutate(
       {
         id: currentEnvironment.id,
@@ -38,6 +55,7 @@ export default function Image() {
         imageName: data.imageName,
         tag: data.tag,
         port: data.port,
+        envs: sanitizedEnv,
       },
       {
         onSuccess: () => {
@@ -97,6 +115,33 @@ export default function Image() {
               {...register("port", { required: true, valueAsNumber: true })}
             />
           </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm">Environment Variables</p>
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex gap-2">
+              <input
+                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                type="text"
+                placeholder="Name*"
+                {...register(`envs.${index}.name`)}
+              />
+              <input
+                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                type="text"
+                placeholder="Value*"
+                {...register(`envs.${index}.value`)}
+              />
+            </div>
+          ))}
+          <Button
+            intent="text"
+            className="py-1"
+            type="button"
+            onClick={() => append({ name: "", value: "" })}
+          >
+            <Plus className="w-3 stroke-3" /> Add Another
+          </Button>
         </div>
         <Button
           size="sm"

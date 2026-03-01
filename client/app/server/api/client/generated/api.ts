@@ -168,6 +168,12 @@ export interface RequestDeployImage {
   environmentId: number;
   /**
    *
+   * @type {Array<RequestEnvVar>}
+   * @memberof RequestDeployImage
+   */
+  envs: Array<RequestEnvVar>;
+  /**
+   *
    * @type {string}
    * @memberof RequestDeployImage
    */
@@ -209,6 +215,25 @@ export interface RequestDeployIngress {
    * @memberof RequestDeployIngress
    */
   ingressHosts: Array<RequestIngressHost>;
+}
+/**
+ *
+ * @export
+ * @interface RequestEnvVar
+ */
+export interface RequestEnvVar {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestEnvVar
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestEnvVar
+   */
+  value: string;
 }
 /**
  *
@@ -958,7 +983,7 @@ export const ClusterApiAxiosParamCreator = function (
     },
     /**
      *
-     * @summary Get Cluster Private Key
+     * @summary Get Cluster Private Name
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
      * @param {*} [options] Override http request option.
@@ -1126,7 +1151,7 @@ export const ClusterApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @summary Get Cluster Private Key
+     * @summary Get Cluster Private Name
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
      * @param {*} [options] Override http request option.
@@ -1225,7 +1250,7 @@ export const ClusterApiFactory = function (
     },
     /**
      *
-     * @summary Get Cluster Private Key
+     * @summary Get Cluster Private Name
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
      * @param {*} [options] Override http request option.
@@ -1309,7 +1334,7 @@ export class ClusterApi extends BaseAPI {
 
   /**
    *
-   * @summary Get Cluster Private Key
+   * @summary Get Cluster Private Name
    * @param {string} xUserID User ID
    * @param {number} id Cluster ID
    * @param {*} [options] Override http request option.

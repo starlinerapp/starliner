@@ -76,7 +76,7 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 }
 
 // GetClusterPrivateKey FindAll godoc
-// @Summary Get Cluster Private Key
+// @Summary Get Cluster Private Name
 // @Tags cluster
 // @ID getClusterPrivateKey
 // @Param X-User-ID header string true "User ID"

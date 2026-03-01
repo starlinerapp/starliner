@@ -53,6 +53,7 @@ func (da *DeploymentApplication) DeployImage(
 	imageName string,
 	tag string,
 	port int,
+	envs []*value.EnvVar,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -73,6 +74,7 @@ func (da *DeploymentApplication) DeployImage(
 		strconv.Itoa(port),
 		"unhealthy",
 		environmentId,
+		envs,
 	)
 	if err != nil {
 		return err
@@ -83,6 +85,14 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
+	for _, e := range envs {
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   serviceName,
@@ -90,6 +100,7 @@ func (da *DeploymentApplication) DeployImage(
 		ImageRepository:  imageName,
 		ImageTag:         tag,
 		Port:             port,
+		EnvVars:          coreEnvs,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
@@ -143,41 +154,6 @@ func (da *DeploymentApplication) DeployDatabase(
 	}
 
 	return nil
-}
-
-func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymentId int64, userId int64) error {
-	deployment, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
-	if err != nil {
-		return err
-	}
-
-	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, deploymentId)
-	if err != nil {
-		return err
-	}
-
-	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
-	if err != nil {
-		return err
-	}
-	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
-		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.Name,
-		KubeconfigBase64: kubeconfigBase64,
-	})
-	if err != nil {
-		log.Printf("error publishing: %v", err)
-	}
-
-	return nil
-}
-
-func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.DeploymentDeleted) {
-	ctx := context.Background()
-	err := da.deploymentRepository.DeleteDeployment(ctx, c.DeploymentId)
-	if err != nil {
-		log.Printf("failed to delete deployment from database: %v\n", err)
-	}
 }
 
 func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*value.IngressHost, userId int64, environmentId int64) error {
@@ -239,6 +215,41 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 	}
 
 	return nil
+}
+
+func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymentId int64, userId int64) error {
+	deployment, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
+		DeploymentId:     deployment.Id,
+		DeploymentName:   deployment.Name,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
+
+	return nil
+}
+
+func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.DeploymentDeleted) {
+	ctx := context.Background()
+	err := da.deploymentRepository.DeleteDeployment(ctx, c.DeploymentId)
+	if err != nil {
+		log.Printf("failed to delete deployment from database: %v\n", err)
+	}
 }
 
 func (da *DeploymentApplication) RequestDeploymentStatus() error {

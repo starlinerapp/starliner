@@ -15,14 +15,24 @@ func NewImageApplication(deploy port.Deploy) *ImageApplication {
 }
 
 func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
-	releaseName := a.DeploymentName
-	err := ia.deploy.DeployImage(
-		releaseName,
-		a.KubeconfigBase64,
-		a.ImageRepository,
-		a.ImageTag,
-		a.Port,
-	)
+	portEnvs := make([]*port.EnvVar, 0, len(a.EnvVars))
+	for _, e := range a.EnvVars {
+		portEnvs = append(portEnvs, &port.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+
+	args := &port.DeployImageArgs{
+		ReleaseName:      a.DeploymentName,
+		KubeconfigBase64: a.KubeconfigBase64,
+		ImageRepository:  a.ImageRepository,
+		ImageTag:         a.ImageTag,
+		Port:             a.Port,
+		EnvVars:          portEnvs,
+	}
+
+	err := ia.deploy.DeployImage(args)
 	if err != nil {
 		log.Printf("failed to deploy application: %v\n", err)
 	}

@@ -15,6 +15,7 @@ type DeploymentRepository interface {
 		port string,
 		status string,
 		environmentId int64,
+		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)
 
 	CreateIngressDeployment(

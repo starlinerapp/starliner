@@ -2,12 +2,12 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                            | HTTP request                       | Description             |
-| ------------------------------------------------- | ---------------------------------- | ----------------------- |
-| [**createCluster**](#createcluster)               | **POST** /clusters                 | Create Cluster          |
-| [**deleteCluster**](#deletecluster)               | **DELETE** /clusters/{id}          | Delete Cluster          |
-| [**getCluster**](#getcluster)                     | **GET** /clusters/{id}             | Get Cluster             |
-| [**getClusterPrivateKey**](#getclusterprivatekey) | **GET** /clusters/{id}/private-key | Get Cluster Private Key |
+| Method                                            | HTTP request                       | Description              |
+| ------------------------------------------------- | ---------------------------------- | ------------------------ |
+| [**createCluster**](#createcluster)               | **POST** /clusters                 | Create Cluster           |
+| [**deleteCluster**](#deletecluster)               | **DELETE** /clusters/{id}          | Delete Cluster           |
+| [**getCluster**](#getcluster)                     | **GET** /clusters/{id}             | Get Cluster              |
+| [**getClusterPrivateKey**](#getclusterprivatekey) | **GET** /clusters/{id}/private-key | Get Cluster Private Name |
 
 # **createCluster**
 

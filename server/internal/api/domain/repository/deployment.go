@@ -30,8 +30,18 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	port string,
 	status string,
 	environmentId int64,
+	envs []*value.EnvVar,
 ) (deployment *entity.ImageDeployment, err error) {
-	d, err := dr.queries.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
+	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := dr.queries.WithTx(tx)
+	d, err := qtx.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
 		Port:          port,
 		Status:        utils.NullStringFromPtr(&status),
 		EnvironmentID: environmentId,
@@ -43,6 +53,20 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		return nil, err
 	}
 
+	for _, e := range envs {
+		_, err := qtx.CreateImageEnvVar(ctx, sqlc.CreateImageEnvVarParams{
+			DeploymentID: d.DeploymentID,
+			Name:         e.Name,
+			Value:        e.Value,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
 	return &entity.ImageDeployment{
 		Id:            d.DeploymentID,
 		Status:        utils.PtrFromNullString(d.Status),
