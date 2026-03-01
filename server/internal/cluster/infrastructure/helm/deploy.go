@@ -1,7 +1,6 @@
 package helm
 
 import (
-	"encoding/base64"
 	"fmt"
 	"helm.sh/helm/v4/pkg/action"
 	v2 "helm.sh/helm/v4/pkg/chart/v2"
@@ -11,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"starliner.app/internal/cluster/domain/port"
+	"starliner.app/internal/cluster/infrastructure/shared/kubeconfig"
 	"time"
 )
 
@@ -93,7 +93,7 @@ func installChart(
 	kubeconfigBase64 string,
 	values map[string]interface{},
 ) error {
-	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
+	return kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
 		return withTempChartDir(chartFS, func(chartDir string) error {
 			ch, err := loader.Load(chartDir)
 			if err != nil {
@@ -155,7 +155,7 @@ func upgradeChart(cfg *action.Configuration, releaseName string, ch *v2.Chart, v
 }
 
 func uninstallRelease(releaseName string, kubeconfigBase64 string) error {
-	return withTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
+	return kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
 		cfg, err := newActionConfig(kubeconfigPath, defaultNamespace)
 		if err != nil {
 			return err
@@ -180,33 +180,6 @@ func newActionConfig(kubeconfigPath string, namespace string) (*action.Configura
 		return nil, fmt.Errorf("failed to init helm action config: %w", err)
 	}
 	return cfg, nil
-}
-
-func withTempKubeConfig(kubeconfigBase64 string, fn func(path string) error) error {
-	kubeconfigBytes, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
-	if err != nil {
-		return fmt.Errorf("failed to decode kubeconfig: %v", err)
-
-	}
-
-	tmpDir, err := os.MkdirTemp("", "kubeconfig-*")
-	if err != nil {
-		return fmt.Errorf("failed to create temp directory: %v", err)
-	}
-	defer func() {
-		err := os.RemoveAll(tmpDir)
-		if err != nil {
-			fmt.Printf("failed to remove temp directory: %v", err)
-		}
-	}()
-
-	kubeconfigPath := filepath.Join(tmpDir, "kubeconfig")
-	err = os.WriteFile(kubeconfigPath, kubeconfigBytes, 0600)
-	if err != nil {
-		return fmt.Errorf("failed to write kubeconfig: %v", err)
-	}
-
-	return fn(kubeconfigPath)
 }
 
 func withTempChartDir(chartFS fs.FS, fn func(path string) error) error {

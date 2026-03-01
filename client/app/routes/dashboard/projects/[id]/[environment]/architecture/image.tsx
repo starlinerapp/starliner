@@ -100,7 +100,7 @@ export default function Image() {
         </div>
         <Button
           size="sm"
-          className="w-28 flex-shrink-0 py-1.5"
+          className="mt-2 w-28 flex-shrink-0 py-1.5"
           disabled={
             !serviceNameInput || !imageNameInput || !tagInput || !portInput
           }
