@@ -2,6 +2,8 @@ package application
 
 import (
 	"context"
+	"fmt"
+	"github.com/google/uuid"
 	"log"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
@@ -112,7 +114,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	// TODO: Replace with real values
+	// TODO: Replace with real values - release name should be unique to enable deploying multiple
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
 		string(database),
@@ -192,7 +194,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []valu
 	// TODO: Save Hosts to database so that it can be displayed on the frontend
 	deployment, err := da.deploymentRepository.CreateIngressDeployment(
 		ctx,
-		"ingress",
+		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
 		"80",
 		"unhealthy",
 		environmentId,
