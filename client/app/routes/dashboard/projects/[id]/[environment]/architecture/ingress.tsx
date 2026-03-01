@@ -38,10 +38,11 @@ export default function Ingress() {
   );
   const { environment: currentEnvironment } = useEnvironment();
 
-  const { control, register, handleSubmit, watch } = useForm<IngressFormInput>({
-    defaultValues: { hosts: [emptyHostEntry] },
-    mode: "onSubmit",
-  });
+  const { control, register, handleSubmit, watch, reset } =
+    useForm<IngressFormInput>({
+      defaultValues: { hosts: [emptyHostEntry] },
+      mode: "onSubmit",
+    });
 
   const {
     fields: hostFields,
@@ -68,17 +69,24 @@ export default function Ingress() {
 
   const onSubmit = (data: IngressFormInput) => {
     if (!currentEnvironment) return;
-    createIngressMutation.mutate({
-      id: currentEnvironment.id,
-      ingressHosts: data.hosts.map((h) => ({
-        host: h.name,
-        paths: h.paths.map((p) => ({
-          path: p.path,
-          pathType: p.pathType as "Prefix" | "Exact",
-          serviceName: p.service,
+    createIngressMutation.mutate(
+      {
+        id: currentEnvironment.id,
+        ingressHosts: data.hosts.map((h) => ({
+          host: h.name,
+          paths: h.paths.map((p) => ({
+            path: p.path,
+            pathType: p.pathType as "Prefix" | "Exact",
+            serviceName: p.service,
+          })),
         })),
-      })),
-    });
+      },
+      {
+        onSuccess: () => {
+          reset();
+        },
+      },
+    );
   };
 
   return (
