@@ -10,6 +10,7 @@ import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigat
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import type { ResponseEnvironment } from "~/server/api/client/generated";
+import { ReactFlowProvider } from "@xyflow/react";
 
 type ContextType = {
   environment: ResponseEnvironment;
@@ -54,7 +55,9 @@ export default function Layout() {
         className="border-mauve-6 h-full border-r-1"
       >
         {currentEnvironment && (
-          <ArchitectureCanvas environment={currentEnvironment} />
+          <ReactFlowProvider>
+            <ArchitectureCanvas environment={currentEnvironment} />
+          </ReactFlowProvider>
         )}
       </ResizablePanel>
       <ResizableHandle />

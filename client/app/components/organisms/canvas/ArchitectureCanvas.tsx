@@ -14,6 +14,7 @@ import {
   type OnNodesChange,
   Position,
   ReactFlow,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useTRPC } from "~/utils/trpc/react";
@@ -31,6 +32,8 @@ interface ArchitectureCanvasProps {
 export default function ArchitectureCanvas({
   environment,
 }: ArchitectureCanvasProps) {
+  const { fitView } = useReactFlow();
+
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
     trpc.environment.getEnvironmentDeployments.queryOptions(
@@ -68,6 +71,10 @@ export default function ArchitectureCanvas({
     (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
+
+  useEffect(() => {
+    fitView();
+  }, [nodes.length]);
 
   useEffect(() => {
     if (!deployments) return;
@@ -119,13 +126,30 @@ export default function ArchitectureCanvas({
       })),
     ];
 
+    const imageIdByServiceName = new Map<string, string>(
+      deployments.images.map((i) => [i.serviceName, `image:${i.id}`]),
+    );
+
     const rawEdges: Edge[] = [];
-    // rawEdges.push({
-    //   id: "e1",
-    //   source: "ingress:76",
-    //   target: "image:75",
-    //   type: "smoothstep",
-    // });
+
+    for (const ing of deployments.ingresses) {
+      const ingressNodeId = `ingress:${ing.id}`;
+
+      for (const host of ing.hosts ?? []) {
+        for (const path of host.paths ?? []) {
+          const targetImageId = imageIdByServiceName.get(path.serviceName);
+
+          if (!targetImageId) continue;
+
+          rawEdges.push({
+            id: `e:${ingressNodeId}->${targetImageId}:${host.host}:${path.path}`,
+            source: ingressNodeId,
+            target: targetImageId,
+            type: "smoothstep",
+          });
+        }
+      }
+    }
 
     let cancelled = false;
 
