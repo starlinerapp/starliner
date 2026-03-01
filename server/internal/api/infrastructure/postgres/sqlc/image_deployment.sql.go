@@ -91,6 +91,7 @@ INNER JOIN organizations ON organizations.id = projects.organization_id
 INNER JOIN users ON users.id = organizations.owner_id
 WHERE environment_id = $1
 AND users.id = $2
+ORDER BY d.id DESC
 `
 
 type GetEnvironmentImageDeploymentsParams struct {

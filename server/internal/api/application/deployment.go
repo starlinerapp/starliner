@@ -198,6 +198,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []valu
 		"80",
 		"unhealthy",
 		environmentId,
+		hosts,
 	)
 	if err != nil {
 		return err

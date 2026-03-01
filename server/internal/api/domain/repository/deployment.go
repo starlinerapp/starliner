@@ -2,20 +2,24 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
 	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type DeploymentRepository struct {
+	db      *sql.DB
 	queries *sqlc.Queries
 }
 
 var _ interfaces.DeploymentRepository = (*DeploymentRepository)(nil)
 
-func NewDeploymentRepository(queries *sqlc.Queries) interfaces.DeploymentRepository {
-	return &DeploymentRepository{queries: queries}
+func NewDeploymentRepository(db *sql.DB, queries *sqlc.Queries) interfaces.DeploymentRepository {
+	return &DeploymentRepository{db: db, queries: queries}
 }
 
 func (dr *DeploymentRepository) CreateImageDeployment(
@@ -56,7 +60,18 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	port string,
 	status string,
 	environmentId int64,
+	hosts []value.IngressHost,
 ) (*entity.IngressDeployment, error) {
+	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := dr.queries.WithTx(tx)
+
 	d, err := dr.queries.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
 		Name:          serviceName,
 		Port:          port,
@@ -64,6 +79,32 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 		EnvironmentID: environmentId,
 	})
 	if err != nil {
+		return nil, err
+	}
+
+	for _, h := range hosts {
+		createdHost, err := qtx.CreateIngressHost(ctx, sqlc.CreateIngressHostParams{
+			DeploymentID: d.DeploymentID,
+			Host:         h.Host,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, p := range h.Paths {
+			_, err := qtx.CreateIngressPath(ctx, sqlc.CreateIngressPathParams{
+				IngressHostID: createdHost.ID,
+				DeploymentID:  createdHost.DeploymentID,
+				Path:          p.Path,
+				PathType:      string(p.PathType),
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to create ingress path: %w", err)
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 

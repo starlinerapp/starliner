@@ -35,4 +35,5 @@ INNER JOIN projects ON environments.project_id = projects.id
 INNER JOIN organizations ON organizations.id = projects.organization_id
 INNER JOIN users ON users.id = organizations.owner_id
 WHERE environment_id = $1
-AND users.id = $2;
+AND users.id = $2
+ORDER BY d.id DESC;

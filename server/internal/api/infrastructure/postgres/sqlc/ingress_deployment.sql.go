@@ -64,6 +64,71 @@ func (q *Queries) CreateIngressDeployment(ctx context.Context, arg CreateIngress
 	return i, err
 }
 
+const createIngressHost = `-- name: CreateIngressHost :one
+INSERT INTO ingress_hosts (deployment_id, host)
+VALUES ($1, $2)
+ON CONFLICT (deployment_id, host) DO UPDATE SET host = EXCLUDED.host
+RETURNING id, deployment_id, host
+`
+
+type CreateIngressHostParams struct {
+	DeploymentID int64
+	Host         string
+}
+
+type CreateIngressHostRow struct {
+	ID           int64
+	DeploymentID int64
+	Host         string
+}
+
+func (q *Queries) CreateIngressHost(ctx context.Context, arg CreateIngressHostParams) (CreateIngressHostRow, error) {
+	row := q.db.QueryRowContext(ctx, createIngressHost, arg.DeploymentID, arg.Host)
+	var i CreateIngressHostRow
+	err := row.Scan(&i.ID, &i.DeploymentID, &i.Host)
+	return i, err
+}
+
+const createIngressPath = `-- name: CreateIngressPath :one
+INSERT INTO ingress_paths (ingress_host_id, deployment_id, path, path_type)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (ingress_host_id, path, path_type, deployment_id) DO UPDATE SET path = EXCLUDED.path
+RETURNING id, ingress_host_id, deployment_id, path, path_type
+`
+
+type CreateIngressPathParams struct {
+	IngressHostID int64
+	DeploymentID  int64
+	Path          string
+	PathType      string
+}
+
+type CreateIngressPathRow struct {
+	ID            int64
+	IngressHostID int64
+	DeploymentID  int64
+	Path          string
+	PathType      string
+}
+
+func (q *Queries) CreateIngressPath(ctx context.Context, arg CreateIngressPathParams) (CreateIngressPathRow, error) {
+	row := q.db.QueryRowContext(ctx, createIngressPath,
+		arg.IngressHostID,
+		arg.DeploymentID,
+		arg.Path,
+		arg.PathType,
+	)
+	var i CreateIngressPathRow
+	err := row.Scan(
+		&i.ID,
+		&i.IngressHostID,
+		&i.DeploymentID,
+		&i.Path,
+		&i.PathType,
+	)
+	return i, err
+}
+
 const getEnvironmentIngressDeployments = `-- name: GetEnvironmentIngressDeployments :many
 SELECT
     d.id AS deployment_id,
@@ -79,6 +144,7 @@ INNER JOIN organizations ON organizations.id = projects.organization_id
 INNER JOIN users ON users.id = organizations.owner_id
 WHERE environment_id = $1
 AND users.id = $2
+ORDER BY d.id DESC
 `
 
 type GetEnvironmentIngressDeploymentsParams struct {

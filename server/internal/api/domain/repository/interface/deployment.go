@@ -3,6 +3,7 @@ package interfaces
 import (
 	"context"
 	"starliner.app/internal/api/domain/entity"
+	"starliner.app/internal/api/domain/value"
 )
 
 type DeploymentRepository interface {
@@ -22,6 +23,7 @@ type DeploymentRepository interface {
 		port string,
 		status string,
 		environmentId int64,
+		hosts []value.IngressHost,
 	) (*entity.IngressDeployment, error)
 
 	CreateDatabaseDeployment(
