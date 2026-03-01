@@ -114,10 +114,10 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	// TODO: Replace with real values - release name should be unique to enable deploying multiple
+	// TODO: Replace with real values
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
-		string(database),
+		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:8]),
 		"5432",
 		"unhealthy",
 		"postgres",
@@ -191,7 +191,6 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []valu
 		return err
 	}
 
-	// TODO: Save Hosts to database so that it can be displayed on the frontend
 	deployment, err := da.deploymentRepository.CreateIngressDeployment(
 		ctx,
 		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
