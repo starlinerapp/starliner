@@ -73,6 +73,34 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 	return items, nil
 }
 
+const getEnvironmentDeploymentByName = `-- name: GetEnvironmentDeploymentByName :one
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
+FROM deployments
+INNER JOIN environments ON deployments.environment_id = environments.id
+WHERE deployments.name = $1
+    AND environment_id = $2
+`
+
+type GetEnvironmentDeploymentByNameParams struct {
+	Name          string
+	EnvironmentID int64
+}
+
+func (q *Queries) GetEnvironmentDeploymentByName(ctx context.Context, arg GetEnvironmentDeploymentByNameParams) (Deployment, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentDeploymentByName, arg.Name, arg.EnvironmentID)
+	var i Deployment
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Port,
+		&i.Status,
+		&i.EnvironmentID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUserDeployment = `-- name: GetUserDeployment :one
 SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
 FROM  deployments

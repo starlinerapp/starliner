@@ -61,6 +61,65 @@ definitions:
     - database
     - environmentId
     type: object
+  request.DeployImage:
+    properties:
+      environmentId:
+        type: integer
+      imageName:
+        type: string
+      port:
+        type: integer
+      serviceName:
+        type: string
+      tag:
+        type: string
+    required:
+    - environmentId
+    - imageName
+    - port
+    - serviceName
+    - tag
+    type: object
+  request.DeployIngress:
+    properties:
+      environmentId:
+        type: integer
+      ingressHosts:
+        items:
+          $ref: '#/definitions/request.IngressHost'
+        type: array
+    required:
+    - environmentId
+    - ingressHosts
+    type: object
+  request.IngressHost:
+    properties:
+      host:
+        type: string
+      paths:
+        items:
+          $ref: '#/definitions/request.IngressPath'
+        type: array
+    required:
+    - host
+    - paths
+    type: object
+  request.IngressPath:
+    properties:
+      path:
+        type: string
+      pathType:
+        enum:
+        - Prefix
+        - Exact
+        type: string
+      serviceName:
+        type: string
+    required:
+    - path
+    - pathType
+    - serviceName
+    type: object
   response.Cluster:
     properties:
       id:
@@ -95,7 +154,7 @@ definitions:
     - ClusterStatusPending
     - ClusterStatusRunning
     - ClusterStatusDeleted
-  response.Deployment:
+  response.DatabaseDeployment:
     properties:
       id:
         type: integer
@@ -117,6 +176,25 @@ definitions:
     - status
     - username
     type: object
+  response.Deployments:
+    properties:
+      databases:
+        items:
+          $ref: '#/definitions/response.DatabaseDeployment'
+        type: array
+      images:
+        items:
+          $ref: '#/definitions/response.ImageDeployment'
+        type: array
+      ingresses:
+        items:
+          $ref: '#/definitions/response.IngressDeployment'
+        type: array
+    required:
+    - databases
+    - images
+    - ingresses
+    type: object
   response.Environment:
     properties:
       id:
@@ -129,6 +207,77 @@ definitions:
     - id
     - name
     - slug
+    type: object
+  response.ImageDeployment:
+    properties:
+      id:
+        type: integer
+      imageName:
+        type: string
+      port:
+        type: string
+      serviceName:
+        type: string
+      status:
+        type: string
+      tag:
+        type: string
+    required:
+    - id
+    - imageName
+    - port
+    - serviceName
+    - status
+    - tag
+    type: object
+  response.IngressDeployment:
+    properties:
+      hosts:
+        items:
+          $ref: '#/definitions/response.IngressHost'
+        type: array
+      id:
+        type: integer
+      port:
+        type: string
+      serviceName:
+        type: string
+      status:
+        type: string
+    required:
+    - hosts
+    - id
+    - port
+    - serviceName
+    - status
+    type: object
+  response.IngressHost:
+    properties:
+      host:
+        type: string
+      paths:
+        items:
+          $ref: '#/definitions/response.IngressPath'
+        type: array
+    required:
+    - host
+    - paths
+    type: object
+  response.IngressPath:
+    properties:
+      path:
+        type: string
+      pathType:
+        enum:
+        - Prefix
+        - Exact
+        type: string
+      serviceName:
+        type: string
+    required:
+    - path
+    - pathType
+    - serviceName
     type: object
   response.Organization:
     properties:
@@ -304,6 +453,26 @@ paths:
       summary: Get Cluster Private Key
       tags:
       - cluster
+  /deployments/{id}:
+    delete:
+      operationId: deleteDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Delete deployment
+      tags:
+      - deployment
   /deployments/databases:
     post:
       operationId: deployDatabase
@@ -325,24 +494,46 @@ paths:
       summary: Deploy database
       tags:
       - deployment
-  /deployments/databases/{id}:
-    delete:
-      operationId: deleteDatabase
+  /deployments/images:
+    post:
+      operationId: deployImage
       parameters:
       - description: User ID
         in: header
         name: X-User-ID
         required: true
         type: string
-      - description: Deployment ID
-        in: path
-        name: id
+      - description: Deploy Image
+        in: body
+        name: data
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/request.DeployImage'
       responses:
         "200":
           description: OK
-      summary: Delete database
+      summary: Deploy image
+      tags:
+      - deployment
+  /deployments/ingresses:
+    post:
+      operationId: deployIngress
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deploy Ingress
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeployIngress'
+      responses:
+        "200":
+          description: OK
+      summary: Deploy ingress
       tags:
       - deployment
   /environments:
@@ -384,9 +575,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/response.Deployment'
-            type: array
+            $ref: '#/definitions/response.Deployments'
       summary: Get Environment Deployments
       tags:
       - environment

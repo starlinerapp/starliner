@@ -5,10 +5,17 @@ import {
   ResizablePanelGroup,
 } from "~/components/atoms/resizable/Resizable";
 import ArchitectureCanvas from "~/components/organisms/canvas/ArchitectureCanvas";
-import { Outlet, useParams } from "react-router";
+import { Outlet, useOutletContext, useParams } from "react-router";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
+import type { ResponseEnvironment } from "~/server/api/client/generated";
+import { ReactFlowProvider } from "@xyflow/react";
+
+type ContextType = {
+  environment: ResponseEnvironment;
+  clusterId: number | undefined;
+};
 
 export default function Layout() {
   const trpc = useTRPC();
@@ -28,8 +35,12 @@ export default function Layout() {
 
   const navigationBarItems = [
     {
-      title: "Git Repository",
-      href: `/${slug}/projects/${id}/${environment}/architecture/git`,
+      title: "Image",
+      href: `/${slug}/projects/${id}/${environment}/architecture/image`,
+    },
+    {
+      title: "Ingress",
+      href: `/${slug}/projects/${id}/${environment}/architecture/ingress`,
     },
     {
       title: "Database",
@@ -44,16 +55,27 @@ export default function Layout() {
         className="border-mauve-6 h-full border-r-1"
       >
         {currentEnvironment && (
-          <ArchitectureCanvas environment={currentEnvironment} />
+          <ReactFlowProvider>
+            <ArchitectureCanvas environment={currentEnvironment} />
+          </ReactFlowProvider>
         )}
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={30} className="flex h-full flex-col">
         <LinkNavigationBar items={navigationBarItems} />
         <div className="p-4">
-          <Outlet />
+          <Outlet
+            context={{
+              environment: currentEnvironment,
+              clusterId: project?.clusterId,
+            }}
+          />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
   );
+}
+
+export function useEnvironment() {
+  return useOutletContext<ContextType>();
 }

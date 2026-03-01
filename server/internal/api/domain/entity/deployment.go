@@ -1,8 +1,38 @@
 package entity
 
-type Deployment struct {
+type PathType string
+
+const (
+	Prefix PathType = "Prefix"
+	Exact  PathType = "Exact"
+)
+
+type IngressPath struct {
+	Path        string
+	PathType    PathType
+	ServiceName string
+}
+
+type IngressHost struct {
+	Host  string
+	Paths []*IngressPath
+}
+
+type IngressDeployment struct {
 	Id            int64
+	EnvironmentId int64
+	Status        *string
 	Name          string
+	Port          string
+	IngressHosts  []*IngressHost
+}
+
+type ImageDeployment struct {
+	Id            int64
+	Status        *string
+	ServiceName   string
+	ImageName     string
+	Tag           string
 	Port          string
 	EnvironmentId int64
 }
@@ -13,6 +43,13 @@ type DatabaseDeployment struct {
 	Status        *string
 	Username      string
 	Password      string
+	Port          string
+	EnvironmentId int64
+}
+
+type Deployment struct {
+	Id            int64
+	Name          string
 	Port          string
 	EnvironmentId int64
 }

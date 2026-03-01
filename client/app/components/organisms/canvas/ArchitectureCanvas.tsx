@@ -12,13 +12,18 @@ import {
   type OnConnect,
   type OnEdgesChange,
   type OnNodesChange,
+  Position,
   ReactFlow,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import type { ResponseEnvironment } from "~/server/api/client/generated";
 import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
+import ImageNode from "~/components/atoms/nodes/ImageNode";
+import IngressNode from "~/components/atoms/nodes/IngressNode";
+import getElkLayout from "~/utils/reactflow/getElkLayout";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -27,6 +32,8 @@ interface ArchitectureCanvasProps {
 export default function ArchitectureCanvas({
   environment,
 }: ArchitectureCanvasProps) {
+  const { fitView } = useReactFlow();
+
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
     trpc.environment.getEnvironmentDeployments.queryOptions(
@@ -45,6 +52,8 @@ export default function ArchitectureCanvas({
   const nodeTypes: NodeTypes = useMemo(() => {
     return {
       database: DatabaseNode,
+      image: ImageNode,
+      ingress: IngressNode,
     };
   }, []);
 
@@ -64,37 +73,96 @@ export default function ArchitectureCanvas({
   );
 
   useEffect(() => {
+    fitView();
+  }, [nodes.length]);
+
+  useEffect(() => {
     if (!deployments) return;
 
-    setNodes((prevNodes) => {
-      const deploymentIds = new Set(deployments.map((d) => d.id));
+    const rawNodes: Node[] = [
+      ...deployments.databases.map((d) => ({
+        id: `database:${d.id}`,
+        type: "database",
+        position: { x: 0, y: 0 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: {
+          id: d.id,
+          serviceName: d.name,
+          status: d.status,
+          port: d.port,
+          username: d.username,
+          password: d.password,
+        },
+      })),
+      ...deployments.images.map((i) => ({
+        id: `image:${i.id}`,
+        type: "image",
+        position: { x: 0, y: 0 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: {
+          id: i.id,
+          serviceName: i.serviceName,
+          status: i.status,
+          port: i.port,
+          imageName: i.imageName,
+          tag: i.tag,
+        },
+      })),
+      ...deployments.ingresses.map((ing) => ({
+        id: `ingress:${ing.id}`,
+        type: "ingress",
+        position: { x: 0, y: 0 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: {
+          id: ing.id,
+          serviceName: ing.serviceName,
+          status: ing.status,
+          port: ing.port,
+          hosts: ing.hosts,
+        },
+      })),
+    ];
 
-      const remainingNodes = prevNodes.filter((node) =>
-        deploymentIds.has(Number(node.data.id)),
-      );
+    const imageIdByServiceName = new Map<string, string>(
+      deployments.images.map((i) => [i.serviceName, `image:${i.id}`]),
+    );
 
-      const nextNodes: Node[] = deployments.map((deployment) => {
-        const existing = remainingNodes.find(
-          (n) => n.data.id === deployment.id,
-        );
+    const rawEdges: Edge[] = [];
 
-        return {
-          id: String(deployment.id),
-          type: "database",
-          position: existing?.position ?? { x: 0, y: 0 },
-          data: {
-            id: deployment.id,
-            serviceName: deployment.name,
-            status: deployment.status,
-            port: deployment.port,
-            username: deployment.username,
-            password: deployment.password,
-          },
-        };
-      });
+    for (const ing of deployments.ingresses) {
+      const ingressNodeId = `ingress:${ing.id}`;
 
-      return nextNodes;
-    });
+      for (const host of ing.hosts ?? []) {
+        for (const path of host.paths ?? []) {
+          const targetImageId = imageIdByServiceName.get(path.serviceName);
+
+          if (!targetImageId) continue;
+
+          rawEdges.push({
+            id: `e:${ingressNodeId}->${targetImageId}:${host.host}:${path.path}`,
+            source: ingressNodeId,
+            target: targetImageId,
+            type: "smoothstep",
+          });
+        }
+      }
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      const laidOut = await getElkLayout(rawNodes, rawEdges);
+      if (cancelled) return;
+      setNodes(laidOut.nodes);
+      setEdges(laidOut.edges);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [deployments]);
 
   return (
@@ -102,15 +170,15 @@ export default function ArchitectureCanvas({
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeOrigin={[0, 0.5]}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         proOptions={{ hideAttribution: true }}
         fitView
-        fitViewOptions={{
-          maxZoom: 1,
-        }}
+        maxZoom={1}
+        fitViewOptions={{ maxZoom: 1 }}
       >
         <Background gap={20} color="#84828E" variant={BackgroundVariant.Dots} />
         <Controls />

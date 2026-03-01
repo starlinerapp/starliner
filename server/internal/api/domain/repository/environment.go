@@ -63,7 +63,108 @@ func (er *EnvironmentRepository) GetEnvironmentCluster(ctx context.Context, envi
 	}, nil
 }
 
-func (er *EnvironmentRepository) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.DatabaseDeployment, error) {
+func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.ImageDeployment, error) {
+	rows, err := er.queries.GetEnvironmentImageDeployments(ctx, sqlc.GetEnvironmentImageDeploymentsParams{
+		EnvironmentID: environmentId,
+		ID:            userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	deployments := make([]*entity.ImageDeployment, len(rows))
+	for i, d := range rows {
+		deployments[i] = &entity.ImageDeployment{
+			Id:            d.DeploymentID,
+			Status:        utils.PtrFromNullString(d.Status),
+			ServiceName:   d.ServiceName,
+			ImageName:     d.ImageName,
+			Tag:           d.Tag,
+			Port:          d.Port,
+			EnvironmentId: d.EnvironmentID,
+		}
+	}
+	return deployments, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.IngressDeployment, error) {
+	rows, err := er.queries.GetEnvironmentIngressDeployments(ctx, sqlc.GetEnvironmentIngressDeploymentsParams{
+		EnvironmentID: environmentId,
+		ID:            userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	depByID := map[int64]*entity.IngressDeployment{}
+	hostByDep := map[int64]map[int64]*entity.IngressHost{}
+
+	for _, r := range rows {
+		dep, exists := depByID[r.DeploymentID]
+		if !exists {
+			dep = &entity.IngressDeployment{
+				Id:            r.DeploymentID,
+				EnvironmentId: r.EnvironmentID,
+				Status:        utils.PtrFromNullString(r.Status),
+				Name:          r.DeploymentName,
+				Port:          r.Port,
+				IngressHosts:  []*entity.IngressHost{},
+			}
+			depByID[r.DeploymentID] = dep
+			hostByDep[r.DeploymentID] = map[int64]*entity.IngressHost{}
+		}
+
+		if !r.HostID.Valid {
+			continue
+		}
+
+		hID := r.HostID.Int64
+		hostMap := hostByDep[r.DeploymentID]
+
+		host, exists := hostMap[hID]
+		if !exists {
+			host = &entity.IngressHost{
+				Host:  r.Host.String,
+				Paths: []*entity.IngressPath{},
+			}
+			hostMap[hID] = host
+			dep.IngressHosts = append(dep.IngressHosts, host)
+		}
+
+		if !r.PathID.Valid {
+			continue
+		}
+
+		serviceName := ""
+		if r.ServiceName.Valid {
+			serviceName = r.ServiceName.String
+		}
+
+		path := ""
+		if r.Path.Valid {
+			path = r.Path.String
+		}
+
+		pathType := ""
+		if r.PathType.Valid {
+			pathType = r.PathType.String
+		}
+
+		host.Paths = append(host.Paths, &entity.IngressPath{
+			Path:        path,
+			PathType:    entity.PathType(pathType),
+			ServiceName: serviceName,
+		})
+	}
+
+	out := make([]*entity.IngressDeployment, 0, len(depByID))
+	for _, dep := range depByID {
+		out = append(out, dep)
+	}
+	return out, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.DatabaseDeployment, error) {
 	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, sqlc.GetEnvironmentDatabaseDeploymentsParams{
 		EnvironmentID: environmentId,
 		ID:            userId,

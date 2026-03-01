@@ -4,6 +4,125 @@ import (
 	"starliner.app/internal/api/domain/entity"
 )
 
+type Deployments struct {
+	Ingresses []*IngressDeployment
+	Databases []*DatabaseDeployment
+	Images    []*ImageDeployment
+}
+
+type PathType string
+
+const (
+	Prefix PathType = "Prefix"
+	Exact  PathType = "Exact"
+)
+
+type IngressPath struct {
+	Path        string
+	PathType    PathType
+	ServiceName string
+}
+
+type IngressHost struct {
+	Host  string
+	Paths []*IngressPath
+}
+
+type IngressDeployment struct {
+	Id           int64
+	ServiceName  string
+	Status       string
+	Port         string
+	IngressHosts []*IngressHost
+}
+
+func NewIngressDeployment(d *entity.IngressDeployment) *IngressDeployment {
+	return &IngressDeployment{
+		Id:           d.Id,
+		ServiceName:  d.Name,
+		Status:       *d.Status,
+		Port:         d.Port,
+		IngressHosts: mapIngressHosts(d.IngressHosts),
+	}
+}
+
+func NewIngressDeployments(ds []*entity.IngressDeployment) []*IngressDeployment {
+	deployments := make([]*IngressDeployment, len(ds))
+	for i, d := range ds {
+		deployments[i] = NewIngressDeployment(d)
+	}
+	return deployments
+}
+
+func mapIngressHosts(hosts []*entity.IngressHost) []*IngressHost {
+	if hosts == nil {
+		return nil
+	}
+
+	result := make([]*IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		if h == nil {
+			continue
+		}
+
+		result = append(result, &IngressHost{
+			Host:  h.Host,
+			Paths: mapIngressPaths(h.Paths),
+		})
+	}
+
+	return result
+}
+
+func mapIngressPaths(paths []*entity.IngressPath) []*IngressPath {
+	if paths == nil {
+		return nil
+	}
+
+	result := make([]*IngressPath, 0, len(paths))
+	for _, p := range paths {
+		if p == nil {
+			continue
+		}
+
+		result = append(result, &IngressPath{
+			Path:        p.Path,
+			PathType:    PathType(p.PathType),
+			ServiceName: p.ServiceName,
+		})
+	}
+
+	return result
+}
+
+type ImageDeployment struct {
+	Id          int64
+	ServiceName string
+	Status      string
+	ImageName   string
+	Tag         string
+	Port        string
+}
+
+func NewImageDeployment(d *entity.ImageDeployment) *ImageDeployment {
+	return &ImageDeployment{
+		Id:          d.Id,
+		ServiceName: d.ServiceName,
+		Status:      *d.Status,
+		ImageName:   d.ImageName,
+		Tag:         d.Tag,
+		Port:        d.Port,
+	}
+}
+
+func NewImageDeployments(ds []*entity.ImageDeployment) []*ImageDeployment {
+	deployments := make([]*ImageDeployment, len(ds))
+	for i, d := range ds {
+		deployments[i] = NewImageDeployment(d)
+	}
+	return deployments
+}
+
 type DatabaseDeployment struct {
 	Id       int64
 	Name     string

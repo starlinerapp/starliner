@@ -157,6 +157,115 @@ export interface RequestDeployDatabase {
 /**
  *
  * @export
+ * @interface RequestDeployImage
+ */
+export interface RequestDeployImage {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployImage
+   */
+  environmentId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  imageName: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployImage
+   */
+  port: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  serviceName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  tag: string;
+}
+/**
+ *
+ * @export
+ * @interface RequestDeployIngress
+ */
+export interface RequestDeployIngress {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployIngress
+   */
+  environmentId: number;
+  /**
+   *
+   * @type {Array<RequestIngressHost>}
+   * @memberof RequestDeployIngress
+   */
+  ingressHosts: Array<RequestIngressHost>;
+}
+/**
+ *
+ * @export
+ * @interface RequestIngressHost
+ */
+export interface RequestIngressHost {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressHost
+   */
+  host: string;
+  /**
+   *
+   * @type {Array<RequestIngressPath>}
+   * @memberof RequestIngressHost
+   */
+  paths: Array<RequestIngressPath>;
+}
+/**
+ *
+ * @export
+ * @interface RequestIngressPath
+ */
+export interface RequestIngressPath {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressPath
+   */
+  path: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressPath
+   */
+  pathType: RequestIngressPathPathTypeEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressPath
+   */
+  serviceName: string;
+}
+
+export const RequestIngressPathPathTypeEnum = {
+  Prefix: "Prefix",
+  Exact: "Exact",
+} as const;
+
+export type RequestIngressPathPathTypeEnum =
+  (typeof RequestIngressPathPathTypeEnum)[keyof typeof RequestIngressPathPathTypeEnum];
+
+/**
+ *
+ * @export
  * @interface ResponseCluster
  */
 export interface ResponseCluster {
@@ -210,45 +319,70 @@ export type ResponseClusterStatus =
 /**
  *
  * @export
- * @interface ResponseDeployment
+ * @interface ResponseDatabaseDeployment
  */
-export interface ResponseDeployment {
+export interface ResponseDatabaseDeployment {
   /**
    *
    * @type {number}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   id: number;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   name: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   password: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   port: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   status: string;
   /**
    *
    * @type {string}
-   * @memberof ResponseDeployment
+   * @memberof ResponseDatabaseDeployment
    */
   username: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseDeployments
+ */
+export interface ResponseDeployments {
+  /**
+   *
+   * @type {Array<ResponseDatabaseDeployment>}
+   * @memberof ResponseDeployments
+   */
+  databases: Array<ResponseDatabaseDeployment>;
+  /**
+   *
+   * @type {Array<ResponseImageDeployment>}
+   * @memberof ResponseDeployments
+   */
+  images: Array<ResponseImageDeployment>;
+  /**
+   *
+   * @type {Array<ResponseIngressDeployment>}
+   * @memberof ResponseDeployments
+   */
+  ingresses: Array<ResponseIngressDeployment>;
 }
 /**
  *
@@ -275,6 +409,139 @@ export interface ResponseEnvironment {
    */
   slug: string;
 }
+/**
+ *
+ * @export
+ * @interface ResponseImageDeployment
+ */
+export interface ResponseImageDeployment {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseImageDeployment
+   */
+  id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  imageName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  port: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  serviceName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  status: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  tag: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseIngressDeployment
+ */
+export interface ResponseIngressDeployment {
+  /**
+   *
+   * @type {Array<ResponseIngressHost>}
+   * @memberof ResponseIngressDeployment
+   */
+  hosts: Array<ResponseIngressHost>;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseIngressDeployment
+   */
+  id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressDeployment
+   */
+  port: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressDeployment
+   */
+  serviceName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressDeployment
+   */
+  status: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseIngressHost
+ */
+export interface ResponseIngressHost {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressHost
+   */
+  host: string;
+  /**
+   *
+   * @type {Array<ResponseIngressPath>}
+   * @memberof ResponseIngressHost
+   */
+  paths: Array<ResponseIngressPath>;
+}
+/**
+ *
+ * @export
+ * @interface ResponseIngressPath
+ */
+export interface ResponseIngressPath {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressPath
+   */
+  path: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressPath
+   */
+  pathType: ResponseIngressPathPathTypeEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseIngressPath
+   */
+  serviceName: string;
+}
+
+export const ResponseIngressPathPathTypeEnum = {
+  Prefix: "Prefix",
+  Exact: "Exact",
+} as const;
+
+export type ResponseIngressPathPathTypeEnum =
+  (typeof ResponseIngressPathPathTypeEnum)[keyof typeof ResponseIngressPathPathTypeEnum];
+
 /**
  *
  * @export
@@ -1070,22 +1337,22 @@ export const DeploymentApiAxiosParamCreator = function (
   return {
     /**
      *
-     * @summary Delete database
+     * @summary Delete deployment
      * @param {string} xUserID User ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteDatabase: async (
+    deleteDeployment: async (
       xUserID: string,
       id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("deleteDatabase", "xUserID", xUserID);
+      assertParamExists("deleteDeployment", "xUserID", xUserID);
       // verify required parameter 'id' is not null or undefined
-      assertParamExists("deleteDatabase", "id", id);
-      const localVarPath = `/deployments/databases/{id}`.replace(
+      assertParamExists("deleteDeployment", "id", id);
+      const localVarPath = `/deployments/{id}`.replace(
         `{${"id"}}`,
         encodeURIComponent(String(id)),
       );
@@ -1178,6 +1445,120 @@ export const DeploymentApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Deploy image
+     * @param {string} xUserID User ID
+     * @param {RequestDeployImage} data Deploy Image
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployImage: async (
+      xUserID: string,
+      data: RequestDeployImage,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deployImage", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("deployImage", "data", data);
+      const localVarPath = `/deployments/images`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Deploy ingress
+     * @param {string} xUserID User ID
+     * @param {RequestDeployIngress} data Deploy Ingress
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployIngress: async (
+      xUserID: string,
+      data: RequestDeployIngress,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deployIngress", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("deployIngress", "data", data);
+      const localVarPath = `/deployments/ingresses`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -1191,27 +1572,24 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
-     * @summary Delete database
+     * @summary Delete deployment
      * @param {string} xUserID User ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async deleteDatabase(
+    async deleteDeployment(
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDatabase(
-        xUserID,
-        id,
-        options,
-      );
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.deleteDeployment(xUserID, id, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["DeploymentApi.deleteDatabase"]?.[
+        operationServerMap["DeploymentApi.deleteDeployment"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -1255,6 +1633,72 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Deploy image
+     * @param {string} xUserID User ID
+     * @param {RequestDeployImage} data Deploy Image
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deployImage(
+      xUserID: string,
+      data: RequestDeployImage,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deployImage(
+        xUserID,
+        data,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.deployImage"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Deploy ingress
+     * @param {string} xUserID User ID
+     * @param {RequestDeployIngress} data Deploy Ingress
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deployIngress(
+      xUserID: string,
+      data: RequestDeployIngress,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deployIngress(
+        xUserID,
+        data,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.deployIngress"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -1271,19 +1715,19 @@ export const DeploymentApiFactory = function (
   return {
     /**
      *
-     * @summary Delete database
+     * @summary Delete deployment
      * @param {string} xUserID User ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteDatabase(
+    deleteDeployment(
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .deleteDatabase(xUserID, id, options)
+        .deleteDeployment(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -1303,6 +1747,40 @@ export const DeploymentApiFactory = function (
         .deployDatabase(xUserID, data, options)
         .then((request) => request(axios, basePath));
     },
+    /**
+     *
+     * @summary Deploy image
+     * @param {string} xUserID User ID
+     * @param {RequestDeployImage} data Deploy Image
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployImage(
+      xUserID: string,
+      data: RequestDeployImage,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deployImage(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Deploy ingress
+     * @param {string} xUserID User ID
+     * @param {RequestDeployIngress} data Deploy Ingress
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployIngress(
+      xUserID: string,
+      data: RequestDeployIngress,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deployIngress(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
   };
 };
 
@@ -1315,20 +1793,20 @@ export const DeploymentApiFactory = function (
 export class DeploymentApi extends BaseAPI {
   /**
    *
-   * @summary Delete database
+   * @summary Delete deployment
    * @param {string} xUserID User ID
    * @param {number} id Deployment ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DeploymentApi
    */
-  public deleteDatabase(
+  public deleteDeployment(
     xUserID: string,
     id: number,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .deleteDatabase(xUserID, id, options)
+      .deleteDeployment(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -1348,6 +1826,44 @@ export class DeploymentApi extends BaseAPI {
   ) {
     return DeploymentApiFp(this.configuration)
       .deployDatabase(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Deploy image
+   * @param {string} xUserID User ID
+   * @param {RequestDeployImage} data Deploy Image
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public deployImage(
+    xUserID: string,
+    data: RequestDeployImage,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .deployImage(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Deploy ingress
+   * @param {string} xUserID User ID
+   * @param {RequestDeployIngress} data Deploy Ingress
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public deployIngress(
+    xUserID: string,
+    data: RequestDeployIngress,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .deployIngress(xUserID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -1531,7 +2047,7 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
       (
         axios?: AxiosInstance,
         basePath?: string,
-      ) => AxiosPromise<Array<ResponseDeployment>>
+      ) => AxiosPromise<ResponseDeployments>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.getEnvironmentDeployments(
@@ -1595,7 +2111,7 @@ export const EnvironmentApiFactory = function (
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<Array<ResponseDeployment>> {
+    ): AxiosPromise<ResponseDeployments> {
       return localVarFp
         .getEnvironmentDeployments(xUserID, id, options)
         .then((request) => request(axios, basePath));

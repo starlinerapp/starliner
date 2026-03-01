@@ -3,9 +3,29 @@ package interfaces
 import (
 	"context"
 	"starliner.app/internal/api/domain/entity"
+	"starliner.app/internal/api/domain/value"
 )
 
 type DeploymentRepository interface {
+	CreateImageDeployment(
+		ctx context.Context,
+		serviceName string,
+		imageName string,
+		tag string,
+		port string,
+		status string,
+		environmentId int64,
+	) (deployment *entity.ImageDeployment, err error)
+
+	CreateIngressDeployment(
+		ctx context.Context,
+		serviceName string,
+		port string,
+		status string,
+		environmentId int64,
+		hosts []*value.IngressHost,
+	) (*entity.IngressDeployment, error)
+
 	CreateDatabaseDeployment(
 		ctx context.Context,
 		name string,

@@ -50,7 +50,7 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Environment ID"
-// @Success 200 {array} response.Deployment
+// @Success 200 {object} response.Deployments
 // @Router /environments/{id}/deployments [get]
 func (eh *EnvironmentHandler) GetEnvironmentDeployments(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)

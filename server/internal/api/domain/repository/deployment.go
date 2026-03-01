@@ -2,25 +2,129 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
 	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type DeploymentRepository struct {
+	db      *sql.DB
 	queries *sqlc.Queries
 }
 
 var _ interfaces.DeploymentRepository = (*DeploymentRepository)(nil)
 
-func NewDeploymentRepository(queries *sqlc.Queries) interfaces.DeploymentRepository {
-	return &DeploymentRepository{queries: queries}
+func NewDeploymentRepository(db *sql.DB, queries *sqlc.Queries) interfaces.DeploymentRepository {
+	return &DeploymentRepository{db: db, queries: queries}
+}
+
+func (dr *DeploymentRepository) CreateImageDeployment(
+	ctx context.Context,
+	serviceName string,
+	imageName string,
+	tag string,
+	port string,
+	status string,
+	environmentId int64,
+) (deployment *entity.ImageDeployment, err error) {
+	d, err := dr.queries.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
+		Port:          port,
+		Status:        utils.NullStringFromPtr(&status),
+		EnvironmentID: environmentId,
+		Tag:           tag,
+		ServiceName:   serviceName,
+		ImageName:     imageName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.ImageDeployment{
+		Id:            d.DeploymentID,
+		Status:        utils.PtrFromNullString(d.Status),
+		ServiceName:   d.ServiceName,
+		ImageName:     d.ImageName,
+		Tag:           d.ImageTag,
+		Port:          d.Port,
+		EnvironmentId: d.EnvironmentID,
+	}, nil
+}
+
+func (dr *DeploymentRepository) CreateIngressDeployment(
+	ctx context.Context,
+	serviceName string,
+	port string,
+	status string,
+	environmentId int64,
+	hosts []*value.IngressHost,
+) (*entity.IngressDeployment, error) {
+	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := dr.queries.WithTx(tx)
+	d, err := qtx.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
+		Name:          serviceName,
+		Port:          port,
+		Status:        utils.NullStringFromPtr(&status),
+		EnvironmentID: environmentId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, h := range hosts {
+		createdHost, err := qtx.CreateIngressHost(ctx, sqlc.CreateIngressHostParams{
+			DeploymentID: d.DeploymentID,
+			Host:         h.Host,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, p := range h.Paths {
+			deployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
+				Name:          p.ServiceName,
+				EnvironmentID: environmentId,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			_, err = qtx.CreateIngressPath(ctx, sqlc.CreateIngressPathParams{
+				IngressHostID: createdHost.ID,
+				DeploymentID:  deployment.ID,
+				Path:          p.Path,
+				PathType:      string(p.PathType),
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to create ingress path: %w", err)
+			}
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return &entity.IngressDeployment{
+		Id:            d.DeploymentID,
+		Name:          d.DeploymentName,
+		Port:          d.DeploymentPort,
+		EnvironmentId: d.DeploymentEnvironmentID,
+	}, nil
 }
 
 func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	ctx context.Context,
-	name string,
+	serviceName string,
 	port string,
 	status string,
 	username string,
@@ -28,7 +132,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	environmentId int64,
 ) (deployment *entity.DatabaseDeployment, err error) {
 	d, err := dr.queries.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
-		Name:          name,
+		Name:          serviceName,
 		Port:          port,
 		Status:        utils.NullStringFromPtr(&status),
 		Username:      username,

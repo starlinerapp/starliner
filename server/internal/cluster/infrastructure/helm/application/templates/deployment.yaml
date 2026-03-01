@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-selector
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-selector
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "Always"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+            requests:
+              cpu: "50m"
+              memory: "50Mi"
+          ports:
+            - containerPort: {{ .Values.targetPort }}
+{{/*          env:*/}}
+{{/*            {{- range .Values.env }}*/}}
+{{/*            - name: {{ .name }}*/}}
+{{/*              value: {{ tpl .value $ | quote }}*/}}
+{{/*            {{- end }}*/}}
+

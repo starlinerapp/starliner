@@ -170,7 +170,9 @@ export default function ProjectLayout() {
                     {...register("environmentName")}
                   />
                 </div>
-                <Button type="submit">Create Environment</Button>
+                <Button type="submit" className="w-40 self-end">
+                  Create Environment
+                </Button>
               </form>
             </DialogContent>
           </Dialog>

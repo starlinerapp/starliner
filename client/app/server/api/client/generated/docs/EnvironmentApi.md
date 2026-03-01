@@ -55,7 +55,7 @@ No authorization required
 
 # **getEnvironmentDeployments**
 
-> Array<ResponseDeployment> getEnvironmentDeployments()
+> ResponseDeployments getEnvironmentDeployments()
 
 ### Example
 
@@ -83,7 +83,7 @@ const { status, data } = await apiInstance.getEnvironmentDeployments(
 
 ### Return type
 
-**Array<ResponseDeployment>**
+**ResponseDeployments**
 
 ### Authorization
 

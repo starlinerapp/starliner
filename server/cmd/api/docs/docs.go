@@ -225,13 +225,77 @@ const docTemplate = `{
                 }
             }
         },
-        "/deployments/databases/{id}": {
+        "/deployments/images": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy image",
+                "operationId": "deployImage",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Image",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/ingresses": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy ingress",
+                "operationId": "deployIngress",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Ingress",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployIngress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/{id}": {
             "delete": {
                 "tags": [
                     "deployment"
                 ],
-                "summary": "Delete database",
-                "operationId": "deleteDatabase",
+                "summary": "Delete deployment",
+                "operationId": "deleteDeployment",
                 "parameters": [
                     {
                         "type": "string",
@@ -314,10 +378,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.Deployment"
-                            }
+                            "$ref": "#/definitions/response.Deployments"
                         }
                     }
                 }
@@ -673,6 +734,92 @@ const docTemplate = `{
                 }
             }
         },
+        "request.DeployImage": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "imageName",
+                "port",
+                "serviceName",
+                "tag"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeployIngress": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "ingressHosts"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "ingressHosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressHost"
+                    }
+                }
+            }
+        },
+        "request.IngressHost": {
+            "type": "object",
+            "required": [
+                "host",
+                "paths"
+            ],
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressPath"
+                    }
+                }
+            }
+        },
+        "request.IngressPath": {
+            "type": "object",
+            "required": [
+                "path",
+                "pathType",
+                "serviceName"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "pathType": {
+                    "type": "string",
+                    "enum": [
+                        "Prefix",
+                        "Exact"
+                    ]
+                },
+                "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Cluster": {
             "type": "object",
             "required": [
@@ -722,7 +869,7 @@ const docTemplate = `{
                 "ClusterStatusDeleted"
             ]
         },
-        "response.Deployment": {
+        "response.DatabaseDeployment": {
             "type": "object",
             "required": [
                 "id",
@@ -753,6 +900,34 @@ const docTemplate = `{
                 }
             }
         },
+        "response.Deployments": {
+            "type": "object",
+            "required": [
+                "databases",
+                "images",
+                "ingresses"
+            ],
+            "properties": {
+                "databases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DatabaseDeployment"
+                    }
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ImageDeployment"
+                    }
+                },
+                "ingresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressDeployment"
+                    }
+                }
+            }
+        },
         "response.Environment": {
             "type": "object",
             "required": [
@@ -768,6 +943,108 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ImageDeployment": {
+            "type": "object",
+            "required": [
+                "id",
+                "imageName",
+                "port",
+                "serviceName",
+                "status",
+                "tag"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.IngressDeployment": {
+            "type": "object",
+            "required": [
+                "hosts",
+                "id",
+                "port",
+                "serviceName",
+                "status"
+            ],
+            "properties": {
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressHost"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.IngressHost": {
+            "type": "object",
+            "required": [
+                "host",
+                "paths"
+            ],
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressPath"
+                    }
+                }
+            }
+        },
+        "response.IngressPath": {
+            "type": "object",
+            "required": [
+                "path",
+                "pathType",
+                "serviceName"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "pathType": {
+                    "type": "string",
+                    "enum": [
+                        "Prefix",
+                        "Exact"
+                    ]
+                },
+                "serviceName": {
                     "type": "string"
                 }
             }

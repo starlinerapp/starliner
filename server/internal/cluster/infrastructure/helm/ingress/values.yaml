@@ -1,0 +1,10 @@
+ingress:
+  rules:
+    - host:
+      paths:
+        - path:
+          pathType:
+          service:
+            name:
+            port:
+              number:
