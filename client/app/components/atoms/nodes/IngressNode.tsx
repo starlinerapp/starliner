@@ -69,7 +69,12 @@ export default function IngressNode({ data }: NodeProps<IngressNode>) {
                                   ) : null}
                                   <span className="truncate">{path.path}</span>
                                 </div>
-                                <p className="text-xs">maps to</p>
+
+                                <div className="flex flex-1 items-center">
+                                  <div className="bg-mauve-6 h-[2px] flex-1" />
+                                  <div className="border-mauve-6 h-0 w-0 border-y-5 border-l-12 border-y-transparent" />
+                                </div>
+
                                 <span className="bg-mauve-3 text-mauve-11 ring-mauve-5 shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset">
                                   {path.serviceName}
                                 </span>
