@@ -24,6 +24,11 @@ export default function ImageNode({ data }: NodeProps<ImageNode>) {
         position={Position.Left}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
+      />
       <div className="database-node border-mauve-6 bg-mauve-2 flex w-[350px] flex-col gap-2 rounded-md border-1 p-2 shadow-md">
         <div className="flex justify-between">
           <div className="flex items-center gap-2">

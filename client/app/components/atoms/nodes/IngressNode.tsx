@@ -18,7 +18,7 @@ export default function IngressNode({ data }: NodeProps<IngressNode>) {
   return (
     <div className="bg-white-a12 text-mauve-11">
       <Handle
-        type="target"
+        type="source"
         position={Position.Right}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />

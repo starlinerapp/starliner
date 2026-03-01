@@ -22,6 +22,7 @@ import type { ResponseEnvironment } from "~/server/api/client/generated";
 import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
+import getElkLayout from "~/utils/reactflow/getElkLayout";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -71,78 +72,84 @@ export default function ArchitectureCanvas({
   useEffect(() => {
     if (!deployments) return;
 
-    setNodes((prevNodes) => {
-      const nextIds = new Set<string>([
-        ...deployments.databases.map((d) => `database:${d.id}`),
-        ...deployments.images.map((i) => `image:${i.id}`),
-        ...deployments.ingresses.map((i) => `ingress:${i.id}`),
-      ]);
+    const rawNodes: Node[] = [
+      ...deployments.databases.map((d) => ({
+        id: `database:${d.id}`,
+        type: "database",
+        position: { x: 0, y: 0 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: {
+          id: d.id,
+          serviceName: d.name,
+          status: d.status,
+          port: d.port,
+          username: d.username,
+          password: d.password,
+        },
+      })),
+      ...deployments.images.map((i) => ({
+        id: `image:${i.id}`,
+        type: "image",
+        position: { x: 0, y: 0 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: {
+          id: i.id,
+          serviceName: i.serviceName,
+          status: i.status,
+          port: i.port,
+          imageName: i.imageName,
+          tag: i.tag,
+        },
+      })),
+      ...deployments.ingresses.map((ing) => ({
+        id: `ingress:${ing.id}`,
+        type: "ingress",
+        position: { x: 0, y: 0 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: {
+          id: ing.id,
+          serviceName: ing.serviceName,
+          status: ing.status,
+          port: ing.port,
+        },
+      })),
+    ];
 
-      const remainingNodes = prevNodes.filter((n) => nextIds.has(n.id));
+    const rawEdges: Edge[] = [];
+    // rawEdges.push({
+    //   id: "e1",
+    //   source: "ingress:73",
+    //   target: "image:60",
+    //   type: "smoothstep",
+    // });
+    // rawEdges.push({
+    //   id: "e2",
+    //   source: "ingress:73",
+    //   target: "image:62",
+    //   type: "smoothstep",
+    // });
+    // rawEdges.push({
+    //   id: "e3",
+    //   source: "image:62",
+    //   target: "database:74",
+    //   type: "smoothstep",
+    // });
 
-      const dbNodes: Node[] = deployments.databases.map((deployment) => {
-        const id = `database:${deployment.id}`;
-        const existing = remainingNodes.find((n) => n.id === id);
+    let cancelled = false;
 
-        return {
-          id,
-          type: "database",
-          position: existing?.position ?? { x: 0, y: 0 },
-          sourcePosition: Position.Right,
-          targetPosition: Position.Left,
-          data: {
-            id: deployment.id,
-            serviceName: deployment.name,
-            status: deployment.status,
-            port: deployment.port,
-            username: deployment.username,
-            password: deployment.password,
-          },
-        };
-      });
+    (async () => {
+      const laidOut = await getElkLayout(rawNodes, rawEdges);
+      if (cancelled) return;
+      setNodes(laidOut.nodes);
+      setEdges(laidOut.edges);
+    })();
 
-      const imageNodes: Node[] = deployments.images.map((deployment) => {
-        const id = `image:${deployment.id}`;
-        const existing = remainingNodes.find((n) => n.id === id);
-
-        return {
-          id,
-          type: "image",
-          position: existing?.position ?? { x: 0, y: 0 },
-          sourcePosition: Position.Right,
-          targetPosition: Position.Left,
-          data: {
-            id: deployment.id,
-            serviceName: deployment.serviceName,
-            status: deployment.status,
-            port: deployment.port,
-            imageName: deployment.imageName,
-            tag: deployment.tag,
-          },
-        };
-      });
-
-      const ingressNodes: Node[] = deployments.ingresses.map((deployment) => {
-        const id = `ingress:${deployment.id}`;
-        const existing = remainingNodes.find((n) => n.id === id);
-
-        return {
-          id,
-          type: "ingress",
-          position: existing?.position ?? { x: 0, y: 0 },
-          sourcePosition: Position.Right,
-          targetPosition: Position.Left,
-          data: {
-            id: deployment.id,
-            serviceName: deployment.serviceName,
-            status: deployment.status,
-            port: deployment.port,
-          },
-        };
-      });
-
-      return [...dbNodes, ...imageNodes, ...ingressNodes];
-    });
+    return () => {
+      cancelled = true;
+    };
   }, [deployments]);
 
   return (
@@ -157,9 +164,7 @@ export default function ArchitectureCanvas({
         proOptions={{ hideAttribution: true }}
         fitView
         maxZoom={1}
-        fitViewOptions={{
-          maxZoom: 1,
-        }}
+        fitViewOptions={{ maxZoom: 1 }}
       >
         <Background gap={20} color="#84828E" variant={BackgroundVariant.Dots} />
         <Controls />
