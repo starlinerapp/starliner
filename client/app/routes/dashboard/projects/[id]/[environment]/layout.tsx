@@ -97,88 +97,92 @@ export default function ProjectLayout() {
   };
 
   return (
-    <div className="bg-violet-1 flex h-full flex-col">
-      {isLoading ? (
-        <div className="bg-violet-1 px-4 pt-4">
-          <Skeleton className="h-7 w-32" />
-        </div>
-      ) : (
-        <div className="bg-violet-1 flex items-center gap-3 px-4 pt-4">
-          <h1 className="text-mauve-12 text-xl font-bold">
-            {currentProject?.name}
-          </h1>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="border-violet-10 flex cursor-pointer items-center gap-1.5 rounded-md border-[1px] px-2 text-sm">
-                <h1>
-                  {
-                    environments.find((e) => e.slug === selectedEnvironment)
-                      ?.name
-                  }
-                </h1>
-                <ChevronDown height={15} width={15} />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {environments.length > 0 &&
-                environments
-                  .filter((env) => selectedEnvironment !== env.slug)
-                  .map((env) => (
-                    <DropdownMenuItem
-                      className="text-xs"
-                      key={env.slug}
-                      onClick={() => {
-                        setSelectedEnvironment(env.slug);
-                        navigate(
-                          `/${slug}/projects/${id}/${env.slug}/architecture`,
-                        );
-                      }}
-                    >
-                      <div>{env.name}</div>
-                    </DropdownMenuItem>
-                  ))}
-              {environments.length > 1 && <DropdownMenuSeparator />}
-              <DropdownMenuItem onClick={() => setEnvironmentDialogOpen(true)}>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs">New Environment</p>
-                  <ChevronRight width={12} height={12} />
+    <div className="flex h-full flex-col">
+      <div className="bg-violet-1">
+        {isLoading ? (
+          <div className="px-4 pt-4">
+            <Skeleton className="h-7 w-32" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 px-4 pt-4">
+            <h1 className="text-mauve-12 text-xl font-bold">
+              {currentProject?.name}
+            </h1>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="border-violet-10 flex cursor-pointer items-center gap-1.5 rounded-md border-[1px] px-2 text-sm">
+                  <h1>
+                    {
+                      environments.find((e) => e.slug === selectedEnvironment)
+                        ?.name
+                    }
+                  </h1>
+                  <ChevronDown height={15} width={15} />
                 </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Dialog
-            onOpenChange={(value) => setEnvironmentDialogOpen(value)}
-            open={environmentDialogOpen}
-          >
-            <DialogContent>
-              <form
-                className="flex flex-col gap-5"
-                onSubmit={handleSubmit(onNewEnvironmentSubmit)}
-              >
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <h1>New Environment</h1>
-                    <p className="text-mauve-11 text-xs">
-                      All the changes will be isolated from other environments,
-                      you can sync environments to pass changes.
-                    </p>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {environments.length > 0 &&
+                  environments
+                    .filter((env) => selectedEnvironment !== env.slug)
+                    .map((env) => (
+                      <DropdownMenuItem
+                        className="text-xs"
+                        key={env.slug}
+                        onClick={() => {
+                          setSelectedEnvironment(env.slug);
+                          navigate(
+                            `/${slug}/projects/${id}/${env.slug}/architecture`,
+                          );
+                        }}
+                      >
+                        <div>{env.name}</div>
+                      </DropdownMenuItem>
+                    ))}
+                {environments.length > 1 && <DropdownMenuSeparator />}
+                <DropdownMenuItem
+                  onClick={() => setEnvironmentDialogOpen(true)}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs">New Environment</p>
+                    <ChevronRight width={12} height={12} />
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Staging"
-                    className="border-mauve-6 rounded-md border-1 px-2 py-1 text-sm focus:outline-none"
-                    {...register("environmentName")}
-                  />
-                </div>
-                <Button type="submit" className="w-40 self-end">
-                  Create Environment
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-      )}
-      <LinkNavigationBar items={navigationBarItems} />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Dialog
+              onOpenChange={(value) => setEnvironmentDialogOpen(value)}
+              open={environmentDialogOpen}
+            >
+              <DialogContent>
+                <form
+                  className="flex flex-col gap-5"
+                  onSubmit={handleSubmit(onNewEnvironmentSubmit)}
+                >
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      <h1>New Environment</h1>
+                      <p className="text-mauve-11 text-xs">
+                        All the changes will be isolated from other
+                        environments, you can sync environments to pass changes.
+                      </p>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Staging"
+                      className="border-mauve-6 rounded-md border-1 px-2 py-1 text-sm focus:outline-none"
+                      {...register("environmentName")}
+                    />
+                  </div>
+                  <Button type="submit" className="w-40 self-end">
+                    Create Environment
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
+        <LinkNavigationBar items={navigationBarItems} />
+      </div>
       <Outlet />
     </div>
   );
