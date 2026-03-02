@@ -24,6 +24,7 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
 import getElkLayout from "~/utils/reactflow/getElkLayout";
+import { useNavigate, useParams } from "react-router";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -32,6 +33,13 @@ interface ArchitectureCanvasProps {
 export default function ArchitectureCanvas({
   environment,
 }: ArchitectureCanvasProps) {
+  const { slug, id: organizationId } = useParams<{
+    slug: string;
+    id: string;
+  }>();
+
+  const navigate = useNavigate();
+
   const { fitView } = useReactFlow();
 
   const trpc = useTRPC();
@@ -100,6 +108,18 @@ export default function ArchitectureCanvas({
 
   function referencesDatabase(v: string, db: { rwHost: string }): boolean {
     return v === db.rwHost;
+  }
+
+  function handleNodeSelected(type: string, id: string) {
+    navigate(
+      `${slug}/projects/${organizationId}/${environment.slug}/architecture/${type}/${id}`,
+    );
+  }
+
+  function handlePlaneClick() {
+    navigate(
+      `${slug}/projects/${organizationId}/${environment.slug}/architecture`,
+    );
   }
 
   useEffect(() => {
@@ -237,6 +257,14 @@ export default function ArchitectureCanvas({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        multiSelectionKeyCode={null}
+        selectionKeyCode={null}
+        onNodeClick={(_, node) => {
+          if (node.type === "image" || node.type === "ingress") {
+            handleNodeSelected(node.type, node.id);
+          }
+        }}
+        onPaneClick={() => handlePlaneClick()}
         proOptions={{ hideAttribution: true }}
         fitView
         maxZoom={1}

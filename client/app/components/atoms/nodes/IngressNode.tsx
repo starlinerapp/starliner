@@ -16,9 +16,17 @@ type IngressNode = Node<{
   hosts: ResponseIngressHost[];
 }>;
 
-export default function IngressNode({ data }: NodeProps<IngressNode>) {
+export default function IngressNode({
+  data,
+  selected,
+}: NodeProps<IngressNode>) {
   return (
-    <div className="bg-white-a12 text-mauve-11">
+    <div
+      className={cn(
+        "bg-white-a12 text-mauve-11",
+        selected && "ring-violet-8 rounded-md ring-2",
+      )}
+    >
       <Handle
         type="source"
         position={Position.Right}

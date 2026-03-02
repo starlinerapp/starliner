@@ -16,9 +16,14 @@ type ImageNode = Node<{
   tag: string;
 }>;
 
-export default function ImageNode({ data }: NodeProps<ImageNode>) {
+export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
   return (
-    <div className="bg-white-a12 text-mauve-11">
+    <div
+      className={cn(
+        "bg-white-a12 text-mauve-11",
+        selected && "ring-violet-8 rounded-md ring-2",
+      )}
+    >
       <Handle
         type="target"
         position={Position.Left}
