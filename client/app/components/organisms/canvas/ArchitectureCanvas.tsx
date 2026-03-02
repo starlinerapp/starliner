@@ -49,6 +49,25 @@ export default function ArchitectureCanvas({
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
+  const topologyKey = useMemo(() => {
+    if (!deployments) return "";
+
+    return JSON.stringify({
+      db: deployments.databases.map((d) => d.id),
+      img: deployments.images.map((i) => i.id),
+      ing: deployments.ingresses.map((i) => ({
+        id: i.id,
+        hosts: (i.hosts ?? []).map((h) => ({
+          host: h.host,
+          paths: (h.paths ?? []).map((p) => ({
+            path: p.path,
+            svc: p.serviceName,
+          })),
+        })),
+      })),
+    });
+  }, [deployments]);
+
   const nodeTypes: NodeTypes = useMemo(() => {
     return {
       database: DatabaseNode,
@@ -163,6 +182,29 @@ export default function ArchitectureCanvas({
     return () => {
       cancelled = true;
     };
+  }, [topologyKey]);
+
+  useEffect(() => {
+    if (!deployments) return;
+
+    setNodes((prev) =>
+      prev.map((node) => {
+        if (node.id.startsWith("image:")) {
+          const id = Number(node.id.split(":")[1]);
+          const img = deployments.images.find((i) => i.id === id);
+          if (!img) return node;
+
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              status: img.status,
+            },
+          };
+        }
+        return node;
+      }),
+    );
   }, [deployments]);
 
   return (
