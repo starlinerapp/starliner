@@ -142,22 +142,22 @@ func mapEnvVars(envVars []*entity.EnvVar) []*EnvVar {
 }
 
 type DatabaseDeployment struct {
-	Id       int64
-	Name     string
-	Status   string
-	Username string
-	Password string
-	Port     string
+	Id          int64
+	ServiceName string
+	Status      string
+	Username    string
+	Password    string
+	Port        string
 }
 
 func NewDatabaseDeployment(d *entity.DatabaseDeployment) *DatabaseDeployment {
 	return &DatabaseDeployment{
-		Id:       d.Id,
-		Name:     d.Name,
-		Status:   *d.Status,
-		Username: d.Username,
-		Password: d.Password,
-		Port:     d.Port,
+		Id:          d.Id,
+		ServiceName: d.ServiceName,
+		Status:      *d.Status,
+		Username:    d.Username,
+		Password:    d.Password,
+		Port:        d.Port,
 	}
 }
 

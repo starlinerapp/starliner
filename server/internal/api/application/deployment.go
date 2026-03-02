@@ -146,7 +146,7 @@ func (da *DeploymentApplication) DeployDatabase(
 
 	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.Name,
+		DeploymentName:   deployment.ServiceName,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {

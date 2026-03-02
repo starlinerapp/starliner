@@ -176,7 +176,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 
 	return &entity.DatabaseDeployment{
 		Id:            d.DeploymentID,
-		Name:          d.Name,
+		ServiceName:   d.Name,
 		EnvironmentId: d.EnvironmentID,
 	}, nil
 }

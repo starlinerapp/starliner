@@ -45,7 +45,7 @@ type ImageDeployment struct {
 
 type DatabaseDeployment struct {
 	Id            int64
-	Name          string
+	ServiceName   string
 	Status        *string
 	Username      string
 	Password      string
