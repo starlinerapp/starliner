@@ -26,11 +26,13 @@ export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
     >
       <Handle
         type="target"
+        isConnectable={false}
         position={Position.Left}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
       <Handle
         type="source"
+        isConnectable={false}
         position={Position.Right}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
