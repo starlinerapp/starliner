@@ -2,26 +2,44 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
-	sqlc2 "starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"starliner.app/internal/api/infrastructure/postgres/sqlc"
 	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type ProjectRepository struct {
-	queries *sqlc2.Queries
+	db      *sql.DB
+	queries *sqlc.Queries
 }
 
 var _ interfaces.ProjectRepository = (*ProjectRepository)(nil)
 
-func NewProjectRepository(queries *sqlc2.Queries) interfaces.ProjectRepository {
-	return &ProjectRepository{queries: queries}
+func NewProjectRepository(db *sql.DB, queries *sqlc.Queries) interfaces.ProjectRepository {
+	return &ProjectRepository{db: db, queries: queries}
 }
 
-func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64) (*entity.Project, error) {
-	project, err := pr.queries.CreateProject(ctx, sqlc2.CreateProjectParams{
-		Name:           name,
+func (pr *ProjectRepository) CreateProjectWithEnvironment(
+	ctx context.Context,
+	projectName string,
+	environmentName string,
+	environmentSlug string,
+	organizationId int64,
+	clusterId int64,
+) (*entity.Project, error) {
+	tx, err := pr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := pr.queries.WithTx(tx)
+	project, err := qtx.CreateProject(ctx, sqlc.CreateProjectParams{
+		Name:           projectName,
 		OrganizationID: organizationId,
 		ClusterID:      utils.NullInt64FromPtr(&clusterId),
 	})
@@ -29,16 +47,35 @@ func (pr *ProjectRepository) CreateProject(ctx context.Context, name string, org
 		return nil, err
 	}
 
+	env, err := qtx.CreateEnvironment(ctx, sqlc.CreateEnvironmentParams{
+		Name:      environmentName,
+		Slug:      environmentSlug,
+		ProjectID: project.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
 	return &entity.Project{
 		Id:             project.ID,
 		Name:           project.Name,
 		OrganizationId: project.OrganizationID,
 		ClusterId:      utils.PtrFromNullInt64(project.ClusterID),
+		Environments: []*entity.Environment{
+			{
+				Id:   env.ID,
+				Slug: env.Slug,
+				Name: env.Name,
+			},
+		},
 	}, nil
 }
 
 func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, userId int64) (*entity.Project, error) {
-	rows, err := pr.queries.GetProject(ctx, sqlc2.GetProjectParams{
+	rows, err := pr.queries.GetProject(ctx, sqlc.GetProjectParams{
 		ID:      projectId,
 		OwnerID: userId,
 	})
@@ -70,7 +107,7 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 }
 
 func (pr *ProjectRepository) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
-	return pr.queries.DeleteProject(ctx, sqlc2.DeleteProjectParams{
+	return pr.queries.DeleteProject(ctx, sqlc.DeleteProjectParams{
 		ID:      projectId,
 		OwnerID: userId,
 	})

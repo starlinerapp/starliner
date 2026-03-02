@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -33,22 +32,13 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 		return nil, err
 	}
 
-	project, err := ps.projectRepository.CreateProject(ctx, name, organizationId, clusterId)
-	if err != nil {
-		return nil, err
-	}
-
 	productionEnvName := "Production"
-	environment, err := ps.environmentRepository.CreateEnvironment(ctx, productionEnvName, strings.ToLower(productionEnvName), project.Id)
+	project, err := ps.projectRepository.CreateProjectWithEnvironment(ctx, name, productionEnvName, strings.ToLower(productionEnvName), organizationId, clusterId)
 	if err != nil {
 		return nil, err
 	}
 
-	environmentsModel := value.NewEnvironments([]*entity.Environment{environment})
-	projectModel := value.NewProject(project)
-	projectModel.Environments = environmentsModel
-
-	return projectModel, nil
+	return value.NewProject(project), nil
 }
 
 func (ps *ProjectApplication) GetProject(ctx context.Context, projectId int64, userId int64) (*value.Project, error) {
