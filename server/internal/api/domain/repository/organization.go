@@ -139,3 +139,20 @@ func (or *OrganizationRepository) UpsertProvisioningCredentials(
 
 	return err
 }
+
+func (or *OrganizationRepository) GetOrganizationProvisioningCredential(
+	ctx context.Context,
+	organizationID int64,
+	provider value.CredentialProvider,
+) (string, error) {
+	credential, err := or.queries.GetOrganizationProvisioningCredential(ctx, sqlc.GetOrganizationProvisioningCredentialParams{
+		OrganizationID: organizationID,
+		Provider:       sqlc.Provider(provider),
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return credential.Secret, nil
+}

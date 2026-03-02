@@ -18,23 +18,26 @@ import (
 )
 
 type ClusterApplication struct {
-	clusterRepository   interfaces.ClusterRepository
-	organizationService *service.OrganizationService
-	crypto              corePort.Crypto
-	queue               port.Queue
+	clusterRepository      interfaces.ClusterRepository
+	organizationRepository interfaces.OrganizationRepository
+	organizationService    *service.OrganizationService
+	crypto                 corePort.Crypto
+	queue                  port.Queue
 }
 
 func NewClusterApplication(
 	clusterRepository interfaces.ClusterRepository,
+	organizationRepository interfaces.OrganizationRepository,
 	organizationService *service.OrganizationService,
 	crypto corePort.Crypto,
 	queue port.Queue,
 ) *ClusterApplication {
 	return &ClusterApplication{
-		clusterRepository:   clusterRepository,
-		organizationService: organizationService,
-		crypto:              crypto,
-		queue:               queue,
+		clusterRepository:      clusterRepository,
+		organizationRepository: organizationRepository,
+		organizationService:    organizationService,
+		crypto:                 crypto,
+		queue:                  queue,
 	}
 }
 
@@ -49,10 +52,21 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
 
+	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, organizationId, value.HetznerCredential)
+	if err != nil {
+		return nil, err
+	}
+
+	decrypted, err := ca.crypto.Decrypt(credential)
+	if err != nil {
+		return nil, err
+	}
+
 	err = ca.queue.PublishCreateCluster(&coreValue.ProvisionCluster{
-		Id:               cluster.Id,
-		Name:             cluster.Name,
-		OrganizationName: strconv.FormatInt(cluster.OrganizationId, 10),
+		Id:                     cluster.Id,
+		Name:                   cluster.Name,
+		OrganizationName:       strconv.FormatInt(cluster.OrganizationId, 10),
+		ProvisioningCredential: decrypted,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
@@ -119,9 +133,20 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 		return err
 	}
 
+	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, cluster.OrganizationId, value.HetznerCredential)
+	if err != nil {
+		return err
+	}
+
+	decrypted, err := ca.crypto.Decrypt(credential)
+	if err != nil {
+		return err
+	}
+
 	err = ca.queue.PublishDeleteCluster(&coreValue.DeleteCluster{
-		Id:             cluster.Id,
-		ProvisioningId: *cluster.ProvisioningId,
+		Id:                     cluster.Id,
+		ProvisioningId:         *cluster.ProvisioningId,
+		ProvisioningCredential: decrypted,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)

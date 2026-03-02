@@ -13,4 +13,9 @@ type OrganizationRepository interface {
 	GetOrganizationProjects(ctx context.Context, organizationID int64) ([]*entity.Project, error)
 	GetOrganizationClusters(ctx context.Context, organizationID int64) ([]*entity.Cluster, error)
 	UpsertProvisioningCredentials(ctx context.Context, organizationID int64, apiKey string, provider value.CredentialProvider) error
+	GetOrganizationProvisioningCredential(
+		ctx context.Context,
+		organizationID int64,
+		provider value.CredentialProvider,
+	) (string, error)
 }

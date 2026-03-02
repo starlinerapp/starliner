@@ -33,3 +33,11 @@ INSERT INTO provisioning_credentials (
 ON CONFLICT (organization_id, provider)
 DO UPDATE SET
   secret = EXCLUDED.secret;
+
+-- name: GetOrganizationProvisioningCredential :one
+SELECT
+    pc.organization_id,
+    pc.secret
+FROM provisioning_credentials pc
+WHERE organization_id = $1
+  AND provider = $2;
