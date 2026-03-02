@@ -180,11 +180,11 @@ definitions:
     properties:
       id:
         type: integer
-      name:
-        type: string
       password:
         type: string
       port:
+        type: string
+      serviceName:
         type: string
       status:
         type: string
@@ -192,9 +192,9 @@ definitions:
         type: string
     required:
     - id
-    - name
     - password
     - port
+    - serviceName
     - status
     - username
     type: object

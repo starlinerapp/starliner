@@ -371,12 +371,6 @@ export interface ResponseDatabaseDeployment {
    * @type {string}
    * @memberof ResponseDatabaseDeployment
    */
-  name: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseDatabaseDeployment
-   */
   password: string;
   /**
    *
@@ -384,6 +378,12 @@ export interface ResponseDatabaseDeployment {
    * @memberof ResponseDatabaseDeployment
    */
   port: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDatabaseDeployment
+   */
+  serviceName: string;
   /**
    *
    * @type {string}

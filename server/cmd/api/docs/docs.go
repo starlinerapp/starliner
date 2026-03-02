@@ -976,9 +976,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "name",
                 "password",
                 "port",
+                "serviceName",
                 "status",
                 "username"
             ],
@@ -986,13 +986,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "password": {
                     "type": "string"
                 },
                 "port": {
+                    "type": "string"
+                },
+                "serviceName": {
                     "type": "string"
                 },
                 "status": {

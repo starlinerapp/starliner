@@ -49,9 +49,20 @@ export default function ArchitectureCanvas({
     if (!deployments) return "";
 
     return JSON.stringify({
-      db: deployments.databases.map((d) => d.id),
-      img: deployments.images.map((i) => i.id),
-      ing: deployments.ingresses.map((i) => i.id),
+      db: deployments.databases.map((d) => ({
+        id: d.id,
+        serviceName: d.serviceName,
+      })),
+      img: deployments.images.map((i) => ({
+        id: i.id,
+        serviceName: i.serviceName,
+        port: i.port,
+        envValues: i.envVars,
+      })),
+      ing: deployments.ingresses.map((ing) => ({
+        id: ing.id,
+        hosts: ing.hosts,
+      })),
     });
   }, [deployments]);
 
@@ -77,6 +88,19 @@ export default function ArchitectureCanvas({
     (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
+
+  function referencesImage(v: string, service: string, port: string): boolean {
+    const candidates = [
+      service,
+      `${service}:${port}`,
+      `http://${service}:${port}`,
+    ];
+    return candidates.some((prefix) => v === prefix || v.startsWith(prefix));
+  }
+
+  function referencesDatabase(v: string, db: { rwHost: string }): boolean {
+    return v === db.rwHost;
+  }
 
   useEffect(() => {
     fitView();
@@ -112,33 +136,65 @@ export default function ArchitectureCanvas({
       })),
     ];
 
-    const imageIdByServiceName = new Map<string, string>(
-      deployments.images.map((i) => [i.serviceName, String(i.id)]),
-    );
-
     const rawEdges: Edge[] = [];
+    const pushEdge = (source: string, target: string, kind: string) => {
+      rawEdges.push({
+        id: `${source}->${target}:${kind}`,
+        source,
+        target,
+        type: "smoothstep",
+      });
+    };
+
+    const databaseTargets = deployments.databases.map((db) => ({
+      id: String(db.id),
+      serviceName: db.serviceName,
+      rwHost: `${db.serviceName}-rw`,
+    }));
+
+    const imageTargets = deployments.images.map((t) => ({
+      id: String(t.id),
+      serviceName: t.serviceName,
+      port: t.port,
+    }));
 
     for (const ing of deployments.ingresses) {
-      const ingressNodeId = String(ing.id);
-
       for (const host of ing.hosts ?? []) {
         for (const path of host.paths ?? []) {
-          const targetImageId = imageIdByServiceName.get(path.serviceName);
+          const matchedTarget = imageTargets.find((t) =>
+            referencesImage(path.serviceName, t.serviceName, t.port),
+          );
+          if (!matchedTarget) continue;
 
-          if (!targetImageId) continue;
+          pushEdge(
+            String(ing.id),
+            matchedTarget.id,
+            `ing:${host.host}:${path.path}`,
+          );
+        }
+      }
+    }
 
-          rawEdges.push({
-            id: `${ingressNodeId}->${targetImageId}:${host.host}:${path.path}`,
-            source: ingressNodeId,
-            target: targetImageId,
-            type: "smoothstep",
-          });
+    for (const src of deployments.images) {
+      const sourceId = String(src.id);
+
+      for (const v of src.envVars) {
+        for (const db of databaseTargets) {
+          if (referencesDatabase(v.value, db)) {
+            pushEdge(sourceId, db.id, `img->db:${db.serviceName}`);
+          }
+        }
+        for (const t of imageTargets) {
+          if (t.id === sourceId) continue;
+
+          if (referencesImage(v.value, t.serviceName, t.port)) {
+            pushEdge(sourceId, t.id, `img->img:${t.serviceName}:${t.port}`);
+          }
         }
       }
     }
 
     let cancelled = false;
-
     (async () => {
       const laidOut = await getElkLayout(rawNodes, rawEdges);
       if (cancelled) return;
@@ -156,17 +212,16 @@ export default function ArchitectureCanvas({
 
     setNodes((prev) =>
       prev.map((node) => {
-        const allDeployments = [
+        const updated = [
           ...deployments.images,
           ...deployments.databases,
           ...deployments.ingresses,
-        ];
-        const img = allDeployments.find((i) => String(i.id) === node.id);
-        if (!img) return node;
+        ].find((i) => String(i.id) === node.id);
 
+        if (!updated) return node;
         return {
           ...node,
-          data: { ...img },
+          data: { ...updated },
         };
       }),
     );
