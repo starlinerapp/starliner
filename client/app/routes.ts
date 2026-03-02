@@ -26,14 +26,24 @@ export default [
                     index(
                       "routes/dashboard/projects/[id]/[environment]/architecture/index.tsx",
                     ),
-                    route(
-                      "image",
-                      "routes/dashboard/projects/[id]/[environment]/architecture/image.tsx",
-                    ),
-                    route(
-                      "ingress",
-                      "routes/dashboard/projects/[id]/[environment]/architecture/ingress.tsx",
-                    ),
+                    ...prefix("image", [
+                      index(
+                        "routes/dashboard/projects/[id]/[environment]/architecture/image/index.tsx",
+                      ),
+                      route(
+                        ":deploymentId",
+                        "routes/dashboard/projects/[id]/[environment]/architecture/image/[deploymentId]/index.tsx",
+                      ),
+                    ]),
+                    ...prefix("ingress", [
+                      index(
+                        "routes/dashboard/projects/[id]/[environment]/architecture/ingress/index.tsx",
+                      ),
+                      route(
+                        ":deploymentId",
+                        "routes/dashboard/projects/[id]/[environment]/architecture/ingress/[deploymentId]/index.tsx",
+                      ),
+                    ]),
                     route(
                       "database",
                       "routes/dashboard/projects/[id]/[environment]/architecture/database.tsx",

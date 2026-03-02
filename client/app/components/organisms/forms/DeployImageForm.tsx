@@ -1,10 +1,10 @@
 import React from "react";
-import Button from "~/components/atoms/button/Button";
-import { ArrowRight, Plus } from "~/components/atoms/icons";
-import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, Plus } from "~/components/atoms/icons";
 
 interface EnvVar {
   name: string;
@@ -19,7 +19,13 @@ interface ImageFormInput {
   envs: EnvVar[];
 }
 
-export default function Image() {
+interface DeployImageFormProps {
+  defaultValues?: ImageFormInput;
+}
+
+export default function DeployImageForm({
+  defaultValues,
+}: DeployImageFormProps) {
   const trpc = useTRPC();
 
   const createImageMutation = useMutation(
@@ -29,7 +35,9 @@ export default function Image() {
   const { environment: currentEnvironment } = useEnvironment();
 
   const { register, handleSubmit, watch, reset, control } =
-    useForm<ImageFormInput>();
+    useForm<ImageFormInput>({
+      defaultValues,
+    });
 
   const { fields, append } = useFieldArray({
     control,
@@ -78,9 +86,10 @@ export default function Image() {
           <p className="text-sm">Service Name</p>
           <div className="flex gap-2">
             <input
-              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+              className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
               type="text"
               placeholder="Name*"
+              disabled={!!defaultValues?.serviceName}
               {...register("serviceName", {
                 required: true,
               })}

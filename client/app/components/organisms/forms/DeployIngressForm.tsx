@@ -28,10 +28,16 @@ interface IngressFormInput {
   hosts: Host[];
 }
 
+interface DeployIngressFormProps {
+  defaultValues?: IngressFormInput;
+}
+
 const emptyPathEntry: Path = { path: "", pathType: "", service: "" };
 const emptyHostEntry: Host = { name: "", paths: [emptyPathEntry] };
 
-export default function Ingress() {
+export default function DeployIngressForm({
+  defaultValues,
+}: DeployIngressFormProps) {
   const trpc = useTRPC();
   const createIngressMutation = useMutation(
     trpc.deployment.deployIngress.mutationOptions(),
@@ -46,7 +52,9 @@ export default function Ingress() {
 
   const { control, register, handleSubmit, watch, reset } =
     useForm<IngressFormInput>({
-      defaultValues: { hosts: [emptyHostEntry] },
+      defaultValues: defaultValues
+        ? defaultValues
+        : { hosts: [emptyHostEntry] },
       mode: "onSubmit",
     });
 
