@@ -26,6 +26,7 @@ export default function UpdateImageForm() {
     <>
       {!isLoading && (
         <DeployImageForm
+          key={deploymentId}
           defaultValues={{
             serviceName: imageDeployment?.serviceName ?? "",
             imageName: imageDeployment?.imageName ?? "",

@@ -26,6 +26,7 @@ export default function UpdateIngressForm() {
     <>
       {!isLoading && (
         <DeployIngressForm
+          key={deploymentId}
           defaultValues={{
             hosts: (ingressDeployment?.hosts ?? []).map((h) => ({
               name: h.host ?? "",
