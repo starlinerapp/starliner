@@ -116,6 +116,15 @@ export default function Layout() {
       title: "Settings",
       icon: <Cog />,
       href: `/${slug}/settings`,
+      extended: [
+        [
+          {
+            id: "organization-settings",
+            title: "Organization",
+            href: `/${slug}/settings/organization`,
+          },
+        ],
+      ],
     },
   ];
 

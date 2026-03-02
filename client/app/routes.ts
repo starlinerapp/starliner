@@ -77,7 +77,10 @@ export default [
         ]),
       ]),
 
-      route("settings", "routes/dashboard/settings.tsx"),
+      ...prefix("settings", [
+        index("routes/dashboard/settings/index.tsx"),
+        route("organization", "routes/dashboard/settings/organization.tsx"),
+      ]),
     ]),
   ]),
 

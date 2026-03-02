@@ -45,6 +45,8 @@ func NewServer(
 		organizationRoutes.GET("", organizationHandler.GetUserOrganizations)
 		organizationRoutes.GET("/:id/projects", organizationHandler.GetOrganizationProjects)
 		organizationRoutes.GET("/:id/clusters", organizationHandler.GetOrganizationClusters)
+		organizationRoutes.POST("/:id/settings/credential/hetzner", organizationHandler.UpsertHetznerCredential)
+		organizationRoutes.GET("/:id/settings/credential/hetzner", organizationHandler.GetHetznerCredential)
 	}
 
 	projectRoutes := engine.Group("/projects")

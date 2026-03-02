@@ -10,7 +10,7 @@
     "fmt": "prettier --write .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons",
+    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons && npm run fmt",
     "drizzle:generate": "npx drizzle-kit generate",
     "drizzle:migrate": "npx drizzle-kit migrate",
     "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/docs/swagger.yaml' -g typescript-axios -o app/server/api/client/generated && prettier app/server/api/client/generated --write"

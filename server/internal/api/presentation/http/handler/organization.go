@@ -112,3 +112,73 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.NewClusters(clusters))
 }
+
+// UpsertHetznerCredential FindAll godoc
+// @Summary Upsert Hetzner Provisioning Credential
+// @Tags organization
+// @ID upsertHetznerCredential
+// @Product JSON
+// @Param data body request.UpsertHetznerCredential true "Upsert Hetzner Credential"
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Success 200
+// @Router /organizations/{id}/settings/credential/hetzner [post]
+func (oh *OrganizationHandler) UpsertHetznerCredential(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	var credential request.UpsertHetznerCredential
+	if err := c.BindJSON(&credential); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = oh.organizationApplication.UpsertHetznerCredential(c.Request.Context(), currentUser.Id, organizationId, credential.ApiKey)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.Status(http.StatusOK)
+}
+
+// GetHetznerCredential FindAll godoc
+// @Summary Get Hetzner Provisioning Credential
+// @Tags organization
+// @ID getHetznerCredential
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Success 200 {object} response.GetOrganizationProvisioningCredentialResponse
+// @Router /organizations/{id}/settings/credential/hetzner [get]
+func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	credential, err := oh.organizationApplication.GetHetznerCredential(c.Request.Context(), currentUser.Id, organizationId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	if credential == nil {
+		c.JSON(http.StatusOK, response.GetOrganizationProvisioningCredentialResponse{
+			Credential: nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetOrganizationProvisioningCredentialResponse{
+		Credential: &response.OrganizationProvisioningCredential{
+			Provider: string(credential.Provider),
+			Secret:   credential.Secret,
+		},
+	})
+}

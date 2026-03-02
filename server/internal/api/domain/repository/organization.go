@@ -2,23 +2,26 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
-	sqlc2 "starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/api/infrastructure/postgres/sqlc"
 )
 
 type OrganizationRepository struct {
-	queries *sqlc2.Queries
+	queries *sqlc.Queries
 }
 
 var _ interfaces.OrganizationRepository = (*OrganizationRepository)(nil)
 
-func NewOrganizationRepository(queries *sqlc2.Queries) interfaces.OrganizationRepository {
+func NewOrganizationRepository(queries *sqlc.Queries) interfaces.OrganizationRepository {
 	return &OrganizationRepository{queries: queries}
 }
 
 func (or *OrganizationRepository) CreateOrganization(ctx context.Context, name string, slug string, ownerID int64) (*entity.Organization, error) {
-	organization, err := or.queries.CreateOrganization(ctx, sqlc2.CreateOrganizationParams{
+	organization, err := or.queries.CreateOrganization(ctx, sqlc.CreateOrganizationParams{
 		Name:    name,
 		Slug:    slug,
 		OwnerID: ownerID,
@@ -122,4 +125,42 @@ func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, o
 	}
 
 	return clusters, nil
+}
+
+func (or *OrganizationRepository) UpsertProvisioningCredentials(
+	ctx context.Context,
+	organizationID int64,
+	apiKey string,
+	provider value.ProvisioningCredentialProvider,
+) error {
+	err := or.queries.UpsertProvisioningCredential(ctx, sqlc.UpsertProvisioningCredentialParams{
+		OrganizationID: organizationID,
+		Provider:       sqlc.Provider(provider),
+		Secret:         apiKey,
+	})
+
+	return err
+}
+
+func (or *OrganizationRepository) GetOrganizationProvisioningCredential(
+	ctx context.Context,
+	organizationID int64,
+	provider value.ProvisioningCredentialProvider,
+) (*value.ProvisioningCredential, error) {
+	credential, err := or.queries.GetOrganizationProvisioningCredential(ctx, sqlc.GetOrganizationProvisioningCredentialParams{
+		OrganizationID: organizationID,
+		Provider:       sqlc.Provider(provider),
+	})
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &value.ProvisioningCredential{
+		Provider: value.ProvisioningCredentialProvider(credential.Provider),
+		Secret:   credential.Secret,
+	}, nil
 }

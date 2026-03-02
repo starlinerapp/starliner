@@ -4,6 +4,7 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -15,6 +16,15 @@ export default function Settings() {
     slug: string;
     id: string;
   }>();
+
+  const { data: hetznerCredentialData, isLoading: isCredentialLoading } =
+    useQuery(
+      trpc.organization.getHetznerCredential.queryOptions({
+        id: organization.id,
+      }),
+    );
+
+  const isCredentialValid = !!hetznerCredentialData?.credential?.secret;
 
   const { data: clusterData, error } = useQuery(
     trpc.cluster.getCluster.queryOptions(
@@ -52,35 +62,48 @@ export default function Settings() {
   );
 
   return (
-    <div className="w-full p-4 xl:w-3/5">
-      <div className="border-mauve-6 rounded-md border-1 text-sm">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
-          Danger Zone
-        </div>
-        <div className="flex items-center justify-between px-4 py-2">
-          <div>
-            <p className="text-md font-bold">Delete this Cluster</p>
-            <p className="text-mauve-11 text-xs">
-              Once you delete a cluster, there is no going back. Please be
-              certain.
-            </p>
+    <div className="w-full px-4">
+      {isCredentialLoading ? null : isCredentialValid ? null : (
+        <WarningBanner
+          text="You must enter your Hetzner API Key to delete the cluster."
+          linkOut={{
+            text: "Organization Settings",
+            href: `/${organization.slug}/settings/organization`,
+          }}
+          className="mt-4"
+        />
+      )}
+      <div className="w-full pt-4 xl:w-3/5">
+        <div className="border-mauve-6 rounded-md border-1 text-sm">
+          <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
+            Danger Zone
           </div>
-          <Button
-            className="w-36"
-            intent="danger"
-            disabled={
-              clusterData?.status === "pending" ||
-              clusterData?.status === "deleted"
-            }
-            size="sm"
-            onClick={() =>
-              deleteClusterMutation.mutate({
-                id: Number(id),
-              })
-            }
-          >
-            Delete this Cluster
-          </Button>
+          <div className="flex items-center justify-between px-4 py-2">
+            <div>
+              <p className="text-md font-bold">Delete this Cluster</p>
+              <p className="text-mauve-11 text-xs">
+                Once you delete a cluster, there is no going back. Please be
+                certain.
+              </p>
+            </div>
+            <Button
+              className="w-36"
+              intent="danger"
+              disabled={
+                !isCredentialValid ||
+                clusterData?.status === "pending" ||
+                clusterData?.status === "deleted"
+              }
+              size="sm"
+              onClick={() =>
+                deleteClusterMutation.mutate({
+                  id: Number(id),
+                })
+              }
+            >
+              Delete this Cluster
+            </Button>
+          </div>
         </div>
       </div>
     </div>

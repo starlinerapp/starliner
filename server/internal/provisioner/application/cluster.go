@@ -50,13 +50,14 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	clusterSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
 
 	projectName := fmt.Sprintf("%s-%s", strings.ToLower(c.OrganizationName), clusterSlug)
-	provisioningId, ip, err := ca.provision.ProvisionServer(ctx, projectName, publicKey)
+	provisioningId, ip, err := ca.provision.ProvisionServer(ctx, c.ProvisioningCredential, projectName, publicKey)
 
 	if err != nil {
 		log.Printf("failed to provision server: %v\n", err)
 		ca.HandleDeleteCluster(&value.DeleteCluster{
-			Id:             c.Id,
-			ProvisioningId: provisioningId,
+			Id:                     c.Id,
+			ProvisioningId:         provisioningId,
+			ProvisioningCredential: c.ProvisioningCredential,
 		})
 		return
 	}
@@ -91,7 +92,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 
 func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
 	ctx := context.Background()
-	err := ca.provision.DeleteServer(ctx, c.ProvisioningId)
+	err := ca.provision.DeleteServer(ctx, c.ProvisioningCredential, c.ProvisioningId)
 	if err != nil {
 		log.Printf("failed to delete server: %v\n", err)
 		return

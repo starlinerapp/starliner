@@ -133,7 +133,6 @@ services:
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
       PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
       PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
-      HCLOUD_TOKEN: ${HCLOUD_TOKEN}
     volumes:
       - ./server:/app
     networks:

@@ -165,7 +165,7 @@ const docTemplate = `{
                 "tags": [
                     "cluster"
                 ],
-                "summary": "Get Cluster Private Name",
+                "summary": "Get Cluster Private Key",
                 "operationId": "getClusterPrivateKey",
                 "parameters": [
                     {
@@ -541,6 +541,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizations/{id}/settings/credential/hetzner": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get Hetzner Provisioning Credential",
+                "operationId": "getHetznerCredential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetOrganizationProvisioningCredentialResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Upsert Hetzner Provisioning Credential",
+                "operationId": "upsertHetznerCredential",
+                "parameters": [
+                    {
+                        "description": "Upsert Hetzner Credential",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpsertHetznerCredential"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/projects": {
             "post": {
                 "tags": [
@@ -842,6 +912,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpsertHetznerCredential": {
+            "type": "object",
+            "required": [
+                "apiKey"
+            ],
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Cluster": {
             "type": "object",
             "required": [
@@ -969,6 +1050,14 @@ const docTemplate = `{
                 }
             }
         },
+        "response.GetOrganizationProvisioningCredentialResponse": {
+            "type": "object",
+            "properties": {
+                "credential": {
+                    "$ref": "#/definitions/response.OrganizationProvisioningCredential"
+                }
+            }
+        },
         "response.ImageDeployment": {
             "type": "object",
             "required": [
@@ -1090,6 +1179,21 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OrganizationProvisioningCredential": {
+            "type": "object",
+            "required": [
+                "provider",
+                "secret"
+            ],
+            "properties": {
+                "provider": {
+                    "type": "string"
+                },
+                "secret": {
                     "type": "string"
                 }
             }

@@ -1,10 +1,11 @@
 import Button from "~/components/atoms/button/Button";
 import React from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useNavigate } from "react-router";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
 
 interface NewClusterFormInput {
   name: string;
@@ -16,6 +17,15 @@ export default function NewCluster() {
   const navigate = useNavigate();
 
   const organization = useOrganizationContext();
+
+  const { data: hetznerCredentialData, isLoading: isCredentialLoading } =
+    useQuery(
+      trpc.organization.getHetznerCredential.queryOptions({
+        id: organization.id,
+      }),
+    );
+
+  const isCredentialValid = !!hetznerCredentialData?.credential?.secret;
 
   const createClusterMutation = useMutation(
     trpc.cluster.createCluster.mutationOptions({
@@ -43,6 +53,16 @@ export default function NewCluster() {
   return (
     <div className="flex flex-col gap-2 px-8 py-4">
       <h1 className="text-xl font-bold">New Cluster</h1>
+      {isCredentialLoading ? null : isCredentialValid ? null : (
+        <WarningBanner
+          text="You must enter your Hetzner API Key to create a cluster."
+          linkOut={{
+            text: "Organization Settings",
+            href: `/${organization.slug}/settings/organization`,
+          }}
+          className="my-2"
+        />
+      )}
       <div className="text-mauve-11 text-sm">
         <p>
           A cluster is an isolated environment with its own compute resources,

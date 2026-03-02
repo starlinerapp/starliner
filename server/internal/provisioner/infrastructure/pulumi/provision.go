@@ -68,13 +68,21 @@ func NewProvision() port.Provision {
 	return &Provision{}
 }
 
-func (p *Provision) ProvisionServer(ctx context.Context, name string, publicKey []byte) (provisioningId string, ip string, err error) {
+func (p *Provision) ProvisionServer(ctx context.Context, provisioningCredential string, name string, publicKey []byte) (provisioningId string, ip string, err error) {
 	stackName := auto.FullyQualifiedStackName("organization", name, uuid.New().String())
 
 	s, err := auto.UpsertStackInlineSource(ctx, stackName, name, DeployFunc(DeployParams{
 		ServerName: name,
 		PublicKey:  publicKey,
 	}))
+	if err != nil {
+		return stackName, "", err
+	}
+
+	err = s.SetConfig(ctx, "hcloud:token", auto.ConfigValue{
+		Value:  provisioningCredential,
+		Secret: true,
+	})
 	if err != nil {
 		return stackName, "", err
 	}
@@ -104,7 +112,7 @@ func (p *Provision) ProvisionServer(ctx context.Context, name string, publicKey 
 	return stackName, ip, nil
 }
 
-func (p *Provision) DeleteServer(ctx context.Context, provisioningId string) error {
+func (p *Provision) DeleteServer(ctx context.Context, provisioningCredential string, provisioningId string) error {
 	parts := strings.Split(provisioningId, "/")
 	projectName := parts[1]
 
@@ -112,6 +120,14 @@ func (p *Provision) DeleteServer(ctx context.Context, provisioningId string) err
 		ServerName: projectName,
 		PublicKey:  nil,
 	}))
+	if err != nil {
+		return err
+	}
+
+	err = s.SetConfig(ctx, "hcloud:token", auto.ConfigValue{
+		Value:  provisioningCredential,
+		Secret: true,
+	})
 	if err != nil {
 		return err
 	}

@@ -1,14 +1,16 @@
 package value
 
 type ProvisionCluster struct {
-	Id               int64
-	Name             string
-	OrganizationName string
+	Id                     int64
+	Name                   string
+	OrganizationName       string
+	ProvisioningCredential string
 }
 
 type DeleteCluster struct {
-	Id             int64
-	ProvisioningId string
+	Id                     int64
+	ProvisioningId         string
+	ProvisioningCredential string
 }
 
 type ClusterCreated struct {

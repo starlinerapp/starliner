@@ -135,6 +135,13 @@ definitions:
     - pathType
     - serviceName
     type: object
+  request.UpsertHetznerCredential:
+    properties:
+      apiKey:
+        type: string
+    required:
+    - apiKey
+    type: object
   response.Cluster:
     properties:
       id:
@@ -223,6 +230,11 @@ definitions:
     - name
     - slug
     type: object
+  response.GetOrganizationProvisioningCredentialResponse:
+    properties:
+      credential:
+        $ref: '#/definitions/response.OrganizationProvisioningCredential'
+    type: object
   response.ImageDeployment:
     properties:
       id:
@@ -309,6 +321,16 @@ definitions:
     - name
     - owner_id
     - slug
+    type: object
+  response.OrganizationProvisioningCredential:
+    properties:
+      provider:
+        type: string
+      secret:
+        type: string
+    required:
+    - provider
+    - secret
     type: object
   response.Project:
     properties:
@@ -465,7 +487,7 @@ paths:
           description: OK
           schema:
             type: file
-      summary: Get Cluster Private Name
+      summary: Get Cluster Private Key
       tags:
       - cluster
   /deployments/{id}:
@@ -696,6 +718,53 @@ paths:
               $ref: '#/definitions/response.Project'
             type: array
       summary: Get Organization Projects
+      tags:
+      - organization
+  /organizations/{id}/settings/credential/hetzner:
+    get:
+      operationId: getHetznerCredential
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GetOrganizationProvisioningCredentialResponse'
+      summary: Get Hetzner Provisioning Credential
+      tags:
+      - organization
+    post:
+      operationId: upsertHetznerCredential
+      parameters:
+      - description: Upsert Hetzner Credential
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpsertHetznerCredential'
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Upsert Hetzner Provisioning Credential
       tags:
       - organization
   /projects:

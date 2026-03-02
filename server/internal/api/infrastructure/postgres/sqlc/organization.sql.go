@@ -62,6 +62,34 @@ func (q *Queries) GetOrganization(ctx context.Context, id int64) (Organization, 
 	return i, err
 }
 
+const getOrganizationProvisioningCredential = `-- name: GetOrganizationProvisioningCredential :one
+SELECT
+    pc.organization_id,
+    pc.provider,
+    pc.secret
+FROM provisioning_credentials pc
+WHERE organization_id = $1
+  AND provider = $2
+`
+
+type GetOrganizationProvisioningCredentialParams struct {
+	OrganizationID int64
+	Provider       Provider
+}
+
+type GetOrganizationProvisioningCredentialRow struct {
+	OrganizationID int64
+	Provider       Provider
+	Secret         string
+}
+
+func (q *Queries) GetOrganizationProvisioningCredential(ctx context.Context, arg GetOrganizationProvisioningCredentialParams) (GetOrganizationProvisioningCredentialRow, error) {
+	row := q.db.QueryRowContext(ctx, getOrganizationProvisioningCredential, arg.OrganizationID, arg.Provider)
+	var i GetOrganizationProvisioningCredentialRow
+	err := row.Scan(&i.OrganizationID, &i.Provider, &i.Secret)
+	return i, err
+}
+
 const getUserOrganizations = `-- name: GetUserOrganizations :many
 SELECT id, name, slug, owner_id, created_at, updated_at
 FROM organizations
@@ -96,4 +124,30 @@ func (q *Queries) GetUserOrganizations(ctx context.Context, ownerID int64) ([]Or
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertProvisioningCredential = `-- name: UpsertProvisioningCredential :exec
+INSERT INTO provisioning_credentials (
+    organization_id,
+    provider,
+    secret
+) VALUES (
+  $1,
+  $2,
+  $3
+)
+ON CONFLICT (organization_id, provider)
+DO UPDATE SET
+  secret = EXCLUDED.secret
+`
+
+type UpsertProvisioningCredentialParams struct {
+	OrganizationID int64
+	Provider       Provider
+	Secret         string
+}
+
+func (q *Queries) UpsertProvisioningCredential(ctx context.Context, arg UpsertProvisioningCredentialParams) error {
+	_, err := q.db.ExecContext(ctx, upsertProvisioningCredential, arg.OrganizationID, arg.Provider, arg.Secret)
+	return err
 }
