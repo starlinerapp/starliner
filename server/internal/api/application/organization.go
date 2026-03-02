@@ -86,3 +86,25 @@ func (oa *OrganizationApplication) UpsertHetznerCredential(ctx context.Context, 
 	err = oa.organizationRepository.UpsertProvisioningCredentials(ctx, organizationID, apiKeyEncrypted, value.HetznerCredential)
 	return err
 }
+
+func (oa *OrganizationApplication) GetHetznerCredential(ctx context.Context, userID int64, organizationID int64) (*value.ProvisioningCredential, error) {
+	err := oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := oa.organizationRepository.GetOrganizationProvisioningCredential(ctx, organizationID, value.HetznerCredential)
+	if err != nil {
+		return nil, err
+	}
+
+	decrypted, err := oa.crypto.Decrypt(c.Secret)
+	if err != nil {
+		return nil, err
+	}
+
+	return &value.ProvisioningCredential{
+		Provider: c.Provider,
+		Secret:   decrypted,
+	}, nil
+}

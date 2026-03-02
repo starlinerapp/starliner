@@ -129,7 +129,7 @@ func (or *OrganizationRepository) UpsertProvisioningCredentials(
 	ctx context.Context,
 	organizationID int64,
 	apiKey string,
-	provider value.CredentialProvider,
+	provider value.ProvisioningCredentialProvider,
 ) error {
 	err := or.queries.UpsertProvisioningCredential(ctx, sqlc.UpsertProvisioningCredentialParams{
 		OrganizationID: organizationID,
@@ -143,16 +143,19 @@ func (or *OrganizationRepository) UpsertProvisioningCredentials(
 func (or *OrganizationRepository) GetOrganizationProvisioningCredential(
 	ctx context.Context,
 	organizationID int64,
-	provider value.CredentialProvider,
-) (string, error) {
+	provider value.ProvisioningCredentialProvider,
+) (*value.ProvisioningCredential, error) {
 	credential, err := or.queries.GetOrganizationProvisioningCredential(ctx, sqlc.GetOrganizationProvisioningCredentialParams{
 		OrganizationID: organizationID,
 		Provider:       sqlc.Provider(provider),
 	})
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return credential.Secret, nil
+	return &value.ProvisioningCredential{
+		Provider: value.ProvisioningCredentialProvider(credential.Provider),
+		Secret:   credential.Secret,
+	}, nil
 }

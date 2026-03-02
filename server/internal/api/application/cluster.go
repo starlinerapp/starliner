@@ -57,7 +57,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		return nil, err
 	}
 
-	decrypted, err := ca.crypto.Decrypt(credential)
+	decrypted, err := ca.crypto.Decrypt(credential.Secret)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 		return err
 	}
 
-	decrypted, err := ca.crypto.Decrypt(credential)
+	decrypted, err := ca.crypto.Decrypt(credential.Secret)
 	if err != nil {
 		return err
 	}

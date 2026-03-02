@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 interface FormInput {
   apiKey: string;
@@ -16,6 +17,13 @@ export default function OrganizationSettings() {
   );
   const organization = useOrganizationContext();
 
+  const { data: hetznerCredentialData, isLoading: isHetznerCredentialLoading } =
+    useQuery(
+      trpc.organization.getHetznerCredential.queryOptions({
+        id: organization.id,
+      }),
+    );
+
   const {
     register,
     handleSubmit,
@@ -25,6 +33,10 @@ export default function OrganizationSettings() {
     defaultValues: { apiKey: "" },
   });
 
+  useEffect(() => {
+    reset({ apiKey: hetznerCredentialData?.secret ?? "" });
+  }, [hetznerCredentialData?.secret, reset]);
+
   const onSubmit = (data: FormInput) => {
     upsertApiTokenMutation.mutate(
       {
@@ -33,7 +45,7 @@ export default function OrganizationSettings() {
       },
       {
         onSuccess: () => {
-          reset();
+          reset({ apiKey: data.apiKey });
         },
       },
     );
@@ -66,12 +78,16 @@ export default function OrganizationSettings() {
                   .
                 </p>
               </div>
-              <input
-                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-96 min-w-52 rounded-md border p-2 text-sm"
-                type="text"
-                placeholder="API Key*"
-                {...register("apiKey")}
-              />
+              {isHetznerCredentialLoading ? (
+                <Skeleton className="h-8 w-96" />
+              ) : (
+                <input
+                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-96 min-w-52 rounded-md border p-2 text-sm"
+                  type="text"
+                  placeholder="API Key*"
+                  {...register("apiKey")}
+                />
+              )}
             </div>
             {isDirty && (
               <div className="flex justify-end gap-1 px-4 pb-2">
@@ -79,11 +95,17 @@ export default function OrganizationSettings() {
                   size="xs"
                   className="w-20"
                   intent="secondary"
+                  disabled={upsertApiTokenMutation.isPending}
                   onClick={() => reset()}
                 >
                   Cancel
                 </Button>
-                <Button className="w-20" size="xs" type="submit">
+                <Button
+                  className="w-20"
+                  size="xs"
+                  type="submit"
+                  disabled={upsertApiTokenMutation.isPending}
+                >
                   Save
                 </Button>
               </div>

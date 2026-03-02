@@ -37,6 +37,7 @@ DO UPDATE SET
 -- name: GetOrganizationProvisioningCredential :one
 SELECT
     pc.organization_id,
+    pc.provider,
     pc.secret
 FROM provisioning_credentials pc
 WHERE organization_id = $1

@@ -27,3 +27,8 @@ func NewOrganizations(orgs []*value.Organization) []Organization {
 	}
 	return res
 }
+
+type OrganizationProvisioningCredential struct {
+	Provider string `json:"provider" binding:"required, oneof=hetzner"`
+	Secret   string `json:"secret" binding:"required"`
+}

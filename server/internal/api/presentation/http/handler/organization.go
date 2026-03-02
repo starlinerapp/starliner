@@ -144,3 +144,32 @@ func (oh *OrganizationHandler) UpsertHetznerCredential(c *gin.Context) {
 	}
 	c.Status(http.StatusOK)
 }
+
+// GetHetznerCredential FindAll godoc
+// @Summary Get Hetzner Provisioning Credential
+// @Tags organization
+// @ID getHetznerCredential
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Success 200 {object} response.OrganizationProvisioningCredential
+// @Router /organizations/{id}/settings/credential/hetzner [get]
+func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	credential, err := oh.organizationApplication.GetHetznerCredential(c.Request.Context(), currentUser.Id, organizationId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.OrganizationProvisioningCredential{
+		Provider: string(credential.Provider),
+		Secret:   credential.Secret,
+	})
+}

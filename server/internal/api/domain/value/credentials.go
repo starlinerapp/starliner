@@ -1,7 +1,12 @@
 package value
 
-type CredentialProvider string
+type ProvisioningCredentialProvider string
 
 const (
-	HetznerCredential CredentialProvider = "hetzner"
+	HetznerCredential ProvisioningCredentialProvider = "hetzner"
 )
+
+type ProvisioningCredential struct {
+	Provider ProvisioningCredentialProvider
+	Secret   string
+}

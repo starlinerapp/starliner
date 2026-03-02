@@ -65,6 +65,7 @@ func (q *Queries) GetOrganization(ctx context.Context, id int64) (Organization, 
 const getOrganizationProvisioningCredential = `-- name: GetOrganizationProvisioningCredential :one
 SELECT
     pc.organization_id,
+    pc.provider,
     pc.secret
 FROM provisioning_credentials pc
 WHERE organization_id = $1
@@ -78,13 +79,14 @@ type GetOrganizationProvisioningCredentialParams struct {
 
 type GetOrganizationProvisioningCredentialRow struct {
 	OrganizationID int64
+	Provider       Provider
 	Secret         string
 }
 
 func (q *Queries) GetOrganizationProvisioningCredential(ctx context.Context, arg GetOrganizationProvisioningCredentialParams) (GetOrganizationProvisioningCredentialRow, error) {
 	row := q.db.QueryRowContext(ctx, getOrganizationProvisioningCredential, arg.OrganizationID, arg.Provider)
 	var i GetOrganizationProvisioningCredentialRow
-	err := row.Scan(&i.OrganizationID, &i.Secret)
+	err := row.Scan(&i.OrganizationID, &i.Provider, &i.Secret)
 	return i, err
 }
 

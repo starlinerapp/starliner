@@ -60,4 +60,16 @@ export const organizationRouter = {
         })
         .then((res) => res.data);
     }),
+  getHetznerCredential: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await organizationApiFactory
+        .getHetznerCredential(userId, input.id)
+        .then((res) => res.data);
+    }),
 };
