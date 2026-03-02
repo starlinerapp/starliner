@@ -63,8 +63,11 @@ export default function ImageNode({ data }: NodeProps<ImageNode>) {
               <CopyToClipboard className="text-mauve-11" text={data.tag} />
             </span>
             <span className="flex justify-between">
-              <p>Port</p>
-              <CopyToClipboard className="text-mauve-11" text={data.port} />
+              <p>Internal Endpoint</p>
+              <CopyToClipboard
+                className="text-mauve-11"
+                text={`http://${data.serviceName}:${data.port}`}
+              />
             </span>
           </div>
         </div>

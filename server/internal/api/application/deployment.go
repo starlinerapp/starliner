@@ -167,7 +167,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		return err
 	}
 
-	deployment, err := da.deploymentRepository.CreateIngressDeployment(
+	ingressDeployment, err := da.deploymentRepository.CreateIngressDeployment(
 		ctx,
 		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
 		"80",
@@ -192,11 +192,21 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
 
 		for _, p := range h.Paths {
+			target, err := da.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, environmentId)
+			if err != nil {
+				return err
+			}
+
+			targetPort, err := strconv.Atoi(target.Port)
+			if err != nil {
+				return err
+			}
+
 			ch.Paths = append(ch.Paths, coreValue.IngressPath{
 				Path:        p.Path,
 				PathType:    coreValue.PathType(p.PathType),
 				ServiceName: p.ServiceName,
-				ServicePort: 80,
+				ServicePort: targetPort,
 			})
 		}
 
@@ -205,8 +215,8 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 		IngressHosts:     coreHosts,
-		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.Name,
+		DeploymentId:     ingressDeployment.Id,
+		DeploymentName:   ingressDeployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 

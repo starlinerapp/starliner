@@ -187,3 +187,21 @@ func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.C
 	}
 	return deployments, nil
 }
+
+func (er *EnvironmentRepository) GetEnvironmentDeploymentByName(ctx context.Context, name string, environmentId int64) (*entity.Deployment, error) {
+	d, err := er.queries.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
+		Name:          name,
+		EnvironmentID: environmentId,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Deployment{
+		Id:            d.ID,
+		Name:          d.Name,
+		Port:          d.Port,
+		EnvironmentId: d.EnvironmentID,
+	}, nil
+}
