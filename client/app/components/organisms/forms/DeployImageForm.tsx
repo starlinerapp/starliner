@@ -159,7 +159,7 @@ export default function DeployImageForm({
             !serviceNameInput || !imageNameInput || !tagInput || !portInput
           }
         >
-          Deploy
+          {defaultValues ? "Redeploy" : "Deploy"}
           <ArrowRight className="w-4 stroke-2" />
         </Button>
       </div>

@@ -1,7 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   addEdge,
-  applyEdgeChanges,
   applyNodeChanges,
   Background,
   BackgroundVariant,
@@ -10,11 +15,9 @@ import {
   type Node,
   type NodeTypes,
   type OnConnect,
-  type OnEdgesChange,
   type OnNodesChange,
   Position,
   ReactFlow,
-  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useTRPC } from "~/utils/trpc/react";
@@ -40,8 +43,6 @@ export default function ArchitectureCanvas({
 
   const navigate = useNavigate();
 
-  const { fitView } = useReactFlow();
-
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
     trpc.environment.getEnvironmentDeployments.queryOptions(
@@ -53,26 +54,12 @@ export default function ArchitectureCanvas({
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
-  const topologyKey = useMemo(() => {
-    if (!deployments) return "";
-
-    return JSON.stringify({
-      db: deployments.databases.map((d) => ({
-        id: d.id,
-        serviceName: d.serviceName,
-      })),
-      img: deployments.images.map((i) => ({
-        id: i.id,
-        serviceName: i.serviceName,
-        port: i.port,
-        envValues: i.envVars,
-      })),
-      ing: deployments.ingresses.map((ing) => ({
-        id: ing.id,
-        hosts: ing.hosts,
-      })),
-    });
-  }, [deployments]);
+  const selectedIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    selectedIdsRef.current = new Set(
+      nodes.filter((n) => n.selected).map((n) => n.id),
+    );
+  }, [nodes]);
 
   const nodeTypes: NodeTypes = useMemo(() => {
     return {
@@ -87,15 +74,15 @@ export default function ArchitectureCanvas({
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) =>
-      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
+
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
+
+  const onSelectionChange = ({ nodes }: { nodes: Node[] }) => {
+    selectedIdsRef.current = new Set(nodes.map((n) => n.id));
+  };
 
   function referencesImage(v: string, service: string, port: string): boolean {
     const candidates = [
@@ -121,10 +108,6 @@ export default function ArchitectureCanvas({
       `${slug}/projects/${organizationId}/${environment.slug}/architecture`,
     );
   }
-
-  useEffect(() => {
-    fitView();
-  }, [nodes.length]);
 
   useEffect(() => {
     if (!deployments) return;
@@ -218,33 +201,21 @@ export default function ArchitectureCanvas({
     (async () => {
       const laidOut = await getElkLayout(rawNodes, rawEdges);
       if (cancelled) return;
-      setNodes(laidOut.nodes);
+
+      const selectedIds = selectedIdsRef.current;
+
+      setNodes(
+        laidOut.nodes.map((n) => ({
+          ...n,
+          selected: selectedIds.has(n.id),
+        })),
+      );
       setEdges(laidOut.edges);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [topologyKey]);
-
-  useEffect(() => {
-    if (!deployments) return;
-
-    setNodes((prev) =>
-      prev.map((node) => {
-        const updated = [
-          ...deployments.images,
-          ...deployments.databases,
-          ...deployments.ingresses,
-        ].find((i) => String(i.id) === node.id);
-
-        if (!updated) return node;
-        return {
-          ...node,
-          data: { ...updated },
-        };
-      }),
-    );
   }, [deployments]);
 
   return (
@@ -254,11 +225,10 @@ export default function ArchitectureCanvas({
         edges={edges}
         nodeOrigin={[0, 0.5]}
         nodeTypes={nodeTypes}
+        nodesDraggable={false}
         onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        onSelectionChange={onSelectionChange}
         onConnect={onConnect}
-        multiSelectionKeyCode={null}
-        selectionKeyCode={null}
         onNodeClick={(_, node) => {
           if (node.type === "image" || node.type === "ingress") {
             handleNodeSelected(node.type, node.id);

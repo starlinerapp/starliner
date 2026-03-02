@@ -149,7 +149,7 @@ export default function DeployIngressForm({
         type="submit"
         disabled={isFormIncomplete || createIngressMutation.isPending}
       >
-        Deploy
+        {defaultValues ? "Redeploy" : "Deploy"}
         <ArrowRight className="w-4 stroke-2" />
       </Button>
     </form>
