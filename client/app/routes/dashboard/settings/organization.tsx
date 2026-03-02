@@ -68,7 +68,7 @@ export default function OrganizationSettings() {
               </div>
               <input
                 className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-96 min-w-52 rounded-md border p-2 text-sm"
-                type="password"
+                type="text"
                 placeholder="API Key*"
                 {...register("apiKey")}
               />

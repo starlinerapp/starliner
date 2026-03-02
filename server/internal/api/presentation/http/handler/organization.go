@@ -137,5 +137,10 @@ func (oh *OrganizationHandler) UpsertHetznerCredential(c *gin.Context) {
 		return
 	}
 
-	oh.organizationApplication.UpsertHetznerCredential(c.Request.Context(), currentUser.Id, organizationId, credential.ApiKey)
+	err = oh.organizationApplication.UpsertHetznerCredential(c.Request.Context(), currentUser.Id, organizationId, credential.ApiKey)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.Status(http.StatusOK)
 }
