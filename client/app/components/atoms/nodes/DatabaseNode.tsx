@@ -9,7 +9,7 @@ import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboar
 
 type DatabaseNode = Node<{
   id: number;
-  serviceName: string;
+  name: string;
   status: string;
   port: string;
   username: string;
@@ -28,7 +28,7 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
             <Database className="w-5" />
-            <p>{data.serviceName}</p>
+            <p>{data.name}</p>
           </div>
           <DatabaseContextMenu deploymentId={data.id} />
         </div>
@@ -47,10 +47,6 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
           </div>
           <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
             <span className="flex justify-between">
-              <p>Port</p>
-              <CopyToClipboard className="text-mauve-11" text={data.port} />
-            </span>
-            <span className="flex justify-between">
               <p>Username</p>
               <CopyToClipboard className="text-mauve-11" text={data.username} />
             </span>
@@ -60,6 +56,13 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
                 masked={true}
                 className="text-mauve-11"
                 text={data.password}
+              />
+            </span>
+            <span className="flex justify-between">
+              <p>Internal Endpoint</p>
+              <CopyToClipboard
+                className="text-mauve-11"
+                text={`${data.name}-rw:${data.port}`}
               />
             </span>
           </div>

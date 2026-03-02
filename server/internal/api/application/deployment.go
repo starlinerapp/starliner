@@ -128,7 +128,7 @@ func (da *DeploymentApplication) DeployDatabase(
 	// TODO: Replace with real values
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
-		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:8]),
+		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:4]),
 		"5432",
 		"unhealthy",
 		"postgres",

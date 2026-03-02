@@ -66,7 +66,7 @@ export default function ImageNode({ data }: NodeProps<ImageNode>) {
               <p>Internal Endpoint</p>
               <CopyToClipboard
                 className="text-mauve-11"
-                text={`http://${data.serviceName}:${data.port}`}
+                text={`${data.serviceName}:${data.port}`}
               />
             </span>
           </div>

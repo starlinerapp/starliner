@@ -156,16 +156,18 @@ export default function ArchitectureCanvas({
 
     setNodes((prev) =>
       prev.map((node) => {
-        if (node.type === "image") {
-          const img = deployments.images.find((i) => String(i.id) === node.id);
-          if (!img) return node;
+        const allDeployments = [
+          ...deployments.images,
+          ...deployments.databases,
+          ...deployments.ingresses,
+        ];
+        const img = allDeployments.find((i) => String(i.id) === node.id);
+        if (!img) return node;
 
-          return {
-            ...node,
-            data: { ...img },
-          };
-        }
-        return node;
+        return {
+          ...node,
+          data: { ...img },
+        };
       }),
     );
   }, [deployments]);
