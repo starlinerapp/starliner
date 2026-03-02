@@ -27,6 +27,7 @@ docs/ResponseClusterStatus.md
 docs/ResponseDatabaseDeployment.md
 docs/ResponseDeployments.md
 docs/ResponseEnvironment.md
+docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseImageDeployment.md
 docs/ResponseIngressDeployment.md
 docs/ResponseIngressHost.md

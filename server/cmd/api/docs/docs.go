@@ -568,7 +568,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.OrganizationProvisioningCredential"
+                            "$ref": "#/definitions/response.GetOrganizationProvisioningCredentialResponse"
                         }
                     }
                 }
@@ -1047,6 +1047,14 @@ const docTemplate = `{
                 },
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "response.GetOrganizationProvisioningCredentialResponse": {
+            "type": "object",
+            "properties": {
+                "credential": {
+                    "$ref": "#/definitions/response.OrganizationProvisioningCredential"
                 }
             }
         },

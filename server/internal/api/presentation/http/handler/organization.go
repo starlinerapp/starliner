@@ -152,7 +152,7 @@ func (oh *OrganizationHandler) UpsertHetznerCredential(c *gin.Context) {
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Organization ID"
-// @Success 200 {object} response.OrganizationProvisioningCredential
+// @Success 200 {object} response.GetOrganizationProvisioningCredentialResponse
 // @Router /organizations/{id}/settings/credential/hetzner [get]
 func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -168,8 +168,17 @@ func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.OrganizationProvisioningCredential{
-		Provider: string(credential.Provider),
-		Secret:   credential.Secret,
+	if credential == nil {
+		c.JSON(http.StatusOK, response.GetOrganizationProvisioningCredentialResponse{
+			Credential: nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetOrganizationProvisioningCredentialResponse{
+		Credential: &response.OrganizationProvisioningCredential{
+			Provider: string(credential.Provider),
+			Secret:   credential.Secret,
+		},
 	})
 }

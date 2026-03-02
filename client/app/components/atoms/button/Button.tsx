@@ -65,6 +65,7 @@ export default function Button({
 }: ButtonProps & ButtonVariants) {
   return (
     <button
+      disabled={disabled}
       className={cn(buttonVariants({ intent, size, disabled }), className)}
       {...props}
     >

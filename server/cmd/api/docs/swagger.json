@@ -559,7 +559,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.OrganizationProvisioningCredential"
+                            "$ref": "#/definitions/response.GetOrganizationProvisioningCredentialResponse"
                         }
                     }
                 }
@@ -1038,6 +1038,14 @@
                 },
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "response.GetOrganizationProvisioningCredentialResponse": {
+            "type": "object",
+            "properties": {
+                "credential": {
+                    "$ref": "#/definitions/response.OrganizationProvisioningCredential"
                 }
             }
         },

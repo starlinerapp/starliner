@@ -230,6 +230,11 @@ definitions:
     - name
     - slug
     type: object
+  response.GetOrganizationProvisioningCredentialResponse:
+    properties:
+      credential:
+        $ref: '#/definitions/response.OrganizationProvisioningCredential'
+    type: object
   response.ImageDeployment:
     properties:
       id:
@@ -733,7 +738,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.OrganizationProvisioningCredential'
+            $ref: '#/definitions/response.GetOrganizationProvisioningCredentialResponse'
       summary: Get Hetzner Provisioning Credential
       tags:
       - organization

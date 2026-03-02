@@ -98,6 +98,10 @@ func (oa *OrganizationApplication) GetHetznerCredential(ctx context.Context, use
 		return nil, err
 	}
 
+	if c == nil {
+		return nil, nil
+	}
+
 	decrypted, err := oa.crypto.Decrypt(c.Secret)
 	if err != nil {
 		return nil, err

@@ -63,7 +63,7 @@ No authorization required
 
 # **getHetznerCredential**
 
-> ResponseOrganizationProvisioningCredential getHetznerCredential()
+> ResponseGetOrganizationProvisioningCredentialResponse getHetznerCredential()
 
 ### Example
 
@@ -88,7 +88,7 @@ const { status, data } = await apiInstance.getHetznerCredential(xUserID, id);
 
 ### Return type
 
-**ResponseOrganizationProvisioningCredential**
+**ResponseGetOrganizationProvisioningCredentialResponse**
 
 ### Authorization
 

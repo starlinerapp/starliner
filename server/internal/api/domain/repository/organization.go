@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/value"
@@ -151,6 +153,9 @@ func (or *OrganizationRepository) GetOrganizationProvisioningCredential(
 	})
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

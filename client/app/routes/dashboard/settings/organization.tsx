@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
@@ -12,6 +12,8 @@ interface FormInput {
 
 export default function OrganizationSettings() {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   const upsertApiTokenMutation = useMutation(
     trpc.organization.upsertHetznerCredential.mutationOptions(),
   );
@@ -34,8 +36,8 @@ export default function OrganizationSettings() {
   });
 
   useEffect(() => {
-    reset({ apiKey: hetznerCredentialData?.secret ?? "" });
-  }, [hetznerCredentialData?.secret, reset]);
+    reset({ apiKey: hetznerCredentialData?.credential?.secret ?? "" });
+  }, [hetznerCredentialData?.credential?.secret, reset]);
 
   const onSubmit = (data: FormInput) => {
     upsertApiTokenMutation.mutate(
@@ -44,8 +46,11 @@ export default function OrganizationSettings() {
         apiKey: data.apiKey,
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           reset({ apiKey: data.apiKey });
+          await queryClient.invalidateQueries({
+            queryKey: trpc.organization.getHetznerCredential.queryKey(),
+          });
         },
       },
     );

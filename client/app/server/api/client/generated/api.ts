@@ -450,6 +450,19 @@ export interface ResponseEnvironment {
 /**
  *
  * @export
+ * @interface ResponseGetOrganizationProvisioningCredentialResponse
+ */
+export interface ResponseGetOrganizationProvisioningCredentialResponse {
+  /**
+   *
+   * @type {ResponseOrganizationProvisioningCredential}
+   * @memberof ResponseGetOrganizationProvisioningCredentialResponse
+   */
+  credential?: ResponseOrganizationProvisioningCredential;
+}
+/**
+ *
+ * @export
  * @interface ResponseImageDeployment
  */
 export interface ResponseImageDeployment {
@@ -2619,7 +2632,7 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       (
         axios?: AxiosInstance,
         basePath?: string,
-      ) => AxiosPromise<ResponseOrganizationProvisioningCredential>
+      ) => AxiosPromise<ResponseGetOrganizationProvisioningCredentialResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.getHetznerCredential(
@@ -2825,7 +2838,7 @@ export const OrganizationApiFactory = function (
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<ResponseOrganizationProvisioningCredential> {
+    ): AxiosPromise<ResponseGetOrganizationProvisioningCredentialResponse> {
       return localVarFp
         .getHetznerCredential(xUserID, id, options)
         .then((request) => request(axios, basePath));
