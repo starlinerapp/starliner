@@ -37,12 +37,8 @@ export default function ArchitectureCanvas({
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
     trpc.environment.getEnvironmentDeployments.queryOptions(
-      {
-        id: environment?.id,
-      },
-      {
-        refetchInterval: 2000, // 2 seconds
-      },
+      { id: environment?.id },
+      { refetchInterval: 2000 },
     ),
   );
 
@@ -55,16 +51,7 @@ export default function ArchitectureCanvas({
     return JSON.stringify({
       db: deployments.databases.map((d) => d.id),
       img: deployments.images.map((i) => i.id),
-      ing: deployments.ingresses.map((i) => ({
-        id: i.id,
-        hosts: (i.hosts ?? []).map((h) => ({
-          host: h.host,
-          paths: (h.paths ?? []).map((p) => ({
-            path: p.path,
-            svc: p.serviceName,
-          })),
-        })),
-      })),
+      ing: deployments.ingresses.map((i) => i.id),
     });
   }, [deployments]);
 
@@ -98,61 +85,41 @@ export default function ArchitectureCanvas({
   useEffect(() => {
     if (!deployments) return;
 
+    const baseNode = {
+      position: { x: 0, y: 0 },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    };
+
     const rawNodes: Node[] = [
-      ...deployments.databases.map((d) => ({
-        id: `database:${d.id}`,
+      ...deployments.databases.map((db) => ({
+        id: String(db.id),
         type: "database",
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        data: {
-          id: d.id,
-          serviceName: d.name,
-          status: d.status,
-          port: d.port,
-          username: d.username,
-          password: d.password,
-        },
+        ...baseNode,
+        data: { ...db },
       })),
-      ...deployments.images.map((i) => ({
-        id: `image:${i.id}`,
+      ...deployments.images.map((img) => ({
+        id: String(img.id),
         type: "image",
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        data: {
-          id: i.id,
-          serviceName: i.serviceName,
-          status: i.status,
-          port: i.port,
-          imageName: i.imageName,
-          tag: i.tag,
-        },
+        ...baseNode,
+        data: { ...img },
       })),
       ...deployments.ingresses.map((ing) => ({
-        id: `ingress:${ing.id}`,
+        id: String(ing.id),
         type: "ingress",
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        data: {
-          id: ing.id,
-          serviceName: ing.serviceName,
-          status: ing.status,
-          port: ing.port,
-          hosts: ing.hosts,
-        },
+        ...baseNode,
+        data: { ...ing },
       })),
     ];
 
     const imageIdByServiceName = new Map<string, string>(
-      deployments.images.map((i) => [i.serviceName, `image:${i.id}`]),
+      deployments.images.map((i) => [i.serviceName, String(i.id)]),
     );
 
     const rawEdges: Edge[] = [];
 
     for (const ing of deployments.ingresses) {
-      const ingressNodeId = `ingress:${ing.id}`;
+      const ingressNodeId = String(ing.id);
 
       for (const host of ing.hosts ?? []) {
         for (const path of host.paths ?? []) {
@@ -161,7 +128,7 @@ export default function ArchitectureCanvas({
           if (!targetImageId) continue;
 
           rawEdges.push({
-            id: `e:${ingressNodeId}->${targetImageId}:${host.host}:${path.path}`,
+            id: `${ingressNodeId}->${targetImageId}:${host.host}:${path.path}`,
             source: ingressNodeId,
             target: targetImageId,
             type: "smoothstep",
@@ -189,17 +156,13 @@ export default function ArchitectureCanvas({
 
     setNodes((prev) =>
       prev.map((node) => {
-        if (node.id.startsWith("image:")) {
-          const id = Number(node.id.split(":")[1]);
-          const img = deployments.images.find((i) => i.id === id);
+        if (node.type === "image") {
+          const img = deployments.images.find((i) => String(i.id) === node.id);
           if (!img) return node;
 
           return {
             ...node,
-            data: {
-              ...node.data,
-              status: img.status,
-            },
+            data: { ...img },
           };
         }
         return node;
