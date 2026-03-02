@@ -217,6 +217,16 @@ definitions:
     - images
     - ingresses
     type: object
+  response.EnvVar:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
+    type: object
   response.Environment:
     properties:
       id:
@@ -237,6 +247,10 @@ definitions:
     type: object
   response.ImageDeployment:
     properties:
+      envVars:
+        items:
+          $ref: '#/definitions/response.EnvVar'
+        type: array
       id:
         type: integer
       imageName:
@@ -250,6 +264,7 @@ definitions:
       tag:
         type: string
     required:
+    - envVars
     - id
     - imageName
     - port

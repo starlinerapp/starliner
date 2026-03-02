@@ -26,6 +26,7 @@ docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
 docs/ResponseDatabaseDeployment.md
 docs/ResponseDeployments.md
+docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseImageDeployment.md

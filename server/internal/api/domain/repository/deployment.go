@@ -53,14 +53,20 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		return nil, err
 	}
 
-	for _, e := range envs {
-		_, err := qtx.CreateImageEnvVar(ctx, sqlc.CreateImageEnvVarParams{
+	vars := make([]*entity.EnvVar, len(envs))
+	for i, e := range envs {
+		variable, err := qtx.CreateImageEnvVar(ctx, sqlc.CreateImageEnvVarParams{
 			DeploymentID: d.DeploymentID,
 			Name:         e.Name,
 			Value:        e.Value,
 		})
 		if err != nil {
 			return nil, err
+		}
+
+		vars[i] = &entity.EnvVar{
+			Name:  variable.Name,
+			Value: variable.Value,
 		}
 	}
 
@@ -75,6 +81,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		Tag:           d.ImageTag,
 		Port:          d.Port,
 		EnvironmentId: d.EnvironmentID,
+		EnvVars:       vars,
 	}, nil
 }
 

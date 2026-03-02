@@ -118,6 +118,7 @@ func NewImageDeployment(d *entity.ImageDeployment) *ImageDeployment {
 		ImageName:   d.ImageName,
 		Tag:         d.Tag,
 		Port:        d.Port,
+		EnvVars:     mapEnvVars(d.EnvVars),
 	}
 }
 
@@ -127,6 +128,17 @@ func NewImageDeployments(ds []*entity.ImageDeployment) []*ImageDeployment {
 		deployments[i] = NewImageDeployment(d)
 	}
 	return deployments
+}
+
+func mapEnvVars(envVars []*entity.EnvVar) []*EnvVar {
+	variables := make([]*EnvVar, len(envVars))
+	for i, e := range envVars {
+		variables[i] = &EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		}
+	}
+	return variables
 }
 
 type DatabaseDeployment struct {

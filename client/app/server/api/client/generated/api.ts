@@ -425,6 +425,25 @@ export interface ResponseDeployments {
 /**
  *
  * @export
+ * @interface ResponseEnvVar
+ */
+export interface ResponseEnvVar {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseEnvVar
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseEnvVar
+   */
+  value: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseEnvironment
  */
 export interface ResponseEnvironment {
@@ -466,6 +485,12 @@ export interface ResponseGetOrganizationProvisioningCredentialResponse {
  * @interface ResponseImageDeployment
  */
 export interface ResponseImageDeployment {
+  /**
+   *
+   * @type {Array<ResponseEnvVar>}
+   * @memberof ResponseImageDeployment
+   */
+  envVars: Array<ResponseEnvVar>;
   /**
    *
    * @type {number}

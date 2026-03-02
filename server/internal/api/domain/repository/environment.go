@@ -74,6 +74,19 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 
 	deployments := make([]*entity.ImageDeployment, len(rows))
 	for i, d := range rows {
+		envVars, err := er.queries.GetImageEnvironmentVars(ctx, d.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		variables := make([]*entity.EnvVar, len(envVars))
+		for j, e := range envVars {
+			variables[j] = &entity.EnvVar{
+				Name:  e.Name,
+				Value: e.Value,
+			}
+		}
+
 		deployments[i] = &entity.ImageDeployment{
 			Id:            d.DeploymentID,
 			Status:        utils.PtrFromNullString(d.Status),
@@ -82,6 +95,7 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 			Tag:           d.Tag,
 			Port:          d.Port,
 			EnvironmentId: d.EnvironmentID,
+			EnvVars:       variables,
 		}
 	}
 	return deployments, nil

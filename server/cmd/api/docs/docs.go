@@ -1031,6 +1031,21 @@ const docTemplate = `{
                 }
             }
         },
+        "response.EnvVar": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Environment": {
             "type": "object",
             "required": [
@@ -1061,6 +1076,7 @@ const docTemplate = `{
         "response.ImageDeployment": {
             "type": "object",
             "required": [
+                "envVars",
                 "id",
                 "imageName",
                 "port",
@@ -1069,6 +1085,12 @@ const docTemplate = `{
                 "tag"
             ],
             "properties": {
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },

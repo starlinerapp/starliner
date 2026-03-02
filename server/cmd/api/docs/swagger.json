@@ -1022,6 +1022,21 @@
                 }
             }
         },
+        "response.EnvVar": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Environment": {
             "type": "object",
             "required": [
@@ -1052,6 +1067,7 @@
         "response.ImageDeployment": {
             "type": "object",
             "required": [
+                "envVars",
                 "id",
                 "imageName",
                 "port",
@@ -1060,6 +1076,12 @@
                 "tag"
             ],
             "properties": {
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
