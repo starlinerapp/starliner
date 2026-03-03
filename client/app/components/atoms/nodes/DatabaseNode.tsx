@@ -17,9 +17,17 @@ type DatabaseNode = Node<{
   password: string | undefined;
 }>;
 
-export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
+export default function DatabaseNode({
+  data,
+  selected,
+}: NodeProps<DatabaseNode>) {
   return (
-    <div className="bg-white-a12 text-mauve-11">
+    <div
+      className={cn(
+        "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
+        selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+      )}
+    >
       <Handle
         type="target"
         position={Position.Left}

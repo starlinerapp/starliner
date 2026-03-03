@@ -1,11 +1,5 @@
 package request
 
-type Database string
-
-const (
-	Postgres Database = "postgres"
-)
-
 type EnvVar struct {
 	Name  string `json:"name" binding:"required"`
 	Value string `json:"value" binding:"required"`
@@ -29,8 +23,8 @@ type UpdateImage struct {
 }
 
 type DeployDatabase struct {
-	EnvironmentId int64    `json:"environmentId" binding:"required"`
-	Database      Database `json:"database" binding:"required,oneof=postgres"`
+	EnvironmentId int64  `json:"environmentId" binding:"required"`
+	ServiceName   string `json:"serviceName" binding:"required"`
 }
 
 type IngressPath struct {

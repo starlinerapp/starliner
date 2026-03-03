@@ -44,10 +44,15 @@ export default [
                         "routes/dashboard/projects/[id]/[environment]/architecture/ingress/[deploymentId]/index.tsx",
                       ),
                     ]),
-                    route(
-                      "database",
-                      "routes/dashboard/projects/[id]/[environment]/architecture/database.tsx",
-                    ),
+                    ...prefix("database", [
+                      index(
+                        "routes/dashboard/projects/[id]/[environment]/architecture/database/index.tsx",
+                      ),
+                      route(
+                        ":deploymentId",
+                        "routes/dashboard/projects/[id]/[environment]/architecture/database/[deploymentId]/index.tsx",
+                      ),
+                    ]),
                   ]),
                 ],
               ),

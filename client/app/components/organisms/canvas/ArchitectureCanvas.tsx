@@ -259,6 +259,8 @@ export default function ArchitectureCanvas({
     return { rawNodes, rawEdges };
   }, [graphFingerprint]);
 
+  const didInitialFitViewRef = useRef(false);
+
   useEffect(() => {
     if (!rawGraph) return;
 
@@ -277,7 +279,12 @@ export default function ArchitectureCanvas({
         })),
       );
       setEdges(laidOut.edges);
-      requestAnimationFrame(() => fitView({ maxZoom: 1, duration: 500 }));
+
+      requestAnimationFrame(() => {
+        const duration = didInitialFitViewRef.current ? 500 : 0;
+        fitView({ maxZoom: 1, duration });
+        didInitialFitViewRef.current = true;
+      });
     })();
 
     return () => {
@@ -327,7 +334,7 @@ export default function ArchitectureCanvas({
         onSelectionChange={onSelectionChange}
         onConnect={onConnect}
         onNodeClick={(_, node) => {
-          if (node.type === "image" || node.type === "ingress") {
+          if (node.type) {
             handleNodeSelected(node.type, node.id);
           }
         }}

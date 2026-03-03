@@ -150,7 +150,6 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	ctx context.Context,
 	serviceName string,
 	port string,
-	status string,
 	environmentId int64,
 	hosts []*value.IngressHost,
 ) (*entity.IngressDeployment, error) {

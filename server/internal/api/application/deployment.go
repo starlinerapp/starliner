@@ -171,7 +171,7 @@ func (da *DeploymentApplication) DeployDatabase(
 	ctx context.Context,
 	userId int64,
 	environmentId int64,
-	database value.Database,
+	serviceName string,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -183,10 +183,9 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	// TODO: Allow user to provide a name from the frontend
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
-		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:4]),
+		serviceName,
 		"5432",
 		environmentId,
 	)
@@ -226,7 +225,6 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		ctx,
 		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
 		"80",
-		"unhealthy",
 		environmentId,
 		hosts,
 	)

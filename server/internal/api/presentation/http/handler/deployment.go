@@ -120,7 +120,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
-		value.Database(body.Database),
+		body.ServiceName,
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
