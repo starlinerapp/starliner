@@ -165,3 +165,68 @@ func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnv
 	}
 	return items, nil
 }
+
+const updateImageDeployment = `-- name: UpdateImageDeployment :one
+WITH updated_deployment AS (
+    UPDATE deployments
+        SET
+            port   = $1
+        WHERE id = $2
+        RETURNING id, name, port, status, environment_id, created_at, updated_at
+),
+updated_image_deployment AS (
+ UPDATE image_deployments
+     SET
+         name = $3,
+         tag  = $4
+     WHERE deployment_id = (SELECT id FROM updated_deployment)
+     RETURNING deployment_id, name, tag, created_at, updated_at
+)
+SELECT
+    d.id AS deployment_id,
+    d.status,
+    d.name AS service_name,
+    img_d.name AS image_name,
+    img_d.tag AS image_tag,
+    d.port,
+    d.environment_id
+FROM updated_deployment d
+INNER JOIN updated_image_deployment img_d ON d.id = img_d.deployment_id
+`
+
+type UpdateImageDeploymentParams struct {
+	Port         string
+	DeploymentID int64
+	ImageName    string
+	Tag          string
+}
+
+type UpdateImageDeploymentRow struct {
+	DeploymentID  int64
+	Status        sql.NullString
+	ServiceName   string
+	ImageName     string
+	ImageTag      string
+	Port          string
+	EnvironmentID int64
+}
+
+func (q *Queries) UpdateImageDeployment(ctx context.Context, arg UpdateImageDeploymentParams) (UpdateImageDeploymentRow, error) {
+	row := q.db.QueryRowContext(ctx, updateImageDeployment,
+		arg.Port,
+		arg.DeploymentID,
+		arg.ImageName,
+		arg.Tag,
+	)
+	var i UpdateImageDeploymentRow
+	err := row.Scan(
+		&i.DeploymentID,
+		&i.Status,
+		&i.ServiceName,
+		&i.ImageName,
+		&i.ImageTag,
+		&i.Port,
+		&i.EnvironmentID,
+	)
+	return i, err
+}

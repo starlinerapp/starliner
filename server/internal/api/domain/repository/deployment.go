@@ -85,6 +85,69 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	}, nil
 }
 
+func (dr *DeploymentRepository) UpdateImageDeployment(
+	ctx context.Context,
+	deploymentId int64,
+	imageName string,
+	tag string,
+	port string,
+	envs []*value.EnvVar,
+) (deployment *entity.ImageDeployment, err error) {
+	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	qtx := dr.queries.WithTx(tx)
+
+	d, err := qtx.UpdateImageDeployment(ctx, sqlc.UpdateImageDeploymentParams{
+		Port:         port,
+		DeploymentID: deploymentId,
+		ImageName:    imageName,
+		Tag:          tag,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := qtx.DeleteEnvVarsByDeploymentId(ctx, deploymentId); err != nil {
+		return nil, err
+	}
+
+	vars := make([]*entity.EnvVar, len(envs))
+	for i, e := range envs {
+		variable, err := qtx.CreateImageEnvVar(ctx, sqlc.CreateImageEnvVarParams{
+			DeploymentID: deploymentId,
+			Name:         e.Name,
+			Value:        e.Value,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		vars[i] = &entity.EnvVar{
+			Name:  variable.Name,
+			Value: variable.Value,
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return &entity.ImageDeployment{
+		Id:            d.DeploymentID,
+		Status:        utils.PtrFromNullString(d.Status),
+		ServiceName:   d.ServiceName,
+		ImageName:     d.ImageName,
+		Tag:           d.ImageTag,
+		Port:          d.Port,
+		EnvironmentId: d.EnvironmentID,
+		EnvVars:       vars,
+	}, nil
+}
+
 func (dr *DeploymentRepository) CreateIngressDeployment(
 	ctx context.Context,
 	serviceName string,

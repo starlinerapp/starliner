@@ -21,6 +21,7 @@ docs/RequestDeployIngress.md
 docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
+docs/RequestUpdateImage.md
 docs/RequestUpsertHetznerCredential.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md

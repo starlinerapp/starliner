@@ -46,7 +46,11 @@ const CopyToClipboard = ({
       <Tooltip open={open} onOpenChange={setOpen} delayDuration={300}>
         <TooltipTrigger ref={ref}>
           <p
-            onClick={handleCopy}
+            onClick={async (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              await handleCopy();
+            }}
             className={cn(
               "hover:bg-gray-4 flex cursor-pointer flex-row gap-1 rounded-md px-2 align-middle",
               masked && "font-mono",

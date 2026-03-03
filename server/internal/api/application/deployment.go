@@ -109,6 +109,60 @@ func (da *DeploymentApplication) DeployImage(
 	return nil
 }
 
+func (da *DeploymentApplication) UpdateImageDeployment(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+	environmentId int64,
+	imageName string,
+	tag string,
+	port int,
+	envs []*value.EnvVar) error {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	deployment, err := da.deploymentRepository.UpdateImageDeployment(
+		ctx,
+		deploymentId,
+		imageName,
+		tag,
+		strconv.Itoa(port),
+		envs,
+	)
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
+	for _, e := range envs {
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+
+	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
+		DeploymentId:     deployment.Id,
+		DeploymentName:   deployment.ServiceName,
+		KubeconfigBase64: kubeconfigBase64,
+		ImageRepository:  imageName,
+		ImageTag:         tag,
+		Port:             port,
+		EnvVars:          coreEnvs,
+	})
+
+	return nil
+}
+
 func (da *DeploymentApplication) DeployDatabase(
 	ctx context.Context,
 	userId int64,

@@ -18,6 +18,15 @@ type DeploymentRepository interface {
 		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)
 
+	UpdateImageDeployment(
+		ctx context.Context,
+		deploymentId int64,
+		imageName string,
+		tag string,
+		port string,
+		envs []*value.EnvVar,
+	) (deployment *entity.ImageDeployment, err error)
+
 	CreateIngressDeployment(
 		ctx context.Context,
 		serviceName string,

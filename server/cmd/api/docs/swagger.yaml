@@ -135,6 +135,27 @@ definitions:
     - pathType
     - serviceName
     type: object
+  request.UpdateImage:
+    properties:
+      environmentId:
+        type: integer
+      envs:
+        items:
+          $ref: '#/definitions/request.EnvVar'
+        type: array
+      imageName:
+        type: string
+      port:
+        type: integer
+      tag:
+        type: string
+    required:
+    - environmentId
+    - envs
+    - imageName
+    - port
+    - tag
+    type: object
   request.UpsertHetznerCredential:
     properties:
       apiKey:
@@ -565,6 +586,32 @@ paths:
         "200":
           description: OK
       summary: Deploy image
+      tags:
+      - deployment
+  /deployments/images/{deploymentId}:
+    put:
+      operationId: updateImageDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Deploy Image
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateImage'
+      responses:
+        "200":
+          description: OK
+      summary: Update image deployment
       tags:
       - deployment
   /deployments/ingresses:

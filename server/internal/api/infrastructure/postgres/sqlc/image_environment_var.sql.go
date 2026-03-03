@@ -9,6 +9,16 @@ import (
 	"context"
 )
 
+const deleteEnvVarsByDeploymentId = `-- name: DeleteEnvVarsByDeploymentId :exec
+DELETE FROM image_environment_vars
+WHERE deployment_id = $1
+`
+
+func (q *Queries) DeleteEnvVarsByDeploymentId(ctx context.Context, deploymentID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteEnvVarsByDeploymentId, deploymentID)
+	return err
+}
+
 const getImageEnvironmentVars = `-- name: GetImageEnvironmentVars :many
 SELECT ev.name, ev.value
 FROM image_environment_vars ev

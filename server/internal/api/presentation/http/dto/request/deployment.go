@@ -20,6 +20,14 @@ type DeployImage struct {
 	Envs          []EnvVar `json:"envs" binding:"required"`
 }
 
+type UpdateImage struct {
+	EnvironmentId int64    `json:"environmentId" binding:"required"`
+	ImageName     string   `json:"imageName" binding:"required"`
+	Tag           string   `json:"tag" binding:"required"`
+	Port          int      `json:"port" binding:"required"`
+	Envs          []EnvVar `json:"envs" binding:"required"`
+}
+
 type DeployDatabase struct {
 	EnvironmentId int64    `json:"environmentId" binding:"required"`
 	Database      Database `json:"database" binding:"required,oneof=postgres"`

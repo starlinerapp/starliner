@@ -257,6 +257,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/images/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update image deployment",
+                "operationId": "updateImageDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Image",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/deployments/ingresses": {
             "post": {
                 "tags": [
@@ -908,6 +947,36 @@ const docTemplate = `{
                     ]
                 },
                 "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateImage": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "envs",
+                "imageName",
+                "port",
+                "tag"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "tag": {
                     "type": "string"
                 }
             }

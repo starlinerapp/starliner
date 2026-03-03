@@ -1,7 +1,4 @@
 import React from "react";
-import { useTRPC } from "~/utils/trpc/react";
-import { useMutation } from "@tanstack/react-query";
-import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
@@ -11,7 +8,7 @@ interface EnvVar {
   value: string;
 }
 
-interface ImageFormInput {
+export interface ImageFormInput {
   serviceName: string;
   imageName: string;
   tag: string;
@@ -21,19 +18,15 @@ interface ImageFormInput {
 
 interface DeployImageFormProps {
   defaultValues?: ImageFormInput;
+  onSubmit: (data: ImageFormInput) => Promise<void>;
+  resetOnSuccess?: boolean;
 }
 
 export default function DeployImageForm({
   defaultValues,
+  onSubmit,
+  resetOnSuccess = false,
 }: DeployImageFormProps) {
-  const trpc = useTRPC();
-
-  const createImageMutation = useMutation(
-    trpc.deployment.deployImage.mutationOptions(),
-  );
-
-  const { environment: currentEnvironment } = useEnvironment();
-
   const { register, handleSubmit, watch, reset, control } =
     useForm<ImageFormInput>({
       defaultValues,
@@ -49,32 +42,19 @@ export default function DeployImageForm({
   const tagInput = watch("tag", "");
   const portInput = watch("port", undefined);
 
-  const onSubmit: SubmitHandler<ImageFormInput> = (data) => {
+  const submit: SubmitHandler<ImageFormInput> = async (data) => {
     if (!data.port) return;
 
-    const sanitizedEnv = (data.envs ?? []).filter(
+    data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
-    createImageMutation.mutate(
-      {
-        id: currentEnvironment.id,
-        serviceName: data.serviceName,
-        imageName: data.imageName,
-        tag: data.tag,
-        port: data.port,
-        envs: sanitizedEnv,
-      },
-      {
-        onSuccess: () => {
-          reset();
-        },
-      },
-    );
+    await onSubmit(data);
+    if (resetOnSuccess) reset(defaultValues);
   };
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
       <div className="flex flex-col gap-1">
         <p>Docker Hub</p>
         <p className="text-mauve-11 truncate text-sm">
