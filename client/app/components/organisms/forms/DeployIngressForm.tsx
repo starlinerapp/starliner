@@ -12,6 +12,8 @@ import {
   type SubmitHandler,
 } from "react-hook-form";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useParams } from "react-router";
+import { toSlug } from "~/utils/slug";
 
 interface Path {
   path: string;
@@ -153,6 +155,8 @@ function HostEditor({
   showRemove,
   onRemove,
 }: HostEditorProps) {
+  const { id: projectId } = useParams<{ id: string }>();
+
   const trpc = useTRPC();
 
   const { environment, clusterId } = useEnvironment();
@@ -161,6 +165,10 @@ function HostEditor({
       { id: clusterId! },
       { enabled: !!clusterId },
     ),
+  );
+
+  const { data: projectData } = useQuery(
+    trpc.project.getProject.queryOptions({ id: Number(projectId) }),
   );
 
   const { data: deploymentsData } = useQuery(
@@ -177,6 +185,8 @@ function HostEditor({
     control,
     name: `hosts.${hostIndex}.paths`,
   });
+
+  const projectNameSlug = toSlug(projectData?.name ?? "");
 
   return (
     <div className="relative">
@@ -200,13 +210,14 @@ function HostEditor({
               placeholder="Host*"
               {...register(`hosts.${hostIndex}.name`)}
             />
-            {clusterData?.ipv4Address ? (
-              <div className="border-mauve-6 text-mauve-11 flex cursor-not-allowed rounded-md border-1 p-2 text-sm">
+            {clusterData?.ipv4Address && projectData?.name ? (
+              <div className="border-mauve-6 text-mauve-11 flex w-full cursor-not-allowed rounded-md border-1 p-2 text-sm">
+                <p>.{projectNameSlug}</p>
                 <p>.{clusterData?.ipv4Address}</p>
                 <p>.nip.io</p>
               </div>
             ) : (
-              <Skeleton className="h-full w-56" />
+              <Skeleton className="h-full w-96" />
             )}
           </div>
         </div>
