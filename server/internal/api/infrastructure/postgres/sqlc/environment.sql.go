@@ -130,33 +130,3 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 	)
 	return i, err
 }
-
-const getEnvironmentWithProject = `-- name: GetEnvironmentWithProject :one
-SELECT
-    projects.id AS project_id,
-    projects.name AS project_name,
-    e.id AS environment_id,
-    e.name AS environment_name
-FROM environments e
-INNER JOIN projects ON projects.id = e.project_id
-WHERE e.id = $1
-`
-
-type GetEnvironmentWithProjectRow struct {
-	ProjectID       int64
-	ProjectName     string
-	EnvironmentID   int64
-	EnvironmentName string
-}
-
-func (q *Queries) GetEnvironmentWithProject(ctx context.Context, id int64) (GetEnvironmentWithProjectRow, error) {
-	row := q.db.QueryRowContext(ctx, getEnvironmentWithProject, id)
-	var i GetEnvironmentWithProjectRow
-	err := row.Scan(
-		&i.ProjectID,
-		&i.ProjectName,
-		&i.EnvironmentID,
-		&i.EnvironmentName,
-	)
-	return i, err
-}
