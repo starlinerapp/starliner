@@ -1076,6 +1076,7 @@
         "response.DatabaseDeployment": {
             "type": "object",
             "required": [
+                "database",
                 "id",
                 "password",
                 "port",
@@ -1084,6 +1085,9 @@
                 "username"
             ],
             "properties": {
+                "database": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

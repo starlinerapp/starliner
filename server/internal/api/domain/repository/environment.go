@@ -193,6 +193,7 @@ func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.C
 			Id:            d.DeploymentID,
 			ServiceName:   d.Name,
 			Status:        string(d.Status),
+			Database:      utils.PtrFromNullString(d.Database),
 			Username:      utils.PtrFromNullString(d.Username),
 			Password:      utils.PtrFromNullString(d.Password),
 			Port:          d.Port,

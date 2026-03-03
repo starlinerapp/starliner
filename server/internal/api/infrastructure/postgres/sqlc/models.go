@@ -157,6 +157,7 @@ type DatabaseDeployment struct {
 	Password     sql.NullString
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	Database     sql.NullString
 }
 
 type Deployment struct {

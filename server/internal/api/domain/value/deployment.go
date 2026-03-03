@@ -145,6 +145,7 @@ type DatabaseDeployment struct {
 	Id          int64
 	ServiceName string
 	Status      string
+	Database    *string
 	Username    *string
 	Password    *string
 	Port        string
@@ -155,6 +156,7 @@ func NewDatabaseDeployment(d *entity.DatabaseDeployment) *DatabaseDeployment {
 		Id:          d.Id,
 		ServiceName: d.ServiceName,
 		Status:      d.Status,
+		Database:    d.Database,
 		Username:    d.Username,
 		Password:    d.Password,
 		Port:        d.Port,

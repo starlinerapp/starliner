@@ -51,6 +51,7 @@ type DeploymentRepository interface {
 
 	UpdateDatabaseDeploymentCredentials(
 		ctx context.Context,
+		dbName string,
 		deploymentId int64,
 		username string,
 		password string,

@@ -202,6 +202,8 @@ definitions:
     - ClusterStatusDeleted
   response.DatabaseDeployment:
     properties:
+      database:
+        type: string
       id:
         type: integer
       password:
@@ -215,6 +217,7 @@ definitions:
       username:
         type: string
     required:
+    - database
     - id
     - password
     - port

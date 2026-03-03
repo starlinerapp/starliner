@@ -404,6 +404,12 @@ export type ResponseClusterStatus =
 export interface ResponseDatabaseDeployment {
   /**
    *
+   * @type {string}
+   * @memberof ResponseDatabaseDeployment
+   */
+  database: string;
+  /**
+   *
    * @type {number}
    * @memberof ResponseDatabaseDeployment
    */

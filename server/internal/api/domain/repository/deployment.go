@@ -309,11 +309,13 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 
 func (dr *DeploymentRepository) UpdateDatabaseDeploymentCredentials(
 	ctx context.Context,
+	dbName string,
 	deploymentId int64,
 	username string,
 	password string,
 ) error {
 	return dr.queries.UpdateDatabaseDeploymentCredentials(ctx, sqlc.UpdateDatabaseDeploymentCredentialsParams{
+		Database:     utils.NullStringFromPtr(&dbName),
 		Username:     utils.NullStringFromPtr(&username),
 		Password:     utils.NullStringFromPtr(&password),
 		DeploymentID: deploymentId,

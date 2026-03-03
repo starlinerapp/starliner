@@ -13,6 +13,7 @@ type DatabaseNode = Node<{
   serviceName: string;
   status: string;
   port: string;
+  database: string | undefined;
   username: string | undefined;
   password: string | undefined;
 }>;
@@ -75,6 +76,17 @@ export default function DatabaseNode({
                   masked={true}
                   className="text-mauve-11"
                   text={data.password}
+                />
+              )}
+            </span>
+            <span className="flex justify-between">
+              <p>Database Name</p>
+              {!data.database ? (
+                <Skeleton className="h-5 w-24" />
+              ) : (
+                <CopyToClipboard
+                  className="text-mauve-11"
+                  text={data.database}
                 />
               )}
             </span>

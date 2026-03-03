@@ -1085,6 +1085,7 @@ const docTemplate = `{
         "response.DatabaseDeployment": {
             "type": "object",
             "required": [
+                "database",
                 "id",
                 "password",
                 "port",
@@ -1093,6 +1094,9 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "database": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

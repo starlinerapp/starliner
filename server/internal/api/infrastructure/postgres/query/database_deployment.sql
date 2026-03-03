@@ -21,7 +21,8 @@ INNER JOIN new_database_deployment db ON d.id = db.deployment_id;
 
 -- name: UpdateDatabaseDeploymentCredentials :exec
 UPDATE database_deployments
-SET username = @username,
+SET database = @database,
+    username = @username,
     password = @password
 WHERE deployment_id = @deployment_id;
 
@@ -32,6 +33,7 @@ SELECT
     d.port,
     d.status,
     d.environment_id,
+    db.database,
     db.username,
     db.password
 FROM deployments d

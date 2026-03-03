@@ -47,6 +47,7 @@ type DatabaseDeployment struct {
 	Id            int64
 	ServiceName   string
 	Status        string
+	Database      *string
 	Username      *string
 	Password      *string
 	Port          string

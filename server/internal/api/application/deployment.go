@@ -392,7 +392,7 @@ func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.Da
 		return
 	}
 
-	err = da.deploymentRepository.UpdateDatabaseDeploymentCredentials(ctx, c.DeploymentId, c.Username, encryptedPassword)
+	err = da.deploymentRepository.UpdateDatabaseDeploymentCredentials(ctx, c.DbName, c.DeploymentId, c.Username, encryptedPassword)
 	if err != nil {
 		log.Printf("failed to update database deployment credentials: %v\n", err)
 	}
