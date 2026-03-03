@@ -140,7 +140,10 @@ function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
             <Popover.Close asChild>
               <button
                 className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
-                onClick={handleDeleteClicked}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClicked();
+                }}
               >
                 <Trash className="w-5" />
                 <p>Delete</p>
