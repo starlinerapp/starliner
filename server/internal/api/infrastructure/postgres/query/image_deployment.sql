@@ -20,6 +20,32 @@ SELECT
 FROM new_deployment d
 INNER JOIN new_image_deployment img_d ON d.id = img_d.deployment_id;
 
+-- name: UpdateImageDeployment :one
+WITH updated_deployment AS (
+    UPDATE deployments
+        SET port = @port
+        WHERE id = @deployment_id
+        RETURNING *
+),
+updated_image_deployment AS (
+ UPDATE image_deployments
+     SET
+         name = @image_name,
+         tag  = @tag
+     WHERE deployment_id = (SELECT id FROM updated_deployment)
+     RETURNING *
+)
+SELECT
+    d.id AS deployment_id,
+    d.status,
+    d.name AS service_name,
+    img_d.name AS image_name,
+    img_d.tag AS image_tag,
+    d.port,
+    d.environment_id
+FROM updated_deployment d
+INNER JOIN updated_image_deployment img_d ON d.id = img_d.deployment_id;
+
 -- name: CreateImageEnvVar :one
 INSERT INTO image_environment_vars (deployment_id, name, value)
 VALUES (@deployment_id, @name, @value)

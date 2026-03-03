@@ -1,7 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   addEdge,
-  applyEdgeChanges,
   applyNodeChanges,
   Background,
   BackgroundVariant,
@@ -10,11 +15,9 @@ import {
   type Node,
   type NodeTypes,
   type OnConnect,
-  type OnEdgesChange,
   type OnNodesChange,
   Position,
   ReactFlow,
-  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useTRPC } from "~/utils/trpc/react";
@@ -24,6 +27,7 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
 import getElkLayout from "~/utils/reactflow/getElkLayout";
+import { useNavigate, useParams } from "react-router";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -32,22 +36,30 @@ interface ArchitectureCanvasProps {
 export default function ArchitectureCanvas({
   environment,
 }: ArchitectureCanvasProps) {
-  const { fitView } = useReactFlow();
+  const { slug, id: organizationId } = useParams<{
+    slug: string;
+    id: string;
+  }>();
+
+  const navigate = useNavigate();
 
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
     trpc.environment.getEnvironmentDeployments.queryOptions(
-      {
-        id: environment?.id,
-      },
-      {
-        refetchInterval: 2000, // 2 seconds
-      },
+      { id: environment?.id },
+      { refetchInterval: 2000 },
     ),
   );
 
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+
+  const selectedIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    selectedIdsRef.current = new Set(
+      nodes.filter((n) => n.selected).map((n) => n.id),
+    );
+  }, [nodes]);
 
   const nodeTypes: NodeTypes = useMemo(() => {
     return {
@@ -62,101 +74,142 @@ export default function ArchitectureCanvas({
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) =>
-      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
+
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
 
-  useEffect(() => {
-    fitView();
-  }, [nodes.length]);
+  const onSelectionChange = ({ nodes }: { nodes: Node[] }) => {
+    selectedIdsRef.current = new Set(nodes.map((n) => n.id));
+  };
+
+  function referencesImage(v: string, service: string, port: string): boolean {
+    const candidates = [
+      service,
+      `${service}:${port}`,
+      `http://${service}:${port}`,
+    ];
+    return candidates.some((prefix) => v === prefix || v.startsWith(prefix));
+  }
+
+  function referencesDatabase(v: string, db: { rwHost: string }): boolean {
+    return v === db.rwHost;
+  }
+
+  function handleNodeSelected(type: string, id: string) {
+    navigate(
+      `${slug}/projects/${organizationId}/${environment.slug}/architecture/${type}/${id}`,
+    );
+  }
+
+  function handlePlaneClick() {
+    navigate(
+      `${slug}/projects/${organizationId}/${environment.slug}/architecture`,
+    );
+  }
 
   useEffect(() => {
     if (!deployments) return;
 
+    const baseNode = {
+      position: { x: 0, y: 0 },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    };
+
     const rawNodes: Node[] = [
-      ...deployments.databases.map((d) => ({
-        id: `database:${d.id}`,
+      ...deployments.databases.map((db) => ({
+        id: String(db.id),
         type: "database",
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        data: {
-          id: d.id,
-          serviceName: d.name,
-          status: d.status,
-          port: d.port,
-          username: d.username,
-          password: d.password,
-        },
+        ...baseNode,
+        data: { ...db },
       })),
-      ...deployments.images.map((i) => ({
-        id: `image:${i.id}`,
+      ...deployments.images.map((img) => ({
+        id: String(img.id),
         type: "image",
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        data: {
-          id: i.id,
-          serviceName: i.serviceName,
-          status: i.status,
-          port: i.port,
-          imageName: i.imageName,
-          tag: i.tag,
-        },
+        ...baseNode,
+        data: { ...img },
       })),
       ...deployments.ingresses.map((ing) => ({
-        id: `ingress:${ing.id}`,
+        id: String(ing.id),
         type: "ingress",
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        data: {
-          id: ing.id,
-          serviceName: ing.serviceName,
-          status: ing.status,
-          port: ing.port,
-          hosts: ing.hosts,
-        },
+        ...baseNode,
+        data: { ...ing },
       })),
     ];
 
-    const imageIdByServiceName = new Map<string, string>(
-      deployments.images.map((i) => [i.serviceName, `image:${i.id}`]),
-    );
-
     const rawEdges: Edge[] = [];
+    const pushEdge = (source: string, target: string, kind: string) => {
+      rawEdges.push({
+        id: `${source}->${target}:${kind}`,
+        source,
+        target,
+        type: "smoothstep",
+      });
+    };
+
+    const databaseTargets = deployments.databases.map((db) => ({
+      id: String(db.id),
+      serviceName: db.serviceName,
+      rwHost: `${db.serviceName}-rw`,
+    }));
+
+    const imageTargets = deployments.images.map((t) => ({
+      id: String(t.id),
+      serviceName: t.serviceName,
+      port: t.port,
+    }));
 
     for (const ing of deployments.ingresses) {
-      const ingressNodeId = `ingress:${ing.id}`;
-
       for (const host of ing.hosts ?? []) {
         for (const path of host.paths ?? []) {
-          const targetImageId = imageIdByServiceName.get(path.serviceName);
+          const matchedTarget = imageTargets.find((t) =>
+            referencesImage(path.serviceName, t.serviceName, t.port),
+          );
+          if (!matchedTarget) continue;
 
-          if (!targetImageId) continue;
+          pushEdge(
+            String(ing.id),
+            matchedTarget.id,
+            `ing:${host.host}:${path.path}`,
+          );
+        }
+      }
+    }
 
-          rawEdges.push({
-            id: `e:${ingressNodeId}->${targetImageId}:${host.host}:${path.path}`,
-            source: ingressNodeId,
-            target: targetImageId,
-            type: "smoothstep",
-          });
+    for (const src of deployments.images) {
+      const sourceId = String(src.id);
+
+      for (const v of src.envVars) {
+        for (const db of databaseTargets) {
+          if (referencesDatabase(v.value, db)) {
+            pushEdge(sourceId, db.id, `img->db:${db.serviceName}`);
+          }
+        }
+        for (const t of imageTargets) {
+          if (t.id === sourceId) continue;
+
+          if (referencesImage(v.value, t.serviceName, t.port)) {
+            pushEdge(sourceId, t.id, `img->img:${t.serviceName}:${t.port}`);
+          }
         }
       }
     }
 
     let cancelled = false;
-
     (async () => {
       const laidOut = await getElkLayout(rawNodes, rawEdges);
       if (cancelled) return;
-      setNodes(laidOut.nodes);
+
+      const selectedIds = selectedIdsRef.current;
+
+      setNodes(
+        laidOut.nodes.map((n) => ({
+          ...n,
+          selected: selectedIds.has(n.id),
+        })),
+      );
       setEdges(laidOut.edges);
     })();
 
@@ -172,9 +225,16 @@ export default function ArchitectureCanvas({
         edges={edges}
         nodeOrigin={[0, 0.5]}
         nodeTypes={nodeTypes}
+        nodesDraggable={false}
         onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        onSelectionChange={onSelectionChange}
         onConnect={onConnect}
+        onNodeClick={(_, node) => {
+          if (node.type === "image" || node.type === "ingress") {
+            handleNodeSelected(node.type, node.id);
+          }
+        }}
+        onPaneClick={() => handlePlaneClick()}
         proOptions={{ hideAttribution: true }}
         fitView
         maxZoom={1}

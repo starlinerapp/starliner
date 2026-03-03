@@ -109,6 +109,66 @@ func (da *DeploymentApplication) DeployImage(
 	return nil
 }
 
+func (da *DeploymentApplication) UpdateImageDeployment(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+	environmentId int64,
+	imageName string,
+	tag string,
+	port int,
+	envs []*value.EnvVar) error {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	deployment, err := da.deploymentRepository.UpdateImageDeployment(
+		ctx,
+		deploymentId,
+		imageName,
+		tag,
+		strconv.Itoa(port),
+		envs,
+	)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
+	for _, e := range envs {
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+
+	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
+		DeploymentId:     deployment.Id,
+		DeploymentName:   deployment.ServiceName,
+		KubeconfigBase64: kubeconfigBase64,
+		ImageRepository:  imageName,
+		ImageTag:         tag,
+		Port:             port,
+		EnvVars:          coreEnvs,
+	})
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
+
+	return nil
+}
+
 func (da *DeploymentApplication) DeployDatabase(
 	ctx context.Context,
 	userId int64,
@@ -128,7 +188,7 @@ func (da *DeploymentApplication) DeployDatabase(
 	// TODO: Replace with real values
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
-		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:8]),
+		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:4]),
 		"5432",
 		"unhealthy",
 		"postgres",
@@ -146,7 +206,7 @@ func (da *DeploymentApplication) DeployDatabase(
 
 	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.Name,
+		DeploymentName:   deployment.ServiceName,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {
@@ -167,7 +227,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		return err
 	}
 
-	deployment, err := da.deploymentRepository.CreateIngressDeployment(
+	ingressDeployment, err := da.deploymentRepository.CreateIngressDeployment(
 		ctx,
 		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
 		"80",
@@ -192,11 +252,21 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
 
 		for _, p := range h.Paths {
+			target, err := da.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, environmentId)
+			if err != nil {
+				return err
+			}
+
+			targetPort, err := strconv.Atoi(target.Port)
+			if err != nil {
+				return err
+			}
+
 			ch.Paths = append(ch.Paths, coreValue.IngressPath{
 				Path:        p.Path,
 				PathType:    coreValue.PathType(p.PathType),
 				ServiceName: p.ServiceName,
-				ServicePort: 80,
+				ServicePort: targetPort,
 			})
 		}
 
@@ -205,8 +275,84 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 		IngressHosts:     coreHosts,
-		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.Name,
+		DeploymentId:     ingressDeployment.Id,
+		DeploymentName:   ingressDeployment.Name,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
+
+	return nil
+}
+
+func (da *DeploymentApplication) UpdateIngressDeployment(
+	ctx context.Context,
+	userId int64,
+	environmentId int64,
+	deploymentId int64,
+	hosts []*value.IngressHost,
+) error {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	ingressDeployment, err := da.deploymentRepository.UpdateIngressDeployment(
+		ctx,
+		deploymentId,
+		"80",
+		environmentId,
+		hosts,
+	)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	coreHosts := make([]coreValue.IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		ch := coreValue.IngressHost{
+			Host: h.Host,
+		}
+		ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
+
+		for _, p := range h.Paths {
+			target, err := da.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, environmentId)
+			if err != nil {
+				return err
+			}
+
+			targetPort, err := strconv.Atoi(target.Port)
+			if err != nil {
+				return err
+			}
+
+			ch.Paths = append(ch.Paths, coreValue.IngressPath{
+				Path:        p.Path,
+				PathType:    coreValue.PathType(p.PathType),
+				ServiceName: p.ServiceName,
+				ServicePort: targetPort,
+			})
+		}
+
+		coreHosts = append(coreHosts, ch)
+	}
+
+	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
+		IngressHosts:     coreHosts,
+		DeploymentId:     ingressDeployment.Id,
+		DeploymentName:   ingressDeployment.Name,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 

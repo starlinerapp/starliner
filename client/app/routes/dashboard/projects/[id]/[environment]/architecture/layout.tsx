@@ -62,7 +62,9 @@ export default function Layout() {
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={30} className="flex h-full flex-col">
-        <LinkNavigationBar items={navigationBarItems} />
+        <div className="bg-violet-1">
+          <LinkNavigationBar items={navigationBarItems} />
+        </div>
         <div className="p-4">
           <Outlet
             context={{

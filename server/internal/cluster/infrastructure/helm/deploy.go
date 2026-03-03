@@ -44,7 +44,7 @@ func (d *Deploy) DeployImage(
 			"repository": args.ImageRepository,
 			"tag":        args.ImageTag,
 		},
-		"port":       80,
+		"port":       args.Port,
 		"targetPort": args.Port,
 		"env":        envValues,
 	})

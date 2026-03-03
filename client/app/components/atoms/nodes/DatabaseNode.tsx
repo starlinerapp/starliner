@@ -47,10 +47,6 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
           </div>
           <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
             <span className="flex justify-between">
-              <p>Port</p>
-              <CopyToClipboard className="text-mauve-11" text={data.port} />
-            </span>
-            <span className="flex justify-between">
               <p>Username</p>
               <CopyToClipboard className="text-mauve-11" text={data.username} />
             </span>
@@ -60,6 +56,13 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
                 masked={true}
                 className="text-mauve-11"
                 text={data.password}
+              />
+            </span>
+            <span className="flex justify-between">
+              <p>Internal Endpoint</p>
+              <CopyToClipboard
+                className="text-mauve-11"
+                text={`${data.serviceName}-rw:${data.port}`}
               />
             </span>
           </div>
@@ -87,7 +90,12 @@ function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1">
+      <Popover.Trigger
+        className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <EllipsisVertical className="w-6" />
       </Popover.Trigger>
       <Popover.Portal>
@@ -100,7 +108,10 @@ function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
             <Popover.Close asChild>
               <button
                 className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
-                onClick={handleDeleteClicked}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClicked();
+                }}
               >
                 <Trash className="w-5" />
                 <p>Delete</p>

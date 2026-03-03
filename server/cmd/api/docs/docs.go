@@ -257,6 +257,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/images/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update image deployment",
+                "operationId": "updateImageDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Image",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/deployments/ingresses": {
             "post": {
                 "tags": [
@@ -279,6 +318,45 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.DeployIngress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/ingresses/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update ingress deployment",
+                "operationId": "updateIngressDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Ingress",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateIngress"
                         }
                     }
                 ],
@@ -912,6 +990,54 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateImage": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "envs",
+                "imageName",
+                "port",
+                "tag"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateIngress": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "ingressHosts"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "ingressHosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressHost"
+                    }
+                }
+            }
+        },
         "request.UpsertHetznerCredential": {
             "type": "object",
             "required": [
@@ -976,9 +1102,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "name",
                 "password",
                 "port",
+                "serviceName",
                 "status",
                 "username"
             ],
@@ -986,13 +1112,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "password": {
                     "type": "string"
                 },
                 "port": {
+                    "type": "string"
+                },
+                "serviceName": {
                     "type": "string"
                 },
                 "status": {
@@ -1031,6 +1157,21 @@ const docTemplate = `{
                 }
             }
         },
+        "response.EnvVar": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Environment": {
             "type": "object",
             "required": [
@@ -1061,6 +1202,7 @@ const docTemplate = `{
         "response.ImageDeployment": {
             "type": "object",
             "required": [
+                "envVars",
                 "id",
                 "imageName",
                 "port",
@@ -1069,6 +1211,12 @@ const docTemplate = `{
                 "tag"
             ],
             "properties": {
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },

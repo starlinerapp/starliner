@@ -30,6 +30,30 @@ VALUES (@ingress_host_id, @deployment_id, @path, @path_type)
 ON CONFLICT (ingress_host_id, path, path_type, deployment_id) DO UPDATE SET path = EXCLUDED.path
 RETURNING id, ingress_host_id, deployment_id, path, path_type;
 
+-- name: UpdateIngressDeployment :one
+WITH updated_ingress AS (
+    UPDATE deployments
+       SET port = @port
+       WHERE id = @deployment_id
+       RETURNING *
+)
+SELECT
+    d.id AS deployment_id,
+    d.name AS deployment_name,
+    d.port AS deployment_port,
+    d.status AS deployment_status,
+    d.environment_id AS deployment_environment_id
+FROM updated_ingress d
+INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id;
+
+-- name: DeleteIngressPathsByDeploymentId :exec
+DELETE FROM ingress_paths
+WHERE deployment_id = @deployment_id;
+
+-- name: DeleteIngressHostsByDeploymentId :exec
+DELETE FROM ingress_hosts
+WHERE deployment_id = @deployment_id;
+
 -- name: GetEnvironmentIngressDeployments :many
 SELECT
     d.id AS deployment_id,

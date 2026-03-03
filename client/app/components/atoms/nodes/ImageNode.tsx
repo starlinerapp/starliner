@@ -16,16 +16,23 @@ type ImageNode = Node<{
   tag: string;
 }>;
 
-export default function ImageNode({ data }: NodeProps<ImageNode>) {
+export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
   return (
-    <div className="bg-white-a12 text-mauve-11">
+    <div
+      className={cn(
+        "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
+        selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+      )}
+    >
       <Handle
         type="target"
+        isConnectable={false}
         position={Position.Left}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
       <Handle
         type="source"
+        isConnectable={false}
         position={Position.Right}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
@@ -63,8 +70,11 @@ export default function ImageNode({ data }: NodeProps<ImageNode>) {
               <CopyToClipboard className="text-mauve-11" text={data.tag} />
             </span>
             <span className="flex justify-between">
-              <p>Port</p>
-              <CopyToClipboard className="text-mauve-11" text={data.port} />
+              <p>Internal Endpoint</p>
+              <CopyToClipboard
+                className="text-mauve-11"
+                text={`${data.serviceName}:${data.port}`}
+              />
             </span>
           </div>
         </div>
@@ -91,7 +101,12 @@ function ImageContextMenu({ deploymentId }: ImageContextMenuProps) {
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1">
+      <Popover.Trigger
+        className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <EllipsisVertical className="w-6" />
       </Popover.Trigger>
       <Popover.Portal>
@@ -104,7 +119,10 @@ function ImageContextMenu({ deploymentId }: ImageContextMenuProps) {
             <Popover.Close asChild>
               <button
                 className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
-                onClick={handleDeleteClicked}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClicked();
+                }}
               >
                 <Trash className="w-5" />
                 <p>Delete</p>

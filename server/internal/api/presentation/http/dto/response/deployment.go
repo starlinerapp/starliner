@@ -66,13 +66,19 @@ func NewIngressDeployments(ingressDeployments []*value.IngressDeployment) []Ingr
 	return result
 }
 
+type EnvVar struct {
+	Name  string `json:"name" binding:"required"`
+	Value string `json:"value" binding:"required"`
+}
+
 type ImageDeployment struct {
-	Id          int64  `json:"id" binding:"required"`
-	ServiceName string `json:"serviceName" binding:"required"`
-	ImageName   string `json:"imageName" binding:"required"`
-	Tag         string `json:"tag" binding:"required"`
-	Status      string `json:"status" binding:"required"`
-	Port        string `json:"port" binding:"required"`
+	Id          int64    `json:"id" binding:"required"`
+	ServiceName string   `json:"serviceName" binding:"required"`
+	ImageName   string   `json:"imageName" binding:"required"`
+	Tag         string   `json:"tag" binding:"required"`
+	Status      string   `json:"status" binding:"required"`
+	Port        string   `json:"port" binding:"required"`
+	EnvVars     []EnvVar `json:"envVars" binding:"required"`
 }
 
 func NewImageDeployment(imageDeployment *value.ImageDeployment) ImageDeployment {
@@ -83,6 +89,7 @@ func NewImageDeployment(imageDeployment *value.ImageDeployment) ImageDeployment 
 		Tag:         imageDeployment.Tag,
 		Status:      imageDeployment.Status,
 		Port:        imageDeployment.Port,
+		EnvVars:     mapEnvVarsFromValue(imageDeployment.EnvVars),
 	}
 }
 
@@ -94,23 +101,34 @@ func NewImageDeployments(imageDeployments []*value.ImageDeployment) []ImageDeplo
 	return result
 }
 
+func mapEnvVarsFromValue(envVars []*value.EnvVar) []EnvVar {
+	variables := make([]EnvVar, len(envVars))
+	for i, envVar := range envVars {
+		variables[i] = EnvVar{
+			Name:  envVar.Name,
+			Value: envVar.Value,
+		}
+	}
+	return variables
+}
+
 type DatabaseDeployment struct {
-	Id       int64  `json:"id" binding:"required"`
-	Name     string `json:"name" binding:"required"`
-	Status   string `json:"status" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Port     string `json:"port" binding:"required"`
+	Id          int64  `json:"id" binding:"required"`
+	ServiceName string `json:"serviceName" binding:"required"`
+	Status      string `json:"status" binding:"required"`
+	Username    string `json:"username" binding:"required"`
+	Password    string `json:"password" binding:"required"`
+	Port        string `json:"port" binding:"required"`
 }
 
 func NewDatabaseDeployment(databaseDeployment *value.DatabaseDeployment) DatabaseDeployment {
 	return DatabaseDeployment{
-		Id:       databaseDeployment.Id,
-		Name:     databaseDeployment.Name,
-		Status:   databaseDeployment.Status,
-		Username: databaseDeployment.Username,
-		Password: databaseDeployment.Password,
-		Port:     databaseDeployment.Port,
+		Id:          databaseDeployment.Id,
+		ServiceName: databaseDeployment.ServiceName,
+		Status:      databaseDeployment.Status,
+		Username:    databaseDeployment.Username,
+		Password:    databaseDeployment.Password,
+		Port:        databaseDeployment.Port,
 	}
 }
 

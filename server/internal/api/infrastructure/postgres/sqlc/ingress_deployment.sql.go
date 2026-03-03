@@ -129,6 +129,26 @@ func (q *Queries) CreateIngressPath(ctx context.Context, arg CreateIngressPathPa
 	return i, err
 }
 
+const deleteIngressHostsByDeploymentId = `-- name: DeleteIngressHostsByDeploymentId :exec
+DELETE FROM ingress_hosts
+WHERE deployment_id = $1
+`
+
+func (q *Queries) DeleteIngressHostsByDeploymentId(ctx context.Context, deploymentID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteIngressHostsByDeploymentId, deploymentID)
+	return err
+}
+
+const deleteIngressPathsByDeploymentId = `-- name: DeleteIngressPathsByDeploymentId :exec
+DELETE FROM ingress_paths
+WHERE deployment_id = $1
+`
+
+func (q *Queries) DeleteIngressPathsByDeploymentId(ctx context.Context, deploymentID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteIngressPathsByDeploymentId, deploymentID)
+	return err
+}
+
 const getEnvironmentIngressDeployments = `-- name: GetEnvironmentIngressDeployments :many
 SELECT
     d.id AS deployment_id,
@@ -208,4 +228,47 @@ func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, arg GetE
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
+WITH updated_ingress AS (
+    UPDATE deployments
+       SET port = $1
+       WHERE id = $2
+       RETURNING id, name, port, status, environment_id, created_at, updated_at
+)
+SELECT
+    d.id AS deployment_id,
+    d.name AS deployment_name,
+    d.port AS deployment_port,
+    d.status AS deployment_status,
+    d.environment_id AS deployment_environment_id
+FROM updated_ingress d
+INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+`
+
+type UpdateIngressDeploymentParams struct {
+	Port         string
+	DeploymentID int64
+}
+
+type UpdateIngressDeploymentRow struct {
+	DeploymentID            int64
+	DeploymentName          string
+	DeploymentPort          string
+	DeploymentStatus        sql.NullString
+	DeploymentEnvironmentID int64
+}
+
+func (q *Queries) UpdateIngressDeployment(ctx context.Context, arg UpdateIngressDeploymentParams) (UpdateIngressDeploymentRow, error) {
+	row := q.db.QueryRowContext(ctx, updateIngressDeployment, arg.Port, arg.DeploymentID)
+	var i UpdateIngressDeploymentRow
+	err := row.Scan(
+		&i.DeploymentID,
+		&i.DeploymentName,
+		&i.DeploymentPort,
+		&i.DeploymentStatus,
+		&i.DeploymentEnvironmentID,
+	)
+	return i, err
 }

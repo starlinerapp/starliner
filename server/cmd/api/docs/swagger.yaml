@@ -135,6 +135,39 @@ definitions:
     - pathType
     - serviceName
     type: object
+  request.UpdateImage:
+    properties:
+      environmentId:
+        type: integer
+      envs:
+        items:
+          $ref: '#/definitions/request.EnvVar'
+        type: array
+      imageName:
+        type: string
+      port:
+        type: integer
+      tag:
+        type: string
+    required:
+    - environmentId
+    - envs
+    - imageName
+    - port
+    - tag
+    type: object
+  request.UpdateIngress:
+    properties:
+      environmentId:
+        type: integer
+      ingressHosts:
+        items:
+          $ref: '#/definitions/request.IngressHost'
+        type: array
+    required:
+    - environmentId
+    - ingressHosts
+    type: object
   request.UpsertHetznerCredential:
     properties:
       apiKey:
@@ -180,11 +213,11 @@ definitions:
     properties:
       id:
         type: integer
-      name:
-        type: string
       password:
         type: string
       port:
+        type: string
+      serviceName:
         type: string
       status:
         type: string
@@ -192,9 +225,9 @@ definitions:
         type: string
     required:
     - id
-    - name
     - password
     - port
+    - serviceName
     - status
     - username
     type: object
@@ -217,6 +250,16 @@ definitions:
     - images
     - ingresses
     type: object
+  response.EnvVar:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
+    type: object
   response.Environment:
     properties:
       id:
@@ -237,6 +280,10 @@ definitions:
     type: object
   response.ImageDeployment:
     properties:
+      envVars:
+        items:
+          $ref: '#/definitions/response.EnvVar'
+        type: array
       id:
         type: integer
       imageName:
@@ -250,6 +297,7 @@ definitions:
       tag:
         type: string
     required:
+    - envVars
     - id
     - imageName
     - port
@@ -552,6 +600,32 @@ paths:
       summary: Deploy image
       tags:
       - deployment
+  /deployments/images/{deploymentId}:
+    put:
+      operationId: updateImageDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Update Image
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateImage'
+      responses:
+        "200":
+          description: OK
+      summary: Update image deployment
+      tags:
+      - deployment
   /deployments/ingresses:
     post:
       operationId: deployIngress
@@ -571,6 +645,32 @@ paths:
         "200":
           description: OK
       summary: Deploy ingress
+      tags:
+      - deployment
+  /deployments/ingresses/{deploymentId}:
+    put:
+      operationId: updateIngressDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Update Ingress
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateIngress'
+      responses:
+        "200":
+          description: OK
+      summary: Update ingress deployment
       tags:
       - deployment
   /environments:

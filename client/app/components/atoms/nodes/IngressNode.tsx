@@ -16,11 +16,20 @@ type IngressNode = Node<{
   hosts: ResponseIngressHost[];
 }>;
 
-export default function IngressNode({ data }: NodeProps<IngressNode>) {
+export default function IngressNode({
+  data,
+  selected,
+}: NodeProps<IngressNode>) {
   return (
-    <div className="bg-white-a12 text-mauve-11">
+    <div
+      className={cn(
+        "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
+        selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+      )}
+    >
       <Handle
         type="source"
+        isConnectable={false}
         position={Position.Right}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
@@ -113,7 +122,12 @@ function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1">
+      <Popover.Trigger
+        className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <EllipsisVertical className="w-6" />
       </Popover.Trigger>
       <Popover.Portal>
@@ -126,7 +140,10 @@ function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
             <Popover.Close asChild>
               <button
                 className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
-                onClick={handleDeleteClicked}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClicked();
+                }}
               >
                 <Trash className="w-5" />
                 <p>Delete</p>

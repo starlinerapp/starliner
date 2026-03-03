@@ -21,11 +21,14 @@ docs/RequestDeployIngress.md
 docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
+docs/RequestUpdateImage.md
+docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
 docs/ResponseDatabaseDeployment.md
 docs/ResponseDeployments.md
+docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseImageDeployment.md
