@@ -58,7 +58,7 @@ export default function UpdateIngressForm() {
           onSubmit={onSubmit}
           defaultValues={{
             hosts: (ingressDeployment?.hosts ?? []).map((h) => ({
-              name: h.host ?? "",
+              name: h.host.split(".")[0] ?? "",
               paths: (h.paths ?? []).map((p) => ({
                 path: p.path ?? "",
                 pathType:
