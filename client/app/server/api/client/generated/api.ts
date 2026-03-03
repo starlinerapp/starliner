@@ -124,36 +124,22 @@ export interface RequestCreateProject {
 /**
  *
  * @export
- * @enum {string}
- */
-
-export const RequestDatabase = {
-  Postgres: "postgres",
-} as const;
-
-export type RequestDatabase =
-  (typeof RequestDatabase)[keyof typeof RequestDatabase];
-
-/**
- *
- * @export
  * @interface RequestDeployDatabase
  */
 export interface RequestDeployDatabase {
-  /**
-   *
-   * @type {RequestDatabase}
-   * @memberof RequestDeployDatabase
-   */
-  database: RequestDatabase;
   /**
    *
    * @type {number}
    * @memberof RequestDeployDatabase
    */
   environmentId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployDatabase
+   */
+  serviceName: string;
 }
-
 /**
  *
  * @export
@@ -416,6 +402,12 @@ export type ResponseClusterStatus =
  * @interface ResponseDatabaseDeployment
  */
 export interface ResponseDatabaseDeployment {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDatabaseDeployment
+   */
+  database: string;
   /**
    *
    * @type {number}

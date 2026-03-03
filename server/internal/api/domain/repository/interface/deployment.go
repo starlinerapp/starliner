@@ -13,7 +13,6 @@ type DeploymentRepository interface {
 		imageName string,
 		tag string,
 		port string,
-		status string,
 		environmentId int64,
 		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)
@@ -31,7 +30,6 @@ type DeploymentRepository interface {
 		ctx context.Context,
 		serviceName string,
 		port string,
-		status string,
 		environmentId int64,
 		hosts []*value.IngressHost,
 	) (*entity.IngressDeployment, error)
@@ -48,11 +46,16 @@ type DeploymentRepository interface {
 		ctx context.Context,
 		name string,
 		port string,
-		status string,
-		username string,
-		password string,
 		environmentId int64,
 	) (deployment *entity.DatabaseDeployment, err error)
+
+	UpdateDatabaseDeploymentCredentials(
+		ctx context.Context,
+		dbName string,
+		deploymentId int64,
+		username string,
+		password string,
+	) error
 
 	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
 

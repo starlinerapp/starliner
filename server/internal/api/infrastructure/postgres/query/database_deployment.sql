@@ -1,12 +1,12 @@
 -- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, status, environment_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO deployments (name, port, environment_id)
+    VALUES ($1, $2, $3)
     RETURNING *
 ),
 new_database_deployment AS (
-    INSERT INTO database_deployments (deployment_id, username, password)
-    SELECT id, $5, $6 FROM new_deployment
+    INSERT INTO database_deployments (deployment_id)
+    SELECT id FROM new_deployment
     RETURNING *
 )
 SELECT
@@ -19,6 +19,13 @@ SELECT
 FROM new_deployment d
 INNER JOIN new_database_deployment db ON d.id = db.deployment_id;
 
+-- name: UpdateDatabaseDeploymentCredentials :exec
+UPDATE database_deployments
+SET database = @database,
+    username = @username,
+    password = @password
+WHERE deployment_id = @deployment_id;
+
 -- name: GetEnvironmentDatabaseDeployments :many
 SELECT
     d.id AS deployment_id,
@@ -26,6 +33,7 @@ SELECT
     d.port,
     d.status,
     d.environment_id,
+    db.database,
     db.username,
     db.password
 FROM deployments d

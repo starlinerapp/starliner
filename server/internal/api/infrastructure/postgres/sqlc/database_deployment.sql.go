@@ -12,14 +12,14 @@ import (
 
 const createDatabaseDeployment = `-- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, status, environment_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO deployments (name, port, environment_id)
+    VALUES ($1, $2, $3)
     RETURNING id, name, port, status, environment_id, created_at, updated_at
 ),
 new_database_deployment AS (
-    INSERT INTO database_deployments (deployment_id, username, password)
-    SELECT id, $5, $6 FROM new_deployment
-    RETURNING deployment_id, username, password, created_at, updated_at
+    INSERT INTO database_deployments (deployment_id)
+    SELECT id FROM new_deployment
+    RETURNING deployment_id, username, password, created_at, updated_at, database
 )
 SELECT
     d.id AS deployment_id,
@@ -35,10 +35,7 @@ INNER JOIN new_database_deployment db ON d.id = db.deployment_id
 type CreateDatabaseDeploymentParams struct {
 	Name          string
 	Port          string
-	Status        sql.NullString
 	EnvironmentID int64
-	Username      string
-	Password      string
 }
 
 type CreateDatabaseDeploymentRow struct {
@@ -46,19 +43,12 @@ type CreateDatabaseDeploymentRow struct {
 	Name          string
 	Port          string
 	EnvironmentID int64
-	Username      string
-	Password      string
+	Username      sql.NullString
+	Password      sql.NullString
 }
 
 func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDatabaseDeploymentParams) (CreateDatabaseDeploymentRow, error) {
-	row := q.db.QueryRowContext(ctx, createDatabaseDeployment,
-		arg.Name,
-		arg.Port,
-		arg.Status,
-		arg.EnvironmentID,
-		arg.Username,
-		arg.Password,
-	)
+	row := q.db.QueryRowContext(ctx, createDatabaseDeployment, arg.Name, arg.Port, arg.EnvironmentID)
 	var i CreateDatabaseDeploymentRow
 	err := row.Scan(
 		&i.DeploymentID,
@@ -78,6 +68,7 @@ SELECT
     d.port,
     d.status,
     d.environment_id,
+    db.database,
     db.username,
     db.password
 FROM deployments d
@@ -100,10 +91,11 @@ type GetEnvironmentDatabaseDeploymentsRow struct {
 	DeploymentID  int64
 	Name          string
 	Port          string
-	Status        sql.NullString
+	Status        DeploymentStatus
 	EnvironmentID int64
-	Username      string
-	Password      string
+	Database      sql.NullString
+	Username      sql.NullString
+	Password      sql.NullString
 }
 
 func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg GetEnvironmentDatabaseDeploymentsParams) ([]GetEnvironmentDatabaseDeploymentsRow, error) {
@@ -121,6 +113,7 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg Get
 			&i.Port,
 			&i.Status,
 			&i.EnvironmentID,
+			&i.Database,
 			&i.Username,
 			&i.Password,
 		); err != nil {
@@ -135,4 +128,29 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg Get
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateDatabaseDeploymentCredentials = `-- name: UpdateDatabaseDeploymentCredentials :exec
+UPDATE database_deployments
+SET database = $1,
+    username = $2,
+    password = $3
+WHERE deployment_id = $4
+`
+
+type UpdateDatabaseDeploymentCredentialsParams struct {
+	Database     sql.NullString
+	Username     sql.NullString
+	Password     sql.NullString
+	DeploymentID int64
+}
+
+func (q *Queries) UpdateDatabaseDeploymentCredentials(ctx context.Context, arg UpdateDatabaseDeploymentCredentialsParams) error {
+	_, err := q.db.ExecContext(ctx, updateDatabaseDeploymentCredentials,
+		arg.Database,
+		arg.Username,
+		arg.Password,
+		arg.DeploymentID,
+	)
+	return err
 }

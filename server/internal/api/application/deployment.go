@@ -65,14 +65,12 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
-	// TODO: status shouldn't be hardcoded
 	deployment, err := da.deploymentRepository.CreateImageDeployment(
 		ctx,
 		serviceName,
 		imageName,
 		tag,
 		strconv.Itoa(port),
-		"unhealthy",
 		environmentId,
 		envs,
 	)
@@ -173,7 +171,7 @@ func (da *DeploymentApplication) DeployDatabase(
 	ctx context.Context,
 	userId int64,
 	environmentId int64,
-	database value.Database,
+	serviceName string,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -185,14 +183,10 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	// TODO: Replace with real values
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
-		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:4]),
+		serviceName,
 		"5432",
-		"unhealthy",
-		"postgres",
-		"postgres",
 		environmentId,
 	)
 	if err != nil {
@@ -231,7 +225,6 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		ctx,
 		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
 		"80",
-		"unhealthy",
 		environmentId,
 		hosts,
 	)
@@ -388,6 +381,21 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	}
 
 	return nil
+}
+
+func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {
+	ctx := context.Background()
+
+	encryptedPassword, err := da.crypto.Encrypt(c.Password)
+	if err != nil {
+		log.Printf("failed to encrypt database password: %v\n", err)
+		return
+	}
+
+	err = da.deploymentRepository.UpdateDatabaseDeploymentCredentials(ctx, c.DbName, c.DeploymentId, c.Username, encryptedPassword)
+	if err != nil {
+		log.Printf("failed to update database deployment credentials: %v\n", err)
+	}
 }
 
 func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.DeploymentDeleted) {

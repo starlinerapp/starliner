@@ -6,6 +6,8 @@ type Queue interface {
 	SubscribeToDeployImage(handler func(deployment *value.ImageDeployment)) error
 
 	SubscribeToDeployDatabase(handler func(deployment *value.Deployment)) error
+	PublishDatabaseDeployed(deployment *value.DatabaseDeployment) error
+
 	SubscribeToDeleteDeployment(handler func(deployment *value.Deployment)) error
 	PublishDeploymentDeleted(deployment *value.DeploymentDeleted) error
 

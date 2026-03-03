@@ -113,12 +113,13 @@ func mapEnvVarsFromValue(envVars []*value.EnvVar) []EnvVar {
 }
 
 type DatabaseDeployment struct {
-	Id          int64  `json:"id" binding:"required"`
-	ServiceName string `json:"serviceName" binding:"required"`
-	Status      string `json:"status" binding:"required"`
-	Username    string `json:"username" binding:"required"`
-	Password    string `json:"password" binding:"required"`
-	Port        string `json:"port" binding:"required"`
+	Id          int64   `json:"id" binding:"required"`
+	ServiceName string  `json:"serviceName" binding:"required"`
+	Status      string  `json:"status" binding:"required"`
+	Database    *string `json:"database" binding:"required"`
+	Username    *string `json:"username" binding:"required"`
+	Password    *string `json:"password" binding:"required"`
+	Port        string  `json:"port" binding:"required"`
 }
 
 func NewDatabaseDeployment(databaseDeployment *value.DatabaseDeployment) DatabaseDeployment {
@@ -126,6 +127,7 @@ func NewDatabaseDeployment(databaseDeployment *value.DatabaseDeployment) Databas
 		Id:          databaseDeployment.Id,
 		ServiceName: databaseDeployment.ServiceName,
 		Status:      databaseDeployment.Status,
+		Database:    databaseDeployment.Database,
 		Username:    databaseDeployment.Username,
 		Password:    databaseDeployment.Password,
 		Port:        databaseDeployment.Port,

@@ -79,6 +79,7 @@ export const deploymentRouter = {
     .input(
       z.object({
         id: z.number(),
+        serviceName: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -86,7 +87,7 @@ export const deploymentRouter = {
       return await deploymentApiFactory
         .deployDatabase(userId, {
           environmentId: input.id,
-          database: "postgres",
+          serviceName: input.serviceName,
         })
         .then((res) => res.data);
     }),

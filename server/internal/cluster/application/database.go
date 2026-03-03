@@ -9,6 +9,7 @@ import (
 
 type DatabaseApplication struct {
 	deploy port.Deploy
+	secret port.Secret
 	health port.Health
 	queue  port.Queue
 	pubsub port.Pubsub
@@ -18,6 +19,7 @@ type DatabaseApplication struct {
 func NewDatabaseApplication(
 	deploy port.Deploy,
 	health port.Health,
+	secret port.Secret,
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
@@ -25,6 +27,7 @@ func NewDatabaseApplication(
 	return &DatabaseApplication{
 		deploy: deploy,
 		health: health,
+		secret: secret,
 		queue:  queue,
 		pubsub: pubsub,
 		crypto: crypto,
@@ -32,7 +35,6 @@ func NewDatabaseApplication(
 }
 
 func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
-	// TODO: Check if Cluster CRD is already installed, install otherwise
 	err := da.deploy.DeployCloudNativePg("cloudnative-pg", d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy cloudnative-pg: %v\n", err)
@@ -42,5 +44,20 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 	err = da.deploy.DeployPostgres(releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy database: %v\n", err)
+	}
+
+	credentials, err := da.secret.GetDatabaseCredentials(releaseName, d.KubeconfigBase64)
+	if err != nil {
+		log.Printf("failed to get database credentials: %v\n", err)
+	}
+
+	err = da.queue.PublishDatabaseDeployed(&value.DatabaseDeployment{
+		DeploymentId: d.DeploymentId,
+		DbName:       credentials.DatabaseName,
+		Username:     credentials.Username,
+		Password:     credentials.Password,
+	})
+	if err != nil {
+		log.Printf("failed to publish event: %v\n", err)
 	}
 }

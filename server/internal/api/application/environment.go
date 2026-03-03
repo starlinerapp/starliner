@@ -2,22 +2,27 @@ package application
 
 import (
 	"context"
+	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/core/domain/port"
 	"strings"
 )
 
 type EnvironmentApplication struct {
+	crypto                port.Crypto
 	organizationService   *service.OrganizationService
 	environmentRepository interfaces.EnvironmentRepository
 }
 
 func NewEnvironmentApplication(
+	crypto port.Crypto,
 	environmentRepository interfaces.EnvironmentRepository,
 	organizationService *service.OrganizationService,
 ) *EnvironmentApplication {
 	return &EnvironmentApplication{
+		crypto:                crypto,
 		environmentRepository: environmentRepository,
 		organizationService:   organizationService,
 	}
@@ -61,8 +66,32 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		return nil, err
 	}
 
+	databaseDeployments := make([]*entity.DatabaseDeployment, len(databases))
+	for i, d := range databases {
+		var password *string
+
+		if d.Password != nil {
+			decrypted, err := ea.crypto.Decrypt(*d.Password)
+			if err != nil {
+				return nil, err
+			}
+			password = &decrypted
+		}
+
+		databaseDeployments[i] = &entity.DatabaseDeployment{
+			Id:            d.Id,
+			ServiceName:   d.ServiceName,
+			Status:        d.Status,
+			Database:      d.Database,
+			Username:      d.Username,
+			Password:      password,
+			Port:          d.Port,
+			EnvironmentId: d.EnvironmentId,
+		}
+	}
+
 	return &value.Deployments{
-		Databases: value.NewDatabaseDeployments(databases),
+		Databases: value.NewDatabaseDeployments(databaseDeployments),
 		Images:    value.NewImageDeployments(images),
 		Ingresses: value.NewIngressDeployments(ingresses),
 	}, nil

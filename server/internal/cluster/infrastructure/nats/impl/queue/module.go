@@ -22,6 +22,7 @@ var Module = fx.Module(
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{
 			DeployDatabase,
+			DatabaseDeployed,
 			DeployIngress,
 			DeleteDeployment,
 			DeploymentDeleted,

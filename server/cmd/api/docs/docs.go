@@ -851,34 +851,18 @@ const docTemplate = `{
                 }
             }
         },
-        "request.Database": {
-            "type": "string",
-            "enum": [
-                "postgres"
-            ],
-            "x-enum-varnames": [
-                "Postgres"
-            ]
-        },
         "request.DeployDatabase": {
             "type": "object",
             "required": [
-                "database",
-                "environmentId"
+                "environmentId",
+                "serviceName"
             ],
             "properties": {
-                "database": {
-                    "enum": [
-                        "postgres"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/request.Database"
-                        }
-                    ]
-                },
                 "environmentId": {
                     "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
                 }
             }
         },
@@ -1101,6 +1085,7 @@ const docTemplate = `{
         "response.DatabaseDeployment": {
             "type": "object",
             "required": [
+                "database",
                 "id",
                 "password",
                 "port",
@@ -1109,6 +1094,9 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "database": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

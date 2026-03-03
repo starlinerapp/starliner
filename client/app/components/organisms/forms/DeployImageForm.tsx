@@ -27,10 +27,16 @@ export default function DeployImageForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployImageFormProps) {
-  const { register, handleSubmit, watch, reset, control } =
-    useForm<ImageFormInput>({
-      defaultValues,
-    });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    control,
+    formState: { isDirty },
+  } = useForm<ImageFormInput>({
+    defaultValues,
+  });
 
   const { fields, append } = useFieldArray({
     control,
@@ -141,7 +147,11 @@ export default function DeployImageForm({
           size="sm"
           className="mt-2 w-28 flex-shrink-0 py-1.5"
           disabled={
-            !serviceNameInput || !imageNameInput || !tagInput || !portInput
+            !isDirty ||
+            !serviceNameInput ||
+            !imageNameInput ||
+            !tagInput ||
+            !portInput
           }
         >
           {defaultValues ? "Redeploy" : "Deploy"}

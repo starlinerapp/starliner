@@ -18,8 +18,8 @@ WHERE deployments.name = $1
 
 -- name: UpdateDeploymentStatus :exec
 UPDATE deployments
-SET status = $1
-WHERE id = $2;
+SET status = @status::deployment_status
+WHERE id = @id;
 
 -- name: DeleteDeployment :exec
 DELETE

@@ -7,18 +7,17 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createImageDeployment = `-- name: CreateImageDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, status, environment_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO deployments (name, port, environment_id)
+    VALUES ($1, $2, $3)
     RETURNING id, name, port, status, environment_id, created_at, updated_at
 ),
 new_image_deployment AS (
     INSERT INTO image_deployments (deployment_id, name, tag)
-    SELECT id, $5, $6 FROM new_deployment
+    SELECT id, $4, $5 FROM new_deployment
     RETURNING deployment_id, name, tag, created_at, updated_at
 )
 SELECT
@@ -36,7 +35,6 @@ INNER JOIN new_image_deployment img_d ON d.id = img_d.deployment_id
 type CreateImageDeploymentParams struct {
 	ServiceName   string
 	Port          string
-	Status        sql.NullString
 	EnvironmentID int64
 	ImageName     string
 	Tag           string
@@ -44,7 +42,7 @@ type CreateImageDeploymentParams struct {
 
 type CreateImageDeploymentRow struct {
 	DeploymentID  int64
-	Status        sql.NullString
+	Status        DeploymentStatus
 	ServiceName   string
 	ImageName     string
 	ImageTag      string
@@ -56,7 +54,6 @@ func (q *Queries) CreateImageDeployment(ctx context.Context, arg CreateImageDepl
 	row := q.db.QueryRowContext(ctx, createImageDeployment,
 		arg.ServiceName,
 		arg.Port,
-		arg.Status,
 		arg.EnvironmentID,
 		arg.ImageName,
 		arg.Tag,
@@ -129,7 +126,7 @@ type GetEnvironmentImageDeploymentsRow struct {
 	DeploymentID  int64
 	ServiceName   string
 	Port          string
-	Status        sql.NullString
+	Status        DeploymentStatus
 	EnvironmentID int64
 	ImageName     string
 	Tag           string
@@ -202,7 +199,7 @@ type UpdateImageDeploymentParams struct {
 
 type UpdateImageDeploymentRow struct {
 	DeploymentID  int64
-	Status        sql.NullString
+	Status        DeploymentStatus
 	ServiceName   string
 	ImageName     string
 	ImageTag      string

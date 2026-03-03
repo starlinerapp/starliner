@@ -42,24 +42,15 @@ definitions:
     - name
     - organization_id
     type: object
-  request.Database:
-    enum:
-    - postgres
-    type: string
-    x-enum-varnames:
-    - Postgres
   request.DeployDatabase:
     properties:
-      database:
-        allOf:
-        - $ref: '#/definitions/request.Database'
-        enum:
-        - postgres
       environmentId:
         type: integer
+      serviceName:
+        type: string
     required:
-    - database
     - environmentId
+    - serviceName
     type: object
   request.DeployImage:
     properties:
@@ -211,6 +202,8 @@ definitions:
     - ClusterStatusDeleted
   response.DatabaseDeployment:
     properties:
+      database:
+        type: string
       id:
         type: integer
       password:
@@ -224,6 +217,7 @@ definitions:
       username:
         type: string
     required:
+    - database
     - id
     - password
     - port

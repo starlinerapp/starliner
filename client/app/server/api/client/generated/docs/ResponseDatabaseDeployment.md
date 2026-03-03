@@ -4,6 +4,7 @@
 
 | Name            | Type       | Description | Notes                  |
 | --------------- | ---------- | ----------- | ---------------------- |
+| **database**    | **string** |             | [default to undefined] |
 | **id**          | **number** |             | [default to undefined] |
 | **password**    | **string** |             | [default to undefined] |
 | **port**        | **string** |             | [default to undefined] |
@@ -17,6 +18,7 @@
 import { ResponseDatabaseDeployment } from "./api";
 
 const instance: ResponseDatabaseDeployment = {
+  database,
   id,
   password,
   port,

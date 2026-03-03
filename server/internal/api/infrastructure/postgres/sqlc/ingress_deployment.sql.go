@@ -12,8 +12,8 @@ import (
 
 const createIngressDeployment = `-- name: CreateIngressDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, status, environment_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO deployments (name, port, environment_id)
+    VALUES ($1, $2, $3)
     RETURNING id, name, port, status, environment_id, created_at, updated_at
 ),
 new_ingress_deployment AS (
@@ -34,7 +34,6 @@ INNER JOIN new_ingress_deployment ingress_d ON d.id = ingress_d.deployment_id
 type CreateIngressDeploymentParams struct {
 	Name          string
 	Port          string
-	Status        sql.NullString
 	EnvironmentID int64
 }
 
@@ -42,17 +41,12 @@ type CreateIngressDeploymentRow struct {
 	DeploymentID            int64
 	DeploymentName          string
 	DeploymentPort          string
-	DeploymentStatus        sql.NullString
+	DeploymentStatus        DeploymentStatus
 	DeploymentEnvironmentID int64
 }
 
 func (q *Queries) CreateIngressDeployment(ctx context.Context, arg CreateIngressDeploymentParams) (CreateIngressDeploymentRow, error) {
-	row := q.db.QueryRowContext(ctx, createIngressDeployment,
-		arg.Name,
-		arg.Port,
-		arg.Status,
-		arg.EnvironmentID,
-	)
+	row := q.db.QueryRowContext(ctx, createIngressDeployment, arg.Name, arg.Port, arg.EnvironmentID)
 	var i CreateIngressDeploymentRow
 	err := row.Scan(
 		&i.DeploymentID,
@@ -185,7 +179,7 @@ type GetEnvironmentIngressDeploymentsRow struct {
 	DeploymentID   int64
 	DeploymentName string
 	Port           string
-	Status         sql.NullString
+	Status         DeploymentStatus
 	EnvironmentID  int64
 	HostID         sql.NullInt64
 	Host           sql.NullString
@@ -256,7 +250,7 @@ type UpdateIngressDeploymentRow struct {
 	DeploymentID            int64
 	DeploymentName          string
 	DeploymentPort          string
-	DeploymentStatus        sql.NullString
+	DeploymentStatus        DeploymentStatus
 	DeploymentEnvironmentID int64
 }
 

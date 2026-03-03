@@ -4,7 +4,6 @@ import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { cn } from "~/utils/cn";
 import {
   useFieldArray,
   useForm,
@@ -43,13 +42,17 @@ export default function DeployIngressForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployIngressFormProps) {
-  const { control, register, handleSubmit, watch, reset } =
-    useForm<IngressFormInput>({
-      defaultValues: defaultValues
-        ? defaultValues
-        : { hosts: [emptyHostEntry] },
-      mode: "onSubmit",
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { isDirty },
+  } = useForm<IngressFormInput>({
+    defaultValues: defaultValues ? defaultValues : { hosts: [emptyHostEntry] },
+    mode: "onSubmit",
+  });
 
   const {
     fields: hostFields,
@@ -126,7 +129,7 @@ export default function DeployIngressForm({
         size="sm"
         className="w-28 flex-shrink-0 py-1.5"
         type="submit"
-        disabled={isFormIncomplete}
+        disabled={!isDirty || isFormIncomplete}
       >
         {defaultValues ? "Redeploy" : "Deploy"}
         <ArrowRight className="w-4 stroke-2" />
@@ -226,10 +229,7 @@ function HostEditor({
               <div className="flex w-full gap-1">
                 <div className="relative min-w-24">
                   <select
-                    className={cn(
-                      "border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm",
-                      "text-mauve-11",
-                    )}
+                    className="border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
                     defaultValue={path.pathType ?? ""}
                     {...register(
                       `hosts.${hostIndex}.paths.${pathIndex}.pathType`,
@@ -263,10 +263,7 @@ function HostEditor({
 
                 <div className="relative min-w-48">
                   <select
-                    className={cn(
-                      "border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 p-2 text-sm",
-                      "text-mauve-11",
-                    )}
+                    className="border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 p-2 text-sm"
                     defaultValue={path.service ?? ""}
                     {...register(
                       `hosts.${hostIndex}.paths.${pathIndex}.service`,

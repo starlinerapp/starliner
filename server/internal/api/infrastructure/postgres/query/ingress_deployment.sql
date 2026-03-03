@@ -1,7 +1,7 @@
 -- name: CreateIngressDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, status, environment_id)
-    VALUES (@name, @port, @status, @environment_id)
+    INSERT INTO deployments (name, port, environment_id)
+    VALUES (@name, @port, @environment_id)
     RETURNING *
 ),
 new_ingress_deployment AS (

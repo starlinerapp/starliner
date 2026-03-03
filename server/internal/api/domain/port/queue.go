@@ -14,6 +14,7 @@ type Queue interface {
 	PublishDeployImage(deployment *value.ImageDeployment) error
 
 	PublishDeployDatabase(deployment *value.Deployment) error
+	SubscribeToDatabaseDeploymentCreated(handler func(databaseDeployment *value.DatabaseDeployment)) error
 
 	PublishDeleteDeployment(deployment *value.Deployment) error
 	SubscribeToDeploymentDeleted(handler func(deployment *value.DeploymentDeleted)) error

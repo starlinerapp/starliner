@@ -40,7 +40,7 @@ func NewIngressDeployment(d *entity.IngressDeployment) *IngressDeployment {
 	return &IngressDeployment{
 		Id:           d.Id,
 		ServiceName:  d.Name,
-		Status:       *d.Status,
+		Status:       d.Status,
 		Port:         d.Port,
 		IngressHosts: mapIngressHosts(d.IngressHosts),
 	}
@@ -114,7 +114,7 @@ func NewImageDeployment(d *entity.ImageDeployment) *ImageDeployment {
 	return &ImageDeployment{
 		Id:          d.Id,
 		ServiceName: d.ServiceName,
-		Status:      *d.Status,
+		Status:      d.Status,
 		ImageName:   d.ImageName,
 		Tag:         d.Tag,
 		Port:        d.Port,
@@ -145,8 +145,9 @@ type DatabaseDeployment struct {
 	Id          int64
 	ServiceName string
 	Status      string
-	Username    string
-	Password    string
+	Database    *string
+	Username    *string
+	Password    *string
 	Port        string
 }
 
@@ -154,7 +155,8 @@ func NewDatabaseDeployment(d *entity.DatabaseDeployment) *DatabaseDeployment {
 	return &DatabaseDeployment{
 		Id:          d.Id,
 		ServiceName: d.ServiceName,
-		Status:      *d.Status,
+		Status:      d.Status,
+		Database:    d.Database,
 		Username:    d.Username,
 		Password:    d.Password,
 		Port:        d.Port,
