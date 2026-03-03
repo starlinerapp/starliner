@@ -24,8 +24,6 @@ func (s *Secret) GetDatabaseCredentials(namespace string, releaseName string, ku
 	var creds *port.DatabaseCredentials
 
 	err := kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		ctx := context.Background()
-
 		config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 		if err != nil {
 			return fmt.Errorf("failed to build kubeconfig: %w", err)
