@@ -18,6 +18,7 @@ import {
   type OnNodesChange,
   Position,
   ReactFlow,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useTRPC } from "~/utils/trpc/react";
@@ -33,12 +34,32 @@ interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
 }
 
+function referencesImage(v: string, service: string, port: string): boolean {
+  const candidates = [
+    service,
+    `${service}:${port}`,
+    `http://${service}:${port}`,
+  ];
+  return candidates.some((prefix) => v === prefix || v.startsWith(prefix));
+}
+
+function referencesDatabase(v: string, db: { rwHost: string }): boolean {
+  return v === db.rwHost;
+}
+
 export default function ArchitectureCanvas({
   environment,
 }: ArchitectureCanvasProps) {
-  const { slug, id: organizationId } = useParams<{
+  const { fitView } = useReactFlow();
+
+  const {
+    slug,
+    id: organizationId,
+    deploymentId,
+  } = useParams<{
     slug: string;
     id: string;
+    deploymentId: string;
   }>();
 
   const navigate = useNavigate();
@@ -84,19 +105,6 @@ export default function ArchitectureCanvas({
     selectedIdsRef.current = new Set(nodes.map((n) => n.id));
   };
 
-  function referencesImage(v: string, service: string, port: string): boolean {
-    const candidates = [
-      service,
-      `${service}:${port}`,
-      `http://${service}:${port}`,
-    ];
-    return candidates.some((prefix) => v === prefix || v.startsWith(prefix));
-  }
-
-  function referencesDatabase(v: string, db: { rwHost: string }): boolean {
-    return v === db.rwHost;
-  }
-
   function handleNodeSelected(type: string, id: string) {
     navigate(
       `${slug}/projects/${organizationId}/${environment.slug}/architecture/${type}/${id}`,
@@ -109,8 +117,63 @@ export default function ArchitectureCanvas({
     );
   }
 
-  useEffect(() => {
-    if (!deployments) return;
+  const graphFingerprint = useMemo(() => {
+    if (!deployments) return null;
+
+    const nodeIds = [
+      ...deployments.databases.map((db) => `db:${db.id}`).sort(),
+      ...deployments.images.map((img) => `img:${img.id}`).sort(),
+      ...deployments.ingresses.map((ing) => `ing:${ing.id}`).sort(),
+    ].join(",");
+
+    const edgeParts: string[] = [];
+
+    const databaseTargets = deployments.databases.map((db) => ({
+      id: String(db.id),
+      serviceName: db.serviceName,
+      rwHost: `${db.serviceName}-rw`,
+    }));
+
+    const imageTargets = deployments.images.map((t) => ({
+      id: String(t.id),
+      serviceName: t.serviceName,
+      port: t.port,
+    }));
+
+    for (const ing of deployments.ingresses) {
+      for (const host of ing.hosts ?? []) {
+        for (const path of host.paths ?? []) {
+          const matchedTarget = imageTargets.find((t) =>
+            referencesImage(path.serviceName, t.serviceName, t.port),
+          );
+          if (matchedTarget) {
+            edgeParts.push(`${ing.id}->${matchedTarget.id}`);
+          }
+        }
+      }
+    }
+
+    for (const src of deployments.images) {
+      for (const v of src.envVars) {
+        for (const db of databaseTargets) {
+          if (referencesDatabase(v.value, db)) {
+            edgeParts.push(`${src.id}->${db.id}`);
+          }
+        }
+        for (const t of imageTargets) {
+          if (t.id === String(src.id)) continue;
+          if (referencesImage(v.value, t.serviceName, t.port)) {
+            edgeParts.push(`${src.id}->${t.id}`);
+          }
+        }
+      }
+    }
+
+    return `${nodeIds}|${edgeParts.sort().join(",")}`;
+  }, [deployments]);
+
+  const rawGraph = useMemo(() => {
+    if (!deployments || graphFingerprint === null) return null;
 
     const baseNode = {
       position: { x: 0, y: 0 },
@@ -145,7 +208,6 @@ export default function ArchitectureCanvas({
         id: `${source}->${target}:${kind}`,
         source,
         target,
-        type: "smoothstep",
       });
     };
 
@@ -168,7 +230,6 @@ export default function ArchitectureCanvas({
             referencesImage(path.serviceName, t.serviceName, t.port),
           );
           if (!matchedTarget) continue;
-
           pushEdge(
             String(ing.id),
             matchedTarget.id,
@@ -180,7 +241,6 @@ export default function ArchitectureCanvas({
 
     for (const src of deployments.images) {
       const sourceId = String(src.id);
-
       for (const v of src.envVars) {
         for (const db of databaseTargets) {
           if (referencesDatabase(v.value, db)) {
@@ -189,7 +249,6 @@ export default function ArchitectureCanvas({
         }
         for (const t of imageTargets) {
           if (t.id === sourceId) continue;
-
           if (referencesImage(v.value, t.serviceName, t.port)) {
             pushEdge(sourceId, t.id, `img->img:${t.serviceName}:${t.port}`);
           }
@@ -197,26 +256,64 @@ export default function ArchitectureCanvas({
       }
     }
 
+    return { rawNodes, rawEdges };
+  }, [graphFingerprint]);
+
+  useEffect(() => {
+    if (!rawGraph) return;
+
     let cancelled = false;
     (async () => {
-      const laidOut = await getElkLayout(rawNodes, rawEdges);
+      const laidOut = await getElkLayout(rawGraph.rawNodes, rawGraph.rawEdges);
       if (cancelled) return;
 
       const selectedIds = selectedIdsRef.current;
-
       setNodes(
         laidOut.nodes.map((n) => ({
           ...n,
-          selected: selectedIds.has(n.id),
+          selected: deploymentId
+            ? n.id === deploymentId
+            : selectedIds.has(n.id),
         })),
       );
       setEdges(laidOut.edges);
+      requestAnimationFrame(() => fitView({ maxZoom: 1, duration: 500 }));
     })();
 
     return () => {
       cancelled = true;
     };
+  }, [rawGraph]);
+
+  // Sync selection whenever the deploymentId URL param changes
+  useEffect(() => {
+    setNodes((prev) =>
+      prev.map((n) => ({
+        ...n,
+        selected: deploymentId ? n.id === deploymentId : false,
+      })),
+    );
+  }, [deploymentId]);
+
+  const nodeDataMap = useMemo(() => {
+    if (!deployments) return null;
+    const map = new Map<string, Record<string, unknown>>();
+    for (const db of deployments.databases) map.set(String(db.id), { ...db });
+    for (const img of deployments.images) map.set(String(img.id), { ...img });
+    for (const ing of deployments.ingresses)
+      map.set(String(ing.id), { ...ing });
+    return map;
   }, [deployments]);
+
+  useEffect(() => {
+    if (!nodeDataMap) return;
+    setNodes((prev) =>
+      prev.map((n) => {
+        const fresh = nodeDataMap.get(n.id);
+        return fresh ? { ...n, data: fresh } : n;
+      }),
+    );
+  }, [nodeDataMap]);
 
   return (
     <div className="h-full w-full">
@@ -236,7 +333,6 @@ export default function ArchitectureCanvas({
         }}
         onPaneClick={() => handlePlaneClick()}
         proOptions={{ hideAttribution: true }}
-        fitView
         maxZoom={1}
         fitViewOptions={{ maxZoom: 1 }}
       >
