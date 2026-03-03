@@ -18,9 +18,10 @@ func NewEnvironmentRepository(queries *sqlc.Queries) interfaces.EnvironmentRepos
 	return &EnvironmentRepository{queries: queries}
 }
 
-func (er *EnvironmentRepository) CreateEnvironment(ctx context.Context, name string, slug string, projectId int64) (*entity.Environment, error) {
+func (er *EnvironmentRepository) CreateEnvironment(ctx context.Context, name string, namespace string, slug string, projectId int64) (*entity.Environment, error) {
 	env, err := er.queries.CreateEnvironment(ctx, sqlc.CreateEnvironmentParams{
 		Name:      name,
+		Namespace: namespace,
 		Slug:      slug,
 		ProjectID: projectId,
 	})
@@ -29,9 +30,10 @@ func (er *EnvironmentRepository) CreateEnvironment(ctx context.Context, name str
 	}
 
 	return &entity.Environment{
-		Id:   env.ID,
-		Slug: env.Slug,
-		Name: env.Name,
+		Id:        env.ID,
+		Slug:      env.Slug,
+		Namespace: env.Namespace,
+		Name:      env.Name,
 	}, nil
 }
 
@@ -60,6 +62,20 @@ func (er *EnvironmentRepository) GetEnvironmentCluster(ctx context.Context, envi
 		ProvisioningId: utils.PtrFromNullString(cluster.ProvisioningID),
 		Kubeconfig:     utils.PtrFromNullString(cluster.Kubeconfig),
 		OrganizationId: cluster.OrganizationID,
+	}, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentById(ctx context.Context, environmentId int64) (*entity.Environment, error) {
+	env, err := er.queries.GetEnvironmentById(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Environment{
+		Id:        env.ID,
+		Slug:      env.Slug,
+		Name:      env.Name,
+		Namespace: env.Namespace,
 	}, nil
 }
 

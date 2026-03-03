@@ -2,13 +2,20 @@
 INSERT INTO environments (
     name,
     slug,
+    namespace,
     project_id
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 RETURNING *;
+
+-- name: GetEnvironmentById :one
+SELECT *
+FROM environments
+WHERE environments.id = $1;
 
 -- name: GetEnvironmentCluster :one
 SELECT clusters.*
@@ -24,3 +31,13 @@ INNER JOIN projects p ON p.id = environments.project_id
 INNER JOIN organizations o ON o.id = p.organization_id
 INNER JOIN users u ON o.owner_id = u.id
 WHERE environments.id = $1;
+
+-- name: GetEnvironmentWithProject :one
+SELECT
+    projects.id AS project_id,
+    projects.name AS project_name,
+    e.id AS environment_id,
+    e.name AS environment_name
+FROM environments e
+INNER JOIN projects ON projects.id = e.project_id
+WHERE e.id = $1;

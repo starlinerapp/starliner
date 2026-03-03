@@ -9,6 +9,7 @@ type ProjectRepository interface {
 	CreateProjectWithEnvironment(
 		ctx context.Context,
 		projectName string,
+		namespace string,
 		environmentName string,
 		environmentSlug string,
 		organizationId int64,

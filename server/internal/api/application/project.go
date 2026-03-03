@@ -9,17 +9,20 @@ import (
 )
 
 type ProjectApplication struct {
+	namespaceService      *service.NamespaceService
 	organizationService   *service.OrganizationService
 	projectRepository     interfaces.ProjectRepository
 	environmentRepository interfaces.EnvironmentRepository
 }
 
 func NewProjectApplication(
+	namespaceService *service.NamespaceService,
 	organizationService *service.OrganizationService,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,
 ) *ProjectApplication {
 	return &ProjectApplication{
+		namespaceService:      namespaceService,
 		organizationService:   organizationService,
 		projectRepository:     projectRepository,
 		environmentRepository: environmentRepository,
@@ -33,7 +36,20 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 	}
 
 	productionEnvName := "Production"
-	project, err := ps.projectRepository.CreateProjectWithEnvironment(ctx, name, productionEnvName, strings.ToLower(productionEnvName), organizationId, clusterId)
+	namespace, err := ps.namespaceService.FormatToDNS1123(name + "-" + productionEnvName)
+	if err != nil {
+		return nil, err
+	}
+
+	project, err := ps.projectRepository.CreateProjectWithEnvironment(
+		ctx,
+		name,
+		namespace,
+		productionEnvName,
+		strings.ToLower(productionEnvName),
+		organizationId,
+		clusterId,
+	)
 	if err != nil {
 		return nil, err
 	}

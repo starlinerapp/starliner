@@ -26,6 +26,7 @@ func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
 	args := &port.DeployImageArgs{
 		ReleaseName:      a.DeploymentName,
 		KubeconfigBase64: a.KubeconfigBase64,
+		Namespace:        a.Namespace,
 		ImageRepository:  a.ImageRepository,
 		ImageTag:         a.ImageTag,
 		Port:             a.Port,

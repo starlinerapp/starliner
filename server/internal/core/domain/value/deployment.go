@@ -8,6 +8,7 @@ type EnvVar struct {
 type ImageDeployment struct {
 	DeploymentId     int64
 	DeploymentName   string
+	Namespace        string
 	KubeconfigBase64 string
 	ImageRepository  string
 	ImageTag         string
@@ -23,6 +24,7 @@ type DatabaseDeployment struct {
 }
 
 type Deployment struct {
+	Namespace        string
 	DeploymentId     int64
 	DeploymentName   string
 	KubeconfigBase64 string
@@ -50,6 +52,7 @@ type IngressHost struct {
 type IngressDeployment struct {
 	DeploymentId     int64
 	DeploymentName   string
+	Namespace        string
 	KubeconfigBase64 string
 	IngressHosts     []IngressHost
 }

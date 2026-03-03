@@ -20,6 +20,7 @@ type IngressHost struct {
 }
 
 type DeployIngressArgs struct {
+	Namespace        string
 	ReleaseName      string
 	KubeconfigBase64 string
 	Hosts            []IngressHost
@@ -31,6 +32,7 @@ type EnvVar struct {
 }
 
 type DeployImageArgs struct {
+	Namespace        string
 	ReleaseName      string
 	KubeconfigBase64 string
 	ImageRepository  string
@@ -42,10 +44,10 @@ type DeployImageArgs struct {
 type Deploy interface {
 	DeployImage(args *DeployImageArgs) error
 
-	DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error
+	DeployCloudNativePg(namespace string, releaseName string, kubeconfigBase64 string) error
 
-	DeployPostgres(releaseName string, kubeconfigBase64 string) error
-	DeleteDeployment(releaseName string, kubeconfigBase64 string) error
+	DeployPostgres(namespace string, releaseName string, kubeconfigBase64 string) error
+	DeleteDeployment(namespace string, releaseName string, kubeconfigBase64 string) error
 
 	DeployIngress(args *DeployIngressArgs) error
 }

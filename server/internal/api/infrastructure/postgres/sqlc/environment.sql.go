@@ -13,23 +13,31 @@ const createEnvironment = `-- name: CreateEnvironment :one
 INSERT INTO environments (
     name,
     slug,
+    namespace,
     project_id
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
-RETURNING id, name, slug, project_id, created_at, updated_at
+RETURNING id, name, slug, project_id, created_at, updated_at, namespace
 `
 
 type CreateEnvironmentParams struct {
 	Name      string
 	Slug      string
+	Namespace string
 	ProjectID int64
 }
 
 func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentParams) (Environment, error) {
-	row := q.db.QueryRowContext(ctx, createEnvironment, arg.Name, arg.Slug, arg.ProjectID)
+	row := q.db.QueryRowContext(ctx, createEnvironment,
+		arg.Name,
+		arg.Slug,
+		arg.Namespace,
+		arg.ProjectID,
+	)
 	var i Environment
 	err := row.Scan(
 		&i.ID,
@@ -38,6 +46,7 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 		&i.ProjectID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Namespace,
 	)
 	return i, err
 }
@@ -74,6 +83,27 @@ func (q *Queries) GetEnvironmentAuthorizedUsers(ctx context.Context, id int64) (
 	return items, nil
 }
 
+const getEnvironmentById = `-- name: GetEnvironmentById :one
+SELECT id, name, slug, project_id, created_at, updated_at, namespace
+FROM environments
+WHERE environments.id = $1
+`
+
+func (q *Queries) GetEnvironmentById(ctx context.Context, id int64) (Environment, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentById, id)
+	var i Environment
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.ProjectID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Namespace,
+	)
+	return i, err
+}
+
 const getEnvironmentCluster = `-- name: GetEnvironmentCluster :one
 SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig
 FROM environments
@@ -97,6 +127,36 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Kubeconfig,
+	)
+	return i, err
+}
+
+const getEnvironmentWithProject = `-- name: GetEnvironmentWithProject :one
+SELECT
+    projects.id AS project_id,
+    projects.name AS project_name,
+    e.id AS environment_id,
+    e.name AS environment_name
+FROM environments e
+INNER JOIN projects ON projects.id = e.project_id
+WHERE e.id = $1
+`
+
+type GetEnvironmentWithProjectRow struct {
+	ProjectID       int64
+	ProjectName     string
+	EnvironmentID   int64
+	EnvironmentName string
+}
+
+func (q *Queries) GetEnvironmentWithProject(ctx context.Context, id int64) (GetEnvironmentWithProjectRow, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentWithProject, id)
+	var i GetEnvironmentWithProjectRow
+	err := row.Scan(
+		&i.ProjectID,
+		&i.ProjectName,
+		&i.EnvironmentID,
+		&i.EnvironmentName,
 	)
 	return i, err
 }

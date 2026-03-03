@@ -35,13 +35,13 @@ func NewDatabaseApplication(
 }
 
 func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
-	err := da.deploy.DeployCloudNativePg("cloudnative-pg", d.KubeconfigBase64)
+	err := da.deploy.DeployCloudNativePg(d.Namespace, "cloudnative-pg", d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy cloudnative-pg: %v\n", err)
 	}
 
 	releaseName := d.DeploymentName
-	err = da.deploy.DeployPostgres(releaseName, d.KubeconfigBase64)
+	err = da.deploy.DeployPostgres(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy database: %v\n", err)
 	}

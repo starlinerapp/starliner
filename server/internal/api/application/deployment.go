@@ -65,6 +65,11 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
 	deployment, err := da.deploymentRepository.CreateImageDeployment(
 		ctx,
 		serviceName,
@@ -90,11 +95,11 @@ func (da *DeploymentApplication) DeployImage(
 			Value: e.Value,
 		})
 	}
-
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   serviceName,
 		KubeconfigBase64: kubeconfigBase64,
+		Namespace:        env.Namespace,
 		ImageRepository:  imageName,
 		ImageTag:         tag,
 		Port:             port,
@@ -122,6 +127,11 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
 	if err != nil {
 		return err
 	}
@@ -154,6 +164,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.ServiceName,
+		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 		ImageRepository:  imageName,
 		ImageTag:         tag,
@@ -183,6 +194,11 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
 		serviceName,
@@ -201,6 +217,7 @@ func (da *DeploymentApplication) DeployDatabase(
 	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.ServiceName,
+		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {
@@ -217,6 +234,11 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
 	if err != nil {
 		return err
 	}
@@ -270,6 +292,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		IngressHosts:     coreHosts,
 		DeploymentId:     ingressDeployment.Id,
 		DeploymentName:   ingressDeployment.Name,
+		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 
@@ -293,6 +316,11 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
 	if err != nil {
 		return err
 	}
@@ -346,6 +374,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		IngressHosts:     coreHosts,
 		DeploymentId:     ingressDeployment.Id,
 		DeploymentName:   ingressDeployment.Name,
+		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 
@@ -367,6 +396,11 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 		return err
 	}
 
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, deployment.EnvironmentId)
+	if err != nil {
+		return err
+	}
+
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -374,6 +408,7 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   deployment.Name,
+		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {

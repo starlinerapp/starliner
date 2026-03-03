@@ -177,6 +177,7 @@ type Environment struct {
 	ProjectID int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Namespace string
 }
 
 type ImageDeployment struct {
