@@ -46,7 +46,7 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 		log.Printf("failed to deploy database: %v\n", err)
 	}
 
-	credentials, err := da.secret.GetDatabaseCredentials(releaseName, d.KubeconfigBase64)
+	credentials, err := da.secret.GetDatabaseCredentials(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to get database credentials: %v\n", err)
 	}
