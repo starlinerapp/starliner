@@ -2,13 +2,20 @@
 INSERT INTO environments (
     name,
     slug,
+    namespace,
     project_id
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 RETURNING *;
+
+-- name: GetEnvironmentById :one
+SELECT *
+FROM environments
+WHERE environments.id = $1;
 
 -- name: GetEnvironmentCluster :one
 SELECT clusters.*

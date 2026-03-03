@@ -20,7 +20,7 @@ func NewDeploymentApplication(deploy port.Deploy, queue port.Queue) *DeploymentA
 
 func (da *DeploymentApplication) HandleDeleteDeployment(d *value.Deployment) {
 	releaseName := d.DeploymentName
-	err := da.deploy.DeleteDeployment(releaseName, d.KubeconfigBase64)
+	err := da.deploy.DeleteDeployment(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to delete helm chart: %v\n", err)
 	}

@@ -7,24 +7,29 @@ import (
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
-	"strings"
 )
 
 type EnvironmentApplication struct {
 	crypto                port.Crypto
 	organizationService   *service.OrganizationService
+	namespaceService      *service.NamespaceService
 	environmentRepository interfaces.EnvironmentRepository
+	projectRepository     interfaces.ProjectRepository
 }
 
 func NewEnvironmentApplication(
 	crypto port.Crypto,
-	environmentRepository interfaces.EnvironmentRepository,
+	namespaceService *service.NamespaceService,
 	organizationService *service.OrganizationService,
+	environmentRepository interfaces.EnvironmentRepository,
+	projectRepository interfaces.ProjectRepository,
 ) *EnvironmentApplication {
 	return &EnvironmentApplication{
 		crypto:                crypto,
-		environmentRepository: environmentRepository,
+		namespaceService:      namespaceService,
 		organizationService:   organizationService,
+		environmentRepository: environmentRepository,
+		projectRepository:     projectRepository,
 	}
 }
 
@@ -40,10 +45,22 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		return err
 	}
 
-	trimmed := strings.TrimSpace(name)
-	environmentSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
+	environmentSlug, err := ea.namespaceService.FormatToDNS1123(name)
+	if err != nil {
+		return err
+	}
 
-	_, err = ea.environmentRepository.CreateEnvironment(ctx, name, environmentSlug, projectId)
+	project, err := ea.projectRepository.GetProject(ctx, userId, projectId)
+	if err != nil {
+		return err
+	}
+
+	namespace, err := ea.namespaceService.FormatToDNS1123(project.Name + "-" + name)
+	if err != nil {
+		return err
+	}
+
+	_, err = ea.environmentRepository.CreateEnvironment(ctx, name, namespace, environmentSlug, projectId)
 	if err != nil {
 		return err
 	}

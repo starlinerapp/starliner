@@ -24,6 +24,7 @@ func NewProjectRepository(db *sql.DB, queries *sqlc.Queries) interfaces.ProjectR
 func (pr *ProjectRepository) CreateProjectWithEnvironment(
 	ctx context.Context,
 	projectName string,
+	namespace string,
 	environmentName string,
 	environmentSlug string,
 	organizationId int64,
@@ -49,6 +50,7 @@ func (pr *ProjectRepository) CreateProjectWithEnvironment(
 
 	env, err := qtx.CreateEnvironment(ctx, sqlc.CreateEnvironmentParams{
 		Name:      environmentName,
+		Namespace: namespace,
 		Slug:      environmentSlug,
 		ProjectID: project.ID,
 	})

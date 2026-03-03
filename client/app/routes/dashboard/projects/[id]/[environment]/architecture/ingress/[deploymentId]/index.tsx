@@ -6,9 +6,13 @@ import { useParams } from "react-router";
 import DeployIngressForm, {
   type IngressFormInput,
 } from "~/components/organisms/forms/DeployIngressForm";
+import { toSlug } from "~/utils/slug";
 
 export default function UpdateIngressForm() {
-  const { deploymentId } = useParams<{ deploymentId: string }>();
+  const { id: projectId, deploymentId } = useParams<{
+    id: string;
+    deploymentId: string;
+  }>();
 
   const { environment: currentEnvironment, clusterId } = useEnvironment();
 
@@ -31,12 +35,20 @@ export default function UpdateIngressForm() {
     ),
   );
 
+  const { data: projectData } = useQuery(
+    trpc.project.getProject.queryOptions({
+      id: Number(projectId),
+    }),
+  );
+
+  const projectNameSlug = toSlug(projectData?.name ?? "");
+
   const onSubmit = async (data: IngressFormInput) => {
     await updateIngressMutation.mutateAsync({
       id: currentEnvironment.id,
       deploymentId: Number(deploymentId),
       ingressHosts: data.hosts.map((h) => ({
-        host: h.name + `.${clusterData?.ipv4Address}.nip.io`,
+        host: h.name + `.${projectNameSlug}.${clusterData?.ipv4Address}.nip.io`,
         paths: h.paths.map((p) => ({
           path: p.path,
           pathType: p.pathType as "Prefix" | "Exact",

@@ -58,6 +58,7 @@ type Deployment struct {
 	Id            int64
 	Name          string
 	Port          string
+	Namespace     string
 	EnvironmentId int64
 }
 

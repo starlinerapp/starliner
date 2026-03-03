@@ -20,12 +20,10 @@ func NewSecret() port.Secret {
 	return &Secret{}
 }
 
-func (s *Secret) GetDatabaseCredentials(releaseName string, kubeconfigBase64 string) (*port.DatabaseCredentials, error) {
+func (s *Secret) GetDatabaseCredentials(namespace string, releaseName string, kubeconfigBase64 string) (*port.DatabaseCredentials, error) {
 	var creds *port.DatabaseCredentials
 
 	err := kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		ctx := context.Background()
-
 		config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 		if err != nil {
 			return fmt.Errorf("failed to build kubeconfig: %w", err)
@@ -36,7 +34,6 @@ func (s *Secret) GetDatabaseCredentials(releaseName string, kubeconfigBase64 str
 			return fmt.Errorf("failed to create client: %w", err)
 		}
 
-		const namespace = "default"
 		secretName := releaseName + "-app"
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)

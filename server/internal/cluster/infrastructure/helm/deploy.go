@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	defaultNamespace    = "default"
 	defaultStorage      = "secret"
 	defaultWaitStrategy = "watcher"
 )
@@ -39,7 +38,7 @@ func (d *Deploy) DeployImage(
 		})
 	}
 
-	return installChart(ApplicationChart, args.ReleaseName, args.KubeconfigBase64, map[string]interface{}{
+	return installChart(ApplicationChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, map[string]interface{}{
 		"image": map[string]interface{}{
 			"repository": args.ImageRepository,
 			"tag":        args.ImageTag,
@@ -50,16 +49,16 @@ func (d *Deploy) DeployImage(
 	})
 }
 
-func (d *Deploy) DeployCloudNativePg(releaseName string, kubeconfigBase64 string) error {
-	return installChart(CloudNativePgChart, releaseName, kubeconfigBase64, nil)
+func (d *Deploy) DeployCloudNativePg(namespace string, releaseName string, kubeconfigBase64 string) error {
+	return installChart(CloudNativePgChart, namespace, releaseName, kubeconfigBase64, nil)
 }
 
-func (d *Deploy) DeployPostgres(releaseName string, kubeconfigBase64 string) error {
-	return installChart(PostgresChart, releaseName, kubeconfigBase64, nil)
+func (d *Deploy) DeployPostgres(namespace string, releaseName string, kubeconfigBase64 string) error {
+	return installChart(PostgresChart, namespace, releaseName, kubeconfigBase64, nil)
 }
 
-func (d *Deploy) DeleteDeployment(releaseName string, kubeconfigBase64 string) error {
-	return uninstallRelease(releaseName, kubeconfigBase64)
+func (d *Deploy) DeleteDeployment(namespace string, releaseName string, kubeconfigBase64 string) error {
+	return uninstallRelease(namespace, releaseName, kubeconfigBase64)
 }
 
 func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
@@ -90,11 +89,12 @@ func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
 			"rules": rules,
 		},
 	}
-	return installChart(IngressChart, args.ReleaseName, args.KubeconfigBase64, values)
+	return installChart(IngressChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, values)
 }
 
 func installChart(
 	chartFS fs.FS,
+	namespace string,
 	releaseName string,
 	kubeconfigBase64 string,
 	values map[string]interface{},
@@ -106,7 +106,7 @@ func installChart(
 				return fmt.Errorf("failed to load chart from %q: %w", chartDir, err)
 			}
 
-			cfg, err := newActionConfig(kubeconfigPath, defaultNamespace)
+			cfg, err := newActionConfig(kubeconfigPath, namespace)
 			if err != nil {
 				return err
 			}
@@ -116,9 +116,9 @@ func installChart(
 			}
 
 			if releaseExists(cfg, releaseName) {
-				return upgradeChart(cfg, releaseName, ch, values)
+				return upgradeChart(cfg, namespace, releaseName, ch, values)
 			}
-			return installNewChart(cfg, releaseName, ch, values)
+			return installNewChart(cfg, namespace, releaseName, ch, values)
 		})
 	})
 }
@@ -130,10 +130,10 @@ func releaseExists(cfg *action.Configuration, releaseName string) bool {
 	return err == nil && len(releases) > 0
 }
 
-func installNewChart(cfg *action.Configuration, releaseName string, ch *v2.Chart, values map[string]interface{}) error {
+func installNewChart(cfg *action.Configuration, namespace string, releaseName string, ch *v2.Chart, values map[string]interface{}) error {
 	install := action.NewInstall(cfg)
 	install.ReleaseName = releaseName
-	install.Namespace = defaultNamespace
+	install.Namespace = namespace
 	install.Timeout = 5 * time.Minute
 	install.WaitStrategy = defaultWaitStrategy
 	install.WaitForJobs = true
@@ -145,9 +145,9 @@ func installNewChart(cfg *action.Configuration, releaseName string, ch *v2.Chart
 	return nil
 }
 
-func upgradeChart(cfg *action.Configuration, releaseName string, ch *v2.Chart, values map[string]interface{}) error {
+func upgradeChart(cfg *action.Configuration, namespace string, releaseName string, ch *v2.Chart, values map[string]interface{}) error {
 	upgrade := action.NewUpgrade(cfg)
-	upgrade.Namespace = defaultNamespace
+	upgrade.Namespace = namespace
 	upgrade.Timeout = 5 * time.Minute
 	upgrade.WaitStrategy = defaultWaitStrategy
 	upgrade.WaitForJobs = true
@@ -160,9 +160,9 @@ func upgradeChart(cfg *action.Configuration, releaseName string, ch *v2.Chart, v
 	return nil
 }
 
-func uninstallRelease(releaseName string, kubeconfigBase64 string) error {
+func uninstallRelease(namespace string, releaseName string, kubeconfigBase64 string) error {
 	return kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		cfg, err := newActionConfig(kubeconfigPath, defaultNamespace)
+		cfg, err := newActionConfig(kubeconfigPath, namespace)
 		if err != nil {
 			return err
 		}
@@ -180,6 +180,7 @@ func uninstallRelease(releaseName string, kubeconfigBase64 string) error {
 func newActionConfig(kubeconfigPath string, namespace string) (*action.Configuration, error) {
 	flags := genericclioptions.NewConfigFlags(false)
 	flags.KubeConfig = &kubeconfigPath
+	flags.Namespace = &namespace
 
 	cfg := new(action.Configuration)
 	if err := cfg.Init(flags, namespace, defaultStorage); err != nil {

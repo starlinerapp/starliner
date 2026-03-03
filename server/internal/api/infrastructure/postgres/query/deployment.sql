@@ -28,7 +28,10 @@ where id = $1;
 
 
 -- name: GetDeploymentsWithKubeconfig :many
-SELECT deployments.*, c.kubeconfig
+SELECT
+    deployments.*,
+    c.kubeconfig,
+    environments.namespace
 FROM deployments
 INNER JOIN environments ON deployments.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id

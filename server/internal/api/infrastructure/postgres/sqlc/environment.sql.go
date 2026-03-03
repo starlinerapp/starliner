@@ -13,23 +13,31 @@ const createEnvironment = `-- name: CreateEnvironment :one
 INSERT INTO environments (
     name,
     slug,
+    namespace,
     project_id
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
-RETURNING id, name, slug, project_id, created_at, updated_at
+RETURNING id, name, slug, project_id, created_at, updated_at, namespace
 `
 
 type CreateEnvironmentParams struct {
 	Name      string
 	Slug      string
+	Namespace string
 	ProjectID int64
 }
 
 func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentParams) (Environment, error) {
-	row := q.db.QueryRowContext(ctx, createEnvironment, arg.Name, arg.Slug, arg.ProjectID)
+	row := q.db.QueryRowContext(ctx, createEnvironment,
+		arg.Name,
+		arg.Slug,
+		arg.Namespace,
+		arg.ProjectID,
+	)
 	var i Environment
 	err := row.Scan(
 		&i.ID,
@@ -38,6 +46,7 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 		&i.ProjectID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Namespace,
 	)
 	return i, err
 }
@@ -72,6 +81,27 @@ func (q *Queries) GetEnvironmentAuthorizedUsers(ctx context.Context, id int64) (
 		return nil, err
 	}
 	return items, nil
+}
+
+const getEnvironmentById = `-- name: GetEnvironmentById :one
+SELECT id, name, slug, project_id, created_at, updated_at, namespace
+FROM environments
+WHERE environments.id = $1
+`
+
+func (q *Queries) GetEnvironmentById(ctx context.Context, id int64) (Environment, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentById, id)
+	var i Environment
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.ProjectID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Namespace,
+	)
+	return i, err
 }
 
 const getEnvironmentCluster = `-- name: GetEnvironmentCluster :one

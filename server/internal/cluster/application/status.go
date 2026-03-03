@@ -23,7 +23,7 @@ func NewStatusApplication(
 
 func (sa *StatusApplication) HandleRequestDeploymentStatus(d *value.Deployment) {
 	releaseName := d.DeploymentName
-	health, err := sa.health.CheckPodsHealthy(releaseName, d.KubeconfigBase64)
+	health, err := sa.health.CheckPodsHealthy(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to check pods health: %v\n", err)
 	}

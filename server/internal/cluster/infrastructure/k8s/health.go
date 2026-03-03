@@ -19,7 +19,7 @@ func NewHealth() port.Health {
 	return &Health{}
 }
 
-func (h *Health) CheckPodsHealthy(releaseName string, kubeconfigBase64 string) (*value.HealthStatus, error) {
+func (h *Health) CheckPodsHealthy(namespace string, releaseName string, kubeconfigBase64 string) (*value.HealthStatus, error) {
 	var status *value.HealthStatus
 
 	err := kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
@@ -35,7 +35,6 @@ func (h *Health) CheckPodsHealthy(releaseName string, kubeconfigBase64 string) (
 			return fmt.Errorf("failed to create client: %w", err)
 		}
 
-		const namespace = "default"
 		labelSelector := fmt.Sprintf("app.kubernetes.io/instance=%s", releaseName)
 
 		pods, err := client.CoreV1().

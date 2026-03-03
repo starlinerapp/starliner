@@ -21,6 +21,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 	hosts := toPortIngressHosts(i.IngressHosts)
 
 	err := ia.deploy.DeployIngress(&port.DeployIngressArgs{
+		Namespace:        i.Namespace,
 		ReleaseName:      releaseName,
 		KubeconfigBase64: i.KubeconfigBase64,
 		Hosts:            hosts,

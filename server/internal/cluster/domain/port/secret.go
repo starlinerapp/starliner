@@ -6,5 +6,5 @@ type DatabaseCredentials struct {
 	Password     string
 }
 type Secret interface {
-	GetDatabaseCredentials(releaseName string, kubeconfigBase64 string) (*DatabaseCredentials, error)
+	GetDatabaseCredentials(namespace string, releaseName string, kubeconfigBase64 string) (*DatabaseCredentials, error)
 }
