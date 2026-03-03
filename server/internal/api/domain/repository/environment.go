@@ -89,7 +89,7 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 
 		deployments[i] = &entity.ImageDeployment{
 			Id:            d.DeploymentID,
-			Status:        utils.PtrFromNullString(d.Status),
+			Status:        string(d.Status),
 			ServiceName:   d.ServiceName,
 			ImageName:     d.ImageName,
 			Tag:           d.Tag,
@@ -119,7 +119,7 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Co
 			dep = &entity.IngressDeployment{
 				Id:            r.DeploymentID,
 				EnvironmentId: r.EnvironmentID,
-				Status:        utils.PtrFromNullString(r.Status),
+				Status:        string(r.Status),
 				Name:          r.DeploymentName,
 				Port:          r.Port,
 				IngressHosts:  []*entity.IngressHost{},
@@ -192,9 +192,9 @@ func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.C
 		deployments[i] = &entity.DatabaseDeployment{
 			Id:            d.DeploymentID,
 			ServiceName:   d.Name,
-			Status:        utils.PtrFromNullString(d.Status),
-			Username:      d.Username,
-			Password:      d.Password,
+			Status:        string(d.Status),
+			Username:      utils.PtrFromNullString(d.Username),
+			Password:      utils.PtrFromNullString(d.Password),
 			Port:          d.Port,
 			EnvironmentId: d.EnvironmentID,
 		}

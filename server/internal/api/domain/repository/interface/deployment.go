@@ -13,7 +13,6 @@ type DeploymentRepository interface {
 		imageName string,
 		tag string,
 		port string,
-		status string,
 		environmentId int64,
 		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)
@@ -48,9 +47,6 @@ type DeploymentRepository interface {
 		ctx context.Context,
 		name string,
 		port string,
-		status string,
-		username string,
-		password string,
 		environmentId int64,
 	) (deployment *entity.DatabaseDeployment, err error)
 

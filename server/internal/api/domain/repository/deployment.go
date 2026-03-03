@@ -28,7 +28,6 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	imageName string,
 	tag string,
 	port string,
-	status string,
 	environmentId int64,
 	envs []*value.EnvVar,
 ) (deployment *entity.ImageDeployment, err error) {
@@ -43,7 +42,6 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	qtx := dr.queries.WithTx(tx)
 	d, err := qtx.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
 		Port:          port,
-		Status:        utils.NullStringFromPtr(&status),
 		EnvironmentID: environmentId,
 		Tag:           tag,
 		ServiceName:   serviceName,
@@ -75,7 +73,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	}
 	return &entity.ImageDeployment{
 		Id:            d.DeploymentID,
-		Status:        utils.PtrFromNullString(d.Status),
+		Status:        string(d.Status),
 		ServiceName:   d.ServiceName,
 		ImageName:     d.ImageName,
 		Tag:           d.ImageTag,
@@ -138,7 +136,7 @@ func (dr *DeploymentRepository) UpdateImageDeployment(
 
 	return &entity.ImageDeployment{
 		Id:            d.DeploymentID,
-		Status:        utils.PtrFromNullString(d.Status),
+		Status:        string(d.Status),
 		ServiceName:   d.ServiceName,
 		ImageName:     d.ImageName,
 		Tag:           d.ImageTag,
@@ -168,7 +166,6 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	d, err := qtx.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
 		Name:          serviceName,
 		Port:          port,
-		Status:        utils.NullStringFromPtr(&status),
 		EnvironmentID: environmentId,
 	})
 	if err != nil {
@@ -293,17 +290,11 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	ctx context.Context,
 	serviceName string,
 	port string,
-	status string,
-	username string,
-	password string,
 	environmentId int64,
 ) (deployment *entity.DatabaseDeployment, err error) {
 	d, err := dr.queries.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
 		Name:          serviceName,
 		Port:          port,
-		Status:        utils.NullStringFromPtr(&status),
-		Username:      username,
-		Password:      password,
 		EnvironmentID: environmentId,
 	})
 	if err != nil {
@@ -380,7 +371,7 @@ func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Cont
 
 func (dr *DeploymentRepository) UpdateDeploymentStatus(ctx context.Context, deploymentId int64, status string) error {
 	return dr.queries.UpdateDeploymentStatus(ctx, sqlc.UpdateDeploymentStatusParams{
-		Status: utils.NullStringFromPtr(&status),
+		Status: sqlc.DeploymentStatus(status),
 		ID:     deploymentId,
 	})
 }

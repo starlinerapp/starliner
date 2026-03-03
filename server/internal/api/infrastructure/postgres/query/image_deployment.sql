@@ -1,7 +1,7 @@
 -- name: CreateImageDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, status, environment_id)
-    VALUES (@service_name, @port, @status, @environment_id)
+    INSERT INTO deployments (name, port, environment_id)
+    VALUES (@service_name, @port, @environment_id)
     RETURNING *
 ),
 new_image_deployment AS (

@@ -54,6 +54,48 @@ func (ns NullClusterStatus) Value() (driver.Value, error) {
 	return string(ns.ClusterStatus), nil
 }
 
+type DeploymentStatus string
+
+const (
+	DeploymentStatusHealthy   DeploymentStatus = "healthy"
+	DeploymentStatusUnhealthy DeploymentStatus = "unhealthy"
+)
+
+func (e *DeploymentStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DeploymentStatus(s)
+	case string:
+		*e = DeploymentStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DeploymentStatus: %T", src)
+	}
+	return nil
+}
+
+type NullDeploymentStatus struct {
+	DeploymentStatus DeploymentStatus
+	Valid            bool // Valid is true if DeploymentStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDeploymentStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.DeploymentStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DeploymentStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDeploymentStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DeploymentStatus), nil
+}
+
 type Provider string
 
 const (
@@ -111,8 +153,8 @@ type Cluster struct {
 
 type DatabaseDeployment struct {
 	DeploymentID int64
-	Username     string
-	Password     string
+	Username     sql.NullString
+	Password     sql.NullString
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
@@ -121,7 +163,7 @@ type Deployment struct {
 	ID            int64
 	Name          string
 	Port          string
-	Status        sql.NullString
+	Status        DeploymentStatus
 	EnvironmentID int64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time

@@ -21,7 +21,7 @@ type IngressHost struct {
 type IngressDeployment struct {
 	Id            int64
 	EnvironmentId int64
-	Status        *string
+	Status        string
 	Name          string
 	Port          string
 	IngressHosts  []*IngressHost
@@ -34,7 +34,7 @@ type EnvVar struct {
 
 type ImageDeployment struct {
 	Id            int64
-	Status        *string
+	Status        string
 	ServiceName   string
 	ImageName     string
 	Tag           string
@@ -46,9 +46,9 @@ type ImageDeployment struct {
 type DatabaseDeployment struct {
 	Id            int64
 	ServiceName   string
-	Status        *string
-	Username      string
-	Password      string
+	Status        string
+	Username      *string
+	Password      *string
 	Port          string
 	EnvironmentId int64
 }

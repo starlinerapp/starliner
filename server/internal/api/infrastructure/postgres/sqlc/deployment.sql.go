@@ -34,7 +34,7 @@ type GetDeploymentsWithKubeconfigRow struct {
 	ID            int64
 	Name          string
 	Port          string
-	Status        sql.NullString
+	Status        DeploymentStatus
 	EnvironmentID int64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -134,12 +134,12 @@ func (q *Queries) GetUserDeployment(ctx context.Context, arg GetUserDeploymentPa
 
 const updateDeploymentStatus = `-- name: UpdateDeploymentStatus :exec
 UPDATE deployments
-SET status = $1
+SET status = $1::deployment_status
 WHERE id = $2
 `
 
 type UpdateDeploymentStatusParams struct {
-	Status sql.NullString
+	Status DeploymentStatus
 	ID     int64
 }
 

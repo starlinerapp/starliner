@@ -6,14 +6,15 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { cn } from "~/utils/cn";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 type DatabaseNode = Node<{
   id: number;
   serviceName: string;
   status: string;
   port: string;
-  username: string;
-  password: string;
+  username: string | undefined;
+  password: string | undefined;
 }>;
 
 export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
@@ -48,15 +49,26 @@ export default function DatabaseNode({ data }: NodeProps<DatabaseNode>) {
           <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
             <span className="flex justify-between">
               <p>Username</p>
-              <CopyToClipboard className="text-mauve-11" text={data.username} />
+              {!data.username ? (
+                <Skeleton className="h-5 w-24" />
+              ) : (
+                <CopyToClipboard
+                  className="text-mauve-11"
+                  text={data.username}
+                />
+              )}
             </span>
             <span className="flex justify-between">
               <p>Password</p>
-              <CopyToClipboard
-                masked={true}
-                className="text-mauve-11"
-                text={data.password}
-              />
+              {!data.password ? (
+                <Skeleton className="h-5 w-36" />
+              ) : (
+                <CopyToClipboard
+                  masked={true}
+                  className="text-mauve-11"
+                  text={data.password}
+                />
+              )}
             </span>
             <span className="flex justify-between">
               <p>Internal Endpoint</p>

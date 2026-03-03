@@ -12,13 +12,13 @@ import (
 
 const createDatabaseDeployment = `-- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, status, environment_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO deployments (name, port, environment_id)
+    VALUES ($1, $2, $3)
     RETURNING id, name, port, status, environment_id, created_at, updated_at
 ),
 new_database_deployment AS (
-    INSERT INTO database_deployments (deployment_id, username, password)
-    SELECT id, $5, $6 FROM new_deployment
+    INSERT INTO database_deployments (deployment_id)
+    SELECT id FROM new_deployment
     RETURNING deployment_id, username, password, created_at, updated_at
 )
 SELECT
@@ -35,10 +35,7 @@ INNER JOIN new_database_deployment db ON d.id = db.deployment_id
 type CreateDatabaseDeploymentParams struct {
 	Name          string
 	Port          string
-	Status        sql.NullString
 	EnvironmentID int64
-	Username      string
-	Password      string
 }
 
 type CreateDatabaseDeploymentRow struct {
@@ -46,19 +43,12 @@ type CreateDatabaseDeploymentRow struct {
 	Name          string
 	Port          string
 	EnvironmentID int64
-	Username      string
-	Password      string
+	Username      sql.NullString
+	Password      sql.NullString
 }
 
 func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDatabaseDeploymentParams) (CreateDatabaseDeploymentRow, error) {
-	row := q.db.QueryRowContext(ctx, createDatabaseDeployment,
-		arg.Name,
-		arg.Port,
-		arg.Status,
-		arg.EnvironmentID,
-		arg.Username,
-		arg.Password,
-	)
+	row := q.db.QueryRowContext(ctx, createDatabaseDeployment, arg.Name, arg.Port, arg.EnvironmentID)
 	var i CreateDatabaseDeploymentRow
 	err := row.Scan(
 		&i.DeploymentID,
@@ -100,10 +90,10 @@ type GetEnvironmentDatabaseDeploymentsRow struct {
 	DeploymentID  int64
 	Name          string
 	Port          string
-	Status        sql.NullString
+	Status        DeploymentStatus
 	EnvironmentID int64
-	Username      string
-	Password      string
+	Username      sql.NullString
+	Password      sql.NullString
 }
 
 func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg GetEnvironmentDatabaseDeploymentsParams) ([]GetEnvironmentDatabaseDeploymentsRow, error) {

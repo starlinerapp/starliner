@@ -65,14 +65,12 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
-	// TODO: status shouldn't be hardcoded
 	deployment, err := da.deploymentRepository.CreateImageDeployment(
 		ctx,
 		serviceName,
 		imageName,
 		tag,
 		strconv.Itoa(port),
-		"unhealthy",
 		environmentId,
 		envs,
 	)
@@ -185,14 +183,11 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	// TODO: Replace with real values
+	// TODO: Allow user to provide a name from the frontend
 	deployment, err := da.deploymentRepository.CreateDatabaseDeployment(
 		ctx,
 		fmt.Sprintf("%s-%s", string(database), uuid.New().String()[:4]),
 		"5432",
-		"unhealthy",
-		"postgres",
-		"postgres",
 		environmentId,
 	)
 	if err != nil {
