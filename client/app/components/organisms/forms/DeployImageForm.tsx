@@ -12,7 +12,7 @@ export interface ImageFormInput {
   serviceName: string;
   imageName: string;
   tag: string;
-  port: number | undefined;
+  port: number | null;
   envs: EnvVar[];
 }
 
@@ -40,17 +40,22 @@ export default function DeployImageForm({
   const serviceNameInput = watch("serviceName", "");
   const imageNameInput = watch("imageName", "");
   const tagInput = watch("tag", "");
-  const portInput = watch("port", undefined);
+  const portInput = watch("port", null);
 
   const submit: SubmitHandler<ImageFormInput> = async (data) => {
-    if (!data.port) return;
-
     data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
     await onSubmit(data);
-    if (resetOnSuccess) reset(defaultValues);
+    if (resetOnSuccess)
+      reset({
+        serviceName: "",
+        imageName: "",
+        tag: "",
+        port: null,
+        envs: [{ name: "", value: "" }],
+      });
   };
 
   return (

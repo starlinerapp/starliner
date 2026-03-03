@@ -122,7 +122,12 @@ function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1">
+      <Popover.Trigger
+        className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <EllipsisVertical className="w-6" />
       </Popover.Trigger>
       <Popover.Portal>
