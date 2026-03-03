@@ -356,7 +356,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.UpdateImage"
+                            "$ref": "#/definitions/request.UpdateIngress"
                         }
                     }
                 ],
@@ -1017,6 +1017,24 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                }
+            }
+        },
+        "request.UpdateIngress": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "ingressHosts"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "ingressHosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressHost"
+                    }
                 }
             }
         },

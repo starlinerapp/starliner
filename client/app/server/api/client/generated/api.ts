@@ -328,6 +328,25 @@ export interface RequestUpdateImage {
 /**
  *
  * @export
+ * @interface RequestUpdateIngress
+ */
+export interface RequestUpdateIngress {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestUpdateIngress
+   */
+  environmentId: number;
+  /**
+   *
+   * @type {Array<RequestIngressHost>}
+   * @memberof RequestUpdateIngress
+   */
+  ingressHosts: Array<RequestIngressHost>;
+}
+/**
+ *
+ * @export
  * @interface RequestUpsertHetznerCredential
  */
 export interface RequestUpsertHetznerCredential {
@@ -1760,14 +1779,14 @@ export const DeploymentApiAxiosParamCreator = function (
      * @summary Update ingress deployment
      * @param {string} xUserID User ID
      * @param {number} deploymentId Deployment ID
-     * @param {RequestUpdateImage} data Update Ingress
+     * @param {RequestUpdateIngress} data Update Ingress
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     updateIngressDeployment: async (
       xUserID: string,
       deploymentId: number,
-      data: RequestUpdateImage,
+      data: RequestUpdateIngress,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
@@ -2005,14 +2024,14 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      * @summary Update ingress deployment
      * @param {string} xUserID User ID
      * @param {number} deploymentId Deployment ID
-     * @param {RequestUpdateImage} data Update Ingress
+     * @param {RequestUpdateIngress} data Update Ingress
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async updateIngressDeployment(
       xUserID: string,
       deploymentId: number,
-      data: RequestUpdateImage,
+      data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
@@ -2143,14 +2162,14 @@ export const DeploymentApiFactory = function (
      * @summary Update ingress deployment
      * @param {string} xUserID User ID
      * @param {number} deploymentId Deployment ID
-     * @param {RequestUpdateImage} data Update Ingress
+     * @param {RequestUpdateIngress} data Update Ingress
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     updateIngressDeployment(
       xUserID: string,
       deploymentId: number,
-      data: RequestUpdateImage,
+      data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
@@ -2269,7 +2288,7 @@ export class DeploymentApi extends BaseAPI {
    * @summary Update ingress deployment
    * @param {string} xUserID User ID
    * @param {number} deploymentId Deployment ID
-   * @param {RequestUpdateImage} data Update Ingress
+   * @param {RequestUpdateIngress} data Update Ingress
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DeploymentApi
@@ -2277,7 +2296,7 @@ export class DeploymentApi extends BaseAPI {
   public updateIngressDeployment(
     xUserID: string,
     deploymentId: number,
-    data: RequestUpdateImage,
+    data: RequestUpdateIngress,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)

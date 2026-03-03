@@ -254,14 +254,14 @@ No authorization required
 ### Example
 
 ```typescript
-import { DeploymentApi, Configuration, RequestUpdateImage } from "./api";
+import { DeploymentApi, Configuration, RequestUpdateIngress } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
 let deploymentId: number; //Deployment ID (default to undefined)
-let data: RequestUpdateImage; //Update Ingress
+let data: RequestUpdateIngress; //Update Ingress
 
 const { status, data } = await apiInstance.updateIngressDeployment(
   xUserID,
@@ -272,11 +272,11 @@ const { status, data } = await apiInstance.updateIngressDeployment(
 
 ### Parameters
 
-| Name             | Type                   | Description    | Notes                 |
-| ---------------- | ---------------------- | -------------- | --------------------- |
-| **data**         | **RequestUpdateImage** | Update Ingress |                       |
-| **xUserID**      | [**string**]           | User ID        | defaults to undefined |
-| **deploymentId** | [**number**]           | Deployment ID  | defaults to undefined |
+| Name             | Type                     | Description    | Notes                 |
+| ---------------- | ------------------------ | -------------- | --------------------- |
+| **data**         | **RequestUpdateIngress** | Update Ingress |                       |
+| **xUserID**      | [**string**]             | User ID        | defaults to undefined |
+| **deploymentId** | [**number**]             | Deployment ID  | defaults to undefined |
 
 ### Return type
 

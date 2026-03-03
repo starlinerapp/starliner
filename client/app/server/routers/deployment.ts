@@ -118,4 +118,21 @@ export const deploymentRouter = {
         })
         .then((res) => res.data);
     }),
+  updateIngress: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        deploymentId: z.number(),
+        ingressHosts: z.array(ingressHostSchema),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .updateIngressDeployment(userId, input.deploymentId, {
+          environmentId: input.id,
+          ingressHosts: input.ingressHosts,
+        })
+        .then((res) => res.data);
+    }),
 };

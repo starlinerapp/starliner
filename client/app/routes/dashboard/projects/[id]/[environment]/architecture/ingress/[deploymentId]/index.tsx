@@ -1,14 +1,16 @@
 import React from "react";
 import { useTRPC } from "~/utils/trpc/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { useParams } from "react-router";
-import DeployIngressForm from "~/components/organisms/forms/DeployIngressForm";
+import DeployIngressForm, {
+  type IngressFormInput,
+} from "~/components/organisms/forms/DeployIngressForm";
 
 export default function UpdateIngressForm() {
   const { deploymentId } = useParams<{ deploymentId: string }>();
 
-  const { environment: currentEnvironment } = useEnvironment();
+  const { environment: currentEnvironment, clusterId } = useEnvironment();
 
   const trpc = useTRPC();
   const { data: environmentDeployments, isLoading } = useQuery(
@@ -17,6 +19,32 @@ export default function UpdateIngressForm() {
       { enabled: !!currentEnvironment },
     ),
   );
+
+  const updateIngressMutation = useMutation(
+    trpc.deployment.updateIngress.mutationOptions(),
+  );
+
+  const { data: clusterData } = useQuery(
+    trpc.cluster.getCluster.queryOptions(
+      { id: clusterId! },
+      { enabled: !!clusterId },
+    ),
+  );
+
+  const onSubmit = async (data: IngressFormInput) => {
+    await updateIngressMutation.mutateAsync({
+      id: currentEnvironment.id,
+      deploymentId: Number(deploymentId),
+      ingressHosts: data.hosts.map((h) => ({
+        host: h.name + `.${clusterData?.ipv4Address}.nip.io`,
+        paths: h.paths.map((p) => ({
+          path: p.path,
+          pathType: p.pathType as "Prefix" | "Exact",
+          serviceName: p.service,
+        })),
+      })),
+    });
+  };
 
   const ingressDeployment = environmentDeployments?.ingresses.find(
     (deployment) => deployment.id === Number(deploymentId),
@@ -27,6 +55,7 @@ export default function UpdateIngressForm() {
       {!isLoading && (
         <DeployIngressForm
           key={deploymentId}
+          onSubmit={onSubmit}
           defaultValues={{
             hosts: (ingressDeployment?.hosts ?? []).map((h) => ({
               name: h.host ?? "",

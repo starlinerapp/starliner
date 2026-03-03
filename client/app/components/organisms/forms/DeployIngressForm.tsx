@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowRight, ChevronDown, Minus, Plus } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { cn } from "~/utils/cn";
 import {
@@ -10,6 +10,7 @@ import {
   useForm,
   type Control,
   type UseFormRegister,
+  type SubmitHandler,
 } from "react-hook-form";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
@@ -24,12 +25,14 @@ interface Host {
   paths: Path[];
 }
 
-interface IngressFormInput {
+export interface IngressFormInput {
   hosts: Host[];
 }
 
 interface DeployIngressFormProps {
   defaultValues?: IngressFormInput;
+  onSubmit: (data: IngressFormInput) => Promise<void>;
+  resetOnSuccess?: boolean;
 }
 
 const emptyPathEntry: Path = { path: "", pathType: "", service: "" };
@@ -37,19 +40,9 @@ const emptyHostEntry: Host = { name: "", paths: [emptyPathEntry] };
 
 export default function DeployIngressForm({
   defaultValues,
+  onSubmit,
+  resetOnSuccess = false,
 }: DeployIngressFormProps) {
-  const trpc = useTRPC();
-  const createIngressMutation = useMutation(
-    trpc.deployment.deployIngress.mutationOptions(),
-  );
-  const { environment: currentEnvironment, clusterId } = useEnvironment();
-  const { data: clusterData } = useQuery(
-    trpc.cluster.getCluster.queryOptions(
-      { id: clusterId! },
-      { enabled: !!clusterId },
-    ),
-  );
-
   const { control, register, handleSubmit, watch, reset } =
     useForm<IngressFormInput>({
       defaultValues: defaultValues
@@ -81,30 +74,16 @@ export default function DeployIngressForm({
       );
     });
 
-  const onSubmit = (data: IngressFormInput) => {
-    if (!currentEnvironment) return;
-    createIngressMutation.mutate(
-      {
-        id: currentEnvironment.id,
-        ingressHosts: data.hosts.map((h) => ({
-          host: h.name + `.${clusterData?.ipv4Address}.nip.io`,
-          paths: h.paths.map((p) => ({
-            path: p.path,
-            pathType: p.pathType as "Prefix" | "Exact",
-            serviceName: p.service,
-          })),
-        })),
-      },
-      {
-        onSuccess: () => {
-          reset();
-        },
-      },
-    );
+  const submit: SubmitHandler<IngressFormInput> = async (data) => {
+    await onSubmit(data);
+    if (resetOnSuccess)
+      reset({
+        hosts: [{ name: "", paths: [{ ...emptyPathEntry }] }],
+      });
   };
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
       <div className="flex flex-col gap-1">
         <p>Traefik</p>
         <p className="text-mauve-11 truncate text-sm">
@@ -147,7 +126,7 @@ export default function DeployIngressForm({
         size="sm"
         className="w-28 flex-shrink-0 py-1.5"
         type="submit"
-        disabled={isFormIncomplete || createIngressMutation.isPending}
+        disabled={isFormIncomplete}
       >
         {defaultValues ? "Redeploy" : "Deploy"}
         <ArrowRight className="w-4 stroke-2" />

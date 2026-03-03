@@ -166,7 +166,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 // @ID updateIngressDeployment
 // @Param X-User-ID header string true "User ID"
 // @Param deploymentId path int true "Deployment ID"
-// @Param data body request.UpdateImage true "Update Ingress"
+// @Param data body request.UpdateIngress true "Update Ingress"
 // @Product JSON
 // @Success 200
 // @Router /deployments/ingresses/{deploymentId} [put]
