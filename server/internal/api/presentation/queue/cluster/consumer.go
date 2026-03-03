@@ -50,6 +50,13 @@ func (c *Consumer) Start() error {
 	}()
 
 	go func() {
+		err := c.queue.SubscribeToDatabaseDeploymentCreated(c.deploymentApplication.HandleDatabaseDeploymentCreated)
+		if err != nil {
+			log.Fatalf("failed to subscribe to queue: %v", err)
+		}
+	}()
+
+	go func() {
 		err := c.queue.SubscribeToDeploymentDeleted(c.deploymentApplication.HandleDeploymentDeleted)
 		if err != nil {
 			log.Fatalf("failed to subscribe to queue: %v", err)

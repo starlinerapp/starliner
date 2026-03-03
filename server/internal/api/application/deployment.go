@@ -385,6 +385,21 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	return nil
 }
 
+func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {
+	ctx := context.Background()
+
+	encryptedPassword, err := da.crypto.Encrypt(c.Password)
+	if err != nil {
+		log.Printf("failed to encrypt database password: %v\n", err)
+		return
+	}
+
+	err = da.deploymentRepository.UpdateDatabaseDeploymentCredentials(ctx, c.DeploymentId, c.Username, encryptedPassword)
+	if err != nil {
+		log.Printf("failed to update database deployment credentials: %v\n", err)
+	}
+}
+
 func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.DeploymentDeleted) {
 	ctx := context.Background()
 	err := da.deploymentRepository.DeleteDeployment(ctx, c.DeploymentId)

@@ -19,6 +19,7 @@ const (
 	ClusterDeleted    jetstream.Subject = "cluster.deleted"
 	DeployImage       jetstream.Subject = "deploy.image"
 	DeployDatabase    jetstream.Subject = "deploy.database"
+	DatabaseDeployed  jetstream.Subject = "database.deployed"
 	DeployIngress     jetstream.Subject = "deploy.ingress"
 	DeleteDeployment  jetstream.Subject = "delete.deployment"
 	DeploymentDeleted jetstream.Subject = "deployment.deleted"
@@ -81,6 +82,16 @@ func (q *Queue) PublishDeleteCluster(cluster *value.DeleteCluster) error {
 	}
 
 	return q.publisher.Publish(DeleteCluster, strconv.FormatInt(cluster.Id, 10), data)
+}
+
+func (q *Queue) SubscribeToDatabaseDeploymentCreated(handler func(databaseDeployment *value.DatabaseDeployment)) error {
+	return q.subscriber.Subscribe(DatabaseDeployed, "*", "databaseDeploymentCreated", func(msg []byte) {
+		var c value.DatabaseDeployment
+		if err := json.Unmarshal(msg, &c); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&c)
+	})
 }
 
 func (q *Queue) PublishDeployImage(deployment *value.ImageDeployment) error {

@@ -19,6 +19,12 @@ SELECT
 FROM new_deployment d
 INNER JOIN new_database_deployment db ON d.id = db.deployment_id;
 
+-- name: UpdateDatabaseDeploymentCredentials :exec
+UPDATE database_deployments
+SET username = @username,
+    password = @password
+WHERE deployment_id = @deployment_id;
+
 -- name: GetEnvironmentDatabaseDeployments :many
 SELECT
     d.id AS deployment_id,

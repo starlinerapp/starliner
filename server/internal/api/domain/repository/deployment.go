@@ -308,6 +308,19 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	}, nil
 }
 
+func (dr *DeploymentRepository) UpdateDatabaseDeploymentCredentials(
+	ctx context.Context,
+	deploymentId int64,
+	username string,
+	password string,
+) error {
+	return dr.queries.UpdateDatabaseDeploymentCredentials(ctx, sqlc.UpdateDatabaseDeploymentCredentialsParams{
+		Username:     utils.NullStringFromPtr(&username),
+		Password:     utils.NullStringFromPtr(&password),
+		DeploymentID: deploymentId,
+	})
+}
+
 func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error) {
 	res, err := dr.queries.GetUserDeployment(ctx, sqlc.GetUserDeploymentParams{
 		DeploymentID: deploymentId,

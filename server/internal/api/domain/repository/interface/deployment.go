@@ -50,6 +50,13 @@ type DeploymentRepository interface {
 		environmentId int64,
 	) (deployment *entity.DatabaseDeployment, err error)
 
+	UpdateDatabaseDeploymentCredentials(
+		ctx context.Context,
+		deploymentId int64,
+		username string,
+		password string,
+	) error
+
 	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
 
 	GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error)

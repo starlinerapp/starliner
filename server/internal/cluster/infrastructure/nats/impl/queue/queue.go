@@ -14,6 +14,7 @@ import (
 const (
 	DeployImage       jetstream.Subject = "deploy.image"
 	DeployDatabase    jetstream.Subject = "deploy.database"
+	DatabaseDeployed  jetstream.Subject = "database.deployed"
 	DeployIngress     jetstream.Subject = "deploy.ingress"
 	DeleteDeployment  jetstream.Subject = "delete.deployment"
 	DeploymentDeleted jetstream.Subject = "deployment.deleted"
@@ -78,4 +79,13 @@ func (q *Queue) PublishDeploymentDeleted(deployment *value.DeploymentDeleted) er
 	}
 
 	return q.publisher.Publish(DeploymentDeleted, strconv.FormatInt(deployment.DeploymentId, 10), data)
+}
+
+func (q *Queue) PublishDatabaseDeployed(deployment *value.DatabaseDeployment) error {
+	data, err := json.Marshal(deployment)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(DatabaseDeployed, strconv.FormatInt(deployment.DeploymentId, 10), data)
 }

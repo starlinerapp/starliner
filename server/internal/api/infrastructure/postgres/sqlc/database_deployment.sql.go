@@ -126,3 +126,21 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg Get
 	}
 	return items, nil
 }
+
+const updateDatabaseDeploymentCredentials = `-- name: UpdateDatabaseDeploymentCredentials :exec
+UPDATE database_deployments
+SET username = $1,
+    password = $2
+WHERE deployment_id = $3
+`
+
+type UpdateDatabaseDeploymentCredentialsParams struct {
+	Username     sql.NullString
+	Password     sql.NullString
+	DeploymentID int64
+}
+
+func (q *Queries) UpdateDatabaseDeploymentCredentials(ctx context.Context, arg UpdateDatabaseDeploymentCredentialsParams) error {
+	_, err := q.db.ExecContext(ctx, updateDatabaseDeploymentCredentials, arg.Username, arg.Password, arg.DeploymentID)
+	return err
+}

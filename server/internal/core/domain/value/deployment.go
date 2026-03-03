@@ -15,6 +15,13 @@ type ImageDeployment struct {
 	EnvVars          []*EnvVar
 }
 
+type DatabaseDeployment struct {
+	DeploymentId int64
+	DbName       string
+	Username     string
+	Password     string
+}
+
 type Deployment struct {
 	DeploymentId     int64
 	DeploymentName   string
