@@ -456,6 +456,7 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 			}
 
 			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.Deployment{
+				Namespace:        d.Deployment.Namespace,
 				DeploymentId:     d.Deployment.Id,
 				DeploymentName:   d.Deployment.Name,
 				KubeconfigBase64: kubeconfigBase64,

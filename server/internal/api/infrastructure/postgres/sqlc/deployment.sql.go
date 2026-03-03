@@ -23,7 +23,10 @@ func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
 }
 
 const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig
+SELECT
+    deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at,
+    c.kubeconfig,
+    environments.namespace
 FROM deployments
 INNER JOIN environments ON deployments.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id
@@ -39,6 +42,7 @@ type GetDeploymentsWithKubeconfigRow struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	Kubeconfig    sql.NullString
+	Namespace     string
 }
 
 func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploymentsWithKubeconfigRow, error) {
@@ -59,6 +63,7 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Kubeconfig,
+			&i.Namespace,
 		); err != nil {
 			return nil, err
 		}

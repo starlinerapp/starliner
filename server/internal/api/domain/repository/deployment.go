@@ -376,6 +376,7 @@ func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Cont
 				Name:          d.Name,
 				Port:          d.Port,
 				EnvironmentId: d.EnvironmentID,
+				Namespace:     d.Namespace,
 			},
 			Kubeconfig: utils.PtrFromNullString(d.Kubeconfig),
 		}
