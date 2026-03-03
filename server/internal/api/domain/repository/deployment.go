@@ -216,6 +216,79 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	}, nil
 }
 
+func (dr *DeploymentRepository) UpdateIngressDeployment(
+	ctx context.Context,
+	deploymentId int64,
+	port string,
+	environmentId int64,
+	hosts []*value.IngressHost,
+) (*entity.IngressDeployment, error) {
+	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := dr.queries.WithTx(tx)
+
+	d, err := qtx.UpdateIngressDeployment(ctx, sqlc.UpdateIngressDeploymentParams{
+		Port:         port,
+		DeploymentID: deploymentId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := qtx.DeleteIngressPathsByDeploymentId(ctx, deploymentId); err != nil {
+		return nil, err
+	}
+	if err := qtx.DeleteIngressHostsByDeploymentId(ctx, deploymentId); err != nil {
+		return nil, err
+	}
+
+	for _, h := range hosts {
+		createdHost, err := qtx.CreateIngressHost(ctx, sqlc.CreateIngressHostParams{
+			DeploymentID: d.DeploymentID,
+			Host:         h.Host,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, p := range h.Paths {
+			deployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
+				Name:          p.ServiceName,
+				EnvironmentID: environmentId,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			if _, err := qtx.CreateIngressPath(ctx, sqlc.CreateIngressPathParams{
+				IngressHostID: createdHost.ID,
+				DeploymentID:  deployment.ID,
+				Path:          p.Path,
+				PathType:      string(p.PathType),
+			}); err != nil {
+				return nil, fmt.Errorf("failed to create ingress path: %w", err)
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return &entity.IngressDeployment{
+		Id:            d.DeploymentID,
+		Name:          d.DeploymentName,
+		Port:          d.DeploymentPort,
+		EnvironmentId: d.DeploymentEnvironmentID,
+	}, nil
+}
+
 func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	ctx context.Context,
 	serviceName string,

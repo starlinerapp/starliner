@@ -48,3 +48,8 @@ type DeployIngress struct {
 	EnvironmentId int64         `json:"environmentId" binding:"required"`
 	IngressHosts  []IngressHost `json:"ingressHosts" binding:"required"`
 }
+
+type UpdateIngress struct {
+	EnvironmentId int64         `json:"environmentId" binding:"required"`
+	IngressHosts  []IngressHost `json:"ingressHosts" binding:"required"`
+}

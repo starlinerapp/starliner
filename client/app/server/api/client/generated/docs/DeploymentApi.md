@@ -2,13 +2,14 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                              | HTTP request                               | Description             |
-| --------------------------------------------------- | ------------------------------------------ | ----------------------- |
-| [**deleteDeployment**](#deletedeployment)           | **DELETE** /deployments/{id}               | Delete deployment       |
-| [**deployDatabase**](#deploydatabase)               | **POST** /deployments/databases            | Deploy database         |
-| [**deployImage**](#deployimage)                     | **POST** /deployments/images               | Deploy image            |
-| [**deployIngress**](#deployingress)                 | **POST** /deployments/ingresses            | Deploy ingress          |
-| [**updateImageDeployment**](#updateimagedeployment) | **PUT** /deployments/images/{deploymentId} | Update image deployment |
+| Method                                                  | HTTP request                                  | Description               |
+| ------------------------------------------------------- | --------------------------------------------- | ------------------------- |
+| [**deleteDeployment**](#deletedeployment)               | **DELETE** /deployments/{id}                  | Delete deployment         |
+| [**deployDatabase**](#deploydatabase)                   | **POST** /deployments/databases               | Deploy database           |
+| [**deployImage**](#deployimage)                         | **POST** /deployments/images                  | Deploy image              |
+| [**deployIngress**](#deployingress)                     | **POST** /deployments/ingresses               | Deploy ingress            |
+| [**updateImageDeployment**](#updateimagedeployment)     | **PUT** /deployments/images/{deploymentId}    | Update image deployment   |
+| [**updateIngressDeployment**](#updateingressdeployment) | **PUT** /deployments/ingresses/{deploymentId} | Update ingress deployment |
 
 # **deleteDeployment**
 
@@ -208,7 +209,7 @@ const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
 let deploymentId: number; //Deployment ID (default to undefined)
-let data: RequestUpdateImage; //Deploy Image
+let data: RequestUpdateImage; //Update Image
 
 const { status, data } = await apiInstance.updateImageDeployment(
   xUserID,
@@ -221,9 +222,61 @@ const { status, data } = await apiInstance.updateImageDeployment(
 
 | Name             | Type                   | Description   | Notes                 |
 | ---------------- | ---------------------- | ------------- | --------------------- |
-| **data**         | **RequestUpdateImage** | Deploy Image  |                       |
+| **data**         | **RequestUpdateImage** | Update Image  |                       |
 | **xUserID**      | [**string**]           | User ID       | defaults to undefined |
 | **deploymentId** | [**number**]           | Deployment ID | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateIngressDeployment**
+
+> updateIngressDeployment(data)
+
+### Example
+
+```typescript
+import { DeploymentApi, Configuration, RequestUpdateImage } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new DeploymentApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let deploymentId: number; //Deployment ID (default to undefined)
+let data: RequestUpdateImage; //Update Ingress
+
+const { status, data } = await apiInstance.updateIngressDeployment(
+  xUserID,
+  deploymentId,
+  data,
+);
+```
+
+### Parameters
+
+| Name             | Type                   | Description    | Notes                 |
+| ---------------- | ---------------------- | -------------- | --------------------- |
+| **data**         | **RequestUpdateImage** | Update Ingress |                       |
+| **xUserID**      | [**string**]           | User ID        | defaults to undefined |
+| **deploymentId** | [**number**]           | Deployment ID  | defaults to undefined |
 
 ### Return type
 

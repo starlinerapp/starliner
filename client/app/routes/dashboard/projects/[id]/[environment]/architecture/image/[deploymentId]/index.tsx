@@ -53,7 +53,7 @@ export default function UpdateImageForm() {
             serviceName: imageDeployment?.serviceName ?? "",
             imageName: imageDeployment?.imageName ?? "",
             tag: imageDeployment?.tag ?? "",
-            port: imageDeployment ? Number(imageDeployment.port) : undefined,
+            port: imageDeployment ? Number(imageDeployment.port) : null,
             envs: imageDeployment?.envVars ?? [],
           }}
         />

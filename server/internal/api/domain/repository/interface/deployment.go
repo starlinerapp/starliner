@@ -36,6 +36,14 @@ type DeploymentRepository interface {
 		hosts []*value.IngressHost,
 	) (*entity.IngressDeployment, error)
 
+	UpdateIngressDeployment(
+		ctx context.Context,
+		deploymentId int64,
+		port string,
+		environmentId int64,
+		hosts []*value.IngressHost,
+	) (*entity.IngressDeployment, error)
+
 	CreateDatabaseDeployment(
 		ctx context.Context,
 		name string,

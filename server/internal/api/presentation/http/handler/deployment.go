@@ -63,7 +63,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 // @ID updateImageDeployment
 // @Param X-User-ID header string true "User ID"
 // @Param deploymentId path int true "Deployment ID"
-// @Param data body request.UpdateImage true "Deploy Image"
+// @Param data body request.UpdateImage true "Update Image"
 // @Product JSON
 // @Success 200
 // @Router /deployments/images/{deploymentId} [put]
@@ -152,6 +152,44 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 		mapper.MapHostsFromRequest(body.IngressHosts),
 		currentUser.Id,
 		body.EnvironmentId,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// UpdateIngressDeployment FindAll godoc
+// @Summary Update ingress deployment
+// @Tags deployment
+// @ID updateIngressDeployment
+// @Param X-User-ID header string true "User ID"
+// @Param deploymentId path int true "Deployment ID"
+// @Param data body request.UpdateImage true "Update Ingress"
+// @Product JSON
+// @Success 200
+// @Router /deployments/ingresses/{deploymentId} [put]
+func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	deploymentId, err := strconv.ParseInt(c.Param("deploymentId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	var body request.UpdateIngress
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = dh.deploymentApplication.UpdateIngressDeployment(
+		c.Request.Context(),
+		currentUser.Id,
+		body.EnvironmentId,
+		deploymentId,
+		mapper.MapHostsFromRequest(body.IngressHosts),
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

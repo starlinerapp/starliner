@@ -169,8 +169,7 @@ func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnv
 const updateImageDeployment = `-- name: UpdateImageDeployment :one
 WITH updated_deployment AS (
     UPDATE deployments
-        SET
-            port   = $1
+        SET port = $1
         WHERE id = $2
         RETURNING id, name, port, status, environment_id, created_at, updated_at
 ),

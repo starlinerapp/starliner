@@ -602,7 +602,7 @@ paths:
         name: deploymentId
         required: true
         type: integer
-      - description: Deploy Image
+      - description: Update Image
         in: body
         name: data
         required: true
@@ -633,6 +633,32 @@ paths:
         "200":
           description: OK
       summary: Deploy ingress
+      tags:
+      - deployment
+  /deployments/ingresses/{deploymentId}:
+    put:
+      operationId: updateIngressDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Update Ingress
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateImage'
+      responses:
+        "200":
+          description: OK
+      summary: Update ingress deployment
       tags:
       - deployment
   /environments:

@@ -136,6 +136,9 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		strconv.Itoa(port),
 		envs,
 	)
+	if err != nil {
+		return err
+	}
 
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
@@ -159,6 +162,9 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		Port:             port,
 		EnvVars:          coreEnvs,
 	})
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
 
 	return nil
 }
@@ -226,6 +232,82 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
 		"80",
 		"unhealthy",
+		environmentId,
+		hosts,
+	)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	coreHosts := make([]coreValue.IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		ch := coreValue.IngressHost{
+			Host: h.Host,
+		}
+		ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
+
+		for _, p := range h.Paths {
+			target, err := da.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, environmentId)
+			if err != nil {
+				return err
+			}
+
+			targetPort, err := strconv.Atoi(target.Port)
+			if err != nil {
+				return err
+			}
+
+			ch.Paths = append(ch.Paths, coreValue.IngressPath{
+				Path:        p.Path,
+				PathType:    coreValue.PathType(p.PathType),
+				ServiceName: p.ServiceName,
+				ServicePort: targetPort,
+			})
+		}
+
+		coreHosts = append(coreHosts, ch)
+	}
+
+	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
+		IngressHosts:     coreHosts,
+		DeploymentId:     ingressDeployment.Id,
+		DeploymentName:   ingressDeployment.Name,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
+
+	return nil
+}
+
+func (da *DeploymentApplication) UpdateIngressDeployment(
+	ctx context.Context,
+	userId int64,
+	environmentId int64,
+	deploymentId int64,
+	hosts []*value.IngressHost,
+) error {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	ingressDeployment, err := da.deploymentRepository.UpdateIngressDeployment(
+		ctx,
+		deploymentId,
+		"80",
 		environmentId,
 		hosts,
 	)

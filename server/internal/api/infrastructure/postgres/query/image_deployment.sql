@@ -23,8 +23,7 @@ INNER JOIN new_image_deployment img_d ON d.id = img_d.deployment_id;
 -- name: UpdateImageDeployment :one
 WITH updated_deployment AS (
     UPDATE deployments
-        SET
-            port   = @port
+        SET port = @port
         WHERE id = @deployment_id
         RETURNING *
 ),
