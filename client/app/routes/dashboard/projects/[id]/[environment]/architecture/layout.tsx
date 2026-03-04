@@ -35,6 +35,10 @@ export default function Layout() {
 
   const navigationBarItems = [
     {
+      title: "Git Repository",
+      href: `/${slug}/projects/${id}/${environment}/architecture/git`,
+    },
+    {
       title: "Image",
       href: `/${slug}/projects/${id}/${environment}/architecture/image`,
     },
