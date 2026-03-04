@@ -2,15 +2,14 @@
 
 ## Properties
 
-| Name                      | Type       | Description | Notes                             |
-| ------------------------- | ---------- | ----------- | --------------------------------- |
-| **dockerfilePath**        | **string** |             | [optional] [default to undefined] |
-| **environmentId**         | **number** |             | [optional] [default to undefined] |
-| **gitUrl**                | **string** |             | [optional] [default to undefined] |
-| **id**                    | **number** |             | [optional] [default to undefined] |
-| **name**                  | **string** |             | [optional] [default to undefined] |
-| **port**                  | **string** |             | [optional] [default to undefined] |
-| **projectRepositoryPath** | **string** |             | [optional] [default to undefined] |
+| Name                      | Type       | Description | Notes                  |
+| ------------------------- | ---------- | ----------- | ---------------------- |
+| **dockerfilePath**        | **string** |             | [default to undefined] |
+| **gitUrl**                | **string** |             | [default to undefined] |
+| **id**                    | **number** |             | [default to undefined] |
+| **port**                  | **string** |             | [default to undefined] |
+| **projectRepositoryPath** | **string** |             | [default to undefined] |
+| **serviceName**           | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -19,12 +18,11 @@ import { ResponseGitDeployment } from "./api";
 
 const instance: ResponseGitDeployment = {
   dockerfilePath,
-  environmentId,
   gitUrl,
   id,
-  name,
   port,
   projectRepositoryPath,
+  serviceName,
 };
 ```
 

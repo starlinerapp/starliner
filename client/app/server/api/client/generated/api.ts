@@ -587,43 +587,37 @@ export interface ResponseGitDeployment {
    * @type {string}
    * @memberof ResponseGitDeployment
    */
-  dockerfilePath?: string;
+  dockerfilePath: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  gitUrl: string;
   /**
    *
    * @type {number}
    * @memberof ResponseGitDeployment
    */
-  environmentId?: number;
+  id: number;
   /**
    *
    * @type {string}
    * @memberof ResponseGitDeployment
    */
-  gitUrl?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof ResponseGitDeployment
-   */
-  id?: number;
+  port: string;
   /**
    *
    * @type {string}
    * @memberof ResponseGitDeployment
    */
-  name?: string;
+  projectRepositoryPath: string;
   /**
    *
    * @type {string}
    * @memberof ResponseGitDeployment
    */
-  port?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseGitDeployment
-   */
-  projectRepositoryPath?: string;
+  serviceName: string;
 }
 /**
  *

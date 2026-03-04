@@ -30,6 +30,10 @@ export default [
                       index(
                         "routes/dashboard/projects/[id]/[environment]/architecture/git/index.tsx",
                       ),
+                      route(
+                        ":deploymentId",
+                        "routes/dashboard/projects/[id]/[environment]/architecture/git/[deploymentId]/index.tsx",
+                      ),
                     ]),
                     ...prefix("image", [
                       index(

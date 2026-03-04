@@ -29,6 +29,7 @@ import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
 import getElkLayout from "~/utils/reactflow/getElkLayout";
 import { useLocation, useMatch, useNavigate, useParams } from "react-router";
+import GitNode from "~/components/atoms/nodes/GitNode";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -88,6 +89,7 @@ export default function ArchitectureCanvas({
       database: DatabaseNode,
       image: ImageNode,
       ingress: IngressNode,
+      git: GitNode,
     };
   }, []);
 
@@ -129,6 +131,7 @@ export default function ArchitectureCanvas({
       ...deployments.databases.map((db) => `db:${db.id}`).sort(),
       ...deployments.images.map((img) => `img:${img.id}`).sort(),
       ...deployments.ingresses.map((ing) => `ing:${ing.id}`).sort(),
+      ...deployments.gitDeployments.map((git) => `git:${git.id}`).sort(),
     ].join(",");
 
     const edgeParts: string[] = [];
@@ -204,6 +207,12 @@ export default function ArchitectureCanvas({
         type: "ingress",
         ...baseNode,
         data: { ...ing },
+      })),
+      ...deployments.gitDeployments.map((git) => ({
+        id: String(git.id),
+        type: "git",
+        ...baseNode,
+        data: { ...git },
       })),
     ];
 
@@ -314,6 +323,8 @@ export default function ArchitectureCanvas({
     for (const img of deployments.images) map.set(String(img.id), { ...img });
     for (const ing of deployments.ingresses)
       map.set(String(ing.id), { ...ing });
+    for (const git of deployments.gitDeployments)
+      map.set(String(git.id), { ...git });
     return map;
   }, [deployments]);
 

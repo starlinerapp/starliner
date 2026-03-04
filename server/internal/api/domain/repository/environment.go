@@ -94,6 +94,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 			Id:                    r.DeploymentID,
 			Name:                  r.Name,
 			Port:                  r.Port,
+			Status:                string(r.Status),
 			EnvironmentId:         r.EnvironmentID,
 			GitUrl:                r.Url,
 			ProjectRepositoryPath: r.ProjectPath,

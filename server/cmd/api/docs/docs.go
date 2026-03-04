@@ -1236,12 +1236,17 @@ const docTemplate = `{
         },
         "response.GitDeployment": {
             "type": "object",
+            "required": [
+                "dockerfilePath",
+                "gitUrl",
+                "id",
+                "port",
+                "projectRepositoryPath",
+                "serviceName"
+            ],
             "properties": {
                 "dockerfilePath": {
                     "type": "string"
-                },
-                "environmentId": {
-                    "type": "integer"
                 },
                 "gitUrl": {
                     "type": "string"
@@ -1249,13 +1254,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "port": {
                     "type": "string"
                 },
                 "projectRepositoryPath": {
+                    "type": "string"
+                },
+                "serviceName": {
                     "type": "string"
                 }
             }

@@ -57,6 +57,7 @@ type DatabaseDeployment struct {
 type GitDeployment struct {
 	Id                    int64
 	Name                  string
+	Status                string
 	Port                  string
 	EnvironmentId         int64
 	GitUrl                string

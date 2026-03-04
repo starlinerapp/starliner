@@ -303,18 +303,23 @@ definitions:
     properties:
       dockerfilePath:
         type: string
-      environmentId:
-        type: integer
       gitUrl:
         type: string
       id:
         type: integer
-      name:
-        type: string
       port:
         type: string
       projectRepositoryPath:
         type: string
+      serviceName:
+        type: string
+    required:
+    - dockerfilePath
+    - gitUrl
+    - id
+    - port
+    - projectRepositoryPath
+    - serviceName
     type: object
   response.ImageDeployment:
     properties:

@@ -12,21 +12,21 @@ type Deployments struct {
 }
 
 type GitDeployment struct {
-	Id                    int64
-	Name                  string
-	Port                  string
-	EnvironmentId         int64
-	GitUrl                string
-	ProjectRepositoryPath string
-	DockerfilePath        string
+	Id                    int64  `json:"id" binding:"required"`
+	ServiceName           string `json:"serviceName" binding:"required"`
+	Status                string `json:"status" binding:"required"`
+	Port                  string `json:"port" binding:"required"`
+	GitUrl                string `json:"gitUrl" binding:"required"`
+	ProjectRepositoryPath string `json:"projectRepositoryPath" binding:"required"`
+	DockerfilePath        string `json:"dockerfilePath" binding:"required"`
 }
 
 func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
 	return GitDeployment{
 		Id:                    gitDeployment.Id,
-		Name:                  gitDeployment.Name,
+		ServiceName:           gitDeployment.ServiceName,
+		Status:                gitDeployment.Status,
 		Port:                  gitDeployment.Port,
-		EnvironmentId:         gitDeployment.EnvironmentId,
 		GitUrl:                gitDeployment.GitUrl,
 		ProjectRepositoryPath: gitDeployment.ProjectRepositoryPath,
 		DockerfilePath:        gitDeployment.DockerfilePath,

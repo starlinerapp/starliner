@@ -20,9 +20,9 @@ const (
 
 type GitDeployment struct {
 	Id                    int64
-	Name                  string
+	ServiceName           string
 	Port                  string
-	EnvironmentId         int64
+	Status                string
 	GitUrl                string
 	ProjectRepositoryPath string
 	DockerfilePath        string
@@ -31,9 +31,9 @@ type GitDeployment struct {
 func NewGitDeployment(d *entity.GitDeployment) *GitDeployment {
 	return &GitDeployment{
 		Id:                    d.Id,
-		Name:                  d.Name,
+		ServiceName:           d.Name,
+		Status:                d.Status,
 		Port:                  d.Port,
-		EnvironmentId:         d.EnvironmentId,
 		GitUrl:                d.GitUrl,
 		ProjectRepositoryPath: d.ProjectRepositoryPath,
 		DockerfilePath:        d.DockerfilePath,
