@@ -148,14 +148,26 @@ export default function ArchitectureCanvas({
       port: t.port,
     }));
 
+    const gitTargets = deployments.gitDeployments.map((t) => ({
+      id: String(t.id),
+      serviceName: t.serviceName,
+      port: t.port,
+    }));
+
     for (const ing of deployments.ingresses) {
       for (const host of ing.hosts ?? []) {
         for (const path of host.paths ?? []) {
-          const matchedTarget = imageTargets.find((t) =>
+          const matchedImageTarget = imageTargets.find((t) =>
             referencesImage(path.serviceName, t.serviceName, t.port),
           );
-          if (matchedTarget) {
-            edgeParts.push(`${ing.id}->${matchedTarget.id}`);
+          if (matchedImageTarget) {
+            edgeParts.push(`${ing.id}->${matchedImageTarget.id}`);
+          }
+          const matchedGitTarget = gitTargets.find((t) =>
+            referencesImage(path.serviceName, t.serviceName, t.port),
+          );
+          if (matchedGitTarget) {
+            edgeParts.push(`${ing.id}->${matchedGitTarget.id}`);
           }
         }
       }
@@ -237,18 +249,35 @@ export default function ArchitectureCanvas({
       port: t.port,
     }));
 
+    const gitTargets = deployments.gitDeployments.map((t) => ({
+      id: String(t.id),
+      serviceName: t.serviceName,
+      port: t.port,
+    }));
+
     for (const ing of deployments.ingresses) {
       for (const host of ing.hosts ?? []) {
         for (const path of host.paths ?? []) {
           const matchedTarget = imageTargets.find((t) =>
             referencesImage(path.serviceName, t.serviceName, t.port),
           );
-          if (!matchedTarget) continue;
-          pushEdge(
-            String(ing.id),
-            matchedTarget.id,
-            `ing:${host.host}:${path.path}`,
+          if (matchedTarget) {
+            pushEdge(
+              String(ing.id),
+              matchedTarget.id,
+              `ing:${host.host}:${path.path}`,
+            );
+          }
+          const matchedGitTarget = gitTargets.find((t) =>
+            referencesImage(path.serviceName, t.serviceName, t.port),
           );
+          if (matchedGitTarget) {
+            pushEdge(
+              String(ing.id),
+              matchedGitTarget.id,
+              `ing:${host.host}:${path.path}`,
+            );
+          }
         }
       }
     }

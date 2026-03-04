@@ -186,6 +186,11 @@ function HostEditor({
     name: `hosts.${hostIndex}.paths`,
   });
 
+  const linkableServices = [
+    ...(deploymentsData?.gitDeployments.map((d) => d.serviceName) ?? []),
+    ...(deploymentsData?.images.map((d) => d.serviceName) ?? []),
+  ];
+
   const projectNameSlug = toSlug(projectData?.name ?? "");
 
   return (
@@ -283,9 +288,9 @@ function HostEditor({
                     <option value="" disabled>
                       Service*
                     </option>
-                    {deploymentsData?.images.map((d, i) => (
-                      <option key={i} value={d.serviceName}>
-                        {d.serviceName}
+                    {linkableServices.map((name, i) => (
+                      <option key={i} value={name}>
+                        {name}
                       </option>
                     ))}
                   </select>
