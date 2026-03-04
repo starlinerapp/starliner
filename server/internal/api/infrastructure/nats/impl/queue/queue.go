@@ -43,7 +43,7 @@ func (q *Queue) PublishBuildTriggered(build *value.TriggerBuild) error {
 		return fmt.Errorf("failed to marshal: %w", err)
 	}
 
-	return q.publisher.Publish(BuildTriggered, build.Id, data)
+	return q.publisher.Publish(BuildTriggered, strconv.FormatInt(build.Id, 10), data)
 }
 
 func (q *Queue) PublishCreateCluster(cluster *value.ProvisionCluster) error {

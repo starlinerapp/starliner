@@ -7,6 +7,16 @@ import (
 )
 
 type DeploymentRepository interface {
+	CreateGitDeployment(
+		ctx context.Context,
+		environmentId int64,
+		serviceName string,
+		port string,
+		gitUrl string,
+		projectRepositoryPath string,
+		dockerfilePath string,
+	) (deployment *entity.GitDeployment, err error)
+
 	CreateImageDeployment(
 		ctx context.Context,
 		serviceName string,

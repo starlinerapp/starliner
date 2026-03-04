@@ -16,9 +16,14 @@ export default function Git() {
   );
 
   const onSubmit = async (data: DeployFromGitFormInput) => {
+    if (!data.port) {
+      return;
+    }
+
     await createDeploymentMutation.mutateAsync({
       environmentId: currentEnvironment.id,
       serviceName: data.serviceName,
+      port: data.port,
       gitUrl: data.url,
       dockerfilePath: data.dockerfilePath,
       projectRepositoryPath: data.projectDirectoryPath,

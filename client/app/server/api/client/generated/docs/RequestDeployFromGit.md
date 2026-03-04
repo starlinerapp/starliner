@@ -7,6 +7,7 @@
 | **dockerfilePath**        | **string** |             | [default to undefined] |
 | **environmentId**         | **number** |             | [default to undefined] |
 | **gitUrl**                | **string** |             | [default to undefined] |
+| **port**                  | **number** |             | [default to undefined] |
 | **projectRepositoryPath** | **string** |             | [default to undefined] |
 | **serviceName**           | **string** |             | [default to undefined] |
 
@@ -19,6 +20,7 @@ const instance: RequestDeployFromGit = {
   dockerfilePath,
   environmentId,
   gitUrl,
+  port,
   projectRepositoryPath,
   serviceName,
 };

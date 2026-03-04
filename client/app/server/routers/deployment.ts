@@ -19,6 +19,7 @@ export const deploymentRouter = {
       z.object({
         environmentId: z.number(),
         serviceName: z.string(),
+        port: z.number(),
         gitUrl: z.string(),
         dockerfilePath: z.string(),
         projectRepositoryPath: z.string(),
@@ -30,6 +31,7 @@ export const deploymentRouter = {
         .deployFromGitRepository(userId, {
           environmentId: input.environmentId,
           serviceName: input.serviceName,
+          port: input.port,
           gitUrl: input.gitUrl,
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,

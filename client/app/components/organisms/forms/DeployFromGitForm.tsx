@@ -8,6 +8,7 @@ export interface DeployFromGitFormInput {
   serviceName: string;
   dockerfilePath: string;
   projectDirectoryPath: string;
+  port: number | null;
 }
 
 interface DeployFromGitFormProps {
@@ -31,16 +32,25 @@ export default function DeployFromGitForm({
 
   const urlInput = watch("url", "");
   const serviceNameInput = watch("serviceName", "");
+  const port = watch("port", null);
   const projectDirectoryPathInput = watch("projectDirectoryPath", "");
   const dockerFilePathInput = watch("dockerfilePath", "");
 
   const submit: SubmitHandler<DeployFromGitFormInput> = async (data) => {
     await onSubmit(data);
-    if (resetOnSuccess) reset();
+    if (resetOnSuccess)
+      reset({
+        url: "",
+        serviceName: "",
+        dockerfilePath: "",
+        projectDirectoryPath: "",
+        port: null,
+      });
   };
 
   const inputValid =
     urlInput &&
+    port &&
     serviceNameInput &&
     projectDirectoryPathInput &&
     dockerFilePathInput;
@@ -105,6 +115,17 @@ export default function DeployFromGitForm({
                   })}
                 />
               </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm">Port</p>
+            <div className="flex gap-2">
+              <input
+                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                type="number"
+                placeholder="Port*"
+                {...register("port", { required: true, valueAsNumber: true })}
+              />
             </div>
           </div>
         </div>

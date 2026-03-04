@@ -221,6 +221,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 		currentUser.Id,
 		body.EnvironmentId,
 		body.ServiceName,
+		body.Port,
 		body.GitUrl,
 		body.ProjectRepositoryPath,
 		body.DockerfilePath,

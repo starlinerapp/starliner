@@ -22,6 +22,7 @@ type DeploymentApplication struct {
 	deploymentRepository  interfaces.DeploymentRepository
 	queue                 port.Queue
 	pubsub                port.Pubsub
+	objectStore           corePort.ObjectStore
 	crypto                corePort.Crypto
 }
 
@@ -32,6 +33,7 @@ func NewDeploymentApplication(
 	deploymentRepository interfaces.DeploymentRepository,
 	queue port.Queue,
 	pubsub port.Pubsub,
+	objectStore corePort.ObjectStore,
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
@@ -41,6 +43,7 @@ func NewDeploymentApplication(
 		deploymentRepository:  deploymentRepository,
 		queue:                 queue,
 		pubsub:                pubsub,
+		objectStore:           objectStore,
 		crypto:                crypto,
 	}
 }
@@ -50,11 +53,41 @@ func (da *DeploymentApplication) DeployFromGit(
 	userId int64,
 	environmentId int64,
 	serviceName string,
+	port int,
 	gitUrl string,
 	projectRepositoryPath string,
 	dockerfilePath string,
 ) error {
-	return nil
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	d, err := da.deploymentRepository.CreateGitDeployment(
+		ctx,
+		environmentId,
+		serviceName,
+		strconv.Itoa(port),
+		gitUrl,
+		projectRepositoryPath,
+		dockerfilePath,
+	)
+	if err != nil {
+		return err
+	}
+
+	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
+		Id:             d.Id,
+		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, serviceName),
+		GitUrl:         gitUrl,
+		RootDirectory:  projectRepositoryPath,
+		DockerfilePath: dockerfilePath,
+	})
 }
 
 func (da *DeploymentApplication) DeployImage(

@@ -8,6 +8,7 @@ type EnvVar struct {
 type DeployFromGit struct {
 	EnvironmentId         int64  `json:"environmentId" binding:"required"`
 	ServiceName           string `json:"serviceName" binding:"required"`
+	Port                  int    `json:"port" binding:"required"`
 	GitUrl                string `json:"gitUrl" binding:"required"`
 	ProjectRepositoryPath string `json:"projectRepositoryPath" binding:"required"`
 	DockerfilePath        string `json:"dockerfilePath" binding:"required"`

@@ -22,6 +22,38 @@ func NewDeploymentRepository(db *sql.DB, queries *sqlc.Queries) interfaces.Deplo
 	return &DeploymentRepository{db: db, queries: queries}
 }
 
+func (dr *DeploymentRepository) CreateGitDeployment(
+	ctx context.Context,
+	environmentId int64,
+	serviceName string,
+	port string,
+	gitUrl string,
+	projectRepositoryPath string,
+	dockerfilePath string,
+) (deployment *entity.GitDeployment, err error) {
+	d, err := dr.queries.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
+		Name:           serviceName,
+		Port:           port,
+		EnvironmentID:  environmentId,
+		Url:            gitUrl,
+		ProjectPath:    projectRepositoryPath,
+		DockerfilePath: dockerfilePath,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.GitDeployment{
+		Id:                    d.DeploymentID,
+		Name:                  d.Name,
+		Port:                  d.Port,
+		EnvironmentId:         d.EnvironmentID,
+		GitUrl:                d.Url,
+		ProjectRepositoryPath: d.ProjectPath,
+		DockerfilePath:        d.DockerfilePath,
+	}, nil
+}
+
 func (dr *DeploymentRepository) CreateImageDeployment(
 	ctx context.Context,
 	serviceName string,

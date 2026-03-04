@@ -26,7 +26,6 @@ func NewServer(
 	organizationHandler *handler.OrganizationHandler,
 	projectHandler *handler.ProjectHandler,
 	environmentHandler *handler.EnvironmentHandler,
-	buildHandler *handler.BuildHandler,
 	clusterHandler *handler.ClusterHandler,
 	deploymentHandler *handler.DeploymentHandler,
 ) *Server {
@@ -60,11 +59,6 @@ func NewServer(
 	{
 		environmentRoutes.POST("", environmentHandler.CreateEnvironment)
 		environmentRoutes.GET("/:id/deployments", environmentHandler.GetEnvironmentDeployments)
-	}
-
-	buildRoutes := engine.Group("/builds")
-	{
-		buildRoutes.POST("", buildHandler.TriggerBuild)
 	}
 
 	clusterRoutes := engine.Group("/clusters")

@@ -180,6 +180,15 @@ type Environment struct {
 	Namespace string
 }
 
+type GitDeployment struct {
+	DeploymentID   int64
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type ImageDeployment struct {
 	DeploymentID int64
 	Name         string

@@ -166,6 +166,12 @@ export interface RequestDeployFromGit {
   gitUrl: string;
   /**
    *
+   * @type {number}
+   * @memberof RequestDeployFromGit
+   */
+  port: number;
+  /**
+   *
    * @type {string}
    * @memberof RequestDeployFromGit
    */

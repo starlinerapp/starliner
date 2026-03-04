@@ -60,6 +60,8 @@ definitions:
         type: integer
       gitUrl:
         type: string
+      port:
+        type: integer
       projectRepositoryPath:
         type: string
       serviceName:
@@ -68,6 +70,7 @@ definitions:
     - dockerfilePath
     - environmentId
     - gitUrl
+    - port
     - projectRepositoryPath
     - serviceName
     type: object

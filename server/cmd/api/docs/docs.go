@@ -904,6 +904,7 @@ const docTemplate = `{
                 "dockerfilePath",
                 "environmentId",
                 "gitUrl",
+                "port",
                 "projectRepositoryPath",
                 "serviceName"
             ],
@@ -916,6 +917,9 @@ const docTemplate = `{
                 },
                 "gitUrl": {
                     "type": "string"
+                },
+                "port": {
+                    "type": "integer"
                 },
                 "projectRepositoryPath": {
                     "type": "string"

@@ -895,6 +895,7 @@
                 "dockerfilePath",
                 "environmentId",
                 "gitUrl",
+                "port",
                 "projectRepositoryPath",
                 "serviceName"
             ],
@@ -907,6 +908,9 @@
                 },
                 "gitUrl": {
                     "type": "string"
+                },
+                "port": {
+                    "type": "integer"
                 },
                 "projectRepositoryPath": {
                     "type": "string"
