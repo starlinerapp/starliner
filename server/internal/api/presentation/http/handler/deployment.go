@@ -198,6 +198,40 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// DeployFromGitRepository FindAll godoc
+// @Summary Deploy from Git Repository
+// @Tags deployment
+// @ID deployFromGitRepository
+// @Param X-User-ID header string true "User ID"
+// @Param data body request.DeployFromGit true "Deploy from Git"
+// @Product JSON
+// @Success 200
+// @Router /deployments/git [post]
+func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+
+	var body request.DeployFromGit
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err := dh.deploymentApplication.DeployFromGit(
+		c.Request.Context(),
+		currentUser.Id,
+		body.EnvironmentId,
+		body.ServiceName,
+		body.GitUrl,
+		body.ProjectRepositoryPath,
+		body.DockerfilePath,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
+}
+
 // DeleteDeployment FindAll godoc
 // @Summary Delete deployment
 // @Tags deployment

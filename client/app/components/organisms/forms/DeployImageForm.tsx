@@ -60,7 +60,7 @@ export default function DeployImageForm({
         imageName: "",
         tag: "",
         port: null,
-        envs: [{ name: "", value: "" }],
+        envs: [],
       });
   };
 

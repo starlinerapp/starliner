@@ -15,6 +15,7 @@ docs/RequestCreateEnvironment.md
 docs/RequestCreateOrganization.md
 docs/RequestCreateProject.md
 docs/RequestDeployDatabase.md
+docs/RequestDeployFromGit.md
 docs/RequestDeployImage.md
 docs/RequestDeployIngress.md
 docs/RequestEnvVar.md

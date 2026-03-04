@@ -45,6 +45,18 @@ func NewDeploymentApplication(
 	}
 }
 
+func (da *DeploymentApplication) DeployFromGit(
+	ctx context.Context,
+	userId int64,
+	environmentId int64,
+	serviceName string,
+	gitUrl string,
+	projectRepositoryPath string,
+	dockerfilePath string,
+) error {
+	return nil
+}
+
 func (da *DeploymentApplication) DeployImage(
 	ctx context.Context,
 	userId int64,

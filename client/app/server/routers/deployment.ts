@@ -14,6 +14,28 @@ const ingressHostSchema = z.object({
 });
 
 export const deploymentRouter = {
+  deployFromGitRepo: protectedProcedure
+    .input(
+      z.object({
+        environmentId: z.number(),
+        serviceName: z.string(),
+        gitUrl: z.string(),
+        dockerfilePath: z.string(),
+        projectRepositoryPath: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .deployFromGitRepository(userId, {
+          environmentId: input.environmentId,
+          serviceName: input.serviceName,
+          gitUrl: input.gitUrl,
+          dockerfilePath: input.dockerfilePath,
+          projectRepositoryPath: input.projectRepositoryPath,
+        })
+        .then((res) => res.data);
+    }),
   deployImage: protectedProcedure
     .input(
       z.object({

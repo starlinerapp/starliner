@@ -77,6 +77,7 @@ func NewServer(
 
 	deploymentRoutes := engine.Group("/deployments")
 	{
+		deploymentRoutes.POST("/git", deploymentHandler.DeployFromGitRepository)
 		deploymentRoutes.POST("/images", deploymentHandler.DeployImage)
 		deploymentRoutes.PUT("/images/:deploymentId", deploymentHandler.UpdateImageDeployment)
 		deploymentRoutes.POST("/databases", deploymentHandler.DeployDatabase)

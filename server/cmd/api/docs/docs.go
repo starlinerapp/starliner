@@ -225,6 +225,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/git": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy from Git Repository",
+                "operationId": "deployFromGitRepository",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy from Git",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployFromGit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/deployments/images": {
             "post": {
                 "tags": [
@@ -860,6 +892,33 @@ const docTemplate = `{
             "properties": {
                 "environmentId": {
                     "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeployFromGit": {
+            "type": "object",
+            "required": [
+                "dockerfilePath",
+                "environmentId",
+                "gitUrl",
+                "projectRepositoryPath",
+                "serviceName"
+            ],
+            "properties": {
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "integer"
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
                 },
                 "serviceName": {
                     "type": "string"

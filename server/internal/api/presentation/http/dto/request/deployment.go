@@ -5,6 +5,14 @@ type EnvVar struct {
 	Value string `json:"value" binding:"required"`
 }
 
+type DeployFromGit struct {
+	EnvironmentId         int64  `json:"environmentId" binding:"required"`
+	ServiceName           string `json:"serviceName" binding:"required"`
+	GitUrl                string `json:"gitUrl" binding:"required"`
+	ProjectRepositoryPath string `json:"projectRepositoryPath" binding:"required"`
+	DockerfilePath        string `json:"dockerfilePath" binding:"required"`
+}
+
 type DeployImage struct {
 	EnvironmentId int64    `json:"environmentId" binding:"required"`
 	ServiceName   string   `json:"serviceName" binding:"required"`
