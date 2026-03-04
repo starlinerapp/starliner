@@ -89,8 +89,8 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 	}
 
 	deployments := make([]*entity.GitDeployment, len(rows))
-	for _, r := range rows {
-		deployments[0] = &entity.GitDeployment{
+	for i, r := range rows {
+		deployments[i] = &entity.GitDeployment{
 			Id:                    r.DeploymentID,
 			Name:                  r.Name,
 			Port:                  r.Port,
