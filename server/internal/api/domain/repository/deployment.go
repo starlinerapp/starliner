@@ -371,6 +371,20 @@ func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId in
 	}, nil
 }
 
+func (dr *DeploymentRepository) GetDeploymentWithNamespace(ctx context.Context, deploymentId int64) (*entity.Deployment, error) {
+	deployment, err := dr.queries.GetDeploymentWithNamespace(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+	return &entity.Deployment{
+		Id:            deployment.ID,
+		Name:          deployment.Name,
+		Port:          deployment.Port,
+		Namespace:     deployment.Namespace,
+		EnvironmentId: deployment.EnvironmentID,
+	}, nil
+}
+
 func (dr *DeploymentRepository) GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error) {
 	res, err := dr.queries.GetDeploymentCluster(ctx, deploymentId)
 	if err != nil {

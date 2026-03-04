@@ -82,7 +82,7 @@ func (da *DeploymentApplication) DeployFromGit(
 	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		Id:             d.Id,
+		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, serviceName),
 		GitUrl:         gitUrl,
 		RootDirectory:  projectRepositoryPath,
@@ -145,7 +145,7 @@ func (da *DeploymentApplication) DeployImage(
 		DeploymentName:   serviceName,
 		KubeconfigBase64: kubeconfigBase64,
 		Namespace:        env.Namespace,
-		ImageRepository:  imageName,
+		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
 		EnvVars:          coreEnvs,
@@ -211,7 +211,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		DeploymentName:   deployment.ServiceName,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
-		ImageRepository:  imageName,
+		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
 		EnvVars:          coreEnvs,
@@ -519,5 +519,44 @@ func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValu
 	err := da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
 	if err != nil {
 		log.Printf("failed to update deployment status: %v\n", err)
+	}
+}
+
+func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {
+	ctx := context.Background()
+	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, b.DeploymentId)
+	if err != nil {
+		log.Printf("failed to get deployment cluster: %v\n", err)
+		return
+	}
+
+	deployment, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, b.DeploymentId)
+	if err != nil {
+		log.Printf("failed to get deployment: %v\n", err)
+		return
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		log.Printf("failed to decrypt kubeconfig: %v\n", err)
+	}
+
+	deploymentPort, err := strconv.Atoi(deployment.Port)
+	if err != nil {
+		log.Printf("failed to parse port: %v\n", err)
+	}
+
+	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
+		DeploymentId:     b.DeploymentId,
+		DeploymentName:   deployment.Name,
+		Namespace:        deployment.Namespace,
+		KubeconfigBase64: kubeconfigBase64,
+		ImageName:        fmt.Sprintf("%s/%s", b.ImageRegistryUrl, b.ImageName),
+		ImageTag:         b.Tag,
+		Port:             deploymentPort,
+		EnvVars:          nil,
+	})
+	if err != nil {
+		log.Printf("failed to publish: %v\n", err)
 	}
 }

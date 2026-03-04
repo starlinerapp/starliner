@@ -15,17 +15,20 @@ type BuildApplication struct {
 	cfg    *conf.Config
 	git    port.Git
 	docker port.Docker
+	queue  port.Queue
 }
 
 func NewBuildApplication(
 	cfg *conf.Config,
 	git port.Git,
 	docker port.Docker,
+	queue port.Queue,
 ) *BuildApplication {
 	return &BuildApplication{
 		cfg:    cfg,
 		git:    git,
 		docker: docker,
+		queue:  queue,
 	}
 }
 
@@ -56,5 +59,15 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	if err != nil {
 		log.Printf("failed to build docker image: %v", err)
 		return
+	}
+
+	err = ba.queue.PublishBuildCompleted(&value.BuildCompleted{
+		DeploymentId:     build.DeploymentId,
+		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
+		ImageName:        build.ImageName,
+		Tag:              "latest",
+	})
+	if err != nil {
+		log.Printf("failed to publish: %v", err)
 	}
 }

@@ -8,6 +8,14 @@ INNER JOIN users ON o.owner_id = users.id
 WHERE deployments.id = @deployment_id
     AND users.id = @user_id;
 
+-- name: GetDeploymentWithNamespace :one
+SELECT
+    deployments.*,
+    environments.namespace
+FROM deployments
+INNER JOIN environments ON deployments.environment_id = environments.id
+WHERE deployments.id = $1;
+
 -- name: GetEnvironmentDeploymentByName :one
 SELECT deployments.*
 FROM deployments
