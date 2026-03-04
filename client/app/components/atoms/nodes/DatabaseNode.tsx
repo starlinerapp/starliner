@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { cn } from "~/utils/cn";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useLocation, useMatch, useNavigate } from "react-router";
 
 type DatabaseNode = Node<{
   id: number;
@@ -114,10 +115,27 @@ function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
     trpc.deployment.deleteDeployment.mutationOptions(),
   );
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const isOnDatabaseDetail = !!useMatch(
+    "/starliner/projects/:id/:environment/architecture/database/:deploymentId",
+  );
+
   function handleDeleteClicked() {
-    deleteDeploymentMutation.mutate({
-      id: deploymentId,
-    });
+    deleteDeploymentMutation.mutate(
+      {
+        id: deploymentId,
+      },
+      {
+        onSuccess: () => {
+          if (isOnDatabaseDetail) {
+            const parent = pathname.replace(/\/[^/]+\/?$/, "");
+            navigate(parent, { relative: "path", replace: true });
+          }
+        },
+      },
+    );
   }
 
   return (
