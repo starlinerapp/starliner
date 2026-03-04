@@ -205,13 +205,13 @@ function HostEditor({
           <div className="border-mauve-6 absolute -left-0.5 h-6 w-6 rounded-bl-md border-b-2 border-l-2" />
           <div className="flex w-full items-center gap-1">
             <input
-              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 min-w-52 flex-1 rounded-md border-1 p-2 text-sm"
               type="text"
               placeholder="Host*"
               {...register(`hosts.${hostIndex}.name`)}
             />
             {clusterData?.ipv4Address && projectData?.name ? (
-              <div className="border-mauve-6 text-mauve-11 flex w-full cursor-not-allowed rounded-md border-1 p-2 text-sm">
+              <div className="border-mauve-6 text-mauve-11 flex flex-none rounded-md border-1 p-2 text-sm whitespace-nowrap">
                 <p>.{projectNameSlug}</p>
                 <p>.{clusterData?.ipv4Address}</p>
                 <p>.nip.io</p>
