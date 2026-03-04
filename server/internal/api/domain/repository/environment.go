@@ -79,6 +79,31 @@ func (er *EnvironmentRepository) GetEnvironmentById(ctx context.Context, environ
 	}, nil
 }
 
+func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.GitDeployment, error) {
+	rows, err := er.queries.GetEnvironmentGitDeployments(ctx, sqlc.GetEnvironmentGitDeploymentsParams{
+		EnvironmentID: environmentId,
+		UserID:        userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	deployments := make([]*entity.GitDeployment, len(rows))
+	for _, r := range rows {
+		deployments[0] = &entity.GitDeployment{
+			Id:                    r.DeploymentID,
+			Name:                  r.Name,
+			Port:                  r.Port,
+			EnvironmentId:         r.EnvironmentID,
+			GitUrl:                r.Url,
+			ProjectRepositoryPath: r.ProjectPath,
+			DockerfilePath:        r.DockerfilePath,
+		}
+	}
+
+	return deployments, nil
+}
+
 func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.ImageDeployment, error) {
 	rows, err := er.queries.GetEnvironmentImageDeployments(ctx, sqlc.GetEnvironmentImageDeploymentsParams{
 		EnvironmentID: environmentId,

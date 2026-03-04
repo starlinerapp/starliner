@@ -5,9 +5,40 @@ import (
 )
 
 type Deployments struct {
-	Ingresses []IngressDeployment  `json:"ingresses" binding:"required"`
-	Databases []DatabaseDeployment `json:"databases" binding:"required"`
-	Images    []ImageDeployment    `json:"images" binding:"required"`
+	Ingresses     []IngressDeployment  `json:"ingresses" binding:"required"`
+	Databases     []DatabaseDeployment `json:"databases" binding:"required"`
+	Images        []ImageDeployment    `json:"images" binding:"required"`
+	GitDeployment []GitDeployment      `json:"gitDeployments" binding:"required"`
+}
+
+type GitDeployment struct {
+	Id                    int64
+	Name                  string
+	Port                  string
+	EnvironmentId         int64
+	GitUrl                string
+	ProjectRepositoryPath string
+	DockerfilePath        string
+}
+
+func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
+	return GitDeployment{
+		Id:                    gitDeployment.Id,
+		Name:                  gitDeployment.Name,
+		Port:                  gitDeployment.Port,
+		EnvironmentId:         gitDeployment.EnvironmentId,
+		GitUrl:                gitDeployment.GitUrl,
+		ProjectRepositoryPath: gitDeployment.ProjectRepositoryPath,
+		DockerfilePath:        gitDeployment.DockerfilePath,
+	}
+}
+
+func NewGitDeployments(gitDeployments []*value.GitDeployment) []GitDeployment {
+	result := make([]GitDeployment, 0, len(gitDeployments))
+	for _, deployment := range gitDeployments {
+		result = append(result, NewGitDeployment(deployment))
+	}
+	return result
 }
 
 type IngressPath struct {
@@ -144,8 +175,9 @@ func NewDatabaseDeployments(databaseDeployments []*value.DatabaseDeployment) []D
 
 func NewDeployments(deployments *value.Deployments) Deployments {
 	return Deployments{
-		Ingresses: NewIngressDeployments(deployments.Ingresses),
-		Databases: NewDatabaseDeployments(deployments.Databases),
-		Images:    NewImageDeployments(deployments.Images),
+		Ingresses:     NewIngressDeployments(deployments.Ingresses),
+		Databases:     NewDatabaseDeployments(deployments.Databases),
+		Images:        NewImageDeployments(deployments.Images),
+		GitDeployment: NewGitDeployments(deployments.GitDeployments),
 	}
 }

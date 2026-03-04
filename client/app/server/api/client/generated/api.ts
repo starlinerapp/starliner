@@ -502,6 +502,12 @@ export interface ResponseDeployments {
   databases: Array<ResponseDatabaseDeployment>;
   /**
    *
+   * @type {Array<ResponseGitDeployment>}
+   * @memberof ResponseDeployments
+   */
+  gitDeployments: Array<ResponseGitDeployment>;
+  /**
+   *
    * @type {Array<ResponseImageDeployment>}
    * @memberof ResponseDeployments
    */
@@ -569,6 +575,55 @@ export interface ResponseGetOrganizationProvisioningCredentialResponse {
    * @memberof ResponseGetOrganizationProvisioningCredentialResponse
    */
   credential?: ResponseOrganizationProvisioningCredential;
+}
+/**
+ *
+ * @export
+ * @interface ResponseGitDeployment
+ */
+export interface ResponseGitDeployment {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  dockerfilePath?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseGitDeployment
+   */
+  environmentId?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  gitUrl?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseGitDeployment
+   */
+  id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  name?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  port?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  projectRepositoryPath?: string;
 }
 /**
  *
@@ -821,154 +876,6 @@ export interface ResponseUser {
    * @memberof ResponseUser
    */
   user_id: number;
-}
-
-/**
- * BuildApi - axios parameter creator
- * @export
- */
-export const BuildApiAxiosParamCreator = function (
-  configuration?: Configuration,
-) {
-  return {
-    /**
-     *
-     * @summary Trigger Build
-     * @param {string} xUserID User ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    triggerBuild: async (
-      xUserID: string,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("triggerBuild", "xUserID", xUserID);
-      const localVarPath = `/builds`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
-
-/**
- * BuildApi - functional programming interface
- * @export
- */
-export const BuildApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator = BuildApiAxiosParamCreator(configuration);
-  return {
-    /**
-     *
-     * @summary Trigger Build
-     * @param {string} xUserID User ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async triggerBuild(
-      xUserID: string,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
-    > {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.triggerBuild(
-        xUserID,
-        options,
-      );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["BuildApi.triggerBuild"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-  };
-};
-
-/**
- * BuildApi - factory interface
- * @export
- */
-export const BuildApiFactory = function (
-  configuration?: Configuration,
-  basePath?: string,
-  axios?: AxiosInstance,
-) {
-  const localVarFp = BuildApiFp(configuration);
-  return {
-    /**
-     *
-     * @summary Trigger Build
-     * @param {string} xUserID User ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    triggerBuild(
-      xUserID: string,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
-      return localVarFp
-        .triggerBuild(xUserID, options)
-        .then((request) => request(axios, basePath));
-    },
-  };
-};
-
-/**
- * BuildApi - object-oriented interface
- * @export
- * @class BuildApi
- * @extends {BaseAPI}
- */
-export class BuildApi extends BaseAPI {
-  /**
-   *
-   * @summary Trigger Build
-   * @param {string} xUserID User ID
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof BuildApi
-   */
-  public triggerBuild(xUserID: string, options?: RawAxiosRequestConfig) {
-    return BuildApiFp(this.configuration)
-      .triggerBuild(xUserID, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
 }
 
 /**

@@ -253,6 +253,10 @@ definitions:
         items:
           $ref: '#/definitions/response.DatabaseDeployment'
         type: array
+      gitDeployments:
+        items:
+          $ref: '#/definitions/response.GitDeployment'
+        type: array
       images:
         items:
           $ref: '#/definitions/response.ImageDeployment'
@@ -263,6 +267,7 @@ definitions:
         type: array
     required:
     - databases
+    - gitDeployments
     - images
     - ingresses
     type: object
@@ -293,6 +298,23 @@ definitions:
     properties:
       credential:
         $ref: '#/definitions/response.OrganizationProvisioningCredential'
+    type: object
+  response.GitDeployment:
+    properties:
+      dockerfilePath:
+        type: string
+      environmentId:
+        type: integer
+      gitUrl:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      port:
+        type: string
+      projectRepositoryPath:
+        type: string
     type: object
   response.ImageDeployment:
     properties:
@@ -453,21 +475,6 @@ paths:
       summary: Get root
       tags:
       - root
-  /builds:
-    post:
-      operationId: triggerBuild
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-      summary: Trigger Build
-      tags:
-      - build
   /clusters:
     post:
       operationId: createCluster

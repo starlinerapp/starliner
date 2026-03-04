@@ -4,6 +4,7 @@ export { default as ChevronRight } from "./ChevronRight";
 export { default as CodeBracket } from "./CodeBracket";
 export { default as Cog } from "./Cog";
 export { default as Cross } from "./Cross";
+export { default as Cube } from "./Cube";
 export { default as Database } from "./Database";
 export { default as Download } from "./Download";
 export { default as EllipsisVertical } from "./EllipsisVertical";

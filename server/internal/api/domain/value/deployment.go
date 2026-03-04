@@ -5,9 +5,10 @@ import (
 )
 
 type Deployments struct {
-	Ingresses []*IngressDeployment
-	Databases []*DatabaseDeployment
-	Images    []*ImageDeployment
+	Ingresses      []*IngressDeployment
+	GitDeployments []*GitDeployment
+	Databases      []*DatabaseDeployment
+	Images         []*ImageDeployment
 }
 
 type PathType string
@@ -16,6 +17,36 @@ const (
 	Prefix PathType = "Prefix"
 	Exact  PathType = "Exact"
 )
+
+type GitDeployment struct {
+	Id                    int64
+	Name                  string
+	Port                  string
+	EnvironmentId         int64
+	GitUrl                string
+	ProjectRepositoryPath string
+	DockerfilePath        string
+}
+
+func NewGitDeployment(d *entity.GitDeployment) *GitDeployment {
+	return &GitDeployment{
+		Id:                    d.Id,
+		Name:                  d.Name,
+		Port:                  d.Port,
+		EnvironmentId:         d.EnvironmentId,
+		GitUrl:                d.GitUrl,
+		ProjectRepositoryPath: d.ProjectRepositoryPath,
+		DockerfilePath:        d.DockerfilePath,
+	}
+}
+
+func NewGitDeployments(ds []*entity.GitDeployment) []*GitDeployment {
+	deployments := make([]*GitDeployment, len(ds))
+	for i, d := range ds {
+		deployments[i] = NewGitDeployment(d)
+	}
+	return deployments
+}
 
 type IngressPath struct {
 	Path        string

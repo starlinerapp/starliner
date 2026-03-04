@@ -41,29 +41,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/builds": {
-            "post": {
-                "tags": [
-                    "build"
-                ],
-                "summary": "Trigger Build",
-                "operationId": "triggerBuild",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/clusters": {
             "post": {
                 "tags": [
@@ -1184,6 +1161,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "databases",
+                "gitDeployments",
                 "images",
                 "ingresses"
             ],
@@ -1192,6 +1170,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.DatabaseDeployment"
+                    }
+                },
+                "gitDeployments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.GitDeployment"
                     }
                 },
                 "images": {
@@ -1247,6 +1231,32 @@ const docTemplate = `{
             "properties": {
                 "credential": {
                     "$ref": "#/definitions/response.OrganizationProvisioningCredential"
+                }
+            }
+        },
+        "response.GitDeployment": {
+            "type": "object",
+            "properties": {
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "integer"
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
                 }
             }
         },

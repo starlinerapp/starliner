@@ -4,7 +4,6 @@ api.ts
 base.ts
 common.ts
 configuration.ts
-docs/BuildApi.md
 docs/ClusterApi.md
 docs/DeploymentApi.md
 docs/EnvironmentApi.md
@@ -31,6 +30,7 @@ docs/ResponseDeployments.md
 docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
+docs/ResponseGitDeployment.md
 docs/ResponseImageDeployment.md
 docs/ResponseIngressDeployment.md
 docs/ResponseIngressHost.md
