@@ -6,6 +6,7 @@ import React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
+import { useLocation, useMatch, useNavigate } from "react-router";
 
 type ImageNode = Node<{
   id: number;
@@ -93,10 +94,27 @@ function ImageContextMenu({ deploymentId }: ImageContextMenuProps) {
     trpc.deployment.deleteDeployment.mutationOptions(),
   );
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const isOnImageDetail = !!useMatch(
+    "/starliner/projects/:id/:environment/architecture/image/:deploymentId",
+  );
+
   function handleDeleteClicked() {
-    deleteDeploymentMutation.mutate({
-      id: deploymentId,
-    });
+    deleteDeploymentMutation.mutate(
+      {
+        id: deploymentId,
+      },
+      {
+        onSuccess: () => {
+          if (isOnImageDetail) {
+            const parent = pathname.replace(/\/[^/]+\/?$/, "");
+            navigate(parent, { relative: "path", replace: true });
+          }
+        },
+      },
+    );
   }
 
   return (

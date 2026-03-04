@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import * as Popover from "@radix-ui/react-popover";
 import type { ResponseIngressHost } from "~/server/api/client/generated";
 import { cn } from "~/utils/cn";
+import { useLocation, useMatch, useNavigate } from "react-router";
 
 type IngressNode = Node<{
   id: number;
@@ -114,10 +115,27 @@ function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
     trpc.deployment.deleteDeployment.mutationOptions(),
   );
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const isOnIngressDetail = !!useMatch(
+    "/starliner/projects/:id/:environment/architecture/ingress/:deploymentId",
+  );
+
   function handleDeleteClicked() {
-    deleteDeploymentMutation.mutate({
-      id: deploymentId,
-    });
+    deleteDeploymentMutation.mutate(
+      {
+        id: deploymentId,
+      },
+      {
+        onSuccess: () => {
+          if (isOnIngressDetail) {
+            const parent = pathname.replace(/\/[^/]+\/?$/, "");
+            navigate(parent, { relative: "path", replace: true });
+          }
+        },
+      },
+    );
   }
 
   return (

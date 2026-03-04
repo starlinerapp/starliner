@@ -28,7 +28,7 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
 import getElkLayout from "~/utils/reactflow/getElkLayout";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useMatch, useNavigate, useParams } from "react-router";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -63,6 +63,7 @@ export default function ArchitectureCanvas({
   }>();
 
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
@@ -111,10 +112,14 @@ export default function ArchitectureCanvas({
     );
   }
 
+  const isOnDetailPage = !!useMatch(
+    "/starliner/projects/:id/:environment/architecture/:type/:deploymentId",
+  );
   function handlePlaneClick() {
-    navigate(
-      `${slug}/projects/${organizationId}/${environment.slug}/architecture`,
-    );
+    if (isOnDetailPage) {
+      const parent = pathname.replace(/\/[^/]+\/?$/, "");
+      navigate(parent, { relative: "path", replace: true });
+    }
   }
 
   const graphFingerprint = useMemo(() => {
