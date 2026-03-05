@@ -46,8 +46,8 @@ SELECT
 FROM updated_deployment d
 INNER JOIN updated_image_deployment img_d ON d.id = img_d.deployment_id;
 
--- name: CreateImageEnvVar :one
-INSERT INTO image_environment_vars (deployment_id, name, value)
+-- name: CreateDeploymentEnvVar :one
+INSERT INTO deployment_environment_vars (deployment_id, name, value)
 VALUES (@deployment_id, @name, @value)
 RETURNING *;
 

@@ -3,17 +3,12 @@ import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
 
-interface EnvVar {
-  name: string;
-  value: string;
-}
-
 export interface ImageFormInput {
   serviceName: string;
   imageName: string;
   tag: string;
   port: number | null;
-  envs: EnvVar[];
+  envs: { name: string; value: string }[];
 }
 
 interface DeployImageFormProps {

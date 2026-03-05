@@ -170,6 +170,15 @@ type Deployment struct {
 	UpdatedAt     time.Time
 }
 
+type DeploymentEnvironmentVar struct {
+	ID           int64
+	DeploymentID int64
+	Name         string
+	Value        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type Environment struct {
 	ID        int64
 	Name      string
@@ -193,15 +202,6 @@ type ImageDeployment struct {
 	DeploymentID int64
 	Name         string
 	Tag          string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-}
-
-type ImageEnvironmentVar struct {
-	ID           int64
-	DeploymentID int64
-	Name         string
-	Value        string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

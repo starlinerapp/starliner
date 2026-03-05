@@ -116,7 +116,7 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 
 	deployments := make([]*entity.ImageDeployment, len(rows))
 	for i, d := range rows {
-		envVars, err := er.queries.GetImageEnvironmentVars(ctx, d.DeploymentID)
+		envVars, err := er.queries.GetDeploymentEnvironmentVars(ctx, d.DeploymentID)
 		if err != nil {
 			return nil, err
 		}

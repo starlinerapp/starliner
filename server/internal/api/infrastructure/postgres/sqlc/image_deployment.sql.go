@@ -9,6 +9,32 @@ import (
 	"context"
 )
 
+const createDeploymentEnvVar = `-- name: CreateDeploymentEnvVar :one
+INSERT INTO deployment_environment_vars (deployment_id, name, value)
+VALUES ($1, $2, $3)
+RETURNING id, deployment_id, name, value, created_at, updated_at
+`
+
+type CreateDeploymentEnvVarParams struct {
+	DeploymentID int64
+	Name         string
+	Value        string
+}
+
+func (q *Queries) CreateDeploymentEnvVar(ctx context.Context, arg CreateDeploymentEnvVarParams) (DeploymentEnvironmentVar, error) {
+	row := q.db.QueryRowContext(ctx, createDeploymentEnvVar, arg.DeploymentID, arg.Name, arg.Value)
+	var i DeploymentEnvironmentVar
+	err := row.Scan(
+		&i.ID,
+		&i.DeploymentID,
+		&i.Name,
+		&i.Value,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createImageDeployment = `-- name: CreateImageDeployment :one
 WITH new_deployment AS (
     INSERT INTO deployments (name, port, environment_id)
@@ -67,32 +93,6 @@ func (q *Queries) CreateImageDeployment(ctx context.Context, arg CreateImageDepl
 		&i.ImageTag,
 		&i.Port,
 		&i.EnvironmentID,
-	)
-	return i, err
-}
-
-const createImageEnvVar = `-- name: CreateImageEnvVar :one
-INSERT INTO image_environment_vars (deployment_id, name, value)
-VALUES ($1, $2, $3)
-RETURNING id, deployment_id, name, value, created_at, updated_at
-`
-
-type CreateImageEnvVarParams struct {
-	DeploymentID int64
-	Name         string
-	Value        string
-}
-
-func (q *Queries) CreateImageEnvVar(ctx context.Context, arg CreateImageEnvVarParams) (ImageEnvironmentVar, error) {
-	row := q.db.QueryRowContext(ctx, createImageEnvVar, arg.DeploymentID, arg.Name, arg.Value)
-	var i ImageEnvironmentVar
-	err := row.Scan(
-		&i.ID,
-		&i.DeploymentID,
-		&i.Name,
-		&i.Value,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
 }

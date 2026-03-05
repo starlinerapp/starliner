@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "~/components/atoms/button/Button";
-import { ArrowRight } from "~/components/atoms/icons";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { ArrowRight, Plus } from "~/components/atoms/icons";
+import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -9,6 +9,7 @@ export interface DeployFromGitFormInput {
   dockerfilePath: string;
   projectDirectoryPath: string;
   port: number | null;
+  envs: { name: string; value: string }[];
 }
 
 interface DeployFromGitFormProps {
@@ -27,8 +28,14 @@ export default function DeployFromGitForm({
     handleSubmit,
     watch,
     reset,
+    control,
     formState: { isDirty },
   } = useForm<DeployFromGitFormInput>({ defaultValues });
+
+  const { fields, append } = useFieldArray({
+    control,
+    name: "envs",
+  });
 
   const urlInput = watch("url", "");
   const serviceNameInput = watch("serviceName", "");
@@ -45,6 +52,7 @@ export default function DeployFromGitForm({
         dockerfilePath: "",
         projectDirectoryPath: "",
         port: null,
+        envs: [],
       });
   };
 
@@ -129,6 +137,33 @@ export default function DeployFromGitForm({
                 {...register("port", { required: true, valueAsNumber: true })}
               />
             </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm">Environment Variables</p>
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex gap-2">
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Name*"
+                  {...register(`envs.${index}.name`)}
+                />
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Value*"
+                  {...register(`envs.${index}.value`)}
+                />
+              </div>
+            ))}
+            <Button
+              intent="text"
+              className="py-1"
+              type="button"
+              onClick={() => append({ name: "", value: "" })}
+            >
+              <Plus className="w-3 stroke-3" /> Add Another
+            </Button>
           </div>
         </div>
         <Button

@@ -114,7 +114,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 
 	vars := make([]*entity.EnvVar, len(envs))
 	for i, e := range envs {
-		variable, err := qtx.CreateImageEnvVar(ctx, sqlc.CreateImageEnvVarParams{
+		variable, err := qtx.CreateDeploymentEnvVar(ctx, sqlc.CreateDeploymentEnvVarParams{
 			DeploymentID: d.DeploymentID,
 			Name:         e.Name,
 			Value:        e.Value,
@@ -176,7 +176,7 @@ func (dr *DeploymentRepository) UpdateImageDeployment(
 
 	vars := make([]*entity.EnvVar, len(envs))
 	for i, e := range envs {
-		variable, err := qtx.CreateImageEnvVar(ctx, sqlc.CreateImageEnvVarParams{
+		variable, err := qtx.CreateDeploymentEnvVar(ctx, sqlc.CreateDeploymentEnvVarParams{
 			DeploymentID: deploymentId,
 			Name:         e.Name,
 			Value:        e.Value,
