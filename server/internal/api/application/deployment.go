@@ -22,7 +22,6 @@ type DeploymentApplication struct {
 	deploymentRepository  interfaces.DeploymentRepository
 	queue                 port.Queue
 	pubsub                port.Pubsub
-	objectStore           corePort.ObjectStore
 	crypto                corePort.Crypto
 }
 
@@ -33,7 +32,6 @@ func NewDeploymentApplication(
 	deploymentRepository interfaces.DeploymentRepository,
 	queue port.Queue,
 	pubsub port.Pubsub,
-	objectStore corePort.ObjectStore,
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
@@ -43,7 +41,6 @@ func NewDeploymentApplication(
 		deploymentRepository:  deploymentRepository,
 		queue:                 queue,
 		pubsub:                pubsub,
-		objectStore:           objectStore,
 		crypto:                crypto,
 	}
 }
