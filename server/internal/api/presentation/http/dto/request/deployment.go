@@ -14,6 +14,13 @@ type DeployFromGit struct {
 	DockerfilePath        string `json:"dockerfilePath" binding:"required"`
 }
 
+type UpdateDeployFromGit struct {
+	EnvironmentId         int64  `json:"environmentId" binding:"required"`
+	Port                  int    `json:"port" binding:"required"`
+	ProjectRepositoryPath string `json:"projectRepositoryPath" binding:"required"`
+	DockerfilePath        string `json:"dockerfilePath" binding:"required"`
+}
+
 type DeployImage struct {
 	EnvironmentId int64    `json:"environmentId" binding:"required"`
 	ServiceName   string   `json:"serviceName" binding:"required"`

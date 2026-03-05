@@ -141,3 +141,69 @@ func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, arg GetEnvir
 	}
 	return items, nil
 }
+
+const updateGitDeployment = `-- name: UpdateGitDeployment :one
+WITH updated_deployment AS (
+    UPDATE deployments
+        SET port = $1
+        WHERE id = $2
+        RETURNING id, name, port, status, environment_id, created_at, updated_at
+),
+updated_git_deployment AS (
+    UPDATE git_deployments
+        SET project_path = $3,
+            dockerfile_path = $4
+        WHERE deployment_id = $2
+        RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at
+)
+SELECT
+    d.id AS deployment_id,
+    d.status,
+    d.name AS service_name,
+    git_d.url,
+    git_d.project_path,
+    git_d.dockerfile_path,
+    d.port,
+    d.environment_id
+FROM updated_deployment d
+INNER JOIN updated_git_deployment git_d ON d.id = git_d.deployment_id
+`
+
+type UpdateGitDeploymentParams struct {
+	Port           string
+	DeploymentID   int64
+	ProjectPath    string
+	DockerfilePath string
+}
+
+type UpdateGitDeploymentRow struct {
+	DeploymentID   int64
+	Status         DeploymentStatus
+	ServiceName    string
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+	Port           string
+	EnvironmentID  int64
+}
+
+func (q *Queries) UpdateGitDeployment(ctx context.Context, arg UpdateGitDeploymentParams) (UpdateGitDeploymentRow, error) {
+	row := q.db.QueryRowContext(ctx, updateGitDeployment,
+		arg.Port,
+		arg.DeploymentID,
+		arg.ProjectPath,
+		arg.DockerfilePath,
+	)
+	var i UpdateGitDeploymentRow
+	err := row.Scan(
+		&i.DeploymentID,
+		&i.Status,
+		&i.ServiceName,
+		&i.Url,
+		&i.ProjectPath,
+		&i.DockerfilePath,
+		&i.Port,
+		&i.EnvironmentID,
+	)
+	return i, err
+}

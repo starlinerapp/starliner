@@ -234,6 +234,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/git/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update Deploy from Git",
+                "operationId": "updateDeployFromGitRepository",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Deploy from Git",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDeployFromGit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/deployments/images": {
             "post": {
                 "tags": [
@@ -1014,6 +1053,29 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateDeployFromGit": {
+            "type": "object",
+            "required": [
+                "dockerfilePath",
+                "environmentId",
+                "port",
+                "projectRepositoryPath"
+            ],
+            "properties": {
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateImage": {
             "type": "object",
             "required": [
@@ -1242,7 +1304,8 @@ const docTemplate = `{
                 "id",
                 "port",
                 "projectRepositoryPath",
-                "serviceName"
+                "serviceName",
+                "status"
             ],
             "properties": {
                 "dockerfilePath": {
@@ -1261,6 +1324,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "serviceName": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

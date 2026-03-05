@@ -17,6 +17,14 @@ type DeploymentRepository interface {
 		dockerfilePath string,
 	) (deployment *entity.GitDeployment, err error)
 
+	UpdateGitDeployment(
+		ctx context.Context,
+		deploymentId int64,
+		port string,
+		projectRepositoryPath string,
+		dockerfilePath string,
+	) (deployment *entity.GitDeployment, err error)
+
 	CreateImageDeployment(
 		ctx context.Context,
 		serviceName string,

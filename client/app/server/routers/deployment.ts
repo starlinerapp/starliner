@@ -38,6 +38,27 @@ export const deploymentRouter = {
         })
         .then((res) => res.data);
     }),
+  updateDeployFromGitRepo: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        deploymentId: z.number(),
+        port: z.number(),
+        dockerfilePath: z.string(),
+        projectRepositoryPath: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .updateDeployFromGitRepository(userId, input.deploymentId, {
+          environmentId: input.id,
+          port: input.port,
+          dockerfilePath: input.dockerfilePath,
+          projectRepositoryPath: input.projectRepositoryPath,
+        })
+        .then((res) => res.data);
+    }),
   deployImage: protectedProcedure
     .input(
       z.object({

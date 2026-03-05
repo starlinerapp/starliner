@@ -72,6 +72,7 @@ export default function DeployFromGitForm({
                 className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
                 type="text"
                 placeholder="Name*"
+                disabled={!!defaultValues?.serviceName}
                 {...register("serviceName", {
                   required: true,
                 })}
@@ -85,6 +86,7 @@ export default function DeployFromGitForm({
                 className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
                 type="text"
                 placeholder="Git URL*"
+                disabled={!!defaultValues?.url}
                 {...register("url", {
                   required: true,
                 })}
@@ -135,7 +137,7 @@ export default function DeployFromGitForm({
           disabled={!isDirty || !inputValid}
           className="w-28 flex-shrink-0 py-1.5"
         >
-          Deploy
+          {defaultValues ? "Redeploy" : "Deploy"}
           <ArrowRight className="w-4 stroke-2" />
         </Button>
       </form>

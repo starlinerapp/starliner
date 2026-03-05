@@ -320,6 +320,37 @@ export type RequestIngressPathPathTypeEnum =
 /**
  *
  * @export
+ * @interface RequestUpdateDeployFromGit
+ */
+export interface RequestUpdateDeployFromGit {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  dockerfilePath: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  environmentId: number;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  port: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  projectRepositoryPath: string;
+}
+/**
+ *
+ * @export
  * @interface RequestUpdateImage
  */
 export interface RequestUpdateImage {
@@ -618,6 +649,12 @@ export interface ResponseGitDeployment {
    * @memberof ResponseGitDeployment
    */
   serviceName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  status: string;
 }
 /**
  *
@@ -1705,6 +1742,74 @@ export const DeploymentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Update Deploy from Git
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateDeployFromGitRepository: async (
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDeployFromGit,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("updateDeployFromGitRepository", "xUserID", xUserID);
+      // verify required parameter 'deploymentId' is not null or undefined
+      assertParamExists(
+        "updateDeployFromGitRepository",
+        "deploymentId",
+        deploymentId,
+      );
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("updateDeployFromGitRepository", "data", data);
+      const localVarPath = `/deployments/git/{deploymentId}`.replace(
+        `{${"deploymentId"}}`,
+        encodeURIComponent(String(deploymentId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Update image deployment
      * @param {string} xUserID User ID
      * @param {number} deploymentId Deployment ID
@@ -2011,6 +2116,43 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Update Deploy from Git
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateDeployFromGitRepository(
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDeployFromGit,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.updateDeployFromGitRepository(
+          xUserID,
+          deploymentId,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.updateDeployFromGitRepository"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Update image deployment
      * @param {string} xUserID User ID
      * @param {number} deploymentId Deployment ID
@@ -2184,6 +2326,25 @@ export const DeploymentApiFactory = function (
     },
     /**
      *
+     * @summary Update Deploy from Git
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateDeployFromGitRepository(
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDeployFromGit,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .updateDeployFromGitRepository(xUserID, deploymentId, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Update image deployment
      * @param {string} xUserID User ID
      * @param {number} deploymentId Deployment ID
@@ -2322,6 +2483,27 @@ export class DeploymentApi extends BaseAPI {
   ) {
     return DeploymentApiFp(this.configuration)
       .deployIngress(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Update Deploy from Git
+   * @param {string} xUserID User ID
+   * @param {number} deploymentId Deployment ID
+   * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public updateDeployFromGitRepository(
+    xUserID: string,
+    deploymentId: number,
+    data: RequestUpdateDeployFromGit,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .updateDeployFromGitRepository(xUserID, deploymentId, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

@@ -1,30 +1,24 @@
-# ResponseGitDeployment
+# RequestUpdateDeployFromGit
 
 ## Properties
 
 | Name                      | Type       | Description | Notes                  |
 | ------------------------- | ---------- | ----------- | ---------------------- |
 | **dockerfilePath**        | **string** |             | [default to undefined] |
-| **gitUrl**                | **string** |             | [default to undefined] |
-| **id**                    | **number** |             | [default to undefined] |
-| **port**                  | **string** |             | [default to undefined] |
+| **environmentId**         | **number** |             | [default to undefined] |
+| **port**                  | **number** |             | [default to undefined] |
 | **projectRepositoryPath** | **string** |             | [default to undefined] |
-| **serviceName**           | **string** |             | [default to undefined] |
-| **status**                | **string** |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { ResponseGitDeployment } from "./api";
+import { RequestUpdateDeployFromGit } from "./api";
 
-const instance: ResponseGitDeployment = {
+const instance: RequestUpdateDeployFromGit = {
   dockerfilePath,
-  gitUrl,
-  id,
+  environmentId,
   port,
   projectRepositoryPath,
-  serviceName,
-  status,
 };
 ```
 

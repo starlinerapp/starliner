@@ -21,13 +21,21 @@ export default function UpdateGitDeployment() {
   );
 
   const updateGitRepoMutation = useMutation(
-    trpc.deployment.deployFromGitRepo.mutationOptions(),
+    trpc.deployment.updateDeployFromGitRepo.mutationOptions(),
   );
 
   const onSubmit = async (data: DeployFromGitFormInput) => {
     if (!data.port) {
       return;
     }
+
+    await updateGitRepoMutation.mutateAsync({
+      id: currentEnvironment.id,
+      deploymentId: Number(deploymentId),
+      port: data.port,
+      dockerfilePath: data.dockerfilePath,
+      projectRepositoryPath: data.projectDirectoryPath,
+    });
   };
 
   const gitDeployment = environmentDeployments?.gitDeployments.find(

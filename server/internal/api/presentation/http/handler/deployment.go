@@ -233,6 +233,46 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// UpdateDeployFromGitRepository FindAll godoc
+// @Summary Update Deploy from Git
+// @Tags deployment
+// @ID updateDeployFromGitRepository
+// @Param X-User-ID header string true "User ID"
+// @Param deploymentId path int true "Deployment ID"
+// @Param data body request.UpdateDeployFromGit true "Update Deploy from Git"
+// @Product JSON
+// @Success 200
+// @Router /deployments/git/{deploymentId} [put]
+func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	deploymentId, err := strconv.ParseInt(c.Param("deploymentId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	var body request.UpdateDeployFromGit
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = dh.deploymentApplication.UpdateDeployFromGit(
+		c.Request.Context(),
+		currentUser.Id,
+		body.EnvironmentId,
+		deploymentId,
+		body.Port,
+		body.ProjectRepositoryPath,
+		body.DockerfilePath,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
+}
+
 // DeleteDeployment FindAll godoc
 // @Summary Delete deployment
 // @Tags deployment

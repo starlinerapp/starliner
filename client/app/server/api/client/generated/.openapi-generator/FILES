@@ -20,6 +20,7 @@ docs/RequestDeployIngress.md
 docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
+docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md

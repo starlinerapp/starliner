@@ -90,6 +90,45 @@ func (da *DeploymentApplication) DeployFromGit(
 	})
 }
 
+func (da *DeploymentApplication) UpdateDeployFromGit(
+	ctx context.Context,
+	userId int64,
+	environmentId int64,
+	deploymentId int64,
+	port int,
+	projectRepositoryPath string,
+	dockerfilePath string,
+) error {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	d, err := da.deploymentRepository.UpdateGitDeployment(
+		ctx,
+		deploymentId,
+		strconv.Itoa(port),
+		projectRepositoryPath,
+		dockerfilePath,
+	)
+	if err != nil {
+		return err
+	}
+
+	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
+		DeploymentId:   d.Id,
+		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, d.Name),
+		GitUrl:         d.GitUrl,
+		RootDirectory:  projectRepositoryPath,
+		DockerfilePath: dockerfilePath,
+	})
+}
+
 func (da *DeploymentApplication) DeployImage(
 	ctx context.Context,
 	userId int64,

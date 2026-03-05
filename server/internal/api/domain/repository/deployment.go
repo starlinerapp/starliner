@@ -54,6 +54,35 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 	}, nil
 }
 
+func (dr *DeploymentRepository) UpdateGitDeployment(
+	ctx context.Context,
+	deploymentId int64,
+	port string,
+	projectRepositoryPath string,
+	dockerfilePath string,
+) (deployment *entity.GitDeployment, err error) {
+	d, err := dr.queries.UpdateGitDeployment(ctx, sqlc.UpdateGitDeploymentParams{
+		Port:           port,
+		DeploymentID:   deploymentId,
+		ProjectPath:    projectRepositoryPath,
+		DockerfilePath: dockerfilePath,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.GitDeployment{
+		Id:                    d.DeploymentID,
+		Name:                  d.ServiceName,
+		Status:                string(d.Status),
+		Port:                  d.Port,
+		EnvironmentId:         d.EnvironmentID,
+		GitUrl:                d.Url,
+		ProjectRepositoryPath: d.ProjectPath,
+		DockerfilePath:        d.DockerfilePath,
+	}, nil
+}
+
 func (dr *DeploymentRepository) CreateImageDeployment(
 	ctx context.Context,
 	serviceName string,

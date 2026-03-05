@@ -20,6 +20,32 @@ SELECT
 FROM new_deployment d
 INNER JOIN new_git_deployment gd ON d.id = gd.deployment_id;
 
+-- name: UpdateGitDeployment :one
+WITH updated_deployment AS (
+    UPDATE deployments
+        SET port = @port
+        WHERE id = @deployment_id
+        RETURNING *
+),
+updated_git_deployment AS (
+    UPDATE git_deployments
+        SET project_path = @project_path,
+            dockerfile_path = @dockerfile_path
+        WHERE deployment_id = @deployment_id
+        RETURNING *
+)
+SELECT
+    d.id AS deployment_id,
+    d.status,
+    d.name AS service_name,
+    git_d.url,
+    git_d.project_path,
+    git_d.dockerfile_path,
+    d.port,
+    d.environment_id
+FROM updated_deployment d
+INNER JOIN updated_git_deployment git_d ON d.id = git_d.deployment_id;
+
 -- name: GetEnvironmentGitDeployments :many
 SELECT
     d.id AS deployment_id,

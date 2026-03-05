@@ -148,6 +148,22 @@ definitions:
     - pathType
     - serviceName
     type: object
+  request.UpdateDeployFromGit:
+    properties:
+      dockerfilePath:
+        type: string
+      environmentId:
+        type: integer
+      port:
+        type: integer
+      projectRepositoryPath:
+        type: string
+    required:
+    - dockerfilePath
+    - environmentId
+    - port
+    - projectRepositoryPath
+    type: object
   request.UpdateImage:
     properties:
       environmentId:
@@ -313,6 +329,8 @@ definitions:
         type: string
       serviceName:
         type: string
+      status:
+        type: string
     required:
     - dockerfilePath
     - gitUrl
@@ -320,6 +338,7 @@ definitions:
     - port
     - projectRepositoryPath
     - serviceName
+    - status
     type: object
   response.ImageDeployment:
     properties:
@@ -626,6 +645,32 @@ paths:
         "200":
           description: OK
       summary: Deploy from Git Repository
+      tags:
+      - deployment
+  /deployments/git/{deploymentId}:
+    put:
+      operationId: updateDeployFromGitRepository
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Update Deploy from Git
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDeployFromGit'
+      responses:
+        "200":
+          description: OK
+      summary: Update Deploy from Git
       tags:
       - deployment
   /deployments/images:
