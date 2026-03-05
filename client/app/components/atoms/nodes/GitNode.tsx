@@ -2,12 +2,7 @@ import React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { cn } from "~/utils/cn";
-import {
-  Database,
-  EllipsisVertical,
-  GitBranch,
-  Trash,
-} from "~/components/atoms/icons";
+import { EllipsisVertical, GitBranch, Trash } from "~/components/atoms/icons";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
