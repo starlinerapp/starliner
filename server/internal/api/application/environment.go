@@ -73,6 +73,11 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		return nil, err
 	}
 
+	gitDeployments, err := ea.environmentRepository.GetEnvironmentGitDeployments(ctx, environmentId, userId)
+	if err != nil {
+		return nil, err
+	}
+
 	images, err := ea.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
@@ -108,8 +113,9 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 	}
 
 	return &value.Deployments{
-		Databases: value.NewDatabaseDeployments(databaseDeployments),
-		Images:    value.NewImageDeployments(images),
-		Ingresses: value.NewIngressDeployments(ingresses),
+		Databases:      value.NewDatabaseDeployments(databaseDeployments),
+		Images:         value.NewImageDeployments(images),
+		Ingresses:      value.NewIngressDeployments(ingresses),
+		GitDeployments: value.NewGitDeployments(gitDeployments),
 	}, nil
 }

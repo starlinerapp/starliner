@@ -2,6 +2,7 @@ package queue
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"log"
 	"starliner.app/internal/builder/domain/port"
@@ -11,15 +12,18 @@ import (
 
 const (
 	BuildTriggered jetstream.Subject = "build.triggered"
+	BuildCompleted jetstream.Subject = "build.completed"
 )
 
 type Queue struct {
 	subscriber *jetstream.Subscriber
+	publisher  *jetstream.Publisher
 }
 
 func NewQueue(js nats.JetStreamContext) port.Queue {
 	return &Queue{
 		subscriber: jetstream.NewSubscriber(js),
+		publisher:  jetstream.NewPublisher(js),
 	}
 }
 
@@ -31,4 +35,13 @@ func (q *Queue) SubscribeToBuildTriggered(handler func(build *value.TriggerBuild
 		}
 		handler(&b)
 	})
+}
+
+func (q *Queue) PublishBuildCompleted(build *value.BuildCompleted) error {
+	data, err := json.Marshal(build)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %v", err)
+	}
+
+	return q.publisher.Publish(BuildCompleted, "*", data)
 }

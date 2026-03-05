@@ -4,6 +4,7 @@ import "starliner.app/internal/core/domain/value"
 
 type Queue interface {
 	PublishBuildTriggered(build *value.TriggerBuild) error
+	SubscribeToBuildCompleted(handler func(build *value.BuildCompleted)) error
 
 	PublishCreateCluster(cluster *value.ProvisionCluster) error
 	SubscribeToClusterCreated(handler func(cluster *value.ClusterCreated)) error

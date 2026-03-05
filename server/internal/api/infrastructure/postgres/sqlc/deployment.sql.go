@@ -22,6 +22,42 @@ func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
 	return err
 }
 
+const getDeploymentWithNamespace = `-- name: GetDeploymentWithNamespace :one
+SELECT
+    deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at,
+    environments.namespace
+FROM deployments
+INNER JOIN environments ON deployments.environment_id = environments.id
+WHERE deployments.id = $1
+`
+
+type GetDeploymentWithNamespaceRow struct {
+	ID            int64
+	Name          string
+	Port          string
+	Status        DeploymentStatus
+	EnvironmentID int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Namespace     string
+}
+
+func (q *Queries) GetDeploymentWithNamespace(ctx context.Context, id int64) (GetDeploymentWithNamespaceRow, error) {
+	row := q.db.QueryRowContext(ctx, getDeploymentWithNamespace, id)
+	var i GetDeploymentWithNamespaceRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Port,
+		&i.Status,
+		&i.EnvironmentID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Namespace,
+	)
+	return i, err
+}
+
 const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
 SELECT
     deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at,

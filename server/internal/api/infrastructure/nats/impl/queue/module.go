@@ -22,7 +22,7 @@ var Module = fx.Module(
 		},
 	),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered})
+		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered, BuildCompleted})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted})

@@ -10,7 +10,7 @@ type ImageDeployment struct {
 	DeploymentName   string
 	Namespace        string
 	KubeconfigBase64 string
-	ImageRepository  string
+	ImageName        string
 	ImageTag         string
 	Port             int
 	EnvVars          []*EnvVar

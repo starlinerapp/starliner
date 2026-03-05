@@ -1,5 +1,5 @@
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { CodeBracket, EllipsisVertical, Trash } from "~/components/atoms/icons";
+import { Cube, EllipsisVertical, Trash } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import React from "react";
@@ -40,7 +40,7 @@ export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
       <div className="database-node border-mauve-6 bg-mauve-2 flex w-[350px] flex-col gap-2 rounded-md border-1 p-2 shadow-md">
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
-            <CodeBracket className="w-5" />
+            <Cube className="w-5" />
             <p>{data.serviceName}</p>
           </div>
           <ImageContextMenu deploymentId={data.id} />

@@ -16,7 +16,6 @@ import {
   type NodeTypes,
   type OnConnect,
   type OnNodesChange,
-  Position,
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
@@ -27,24 +26,17 @@ import type { ResponseEnvironment } from "~/server/api/client/generated";
 import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
-import getElkLayout from "~/utils/reactflow/getElkLayout";
+import getElkLayout from "~/service/reactflow/getElkLayout";
 import { useLocation, useMatch, useNavigate, useParams } from "react-router";
+import GitNode from "~/components/atoms/nodes/GitNode";
+import {
+  buildEdgePairs,
+  buildTargets,
+  makeBaseNode,
+} from "~/service/reactflow/helpers";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
-}
-
-function referencesImage(v: string, service: string, port: string): boolean {
-  const candidates = [
-    service,
-    `${service}:${port}`,
-    `http://${service}:${port}`,
-  ];
-  return candidates.some((prefix) => v === prefix || v.startsWith(prefix));
-}
-
-function referencesDatabase(v: string, db: { rwHost: string }): boolean {
-  return v === db.rwHost;
 }
 
 export default function ArchitectureCanvas({
@@ -88,6 +80,7 @@ export default function ArchitectureCanvas({
       database: DatabaseNode,
       image: ImageNode,
       ingress: IngressNode,
+      git: GitNode,
     };
   }, []);
 
@@ -129,137 +122,38 @@ export default function ArchitectureCanvas({
       ...deployments.databases.map((db) => `db:${db.id}`).sort(),
       ...deployments.images.map((img) => `img:${img.id}`).sort(),
       ...deployments.ingresses.map((ing) => `ing:${ing.id}`).sort(),
+      ...deployments.gitDeployments.map((git) => `git:${git.id}`).sort(),
     ].join(",");
 
-    const edgeParts: string[] = [];
+    const targets = buildTargets(deployments);
+    const edgeKey = buildEdgePairs(deployments, targets)
+      .map((e) => `${e.source}->${e.target}`)
+      .sort()
+      .join(",");
 
-    const databaseTargets = deployments.databases.map((db) => ({
-      id: String(db.id),
-      serviceName: db.serviceName,
-      rwHost: `${db.serviceName}-rw`,
-    }));
-
-    const imageTargets = deployments.images.map((t) => ({
-      id: String(t.id),
-      serviceName: t.serviceName,
-      port: t.port,
-    }));
-
-    for (const ing of deployments.ingresses) {
-      for (const host of ing.hosts ?? []) {
-        for (const path of host.paths ?? []) {
-          const matchedTarget = imageTargets.find((t) =>
-            referencesImage(path.serviceName, t.serviceName, t.port),
-          );
-          if (matchedTarget) {
-            edgeParts.push(`${ing.id}->${matchedTarget.id}`);
-          }
-        }
-      }
-    }
-
-    for (const src of deployments.images) {
-      for (const v of src.envVars) {
-        for (const db of databaseTargets) {
-          if (referencesDatabase(v.value, db)) {
-            edgeParts.push(`${src.id}->${db.id}`);
-          }
-        }
-        for (const t of imageTargets) {
-          if (t.id === String(src.id)) continue;
-          if (referencesImage(v.value, t.serviceName, t.port)) {
-            edgeParts.push(`${src.id}->${t.id}`);
-          }
-        }
-      }
-    }
-
-    return `${nodeIds}|${edgeParts.sort().join(",")}`;
+    return `${nodeIds}|${edgeKey}`;
   }, [deployments]);
 
   const rawGraph = useMemo(() => {
     if (!deployments || graphFingerprint === null) return null;
 
-    const baseNode = {
-      position: { x: 0, y: 0 },
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-    };
-
     const rawNodes: Node[] = [
-      ...deployments.databases.map((db) => ({
-        id: String(db.id),
-        type: "database",
-        ...baseNode,
-        data: { ...db },
-      })),
-      ...deployments.images.map((img) => ({
-        id: String(img.id),
-        type: "image",
-        ...baseNode,
-        data: { ...img },
-      })),
-      ...deployments.ingresses.map((ing) => ({
-        id: String(ing.id),
-        type: "ingress",
-        ...baseNode,
-        data: { ...ing },
-      })),
+      ...deployments.databases.map((db) => makeBaseNode(db.id, "database", db)),
+      ...deployments.images.map((img) => makeBaseNode(img.id, "image", img)),
+      ...deployments.ingresses.map((ing) =>
+        makeBaseNode(ing.id, "ingress", ing),
+      ),
+      ...deployments.gitDeployments.map((git) =>
+        makeBaseNode(git.id, "git", git),
+      ),
     ];
 
-    const rawEdges: Edge[] = [];
-    const pushEdge = (source: string, target: string, kind: string) => {
-      rawEdges.push({
-        id: `${source}->${target}:${kind}`,
-        source,
-        target,
-      });
-    };
-
-    const databaseTargets = deployments.databases.map((db) => ({
-      id: String(db.id),
-      serviceName: db.serviceName,
-      rwHost: `${db.serviceName}-rw`,
+    const targets = buildTargets(deployments);
+    const rawEdges: Edge[] = buildEdgePairs(deployments, targets).map((p) => ({
+      id: `${p.source}->${p.target}:${p.kind}`,
+      source: p.source,
+      target: p.target,
     }));
-
-    const imageTargets = deployments.images.map((t) => ({
-      id: String(t.id),
-      serviceName: t.serviceName,
-      port: t.port,
-    }));
-
-    for (const ing of deployments.ingresses) {
-      for (const host of ing.hosts ?? []) {
-        for (const path of host.paths ?? []) {
-          const matchedTarget = imageTargets.find((t) =>
-            referencesImage(path.serviceName, t.serviceName, t.port),
-          );
-          if (!matchedTarget) continue;
-          pushEdge(
-            String(ing.id),
-            matchedTarget.id,
-            `ing:${host.host}:${path.path}`,
-          );
-        }
-      }
-    }
-
-    for (const src of deployments.images) {
-      const sourceId = String(src.id);
-      for (const v of src.envVars) {
-        for (const db of databaseTargets) {
-          if (referencesDatabase(v.value, db)) {
-            pushEdge(sourceId, db.id, `img->db:${db.serviceName}`);
-          }
-        }
-        for (const t of imageTargets) {
-          if (t.id === sourceId) continue;
-          if (referencesImage(v.value, t.serviceName, t.port)) {
-            pushEdge(sourceId, t.id, `img->img:${t.serviceName}:${t.port}`);
-          }
-        }
-      }
-    }
 
     return { rawNodes, rawEdges };
   }, [graphFingerprint]);
@@ -314,6 +208,8 @@ export default function ArchitectureCanvas({
     for (const img of deployments.images) map.set(String(img.id), { ...img });
     for (const ing of deployments.ingresses)
       map.set(String(ing.id), { ...ing });
+    for (const git of deployments.gitDeployments)
+      map.set(String(git.id), { ...git });
     return map;
   }, [deployments]);
 

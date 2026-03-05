@@ -21,7 +21,7 @@ func NewDocker(
 func (c *Docker) BuildAndPublish(ctx context.Context, projectDir string, dockerfilePath string, imageTag string) error {
 	buildContainer := c.daggerClient.Host().
 		Directory(projectDir).
-		DockerBuild(dagger.DirectoryDockerBuildOpts{Dockerfile: dockerfilePath})
+		DockerBuild(dagger.DirectoryDockerBuildOpts{Dockerfile: dockerfilePath, Platform: "linux/amd64"})
 
 	_, err := buildContainer.Publish(ctx, imageTag)
 	return err

@@ -54,6 +54,18 @@ type DatabaseDeployment struct {
 	EnvironmentId int64
 }
 
+type GitDeployment struct {
+	Id                    int64
+	Name                  string
+	Status                string
+	Port                  string
+	EnvironmentId         int64
+	GitUrl                string
+	ProjectRepositoryPath string
+	DockerfilePath        string
+	EnvVars               []*EnvVar
+}
+
 type Deployment struct {
 	Id            int64
 	Name          string

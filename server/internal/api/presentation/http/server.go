@@ -26,7 +26,6 @@ func NewServer(
 	organizationHandler *handler.OrganizationHandler,
 	projectHandler *handler.ProjectHandler,
 	environmentHandler *handler.EnvironmentHandler,
-	buildHandler *handler.BuildHandler,
 	clusterHandler *handler.ClusterHandler,
 	deploymentHandler *handler.DeploymentHandler,
 ) *Server {
@@ -62,11 +61,6 @@ func NewServer(
 		environmentRoutes.GET("/:id/deployments", environmentHandler.GetEnvironmentDeployments)
 	}
 
-	buildRoutes := engine.Group("/builds")
-	{
-		buildRoutes.POST("", buildHandler.TriggerBuild)
-	}
-
 	clusterRoutes := engine.Group("/clusters")
 	{
 		clusterRoutes.POST("", clusterHandler.CreateCluster)
@@ -77,6 +71,8 @@ func NewServer(
 
 	deploymentRoutes := engine.Group("/deployments")
 	{
+		deploymentRoutes.POST("/git", deploymentHandler.DeployFromGitRepository)
+		deploymentRoutes.PUT("/git/:deploymentId", deploymentHandler.UpdateDeployFromGitRepository)
 		deploymentRoutes.POST("/images", deploymentHandler.DeployImage)
 		deploymentRoutes.PUT("/images/:deploymentId", deploymentHandler.UpdateImageDeployment)
 		deploymentRoutes.POST("/databases", deploymentHandler.DeployDatabase)
