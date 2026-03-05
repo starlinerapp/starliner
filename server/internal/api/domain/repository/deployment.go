@@ -115,6 +115,10 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 		return nil, err
 	}
 
+	if err := qtx.DeleteEnvVarsByDeploymentId(ctx, deploymentId); err != nil {
+		return nil, err
+	}
+
 	vars := make([]*entity.EnvVar, len(envs))
 	for i, e := range envs {
 		variable, err := qtx.CreateDeploymentEnvVar(ctx, sqlc.CreateDeploymentEnvVarParams{

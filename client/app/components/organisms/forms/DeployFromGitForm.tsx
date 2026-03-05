@@ -44,6 +44,10 @@ export default function DeployFromGitForm({
   const dockerFilePathInput = watch("dockerfilePath", "");
 
   const submit: SubmitHandler<DeployFromGitFormInput> = async (data) => {
+    data.envs = (data.envs ?? []).filter(
+      (e) => e.name.trim() !== "" || e.value.trim() !== "",
+    );
+
     await onSubmit(data);
     if (resetOnSuccess)
       reset({
