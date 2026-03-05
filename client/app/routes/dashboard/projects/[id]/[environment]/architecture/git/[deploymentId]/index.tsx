@@ -55,7 +55,7 @@ export default function UpdateGitDeployment() {
             dockerfilePath: gitDeployment?.dockerfilePath ?? "",
             projectDirectoryPath: gitDeployment?.projectRepositoryPath ?? "",
             port: gitDeployment ? Number(gitDeployment?.port) : null,
-            envs: [],
+            envs: gitDeployment?.envVars ?? [],
           }}
         />
       )}

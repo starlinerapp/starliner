@@ -26,6 +26,7 @@ type GitDeployment struct {
 	GitUrl                string
 	ProjectRepositoryPath string
 	DockerfilePath        string
+	EnvVars               []*EnvVar
 }
 
 func NewGitDeployment(d *entity.GitDeployment) *GitDeployment {
@@ -37,6 +38,7 @@ func NewGitDeployment(d *entity.GitDeployment) *GitDeployment {
 		GitUrl:                d.GitUrl,
 		ProjectRepositoryPath: d.ProjectRepositoryPath,
 		DockerfilePath:        d.DockerfilePath,
+		EnvVars:               mapEnvVars(d.EnvVars),
 	}
 }
 

@@ -1314,6 +1314,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "dockerfilePath",
+                "envVars",
                 "gitUrl",
                 "id",
                 "port",
@@ -1324,6 +1325,12 @@ const docTemplate = `{
             "properties": {
                 "dockerfilePath": {
                     "type": "string"
+                },
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
                 },
                 "gitUrl": {
                     "type": "string"

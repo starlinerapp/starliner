@@ -1305,6 +1305,7 @@
             "type": "object",
             "required": [
                 "dockerfilePath",
+                "envVars",
                 "gitUrl",
                 "id",
                 "port",
@@ -1315,6 +1316,12 @@
             "properties": {
                 "dockerfilePath": {
                     "type": "string"
+                },
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
                 },
                 "gitUrl": {
                     "type": "string"

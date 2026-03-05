@@ -329,6 +329,10 @@ definitions:
     properties:
       dockerfilePath:
         type: string
+      envVars:
+        items:
+          $ref: '#/definitions/response.EnvVar'
+        type: array
       gitUrl:
         type: string
       id:
@@ -343,6 +347,7 @@ definitions:
         type: string
     required:
     - dockerfilePath
+    - envVars
     - gitUrl
     - id
     - port

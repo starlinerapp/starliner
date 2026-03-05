@@ -633,6 +633,12 @@ export interface ResponseGitDeployment {
   dockerfilePath: string;
   /**
    *
+   * @type {Array<ResponseEnvVar>}
+   * @memberof ResponseGitDeployment
+   */
+  envVars: Array<ResponseEnvVar>;
+  /**
+   *
    * @type {string}
    * @memberof ResponseGitDeployment
    */

@@ -11,14 +11,20 @@ type Deployments struct {
 	GitDeployment []GitDeployment      `json:"gitDeployments" binding:"required"`
 }
 
+type EnvVar struct {
+	Name  string `json:"name" binding:"required"`
+	Value string `json:"value" binding:"required"`
+}
+
 type GitDeployment struct {
-	Id                    int64  `json:"id" binding:"required"`
-	ServiceName           string `json:"serviceName" binding:"required"`
-	Status                string `json:"status" binding:"required"`
-	Port                  string `json:"port" binding:"required"`
-	GitUrl                string `json:"gitUrl" binding:"required"`
-	ProjectRepositoryPath string `json:"projectRepositoryPath" binding:"required"`
-	DockerfilePath        string `json:"dockerfilePath" binding:"required"`
+	Id                    int64    `json:"id" binding:"required"`
+	ServiceName           string   `json:"serviceName" binding:"required"`
+	Status                string   `json:"status" binding:"required"`
+	Port                  string   `json:"port" binding:"required"`
+	GitUrl                string   `json:"gitUrl" binding:"required"`
+	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
+	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
+	EnvVars               []EnvVar `json:"envVars" binding:"required"`
 }
 
 func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
@@ -30,7 +36,19 @@ func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
 		GitUrl:                gitDeployment.GitUrl,
 		ProjectRepositoryPath: gitDeployment.ProjectRepositoryPath,
 		DockerfilePath:        gitDeployment.DockerfilePath,
+		EnvVars:               mapEnvVarsFromValue(gitDeployment.EnvVars),
 	}
+}
+
+func mapEnvVarsFromValue(envVars []*value.EnvVar) []EnvVar {
+	variables := make([]EnvVar, len(envVars))
+	for i, envVar := range envVars {
+		variables[i] = EnvVar{
+			Name:  envVar.Name,
+			Value: envVar.Value,
+		}
+	}
+	return variables
 }
 
 func NewGitDeployments(gitDeployments []*value.GitDeployment) []GitDeployment {
@@ -97,11 +115,6 @@ func NewIngressDeployments(ingressDeployments []*value.IngressDeployment) []Ingr
 	return result
 }
 
-type EnvVar struct {
-	Name  string `json:"name" binding:"required"`
-	Value string `json:"value" binding:"required"`
-}
-
 type ImageDeployment struct {
 	Id          int64    `json:"id" binding:"required"`
 	ServiceName string   `json:"serviceName" binding:"required"`
@@ -130,17 +143,6 @@ func NewImageDeployments(imageDeployments []*value.ImageDeployment) []ImageDeplo
 		result = append(result, NewImageDeployment(deployment))
 	}
 	return result
-}
-
-func mapEnvVarsFromValue(envVars []*value.EnvVar) []EnvVar {
-	variables := make([]EnvVar, len(envVars))
-	for i, envVar := range envVars {
-		variables[i] = EnvVar{
-			Name:  envVar.Name,
-			Value: envVar.Value,
-		}
-	}
-	return variables
 }
 
 type DatabaseDeployment struct {

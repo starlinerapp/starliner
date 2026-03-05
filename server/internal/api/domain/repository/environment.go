@@ -90,6 +90,18 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 
 	deployments := make([]*entity.GitDeployment, len(rows))
 	for i, r := range rows {
+		envVars, err := er.queries.GetDeploymentEnvironmentVars(ctx, r.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		variables := make([]*entity.EnvVar, len(envVars))
+		for j, e := range envVars {
+			variables[j] = &entity.EnvVar{
+				Name:  e.Name,
+				Value: e.Value,
+			}
+		}
 		deployments[i] = &entity.GitDeployment{
 			Id:                    r.DeploymentID,
 			Name:                  r.Name,
@@ -99,6 +111,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 			GitUrl:                r.Url,
 			ProjectRepositoryPath: r.ProjectPath,
 			DockerfilePath:        r.DockerfilePath,
+			EnvVars:               variables,
 		}
 	}
 
