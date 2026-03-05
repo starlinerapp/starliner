@@ -910,6 +910,7 @@
             "required": [
                 "dockerfilePath",
                 "environmentId",
+                "envs",
                 "gitUrl",
                 "port",
                 "projectRepositoryPath",
@@ -921,6 +922,12 @@
                 },
                 "environmentId": {
                     "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
                 },
                 "gitUrl": {
                     "type": "string"
@@ -1049,6 +1056,7 @@
             "required": [
                 "dockerfilePath",
                 "environmentId",
+                "envs",
                 "port",
                 "projectRepositoryPath"
             ],
@@ -1058,6 +1066,12 @@
                 },
                 "environmentId": {
                     "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
                 },
                 "port": {
                     "type": "integer"

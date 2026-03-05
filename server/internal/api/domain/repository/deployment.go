@@ -30,8 +30,19 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 	gitUrl string,
 	projectRepositoryPath string,
 	dockerfilePath string,
+	envs []*value.EnvVar,
 ) (deployment *entity.GitDeployment, err error) {
-	d, err := dr.queries.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
+	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := dr.queries.WithTx(tx)
+
+	d, err := qtx.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
 		Name:           serviceName,
 		Port:           port,
 		EnvironmentID:  environmentId,
@@ -43,6 +54,27 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 		return nil, err
 	}
 
+	vars := make([]*entity.EnvVar, len(envs))
+	for i, e := range envs {
+		variable, err := qtx.CreateDeploymentEnvVar(ctx, sqlc.CreateDeploymentEnvVarParams{
+			DeploymentID: d.DeploymentID,
+			Name:         e.Name,
+			Value:        e.Value,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		vars[i] = &entity.EnvVar{
+			Name:  variable.Name,
+			Value: variable.Value,
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
 	return &entity.GitDeployment{
 		Id:                    d.DeploymentID,
 		Name:                  d.Name,
@@ -51,6 +83,7 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 		GitUrl:                d.Url,
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
+		EnvVars:               vars,
 	}, nil
 }
 
@@ -60,14 +93,46 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 	port string,
 	projectRepositoryPath string,
 	dockerfilePath string,
+	envs []*value.EnvVar,
 ) (deployment *entity.GitDeployment, err error) {
-	d, err := dr.queries.UpdateGitDeployment(ctx, sqlc.UpdateGitDeploymentParams{
+	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := dr.queries.WithTx(tx)
+
+	d, err := qtx.UpdateGitDeployment(ctx, sqlc.UpdateGitDeploymentParams{
 		Port:           port,
 		DeploymentID:   deploymentId,
 		ProjectPath:    projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
 	})
 	if err != nil {
+		return nil, err
+	}
+
+	vars := make([]*entity.EnvVar, len(envs))
+	for i, e := range envs {
+		variable, err := qtx.CreateDeploymentEnvVar(ctx, sqlc.CreateDeploymentEnvVarParams{
+			DeploymentID: d.DeploymentID,
+			Name:         e.Name,
+			Value:        e.Value,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		vars[i] = &entity.EnvVar{
+			Name:  variable.Name,
+			Value: variable.Value,
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -80,6 +145,7 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 		GitUrl:                d.Url,
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
+		EnvVars:               vars,
 	}, nil
 }
 
@@ -412,6 +478,22 @@ func (dr *DeploymentRepository) GetDeploymentWithNamespace(ctx context.Context, 
 		Namespace:     deployment.Namespace,
 		EnvironmentId: deployment.EnvironmentID,
 	}, nil
+}
+
+func (dr *DeploymentRepository) GetDeploymentEnvs(ctx context.Context, deploymentId int64) ([]*entity.EnvVar, error) {
+	envVars, err := dr.queries.GetDeploymentEnvironmentVars(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+
+	variables := make([]*entity.EnvVar, len(envVars))
+	for j, e := range envVars {
+		variables[j] = &entity.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		}
+	}
+	return variables, nil
 }
 
 func (dr *DeploymentRepository) GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error) {

@@ -27,6 +27,7 @@ export default function Git() {
       gitUrl: data.url,
       dockerfilePath: data.dockerfilePath,
       projectRepositoryPath: data.projectDirectoryPath,
+      envs: data.envs,
     });
   };
 

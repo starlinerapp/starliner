@@ -160,6 +160,12 @@ export interface RequestDeployFromGit {
   environmentId: number;
   /**
    *
+   * @type {Array<RequestEnvVar>}
+   * @memberof RequestDeployFromGit
+   */
+  envs: Array<RequestEnvVar>;
+  /**
+   *
    * @type {string}
    * @memberof RequestDeployFromGit
    */
@@ -335,6 +341,12 @@ export interface RequestUpdateDeployFromGit {
    * @memberof RequestUpdateDeployFromGit
    */
   environmentId: number;
+  /**
+   *
+   * @type {Array<RequestEnvVar>}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  envs: Array<RequestEnvVar>;
   /**
    *
    * @type {number}

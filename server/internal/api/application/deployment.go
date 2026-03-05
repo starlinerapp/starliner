@@ -57,6 +57,7 @@ func (da *DeploymentApplication) DeployFromGit(
 	gitUrl string,
 	projectRepositoryPath string,
 	dockerfilePath string,
+	envs []*value.EnvVar,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -76,6 +77,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		gitUrl,
 		projectRepositoryPath,
 		dockerfilePath,
+		envs,
 	)
 	if err != nil {
 		return err
@@ -98,6 +100,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	port int,
 	projectRepositoryPath string,
 	dockerfilePath string,
+	envs []*value.EnvVar,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -115,6 +118,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		strconv.Itoa(port),
 		projectRepositoryPath,
 		dockerfilePath,
+		envs,
 	)
 	if err != nil {
 		return err
@@ -575,14 +579,29 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		return
 	}
 
+	envs, err := da.deploymentRepository.GetDeploymentEnvs(ctx, b.DeploymentId)
+	if err != nil {
+		log.Printf("failed to get deployment envs: %v\n", err)
+		return
+	}
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
+	for _, e := range envs {
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		log.Printf("failed to decrypt kubeconfig: %v\n", err)
+		return
 	}
 
 	deploymentPort, err := strconv.Atoi(deployment.Port)
 	if err != nil {
 		log.Printf("failed to parse port: %v\n", err)
+		return
 	}
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
@@ -593,7 +612,7 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		ImageName:        fmt.Sprintf("%s/%s", b.ImageRegistryUrl, b.ImageName),
 		ImageTag:         b.Tag,
 		Port:             deploymentPort,
-		EnvVars:          nil,
+		EnvVars:          coreEnvs,
 	})
 	if err != nil {
 		log.Printf("failed to publish: %v\n", err)

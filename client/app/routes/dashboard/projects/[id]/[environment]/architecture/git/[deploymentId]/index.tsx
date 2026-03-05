@@ -35,6 +35,7 @@ export default function UpdateGitDeployment() {
       port: data.port,
       dockerfilePath: data.dockerfilePath,
       projectRepositoryPath: data.projectDirectoryPath,
+      envs: data.envs,
     });
   };
 

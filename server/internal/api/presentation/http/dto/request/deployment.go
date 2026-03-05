@@ -6,19 +6,21 @@ type EnvVar struct {
 }
 
 type DeployFromGit struct {
-	EnvironmentId         int64  `json:"environmentId" binding:"required"`
-	ServiceName           string `json:"serviceName" binding:"required"`
-	Port                  int    `json:"port" binding:"required"`
-	GitUrl                string `json:"gitUrl" binding:"required"`
-	ProjectRepositoryPath string `json:"projectRepositoryPath" binding:"required"`
-	DockerfilePath        string `json:"dockerfilePath" binding:"required"`
+	EnvironmentId         int64    `json:"environmentId" binding:"required"`
+	ServiceName           string   `json:"serviceName" binding:"required"`
+	Port                  int      `json:"port" binding:"required"`
+	GitUrl                string   `json:"gitUrl" binding:"required"`
+	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
+	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
+	Envs                  []EnvVar `json:"envs" binding:"required"`
 }
 
 type UpdateDeployFromGit struct {
-	EnvironmentId         int64  `json:"environmentId" binding:"required"`
-	Port                  int    `json:"port" binding:"required"`
-	ProjectRepositoryPath string `json:"projectRepositoryPath" binding:"required"`
-	DockerfilePath        string `json:"dockerfilePath" binding:"required"`
+	EnvironmentId         int64    `json:"environmentId" binding:"required"`
+	Port                  int      `json:"port" binding:"required"`
+	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
+	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
+	Envs                  []EnvVar `json:"envs" binding:"required"`
 }
 
 type DeployImage struct {

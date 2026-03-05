@@ -225,6 +225,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 		body.GitUrl,
 		body.ProjectRepositoryPath,
 		body.DockerfilePath,
+		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -265,6 +266,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		body.Port,
 		body.ProjectRepositoryPath,
 		body.DockerfilePath,
+		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

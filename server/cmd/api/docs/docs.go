@@ -919,6 +919,7 @@ const docTemplate = `{
             "required": [
                 "dockerfilePath",
                 "environmentId",
+                "envs",
                 "gitUrl",
                 "port",
                 "projectRepositoryPath",
@@ -930,6 +931,12 @@ const docTemplate = `{
                 },
                 "environmentId": {
                     "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
                 },
                 "gitUrl": {
                     "type": "string"
@@ -1058,6 +1065,7 @@ const docTemplate = `{
             "required": [
                 "dockerfilePath",
                 "environmentId",
+                "envs",
                 "port",
                 "projectRepositoryPath"
             ],
@@ -1067,6 +1075,12 @@ const docTemplate = `{
                 },
                 "environmentId": {
                     "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
                 },
                 "port": {
                     "type": "integer"

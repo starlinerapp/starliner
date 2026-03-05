@@ -23,6 +23,14 @@ export const deploymentRouter = {
         gitUrl: z.string(),
         dockerfilePath: z.string(),
         projectRepositoryPath: z.string(),
+        envs: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -35,6 +43,7 @@ export const deploymentRouter = {
           gitUrl: input.gitUrl,
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
+          envs: input.envs,
         })
         .then((res) => res.data);
     }),
@@ -46,6 +55,14 @@ export const deploymentRouter = {
         port: z.number(),
         dockerfilePath: z.string(),
         projectRepositoryPath: z.string(),
+        envs: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -56,6 +73,7 @@ export const deploymentRouter = {
           port: input.port,
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
+          envs: input.envs,
         })
         .then((res) => res.data);
     }),

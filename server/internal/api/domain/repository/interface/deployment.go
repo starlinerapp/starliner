@@ -15,6 +15,7 @@ type DeploymentRepository interface {
 		gitUrl string,
 		projectRepositoryPath string,
 		dockerfilePath string,
+		envs []*value.EnvVar,
 	) (deployment *entity.GitDeployment, err error)
 
 	UpdateGitDeployment(
@@ -23,6 +24,7 @@ type DeploymentRepository interface {
 		port string,
 		projectRepositoryPath string,
 		dockerfilePath string,
+		envs []*value.EnvVar,
 	) (deployment *entity.GitDeployment, err error)
 
 	CreateImageDeployment(
@@ -74,6 +76,8 @@ type DeploymentRepository interface {
 		username string,
 		password string,
 	) error
+
+	GetDeploymentEnvs(ctx context.Context, deploymentId int64) ([]*entity.EnvVar, error)
 
 	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
 

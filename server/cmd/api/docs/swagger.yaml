@@ -58,6 +58,10 @@ definitions:
         type: string
       environmentId:
         type: integer
+      envs:
+        items:
+          $ref: '#/definitions/request.EnvVar'
+        type: array
       gitUrl:
         type: string
       port:
@@ -69,6 +73,7 @@ definitions:
     required:
     - dockerfilePath
     - environmentId
+    - envs
     - gitUrl
     - port
     - projectRepositoryPath
@@ -154,6 +159,10 @@ definitions:
         type: string
       environmentId:
         type: integer
+      envs:
+        items:
+          $ref: '#/definitions/request.EnvVar'
+        type: array
       port:
         type: integer
       projectRepositoryPath:
@@ -161,6 +170,7 @@ definitions:
     required:
     - dockerfilePath
     - environmentId
+    - envs
     - port
     - projectRepositoryPath
     type: object
