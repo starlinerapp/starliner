@@ -14,6 +14,69 @@ const ingressHostSchema = z.object({
 });
 
 export const deploymentRouter = {
+  deployFromGitRepo: protectedProcedure
+    .input(
+      z.object({
+        environmentId: z.number(),
+        serviceName: z.string(),
+        port: z.number(),
+        gitUrl: z.string(),
+        dockerfilePath: z.string(),
+        projectRepositoryPath: z.string(),
+        envs: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .deployFromGitRepository(userId, {
+          environmentId: input.environmentId,
+          serviceName: input.serviceName,
+          port: input.port,
+          gitUrl: input.gitUrl,
+          dockerfilePath: input.dockerfilePath,
+          projectRepositoryPath: input.projectRepositoryPath,
+          envs: input.envs,
+        })
+        .then((res) => res.data);
+    }),
+  updateDeployFromGitRepo: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        deploymentId: z.number(),
+        port: z.number(),
+        dockerfilePath: z.string(),
+        projectRepositoryPath: z.string(),
+        envs: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .updateDeployFromGitRepository(userId, input.deploymentId, {
+          environmentId: input.id,
+          port: input.port,
+          dockerfilePath: input.dockerfilePath,
+          projectRepositoryPath: input.projectRepositoryPath,
+          envs: input.envs,
+        })
+        .then((res) => res.data);
+    }),
   deployImage: protectedProcedure
     .input(
       z.object({

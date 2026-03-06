@@ -4,7 +4,6 @@ api.ts
 base.ts
 common.ts
 configuration.ts
-docs/BuildApi.md
 docs/ClusterApi.md
 docs/DeploymentApi.md
 docs/EnvironmentApi.md
@@ -15,11 +14,13 @@ docs/RequestCreateEnvironment.md
 docs/RequestCreateOrganization.md
 docs/RequestCreateProject.md
 docs/RequestDeployDatabase.md
+docs/RequestDeployFromGit.md
 docs/RequestDeployImage.md
 docs/RequestDeployIngress.md
 docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
+docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md
@@ -30,6 +31,7 @@ docs/ResponseDeployments.md
 docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
+docs/ResponseGitDeployment.md
 docs/ResponseImageDeployment.md
 docs/ResponseIngressDeployment.md
 docs/ResponseIngressHost.md

@@ -52,6 +52,33 @@ definitions:
     - environmentId
     - serviceName
     type: object
+  request.DeployFromGit:
+    properties:
+      dockerfilePath:
+        type: string
+      environmentId:
+        type: integer
+      envs:
+        items:
+          $ref: '#/definitions/request.EnvVar'
+        type: array
+      gitUrl:
+        type: string
+      port:
+        type: integer
+      projectRepositoryPath:
+        type: string
+      serviceName:
+        type: string
+    required:
+    - dockerfilePath
+    - environmentId
+    - envs
+    - gitUrl
+    - port
+    - projectRepositoryPath
+    - serviceName
+    type: object
   request.DeployImage:
     properties:
       environmentId:
@@ -125,6 +152,27 @@ definitions:
     - path
     - pathType
     - serviceName
+    type: object
+  request.UpdateDeployFromGit:
+    properties:
+      dockerfilePath:
+        type: string
+      environmentId:
+        type: integer
+      envs:
+        items:
+          $ref: '#/definitions/request.EnvVar'
+        type: array
+      port:
+        type: integer
+      projectRepositoryPath:
+        type: string
+    required:
+    - dockerfilePath
+    - environmentId
+    - envs
+    - port
+    - projectRepositoryPath
     type: object
   request.UpdateImage:
     properties:
@@ -231,6 +279,10 @@ definitions:
         items:
           $ref: '#/definitions/response.DatabaseDeployment'
         type: array
+      gitDeployments:
+        items:
+          $ref: '#/definitions/response.GitDeployment'
+        type: array
       images:
         items:
           $ref: '#/definitions/response.ImageDeployment'
@@ -241,6 +293,7 @@ definitions:
         type: array
     required:
     - databases
+    - gitDeployments
     - images
     - ingresses
     type: object
@@ -271,6 +324,36 @@ definitions:
     properties:
       credential:
         $ref: '#/definitions/response.OrganizationProvisioningCredential'
+    type: object
+  response.GitDeployment:
+    properties:
+      dockerfilePath:
+        type: string
+      envVars:
+        items:
+          $ref: '#/definitions/response.EnvVar'
+        type: array
+      gitUrl:
+        type: string
+      id:
+        type: integer
+      port:
+        type: string
+      projectRepositoryPath:
+        type: string
+      serviceName:
+        type: string
+      status:
+        type: string
+    required:
+    - dockerfilePath
+    - envVars
+    - gitUrl
+    - id
+    - port
+    - projectRepositoryPath
+    - serviceName
+    - status
     type: object
   response.ImageDeployment:
     properties:
@@ -431,21 +514,6 @@ paths:
       summary: Get root
       tags:
       - root
-  /builds:
-    post:
-      operationId: triggerBuild
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-      summary: Trigger Build
-      tags:
-      - build
   /clusters:
     post:
       operationId: createCluster
@@ -571,6 +639,53 @@ paths:
         "200":
           description: OK
       summary: Deploy database
+      tags:
+      - deployment
+  /deployments/git:
+    post:
+      operationId: deployFromGitRepository
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deploy from Git
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeployFromGit'
+      responses:
+        "200":
+          description: OK
+      summary: Deploy from Git Repository
+      tags:
+      - deployment
+  /deployments/git/{deploymentId}:
+    put:
+      operationId: updateDeployFromGitRepository
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Update Deploy from Git
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDeployFromGit'
+      responses:
+        "200":
+          description: OK
+      summary: Update Deploy from Git
       tags:
       - deployment
   /deployments/images:

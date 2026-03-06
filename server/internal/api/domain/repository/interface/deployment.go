@@ -7,6 +7,26 @@ import (
 )
 
 type DeploymentRepository interface {
+	CreateGitDeployment(
+		ctx context.Context,
+		environmentId int64,
+		serviceName string,
+		port string,
+		gitUrl string,
+		projectRepositoryPath string,
+		dockerfilePath string,
+		envs []*value.EnvVar,
+	) (deployment *entity.GitDeployment, err error)
+
+	UpdateGitDeployment(
+		ctx context.Context,
+		deploymentId int64,
+		port string,
+		projectRepositoryPath string,
+		dockerfilePath string,
+		envs []*value.EnvVar,
+	) (deployment *entity.GitDeployment, err error)
+
 	CreateImageDeployment(
 		ctx context.Context,
 		serviceName string,
@@ -57,7 +77,11 @@ type DeploymentRepository interface {
 		password string,
 	) error
 
+	GetDeploymentEnvs(ctx context.Context, deploymentId int64) ([]*entity.EnvVar, error)
+
 	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
+
+	GetDeploymentWithNamespace(ctx context.Context, deploymentId int64) (*entity.Deployment, error)
 
 	GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error)
 

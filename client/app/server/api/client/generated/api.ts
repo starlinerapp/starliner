@@ -143,6 +143,55 @@ export interface RequestDeployDatabase {
 /**
  *
  * @export
+ * @interface RequestDeployFromGit
+ */
+export interface RequestDeployFromGit {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployFromGit
+   */
+  dockerfilePath: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployFromGit
+   */
+  environmentId: number;
+  /**
+   *
+   * @type {Array<RequestEnvVar>}
+   * @memberof RequestDeployFromGit
+   */
+  envs: Array<RequestEnvVar>;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployFromGit
+   */
+  gitUrl: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployFromGit
+   */
+  port: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployFromGit
+   */
+  projectRepositoryPath: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployFromGit
+   */
+  serviceName: string;
+}
+/**
+ *
+ * @export
  * @interface RequestDeployImage
  */
 export interface RequestDeployImage {
@@ -274,6 +323,43 @@ export const RequestIngressPathPathTypeEnum = {
 export type RequestIngressPathPathTypeEnum =
   (typeof RequestIngressPathPathTypeEnum)[keyof typeof RequestIngressPathPathTypeEnum];
 
+/**
+ *
+ * @export
+ * @interface RequestUpdateDeployFromGit
+ */
+export interface RequestUpdateDeployFromGit {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  dockerfilePath: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  environmentId: number;
+  /**
+   *
+   * @type {Array<RequestEnvVar>}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  envs: Array<RequestEnvVar>;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  port: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  projectRepositoryPath: string;
+}
 /**
  *
  * @export
@@ -459,6 +545,12 @@ export interface ResponseDeployments {
   databases: Array<ResponseDatabaseDeployment>;
   /**
    *
+   * @type {Array<ResponseGitDeployment>}
+   * @memberof ResponseDeployments
+   */
+  gitDeployments: Array<ResponseGitDeployment>;
+  /**
+   *
    * @type {Array<ResponseImageDeployment>}
    * @memberof ResponseDeployments
    */
@@ -526,6 +618,61 @@ export interface ResponseGetOrganizationProvisioningCredentialResponse {
    * @memberof ResponseGetOrganizationProvisioningCredentialResponse
    */
   credential?: ResponseOrganizationProvisioningCredential;
+}
+/**
+ *
+ * @export
+ * @interface ResponseGitDeployment
+ */
+export interface ResponseGitDeployment {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  dockerfilePath: string;
+  /**
+   *
+   * @type {Array<ResponseEnvVar>}
+   * @memberof ResponseGitDeployment
+   */
+  envVars: Array<ResponseEnvVar>;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  gitUrl: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseGitDeployment
+   */
+  id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  port: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  projectRepositoryPath: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  serviceName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  status: string;
 }
 /**
  *
@@ -778,154 +925,6 @@ export interface ResponseUser {
    * @memberof ResponseUser
    */
   user_id: number;
-}
-
-/**
- * BuildApi - axios parameter creator
- * @export
- */
-export const BuildApiAxiosParamCreator = function (
-  configuration?: Configuration,
-) {
-  return {
-    /**
-     *
-     * @summary Trigger Build
-     * @param {string} xUserID User ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    triggerBuild: async (
-      xUserID: string,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("triggerBuild", "xUserID", xUserID);
-      const localVarPath = `/builds`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
-
-/**
- * BuildApi - functional programming interface
- * @export
- */
-export const BuildApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator = BuildApiAxiosParamCreator(configuration);
-  return {
-    /**
-     *
-     * @summary Trigger Build
-     * @param {string} xUserID User ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async triggerBuild(
-      xUserID: string,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
-    > {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.triggerBuild(
-        xUserID,
-        options,
-      );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["BuildApi.triggerBuild"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-  };
-};
-
-/**
- * BuildApi - factory interface
- * @export
- */
-export const BuildApiFactory = function (
-  configuration?: Configuration,
-  basePath?: string,
-  axios?: AxiosInstance,
-) {
-  const localVarFp = BuildApiFp(configuration);
-  return {
-    /**
-     *
-     * @summary Trigger Build
-     * @param {string} xUserID User ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    triggerBuild(
-      xUserID: string,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
-      return localVarFp
-        .triggerBuild(xUserID, options)
-        .then((request) => request(axios, basePath));
-    },
-  };
-};
-
-/**
- * BuildApi - object-oriented interface
- * @export
- * @class BuildApi
- * @extends {BaseAPI}
- */
-export class BuildApi extends BaseAPI {
-  /**
-   *
-   * @summary Trigger Build
-   * @param {string} xUserID User ID
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof BuildApi
-   */
-  public triggerBuild(xUserID: string, options?: RawAxiosRequestConfig) {
-    return BuildApiFp(this.configuration)
-      .triggerBuild(xUserID, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
 }
 
 /**
@@ -1590,6 +1589,63 @@ export const DeploymentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Deploy from Git Repository
+     * @param {string} xUserID User ID
+     * @param {RequestDeployFromGit} data Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployFromGitRepository: async (
+      xUserID: string,
+      data: RequestDeployFromGit,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deployFromGitRepository", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("deployFromGitRepository", "data", data);
+      const localVarPath = `/deployments/git`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Deploy image
      * @param {string} xUserID User ID
      * @param {RequestDeployImage} data Deploy Image
@@ -1672,6 +1728,74 @@ export const DeploymentApiAxiosParamCreator = function (
 
       const localVarRequestOptions = {
         method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Update Deploy from Git
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateDeployFromGitRepository: async (
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDeployFromGit,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("updateDeployFromGitRepository", "xUserID", xUserID);
+      // verify required parameter 'deploymentId' is not null or undefined
+      assertParamExists(
+        "updateDeployFromGitRepository",
+        "deploymentId",
+        deploymentId,
+      );
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("updateDeployFromGitRepository", "data", data);
+      const localVarPath = `/deployments/git/{deploymentId}`.replace(
+        `{${"deploymentId"}}`,
+        encodeURIComponent(String(deploymentId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
         ...baseOptions,
         ...options,
       };
@@ -1910,6 +2034,40 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Deploy from Git Repository
+     * @param {string} xUserID User ID
+     * @param {RequestDeployFromGit} data Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deployFromGitRepository(
+      xUserID: string,
+      data: RequestDeployFromGit,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.deployFromGitRepository(
+          xUserID,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.deployFromGitRepository"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Deploy image
      * @param {string} xUserID User ID
      * @param {RequestDeployImage} data Deploy Image
@@ -1964,6 +2122,43 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["DeploymentApi.deployIngress"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Update Deploy from Git
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateDeployFromGitRepository(
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDeployFromGit,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.updateDeployFromGitRepository(
+          xUserID,
+          deploymentId,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.updateDeployFromGitRepository"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -2098,6 +2293,23 @@ export const DeploymentApiFactory = function (
     },
     /**
      *
+     * @summary Deploy from Git Repository
+     * @param {string} xUserID User ID
+     * @param {RequestDeployFromGit} data Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deployFromGitRepository(
+      xUserID: string,
+      data: RequestDeployFromGit,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deployFromGitRepository(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Deploy image
      * @param {string} xUserID User ID
      * @param {RequestDeployImage} data Deploy Image
@@ -2128,6 +2340,25 @@ export const DeploymentApiFactory = function (
     ): AxiosPromise<void> {
       return localVarFp
         .deployIngress(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Update Deploy from Git
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateDeployFromGitRepository(
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDeployFromGit,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .updateDeployFromGitRepository(xUserID, deploymentId, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -2218,6 +2449,25 @@ export class DeploymentApi extends BaseAPI {
 
   /**
    *
+   * @summary Deploy from Git Repository
+   * @param {string} xUserID User ID
+   * @param {RequestDeployFromGit} data Deploy from Git
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public deployFromGitRepository(
+    xUserID: string,
+    data: RequestDeployFromGit,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .deployFromGitRepository(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @summary Deploy image
    * @param {string} xUserID User ID
    * @param {RequestDeployImage} data Deploy Image
@@ -2251,6 +2501,27 @@ export class DeploymentApi extends BaseAPI {
   ) {
     return DeploymentApiFp(this.configuration)
       .deployIngress(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Update Deploy from Git
+   * @param {string} xUserID User ID
+   * @param {number} deploymentId Deployment ID
+   * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public updateDeployFromGitRepository(
+    xUserID: string,
+    deploymentId: number,
+    data: RequestUpdateDeployFromGit,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .updateDeployFromGitRepository(xUserID, deploymentId, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

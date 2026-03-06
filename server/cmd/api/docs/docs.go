@@ -41,29 +41,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/builds": {
-            "post": {
-                "tags": [
-                    "build"
-                ],
-                "summary": "Trigger Build",
-                "operationId": "triggerBuild",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
         "/clusters": {
             "post": {
                 "tags": [
@@ -215,6 +192,77 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.DeployDatabase"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/git": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy from Git Repository",
+                "operationId": "deployFromGitRepository",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy from Git",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployFromGit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/git/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update Deploy from Git",
+                "operationId": "updateDeployFromGitRepository",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Deploy from Git",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDeployFromGit"
                         }
                     }
                 ],
@@ -866,6 +914,44 @@ const docTemplate = `{
                 }
             }
         },
+        "request.DeployFromGit": {
+            "type": "object",
+            "required": [
+                "dockerfilePath",
+                "environmentId",
+                "envs",
+                "gitUrl",
+                "port",
+                "projectRepositoryPath",
+                "serviceName"
+            ],
+            "properties": {
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
         "request.DeployImage": {
             "type": "object",
             "required": [
@@ -970,6 +1056,36 @@ const docTemplate = `{
                     ]
                 },
                 "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateDeployFromGit": {
+            "type": "object",
+            "required": [
+                "dockerfilePath",
+                "environmentId",
+                "envs",
+                "port",
+                "projectRepositoryPath"
+            ],
+            "properties": {
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "projectRepositoryPath": {
                     "type": "string"
                 }
             }
@@ -1121,6 +1237,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "databases",
+                "gitDeployments",
                 "images",
                 "ingresses"
             ],
@@ -1129,6 +1246,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.DatabaseDeployment"
+                    }
+                },
+                "gitDeployments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.GitDeployment"
                     }
                 },
                 "images": {
@@ -1184,6 +1307,48 @@ const docTemplate = `{
             "properties": {
                 "credential": {
                     "$ref": "#/definitions/response.OrganizationProvisioningCredential"
+                }
+            }
+        },
+        "response.GitDeployment": {
+            "type": "object",
+            "required": [
+                "dockerfilePath",
+                "envVars",
+                "gitUrl",
+                "id",
+                "port",
+                "projectRepositoryPath",
+                "serviceName",
+                "status"
+            ],
+            "properties": {
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },

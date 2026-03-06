@@ -13,6 +13,7 @@ import (
 
 const (
 	BuildTriggered    jetstream.Subject = "build.triggered"
+	BuildCompleted    jetstream.Subject = "build.completed"
 	CreateCluster     jetstream.Subject = "create.cluster"
 	ClusterCreated    jetstream.Subject = "cluster.created"
 	DeleteCluster     jetstream.Subject = "delete.cluster"
@@ -43,7 +44,7 @@ func (q *Queue) PublishBuildTriggered(build *value.TriggerBuild) error {
 		return fmt.Errorf("failed to marshal: %w", err)
 	}
 
-	return q.publisher.Publish(BuildTriggered, build.Id, data)
+	return q.publisher.Publish(BuildTriggered, strconv.FormatInt(build.DeploymentId, 10), data)
 }
 
 func (q *Queue) PublishCreateCluster(cluster *value.ProvisionCluster) error {
@@ -138,4 +139,14 @@ func (q *Queue) PublishDeployIngress(deployment *value.IngressDeployment) error 
 	}
 
 	return q.publisher.Publish(DeployIngress, "*", data)
+}
+
+func (q *Queue) SubscribeToBuildCompleted(handler func(build *value.BuildCompleted)) error {
+	return q.subscriber.Subscribe(BuildCompleted, "*", "buildCompleted", func(msg []byte) {
+		var b value.BuildCompleted
+		if err := json.Unmarshal(msg, &b); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&b)
+	})
 }
