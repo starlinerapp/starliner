@@ -21,7 +21,6 @@ interface BottomBarProps {
 export default function BottomBar({ deployment }: BottomBarProps) {
   const trpc = useTRPC();
 
-  const lastDeploymentRef = useRef<Deployment | undefined>(deployment);
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
   const logsEndRef = useRef<HTMLDivElement>(null);
@@ -30,13 +29,11 @@ export default function BottomBar({ deployment }: BottomBarProps) {
   const [underline, setUnderline] = useState({ left: 0, width: 0 });
   const [logs, setLogs] = useState<string[]>([]);
 
-  const selectedDeployment = deployment ?? lastDeploymentRef.current;
-
   useSubscription(
     trpc.deployment.streamDeploymentLogs.subscriptionOptions(
-      { deploymentId: Number(lastDeploymentRef.current?.id) },
+      { deploymentId: Number(deployment?.id) },
       {
-        enabled: !!lastDeploymentRef.current?.id,
+        enabled: !!deployment?.id,
         onData: (chunk) => setLogs((prev) => [...prev, chunk]),
       },
     ),
@@ -44,7 +41,6 @@ export default function BottomBar({ deployment }: BottomBarProps) {
 
   useEffect(() => {
     if (deployment) {
-      lastDeploymentRef.current = deployment;
       hasLoadedInitial.current = false;
       setLogs([]);
     }
@@ -58,7 +54,7 @@ export default function BottomBar({ deployment }: BottomBarProps) {
       left: rect.left - containerRect.left,
       width: rect.width,
     });
-  }, [selectedDeployment]);
+  }, [deployment]);
 
   useEffect(() => {
     if (!hasLoadedInitial.current) {
@@ -87,7 +83,7 @@ export default function BottomBar({ deployment }: BottomBarProps) {
               ref={titleRef}
               className="text-violet-11 truncate pb-2 font-semibold"
             >
-              {selectedDeployment?.serviceName ?? "Logs"}
+              Logs
             </span>
           </div>
           <div
@@ -98,7 +94,7 @@ export default function BottomBar({ deployment }: BottomBarProps) {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-scroll p-4">
-        {!selectedDeployment ? (
+        {!deployment ? (
           <p className="text-mauve-11">
             No deployment selected. Select one to view logs.
           </p>

@@ -205,14 +205,14 @@ export const deploymentRouter = {
         deploymentId: z.number(),
       }),
     )
-    .subscription(async function* ({ input, ctx }) {
+    .subscription(async function* ({ input, ctx, signal }) {
       const userId = ctx.user?.id;
 
       try {
         const response = await deploymentApiFactory.streamDeploymentLogs(
           userId,
           input.deploymentId,
-          { responseType: "stream" },
+          { responseType: "stream", signal },
         );
 
         const decoder = new TextDecoder();
@@ -220,8 +220,11 @@ export const deploymentRouter = {
 
         // @ts-expect-error OpenAPI doesn't support SSE
         for await (const chunk of response.data) {
-          buffer += decoder.decode(chunk, { stream: true });
+          if (signal?.aborted) {
+            break;
+          }
 
+          buffer += decoder.decode(chunk, { stream: true });
           const lines = buffer.split("\n");
           buffer = lines.pop() ?? "";
 
