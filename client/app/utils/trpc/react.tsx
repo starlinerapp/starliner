@@ -8,7 +8,9 @@ import {
 import {
   createTRPCClient,
   httpBatchStreamLink,
+  httpSubscriptionLink,
   loggerLink,
+  splitLink,
 } from "@trpc/client";
 import { type PropsWithChildren, useState } from "react";
 import type { inferRouterInputs } from "@trpc/server";
@@ -51,10 +53,17 @@ const links = [
       process.env.NODE_ENV === "development" ||
       (op.direction === "down" && op.result instanceof Error),
   }),
-  httpBatchStreamLink({
-    transformer: superjson,
-    url: "/api/trpc",
-    maxURLLength: 2083,
+  splitLink({
+    condition: (op) => op.type === "subscription",
+    true: httpSubscriptionLink({
+      transformer: superjson,
+      url: "/api/trpc",
+    }),
+    false: httpBatchStreamLink({
+      transformer: superjson,
+      url: "/api/trpc",
+      maxURLLength: 2083,
+    }),
   }),
 ];
 
@@ -70,7 +79,7 @@ export function TRPCReactProvider({
   const queryClient = getQueryClient();
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
-      links,
+      links: links,
     }),
   );
 

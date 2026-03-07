@@ -313,6 +313,9 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 // @Param id path int true "Deployment ID"
 // @Product JSON
 // @Success 200
+// @Header 200 {string} Content-Type "text/event-stream"
+// @Header 200 {string} Cache-Control "no-cache"
+// @Header 200 {string} Connection "keep-alive"
 // @Router /deployments/{id}/logs [get]
 func (dh *DeploymentHandler) StreamDeploymentLogs(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)

@@ -9,6 +9,7 @@ All URIs are relative to _http://localhost_
 | [**deployFromGitRepository**](#deployfromgitrepository)             | **POST** /deployments/git                     | Deploy from Git Repository |
 | [**deployImage**](#deployimage)                                     | **POST** /deployments/images                  | Deploy image               |
 | [**deployIngress**](#deployingress)                                 | **POST** /deployments/ingresses               | Deploy ingress             |
+| [**streamDeploymentLogs**](#streamdeploymentlogs)                   | **GET** /deployments/{id}/logs                | Stream deployment logs     |
 | [**updateDeployFromGitRepository**](#updatedeployfromgitrepository) | **PUT** /deployments/git/{deploymentId}       | Update Deploy from Git     |
 | [**updateImageDeployment**](#updateimagedeployment)                 | **PUT** /deployments/images/{deploymentId}    | Update image deployment    |
 | [**updateIngressDeployment**](#updateingressdeployment)             | **PUT** /deployments/ingresses/{deploymentId} | Update ingress deployment  |
@@ -243,6 +244,52 @@ No authorization required
 | Status code | Description | Response headers |
 | ----------- | ----------- | ---------------- |
 | **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **streamDeploymentLogs**
+
+> streamDeploymentLogs()
+
+### Example
+
+```typescript
+import { DeploymentApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new DeploymentApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let id: number; //Deployment ID (default to undefined)
+
+const { status, data } = await apiInstance.streamDeploymentLogs(xUserID, id);
+```
+
+### Parameters
+
+| Name        | Type         | Description   | Notes                 |
+| ----------- | ------------ | ------------- | --------------------- |
+| **xUserID** | [**string**] | User ID       | defaults to undefined |
+| **id**      | [**number**] | Deployment ID | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+### HTTP response details
+
+| Status code | Description | Response headers                                                                                        |
+| ----------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| **200**     | OK          | _ Cache-Control - no-cache <br> _ Connection - keep-alive <br> \* Content-Type - text/event-stream <br> |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

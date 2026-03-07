@@ -470,7 +470,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
                     }
                 }
             }

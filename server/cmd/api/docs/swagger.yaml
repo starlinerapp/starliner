@@ -637,6 +637,16 @@ paths:
       responses:
         "200":
           description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
       summary: Stream deployment logs
       tags:
       - deployment
