@@ -4,6 +4,7 @@
 
 | Name               | Type                                                  | Description | Notes                  |
 | ------------------ | ----------------------------------------------------- | ----------- | ---------------------- |
+| **createdAt**      | **string**                                            |             | [default to undefined] |
 | **id**             | **number**                                            |             | [default to undefined] |
 | **ipv4Address**    | **string**                                            |             | [default to undefined] |
 | **name**           | **string**                                            |             | [default to undefined] |
@@ -16,6 +17,7 @@
 import { ResponseCluster } from "./api";
 
 const instance: ResponseCluster = {
+  createdAt,
   id,
   ipv4Address,
   name,

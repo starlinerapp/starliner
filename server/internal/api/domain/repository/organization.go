@@ -86,6 +86,7 @@ func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, o
 				Name:           row.Name,
 				Environments:   []*entity.Environment{},
 				OrganizationId: row.OrganizationID,
+				CreatedAt:      row.CreatedAt,
 			}
 			projectsMap[proj.Id] = proj
 		}
@@ -121,6 +122,7 @@ func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, o
 			Id:             c.ID,
 			Name:           c.Name,
 			OrganizationId: c.OrganizationID,
+			CreatedAt:      c.CreatedAt,
 		})
 	}
 

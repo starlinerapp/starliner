@@ -216,6 +216,8 @@ definitions:
     type: object
   response.Cluster:
     properties:
+      createdAt:
+        type: string
       id:
         type: integer
       ipv4Address:
@@ -232,6 +234,7 @@ definitions:
         - running
         - deleted
     required:
+    - createdAt
     - id
     - ipv4Address
     - name
@@ -461,6 +464,8 @@ definitions:
     properties:
       clusterId:
         type: integer
+      createdAt:
+        type: string
       environments:
         items:
           $ref: '#/definitions/response.Environment'
@@ -471,6 +476,7 @@ definitions:
         type: string
     required:
     - clusterId
+    - createdAt
     - environments
     - id
     - name

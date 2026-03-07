@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createCluster = `-- name: CreateCluster :one
@@ -115,7 +116,8 @@ const getOrganizationClusters = `-- name: GetOrganizationClusters :many
 SELECT
     clusters.id as id,
     clusters.name as name,
-    clusters.organization_id as organization_id
+    clusters.organization_id as organization_id,
+    clusters.created_at as created_at
 FROM clusters
 WHERE clusters.organization_id = $1
 `
@@ -124,6 +126,7 @@ type GetOrganizationClustersRow struct {
 	ID             int64
 	Name           string
 	OrganizationID int64
+	CreatedAt      time.Time
 }
 
 func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID int64) ([]GetOrganizationClustersRow, error) {
@@ -135,7 +138,12 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 	var items []GetOrganizationClustersRow
 	for rows.Next() {
 		var i GetOrganizationClustersRow
-		if err := rows.Scan(&i.ID, &i.Name, &i.OrganizationID); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.OrganizationID,
+			&i.CreatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

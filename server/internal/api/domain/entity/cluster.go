@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 type ClusterStatus string
 
 const (
@@ -18,4 +20,5 @@ type Cluster struct {
 	ProvisioningId *string
 	Kubeconfig     *string
 	OrganizationId int64
+	CreatedAt      time.Time
 }

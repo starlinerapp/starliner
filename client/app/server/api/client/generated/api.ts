@@ -437,6 +437,12 @@ export interface RequestUpsertHetznerCredential {
 export interface ResponseCluster {
   /**
    *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
+  createdAt: string;
+  /**
+   *
    * @type {number}
    * @memberof ResponseCluster
    */
@@ -875,6 +881,12 @@ export interface ResponseProject {
    * @memberof ResponseProject
    */
   clusterId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseProject
+   */
+  createdAt: string;
   /**
    *
    * @type {Array<ResponseEnvironment>}
