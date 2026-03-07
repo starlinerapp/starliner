@@ -34,9 +34,9 @@ export default function BottomBar({ deployment }: BottomBarProps) {
 
   useSubscription(
     trpc.deployment.streamDeploymentLogs.subscriptionOptions(
-      { deploymentId: Number(deployment?.id) },
+      { deploymentId: Number(lastDeploymentRef.current?.id) },
       {
-        enabled: !!deployment?.id,
+        enabled: !!lastDeploymentRef.current?.id,
         onData: (chunk) => setLogs((prev) => [...prev, chunk]),
       },
     ),

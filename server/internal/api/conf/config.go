@@ -14,6 +14,7 @@ type Config struct {
 	DBName              string `mapstructure:"DB_NAME" validate:"required"`
 	BasicAuthUser       string `mapstructure:"BASIC_AUTH_USER" validate:"required"`
 	BasicAuthPassword   string `mapstructure:"BASIC_AUTH_PASSWORD" validate:"required"`
+	ClusterGrpcEndpoint string `mapstructure:"CLUSTER_GRPC_ENDPOINT" validate:"required"`
 	S3EndpointUrl       string `mapstructure:"S3_ENDPOINT_URL" validate:"required"`
 	NatsUrl             string `mapstructure:"NATS_URL" validate:"required"`
 	AWSAccessKeyId      string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`

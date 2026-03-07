@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"io"
+	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
@@ -13,9 +14,8 @@ type Client struct {
 	client v2.LogsServiceClient
 }
 
-func NewClient() (port.GrpcClient, error) {
-	// TODO: Move this to env variable
-	conn, err := grpc.NewClient("server-cluster:57400", grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewClient(cfg *conf.Config) (port.GrpcClient, error) {
+	conn, err := grpc.NewClient(cfg.ClusterGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

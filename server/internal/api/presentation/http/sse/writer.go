@@ -19,12 +19,17 @@ func NewWriter(w http.ResponseWriter) (*Writer, bool) {
 }
 
 func (s *Writer) Write(p []byte) (n int, err error) {
-	fmt.Fprintf(s.w, "data: %s\n\n", p)
+	if _, fmtError := fmt.Fprintf(s.w, "data: %s\n\n", p); fmtError != nil {
+		return 0, fmtError
+	}
 	s.flusher.Flush()
 	return len(p), nil
 }
 
 func (s *Writer) WriteError(err error) {
-	fmt.Fprintf(s.w, "event: error\ndata: %s\n\n", err.Error())
+	_, fmtError := fmt.Fprintf(s.w, "event: error\ndata: %s\n\n", err.Error())
+	if fmtError != nil {
+		return
+	}
 	s.flusher.Flush()
 }
