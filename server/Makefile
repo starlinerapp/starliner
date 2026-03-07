@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: deps deps-cleancache swag lint fix security upgrade help
+.PHONY: deps deps-cleancache swag proto lint fix security upgrade help
 
 GOCMD=go
 
@@ -13,6 +13,11 @@ deps-cleancache: ## Clear cache in Go module
 
 swag: ## Generate swagger docs
 	swag init -g ./cmd/api/main.go -o ./cmd/api/docs
+
+proto: ## Generate Go code from protobufs
+	protoc \
+		--go_out=. --go_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto") \
+		--go-grpc_out=. --go-grpc_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto")
 
 lint:
 	@golangci-lint run

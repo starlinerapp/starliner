@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"io"
 	"log"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
@@ -20,6 +21,7 @@ type DeploymentApplication struct {
 	deploymentService     *service.DeploymentService
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
+	grpcClient            port.GrpcClient
 	queue                 port.Queue
 	pubsub                port.Pubsub
 	crypto                corePort.Crypto
@@ -30,6 +32,7 @@ func NewDeploymentApplication(
 	deploymentService *service.DeploymentService,
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
+	grpcClient port.GrpcClient,
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
@@ -39,6 +42,7 @@ func NewDeploymentApplication(
 		deploymentService:     deploymentService,
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
+		grpcClient:            grpcClient,
 		queue:                 queue,
 		pubsub:                pubsub,
 		crypto:                crypto,
@@ -501,6 +505,30 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	}
 
 	return nil
+}
+
+func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userId int64, deploymentId int64, w io.Writer) error {
+	err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	deployment, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, deployment.Name, kubeconfigBase64, w)
 }
 
 func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {

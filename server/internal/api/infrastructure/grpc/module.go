@@ -1,12 +1,10 @@
-package k8s
+package grpc
 
 import "go.uber.org/fx"
 
 var Module = fx.Module(
-	"k8s",
+	"grpc",
 	fx.Provide(
-		NewHealth,
-		NewSecret,
-		NewLogs,
+		NewClient,
 	),
 )
