@@ -620,6 +620,26 @@ paths:
       summary: Delete deployment
       tags:
       - deployment
+  /deployments/{id}/logs:
+    get:
+      operationId: streamDeploymentLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Stream deployment logs
+      tags:
+      - deployment
   /deployments/databases:
     post:
       operationId: deployDatabase

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v5.27.5
-// source: internal/cluster/presentation/grpc/proto/v1/logs.proto
+// source: internal/core/infrastructure/grpc/proto/v1/logs.proto
 
 package v1
 
@@ -120,5 +120,5 @@ var LogsService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "internal/cluster/presentation/grpc/proto/v1/logs.proto",
+	Metadata: "internal/core/infrastructure/grpc/proto/v1/logs.proto",
 }

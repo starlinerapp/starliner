@@ -16,8 +16,8 @@ swag: ## Generate swagger docs
 
 proto: ## Generate Go code from protobufs
 	protoc \
-		--go_out=. --go_opt=paths=source_relative $(shell find ./internal/cluster/presentation/grpc/proto/v1 -name "*.proto") \
-		--go-grpc_out=. --go-grpc_opt=paths=source_relative $(shell find ./internal/cluster/presentation/grpc/proto/v1 -name "*.proto")
+		--go_out=. --go_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto") \
+		--go-grpc_out=. --go-grpc_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto")
 
 lint:
 	@golangci-lint run

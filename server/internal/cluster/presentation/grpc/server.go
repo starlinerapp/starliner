@@ -8,7 +8,7 @@ import (
 	"log"
 	"net"
 	"starliner.app/internal/cluster/presentation/grpc/handler"
-	pb "starliner.app/internal/cluster/presentation/grpc/proto/v1"
+	pb "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
 type Server struct {

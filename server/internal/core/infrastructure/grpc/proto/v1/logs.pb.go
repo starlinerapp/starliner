@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v5.27.5
-// source: internal/cluster/presentation/grpc/proto/v1/logs.proto
+// source: internal/core/infrastructure/grpc/proto/v1/logs.proto
 
 package v1
 
@@ -32,7 +32,7 @@ type StreamLogsRequest struct {
 
 func (x *StreamLogsRequest) Reset() {
 	*x = StreamLogsRequest{}
-	mi := &file_internal_cluster_presentation_grpc_proto_v1_logs_proto_msgTypes[0]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +44,7 @@ func (x *StreamLogsRequest) String() string {
 func (*StreamLogsRequest) ProtoMessage() {}
 
 func (x *StreamLogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_cluster_presentation_grpc_proto_v1_logs_proto_msgTypes[0]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +57,7 @@ func (x *StreamLogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamLogsRequest.ProtoReflect.Descriptor instead.
 func (*StreamLogsRequest) Descriptor() ([]byte, []int) {
-	return file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescGZIP(), []int{0}
+	return file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *StreamLogsRequest) GetNamespace() string {
@@ -90,7 +90,7 @@ type StreamLogsResponse struct {
 
 func (x *StreamLogsResponse) Reset() {
 	*x = StreamLogsResponse{}
-	mi := &file_internal_cluster_presentation_grpc_proto_v1_logs_proto_msgTypes[1]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -102,7 +102,7 @@ func (x *StreamLogsResponse) String() string {
 func (*StreamLogsResponse) ProtoMessage() {}
 
 func (x *StreamLogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_cluster_presentation_grpc_proto_v1_logs_proto_msgTypes[1]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -115,7 +115,7 @@ func (x *StreamLogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamLogsResponse.ProtoReflect.Descriptor instead.
 func (*StreamLogsResponse) Descriptor() ([]byte, []int) {
-	return file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescGZIP(), []int{1}
+	return file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *StreamLogsResponse) GetChunk() []byte {
@@ -125,11 +125,11 @@ func (x *StreamLogsResponse) GetChunk() []byte {
 	return nil
 }
 
-var File_internal_cluster_presentation_grpc_proto_v1_logs_proto protoreflect.FileDescriptor
+var File_internal_core_infrastructure_grpc_proto_v1_logs_proto protoreflect.FileDescriptor
 
-const file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDesc = "" +
+const file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"6internal/cluster/presentation/grpc/proto/v1/logs.proto\x12\bproto.v1\"\x7f\n" +
+	"5internal/core/infrastructure/grpc/proto/v1/logs.proto\x12\bproto.v1\"\x7f\n" +
 	"\x11StreamLogsRequest\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12 \n" +
 	"\vreleaseName\x18\x03 \x01(\tR\vreleaseName\x12*\n" +
@@ -141,23 +141,23 @@ const file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDesc = "" +
 	"StreamLogs\x12\x1b.proto.v1.StreamLogsRequest\x1a\x1c.proto.v1.StreamLogsResponse0\x01B;Z9starliner.app/internal/cluster/presentation/grpc/proto/v1b\x06proto3"
 
 var (
-	file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescOnce sync.Once
-	file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescData []byte
+	file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescOnce sync.Once
+	file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescData []byte
 )
 
-func file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescGZIP() []byte {
-	file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescOnce.Do(func() {
-		file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDesc), len(file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDesc)))
+func file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescGZIP() []byte {
+	file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescOnce.Do(func() {
+		file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc), len(file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc)))
 	})
-	return file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDescData
+	return file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescData
 }
 
-var file_internal_cluster_presentation_grpc_proto_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_internal_cluster_presentation_grpc_proto_v1_logs_proto_goTypes = []any{
+var file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_internal_core_infrastructure_grpc_proto_v1_logs_proto_goTypes = []any{
 	(*StreamLogsRequest)(nil),  // 0: proto.v1.StreamLogsRequest
 	(*StreamLogsResponse)(nil), // 1: proto.v1.StreamLogsResponse
 }
-var file_internal_cluster_presentation_grpc_proto_v1_logs_proto_depIdxs = []int32{
+var file_internal_core_infrastructure_grpc_proto_v1_logs_proto_depIdxs = []int32{
 	0, // 0: proto.v1.LogsService.StreamLogs:input_type -> proto.v1.StreamLogsRequest
 	1, // 1: proto.v1.LogsService.StreamLogs:output_type -> proto.v1.StreamLogsResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -167,26 +167,26 @@ var file_internal_cluster_presentation_grpc_proto_v1_logs_proto_depIdxs = []int3
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_internal_cluster_presentation_grpc_proto_v1_logs_proto_init() }
-func file_internal_cluster_presentation_grpc_proto_v1_logs_proto_init() {
-	if File_internal_cluster_presentation_grpc_proto_v1_logs_proto != nil {
+func init() { file_internal_core_infrastructure_grpc_proto_v1_logs_proto_init() }
+func file_internal_core_infrastructure_grpc_proto_v1_logs_proto_init() {
+	if File_internal_core_infrastructure_grpc_proto_v1_logs_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDesc), len(file_internal_cluster_presentation_grpc_proto_v1_logs_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc), len(file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_internal_cluster_presentation_grpc_proto_v1_logs_proto_goTypes,
-		DependencyIndexes: file_internal_cluster_presentation_grpc_proto_v1_logs_proto_depIdxs,
-		MessageInfos:      file_internal_cluster_presentation_grpc_proto_v1_logs_proto_msgTypes,
+		GoTypes:           file_internal_core_infrastructure_grpc_proto_v1_logs_proto_goTypes,
+		DependencyIndexes: file_internal_core_infrastructure_grpc_proto_v1_logs_proto_depIdxs,
+		MessageInfos:      file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes,
 	}.Build()
-	File_internal_cluster_presentation_grpc_proto_v1_logs_proto = out.File
-	file_internal_cluster_presentation_grpc_proto_v1_logs_proto_goTypes = nil
-	file_internal_cluster_presentation_grpc_proto_v1_logs_proto_depIdxs = nil
+	File_internal_core_infrastructure_grpc_proto_v1_logs_proto = out.File
+	file_internal_core_infrastructure_grpc_proto_v1_logs_proto_goTypes = nil
+	file_internal_core_infrastructure_grpc_proto_v1_logs_proto_depIdxs = nil
 }

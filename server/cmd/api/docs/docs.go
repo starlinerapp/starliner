@@ -445,6 +445,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/deployments/{id}/logs": {
+            "get": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Stream deployment logs",
+                "operationId": "streamDeploymentLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments": {
             "post": {
                 "tags": [

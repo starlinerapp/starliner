@@ -6,6 +6,7 @@ import (
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/repository"
 	"starliner.app/internal/api/domain/service"
+	"starliner.app/internal/api/infrastructure/grpc"
 	"starliner.app/internal/api/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
 	"starliner.app/internal/api/infrastructure/postgres"
@@ -28,6 +29,7 @@ func main() {
 		pubsub.Module,
 		s3.Module,
 		crypto.Module,
+		grpc.Module,
 		repository.Module,
 		service.Module,
 		application.Module,
