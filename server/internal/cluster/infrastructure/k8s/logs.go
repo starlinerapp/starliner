@@ -34,82 +34,79 @@ func (l *Logs) StreamLogs(ctx context.Context, namespace string, releaseName str
 		if err != nil {
 			return fmt.Errorf("failed to create client: %w", err)
 		}
-
-		go func() {
-			defer func() {
-				_ = writer.Close()
-			}()
-
-			labelSelector := fmt.Sprintf("app.kubernetes.io/instance=%s", releaseName)
-
-			for {
-				select {
-				case <-ctx.Done():
-					_ = writer.CloseWithError(ctx.Err())
-					return
-				default:
-				}
-
-				pods, err := client.CoreV1().
-					Pods(namespace).
-					List(ctx, metav1.ListOptions{LabelSelector: labelSelector})
-				if err != nil {
-					if ctx.Err() != nil {
-						_ = writer.CloseWithError(ctx.Err())
-						return
-					}
-					time.Sleep(2 * time.Second)
-					continue
-				}
-
-				if len(pods.Items) == 0 {
-					time.Sleep(2 * time.Second)
-					continue
-				}
-
-				// TODO: merge logs of all matching pods
-				pod := pods.Items[0]
-				tailLines := int64(50)
-
-				stream, err := client.CoreV1().
-					Pods(namespace).
-					GetLogs(pod.Name, &corev1.PodLogOptions{
-						Follow:    true,
-						TailLines: &tailLines,
-					}).
-					Stream(ctx)
-				if err != nil {
-					if ctx.Err() != nil {
-						_ = writer.CloseWithError(ctx.Err())
-						return
-					}
-					time.Sleep(2 * time.Second)
-					continue
-				}
-
-				scanner := bufio.NewScanner(stream)
-				for scanner.Scan() {
-					_, err := fmt.Fprintln(writer, scanner.Text())
-					if err != nil {
-						_ = stream.Close()
-						return
-					}
-				}
-				_ = stream.Close()
-
-				if ctx.Err() != nil {
-					_ = writer.CloseWithError(ctx.Err())
-					return
-				}
-
-				time.Sleep(1 * time.Second)
-			}
-		}()
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	go func() {
+		defer func() {
+			_ = writer.Close()
+		}()
+
+		labelSelector := fmt.Sprintf("app.kubernetes.io/instance=%s", releaseName)
+
+		for {
+			select {
+			case <-ctx.Done():
+				_ = writer.CloseWithError(ctx.Err())
+				return
+			default:
+			}
+
+			pods, err := client.CoreV1().
+				Pods(namespace).
+				List(ctx, metav1.ListOptions{LabelSelector: labelSelector})
+			if err != nil {
+				if ctx.Err() != nil {
+					_ = writer.CloseWithError(ctx.Err())
+					return
+				}
+				time.Sleep(2 * time.Second)
+				continue
+			}
+
+			if len(pods.Items) == 0 {
+				time.Sleep(2 * time.Second)
+				continue
+			}
+
+			// TODO: merge logs of all matching pods
+			pod := pods.Items[0]
+			tailLines := int64(50)
+
+			stream, err := client.CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{
+				Follow:    true,
+				TailLines: &tailLines,
+			}).Stream(ctx)
+			if err != nil {
+				if ctx.Err() != nil {
+					_ = writer.CloseWithError(ctx.Err())
+					return
+				}
+				time.Sleep(2 * time.Second)
+				continue
+			}
+
+			scanner := bufio.NewScanner(stream)
+			for scanner.Scan() {
+				_, err := fmt.Fprintln(writer, scanner.Text())
+				if err != nil {
+					_ = stream.Close()
+					return
+				}
+			}
+			_ = stream.Close()
+
+			if ctx.Err() != nil {
+				_ = writer.CloseWithError(ctx.Err())
+				return
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}()
 
 	return reader, nil
 }
