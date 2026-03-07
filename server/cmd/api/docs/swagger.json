@@ -1187,6 +1187,7 @@
         "response.Cluster": {
             "type": "object",
             "required": [
+                "createdAt",
                 "id",
                 "ipv4Address",
                 "name",
@@ -1194,6 +1195,9 @@
                 "status"
             ],
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1538,6 +1542,7 @@
             "type": "object",
             "required": [
                 "clusterId",
+                "createdAt",
                 "environments",
                 "id",
                 "name"
@@ -1545,6 +1550,9 @@
             "properties": {
                 "clusterId": {
                     "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
                 },
                 "environments": {
                     "type": "array",

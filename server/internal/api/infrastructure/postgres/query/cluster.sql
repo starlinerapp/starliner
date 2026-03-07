@@ -29,7 +29,8 @@ WHERE id = $1;
 SELECT
     clusters.id as id,
     clusters.name as name,
-    clusters.organization_id as organization_id
+    clusters.organization_id as organization_id,
+    clusters.created_at as created_at
 FROM clusters
 WHERE clusters.organization_id = $1;
 

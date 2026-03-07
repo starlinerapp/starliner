@@ -2,6 +2,7 @@ package value
 
 import (
 	"starliner.app/internal/api/domain/entity"
+	"time"
 )
 
 type ClusterStatus string
@@ -18,6 +19,7 @@ type Cluster struct {
 	Status         ClusterStatus
 	IPv4Address    *string
 	OrganizationId int64
+	CreatedAt      time.Time
 }
 
 func NewClusters(cs []*entity.Cluster) []*Cluster {
@@ -35,6 +37,7 @@ func NewCluster(c *entity.Cluster) *Cluster {
 		Status:         mapStatus(c.Status),
 		IPv4Address:    c.IPv4Address,
 		OrganizationId: c.OrganizationId,
+		CreatedAt:      c.CreatedAt,
 	}
 }
 

@@ -2,6 +2,7 @@ package value
 
 import (
 	"starliner.app/internal/api/domain/entity"
+	"time"
 )
 
 type Project struct {
@@ -10,6 +11,7 @@ type Project struct {
 	Environments   []*Environment
 	OrganizationId int64
 	ClusterId      *int64
+	CreatedAt      time.Time
 }
 
 func NewProject(p *entity.Project) *Project {
@@ -27,6 +29,7 @@ func NewProject(p *entity.Project) *Project {
 		Environments:   environments,
 		OrganizationId: p.OrganizationId,
 		ClusterId:      p.ClusterId,
+		CreatedAt:      p.CreatedAt,
 	}
 }
 

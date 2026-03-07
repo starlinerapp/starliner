@@ -2,6 +2,7 @@ package response
 
 import (
 	"starliner.app/internal/api/domain/value"
+	"time"
 )
 
 type ClusterStatus string
@@ -18,6 +19,7 @@ type Cluster struct {
 	Status         ClusterStatus `json:"status" binding:"required,oneof=pending running deleted"`
 	IPv4Address    *string       `json:"ipv4Address" binding:"required"`
 	OrganizationId int64         `json:"organizationId" binding:"required"`
+	CreatedAt      time.Time     `json:"createdAt" binding:"required"`
 }
 
 func NewClusters(clusters []*value.Cluster) []Cluster {
@@ -35,5 +37,6 @@ func NewCluster(cluster *value.Cluster) Cluster {
 		Status:         ClusterStatus(cluster.Status),
 		IPv4Address:    cluster.IPv4Address,
 		OrganizationId: cluster.OrganizationId,
+		CreatedAt:      cluster.CreatedAt,
 	}
 }

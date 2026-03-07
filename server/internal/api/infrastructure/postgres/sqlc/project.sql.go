@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createProject = `-- name: CreateProject :one
@@ -69,7 +70,8 @@ SELECT
     projects.organization_id as organization_id,
     environments.id as environment_id,
     environments.name as environment_name,
-    environments.slug as environment_slug
+    environments.slug as environment_slug,
+    environments.created_at as created_at
 FROM projects
 INNER JOIN organizations ON projects.organization_id = organizations.id
 INNER JOIN environments ON projects.id = environments.project_id
@@ -83,6 +85,7 @@ type GetOrganizationProjectsRow struct {
 	EnvironmentID   int64
 	EnvironmentName string
 	EnvironmentSlug string
+	CreatedAt       time.Time
 }
 
 func (q *Queries) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]GetOrganizationProjectsRow, error) {
@@ -101,6 +104,7 @@ func (q *Queries) GetOrganizationProjects(ctx context.Context, organizationID in
 			&i.EnvironmentID,
 			&i.EnvironmentName,
 			&i.EnvironmentSlug,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

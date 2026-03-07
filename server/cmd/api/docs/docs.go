@@ -1196,6 +1196,7 @@ const docTemplate = `{
         "response.Cluster": {
             "type": "object",
             "required": [
+                "createdAt",
                 "id",
                 "ipv4Address",
                 "name",
@@ -1203,6 +1204,9 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1547,6 +1551,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "clusterId",
+                "createdAt",
                 "environments",
                 "id",
                 "name"
@@ -1554,6 +1559,9 @@ const docTemplate = `{
             "properties": {
                 "clusterId": {
                     "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
                 },
                 "environments": {
                     "type": "array",
