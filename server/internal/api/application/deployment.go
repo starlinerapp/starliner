@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"io"
 	"log"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
@@ -506,7 +507,7 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	return nil
 }
 
-func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userId int64, deploymentId int64) error {
+func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userId int64, deploymentId int64, w io.Writer) error {
 	err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId)
 	if err != nil {
 		return err
@@ -527,7 +528,7 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
-	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, deployment.Name, kubeconfigBase64)
+	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, deployment.Name, kubeconfigBase64, w)
 }
 
 func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {

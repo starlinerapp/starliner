@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"io"
@@ -15,6 +14,7 @@ type Client struct {
 }
 
 func NewClient() (port.GrpcClient, error) {
+	// TODO: Move this to env variable
 	conn, err := grpc.NewClient("server-cluster:57400", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -30,6 +30,7 @@ func (c *Client) StreamLogs(
 	namespace string,
 	releaseName string,
 	kubeconfigBase64 string,
+	w io.Writer,
 ) error {
 	stream, err := c.client.StreamLogs(ctx, &v2.StreamLogsRequest{
 		Namespace:        namespace,
@@ -48,6 +49,10 @@ func (c *Client) StreamLogs(
 		if err != nil {
 			return err
 		}
-		fmt.Print(string(resp.Chunk))
+
+		_, err = w.Write(resp.Chunk)
+		if err != nil {
+			return err
+		}
 	}
 }

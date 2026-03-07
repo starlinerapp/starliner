@@ -1,6 +1,9 @@
 package port
 
-import "context"
+import (
+	"context"
+	"io"
+)
 
 type GrpcClient interface {
 	StreamLogs(
@@ -8,5 +11,6 @@ type GrpcClient interface {
 		namespace string,
 		releaseName string,
 		kubeconfigBase64 string,
+		w io.Writer,
 	) error
 }

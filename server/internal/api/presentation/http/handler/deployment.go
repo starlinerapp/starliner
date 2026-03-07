@@ -7,6 +7,7 @@ import (
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/mapper"
+	"starliner.app/internal/api/presentation/http/sse"
 	"strconv"
 )
 
@@ -321,10 +322,18 @@ func (dh *DeploymentHandler) StreamDeploymentLogs(c *gin.Context) {
 		return
 	}
 
-	err = dh.deploymentApplication.StreamDeploymentLogs(c.Request.Context(), currentUser.Id, deploymentId)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	sw, ok := sse.NewWriter(c.Writer)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "streaming not supported"})
+		return
 	}
 
-	c.Status(http.StatusOK)
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+
+	err = dh.deploymentApplication.StreamDeploymentLogs(c.Request.Context(), currentUser.Id, deploymentId, sw)
+	if err != nil {
+		sw.WriteError(err)
+	}
 }
