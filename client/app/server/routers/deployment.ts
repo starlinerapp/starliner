@@ -220,7 +220,6 @@ export const deploymentRouter = {
 
         // @ts-expect-error OpenAPI doesn't support SSE
         for await (const chunk of response.data) {
-          console.log("Raw chunk:", chunk.toString());
           buffer += decoder.decode(chunk, { stream: true });
 
           const lines = buffer.split("\n");

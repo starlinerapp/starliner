@@ -22,15 +22,15 @@ func NewLogs() port.Logs {
 
 func (l *Logs) StreamLogs(ctx context.Context, namespace string, releaseName string, kubeconfigBase64 string) (io.ReadCloser, error) {
 	reader, writer := io.Pipe()
+	var client *kubernetes.Clientset
 
 	err := kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-
 		config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 		if err != nil {
 			return fmt.Errorf("failed to build kubeconfig: %w", err)
 		}
 
-		client, err := kubernetes.NewForConfig(config)
+		client, err = kubernetes.NewForConfig(config)
 		if err != nil {
 			return fmt.Errorf("failed to create client: %w", err)
 		}
@@ -69,7 +69,7 @@ func (l *Logs) StreamLogs(ctx context.Context, namespace string, releaseName str
 
 				// TODO: merge logs of all matching pods
 				pod := pods.Items[0]
-				tailLines := int64(500)
+				tailLines := int64(50)
 
 				stream, err := client.CoreV1().
 					Pods(namespace).

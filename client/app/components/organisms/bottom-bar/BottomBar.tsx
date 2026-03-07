@@ -25,6 +25,7 @@ export default function BottomBar({ deployment }: BottomBarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
   const logsEndRef = useRef<HTMLDivElement>(null);
+  const hasLoadedInitial = useRef(false);
 
   const [underline, setUnderline] = useState({ left: 0, width: 0 });
   const [logs, setLogs] = useState<string[]>([]);
@@ -44,6 +45,7 @@ export default function BottomBar({ deployment }: BottomBarProps) {
   useEffect(() => {
     if (deployment) {
       lastDeploymentRef.current = deployment;
+      hasLoadedInitial.current = false;
       setLogs([]);
     }
   }, [deployment]);
@@ -59,6 +61,17 @@ export default function BottomBar({ deployment }: BottomBarProps) {
   }, [selectedDeployment]);
 
   useEffect(() => {
+    if (!hasLoadedInitial.current) {
+      if (logs.length > 0) {
+        hasLoadedInitial.current = true;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            logsEndRef.current?.scrollIntoView({ behavior: "instant" });
+          });
+        });
+      }
+      return;
+    }
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
