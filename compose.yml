@@ -109,6 +109,7 @@ services:
       target: dev
     ports:
       - "40002:40002"
+      - "57400:57400"
     environment:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}

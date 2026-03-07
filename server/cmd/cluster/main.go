@@ -8,6 +8,7 @@ import (
 	"starliner.app/internal/cluster/infrastructure/k8s"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/queue"
+	"starliner.app/internal/cluster/presentation/grpc"
 	sub "starliner.app/internal/cluster/presentation/pubsub"
 	clusterqueue "starliner.app/internal/cluster/presentation/queue"
 	"starliner.app/internal/core/infrastructure/crypto"
@@ -24,5 +25,6 @@ func main() {
 		application.Module,
 		clusterqueue.Module,
 		sub.Module,
+		grpc.Module,
 	).Run()
 }
