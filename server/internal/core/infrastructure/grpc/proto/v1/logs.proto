@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/cluster/presentation/grpc/proto/v1";
+
+message StreamLogsRequest {
+  string namespace = 2;
+  string releaseName = 3;
+  string kubeconfigBase64 = 4;
+}
+
+message StreamLogsResponse {
+  bytes chunk = 1;
+}
+
+service LogsService {
+  rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse);
+}

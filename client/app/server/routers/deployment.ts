@@ -199,4 +199,44 @@ export const deploymentRouter = {
         })
         .then((res) => res.data);
     }),
+  streamDeploymentLogs: protectedProcedure
+    .input(
+      z.object({
+        deploymentId: z.number(),
+      }),
+    )
+    .subscription(async function* ({ input, ctx, signal }) {
+      const userId = ctx.user?.id;
+
+      try {
+        const response = await deploymentApiFactory.streamDeploymentLogs(
+          userId,
+          input.deploymentId,
+          { responseType: "stream", signal },
+        );
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        // @ts-expect-error OpenAPI doesn't support SSE
+        for await (const chunk of response.data) {
+          if (signal?.aborted) {
+            break;
+          }
+
+          buffer += decoder.decode(chunk, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              yield line.slice(6).trim();
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Subscription error:", err);
+        throw err;
+      }
+    }),
 };

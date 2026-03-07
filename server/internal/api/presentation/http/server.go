@@ -79,6 +79,7 @@ func NewServer(
 		deploymentRoutes.POST("/ingresses", deploymentHandler.DeployIngress)
 		deploymentRoutes.PUT("/ingresses/:deploymentId", deploymentHandler.UpdateIngressDeployment)
 		deploymentRoutes.DELETE("/:id", deploymentHandler.DeleteDeployment)
+		deploymentRoutes.GET("/:id/logs", deploymentHandler.StreamDeploymentLogs)
 	}
 
 	return &Server{engine: engine}
