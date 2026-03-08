@@ -63,7 +63,9 @@ export default function ClusterLayout() {
           </h1>
         </div>
       )}
-      <LinkNavigationBar items={navigationBarItems} />
+      <div className="bg-mauve-1">
+        <LinkNavigationBar items={navigationBarItems} />
+      </div>
       <Outlet />
     </div>
   );
