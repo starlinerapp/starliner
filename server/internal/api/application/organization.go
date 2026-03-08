@@ -6,19 +6,20 @@ import (
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
+	coreService "starliner.app/internal/core/domain/service"
 )
 
 type OrganizationApplication struct {
 	crypto                 port.Crypto
 	organizationRepository interfaces.OrganizationRepository
-	normalizationService   *service.NormalizerService
+	normalizationService   *coreService.NormalizerService
 	organizationService    *service.OrganizationService
 }
 
 func NewOrganizationApplication(
 	crypto port.Crypto,
 	organizationRepository interfaces.OrganizationRepository,
-	normalizationService *service.NormalizerService,
+	normalizationService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 ) *OrganizationApplication {
 	return &OrganizationApplication{

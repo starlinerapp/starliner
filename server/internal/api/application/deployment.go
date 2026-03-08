@@ -12,6 +12,7 @@ import (
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	corePort "starliner.app/internal/core/domain/port"
+	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
 	"strconv"
 )
@@ -19,7 +20,7 @@ import (
 type DeploymentApplication struct {
 	environmentService    *service.EnvironmentService
 	deploymentService     *service.DeploymentService
-	normalizerService     *service.NormalizerService
+	normalizerService     *coreService.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
 	grpcClient            port.GrpcClient
@@ -31,7 +32,7 @@ type DeploymentApplication struct {
 func NewDeploymentApplication(
 	environmentService *service.EnvironmentService,
 	deploymentService *service.DeploymentService,
-	normalizerService *service.NormalizerService,
+	normalizerService *coreService.NormalizerService,
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
 	grpcClient port.GrpcClient,
