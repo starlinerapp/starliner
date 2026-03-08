@@ -5,24 +5,25 @@ import (
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
+	coreService "starliner.app/internal/core/domain/service"
 	"strings"
 )
 
 type ProjectApplication struct {
-	namespaceService      *service.NormalizerService
+	normalizerService     *coreService.NormalizerService
 	organizationService   *service.OrganizationService
 	projectRepository     interfaces.ProjectRepository
 	environmentRepository interfaces.EnvironmentRepository
 }
 
 func NewProjectApplication(
-	namespaceService *service.NormalizerService,
+	normalizerService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,
 ) *ProjectApplication {
 	return &ProjectApplication{
-		namespaceService:      namespaceService,
+		normalizerService:     normalizerService,
 		organizationService:   organizationService,
 		projectRepository:     projectRepository,
 		environmentRepository: environmentRepository,
@@ -36,7 +37,7 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 	}
 
 	productionEnvName := "Production"
-	namespace, err := ps.namespaceService.FormatToDNS1123(name + "-" + productionEnvName)
+	namespace, err := ps.normalizerService.FormatToDNS1123(name + "-" + productionEnvName)
 	if err != nil {
 		return nil, err
 	}

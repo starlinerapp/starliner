@@ -2,6 +2,7 @@ package main
 
 import (
 	"go.uber.org/fx"
+	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/provisioner/application"
 	"starliner.app/internal/provisioner/conf"
@@ -20,6 +21,7 @@ func main() {
 		queue.Module,
 		pulumi.Module,
 		ansible.Module,
+		coreService.Module,
 		application.Module,
 		provisionerqueue.Module,
 	).Run()

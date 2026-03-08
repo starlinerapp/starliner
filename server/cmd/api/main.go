@@ -14,6 +14,7 @@ import (
 	clusterpubsub "starliner.app/internal/api/presentation/pubsub/health"
 	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
 	"starliner.app/internal/api/presentation/scheduler"
+	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/s3"
 )
@@ -31,6 +32,7 @@ func main() {
 		crypto.Module,
 		grpc.Module,
 		repository.Module,
+		coreService.Module,
 		service.Module,
 		application.Module,
 		http.Module,

@@ -23,7 +23,7 @@ export default function NewOrganization() {
     createOrganizationMutation.mutate(
       { name: data.name },
       {
-        onSuccess: () => navigate("/"),
+        onSuccess: (org) => navigate(`/${org.slug}`),
       },
     );
   };

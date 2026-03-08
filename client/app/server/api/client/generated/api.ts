@@ -3378,7 +3378,10 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       data: RequestCreateOrganization,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseOrganization>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.createOrganization(
@@ -3604,7 +3607,7 @@ export const OrganizationApiFactory = function (
       xUserID: string,
       data: RequestCreateOrganization,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseOrganization> {
       return localVarFp
         .createOrganization(xUserID, data, options)
         .then((request) => request(axios, basePath));

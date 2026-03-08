@@ -7,19 +7,20 @@ import (
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
+	coreService "starliner.app/internal/core/domain/service"
 )
 
 type EnvironmentApplication struct {
 	crypto                port.Crypto
 	organizationService   *service.OrganizationService
-	normalizerService     *service.NormalizerService
+	normalizerService     *coreService.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	projectRepository     interfaces.ProjectRepository
 }
 
 func NewEnvironmentApplication(
 	crypto port.Crypto,
-	normalizerService *service.NormalizerService,
+	normalizerService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 	environmentRepository interfaces.EnvironmentRepository,
 	projectRepository interfaces.ProjectRepository,
