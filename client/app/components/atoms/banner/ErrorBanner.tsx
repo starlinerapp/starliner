@@ -1,32 +1,32 @@
 import React from "react";
-import { ExclamationTriangle, LinkOut } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
+import { ExclamationTriangle, LinkOut } from "~/components/atoms/icons";
 import { Link } from "react-router";
 
-interface WarningBannerLinkOutProps {
+interface ErrorBAnnerLinkOutProps {
   text: string;
   href: string;
 }
 
-interface WarningBannerProps {
+interface ErrorBannerProps {
   text: string;
-  linkOut?: WarningBannerLinkOutProps;
+  linkOut?: ErrorBAnnerLinkOutProps;
   className?: string;
 }
 
-export default function WarningBanner({
+export default function ErrorBanner({
   text,
   linkOut,
   className,
-}: WarningBannerProps) {
+}: ErrorBannerProps) {
   return (
     <div
       className={cn(
-        "border-amber-6 bg-amber-3 flex w-full rounded-md border-1",
+        "border-red-6 bg-red-3 flex w-full rounded-md border-1",
         className,
       )}
     >
-      <div className="bg-amber-9 flex w-11 items-center justify-center rounded-l-md">
+      <div className="bg-red-9 flex w-11 items-center justify-center rounded-l-md">
         <ExclamationTriangle width={18} strokeWidth={2} />
       </div>
       <div className="flex items-center gap-2 p-2.5">
