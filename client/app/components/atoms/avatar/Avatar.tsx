@@ -55,12 +55,6 @@ export default function Avatar() {
             </div>
             <button
               className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
-              onClick={async () => {}}
-            >
-              <p>User Settings</p>
-            </button>
-            <button
-              className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
               onClick={handleSignOutClicked}
             >
               <p>Sign Out</p>

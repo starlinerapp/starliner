@@ -66,14 +66,6 @@ export default [
                 ],
               ),
               route(
-                "observability",
-                "routes/dashboard/projects/[id]/[environment]/observability.tsx",
-              ),
-              route(
-                "logs",
-                "routes/dashboard/projects/[id]/[environment]/logs.tsx",
-              ),
-              route(
                 "settings",
                 "routes/dashboard/projects/[id]/[environment]/settings.tsx",
               ),
