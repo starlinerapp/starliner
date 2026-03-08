@@ -19,6 +19,7 @@ import (
 type DeploymentApplication struct {
 	environmentService    *service.EnvironmentService
 	deploymentService     *service.DeploymentService
+	normalizerService     *service.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
 	grpcClient            port.GrpcClient
@@ -30,6 +31,7 @@ type DeploymentApplication struct {
 func NewDeploymentApplication(
 	environmentService *service.EnvironmentService,
 	deploymentService *service.DeploymentService,
+	normalizerService *service.NormalizerService,
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
 	grpcClient port.GrpcClient,
@@ -40,6 +42,7 @@ func NewDeploymentApplication(
 	return &DeploymentApplication{
 		environmentService:    environmentService,
 		deploymentService:     deploymentService,
+		normalizerService:     normalizerService,
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
 		grpcClient:            grpcClient,
@@ -84,9 +87,14 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
+	if err != nil {
+		return err
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		DeploymentId:   d.Id,
-		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, serviceName),
+		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         gitUrl,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
@@ -125,9 +133,14 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
+	if err != nil {
+		return err
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		DeploymentId:   d.Id,
-		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, d.Name),
+		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         d.GitUrl,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
@@ -184,9 +197,15 @@ func (da *DeploymentApplication) DeployImage(
 			Value: e.Value,
 		})
 	}
+
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
+	if err != nil {
+		return err
+	}
+
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     deployment.Id,
-		DeploymentName:   serviceName,
+		DeploymentName:   normalizedServiceName,
 		KubeconfigBase64: kubeconfigBase64,
 		Namespace:        env.Namespace,
 		ImageName:        imageName,
@@ -250,9 +269,14 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		})
 	}
 
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(deployment.ServiceName)
+	if err != nil {
+		return err
+	}
+
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.ServiceName,
+		DeploymentName:   normalizedServiceName,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 		ImageName:        imageName,
@@ -303,9 +327,14 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
+	if err != nil {
+		return err
+	}
+
 	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.ServiceName,
+		DeploymentName:   normalizedServiceName,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 	})
@@ -366,10 +395,15 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 				return err
 			}
 
+			normalizedServiceName, err := da.normalizerService.FormatToDNS1123(p.ServiceName)
+			if err != nil {
+				return err
+			}
+
 			ch.Paths = append(ch.Paths, coreValue.IngressPath{
 				Path:        p.Path,
 				PathType:    coreValue.PathType(p.PathType),
-				ServiceName: p.ServiceName,
+				ServiceName: normalizedServiceName,
 				ServicePort: targetPort,
 			})
 		}
@@ -448,10 +482,15 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 				return err
 			}
 
+			normalizedServiceName, err := da.normalizerService.FormatToDNS1123(p.ServiceName)
+			if err != nil {
+				return err
+			}
+
 			ch.Paths = append(ch.Paths, coreValue.IngressPath{
 				Path:        p.Path,
 				PathType:    coreValue.PathType(p.PathType),
-				ServiceName: p.ServiceName,
+				ServiceName: normalizedServiceName,
 				ServicePort: targetPort,
 			})
 		}
@@ -494,9 +533,15 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	if err != nil {
 		return err
 	}
+
+	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deployment.Name)
+	if err != nil {
+		return err
+	}
+
 	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
-		DeploymentName:   deployment.Name,
+		DeploymentName:   normalizedDeploymentName,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 	})
@@ -528,7 +573,12 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
-	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, deployment.Name, kubeconfigBase64, w)
+	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deployment.Name)
+	if err != nil {
+		return err
+	}
+
+	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
 }
 
 func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {
@@ -568,10 +618,15 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				log.Printf("failed to decrypt kubeconfig: %v\n", err)
 			}
 
+			normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(d.Deployment.Name)
+			if err != nil {
+				log.Printf("failed to normalize deployment name: %v\n", err)
+			}
+
 			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.Deployment{
 				Namespace:        d.Deployment.Namespace,
 				DeploymentId:     d.Deployment.Id,
-				DeploymentName:   d.Deployment.Name,
+				DeploymentName:   normalizedDeploymentName,
 				KubeconfigBase64: kubeconfigBase64,
 			})
 			if err != nil {
@@ -629,9 +684,14 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		return
 	}
 
+	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deployment.Name)
+	if err != nil {
+		log.Printf("failed to normalize deployment name: %v\n", err)
+	}
+
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     b.DeploymentId,
-		DeploymentName:   deployment.Name,
+		DeploymentName:   normalizedDeploymentName,
 		Namespace:        deployment.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 		ImageName:        fmt.Sprintf("%s/%s", b.ImageRegistryUrl, b.ImageName),

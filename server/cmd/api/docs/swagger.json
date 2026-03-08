@@ -1242,6 +1242,7 @@
             "required": [
                 "database",
                 "id",
+                "internalEndpoint",
                 "password",
                 "port",
                 "serviceName",
@@ -1254,6 +1255,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "internalEndpoint": {
+                    "type": "string"
                 },
                 "password": {
                     "type": "string"
@@ -1356,6 +1360,7 @@
                 "envVars",
                 "gitUrl",
                 "id",
+                "internalEndpoint",
                 "port",
                 "projectRepositoryPath",
                 "serviceName",
@@ -1377,6 +1382,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "internalEndpoint": {
+                    "type": "string"
+                },
                 "port": {
                     "type": "string"
                 },
@@ -1397,6 +1405,7 @@
                 "envVars",
                 "id",
                 "imageName",
+                "internalEndpoint",
                 "port",
                 "serviceName",
                 "status",
@@ -1413,6 +1422,9 @@
                     "type": "integer"
                 },
                 "imageName": {
+                    "type": "string"
+                },
+                "internalEndpoint": {
                     "type": "string"
                 },
                 "port": {

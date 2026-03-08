@@ -11,6 +11,7 @@ import { useLocation, useMatch, useNavigate } from "react-router";
 type ImageNode = Node<{
   id: number;
   serviceName: string;
+  internalEndpoint: string;
   status: string;
   port: string;
   imageName: string;
@@ -74,7 +75,7 @@ export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
               <p>Internal Endpoint</p>
               <CopyToClipboard
                 className="text-mauve-11"
-                text={`${data.serviceName}:${data.port}`}
+                text={data.internalEndpoint}
               />
             </span>
           </div>

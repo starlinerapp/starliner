@@ -2,7 +2,7 @@ package application
 
 import (
 	"context"
-	"starliner.app/internal/api/domain/entity"
+	"fmt"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -12,21 +12,21 @@ import (
 type EnvironmentApplication struct {
 	crypto                port.Crypto
 	organizationService   *service.OrganizationService
-	namespaceService      *service.NamespaceService
+	normalizerService     *service.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	projectRepository     interfaces.ProjectRepository
 }
 
 func NewEnvironmentApplication(
 	crypto port.Crypto,
-	namespaceService *service.NamespaceService,
+	normalizerService *service.NormalizerService,
 	organizationService *service.OrganizationService,
 	environmentRepository interfaces.EnvironmentRepository,
 	projectRepository interfaces.ProjectRepository,
 ) *EnvironmentApplication {
 	return &EnvironmentApplication{
 		crypto:                crypto,
-		namespaceService:      namespaceService,
+		normalizerService:     normalizerService,
 		organizationService:   organizationService,
 		environmentRepository: environmentRepository,
 		projectRepository:     projectRepository,
@@ -45,7 +45,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		return err
 	}
 
-	environmentSlug, err := ea.namespaceService.FormatToDNS1123(name)
+	environmentSlug, err := ea.normalizerService.FormatToDNS1123(name)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		return err
 	}
 
-	namespace, err := ea.namespaceService.FormatToDNS1123(project.Name + "-" + name)
+	namespace, err := ea.normalizerService.FormatToDNS1123(project.Name + "-" + name)
 	if err != nil {
 		return err
 	}
@@ -73,9 +73,20 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		return nil, err
 	}
 
-	gitDeployments, err := ea.environmentRepository.GetEnvironmentGitDeployments(ctx, environmentId, userId)
+	git, err := ea.environmentRepository.GetEnvironmentGitDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
+	}
+
+	gitDeployments := make([]*value.GitDeployment, len(git))
+	for i, d := range git {
+		normalizedServiceName, err := ea.normalizerService.FormatToDNS1123(d.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
+		gitDeployments[i] = value.NewGitDeployment(d, internalEndpoint)
 	}
 
 	images, err := ea.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId, userId)
@@ -83,12 +94,23 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		return nil, err
 	}
 
+	imageDeployments := make([]*value.ImageDeployment, len(images))
+	for i, d := range images {
+		normalizedServiceName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
+		if err != nil {
+			return nil, err
+		}
+
+		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
+		imageDeployments[i] = value.NewImageDeployment(d, internalEndpoint)
+	}
+
 	databases, err := ea.environmentRepository.GetEnvironmentDatabaseDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	databaseDeployments := make([]*entity.DatabaseDeployment, len(databases))
+	databaseDeployments := make([]*value.DatabaseDeployment, len(databases))
 	for i, d := range databases {
 		var password *string
 
@@ -100,22 +122,28 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 			password = &decrypted
 		}
 
-		databaseDeployments[i] = &entity.DatabaseDeployment{
-			Id:            d.Id,
-			ServiceName:   d.ServiceName,
-			Status:        d.Status,
-			Database:      d.Database,
-			Username:      d.Username,
-			Password:      password,
-			Port:          d.Port,
-			EnvironmentId: d.EnvironmentId,
+		normalizedServiceName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
+		if err != nil {
+			return nil, err
+		}
+
+		internalEndpoint := fmt.Sprintf("%s-rw:%s", normalizedServiceName, d.Port)
+		databaseDeployments[i] = &value.DatabaseDeployment{
+			Id:               d.Id,
+			ServiceName:      d.ServiceName,
+			InternalEndpoint: internalEndpoint,
+			Status:           d.Status,
+			Database:         d.Database,
+			Username:         d.Username,
+			Password:         password,
+			Port:             d.Port,
 		}
 	}
 
 	return &value.Deployments{
-		Databases:      value.NewDatabaseDeployments(databaseDeployments),
-		Images:         value.NewImageDeployments(images),
+		Databases:      databaseDeployments,
+		Images:         imageDeployments,
 		Ingresses:      value.NewIngressDeployments(ingresses),
-		GitDeployments: value.NewGitDeployments(gitDeployments),
+		GitDeployments: gitDeployments,
 	}, nil
 }

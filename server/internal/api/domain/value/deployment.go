@@ -21,6 +21,7 @@ const (
 type GitDeployment struct {
 	Id                    int64
 	ServiceName           string
+	InternalEndpoint      string
 	Port                  string
 	Status                string
 	GitUrl                string
@@ -29,10 +30,11 @@ type GitDeployment struct {
 	EnvVars               []*EnvVar
 }
 
-func NewGitDeployment(d *entity.GitDeployment) *GitDeployment {
+func NewGitDeployment(d *entity.GitDeployment, internalEndpoint string) *GitDeployment {
 	return &GitDeployment{
 		Id:                    d.Id,
 		ServiceName:           d.Name,
+		InternalEndpoint:      internalEndpoint,
 		Status:                d.Status,
 		Port:                  d.Port,
 		GitUrl:                d.GitUrl,
@@ -40,14 +42,6 @@ func NewGitDeployment(d *entity.GitDeployment) *GitDeployment {
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               mapEnvVars(d.EnvVars),
 	}
-}
-
-func NewGitDeployments(ds []*entity.GitDeployment) []*GitDeployment {
-	deployments := make([]*GitDeployment, len(ds))
-	for i, d := range ds {
-		deployments[i] = NewGitDeployment(d)
-	}
-	return deployments
 }
 
 type IngressPath struct {
@@ -134,33 +128,27 @@ type EnvVar struct {
 }
 
 type ImageDeployment struct {
-	Id          int64
-	ServiceName string
-	Status      string
-	ImageName   string
-	Tag         string
-	Port        string
-	EnvVars     []*EnvVar
+	Id               int64
+	ServiceName      string
+	InternalEndpoint string
+	Status           string
+	ImageName        string
+	Tag              string
+	Port             string
+	EnvVars          []*EnvVar
 }
 
-func NewImageDeployment(d *entity.ImageDeployment) *ImageDeployment {
+func NewImageDeployment(d *entity.ImageDeployment, internalEndpoint string) *ImageDeployment {
 	return &ImageDeployment{
-		Id:          d.Id,
-		ServiceName: d.ServiceName,
-		Status:      d.Status,
-		ImageName:   d.ImageName,
-		Tag:         d.Tag,
-		Port:        d.Port,
-		EnvVars:     mapEnvVars(d.EnvVars),
+		Id:               d.Id,
+		ServiceName:      d.ServiceName,
+		InternalEndpoint: internalEndpoint,
+		Status:           d.Status,
+		ImageName:        d.ImageName,
+		Tag:              d.Tag,
+		Port:             d.Port,
+		EnvVars:          mapEnvVars(d.EnvVars),
 	}
-}
-
-func NewImageDeployments(ds []*entity.ImageDeployment) []*ImageDeployment {
-	deployments := make([]*ImageDeployment, len(ds))
-	for i, d := range ds {
-		deployments[i] = NewImageDeployment(d)
-	}
-	return deployments
 }
 
 func mapEnvVars(envVars []*entity.EnvVar) []*EnvVar {
@@ -175,31 +163,12 @@ func mapEnvVars(envVars []*entity.EnvVar) []*EnvVar {
 }
 
 type DatabaseDeployment struct {
-	Id          int64
-	ServiceName string
-	Status      string
-	Database    *string
-	Username    *string
-	Password    *string
-	Port        string
-}
-
-func NewDatabaseDeployment(d *entity.DatabaseDeployment) *DatabaseDeployment {
-	return &DatabaseDeployment{
-		Id:          d.Id,
-		ServiceName: d.ServiceName,
-		Status:      d.Status,
-		Database:    d.Database,
-		Username:    d.Username,
-		Password:    d.Password,
-		Port:        d.Port,
-	}
-}
-
-func NewDatabaseDeployments(ds []*entity.DatabaseDeployment) []*DatabaseDeployment {
-	deployments := make([]*DatabaseDeployment, len(ds))
-	for i, d := range ds {
-		deployments[i] = NewDatabaseDeployment(d)
-	}
-	return deployments
+	Id               int64
+	ServiceName      string
+	InternalEndpoint string
+	Status           string
+	Database         *string
+	Username         *string
+	Password         *string
+	Port             string
 }
