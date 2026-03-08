@@ -2,15 +2,16 @@
 
 ## Properties
 
-| Name            | Type       | Description | Notes                  |
-| --------------- | ---------- | ----------- | ---------------------- |
-| **database**    | **string** |             | [default to undefined] |
-| **id**          | **number** |             | [default to undefined] |
-| **password**    | **string** |             | [default to undefined] |
-| **port**        | **string** |             | [default to undefined] |
-| **serviceName** | **string** |             | [default to undefined] |
-| **status**      | **string** |             | [default to undefined] |
-| **username**    | **string** |             | [default to undefined] |
+| Name                 | Type       | Description | Notes                  |
+| -------------------- | ---------- | ----------- | ---------------------- |
+| **database**         | **string** |             | [default to undefined] |
+| **id**               | **number** |             | [default to undefined] |
+| **internalEndpoint** | **string** |             | [default to undefined] |
+| **password**         | **string** |             | [default to undefined] |
+| **port**             | **string** |             | [default to undefined] |
+| **serviceName**      | **string** |             | [default to undefined] |
+| **status**           | **string** |             | [default to undefined] |
+| **username**         | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -20,6 +21,7 @@ import { ResponseDatabaseDeployment } from "./api";
 const instance: ResponseDatabaseDeployment = {
   database,
   id,
+  internalEndpoint,
   password,
   port,
   serviceName,

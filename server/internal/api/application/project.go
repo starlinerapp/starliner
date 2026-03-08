@@ -9,14 +9,14 @@ import (
 )
 
 type ProjectApplication struct {
-	namespaceService      *service.NamespaceService
+	namespaceService      *service.NormalizerService
 	organizationService   *service.OrganizationService
 	projectRepository     interfaces.ProjectRepository
 	environmentRepository interfaces.EnvironmentRepository
 }
 
 func NewProjectApplication(
-	namespaceService *service.NamespaceService,
+	namespaceService *service.NormalizerService,
 	organizationService *service.OrganizationService,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,

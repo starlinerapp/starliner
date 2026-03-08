@@ -511,6 +511,12 @@ export interface ResponseDatabaseDeployment {
    * @type {string}
    * @memberof ResponseDatabaseDeployment
    */
+  internalEndpoint: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDatabaseDeployment
+   */
   password: string;
   /**
    *
@@ -660,6 +666,12 @@ export interface ResponseGitDeployment {
    * @type {string}
    * @memberof ResponseGitDeployment
    */
+  internalEndpoint: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
   port: string;
   /**
    *
@@ -704,6 +716,12 @@ export interface ResponseImageDeployment {
    * @memberof ResponseImageDeployment
    */
   imageName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  internalEndpoint: string;
   /**
    *
    * @type {string}

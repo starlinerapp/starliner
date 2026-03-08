@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-type NamespaceService struct {
+type NormalizerService struct {
 }
 
-func NewNamespaceService() *NamespaceService {
-	return &NamespaceService{}
+func NewNormalizerService() *NormalizerService {
+	return &NormalizerService{}
 }
 
-func (ns *NamespaceService) FormatToDNS1123(label string) (string, error) {
+func (ns *NormalizerService) FormatToDNS1123(label string) (string, error) {
 	label = strings.ToLower(label)
 
 	// Replace any character that isn't alphanumeric or hyphen with a hyphen

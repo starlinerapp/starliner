@@ -12,6 +12,7 @@ import { useLocation, useMatch, useNavigate } from "react-router";
 type DatabaseNode = Node<{
   id: number;
   serviceName: string;
+  internalEndpoint: string;
   status: string;
   port: string;
   database: string | undefined;
@@ -95,7 +96,7 @@ export default function DatabaseNode({
               <p>Internal Endpoint</p>
               <CopyToClipboard
                 className="text-mauve-11"
-                text={`${data.serviceName}-rw:${data.port}`}
+                text={data.internalEndpoint}
               />
             </span>
           </div>

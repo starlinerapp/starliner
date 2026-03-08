@@ -8,6 +8,6 @@ var Module = fx.Module(
 		NewOrganizationService,
 		NewEnvironmentService,
 		NewDeploymentService,
-		NewNamespaceService,
+		NewNormalizerService,
 	),
 )

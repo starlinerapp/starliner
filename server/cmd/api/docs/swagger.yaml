@@ -257,6 +257,8 @@ definitions:
         type: string
       id:
         type: integer
+      internalEndpoint:
+        type: string
       password:
         type: string
       port:
@@ -270,6 +272,7 @@ definitions:
     required:
     - database
     - id
+    - internalEndpoint
     - password
     - port
     - serviceName
@@ -340,6 +343,8 @@ definitions:
         type: string
       id:
         type: integer
+      internalEndpoint:
+        type: string
       port:
         type: string
       projectRepositoryPath:
@@ -353,6 +358,7 @@ definitions:
     - envVars
     - gitUrl
     - id
+    - internalEndpoint
     - port
     - projectRepositoryPath
     - serviceName
@@ -368,6 +374,8 @@ definitions:
         type: integer
       imageName:
         type: string
+      internalEndpoint:
+        type: string
       port:
         type: string
       serviceName:
@@ -380,6 +388,7 @@ definitions:
     - envVars
     - id
     - imageName
+    - internalEndpoint
     - port
     - serviceName
     - status
