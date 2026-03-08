@@ -625,7 +625,10 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Organization"
+                        }
                     }
                 }
             }
@@ -1187,6 +1190,7 @@
         "response.Cluster": {
             "type": "object",
             "required": [
+                "createdAt",
                 "id",
                 "ipv4Address",
                 "name",
@@ -1194,6 +1198,9 @@
                 "status"
             ],
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1238,6 +1245,7 @@
             "required": [
                 "database",
                 "id",
+                "internalEndpoint",
                 "password",
                 "port",
                 "serviceName",
@@ -1250,6 +1258,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "internalEndpoint": {
+                    "type": "string"
                 },
                 "password": {
                     "type": "string"
@@ -1352,6 +1363,7 @@
                 "envVars",
                 "gitUrl",
                 "id",
+                "internalEndpoint",
                 "port",
                 "projectRepositoryPath",
                 "serviceName",
@@ -1373,6 +1385,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "internalEndpoint": {
+                    "type": "string"
+                },
                 "port": {
                     "type": "string"
                 },
@@ -1393,6 +1408,7 @@
                 "envVars",
                 "id",
                 "imageName",
+                "internalEndpoint",
                 "port",
                 "serviceName",
                 "status",
@@ -1409,6 +1425,9 @@
                     "type": "integer"
                 },
                 "imageName": {
+                    "type": "string"
+                },
+                "internalEndpoint": {
                     "type": "string"
                 },
                 "port": {
@@ -1538,6 +1557,7 @@
             "type": "object",
             "required": [
                 "clusterId",
+                "createdAt",
                 "environments",
                 "id",
                 "name"
@@ -1545,6 +1565,9 @@
             "properties": {
                 "clusterId": {
                     "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
                 },
                 "environments": {
                     "type": "array",

@@ -634,7 +634,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Organization"
+                        }
                     }
                 }
             }
@@ -1196,6 +1199,7 @@ const docTemplate = `{
         "response.Cluster": {
             "type": "object",
             "required": [
+                "createdAt",
                 "id",
                 "ipv4Address",
                 "name",
@@ -1203,6 +1207,9 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1247,6 +1254,7 @@ const docTemplate = `{
             "required": [
                 "database",
                 "id",
+                "internalEndpoint",
                 "password",
                 "port",
                 "serviceName",
@@ -1259,6 +1267,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "internalEndpoint": {
+                    "type": "string"
                 },
                 "password": {
                     "type": "string"
@@ -1361,6 +1372,7 @@ const docTemplate = `{
                 "envVars",
                 "gitUrl",
                 "id",
+                "internalEndpoint",
                 "port",
                 "projectRepositoryPath",
                 "serviceName",
@@ -1382,6 +1394,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "internalEndpoint": {
+                    "type": "string"
+                },
                 "port": {
                     "type": "string"
                 },
@@ -1402,6 +1417,7 @@ const docTemplate = `{
                 "envVars",
                 "id",
                 "imageName",
+                "internalEndpoint",
                 "port",
                 "serviceName",
                 "status",
@@ -1418,6 +1434,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "imageName": {
+                    "type": "string"
+                },
+                "internalEndpoint": {
                     "type": "string"
                 },
                 "port": {
@@ -1547,6 +1566,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "clusterId",
+                "createdAt",
                 "environments",
                 "id",
                 "name"
@@ -1554,6 +1574,9 @@ const docTemplate = `{
             "properties": {
                 "clusterId": {
                     "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
                 },
                 "environments": {
                     "type": "array",

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	corePort "starliner.app/internal/core/domain/port"
+	"starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/provisioner/domain/port"
 	"strings"
@@ -13,11 +14,12 @@ import (
 )
 
 type ClusterApplication struct {
-	ssh       port.SSH
-	install   port.Install
-	provision port.Provision
-	queue     port.Queue
-	crypto    corePort.Crypto
+	ssh               port.SSH
+	install           port.Install
+	provision         port.Provision
+	queue             port.Queue
+	crypto            corePort.Crypto
+	normalizerService *service.NormalizerService
 }
 
 func NewClusterApplication(
@@ -26,13 +28,15 @@ func NewClusterApplication(
 	provision port.Provision,
 	queue port.Queue,
 	crypto corePort.Crypto,
+	normalizerService *service.NormalizerService,
 ) *ClusterApplication {
 	return &ClusterApplication{
-		ssh:       ssh,
-		install:   install,
-		provision: provision,
-		queue:     queue,
-		crypto:    crypto,
+		ssh:               ssh,
+		install:           install,
+		provision:         provision,
+		queue:             queue,
+		crypto:            crypto,
+		normalizerService: normalizerService,
 	}
 }
 
@@ -46,8 +50,10 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	pubKeyStr := base64.StdEncoding.EncodeToString(publicKey)
 	privKeyStr := base64.StdEncoding.EncodeToString(privateKey)
 
-	trimmed := strings.TrimSpace(c.Name)
-	clusterSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
+	clusterSlug, err := ca.normalizerService.FormatToDNS1123(c.Name)
+	if err != nil {
+		log.Printf("failed to normalize cluster name: %v\n", err)
+	}
 
 	projectName := fmt.Sprintf("%s-%s", strings.ToLower(c.OrganizationName), clusterSlug)
 	provisioningId, ip, err := ca.provision.ProvisionServer(ctx, c.ProvisioningCredential, projectName, publicKey)

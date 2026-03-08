@@ -437,6 +437,12 @@ export interface RequestUpsertHetznerCredential {
 export interface ResponseCluster {
   /**
    *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
+  createdAt: string;
+  /**
+   *
    * @type {number}
    * @memberof ResponseCluster
    */
@@ -500,6 +506,12 @@ export interface ResponseDatabaseDeployment {
    * @memberof ResponseDatabaseDeployment
    */
   id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseDatabaseDeployment
+   */
+  internalEndpoint: string;
   /**
    *
    * @type {string}
@@ -654,6 +666,12 @@ export interface ResponseGitDeployment {
    * @type {string}
    * @memberof ResponseGitDeployment
    */
+  internalEndpoint: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
   port: string;
   /**
    *
@@ -698,6 +716,12 @@ export interface ResponseImageDeployment {
    * @memberof ResponseImageDeployment
    */
   imageName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  internalEndpoint: string;
   /**
    *
    * @type {string}
@@ -875,6 +899,12 @@ export interface ResponseProject {
    * @memberof ResponseProject
    */
   clusterId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseProject
+   */
+  createdAt: string;
   /**
    *
    * @type {Array<ResponseEnvironment>}
@@ -3348,7 +3378,10 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       data: RequestCreateOrganization,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseOrganization>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.createOrganization(
@@ -3574,7 +3607,7 @@ export const OrganizationApiFactory = function (
       xUserID: string,
       data: RequestCreateOrganization,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseOrganization> {
       return localVarFp
         .createOrganization(xUserID, data, options)
         .then((request) => request(axios, basePath));

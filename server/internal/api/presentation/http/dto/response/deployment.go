@@ -19,6 +19,7 @@ type EnvVar struct {
 type GitDeployment struct {
 	Id                    int64    `json:"id" binding:"required"`
 	ServiceName           string   `json:"serviceName" binding:"required"`
+	InternalEndpoint      string   `json:"internalEndpoint" binding:"required"`
 	Status                string   `json:"status" binding:"required"`
 	Port                  string   `json:"port" binding:"required"`
 	GitUrl                string   `json:"gitUrl" binding:"required"`
@@ -31,6 +32,7 @@ func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
 	return GitDeployment{
 		Id:                    gitDeployment.Id,
 		ServiceName:           gitDeployment.ServiceName,
+		InternalEndpoint:      gitDeployment.InternalEndpoint,
 		Status:                gitDeployment.Status,
 		Port:                  gitDeployment.Port,
 		GitUrl:                gitDeployment.GitUrl,
@@ -116,24 +118,26 @@ func NewIngressDeployments(ingressDeployments []*value.IngressDeployment) []Ingr
 }
 
 type ImageDeployment struct {
-	Id          int64    `json:"id" binding:"required"`
-	ServiceName string   `json:"serviceName" binding:"required"`
-	ImageName   string   `json:"imageName" binding:"required"`
-	Tag         string   `json:"tag" binding:"required"`
-	Status      string   `json:"status" binding:"required"`
-	Port        string   `json:"port" binding:"required"`
-	EnvVars     []EnvVar `json:"envVars" binding:"required"`
+	Id               int64    `json:"id" binding:"required"`
+	ServiceName      string   `json:"serviceName" binding:"required"`
+	InternalEndpoint string   `json:"internalEndpoint" binding:"required"`
+	ImageName        string   `json:"imageName" binding:"required"`
+	Tag              string   `json:"tag" binding:"required"`
+	Status           string   `json:"status" binding:"required"`
+	Port             string   `json:"port" binding:"required"`
+	EnvVars          []EnvVar `json:"envVars" binding:"required"`
 }
 
 func NewImageDeployment(imageDeployment *value.ImageDeployment) ImageDeployment {
 	return ImageDeployment{
-		Id:          imageDeployment.Id,
-		ServiceName: imageDeployment.ServiceName,
-		ImageName:   imageDeployment.ImageName,
-		Tag:         imageDeployment.Tag,
-		Status:      imageDeployment.Status,
-		Port:        imageDeployment.Port,
-		EnvVars:     mapEnvVarsFromValue(imageDeployment.EnvVars),
+		Id:               imageDeployment.Id,
+		ServiceName:      imageDeployment.ServiceName,
+		InternalEndpoint: imageDeployment.InternalEndpoint,
+		ImageName:        imageDeployment.ImageName,
+		Tag:              imageDeployment.Tag,
+		Status:           imageDeployment.Status,
+		Port:             imageDeployment.Port,
+		EnvVars:          mapEnvVarsFromValue(imageDeployment.EnvVars),
 	}
 }
 
@@ -146,24 +150,26 @@ func NewImageDeployments(imageDeployments []*value.ImageDeployment) []ImageDeplo
 }
 
 type DatabaseDeployment struct {
-	Id          int64   `json:"id" binding:"required"`
-	ServiceName string  `json:"serviceName" binding:"required"`
-	Status      string  `json:"status" binding:"required"`
-	Database    *string `json:"database" binding:"required"`
-	Username    *string `json:"username" binding:"required"`
-	Password    *string `json:"password" binding:"required"`
-	Port        string  `json:"port" binding:"required"`
+	Id               int64   `json:"id" binding:"required"`
+	ServiceName      string  `json:"serviceName" binding:"required"`
+	InternalEndpoint string  `json:"internalEndpoint" binding:"required"`
+	Status           string  `json:"status" binding:"required"`
+	Database         *string `json:"database" binding:"required"`
+	Username         *string `json:"username" binding:"required"`
+	Password         *string `json:"password" binding:"required"`
+	Port             string  `json:"port" binding:"required"`
 }
 
 func NewDatabaseDeployment(databaseDeployment *value.DatabaseDeployment) DatabaseDeployment {
 	return DatabaseDeployment{
-		Id:          databaseDeployment.Id,
-		ServiceName: databaseDeployment.ServiceName,
-		Status:      databaseDeployment.Status,
-		Database:    databaseDeployment.Database,
-		Username:    databaseDeployment.Username,
-		Password:    databaseDeployment.Password,
-		Port:        databaseDeployment.Port,
+		Id:               databaseDeployment.Id,
+		ServiceName:      databaseDeployment.ServiceName,
+		InternalEndpoint: databaseDeployment.InternalEndpoint,
+		Status:           databaseDeployment.Status,
+		Database:         databaseDeployment.Database,
+		Username:         databaseDeployment.Username,
+		Password:         databaseDeployment.Password,
+		Port:             databaseDeployment.Port,
 	}
 }
 

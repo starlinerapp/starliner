@@ -5,6 +5,7 @@
 | Name             | Type                                                           | Description | Notes                  |
 | ---------------- | -------------------------------------------------------------- | ----------- | ---------------------- |
 | **clusterId**    | **number**                                                     |             | [default to undefined] |
+| **createdAt**    | **string**                                                     |             | [default to undefined] |
 | **environments** | [**Array&lt;ResponseEnvironment&gt;**](ResponseEnvironment.md) |             | [default to undefined] |
 | **id**           | **number**                                                     |             | [default to undefined] |
 | **name**         | **string**                                                     |             | [default to undefined] |
@@ -16,6 +17,7 @@ import { ResponseProject } from "./api";
 
 const instance: ResponseProject = {
   clusterId,
+  createdAt,
   environments,
   id,
   name,

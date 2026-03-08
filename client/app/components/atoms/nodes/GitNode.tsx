@@ -11,6 +11,7 @@ import { useLocation, useMatch, useNavigate } from "react-router";
 type GitNode = Node<{
   id: number;
   serviceName: string;
+  internalEndpoint: string;
   status: string;
   port: string;
   gitUrl: string;
@@ -75,7 +76,7 @@ export default function GitNode({ data, selected }: NodeProps<GitNode>) {
               <p>Internal Endpoint</p>
               <CopyToClipboard
                 className="text-mauve-11"
-                text={`${data.serviceName}:${data.port}`}
+                text={data.internalEndpoint}
               />
             </span>
           </div>

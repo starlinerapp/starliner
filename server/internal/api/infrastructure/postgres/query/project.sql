@@ -32,7 +32,8 @@ SELECT
     projects.organization_id as organization_id,
     environments.id as environment_id,
     environments.name as environment_name,
-    environments.slug as environment_slug
+    environments.slug as environment_slug,
+    environments.created_at as created_at
 FROM projects
 INNER JOIN organizations ON projects.organization_id = organizations.id
 INNER JOIN environments ON projects.id = environments.project_id

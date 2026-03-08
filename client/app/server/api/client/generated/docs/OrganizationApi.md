@@ -13,7 +13,7 @@ All URIs are relative to _http://localhost_
 
 # **createOrganization**
 
-> createOrganization(data)
+> ResponseOrganization createOrganization(data)
 
 ### Example
 
@@ -42,7 +42,7 @@ const { status, data } = await apiInstance.createOrganization(xUserID, data);
 
 ### Return type
 
-void (empty response body)
+**ResponseOrganization**
 
 ### Authorization
 
@@ -51,7 +51,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 

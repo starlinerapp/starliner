@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { NavLink, useNavigate } from "react-router";
 import Button from "~/components/atoms/button/Button";
 import { authClient } from "~/utils/auth/client";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 interface SignUpFormInput {
   email: string;
@@ -14,6 +15,8 @@ interface SignUpFormInput {
 export default function SignUp() {
   const { register, handleSubmit } = useForm<SignUpFormInput>();
   const navigate = useNavigate();
+
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SignUpFormInput> = async (data) => {
     await authClient.signUp.email(
@@ -30,7 +33,7 @@ export default function SignUp() {
           navigate("/");
         },
         onError: (ctx) => {
-          console.log(ctx.error);
+          setError(ctx.error.message);
         },
       },
     );
@@ -48,6 +51,7 @@ export default function SignUp() {
         </NavLink>
       </p>
       <h1 className="text-xl font-medium">Sign up for Starliner</h1>
+      {error && <ErrorBanner text={error} />}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm">

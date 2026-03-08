@@ -57,9 +57,9 @@ export default function OrganizationSettings() {
   };
 
   return (
-    <div className="px-8 py-4">
+    <div className="flex flex-col gap-8 px-8 py-4">
       <div className="flex w-full items-center justify-between">
-        <h1 className="text-xl font-bold">Organization Settings</h1>
+        <h1 className="pt-1 text-xl font-bold">Organization Settings</h1>
       </div>
       <div className="w-full py-4 xl:w-3/5">
         <div className="border-mauve-6 rounded-md border-1 text-sm">

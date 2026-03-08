@@ -216,6 +216,8 @@ definitions:
     type: object
   response.Cluster:
     properties:
+      createdAt:
+        type: string
       id:
         type: integer
       ipv4Address:
@@ -232,6 +234,7 @@ definitions:
         - running
         - deleted
     required:
+    - createdAt
     - id
     - ipv4Address
     - name
@@ -254,6 +257,8 @@ definitions:
         type: string
       id:
         type: integer
+      internalEndpoint:
+        type: string
       password:
         type: string
       port:
@@ -267,6 +272,7 @@ definitions:
     required:
     - database
     - id
+    - internalEndpoint
     - password
     - port
     - serviceName
@@ -337,6 +343,8 @@ definitions:
         type: string
       id:
         type: integer
+      internalEndpoint:
+        type: string
       port:
         type: string
       projectRepositoryPath:
@@ -350,6 +358,7 @@ definitions:
     - envVars
     - gitUrl
     - id
+    - internalEndpoint
     - port
     - projectRepositoryPath
     - serviceName
@@ -365,6 +374,8 @@ definitions:
         type: integer
       imageName:
         type: string
+      internalEndpoint:
+        type: string
       port:
         type: string
       serviceName:
@@ -377,6 +388,7 @@ definitions:
     - envVars
     - id
     - imageName
+    - internalEndpoint
     - port
     - serviceName
     - status
@@ -461,6 +473,8 @@ definitions:
     properties:
       clusterId:
         type: integer
+      createdAt:
+        type: string
       environments:
         items:
           $ref: '#/definitions/response.Environment'
@@ -471,6 +485,7 @@ definitions:
         type: string
     required:
     - clusterId
+    - createdAt
     - environments
     - id
     - name
@@ -908,6 +923,8 @@ paths:
       responses:
         "201":
           description: Created
+          schema:
+            $ref: '#/definitions/response.Organization'
       summary: Create organization
       tags:
       - organization

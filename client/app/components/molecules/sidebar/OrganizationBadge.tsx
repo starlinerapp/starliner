@@ -27,6 +27,7 @@ function OrganizationIcon({ name, className }: OrganizationIconProps) {
 
 export default function OrganizationBadge() {
   const { slug } = useParams();
+  const [open, setOpen] = React.useState(false);
 
   const trpc = useTRPC();
   const { data: organizations } = useQuery(
@@ -42,17 +43,13 @@ export default function OrganizationBadge() {
 
   const { data: projects } = useQuery(
     trpc.organization.getOrganizationProjects.queryOptions(
-      {
-        id: currentOrganization?.id ?? 0,
-      },
-      {
-        enabled: !!currentOrganization?.id,
-      },
+      { id: currentOrganization?.id ?? 0 },
+      { enabled: !!currentOrganization?.id },
     ),
   );
 
   return (
-    <Popover.Root>
+    <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger className="data-[state=open]:bg-violet-3 data-[state=open]:border-gray-4 hover:bg-violet-3 hover:border-gray-4 flex h-11 w-11 items-center justify-center self-center rounded-md border border-white">
         <OrganizationIcon name={currentOrganization?.name ?? ""} />
       </Popover.Trigger>
@@ -78,18 +75,20 @@ export default function OrganizationBadge() {
                 </p>
               </div>
             </div>
-            <button
+            <Link
+              to={`/${currentOrganization?.slug}/settings/organization`}
               className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
-              onClick={async () => {}}
+              onClick={() => setOpen(false)}
             >
               <p>Organization Settings</p>
-            </button>
-            <button
+            </Link>
+            <Link
+              to={`/${currentOrganization?.slug}/projects`}
               className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
-              onClick={async () => {}}
+              onClick={() => setOpen(false)}
             >
               <p>Projects</p>
-            </button>
+            </Link>
             <HoverCard.Root openDelay={0} closeDelay={100}>
               <HoverCard.Trigger className="hover:bg-gray-3 flex cursor-pointer flex-row items-center justify-between gap-2 rounded-md p-2 text-xs">
                 <p>Switch Organization</p>
@@ -109,6 +108,7 @@ export default function OrganizationBadge() {
                         to={`/${organization.slug}`}
                         key={i}
                         className="hover:bg-gray-3 flex items-center gap-2 rounded-md p-2 text-xs"
+                        onClick={() => setOpen(false)}
                       >
                         {organization.name}
                       </Link>
@@ -120,6 +120,7 @@ export default function OrganizationBadge() {
                       className="hover:bg-gray-3 flex flex-row items-center justify-between gap-2 rounded-md p-2 text-xs"
                       to="/organizations/new"
                       target="_blank"
+                      onClick={() => setOpen(false)}
                     >
                       <p className="flex items-center gap-1 text-xs">
                         <Plus width={15} strokeWidth={2} /> New organization

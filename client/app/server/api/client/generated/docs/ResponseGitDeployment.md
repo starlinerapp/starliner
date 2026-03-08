@@ -8,6 +8,7 @@
 | **envVars**               | [**Array&lt;ResponseEnvVar&gt;**](ResponseEnvVar.md) |             | [default to undefined] |
 | **gitUrl**                | **string**                                           |             | [default to undefined] |
 | **id**                    | **number**                                           |             | [default to undefined] |
+| **internalEndpoint**      | **string**                                           |             | [default to undefined] |
 | **port**                  | **string**                                           |             | [default to undefined] |
 | **projectRepositoryPath** | **string**                                           |             | [default to undefined] |
 | **serviceName**           | **string**                                           |             | [default to undefined] |
@@ -23,6 +24,7 @@ const instance: ResponseGitDeployment = {
   envVars,
   gitUrl,
   id,
+  internalEndpoint,
   port,
   projectRepositoryPath,
   serviceName,
