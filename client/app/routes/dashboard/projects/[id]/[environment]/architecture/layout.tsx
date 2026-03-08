@@ -124,7 +124,7 @@ export default function Layout() {
         <div className="bg-violet-1">
           <LinkNavigationBar items={navigationBarItems} />
         </div>
-        <div className="flex-1 overflow-auto p-4">
+        <div className="max-h-[calc(100vh-135px)] flex-1 overflow-auto p-4">
           <Outlet
             context={{
               environment: currentEnvironment,
