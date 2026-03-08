@@ -5,8 +5,9 @@ import type {
   ResponseImageDeployment,
   ResponseIngressDeployment,
 } from "~/server/api/client/generated";
-import NavigationBar from "../navigation-bar/NavigationBar";
-import Logs from "./Logs";
+import TerminalClient from "~/components/organisms/bottom-bar/Terminal.client";
+import Logs from "~/components/organisms/bottom-bar/Logs";
+import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
 
 type Deployment =
   | ResponseGitDeployment
@@ -31,9 +32,13 @@ export default function BottomBar({ deployment }: BottomBarProps) {
         selected={selected}
         onSelect={setSelected}
       />
-      <div className="min-h-0 flex-1 overflow-y-scroll p-4">
-        {selected === "Logs" ? <Logs deployment={deployment} /> : <></>}
-      </div>
+      {selected === "Logs" ? (
+        <div className="min-h-0 flex-1 overflow-y-scroll p-4">
+          <Logs deployment={deployment} />
+        </div>
+      ) : (
+        <TerminalClient deployment={deployment} />
+      )}
     </div>
   );
 }
