@@ -27,7 +27,7 @@ func NewOrganizationHandler(organizationApplication *application.OrganizationApp
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
 // @Param data body request.CreateOrganization true "Create Organization"
-// @Success 201
+// @Success 201 {object} response.Organization
 // @Router /organizations [post]
 func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -37,12 +37,12 @@ func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 		return
 	}
 
-	err := oh.organizationApplication.CreateOrganization(c, org.Name, currentUser.Id)
+	newOrg, err := oh.organizationApplication.CreateOrganization(c, org.Name, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, response.NewOrganization(newOrg))
 }
 
 // GetUserOrganizations FindAll godoc

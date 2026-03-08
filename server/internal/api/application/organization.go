@@ -6,36 +6,45 @@ import (
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
-	"strings"
 )
 
 type OrganizationApplication struct {
 	crypto                 port.Crypto
 	organizationRepository interfaces.OrganizationRepository
+	normalizationService   *service.NormalizerService
 	organizationService    *service.OrganizationService
 }
 
 func NewOrganizationApplication(
 	crypto port.Crypto,
 	organizationRepository interfaces.OrganizationRepository,
+	normalizationService *service.NormalizerService,
 	organizationService *service.OrganizationService,
 ) *OrganizationApplication {
 	return &OrganizationApplication{
 		crypto:                 crypto,
 		organizationRepository: organizationRepository,
+		normalizationService:   normalizationService,
 		organizationService:    organizationService,
 	}
 }
 
-func (oa *OrganizationApplication) CreateOrganization(ctx context.Context, name string, ownerID int64) error {
-	trimmed := strings.TrimSpace(name)
-	organizationSlug := strings.ReplaceAll(strings.ToLower(trimmed), " ", "-")
-
-	_, err := oa.organizationRepository.CreateOrganization(ctx, name, organizationSlug, ownerID)
+func (oa *OrganizationApplication) CreateOrganization(ctx context.Context, name string, ownerID int64) (*value.Organization, error) {
+	organizationSlug, err := oa.normalizationService.FormatToDNS1123(name)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	org, err := oa.organizationRepository.CreateOrganization(ctx, name, organizationSlug, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	return &value.Organization{
+		Id:      org.Id,
+		Name:    org.Name,
+		Slug:    org.Slug,
+		OwnerId: org.OwnerId,
+	}, nil
 }
 
 func (oa *OrganizationApplication) GetUserOrganizations(ctx context.Context, userID int64) ([]*value.Organization, error) {
@@ -47,7 +56,7 @@ func (oa *OrganizationApplication) GetUserOrganizations(ctx context.Context, use
 }
 
 func (oa *OrganizationApplication) GetProjectsForUser(ctx context.Context, userID int64, organizationID int64) ([]*value.Project, error) {
-	err := oa.organizationService.ValidateUserInOrg(ctx, userID, organizationID)
+	err := oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
 	if err != nil {
 		return nil, err
 	}

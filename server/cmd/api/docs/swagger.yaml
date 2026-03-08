@@ -923,6 +923,8 @@ paths:
       responses:
         "201":
           description: Created
+          schema:
+            $ref: '#/definitions/response.Organization'
       summary: Create organization
       tags:
       - organization
