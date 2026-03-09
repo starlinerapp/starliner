@@ -50,7 +50,7 @@ export default function TerminalClient({ deployment }: TerminalProps) {
       fitAddonRef.current = fitAddon;
       setAddons([fitAddon, attachAddon]);
       // Defer fit until XTerm has had a chance to mount/render
-      setTimeout(() => fitAddon.fit(), 0);
+      setTimeout(() => fitAddon.fit(), 50);
     };
 
     ws.onclose = () => {
