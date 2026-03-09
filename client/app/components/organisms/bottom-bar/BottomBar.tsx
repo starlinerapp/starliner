@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import type {
   ResponseDatabaseDeployment,
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
 } from "~/server/api/client/generated";
-import TerminalClient from "~/components/organisms/bottom-bar/Terminal.client";
-import Logs from "~/components/organisms/bottom-bar/Logs";
 import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
+import Logs from "~/components/organisms/bottom-bar/Logs";
+import TerminalClient from "~/components/organisms/bottom-bar/Terminal.client";
 
 type Deployment =
   | ResponseGitDeployment
@@ -22,7 +22,7 @@ interface BottomBarProps {
 const navigationItems = ["Logs", "Terminal"] as const;
 type NavigationItem = (typeof navigationItems)[number];
 
-export default function BottomBar({ deployment }: BottomBarProps) {
+function BottomBarComponent({ deployment }: BottomBarProps) {
   const [selected, setSelected] = useState<NavigationItem>("Logs");
 
   return (
@@ -42,3 +42,11 @@ export default function BottomBar({ deployment }: BottomBarProps) {
     </div>
   );
 }
+
+const BottomBar = memo(
+  BottomBarComponent,
+  (prevProps, nextProps) =>
+    prevProps.deployment?.id === nextProps.deployment?.id,
+);
+
+export default BottomBar;
