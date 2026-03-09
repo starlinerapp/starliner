@@ -34,6 +34,8 @@ func NewServer(
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	engine.GET("/ws/:id", deploymentHandler.OpenTTY)
+
 	engine.Use(auth.WithBasicAuth(), user.WithUser())
 	engine.GET("/", rootHandler.GetRoot)
 	engine.GET("/me", userHandler.GetUser)

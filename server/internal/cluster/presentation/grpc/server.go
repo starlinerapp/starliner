@@ -17,11 +17,13 @@ type Server struct {
 
 func NewServer(
 	logsHandler *handler.LogsHandler,
+	ttyHandler *handler.TtyHandler,
 ) *Server {
 	server := grpc.NewServer()
 	reflection.Register(server)
 
 	pb.RegisterLogsServiceServer(server, logsHandler)
+	pb.RegisterTTYServiceServer(server, ttyHandler)
 
 	return &Server{server: server}
 }
