@@ -886,7 +886,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "organizationId"
+                "organizationId",
+                "serverType"
             ],
             "properties": {
                 "name": {
@@ -894,6 +895,9 @@ const docTemplate = `{
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "serverType": {
+                    "type": "string"
                 }
             }
         },

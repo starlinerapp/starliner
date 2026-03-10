@@ -6,6 +6,7 @@
 | ------------------ | ---------- | ----------- | ---------------------- |
 | **name**           | **string** |             | [default to undefined] |
 | **organizationId** | **number** |             | [default to undefined] |
+| **serverType**     | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -15,6 +16,7 @@ import { RequestCreateCluster } from "./api";
 const instance: RequestCreateCluster = {
   name,
   organizationId,
+  serverType,
 };
 ```
 
