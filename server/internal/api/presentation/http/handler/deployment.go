@@ -368,7 +368,9 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "websocket upgrade failed"})
 		return
 	}
-	defer conn.Close()
+	defer func(conn *websocket.Conn) {
+		_ = conn.Close()
+	}(conn)
 
 	stdinReader, stdinWriter := io.Pipe()
 	stdoutReader, stdoutWriter := io.Pipe()
@@ -378,7 +380,9 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 	sizeCh <- port.TerminalSize{Rows: rows, Columns: cols}
 
 	go func() {
-		defer stdinWriter.Close()
+		defer func(stdinWriter *io.PipeWriter) {
+			_ = stdinWriter.Close()
+		}(stdinWriter)
 		for {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
@@ -391,7 +395,9 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 	}()
 
 	go func() {
-		defer stdoutReader.Close()
+		defer func(stdoutReader *io.PipeReader) {
+			_ = stdoutReader.Close()
+		}(stdoutReader)
 		buf := make([]byte, 4096)
 		for {
 			n, err := stdoutReader.Read(buf)
