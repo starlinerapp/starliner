@@ -39,7 +39,7 @@ export default function TerminalClient({ deployment }: TerminalProps) {
     const { rows, cols } = getTtySize();
 
     const ws = new WebSocket(
-      `wss://${window.location.host}/ws/${deployment?.id}?tty_height=${rows}&tty_width=${cols}`,
+      `wss://${window.location.host}/ws/deployments/${deployment?.id}?tty_height=${rows}&tty_width=${cols}`,
     );
     ws.binaryType = "arraybuffer";
 

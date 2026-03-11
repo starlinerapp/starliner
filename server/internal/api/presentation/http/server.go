@@ -80,7 +80,11 @@ func NewServer(
 		deploymentRoutes.PUT("/ingresses/:deploymentId", deploymentHandler.UpdateIngressDeployment)
 		deploymentRoutes.DELETE("/:id", deploymentHandler.DeleteDeployment)
 		deploymentRoutes.GET("/:id/logs", deploymentHandler.StreamDeploymentLogs)
-		engine.GET("/ws/:id", deploymentHandler.OpenTTY)
+	}
+
+	webSocketRoutes := engine.Group("/ws")
+	{
+		webSocketRoutes.GET("/deployments/:id", deploymentHandler.OpenTTY)
 	}
 
 	return &Server{engine: engine}
