@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import httpProxy from "http-proxy";
 import * as http from "node:http";
-import { auth } from "./app/utils/auth/server.ts";
+import { auth } from "~/utils/auth/server";
 import { fromNodeHeaders } from "better-auth/node";
 import { createRequestHandler } from "@react-router/express";
 
@@ -77,8 +77,8 @@ server.on("upgrade", async (req, socket, head) => {
     headers: fromNodeHeaders(req.headers),
   });
 
-  if (session.user.id) {
-    req.headers["X-User-Id"] = session.user.id;
+  if (session?.user.id) {
+    req.headers["X-User-Id"] = session?.user.id ?? "";
   }
 
   const credentials = Buffer.from(
