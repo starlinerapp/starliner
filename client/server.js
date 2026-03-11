@@ -5,6 +5,7 @@ import httpProxy from "http-proxy";
 import * as http from "node:http";
 import { auth } from "./app/utils/auth/server.ts";
 import { fromNodeHeaders } from "better-auth/node";
+import { createRequestHandler } from "@react-router/express";
 
 const BUILD_PATH = "./build/server/index.js";
 const DEVELOPMENT = process.env.NODE_ENV === "development";
@@ -50,7 +51,7 @@ if (DEVELOPMENT) {
   app.use(morgan("tiny"));
   app.use(express.static("build/client", { maxAge: "1h" }));
 
-  app.use(await import(BUILD_PATH).then((mod) => mod.app));
+  app.use(createRequestHandler({ build: await import(BUILD_PATH) }));
 }
 
 const wsProxy = httpProxy.createProxyServer({
