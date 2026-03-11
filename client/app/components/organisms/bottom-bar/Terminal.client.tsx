@@ -77,18 +77,24 @@ export default function TerminalClient({ deployment }: TerminalProps) {
 
   return (
     <div ref={containerRef} className="h-full w-full p-4">
-      <XTerm
-        className="h-full w-full"
-        addons={addons}
-        options={{
-          cursorStyle: "block",
-          theme: {
-            background: "#ffffff",
-            foreground: "#65636D",
-            cursor: "#65636D",
-          },
-        }}
-      />
+      {!deployment ? (
+        <p className="text-mauve-11">
+          No deployment selected. Select one to connect to the terminal.
+        </p>
+      ) : (
+        <XTerm
+          className="h-full w-full"
+          addons={addons}
+          options={{
+            cursorStyle: "block",
+            theme: {
+              background: "#ffffff",
+              foreground: "#65636D",
+              cursor: "#65636D",
+            },
+          }}
+        />
+      )}
     </div>
   );
 }
