@@ -149,6 +149,7 @@ type Cluster struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	Kubeconfig     sql.NullString
+	ServerType     string
 }
 
 type DatabaseDeployment struct {

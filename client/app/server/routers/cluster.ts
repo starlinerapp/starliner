@@ -7,6 +7,7 @@ export const clusterRouter = {
     .input(
       z.object({
         name: z.string(),
+        serverType: z.string(),
         organizationId: z.number(),
       }),
     )
@@ -15,6 +16,7 @@ export const clusterRouter = {
       return await clusterApiFactory
         .createCluster(userId, {
           name: input.name,
+          serverType: input.serverType,
           organizationId: input.organizationId,
         })
         .then((res) => res.data);

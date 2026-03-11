@@ -56,7 +56,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	}
 
 	projectName := fmt.Sprintf("%s-%s", strings.ToLower(c.OrganizationName), clusterSlug)
-	provisioningId, ip, err := ca.provision.ProvisionServer(ctx, c.ProvisioningCredential, projectName, publicKey)
+	provisioningId, ip, err := ca.provision.ProvisionServer(ctx, c.ProvisioningCredential, projectName, c.ServerType, publicKey)
 
 	if err != nil {
 		log.Printf("failed to provision server: %v\n", err)

@@ -41,13 +41,13 @@ func NewClusterApplication(
 	}
 }
 
-func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, name string, organizationId int64) (*value.Cluster, error) {
+func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, name string, serverType string, organizationId int64) (*value.Cluster, error) {
 	err := ca.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	cluster, err := ca.clusterRepository.CreateCluster(ctx, name, organizationId)
+	cluster, err := ca.clusterRepository.CreateCluster(ctx, name, serverType, organizationId)
 	if err != nil {
 		fmt.Printf("failed to persist cluster in database: %v", err)
 	}
@@ -65,6 +65,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 	err = ca.queue.PublishCreateCluster(&coreValue.ProvisionCluster{
 		Id:                     cluster.Id,
 		Name:                   cluster.Name,
+		ServerType:             coreValue.ServerType(cluster.ServerType),
 		OrganizationName:       strconv.FormatInt(cluster.OrganizationId, 10),
 		ProvisioningCredential: decrypted,
 	})

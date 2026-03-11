@@ -5,9 +5,12 @@ definitions:
         type: string
       organizationId:
         type: integer
+      serverType:
+        type: string
     required:
     - name
     - organizationId
+    - serverType
     type: object
   request.CreateEnvironment:
     properties:

@@ -10,9 +10,17 @@ const (
 	ClusterDeleted ClusterStatus = "deleted"
 )
 
+type ServerType string
+
+const (
+	ServerTypeCX23  ServerType = "cx23"
+	ServerTypeCCX33 ServerType = "ccx33"
+)
+
 type Cluster struct {
 	Id             int64
 	Name           string
+	ServerType     ServerType
 	Status         ClusterStatus
 	IPv4Address    *string
 	PublicKey      *string

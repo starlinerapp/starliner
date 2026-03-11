@@ -1,10 +1,12 @@
 -- name: CreateCluster :one
 INSERT INTO clusters (
     name,
+    server_type,
     organization_id
 ) VALUES (
     $1,
-    $2
+    $2,
+    $3
  )
 RETURNING *;
 

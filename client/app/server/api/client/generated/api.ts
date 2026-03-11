@@ -57,6 +57,12 @@ export interface RequestCreateCluster {
    * @memberof RequestCreateCluster
    */
   organizationId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestCreateCluster
+   */
+  serverType: string;
 }
 /**
  *

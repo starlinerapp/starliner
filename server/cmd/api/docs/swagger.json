@@ -877,7 +877,8 @@
             "type": "object",
             "required": [
                 "name",
-                "organizationId"
+                "organizationId",
+                "serverType"
             ],
             "properties": {
                 "name": {
@@ -885,6 +886,9 @@
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "serverType": {
+                    "type": "string"
                 }
             }
         },
