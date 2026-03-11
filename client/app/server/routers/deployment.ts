@@ -235,7 +235,10 @@ export const deploymentRouter = {
           }
         }
       } catch (err) {
-        console.error("Subscription error:", err);
+        if (signal?.aborted) {
+          return;
+        }
+
         throw err;
       }
     }),

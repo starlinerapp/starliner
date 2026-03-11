@@ -82,6 +82,11 @@ func NewServer(
 		deploymentRoutes.GET("/:id/logs", deploymentHandler.StreamDeploymentLogs)
 	}
 
+	webSocketRoutes := engine.Group("/ws")
+	{
+		webSocketRoutes.GET("/deployments/:id", deploymentHandler.OpenTTY)
+	}
+
 	return &Server{engine: engine}
 }
 

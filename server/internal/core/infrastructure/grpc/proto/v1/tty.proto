@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/cluster/presentation/grpc/proto/v1";
+
+message TerminalSize {
+  uint32 cols = 1;
+  uint32 rows = 2;
+}
+
+message OpenTTYRequest {
+  oneof payload {
+    TTYSession session = 1;
+    bytes stdin = 2;
+    TerminalSize size = 3;
+  }
+}
+
+message TTYSession {
+  string namespace = 1;
+  string releaseName = 2;
+  string kubeconfigBase64 = 3;
+}
+
+message OpenTTYResponse {
+  bytes stdout = 1;
+}
+
+service TTYService {
+  rpc OpenTTY(stream OpenTTYRequest) returns (stream OpenTTYResponse);
+}

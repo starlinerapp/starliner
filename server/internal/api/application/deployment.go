@@ -582,6 +582,42 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
 }
 
+func (da *DeploymentApplication) OpenTTY(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+	stdin io.Reader,
+	stdout io.Writer,
+	sizes <-chan port.TerminalSize,
+) error {
+	err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	deployment, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return err
+	}
+
+	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deployment.Name)
+	if err != nil {
+		return err
+	}
+
+	return da.grpcClient.OpenTTY(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, stdin, stdout, sizes)
+}
+
 func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {
 	ctx := context.Background()
 

@@ -8,5 +8,6 @@ var Module = fx.Module(
 		NewHealth,
 		NewSecret,
 		NewLogs,
+		NewTTY,
 	),
 )
