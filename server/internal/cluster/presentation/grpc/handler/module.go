@@ -4,5 +4,8 @@ import "go.uber.org/fx"
 
 var Module = fx.Module(
 	"handler",
-	fx.Provide(NewLogsHandler),
+	fx.Provide(
+		NewLogsHandler,
+		NewTtyHandler,
+	),
 )

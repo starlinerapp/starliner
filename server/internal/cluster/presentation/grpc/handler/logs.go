@@ -6,11 +6,11 @@ import (
 	"io"
 	"log"
 	"starliner.app/internal/cluster/application"
-	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
+	v1 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
 type LogsHandler struct {
-	v2.UnimplementedLogsServiceServer
+	v1.UnimplementedLogsServiceServer
 	logsApplication *application.LogsApplication
 }
 
@@ -20,7 +20,7 @@ func NewLogsHandler(logsApplication *application.LogsApplication) *LogsHandler {
 	}
 }
 
-func (lh *LogsHandler) StreamLogs(req *v2.StreamLogsRequest, stream grpc.ServerStreamingServer[v2.StreamLogsResponse]) error {
+func (lh *LogsHandler) StreamLogs(req *v1.StreamLogsRequest, stream grpc.ServerStreamingServer[v1.StreamLogsResponse]) error {
 	rc, err := lh.logsApplication.StreamDeploymentLogs(stream.Context(), req.Namespace, req.ReleaseName, req.KubeconfigBase64)
 	if err != nil {
 		return err
@@ -35,7 +35,7 @@ func (lh *LogsHandler) StreamLogs(req *v2.StreamLogsRequest, stream grpc.ServerS
 	scanner := bufio.NewScanner(rc)
 	for scanner.Scan() {
 		line := scanner.Bytes()
-		if err := stream.Send(&v2.StreamLogsResponse{Chunk: line}); err != nil {
+		if err := stream.Send(&v1.StreamLogsResponse{Chunk: line}); err != nil {
 			return err
 		}
 	}

@@ -1,9 +1,14 @@
 package handler
 
 import (
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+	"io"
 	"net/http"
 	"starliner.app/internal/api/application"
+	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/mapper"
@@ -338,5 +343,75 @@ func (dh *DeploymentHandler) StreamDeploymentLogs(c *gin.Context) {
 	err = dh.deploymentApplication.StreamDeploymentLogs(c.Request.Context(), currentUser.Id, deploymentId, sw)
 	if err != nil {
 		sw.WriteError(err)
+	}
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	deploymentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	rows, _ := strconv.Atoi(c.Query("tty_height"))
+	cols, _ := strconv.Atoi(c.Query("tty_width"))
+
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "websocket upgrade failed"})
+		return
+	}
+	defer func(conn *websocket.Conn) {
+		_ = conn.Close()
+	}(conn)
+
+	stdinReader, stdinWriter := io.Pipe()
+	stdoutReader, stdoutWriter := io.Pipe()
+	sizeCh := make(chan port.TerminalSize, 1)
+	defer close(sizeCh)
+
+	sizeCh <- port.TerminalSize{Rows: rows, Columns: cols}
+
+	go func() {
+		defer func(stdinWriter *io.PipeWriter) {
+			_ = stdinWriter.Close()
+		}(stdinWriter)
+		for {
+			_, msg, err := conn.ReadMessage()
+			if err != nil {
+				return
+			}
+			if _, err := stdinWriter.Write(msg); err != nil {
+				return
+			}
+		}
+	}()
+
+	go func() {
+		defer func(stdoutReader *io.PipeReader) {
+			_ = stdoutReader.Close()
+		}(stdoutReader)
+		buf := make([]byte, 4096)
+		for {
+			n, err := stdoutReader.Read(buf)
+			if n > 0 {
+				_ = conn.WriteMessage(websocket.BinaryMessage, buf[:n])
+			}
+			if err != nil {
+				return
+			}
+		}
+	}()
+
+	err = dh.deploymentApplication.OpenTTY(c.Request.Context(), currentUser.Id, deploymentId, stdinReader, stdoutWriter, sizeCh)
+	if err != nil && !errors.Is(err, io.EOF) {
+		_ = conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("error: %v", err)))
 	}
 }
