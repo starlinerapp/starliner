@@ -23,7 +23,6 @@ func NewTtyHandler(
 	}
 }
 
-// TODO: place orchestration logic in application layer
 func (th *TtyHandler) OpenTTY(stream v1.TTYService_OpenTTYServer) error {
 	ctx := stream.Context()
 
