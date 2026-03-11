@@ -85,7 +85,7 @@ export default function Layout() {
     const currentSize = panel.getSize();
 
     if (currentSize < 10) {
-      panel.resize(30);
+      panel.resize(45);
     }
   }, [deploymentId]);
 
