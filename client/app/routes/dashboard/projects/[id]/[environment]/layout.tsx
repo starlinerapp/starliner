@@ -29,6 +29,10 @@ export default function ProjectLayout() {
       href: `/${slug}/projects/${id}/${environment}/architecture`,
     },
     {
+      title: "Builds",
+      href: `/${slug}/projects/${id}/${environment}/builds`,
+    },
+    {
       title: "Settings",
       href: `/${slug}/projects/${id}/${environment}/settings`,
     },
