@@ -3,11 +3,13 @@ import express from "express";
 import morgan from "morgan";
 import httpProxy from "http-proxy";
 import * as http from "node:http";
+import { auth } from "./app/utils/auth/server.ts";
+import { fromNodeHeaders } from "better-auth/node";
 
 const BUILD_PATH = "./build/server/index.js";
 const DEVELOPMENT = process.env.NODE_ENV === "development";
 const PORT = Number.parseInt(process.env.PORT || "5173");
-const SERVER_BASE_URL = "server-api:9090";
+const SERVER_BASE_URL = process.env.SERVER_BASE_URL;
 
 const app = express();
 
@@ -65,8 +67,17 @@ wsProxy.on("error", (err, req, socket) => {
 });
 
 const server = http.createServer(app);
-server.on("upgrade", (req, socket, head) => {
+server.on("upgrade", async (req, socket, head) => {
   console.log("Proxying WebSocket request:", req.url);
+
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+
+  if (session.user.id) {
+    req.headers["X-User-Id"] = session.user.id;
+  }
+
   wsProxy.ws(req, socket, head);
 });
 
