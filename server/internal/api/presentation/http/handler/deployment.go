@@ -353,7 +353,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
-	//currentUser := c.MustGet("user").(*value.User)
+	currentUser := c.MustGet("user").(*value.User)
 	deploymentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -404,7 +404,7 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 		}
 	}()
 
-	err = dh.deploymentApplication.OpenTTY(c.Request.Context(), 1, deploymentId, stdinReader, stdoutWriter, sizeCh)
+	err = dh.deploymentApplication.OpenTTY(c.Request.Context(), currentUser.Id, deploymentId, stdinReader, stdoutWriter, sizeCh)
 	if err != nil && !errors.Is(err, io.EOF) {
 		_ = conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("error: %v", err)))
 	}

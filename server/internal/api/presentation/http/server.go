@@ -34,8 +34,6 @@ func NewServer(
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	engine.GET("/ws/:id", deploymentHandler.OpenTTY)
-
 	engine.Use(auth.WithBasicAuth(), user.WithUser())
 	engine.GET("/", rootHandler.GetRoot)
 	engine.GET("/me", userHandler.GetUser)
@@ -82,6 +80,7 @@ func NewServer(
 		deploymentRoutes.PUT("/ingresses/:deploymentId", deploymentHandler.UpdateIngressDeployment)
 		deploymentRoutes.DELETE("/:id", deploymentHandler.DeleteDeployment)
 		deploymentRoutes.GET("/:id/logs", deploymentHandler.StreamDeploymentLogs)
+		engine.GET("/ws/:id", deploymentHandler.OpenTTY)
 	}
 
 	return &Server{engine: engine}

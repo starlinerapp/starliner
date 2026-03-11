@@ -10,6 +10,8 @@ const BUILD_PATH = "./build/server/index.js";
 const DEVELOPMENT = process.env.NODE_ENV === "development";
 const PORT = Number.parseInt(process.env.PORT || "5173");
 const SERVER_BASE_URL = process.env.SERVER_BASE_URL;
+const SERVER_BASIC_AUTH_USER = process.env.SERVER_BASIC_AUTH_USER;
+const SERVER_BASIC_AUTH_PASSWORD = process.env.SERVER_BASIC_AUTH_PASSWORD;
 
 const app = express();
 
@@ -77,6 +79,12 @@ server.on("upgrade", async (req, socket, head) => {
   if (session.user.id) {
     req.headers["X-User-Id"] = session.user.id;
   }
+
+  const credentials = Buffer.from(
+    `${SERVER_BASIC_AUTH_USER}:${SERVER_BASIC_AUTH_PASSWORD}`,
+  ).toString("base64");
+
+  req.headers["authorization"] = `Basic ${credentials}`;
 
   wsProxy.ws(req, socket, head);
 });
