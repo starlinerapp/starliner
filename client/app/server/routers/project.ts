@@ -45,4 +45,16 @@ export const projectRouter = {
         .deleteProject(userId, input.id)
         .then((res) => res.data);
     }),
+  getProjectCluster: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await projectApiFactory
+        .getProjectCluster(userId, input.id)
+        .then((res) => res.data);
+    }),
 };

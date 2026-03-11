@@ -879,6 +879,39 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/projects/{id}/cluster": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Cluster",
+                "operationId": "getProjectCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectCluster"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1592,6 +1625,21 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProjectCluster": {
+            "type": "object",
+            "required": [
+                "clusterId",
+                "clusterName"
+            ],
+            "properties": {
+                "clusterId": {
+                    "type": "integer"
+                },
+                "clusterName": {
                     "type": "string"
                 }
             }
