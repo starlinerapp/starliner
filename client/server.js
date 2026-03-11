@@ -1,10 +1,13 @@
 import compression from "compression";
 import express from "express";
 import morgan from "morgan";
+import httpProxy from "http-proxy";
+import * as http from "node:http";
 
 const BUILD_PATH = "./build/server/index.js";
 const DEVELOPMENT = process.env.NODE_ENV === "development";
 const PORT = Number.parseInt(process.env.PORT || "5173");
+const SERVER_BASE_URL = "server-api:9090";
 
 const app = express();
 
@@ -20,6 +23,10 @@ if (DEVELOPMENT) {
   );
   app.use(viteDevServer.middlewares);
   app.use(async (req, res, next) => {
+    if (req.url?.startsWith("/ws")) {
+      return next();
+    }
+
     try {
       const source = await viteDevServer.ssrLoadModule("./server/app.ts");
       return await source.app(req, res, next);
@@ -38,9 +45,31 @@ if (DEVELOPMENT) {
   );
   app.use(morgan("tiny"));
   app.use(express.static("build/client", { maxAge: "1h" }));
+
   app.use(await import(BUILD_PATH).then((mod) => mod.app));
 }
 
-app.listen(PORT, () => {
+const wsProxy = httpProxy.createProxyServer({
+  target: `ws://${SERVER_BASE_URL}`,
+  ws: true,
+  changeOrigin: true,
+});
+
+wsProxy.on("error", (err, req, socket) => {
+  console.error("WebSocket proxy error:", err);
+
+  if ("write" in socket) {
+    socket.write("HTTP/1.1 502 Bad Gateway\r\n\r\n");
+    socket.destroy();
+  }
+});
+
+const server = http.createServer(app);
+server.on("upgrade", (req, socket, head) => {
+  console.log("Proxying WebSocket request:", req.url);
+  wsProxy.ws(req, socket, head);
+});
+
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
