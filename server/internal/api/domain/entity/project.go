@@ -10,3 +10,8 @@ type Project struct {
 	ClusterId      *int64
 	CreatedAt      time.Time
 }
+
+type ProjectCluster struct {
+	ClusterId   int64
+	ClusterName string
+}

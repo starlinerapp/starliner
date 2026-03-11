@@ -114,3 +114,18 @@ func (pr *ProjectRepository) DeleteProject(ctx context.Context, projectId int64,
 		OwnerID: userId,
 	})
 }
+
+func (pr *ProjectRepository) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*entity.ProjectCluster, error) {
+	row, err := pr.queries.GetProjectCluster(ctx, sqlc.GetProjectClusterParams{
+		ID:      projectId,
+		OwnerID: userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	
+	return &entity.ProjectCluster{
+		ClusterId:   row.ID,
+		ClusterName: row.Name,
+	}, nil
+}

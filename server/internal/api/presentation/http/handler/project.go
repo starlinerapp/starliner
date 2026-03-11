@@ -93,3 +93,27 @@ func (ph *ProjectHandler) DeleteProject(c *gin.Context) {
 	}
 	c.Status(http.StatusOK)
 }
+
+// GetProjectCluster FindAll godoc
+// @Summary Get Project Cluster
+// @Tags project
+// @ID getProjectCluster
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Project ID"
+// @Success 200 {object} response.ProjectCluster
+// @Router /projects/{id}/cluster [get]
+func (ph *ProjectHandler) GetProjectCluster(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	cluster, err := ph.projectApplication.GetProjectCluster(c.Request.Context(), projectId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+	c.JSON(http.StatusOK, response.NewProjectCluster(cluster))
+}

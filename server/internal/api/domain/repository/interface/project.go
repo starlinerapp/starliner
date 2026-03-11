@@ -17,4 +17,5 @@ type ProjectRepository interface {
 	) (*entity.Project, error)
 	GetProject(ctx context.Context, projectId int64, userId int64) (*entity.Project, error)
 	DeleteProject(ctx context.Context, projectId int64, userId int64) error
+	GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*entity.ProjectCluster, error)
 }

@@ -69,3 +69,11 @@ func (ps *ProjectApplication) GetProject(ctx context.Context, projectId int64, u
 func (ps *ProjectApplication) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
 	return ps.projectRepository.DeleteProject(ctx, projectId, userId)
 }
+
+func (ps *ProjectApplication) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*value.ProjectCluster, error) {
+	cluster, err := ps.projectRepository.GetProjectCluster(ctx, projectId, userId)
+	if err != nil {
+		return nil, err
+	}
+	return value.NewProjectCluster(cluster), nil
+}

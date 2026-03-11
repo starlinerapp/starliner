@@ -490,6 +490,16 @@ definitions:
     - id
     - name
     type: object
+  response.ProjectCluster:
+    properties:
+      clusterId:
+        type: integer
+      clusterName:
+        type: string
+    required:
+    - clusterId
+    - clusterName
+    type: object
   response.Root:
     properties:
       message:
@@ -1085,6 +1095,28 @@ paths:
           schema:
             $ref: '#/definitions/response.Project'
       summary: Get Project
+      tags:
+      - project
+  /projects/{id}/cluster:
+    get:
+      operationId: getProjectCluster
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectCluster'
+      summary: Get Project Cluster
       tags:
       - project
 securityDefinitions:
