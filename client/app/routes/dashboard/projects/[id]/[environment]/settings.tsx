@@ -47,7 +47,7 @@ export default function ProjectSettings() {
           ) : (
             <input
               className="border-mauve-6 w-60 cursor-not-allowed rounded-md border-1 p-2"
-              placeholder={clusterData.clusterName}
+              placeholder={clusterData?.clusterName}
               disabled
             />
           )}
