@@ -1,9 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-// @ts-expect-error .ts extension required by custom node server
-import { db } from "../../db/index.ts";
-// @ts-expect-error .ts extension required by custom node server
-import * as schema from "../../db/schema.ts";
+import { db } from "~/db";
+import * as schema from "~/db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
