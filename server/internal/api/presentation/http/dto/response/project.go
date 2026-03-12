@@ -38,3 +38,15 @@ func NewProjects(ps []*value.Project) []Project {
 	}
 	return projects
 }
+
+type ProjectCluster struct {
+	ClusterId   int64  `json:"clusterId" binding:"required"`
+	ClusterName string `json:"clusterName" binding:"required"`
+}
+
+func NewProjectCluster(p *value.ProjectCluster) ProjectCluster {
+	return ProjectCluster{
+		ClusterId:   p.ClusterId,
+		ClusterName: p.ClusterName,
+	}
+}

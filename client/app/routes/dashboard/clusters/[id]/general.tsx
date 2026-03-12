@@ -61,7 +61,7 @@ export default function General() {
 
   return (
     <div className="w-full p-4 xl:w-3/5">
-      <div className="border-mauve-6 rounded-md border-1 text-sm">
+      <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
           Details
         </div>
@@ -76,6 +76,19 @@ export default function General() {
               <LiveIndicator type={liveIndicatorType} />
               <p className="text-mauve-11 pr-2 capitalize">{status}</p>
             </span>
+          )}
+        </div>
+        <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+          <div>
+            <h1 className="text-mauve-12">Server Type</h1>
+          </div>
+          {isLoading ? (
+            <Skeleton className="h-5 w-24" />
+          ) : (
+            <CopyToClipboard
+              className="text-mauve-11"
+              text={clusterData?.serverType ?? ""}
+            />
           )}
         </div>
         <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
@@ -109,7 +122,7 @@ export default function General() {
             </p>
           </div>
           {isLoading || clusterData?.status === "pending" ? (
-            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-9.5 w-32" />
           ) : (
             <a
               href={`/clusters/${id}/resources/private-key`}

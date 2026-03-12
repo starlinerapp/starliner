@@ -5,9 +5,15 @@ definitions:
         type: string
       organizationId:
         type: integer
+      serverType:
+        enum:
+        - cx23
+        - ccx33
+        type: string
     required:
     - name
     - organizationId
+    - serverType
     type: object
   request.CreateEnvironment:
     properties:
@@ -214,6 +220,13 @@ definitions:
     required:
     - apiKey
     type: object
+  response.BuildLogs:
+    properties:
+      logs:
+        type: string
+    required:
+    - logs
+    type: object
   response.Cluster:
     properties:
       createdAt:
@@ -226,6 +239,8 @@ definitions:
         type: string
       organizationId:
         type: integer
+      serverType:
+        type: string
       status:
         allOf:
         - $ref: '#/definitions/response.ClusterStatus'
@@ -239,6 +254,7 @@ definitions:
     - ipv4Address
     - name
     - organizationId
+    - serverType
     - status
     type: object
   response.ClusterStatus:
@@ -362,6 +378,34 @@ definitions:
     - port
     - projectRepositoryPath
     - serviceName
+    - status
+    type: object
+  response.GitDeploymentBuild:
+    properties:
+      buildId:
+        type: integer
+      createdAt:
+        type: string
+      deploymentId:
+        type: integer
+      deploymentName:
+        type: string
+      dockerfilePath:
+        type: string
+      gitUrl:
+        type: string
+      projectPath:
+        type: string
+      status:
+        type: string
+    required:
+    - buildId
+    - createdAt
+    - deploymentId
+    - deploymentName
+    - dockerfilePath
+    - gitUrl
+    - projectPath
     - status
     type: object
   response.ImageDeployment:
@@ -490,6 +534,16 @@ definitions:
     - id
     - name
     type: object
+  response.ProjectCluster:
+    properties:
+      clusterId:
+        type: integer
+      clusterName:
+        type: string
+    required:
+    - clusterId
+    - clusterName
+    type: object
   response.Root:
     properties:
       message:
@@ -529,6 +583,28 @@ paths:
       summary: Get root
       tags:
       - root
+  /builds/{id}/logs:
+    get:
+      operationId: getBuildLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BuildLogs'
+      summary: Get Build Logs
+      tags:
+      - build
   /clusters:
     post:
       operationId: createCluster
@@ -848,6 +924,30 @@ paths:
       summary: Create Environment
       tags:
       - environment
+  /environments/{id}/builds:
+    get:
+      operationId: getEnvironmentBuilds
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.GitDeploymentBuild'
+            type: array
+      summary: Get Environment Builds
+      tags:
+      - environment
   /environments/{id}/deployments:
     get:
       operationId: getEnvironmentDeployments
@@ -1085,6 +1185,28 @@ paths:
           schema:
             $ref: '#/definitions/response.Project'
       summary: Get Project
+      tags:
+      - project
+  /projects/{id}/cluster:
+    get:
+      operationId: getProjectCluster
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectCluster'
+      summary: Get Project Cluster
       tags:
       - project
 securityDefinitions:

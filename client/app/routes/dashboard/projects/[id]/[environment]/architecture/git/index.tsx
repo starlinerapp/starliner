@@ -4,10 +4,11 @@ import DeployFromGitForm, {
 } from "~/components/organisms/forms/DeployFromGitForm";
 import { useTRPC } from "~/utils/trpc/react";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function Git() {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const { environment: currentEnvironment } = useEnvironment();
 
@@ -20,15 +21,26 @@ export default function Git() {
       return;
     }
 
-    await createDeploymentMutation.mutateAsync({
-      environmentId: currentEnvironment.id,
-      serviceName: data.serviceName,
-      port: data.port,
-      gitUrl: data.url,
-      dockerfilePath: data.dockerfilePath,
-      projectRepositoryPath: data.projectDirectoryPath,
-      envs: data.envs,
-    });
+    await createDeploymentMutation.mutateAsync(
+      {
+        environmentId: currentEnvironment.id,
+        serviceName: data.serviceName,
+        port: data.port,
+        gitUrl: data.url,
+        dockerfilePath: data.dockerfilePath,
+        projectRepositoryPath: data.projectDirectoryPath,
+        envs: data.envs,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
+        },
+      },
+    );
   };
 
   return (

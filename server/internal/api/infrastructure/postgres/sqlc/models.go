@@ -11,6 +11,50 @@ import (
 	"time"
 )
 
+type BuildStatus string
+
+const (
+	BuildStatusQueued   BuildStatus = "queued"
+	BuildStatusBuilding BuildStatus = "building"
+	BuildStatusSuccess  BuildStatus = "success"
+	BuildStatusFailure  BuildStatus = "failure"
+)
+
+func (e *BuildStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = BuildStatus(s)
+	case string:
+		*e = BuildStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for BuildStatus: %T", src)
+	}
+	return nil
+}
+
+type NullBuildStatus struct {
+	BuildStatus BuildStatus
+	Valid       bool // Valid is true if BuildStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullBuildStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.BuildStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.BuildStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullBuildStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.BuildStatus), nil
+}
+
 type ClusterStatus string
 
 const (
@@ -137,6 +181,15 @@ func (ns NullProvider) Value() (driver.Value, error) {
 	return string(ns.Provider), nil
 }
 
+type Build struct {
+	ID           int64
+	DeploymentID sql.NullInt64
+	Status       BuildStatus
+	Logs         sql.NullString
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type Cluster struct {
 	ID             int64
 	Name           string
@@ -149,6 +202,7 @@ type Cluster struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	Kubeconfig     sql.NullString
+	ServerType     string
 }
 
 type DatabaseDeployment struct {

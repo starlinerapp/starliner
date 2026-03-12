@@ -1,6 +1,8 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
 import { deploymentApiFactory } from "~/server/api/client";
+import type { AxiosResponse } from "axios";
+import { Readable } from "stream";
 
 const ingressPathSchema = z.object({
   path: z.string(),
@@ -208,12 +210,18 @@ export const deploymentRouter = {
     .subscription(async function* ({ input, ctx, signal }) {
       const userId = ctx.user?.id;
 
+      let response: AxiosResponse<Readable> | undefined;
       try {
-        const response = await deploymentApiFactory.streamDeploymentLogs(
+        // @ts-expect-error OpenAPI doesn't support SSE
+        response = await deploymentApiFactory.streamDeploymentLogs(
           userId,
           input.deploymentId,
           { responseType: "stream", signal },
         );
+
+        signal?.addEventListener("abort", () => {
+          response?.data?.destroy();
+        });
 
         const decoder = new TextDecoder();
         let buffer = "";
@@ -240,6 +248,8 @@ export const deploymentRouter = {
         }
 
         throw err;
+      } finally {
+        response?.data.destroy();
       }
     }),
 };

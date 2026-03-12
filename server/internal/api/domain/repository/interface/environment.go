@@ -15,4 +15,5 @@ type EnvironmentRepository interface {
 	GetEnvironmentImageDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.ImageDeployment, error)
 	GetEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64, userId int64) (deployments []*entity.DatabaseDeployment, err error)
 	GetEnvironmentDeploymentByName(ctx context.Context, name string, environmentId int64) (*entity.Deployment, error)
+	GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error)
 }

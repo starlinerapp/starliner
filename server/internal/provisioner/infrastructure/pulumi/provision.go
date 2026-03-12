@@ -12,12 +12,14 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"golang.org/x/crypto/ssh"
 	"os"
+	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/provisioner/domain/port"
 	"strings"
 )
 
 type DeployParams struct {
 	ServerName string
+	ServerType value.ServerType
 	PublicKey  ed25519.PublicKey
 }
 
@@ -40,7 +42,7 @@ func DeployFunc(params DeployParams) pulumi.RunFunc {
 		s, err := hcloud.NewServer(ctx, params.ServerName, &hcloud.ServerArgs{
 			Name:       pulumi.String(params.ServerName),
 			Image:      pulumi.String("ubuntu-22.04"),
-			ServerType: pulumi.String("cx23"),
+			ServerType: pulumi.String(params.ServerType),
 			Location:   pulumi.String("nbg1"),
 			PublicNets: hcloud.ServerPublicNetArray{
 				&hcloud.ServerPublicNetArgs{
@@ -68,11 +70,12 @@ func NewProvision() port.Provision {
 	return &Provision{}
 }
 
-func (p *Provision) ProvisionServer(ctx context.Context, provisioningCredential string, name string, publicKey []byte) (provisioningId string, ip string, err error) {
+func (p *Provision) ProvisionServer(ctx context.Context, provisioningCredential string, name string, serverType value.ServerType, publicKey []byte) (provisioningId string, ip string, err error) {
 	stackName := auto.FullyQualifiedStackName("organization", name, uuid.New().String())
 
 	s, err := auto.UpsertStackInlineSource(ctx, stackName, name, DeployFunc(DeployParams{
 		ServerName: name,
+		ServerType: serverType,
 		PublicKey:  publicKey,
 	}))
 	if err != nil {

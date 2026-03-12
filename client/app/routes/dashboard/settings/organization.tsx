@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { Eye, EyeSlash } from "~/components/atoms/icons";
 
 interface FormInput {
   apiKey: string;
@@ -56,6 +57,8 @@ export default function OrganizationSettings() {
     );
   };
 
+  const [show, setShow] = useState(false);
+
   return (
     <div className="flex flex-col gap-8 px-8 py-4">
       <div className="flex w-full items-center justify-between">
@@ -86,12 +89,25 @@ export default function OrganizationSettings() {
               {isHetznerCredentialLoading ? (
                 <Skeleton className="h-8 w-96" />
               ) : (
-                <input
-                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-96 min-w-52 rounded-md border p-2 text-sm"
-                  type="text"
-                  placeholder="API Key*"
-                  {...register("apiKey")}
-                />
+                <div className="flex items-center">
+                  <input
+                    className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-90 min-w-52 rounded-md border p-2 text-sm"
+                    type={show ? "text" : "password"}
+                    placeholder="API Key*"
+                    {...register("apiKey")}
+                  />
+                  <button
+                    onClick={() => setShow(!show)}
+                    type="button"
+                    className="pl-3"
+                  >
+                    {show ? (
+                      <EyeSlash className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               )}
             </div>
             {isDirty && (

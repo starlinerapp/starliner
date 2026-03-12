@@ -6,9 +6,11 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useNavigate } from "react-router";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import { ChevronDown } from "~/components/atoms/icons";
 
 interface NewClusterFormInput {
   name: string;
+  serverType: string;
 }
 
 export default function NewCluster() {
@@ -47,6 +49,7 @@ export default function NewCluster() {
     createClusterMutation.mutate({
       organizationId: organization.id,
       name: data.name,
+      serverType: data.serverType,
     });
   };
 
@@ -80,6 +83,19 @@ export default function NewCluster() {
             placeholder="Name*"
             {...register("name")}
           />
+          <div className="relative w-52">
+            <select
+              className="border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
+              defaultValue="cx23"
+              {...register("serverType", { required: true })}
+            >
+              <option value="cx23">CX23 (2 CPU, 4 GB)</option>
+              <option value="ccx33">CCX33 (8 CPU, 32 GB)</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+              <ChevronDown width={15} className="stroke-mauve-10" />
+            </div>
+          </div>
           <Button className="w-32" disabled={!nameInput} type="submit">
             Create Cluster
           </Button>

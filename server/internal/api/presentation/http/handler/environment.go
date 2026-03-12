@@ -67,3 +67,28 @@ func (eh *EnvironmentHandler) GetEnvironmentDeployments(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.NewDeployments(deployments))
 }
+
+// GetEnvironmentBuilds FindAll godoc
+// @Summary Get Environment Builds
+// @Tags environment
+// @ID getEnvironmentBuilds
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Success 200 {array} response.GitDeploymentBuild
+// @Router /environments/{id}/builds [get]
+func (eh *EnvironmentHandler) GetEnvironmentBuilds(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	builds, err := eh.environmentApplication.GetEnvironmentGitDeploymentBuilds(c.Request.Context(), currentUser.Id, environmentId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.NewGitDeploymentBuilds(builds))
+}

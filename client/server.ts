@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import httpProxy from "http-proxy";
 import * as http from "node:http";
-import { auth } from "./app/utils/auth/server.ts";
+import { auth } from "~/utils/auth/server";
 import { fromNodeHeaders } from "better-auth/node";
 import { createRequestHandler } from "@react-router/express";
 
@@ -15,6 +15,7 @@ const SERVER_BASIC_AUTH_USER = process.env.SERVER_BASIC_AUTH_USER;
 const SERVER_BASIC_AUTH_PASSWORD = process.env.SERVER_BASIC_AUTH_PASSWORD;
 
 const app = express();
+const server = http.createServer(app);
 
 app.use(compression());
 app.disable("x-powered-by");
@@ -23,7 +24,7 @@ if (DEVELOPMENT) {
   console.log("Starting development server");
   const viteDevServer = await import("vite").then((vite) =>
     vite.createServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: { server } },
     }),
   );
   app.use(viteDevServer.middlewares);
@@ -69,16 +70,19 @@ wsProxy.on("error", (err, req, socket) => {
   }
 });
 
-const server = http.createServer(app);
 server.on("upgrade", async (req, socket, head) => {
+  if (!req.url?.startsWith("/ws")) {
+    return;
+  }
+
   console.log("Proxying WebSocket request:", req.url);
 
   const session = await auth.api.getSession({
     headers: fromNodeHeaders(req.headers),
   });
 
-  if (session.user.id) {
-    req.headers["X-User-Id"] = session.user.id;
+  if (session?.user.id) {
+    req.headers["X-User-Id"] = session?.user.id ?? "";
   }
 
   const credentials = Buffer.from(

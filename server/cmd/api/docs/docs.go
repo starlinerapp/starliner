@@ -41,6 +41,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/builds/{id}/logs": {
+            "get": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Get Build Logs",
+                "operationId": "getBuildLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Build ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BuildLogs"
+                        }
+                    }
+                }
+            }
+        },
         "/clusters": {
             "post": {
                 "tags": [
@@ -521,6 +554,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}/builds": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Builds",
+                "operationId": "getEnvironmentBuilds",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.GitDeploymentBuild"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/environments/{id}/deployments": {
             "get": {
                 "tags": [
@@ -879,6 +948,39 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/projects/{id}/cluster": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Cluster",
+                "operationId": "getProjectCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectCluster"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -886,7 +988,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "organizationId"
+                "organizationId",
+                "serverType"
             ],
             "properties": {
                 "name": {
@@ -894,6 +997,13 @@ const docTemplate = `{
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "serverType": {
+                    "type": "string",
+                    "enum": [
+                        "cx23",
+                        "ccx33"
+                    ]
                 }
             }
         },
@@ -1196,6 +1306,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.BuildLogs": {
+            "type": "object",
+            "required": [
+                "logs"
+            ],
+            "properties": {
+                "logs": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Cluster": {
             "type": "object",
             "required": [
@@ -1204,6 +1325,7 @@ const docTemplate = `{
                 "ipv4Address",
                 "name",
                 "organizationId",
+                "serverType",
                 "status"
             ],
             "properties": {
@@ -1221,6 +1343,9 @@ const docTemplate = `{
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "serverType": {
+                    "type": "string"
                 },
                 "status": {
                     "enum": [
@@ -1411,6 +1536,45 @@ const docTemplate = `{
                 }
             }
         },
+        "response.GitDeploymentBuild": {
+            "type": "object",
+            "required": [
+                "buildId",
+                "createdAt",
+                "deploymentId",
+                "deploymentName",
+                "dockerfilePath",
+                "gitUrl",
+                "projectPath",
+                "status"
+            ],
+            "properties": {
+                "buildId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deploymentId": {
+                    "type": "integer"
+                },
+                "deploymentName": {
+                    "type": "string"
+                },
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "projectPath": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "response.ImageDeployment": {
             "type": "object",
             "required": [
@@ -1588,6 +1752,21 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProjectCluster": {
+            "type": "object",
+            "required": [
+                "clusterId",
+                "clusterName"
+            ],
+            "properties": {
+                "clusterId": {
+                    "type": "integer"
+                },
+                "clusterName": {
                     "type": "string"
                 }
             }

@@ -33,4 +33,16 @@ export const environmentRouter = {
         .getEnvironmentDeployments(userId, input.id)
         .then((res) => res.data);
     }),
+  getEnvironmentBuilds: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await environmentApiFactory
+        .getEnvironmentBuilds(userId, input.id)
+        .then((res) => res.data);
+    }),
 };

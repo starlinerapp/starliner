@@ -1,8 +1,16 @@
 package value
 
+type ServerType string
+
+const (
+	ServerTypeCX23  ServerType = "cx23"
+	ServerTypeCCX33 ServerType = "ccx33"
+)
+
 type ProvisionCluster struct {
 	Id                     int64
 	Name                   string
+	ServerType             ServerType
 	OrganizationName       string
 	ProvisioningCredential string
 }

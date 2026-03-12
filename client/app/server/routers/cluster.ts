@@ -1,12 +1,14 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
 import { clusterApiFactory } from "~/server/api/client";
+import type { RequestCreateClusterServerTypeEnum } from "~/server/api/client/generated";
 
 export const clusterRouter = {
   createCluster: protectedProcedure
     .input(
       z.object({
         name: z.string(),
+        serverType: z.string(),
         organizationId: z.number(),
       }),
     )
@@ -15,6 +17,7 @@ export const clusterRouter = {
       return await clusterApiFactory
         .createCluster(userId, {
           name: input.name,
+          serverType: input.serverType as RequestCreateClusterServerTypeEnum,
           organizationId: input.organizationId,
         })
         .then((res) => res.data);

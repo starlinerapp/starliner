@@ -1,15 +1,17 @@
 -- name: CreateCluster :one
 INSERT INTO clusters (
     name,
+    server_type,
     organization_id
 ) VALUES (
     $1,
-    $2
+    $2,
+    $3
  )
 RETURNING *;
 
 -- name: GetUserCluster :one
-SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id
+SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
 FROM clusters c
 LEFT JOIN organizations o ON c.organization_id = o.id
 WHERE o.owner_id = $1

@@ -37,7 +37,8 @@ SELECT
 FROM projects
 INNER JOIN organizations ON projects.organization_id = organizations.id
 INNER JOIN environments ON projects.id = environments.project_id
-WHERE projects.organization_id = $1;
+WHERE projects.organization_id = $1
+ORDER BY environments.created_at;
 
 -- name: DeleteProject :exec
 DELETE
@@ -45,4 +46,12 @@ FROM projects p
 USING organizations o
 WHERE p.organization_id = o.id
     AND p.id = $1
+    AND o.owner_id = $2;
+
+-- name: GetProjectCluster :one
+SELECT c.id, c.name
+FROM projects p
+INNER JOIN clusters c ON p.cluster_id = c.id
+INNER JOIN organizations o ON o.id = p.organization_id
+WHERE p.id = $1
     AND o.owner_id = $2;

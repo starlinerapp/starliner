@@ -9,6 +9,7 @@ type ClusterRepository interface {
 	CreateCluster(
 		ctx context.Context,
 		name string,
+		serverType string,
 		organizationId int64,
 	) (*entity.Cluster, error)
 

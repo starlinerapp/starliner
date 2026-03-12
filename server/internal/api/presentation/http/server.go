@@ -28,6 +28,7 @@ func NewServer(
 	environmentHandler *handler.EnvironmentHandler,
 	clusterHandler *handler.ClusterHandler,
 	deploymentHandler *handler.DeploymentHandler,
+	buildHandler *handler.BuildHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -53,12 +54,14 @@ func NewServer(
 		projectRoutes.POST("", projectHandler.CreateProject)
 		projectRoutes.GET("/:id", projectHandler.GetProject)
 		projectRoutes.DELETE("/:id", projectHandler.DeleteProject)
+		projectRoutes.GET("/:id/cluster", projectHandler.GetProjectCluster)
 	}
 
 	environmentRoutes := engine.Group("/environments")
 	{
 		environmentRoutes.POST("", environmentHandler.CreateEnvironment)
 		environmentRoutes.GET("/:id/deployments", environmentHandler.GetEnvironmentDeployments)
+		environmentRoutes.GET("/:id/builds", environmentHandler.GetEnvironmentBuilds)
 	}
 
 	clusterRoutes := engine.Group("/clusters")
@@ -80,6 +83,11 @@ func NewServer(
 		deploymentRoutes.PUT("/ingresses/:deploymentId", deploymentHandler.UpdateIngressDeployment)
 		deploymentRoutes.DELETE("/:id", deploymentHandler.DeleteDeployment)
 		deploymentRoutes.GET("/:id/logs", deploymentHandler.StreamDeploymentLogs)
+	}
+
+	buildRoutes := engine.Group("/builds")
+	{
+		buildRoutes.GET("/:id/logs", buildHandler.GetBuildLogs)
 	}
 
 	webSocketRoutes := engine.Group("/ws")

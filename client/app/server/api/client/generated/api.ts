@@ -57,7 +57,22 @@ export interface RequestCreateCluster {
    * @memberof RequestCreateCluster
    */
   organizationId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestCreateCluster
+   */
+  serverType: RequestCreateClusterServerTypeEnum;
 }
+
+export const RequestCreateClusterServerTypeEnum = {
+  Cx23: "cx23",
+  Ccx33: "ccx33",
+} as const;
+
+export type RequestCreateClusterServerTypeEnum =
+  (typeof RequestCreateClusterServerTypeEnum)[keyof typeof RequestCreateClusterServerTypeEnum];
+
 /**
  *
  * @export
@@ -432,6 +447,19 @@ export interface RequestUpsertHetznerCredential {
 /**
  *
  * @export
+ * @interface ResponseBuildLogs
+ */
+export interface ResponseBuildLogs {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseBuildLogs
+   */
+  logs: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseCluster
  */
 export interface ResponseCluster {
@@ -465,6 +493,12 @@ export interface ResponseCluster {
    * @memberof ResponseCluster
    */
   organizationId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
+  serverType: string;
   /**
    *
    * @type {ResponseClusterStatus}
@@ -689,6 +723,61 @@ export interface ResponseGitDeployment {
    *
    * @type {string}
    * @memberof ResponseGitDeployment
+   */
+  status: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseGitDeploymentBuild
+ */
+export interface ResponseGitDeploymentBuild {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  buildId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  createdAt: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  deploymentId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  deploymentName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  dockerfilePath: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  gitUrl: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  projectPath: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
    */
   status: string;
 }
@@ -927,6 +1016,25 @@ export interface ResponseProject {
 /**
  *
  * @export
+ * @interface ResponseProjectCluster
+ */
+export interface ResponseProjectCluster {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseProjectCluster
+   */
+  clusterId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseProjectCluster
+   */
+  clusterName: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseRoot
  */
 export interface ResponseRoot {
@@ -955,6 +1063,174 @@ export interface ResponseUser {
    * @memberof ResponseUser
    */
   user_id: number;
+}
+
+/**
+ * BuildApi - axios parameter creator
+ * @export
+ */
+export const BuildApiAxiosParamCreator = function (
+  configuration?: Configuration,
+) {
+  return {
+    /**
+     *
+     * @summary Get Build Logs
+     * @param {string} xUserID User ID
+     * @param {number} id Build ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getBuildLogs: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getBuildLogs", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getBuildLogs", "id", id);
+      const localVarPath = `/builds/{id}/logs`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * BuildApi - functional programming interface
+ * @export
+ */
+export const BuildApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = BuildApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @summary Get Build Logs
+     * @param {string} xUserID User ID
+     * @param {number} id Build ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getBuildLogs(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseBuildLogs>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getBuildLogs(
+        xUserID,
+        id,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["BuildApi.getBuildLogs"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * BuildApi - factory interface
+ * @export
+ */
+export const BuildApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
+  const localVarFp = BuildApiFp(configuration);
+  return {
+    /**
+     *
+     * @summary Get Build Logs
+     * @param {string} xUserID User ID
+     * @param {number} id Build ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getBuildLogs(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseBuildLogs> {
+      return localVarFp
+        .getBuildLogs(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * BuildApi - object-oriented interface
+ * @export
+ * @class BuildApi
+ * @extends {BaseAPI}
+ */
+export class BuildApi extends BaseAPI {
+  /**
+   *
+   * @summary Get Build Logs
+   * @param {string} xUserID User ID
+   * @param {number} id Build ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof BuildApi
+   */
+  public getBuildLogs(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return BuildApiFp(this.configuration)
+      .getBuildLogs(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
 }
 
 /**
@@ -2788,6 +3064,59 @@ export const EnvironmentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Get Environment Builds
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getEnvironmentBuilds: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getEnvironmentBuilds", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getEnvironmentBuilds", "id", id);
+      const localVarPath = `/environments/{id}/builds`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -2886,6 +3215,43 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Get Environment Builds
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getEnvironmentBuilds(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<Array<ResponseGitDeploymentBuild>>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getEnvironmentBuilds(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["EnvironmentApi.getEnvironmentBuilds"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -2954,6 +3320,23 @@ export const EnvironmentApiFactory = function (
     },
     /**
      *
+     * @summary Get Environment Builds
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getEnvironmentBuilds(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<ResponseGitDeploymentBuild>> {
+      return localVarFp
+        .getEnvironmentBuilds(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -2995,6 +3378,25 @@ export class EnvironmentApi extends BaseAPI {
   ) {
     return EnvironmentApiFp(this.configuration)
       .createEnvironment(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Environment Builds
+   * @param {string} xUserID User ID
+   * @param {number} id Environment ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof EnvironmentApi
+   */
+  public getEnvironmentBuilds(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return EnvironmentApiFp(this.configuration)
+      .getEnvironmentBuilds(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3993,6 +4395,59 @@ export const ProjectApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Get Project Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectCluster: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getProjectCluster", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getProjectCluster", "id", id);
+      const localVarPath = `/projects/{id}/cluster`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -4108,6 +4563,39 @@ export const ProjectApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Get Project Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getProjectCluster(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseProjectCluster>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getProjectCluster(xUserID, id, options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ProjectApi.getProjectCluster"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -4171,6 +4659,23 @@ export const ProjectApiFactory = function (
     ): AxiosPromise<ResponseProject> {
       return localVarFp
         .getProject(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get Project Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectCluster(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseProjectCluster> {
+      return localVarFp
+        .getProjectCluster(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -4237,6 +4742,25 @@ export class ProjectApi extends BaseAPI {
   ) {
     return ProjectApiFp(this.configuration)
       .getProject(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Project Cluster
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public getProjectCluster(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .getProjectCluster(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

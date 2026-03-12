@@ -23,6 +23,7 @@ type DeploymentApplication struct {
 	normalizerService     *coreService.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
+	buildRepository       interfaces.BuildRepository
 	grpcClient            port.GrpcClient
 	queue                 port.Queue
 	pubsub                port.Pubsub
@@ -35,6 +36,7 @@ func NewDeploymentApplication(
 	normalizerService *coreService.NormalizerService,
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
+	buildRepository interfaces.BuildRepository,
 	grpcClient port.GrpcClient,
 	queue port.Queue,
 	pubsub port.Pubsub,
@@ -46,6 +48,7 @@ func NewDeploymentApplication(
 		normalizerService:     normalizerService,
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
+		buildRepository:       buildRepository,
 		grpcClient:            grpcClient,
 		queue:                 queue,
 		pubsub:                pubsub,
@@ -88,12 +91,18 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id)
+	if err != nil {
+		return err
+	}
+
 	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
 	if err != nil {
 		return err
 	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
+		BuildId:        b.Id,
 		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         gitUrl,
@@ -134,12 +143,18 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id)
+	if err != nil {
+		return err
+	}
+
 	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
 	if err != nil {
 		return err
 	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
+		BuildId:        b.Id,
 		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         d.GitUrl,
@@ -684,6 +699,14 @@ func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValu
 
 func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {
 	ctx := context.Background()
+	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.Logs)
+	if err != nil {
+		log.Printf("failed to update build status: %v\n", err)
+	}
+	if b.BuildStatus == coreValue.BuildStatusFailed {
+		return
+	}
+
 	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, b.DeploymentId)
 	if err != nil {
 		log.Printf("failed to get deployment cluster: %v\n", err)

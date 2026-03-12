@@ -1,0 +1,43 @@
+-- name: CreateBuild :one
+INSERT INTO builds (
+    deployment_id
+) VALUES (
+    $1
+)
+RETURNING *;
+
+-- name: UpdateBuildInformation :exec
+UPDATE builds
+SET
+    status = $1,
+    logs = $2
+WHERE id = $3;
+
+-- name: GetBuildLogs :one
+SELECT
+    b.logs
+FROM builds b
+INNER JOIN deployments d ON d.id = b.deployment_id
+INNER JOIN environments e ON d.environment_id = e.id
+INNER JOIN projects ON e.project_id = projects.id
+INNER JOIN organizations ON organizations.id = projects.organization_id
+INNER JOIN users ON users.id = organizations.owner_id
+WHERE b.id = @build_id
+AND users.id = @user_id;
+
+-- name: GetEnvironmentGitDeploymentBuilds :many
+SELECT
+    b.id as build_id,
+    d.id as deployment_id,
+    d.name as deployment_name,
+    b.status,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path,
+    b.created_at
+FROM deployments d
+INNER JOIN git_deployments gd ON gd.deployment_id = d.id
+INNER JOIN builds b ON d.id = b.deployment_id
+INNER JOIN environments e ON d.environment_id = e.id
+WHERE environment_id = $1
+ORDER BY b.created_at DESC;
