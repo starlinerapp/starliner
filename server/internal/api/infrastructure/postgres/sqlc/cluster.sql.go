@@ -164,7 +164,7 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 }
 
 const getUserCluster = `-- name: GetUserCluster :one
-SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id
+SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
 FROM clusters c
 LEFT JOIN organizations o ON c.organization_id = o.id
 WHERE o.owner_id = $1
@@ -185,6 +185,7 @@ type GetUserClusterRow struct {
 	OrganizationID int64
 	Status         ClusterStatus
 	ProvisioningID sql.NullString
+	ServerType     string
 }
 
 func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) (GetUserClusterRow, error) {
@@ -199,6 +200,7 @@ func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) 
 		&i.OrganizationID,
 		&i.Status,
 		&i.ProvisioningID,
+		&i.ServerType,
 	)
 	return i, err
 }

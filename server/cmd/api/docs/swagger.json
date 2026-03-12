@@ -921,7 +921,11 @@
                     "type": "integer"
                 },
                 "serverType": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "cx23",
+                        "ccx33"
+                    ]
                 }
             }
         },
@@ -1232,6 +1236,7 @@
                 "ipv4Address",
                 "name",
                 "organizationId",
+                "serverType",
                 "status"
             ],
             "properties": {
@@ -1249,6 +1254,9 @@
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "serverType": {
+                    "type": "string"
                 },
                 "status": {
                     "enum": [

@@ -13,6 +13,13 @@ const (
 	ClusterStatusDeleted ClusterStatus = "deleted"
 )
 
+type ServerType string
+
+const (
+	ServerTypeCX23  ServerType = "cx23"
+	ServerTypeCCX33 ServerType = "ccx33"
+)
+
 type Cluster struct {
 	Id             int64
 	Name           string
@@ -20,6 +27,7 @@ type Cluster struct {
 	IPv4Address    *string
 	OrganizationId int64
 	CreatedAt      time.Time
+	ServerType     ServerType
 }
 
 func NewClusters(cs []*entity.Cluster) []*Cluster {
@@ -38,6 +46,7 @@ func NewCluster(c *entity.Cluster) *Cluster {
 		IPv4Address:    c.IPv4Address,
 		OrganizationId: c.OrganizationId,
 		CreatedAt:      c.CreatedAt,
+		ServerType:     ServerType(c.ServerType),
 	}
 }
 

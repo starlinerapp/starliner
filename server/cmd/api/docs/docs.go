@@ -930,7 +930,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "serverType": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "cx23",
+                        "ccx33"
+                    ]
                 }
             }
         },
@@ -1241,6 +1245,7 @@ const docTemplate = `{
                 "ipv4Address",
                 "name",
                 "organizationId",
+                "serverType",
                 "status"
             ],
             "properties": {
@@ -1258,6 +1263,9 @@ const docTemplate = `{
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "serverType": {
+                    "type": "string"
                 },
                 "status": {
                     "enum": [
