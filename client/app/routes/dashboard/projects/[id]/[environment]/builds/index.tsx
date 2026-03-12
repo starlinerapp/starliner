@@ -40,6 +40,7 @@ export default function Builds() {
     <div className="flex flex-col gap-4 p-4">
       {environmentBuilds?.map((build, i) => (
         <LogsCard
+          isCollapsed={i > 0}
           key={i}
           buildId={build.buildId}
           serviceName={build.deploymentName}

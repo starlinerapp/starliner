@@ -8,7 +8,7 @@ const (
 	BuildStatusPending  BuildStatus = "pending"
 	BuildStatusBuilding BuildStatus = "building"
 	BuildStatusSuccess  BuildStatus = "success"
-	BuildStatusFailed   BuildStatus = "failed"
+	BuildStatusFailed   BuildStatus = "failure"
 )
 
 type GitDeploymentBuild struct {

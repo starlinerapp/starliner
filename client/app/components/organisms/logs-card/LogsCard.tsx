@@ -9,6 +9,7 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 
 interface LogsCardProps {
+  isCollapsed?: boolean;
   buildId: number;
   serviceName: string;
   createdAt: string;
@@ -16,6 +17,7 @@ interface LogsCardProps {
 }
 
 export default function LogsCard({
+  isCollapsed: collapsed = true,
   buildId,
   serviceName,
   status,
@@ -23,7 +25,7 @@ export default function LogsCard({
 }: LogsCardProps) {
   const trpc = useTRPC();
 
-  const [isCollapsed, setIsCollapsed] = React.useState(true);
+  const [isCollapsed, setIsCollapsed] = React.useState(collapsed);
   const shouldPoll = status === "building" || status === "queued";
 
   const { data: logsData, isLoading } = useQuery(
@@ -50,7 +52,7 @@ export default function LogsCard({
               <Check className="w-3.5 stroke-white stroke-2" />
             </div>
           )}
-          {status === "error" && (
+          {status === "failure" && (
             <div className="bg-red-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
               <X className="w-3.5 stroke-white stroke-2" />
             </div>

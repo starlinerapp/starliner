@@ -70,7 +70,9 @@ export default function ProjectLayout() {
         )}
         <LinkNavigationBar items={navigationBarItems} />
       </div>
-      <Outlet />
+      <div className="h-[calc(100vh-90px)] overflow-y-scroll">
+        <Outlet />
+      </div>
     </div>
   );
 }
