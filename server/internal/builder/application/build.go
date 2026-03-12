@@ -55,17 +55,21 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	)
 	tag := imagePath + ":latest"
 
-	err = ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag)
+	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag)
+
+	buildStatus := value.BuildStatusSuccess
 	if err != nil {
-		log.Printf("failed to build docker image: %v", err)
-		return
+		buildStatus = value.BuildStatusFailed
 	}
 
 	err = ba.queue.PublishBuildCompleted(&value.BuildCompleted{
+		BuildId:          build.BuildId,
 		DeploymentId:     build.DeploymentId,
 		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
 		ImageName:        build.ImageName,
 		Tag:              "latest",
+		Logs:             logs,
+		BuildStatus:      buildStatus,
 	})
 	if err != nil {
 		log.Printf("failed to publish: %v", err)

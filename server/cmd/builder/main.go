@@ -4,8 +4,7 @@ import (
 	"go.uber.org/fx"
 	"starliner.app/internal/builder/application"
 	"starliner.app/internal/builder/conf"
-	"starliner.app/internal/builder/infrastructure/dagger"
-	"starliner.app/internal/builder/infrastructure/dagger/impl/docker"
+	docker "starliner.app/internal/builder/infrastructure/dagger"
 	"starliner.app/internal/builder/infrastructure/git"
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
 	builderqueue "starliner.app/internal/builder/presentation/queue"
@@ -18,7 +17,6 @@ func main() {
 		s3.Module,
 		queue.Module,
 		git.Module,
-		dagger.Module,
 		docker.Module,
 		application.Module,
 		builderqueue.Module,

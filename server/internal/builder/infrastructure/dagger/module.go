@@ -1,10 +1,12 @@
-package dagger
+package docker
 
-import "go.uber.org/fx"
+import (
+	"go.uber.org/fx"
+)
 
 var Module = fx.Module(
-	"dagger",
+	"docker",
 	fx.Provide(
-		NewDaggerClient,
+		NewDocker,
 	),
 )
