@@ -91,7 +91,7 @@ export default function BuildCard({
             >
               <div className="bg-gray-2 border-t-mauve-6 border-t p-4">
                 {isLoading || !logsData?.logs ? (
-                  <LogsCardSkeleton />
+                  <BuildCardSkeleton />
                 ) : (
                   <pre className="text-mauve-11 max-h-[500px] overflow-y-scroll whitespace-pre-wrap">
                     {logsData?.logs || "No logs available"}
@@ -106,7 +106,7 @@ export default function BuildCard({
   );
 }
 
-function LogsCardSkeleton() {
+function BuildCardSkeleton() {
   return (
     <div className="flex flex-col gap-1">
       <Skeleton className="h-5 w-96" />
