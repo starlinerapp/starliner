@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"dagger.io/dagger"
+	"regexp"
 	"starliner.app/internal/builder/domain/port"
 )
 
@@ -25,7 +26,6 @@ func (c *Docker) BuildAndPublish(
 	client, err := dagger.Connect(
 		ctx,
 		dagger.WithLogOutput(&logBuffer),
-		dagger.WithVerbosity(1),
 	)
 	if err != nil {
 		return "", err
@@ -46,5 +46,10 @@ func (c *Docker) BuildAndPublish(
 		return logBuffer.String(), err
 	}
 
-	return logBuffer.String(), nil
+	return stripANSI(logBuffer.String()), nil
+}
+
+func stripANSI(s string) string {
+	var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
+	return ansiRegex.ReplaceAllString(s, "")
 }

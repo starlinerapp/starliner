@@ -220,6 +220,13 @@ definitions:
     required:
     - apiKey
     type: object
+  response.BuildLogs:
+    properties:
+      logs:
+        type: string
+    required:
+    - logs
+    type: object
   response.Cluster:
     properties:
       createdAt:
@@ -573,6 +580,28 @@ paths:
       summary: Get root
       tags:
       - root
+  /builds/{id}/logs:
+    get:
+      operationId: getBuildLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BuildLogs'
+      summary: Get Build Logs
+      tags:
+      - build
   /clusters:
     post:
       operationId: createCluster

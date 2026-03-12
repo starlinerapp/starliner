@@ -41,6 +41,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/builds/{id}/logs": {
+            "get": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Get Build Logs",
+                "operationId": "getBuildLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Build ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BuildLogs"
+                        }
+                    }
+                }
+            }
+        },
         "/clusters": {
             "post": {
                 "tags": [
@@ -1269,6 +1302,17 @@ const docTemplate = `{
             ],
             "properties": {
                 "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.BuildLogs": {
+            "type": "object",
+            "required": [
+                "logs"
+            ],
+            "properties": {
+                "logs": {
                     "type": "string"
                 }
             }

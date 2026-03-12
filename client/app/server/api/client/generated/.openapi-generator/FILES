@@ -4,6 +4,7 @@ api.ts
 base.ts
 common.ts
 configuration.ts
+docs/BuildApi.md
 docs/ClusterApi.md
 docs/DeploymentApi.md
 docs/EnvironmentApi.md
@@ -24,6 +25,7 @@ docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md
+docs/ResponseBuildLogs.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
 docs/ResponseDatabaseDeployment.md

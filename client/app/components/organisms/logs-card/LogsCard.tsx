@@ -5,19 +5,38 @@ import { formatDistanceToNow } from "date-fns";
 import { Spinner } from "~/components/atoms/spinner/Spinner";
 import { Check, X } from "lucide-react";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useTRPC } from "~/utils/trpc/react";
+import { useQuery } from "@tanstack/react-query";
 
 interface LogsCardProps {
+  buildId: number;
   serviceName: string;
   createdAt: string;
   status: string;
 }
 
 export default function LogsCard({
+  buildId,
   serviceName,
   status,
   createdAt,
 }: LogsCardProps) {
+  const trpc = useTRPC();
+
   const [isCollapsed, setIsCollapsed] = React.useState(true);
+  const shouldPoll = status === "building" || status === "queued";
+
+  const { data: logsData, isLoading } = useQuery(
+    trpc.build.getBuildLogs.queryOptions(
+      {
+        id: buildId,
+      },
+      {
+        enabled: !isCollapsed,
+        refetchInterval: shouldPoll ? 1000 : false,
+      },
+    ),
+  );
 
   return (
     <div className="shadow-xs">
@@ -63,36 +82,17 @@ export default function LogsCard({
             <motion.div
               key="logs"
               initial={{ height: 0 }}
-              animate={{ height: 200 }}
+              animate={{ height: "auto" }}
               exit={{ height: 0 }}
               transition={{ duration: 0.15, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="bg-gray-2 border-t-mauve-6 h-[200px] border-t p-4">
-                {true ? (
+              <div className="bg-gray-2 border-t-mauve-6 border-t p-4">
+                {isLoading || !logsData?.logs ? (
                   <LogsCardSkeleton />
                 ) : (
-                  <pre className="text-mauve-11 whitespace-pre-wrap">
-                    Running build in Washington, D.C., USA (East) – iad1 Build
-                    machine
-                    {"\n"}
-                    configuration: 2 cores, 8 GB Cloning
-                    {"\n"}
-                    github.com/leon-liang/team-server-down (Branch: develop,
-                    Commit:
-                    {"\n"}
-                    9e18c70) Previous build caches not available Cloning
-                    completed:
-                    {"\n"}
-                    1.396s Running "vercel build" Vercel CLI 48.1.6 Build
-                    Completed in
-                    {"\n"}
-                    /vercel/output [222ms] Deploying outputs... Deployment
-                    completed
-                    {"\n"}
-                    Creating build cache...
-                    {"\n"}
-                    Skipping cache upload because no files were prepared
+                  <pre className="text-mauve-11 h-[500px] overflow-y-scroll whitespace-pre-wrap">
+                    {logsData?.logs || "No logs available"}
                   </pre>
                 )}
               </div>

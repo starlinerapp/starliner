@@ -34,6 +34,31 @@ func (q *Queries) CreateBuild(ctx context.Context, deploymentID sql.NullInt64) (
 	return i, err
 }
 
+const getBuildLogs = `-- name: GetBuildLogs :one
+SELECT
+    b.logs
+FROM builds b
+INNER JOIN deployments d ON d.id = b.deployment_id
+INNER JOIN environments e ON d.environment_id = e.id
+INNER JOIN projects ON e.project_id = projects.id
+INNER JOIN organizations ON organizations.id = projects.organization_id
+INNER JOIN users ON users.id = organizations.owner_id
+WHERE b.id = $1
+AND users.id = $2
+`
+
+type GetBuildLogsParams struct {
+	BuildID int64
+	UserID  int64
+}
+
+func (q *Queries) GetBuildLogs(ctx context.Context, arg GetBuildLogsParams) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, getBuildLogs, arg.BuildID, arg.UserID)
+	var logs sql.NullString
+	err := row.Scan(&logs)
+	return logs, err
+}
+
 const getEnvironmentGitDeploymentBuilds = `-- name: GetEnvironmentGitDeploymentBuilds :many
 SELECT
     b.id as build_id,

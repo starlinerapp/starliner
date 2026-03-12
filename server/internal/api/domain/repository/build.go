@@ -40,3 +40,11 @@ func (br *BuildRepository) UpdateBuild(ctx context.Context, id int64, status val
 		ID:     id,
 	})
 }
+
+func (br *BuildRepository) GetBuildLogs(ctx context.Context, userId int64, buildId int64) (*string, error) {
+	res, err := br.queries.GetBuildLogs(ctx, sqlc.GetBuildLogsParams{
+		BuildID: buildId,
+		UserID:  userId,
+	})
+	return utils.PtrFromNullString(res), err
+}
