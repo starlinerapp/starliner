@@ -80,6 +80,19 @@ export default function General() {
         </div>
         <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
           <div>
+            <h1 className="text-mauve-12">Server Type</h1>
+          </div>
+          {isLoading ? (
+            <Skeleton className="h-5 w-24" />
+          ) : (
+            <CopyToClipboard
+              className="text-mauve-11"
+              text={clusterData?.serverType ?? ""}
+            />
+          )}
+        </div>
+        <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+          <div>
             <h1 className="text-mauve-12">IPv4 Address</h1>
           </div>
           {isLoading || clusterData?.status === "pending" ? (

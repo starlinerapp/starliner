@@ -20,6 +20,7 @@ type Cluster struct {
 	IPv4Address    *string       `json:"ipv4Address" binding:"required"`
 	OrganizationId int64         `json:"organizationId" binding:"required"`
 	CreatedAt      time.Time     `json:"createdAt" binding:"required"`
+	ServerType     string        `json:"serverType" binding:"required"`
 }
 
 func NewClusters(clusters []*value.Cluster) []Cluster {
@@ -38,5 +39,6 @@ func NewCluster(cluster *value.Cluster) Cluster {
 		IPv4Address:    cluster.IPv4Address,
 		OrganizationId: cluster.OrganizationId,
 		CreatedAt:      cluster.CreatedAt,
+		ServerType:     string(cluster.ServerType),
 	}
 }

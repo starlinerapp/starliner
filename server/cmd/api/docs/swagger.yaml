@@ -6,6 +6,9 @@ definitions:
       organizationId:
         type: integer
       serverType:
+        enum:
+        - cx23
+        - ccx33
         type: string
     required:
     - name
@@ -229,6 +232,8 @@ definitions:
         type: string
       organizationId:
         type: integer
+      serverType:
+        type: string
       status:
         allOf:
         - $ref: '#/definitions/response.ClusterStatus'
@@ -242,6 +247,7 @@ definitions:
     - ipv4Address
     - name
     - organizationId
+    - serverType
     - status
     type: object
   response.ClusterStatus:

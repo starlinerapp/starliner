@@ -9,6 +9,8 @@ export { default as Database } from "./Database";
 export { default as Download } from "./Download";
 export { default as EllipsisVertical } from "./EllipsisVertical";
 export { default as ExclamationTriangle } from "./ExclamationTriangle";
+export { default as EyeSlash } from "./EyeSlash";
+export { default as Eye } from "./Eye";
 export { default as FolderOpen } from "./FolderOpen";
 export { default as GitBranch } from "./GitBranch";
 export { default as InboxStack } from "./InboxStack";

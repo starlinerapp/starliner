@@ -34,6 +34,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		ProvisioningId: utils.PtrFromNullString(c.ProvisioningID),
 		Kubeconfig:     utils.PtrFromNullString(c.Kubeconfig),
 		OrganizationId: c.OrganizationID,
+		ServerType:     entity.ServerType(c.ServerType),
 	}, nil
 }
 
@@ -55,6 +56,7 @@ func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, c
 		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
 		ProvisioningId: utils.PtrFromNullString(cluster.ProvisioningID),
 		OrganizationId: cluster.OrganizationID,
+		ServerType:     entity.ServerType(cluster.ServerType),
 	}, nil
 }
 

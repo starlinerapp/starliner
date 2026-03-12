@@ -62,8 +62,17 @@ export interface RequestCreateCluster {
    * @type {string}
    * @memberof RequestCreateCluster
    */
-  serverType: string;
+  serverType: RequestCreateClusterServerTypeEnum;
 }
+
+export const RequestCreateClusterServerTypeEnum = {
+  Cx23: "cx23",
+  Ccx33: "ccx33",
+} as const;
+
+export type RequestCreateClusterServerTypeEnum =
+  (typeof RequestCreateClusterServerTypeEnum)[keyof typeof RequestCreateClusterServerTypeEnum];
+
 /**
  *
  * @export
@@ -471,6 +480,12 @@ export interface ResponseCluster {
    * @memberof ResponseCluster
    */
   organizationId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
+  serverType: string;
   /**
    *
    * @type {ResponseClusterStatus}
