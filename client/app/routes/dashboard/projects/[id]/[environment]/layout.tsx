@@ -40,32 +40,51 @@ export default function ProjectLayout() {
       refetchOnMount: "always",
     });
 
-  const [initialBuildCount, setInitialBuildCount] = React.useState<
-    number | null
-  >(null);
+  const projectEnvironmentKey = useMemo(() => {
+    if (!currentProject?.id || !currentEnvironment?.id) return null;
+    return `${currentProject.id}-${currentEnvironment.id}`;
+  }, [currentProject?.id, currentEnvironment?.id]);
+
+  const [initialBuildCounts, setInitialBuildCounts] = React.useState<
+    Record<string, number>
+  >({});
 
   useEffect(() => {
-    if (!currentEnvironment) {
-      setInitialBuildCount(null);
+    if (!projectEnvironmentKey || environmentBuilds === undefined) return;
+
+    setInitialBuildCounts((prev) => {
+      if (prev[projectEnvironmentKey] !== undefined) return prev;
+
+      return {
+        ...prev,
+        [projectEnvironmentKey]: environmentBuilds.length,
+      };
+    });
+  }, [projectEnvironmentKey, environmentBuilds]);
+
+  useEffect(() => {
+    if (
+      !projectEnvironmentKey ||
+      !environmentBuilds ||
+      !location.pathname.endsWith("/builds")
+    ) {
       return;
     }
 
-    if (initialBuildCount === null && environmentBuilds !== undefined) {
-      setInitialBuildCount(environmentBuilds.length);
-    }
-  }, [currentEnvironment?.id, environmentBuilds, initialBuildCount]);
+    const timeout = setTimeout(() => {
+      setInitialBuildCounts((prev) => ({
+        ...prev,
+        [projectEnvironmentKey]: environmentBuilds.length,
+      }));
+    }, 500);
 
-  useEffect(() => {
-    if (!environmentBuilds) return;
-
-    if (location.pathname.endsWith("/builds")) {
-      setTimeout(() => {
-        setInitialBuildCount(environmentBuilds.length);
-      }, 1000);
-    }
-  }, [location.pathname, environmentBuilds]);
+    return () => clearTimeout(timeout);
+  }, [projectEnvironmentKey, location.pathname, environmentBuilds]);
 
   const currentBuildCount = environmentBuilds?.length ?? 0;
+  const initialBuildCount = projectEnvironmentKey
+    ? (initialBuildCounts[projectEnvironmentKey] ?? null)
+    : null;
 
   const newBuildsSinceFirstLoad =
     initialBuildCount === null
@@ -80,7 +99,7 @@ export default function ProjectLayout() {
     {
       title: (
         <span className="flex items-center gap-2">
-          <p>Builds</p>
+          <span>Builds</span>
           {newBuildsSinceFirstLoad > 0 && !isEnvironmentBuildsLoading && (
             <span className="bg-violet-9 rounded-full px-2 py-0.5 text-xs text-white">
               + {newBuildsSinceFirstLoad}

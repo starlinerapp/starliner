@@ -76,6 +76,7 @@ FROM projects
 INNER JOIN organizations ON projects.organization_id = organizations.id
 INNER JOIN environments ON projects.id = environments.project_id
 WHERE projects.organization_id = $1
+ORDER BY environments.created_at
 `
 
 type GetOrganizationProjectsRow struct {
