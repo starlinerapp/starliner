@@ -9,6 +9,7 @@
 | **ipv4Address**    | **string**                                            |             | [default to undefined] |
 | **name**           | **string**                                            |             | [default to undefined] |
 | **organizationId** | **number**                                            |             | [default to undefined] |
+| **serverType**     | **string**                                            |             | [default to undefined] |
 | **status**         | [**ResponseClusterStatus**](ResponseClusterStatus.md) |             | [default to undefined] |
 
 ## Example
@@ -22,6 +23,7 @@ const instance: ResponseCluster = {
   ipv4Address,
   name,
   organizationId,
+  serverType,
   status,
 };
 ```

@@ -1316,6 +1316,7 @@
                 "ipv4Address",
                 "name",
                 "organizationId",
+                "serverType",
                 "status"
             ],
             "properties": {
@@ -1333,6 +1334,9 @@
                 },
                 "organizationId": {
                     "type": "integer"
+                },
+                "serverType": {
+                    "type": "string"
                 },
                 "status": {
                     "enum": [

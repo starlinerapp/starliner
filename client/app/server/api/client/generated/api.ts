@@ -495,6 +495,12 @@ export interface ResponseCluster {
   organizationId: number;
   /**
    *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
+  serverType: string;
+  /**
+   *
    * @type {ResponseClusterStatus}
    * @memberof ResponseCluster
    */
