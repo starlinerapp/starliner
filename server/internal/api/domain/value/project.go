@@ -40,3 +40,15 @@ func NewProjects(ps []*entity.Project) []*Project {
 	}
 	return projects
 }
+
+type ProjectCluster struct {
+	ClusterId   int64
+	ClusterName string
+}
+
+func NewProjectCluster(p *entity.ProjectCluster) *ProjectCluster {
+	return &ProjectCluster{
+		ClusterId:   p.ClusterId,
+		ClusterName: p.ClusterName,
+	}
+}

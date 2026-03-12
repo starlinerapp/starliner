@@ -46,3 +46,11 @@ USING organizations o
 WHERE p.organization_id = o.id
     AND p.id = $1
     AND o.owner_id = $2;
+
+-- name: GetProjectCluster :one
+SELECT c.id, c.name
+FROM projects p
+INNER JOIN clusters c ON p.cluster_id = c.id
+INNER JOIN organizations o ON o.id = p.organization_id
+WHERE p.id = $1
+    AND o.owner_id = $2;

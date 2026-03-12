@@ -933,6 +933,25 @@ export interface ResponseProject {
 /**
  *
  * @export
+ * @interface ResponseProjectCluster
+ */
+export interface ResponseProjectCluster {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseProjectCluster
+   */
+  clusterId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseProjectCluster
+   */
+  clusterName: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseRoot
  */
 export interface ResponseRoot {
@@ -3999,6 +4018,59 @@ export const ProjectApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Get Project Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectCluster: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getProjectCluster", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getProjectCluster", "id", id);
+      const localVarPath = `/projects/{id}/cluster`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -4114,6 +4186,39 @@ export const ProjectApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Get Project Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getProjectCluster(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseProjectCluster>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getProjectCluster(xUserID, id, options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ProjectApi.getProjectCluster"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -4177,6 +4282,23 @@ export const ProjectApiFactory = function (
     ): AxiosPromise<ResponseProject> {
       return localVarFp
         .getProject(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get Project Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectCluster(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseProjectCluster> {
+      return localVarFp
+        .getProjectCluster(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -4243,6 +4365,25 @@ export class ProjectApi extends BaseAPI {
   ) {
     return ProjectApiFp(this.configuration)
       .getProject(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Project Cluster
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public getProjectCluster(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .getProjectCluster(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

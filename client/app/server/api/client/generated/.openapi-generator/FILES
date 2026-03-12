@@ -39,6 +39,7 @@ docs/ResponseIngressPath.md
 docs/ResponseOrganization.md
 docs/ResponseOrganizationProvisioningCredential.md
 docs/ResponseProject.md
+docs/ResponseProjectCluster.md
 docs/ResponseRoot.md
 docs/ResponseUser.md
 docs/RootApi.md

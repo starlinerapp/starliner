@@ -180,3 +180,29 @@ func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetPr
 	}
 	return items, nil
 }
+
+const getProjectCluster = `-- name: GetProjectCluster :one
+SELECT c.id, c.name
+FROM projects p
+INNER JOIN clusters c ON p.cluster_id = c.id
+INNER JOIN organizations o ON o.id = p.organization_id
+WHERE p.id = $1
+    AND o.owner_id = $2
+`
+
+type GetProjectClusterParams struct {
+	ID      int64
+	OwnerID int64
+}
+
+type GetProjectClusterRow struct {
+	ID   int64
+	Name string
+}
+
+func (q *Queries) GetProjectCluster(ctx context.Context, arg GetProjectClusterParams) (GetProjectClusterRow, error) {
+	row := q.db.QueryRowContext(ctx, getProjectCluster, arg.ID, arg.OwnerID)
+	var i GetProjectClusterRow
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
