@@ -16,7 +16,7 @@ interface LogsCardProps {
   status: string;
 }
 
-export default function LogsCard({
+export default function BuildCard({
   isCollapsed: collapsed = true,
   buildId,
   serviceName,
@@ -93,7 +93,7 @@ export default function LogsCard({
                 {isLoading || !logsData?.logs ? (
                   <LogsCardSkeleton />
                 ) : (
-                  <pre className="text-mauve-11 h-[500px] overflow-y-scroll whitespace-pre-wrap">
+                  <pre className="text-mauve-11 max-h-[500px] overflow-y-scroll whitespace-pre-wrap">
                     {logsData?.logs || "No logs available"}
                   </pre>
                 )}

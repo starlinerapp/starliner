@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import LogsCard from "~/components/organisms/logs-card/LogsCard";
+import BuildCard from "~/components/organisms/build-card/BuildCard";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useParams } from "react-router";
@@ -49,7 +49,7 @@ export default function Builds() {
   return (
     <div className="flex flex-col gap-4 p-4">
       {environmentBuilds?.map((build, i) => (
-        <LogsCard
+        <BuildCard
           isCollapsed={i > 0}
           key={i}
           buildId={build.buildId}
