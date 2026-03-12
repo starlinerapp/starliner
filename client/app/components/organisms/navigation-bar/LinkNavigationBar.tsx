@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useLayoutEffect, useRef, useCallback } from "react";
 import { NavLink, useLocation } from "react-router";
 import { motion } from "framer-motion";
 import { cn } from "~/utils/cn";
 
 type NavigationBarItem = {
-  title: string;
+  title: React.ReactNode;
   href: string;
 };
 
@@ -18,18 +18,17 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
   const [activeRect, setActiveRect] = useState({ left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const updateActiveRect = useCallback(() => {
     if (!containerRef.current) return;
 
     const links = containerRef.current.querySelectorAll<HTMLAnchorElement>("a");
     let activeLink: HTMLSpanElement | null = null;
 
-    // Find the link that matches the current path or is a parent path
     for (const link of links) {
       const href = link.getAttribute("href");
       if (href && location.pathname.startsWith(href)) {
         const span = link.querySelector<HTMLSpanElement>("span");
-        // Prefer longer matches (more specific paths)
+
         if (
           span &&
           (!activeLink ||
@@ -41,15 +40,23 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
       }
     }
 
-    if (activeLink) {
-      const rect = activeLink.getBoundingClientRect();
-      const containerRect = containerRef.current.getBoundingClientRect();
-      setActiveRect({
-        left: rect.left - containerRect.left,
-        width: rect.width,
-      });
-    }
+    if (!activeLink) return;
+
+    const rect = activeLink.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+
+    setActiveRect({
+      left: rect.left - containerRect.left,
+      width: rect.width,
+    });
   }, [location.pathname]);
+
+  useLayoutEffect(() => {
+    updateActiveRect();
+
+    window.addEventListener("resize", updateActiveRect);
+    return () => window.removeEventListener("resize", updateActiveRect);
+  }, [updateActiveRect, items]);
 
   return (
     <div

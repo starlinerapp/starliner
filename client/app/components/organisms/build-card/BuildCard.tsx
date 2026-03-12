@@ -68,7 +68,7 @@ export default function BuildCard({
       </div>
       <div className="border-mauve-6 rounded-b-md border-x-1 border-b-1 text-sm">
         <div
-          className="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm"
+          className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <motion.div
