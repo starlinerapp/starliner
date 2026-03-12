@@ -220,6 +220,13 @@ definitions:
     required:
     - apiKey
     type: object
+  response.BuildLogs:
+    properties:
+      logs:
+        type: string
+    required:
+    - logs
+    type: object
   response.Cluster:
     properties:
       createdAt:
@@ -371,6 +378,34 @@ definitions:
     - port
     - projectRepositoryPath
     - serviceName
+    - status
+    type: object
+  response.GitDeploymentBuild:
+    properties:
+      buildId:
+        type: integer
+      createdAt:
+        type: string
+      deploymentId:
+        type: integer
+      deploymentName:
+        type: string
+      dockerfilePath:
+        type: string
+      gitUrl:
+        type: string
+      projectPath:
+        type: string
+      status:
+        type: string
+    required:
+    - buildId
+    - createdAt
+    - deploymentId
+    - deploymentName
+    - dockerfilePath
+    - gitUrl
+    - projectPath
     - status
     type: object
   response.ImageDeployment:
@@ -548,6 +583,28 @@ paths:
       summary: Get root
       tags:
       - root
+  /builds/{id}/logs:
+    get:
+      operationId: getBuildLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BuildLogs'
+      summary: Get Build Logs
+      tags:
+      - build
   /clusters:
     post:
       operationId: createCluster
@@ -865,6 +922,30 @@ paths:
         "201":
           description: Created
       summary: Create Environment
+      tags:
+      - environment
+  /environments/{id}/builds:
+    get:
+      operationId: getEnvironmentBuilds
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.GitDeploymentBuild'
+            type: array
+      summary: Get Environment Builds
       tags:
       - environment
   /environments/{id}/deployments:

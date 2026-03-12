@@ -41,6 +41,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/builds/{id}/logs": {
+            "get": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Get Build Logs",
+                "operationId": "getBuildLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Build ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BuildLogs"
+                        }
+                    }
+                }
+            }
+        },
         "/clusters": {
             "post": {
                 "tags": [
@@ -517,6 +550,42 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Created"
+                    }
+                }
+            }
+        },
+        "/environments/{id}/builds": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Builds",
+                "operationId": "getEnvironmentBuilds",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.GitDeploymentBuild"
+                            }
+                        }
                     }
                 }
             }
@@ -1237,6 +1306,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.BuildLogs": {
+            "type": "object",
+            "required": [
+                "logs"
+            ],
+            "properties": {
+                "logs": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Cluster": {
             "type": "object",
             "required": [
@@ -1449,6 +1529,45 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GitDeploymentBuild": {
+            "type": "object",
+            "required": [
+                "buildId",
+                "createdAt",
+                "deploymentId",
+                "deploymentName",
+                "dockerfilePath",
+                "gitUrl",
+                "projectPath",
+                "status"
+            ],
+            "properties": {
+                "buildId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deploymentId": {
+                    "type": "integer"
+                },
+                "deploymentName": {
+                    "type": "string"
+                },
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "projectPath": {
                     "type": "string"
                 },
                 "status": {

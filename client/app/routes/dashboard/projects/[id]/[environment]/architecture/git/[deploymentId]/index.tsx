@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import DeployFromGitForm, {
   type DeployFromGitFormInput,
 } from "~/components/organisms/forms/DeployFromGitForm";
@@ -13,6 +13,8 @@ export default function UpdateGitDeployment() {
   const { environment: currentEnvironment } = useEnvironment();
 
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   const { data: environmentDeployments, isLoading } = useQuery(
     trpc.environment.getEnvironmentDeployments.queryOptions(
       { id: currentEnvironment?.id },
@@ -29,14 +31,25 @@ export default function UpdateGitDeployment() {
       return;
     }
 
-    await updateGitRepoMutation.mutateAsync({
-      id: currentEnvironment.id,
-      deploymentId: Number(deploymentId),
-      port: data.port,
-      dockerfilePath: data.dockerfilePath,
-      projectRepositoryPath: data.projectDirectoryPath,
-      envs: data.envs,
-    });
+    await updateGitRepoMutation.mutateAsync(
+      {
+        id: currentEnvironment.id,
+        deploymentId: Number(deploymentId),
+        port: data.port,
+        dockerfilePath: data.dockerfilePath,
+        projectRepositoryPath: data.projectDirectoryPath,
+        envs: data.envs,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
+        },
+      },
+    );
   };
 
   const gitDeployment = environmentDeployments?.gitDeployments.find(

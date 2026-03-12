@@ -36,14 +36,14 @@ export default function ProjectSettings() {
 
   return (
     <div className="w-full space-y-4 p-4 xl:w-3/5">
-      <div className="border-mauve-6 rounded-md border-1 text-sm">
+      <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
           General
         </div>
         <div className="flex items-center justify-between px-4 py-2">
           <div>Assigned Cluster</div>
           {isProjectDataLoading ? (
-            <Skeleton className="h-10 w-60" />
+            <Skeleton className="h-9.5 w-60" />
           ) : (
             <input
               className="border-mauve-6 w-60 cursor-not-allowed rounded-md border-1 p-2"
@@ -53,7 +53,7 @@ export default function ProjectSettings() {
           )}
         </div>
       </div>
-      <div className="border-mauve-6 rounded-md border-1 text-sm">
+      <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
           Danger Zone
         </div>

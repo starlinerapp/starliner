@@ -2,13 +2,13 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                            | HTTP request     | Description   |
-| --------------------------------- | ---------------- | ------------- |
-| [**triggerBuild**](#triggerbuild) | **POST** /builds | Trigger Build |
+| Method                            | HTTP request              | Description    |
+| --------------------------------- | ------------------------- | -------------- |
+| [**getBuildLogs**](#getbuildlogs) | **GET** /builds/{id}/logs | Get Build Logs |
 
-# **triggerBuild**
+# **getBuildLogs**
 
-> triggerBuild()
+> ResponseBuildLogs getBuildLogs()
 
 ### Example
 
@@ -19,8 +19,9 @@ const configuration = new Configuration();
 const apiInstance = new BuildApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let id: number; //Build ID (default to undefined)
 
-const { status, data } = await apiInstance.triggerBuild(xUserID);
+const { status, data } = await apiInstance.getBuildLogs(xUserID, id);
 ```
 
 ### Parameters
@@ -28,10 +29,11 @@ const { status, data } = await apiInstance.triggerBuild(xUserID);
 | Name        | Type         | Description | Notes                 |
 | ----------- | ------------ | ----------- | --------------------- |
 | **xUserID** | [**string**] | User ID     | defaults to undefined |
+| **id**      | [**number**] | Build ID    | defaults to undefined |
 
 ### Return type
 
-void (empty response body)
+**ResponseBuildLogs**
 
 ### Authorization
 
@@ -40,7 +42,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 

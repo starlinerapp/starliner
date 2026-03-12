@@ -275,3 +275,26 @@ func (er *EnvironmentRepository) GetEnvironmentDeploymentByName(ctx context.Cont
 		EnvironmentId: d.EnvironmentID,
 	}, nil
 }
+
+func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error) {
+	rows, err := er.queries.GetEnvironmentGitDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	builds := make([]*entity.GitDeploymentBuild, len(rows))
+	for i, row := range rows {
+		builds[i] = &entity.GitDeploymentBuild{
+			BuildId:        row.BuildID,
+			DeploymentId:   row.DeploymentID,
+			DeploymentName: row.DeploymentName,
+			Status:         entity.BuildStatus(row.Status),
+			GitUrl:         row.Url,
+			ProjectPath:    row.ProjectPath,
+			DockerfilePath: row.DockerfilePath,
+			CreatedAt:      row.CreatedAt,
+		}
+	}
+
+	return builds, nil
+}

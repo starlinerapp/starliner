@@ -15,6 +15,7 @@ const SERVER_BASIC_AUTH_USER = process.env.SERVER_BASIC_AUTH_USER;
 const SERVER_BASIC_AUTH_PASSWORD = process.env.SERVER_BASIC_AUTH_PASSWORD;
 
 const app = express();
+const server = http.createServer(app);
 
 app.use(compression());
 app.disable("x-powered-by");
@@ -23,7 +24,7 @@ if (DEVELOPMENT) {
   console.log("Starting development server");
   const viteDevServer = await import("vite").then((vite) =>
     vite.createServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: { server } },
     }),
   );
   app.use(viteDevServer.middlewares);
@@ -69,8 +70,11 @@ wsProxy.on("error", (err, req, socket) => {
   }
 });
 
-const server = http.createServer(app);
 server.on("upgrade", async (req, socket, head) => {
+  if (!req.url?.startsWith("/ws")) {
+    return;
+  }
+
   console.log("Proxying WebSocket request:", req.url);
 
   const session = await auth.api.getSession({
