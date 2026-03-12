@@ -20,7 +20,7 @@ export default function Builds() {
     [project, environment],
   );
 
-  const { data: environmentBuilds } = useQuery({
+  const { data: environmentBuilds, isLoading } = useQuery({
     ...trpc.environment.getEnvironmentBuilds.queryOptions({
       id: Number(currentEnvironment?.id),
     }),
@@ -35,6 +35,15 @@ export default function Builds() {
       return shouldPoll ? 1000 : false;
     },
   });
+
+  if (!isLoading && environmentBuilds?.length === 0)
+    return (
+      <div className="flex flex-col gap-1 p-4">
+        <p className="text-mauve-11">
+          There are no builds for this project yet.
+        </p>
+      </div>
+    );
 
   return (
     <div className="flex flex-col gap-4 p-4">
