@@ -109,7 +109,7 @@ export default function General() {
             </p>
           </div>
           {isLoading || clusterData?.status === "pending" ? (
-            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-9.5 w-32" />
           ) : (
             <a
               href={`/clusters/${id}/resources/private-key`}

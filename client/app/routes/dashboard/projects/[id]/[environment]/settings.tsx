@@ -43,7 +43,7 @@ export default function ProjectSettings() {
         <div className="flex items-center justify-between px-4 py-2">
           <div>Assigned Cluster</div>
           {isProjectDataLoading ? (
-            <Skeleton className="h-10 w-60" />
+            <Skeleton className="h-9.5 w-60" />
           ) : (
             <input
               className="border-mauve-6 w-60 cursor-not-allowed rounded-md border-1 p-2"
