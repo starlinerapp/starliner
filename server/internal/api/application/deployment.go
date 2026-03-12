@@ -143,12 +143,18 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id)
+	if err != nil {
+		return err
+	}
+
 	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
 	if err != nil {
 		return err
 	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
+		BuildId:        b.Id,
 		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         d.GitUrl,
@@ -696,6 +702,9 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.Logs)
 	if err != nil {
 		log.Printf("failed to update build status: %v\n", err)
+	}
+	if b.BuildStatus == coreValue.BuildStatusFailed {
+		return
 	}
 
 	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, b.DeploymentId)

@@ -25,7 +25,8 @@ export default function Builds() {
       id: Number(currentEnvironment?.id),
     }),
     enabled: !!currentEnvironment,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: "always",
+    refetchOnMount: "always",
     refetchInterval: (query) => {
       const builds = query.state.data;
       if (!builds) return false;
