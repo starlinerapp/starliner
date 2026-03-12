@@ -1,5 +1,7 @@
 package value
 
+import "time"
+
 type BuildStatus string
 
 const (
@@ -9,9 +11,13 @@ const (
 	BuildStatusFailed   BuildStatus = "failed"
 )
 
-type Build struct {
-	Id           int64
-	DeploymentId int64
-	Status       BuildStatus
-	Logs         string
+type GitDeploymentBuild struct {
+	BuildId        int64
+	DeploymentId   int64
+	DeploymentName string
+	Status         BuildStatus
+	GitUrl         string
+	ProjectPath    string
+	DockerfilePath string
+	CreatedAt      time.Time
 }

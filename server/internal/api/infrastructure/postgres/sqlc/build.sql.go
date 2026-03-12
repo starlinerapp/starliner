@@ -8,6 +8,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createBuild = `-- name: CreateBuild :one
@@ -31,6 +32,67 @@ func (q *Queries) CreateBuild(ctx context.Context, deploymentID sql.NullInt64) (
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getEnvironmentGitDeploymentBuilds = `-- name: GetEnvironmentGitDeploymentBuilds :many
+SELECT
+    b.id as build_id,
+    d.id as deployment_id,
+    d.name as deployment_name,
+    b.status,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path,
+    b.created_at
+FROM deployments d
+INNER JOIN git_deployments gd ON gd.deployment_id = d.id
+INNER JOIN builds b ON d.id = b.deployment_id
+INNER JOIN environments e ON d.environment_id = e.id
+WHERE environment_id = $1
+ORDER BY b.created_at DESC
+`
+
+type GetEnvironmentGitDeploymentBuildsRow struct {
+	BuildID        int64
+	DeploymentID   int64
+	DeploymentName string
+	Status         BuildStatus
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+	CreatedAt      time.Time
+}
+
+func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentID int64) ([]GetEnvironmentGitDeploymentBuildsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentGitDeploymentBuilds, environmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEnvironmentGitDeploymentBuildsRow
+	for rows.Next() {
+		var i GetEnvironmentGitDeploymentBuildsRow
+		if err := rows.Scan(
+			&i.BuildID,
+			&i.DeploymentID,
+			&i.DeploymentName,
+			&i.Status,
+			&i.Url,
+			&i.ProjectPath,
+			&i.DockerfilePath,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateBuildInformation = `-- name: UpdateBuildInformation :exec

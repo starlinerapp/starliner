@@ -1,13 +1,42 @@
-import React from "react";
+import React, { useMemo } from "react";
 import LogsCard from "~/components/organisms/logs-card/LogsCard";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "~/utils/trpc/react";
+import { useParams } from "react-router";
 
 export default function Builds() {
+  const trpc = useTRPC();
+  const { id, environment } = useParams<{
+    id: string;
+    environment: string;
+  }>();
+
+  const { data: project } = useQuery(
+    trpc.project.getProject.queryOptions({ id: Number(id) }),
+  );
+
+  const currentEnvironment = useMemo(
+    () => project?.environments.find((e) => e.slug === environment),
+    [project, environment],
+  );
+
+  const { data: environmentBuilds } = useQuery(
+    trpc.environment.getEnvironmentBuilds.queryOptions(
+      { id: Number(currentEnvironment?.id) },
+      { enabled: !!currentEnvironment },
+    ),
+  );
+
   return (
     <div className="flex flex-col gap-4 p-4">
-      <LogsCard serviceName="Frontend" />
-      <LogsCard serviceName="Backend" />
-      <LogsCard serviceName="Frontend" />
-      <LogsCard serviceName="Frontend" />
+      {environmentBuilds?.map((build, i) => (
+        <LogsCard
+          key={i}
+          serviceName={build.deploymentName}
+          createdAt={build.createdAt}
+          status={build.status}
+        />
+      ))}
     </div>
   );
 }

@@ -2,6 +2,7 @@ package response
 
 import (
 	"starliner.app/internal/api/domain/value"
+	"time"
 )
 
 type Deployments struct {
@@ -188,4 +189,36 @@ func NewDeployments(deployments *value.Deployments) Deployments {
 		Images:        NewImageDeployments(deployments.Images),
 		GitDeployment: NewGitDeployments(deployments.GitDeployments),
 	}
+}
+
+type GitDeploymentBuild struct {
+	BuildId        int64     `json:"buildId" binding:"required"`
+	DeploymentId   int64     `json:"deploymentId" binding:"required"`
+	DeploymentName string    `json:"deploymentName" binding:"required"`
+	Status         string    `json:"status" binding:"required"`
+	GitUrl         string    `json:"gitUrl" binding:"required"`
+	ProjectPath    string    `json:"projectPath" binding:"required"`
+	DockerfilePath string    `json:"dockerfilePath" binding:"required"`
+	CreatedAt      time.Time `json:"createdAt" binding:"required"`
+}
+
+func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
+	return GitDeploymentBuild{
+		BuildId:        build.BuildId,
+		DeploymentId:   build.DeploymentId,
+		DeploymentName: build.DeploymentName,
+		Status:         string(build.Status),
+		GitUrl:         build.GitUrl,
+		ProjectPath:    build.ProjectPath,
+		DockerfilePath: build.DockerfilePath,
+		CreatedAt:      build.CreatedAt,
+	}
+}
+
+func NewGitDeploymentBuilds(builds []*value.GitDeploymentBuild) []GitDeploymentBuild {
+	result := make([]GitDeploymentBuild, 0, len(builds))
+	for _, build := range builds {
+		result = append(result, NewGitDeploymentBuild(build))
+	}
+	return result
 }

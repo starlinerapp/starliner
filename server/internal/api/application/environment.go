@@ -13,6 +13,7 @@ import (
 type EnvironmentApplication struct {
 	crypto                port.Crypto
 	organizationService   *service.OrganizationService
+	environmentService    *service.EnvironmentService
 	normalizerService     *coreService.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	projectRepository     interfaces.ProjectRepository
@@ -22,6 +23,7 @@ func NewEnvironmentApplication(
 	crypto port.Crypto,
 	normalizerService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
+	environmentService *service.EnvironmentService,
 	environmentRepository interfaces.EnvironmentRepository,
 	projectRepository interfaces.ProjectRepository,
 ) *EnvironmentApplication {
@@ -29,6 +31,7 @@ func NewEnvironmentApplication(
 		crypto:                crypto,
 		normalizerService:     normalizerService,
 		organizationService:   organizationService,
+		environmentService:    environmentService,
 		environmentRepository: environmentRepository,
 		projectRepository:     projectRepository,
 	}
@@ -147,4 +150,31 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		Ingresses:      value.NewIngressDeployments(ingresses),
 		GitDeployments: gitDeployments,
 	}, nil
+}
+
+func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.Context, userId int64, environmentId int64) ([]*value.GitDeploymentBuild, error) {
+	err := ea.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	builds, err := ea.environmentRepository.GetEnvironmentGitDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	valueBuilds := make([]*value.GitDeploymentBuild, len(builds))
+	for i, b := range builds {
+		valueBuilds[i] = &value.GitDeploymentBuild{
+			BuildId:        b.BuildId,
+			DeploymentId:   b.DeploymentId,
+			DeploymentName: b.DeploymentName,
+			Status:         value.BuildStatus(b.Status),
+			GitUrl:         b.GitUrl,
+			ProjectPath:    b.ProjectPath,
+			DockerfilePath: b.DockerfilePath,
+			CreatedAt:      b.CreatedAt,
+		}
+	}
+	return valueBuilds, nil
 }
