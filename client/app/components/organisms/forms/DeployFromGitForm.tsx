@@ -66,7 +66,7 @@ export default function DeployFromGitForm({
 
       setError(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Ups something went wrong");
+      setError(e instanceof Error ? e.message : "Oops something went wrong!");
     }
   };
 
