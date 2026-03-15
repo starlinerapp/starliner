@@ -117,7 +117,6 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 const getEnvironmentDeploymentByName = `-- name: GetEnvironmentDeploymentByName :one
 SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
 FROM deployments
-INNER JOIN environments ON deployments.environment_id = environments.id
 WHERE deployments.name = $1
     AND environment_id = $2
 `

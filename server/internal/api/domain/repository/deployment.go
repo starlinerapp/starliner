@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/value"
@@ -550,4 +552,24 @@ func (dr *DeploymentRepository) UpdateDeploymentStatus(ctx context.Context, depl
 		Status: sqlc.DeploymentStatus(status),
 		ID:     deploymentId,
 	})
+}
+
+func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error) {
+	row, err := dr.queries.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
+		Name:          serviceName,
+		EnvironmentID: environmentId,
+	})
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &entity.Deployment{
+		Id:            row.ID,
+		Name:          row.Name,
+		Port:          row.Port,
+		EnvironmentId: row.EnvironmentID,
+	}, nil
 }

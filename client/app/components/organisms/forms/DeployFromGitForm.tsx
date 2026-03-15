@@ -2,6 +2,7 @@ import React from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -16,12 +17,14 @@ interface DeployFromGitFormProps {
   defaultValues?: DeployFromGitFormInput;
   onSubmit: (data: DeployFromGitFormInput) => Promise<void>;
   resetOnSuccess?: boolean;
+  error?: string | null;
 }
 
 export default function DeployFromGitForm({
   defaultValues,
   onSubmit,
   resetOnSuccess = false,
+  error = null,
 }: DeployFromGitFormProps) {
   const {
     register,
@@ -76,6 +79,11 @@ export default function DeployFromGitForm({
             Enter a Git repository URL to deploy.
           </p>
         </div>
+        {error && (
+          <div>
+            <ErrorBanner text={error} />
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
             <p className="text-sm">Service Name</p>
