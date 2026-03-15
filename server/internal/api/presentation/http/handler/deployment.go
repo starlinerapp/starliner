@@ -57,8 +57,14 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 		body.Port,
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
+
 	if err != nil {
+		if errors.Is(err, value.ErrDeploymentNameAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -98,6 +104,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 		body.Port,
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 	}
@@ -130,7 +137,12 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 		body.ServiceName,
 	)
 	if err != nil {
+		if errors.Is(err, value.ErrDeploymentNameAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)

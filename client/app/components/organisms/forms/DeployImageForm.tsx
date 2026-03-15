@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 export interface ImageFormInput {
   serviceName: string;
@@ -38,6 +39,8 @@ export default function DeployImageForm({
     name: "envs",
   });
 
+  const [error, setError] = useState<string | null>(null);
+
   const serviceNameInput = watch("serviceName", "");
   const imageNameInput = watch("imageName", "");
   const tagInput = watch("tag", "");
@@ -48,15 +51,20 @@ export default function DeployImageForm({
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
-    await onSubmit(data);
-    if (resetOnSuccess)
-      reset({
-        serviceName: "",
-        imageName: "",
-        tag: "",
-        port: null,
-        envs: [],
-      });
+    try {
+      await onSubmit(data);
+      if (resetOnSuccess)
+        reset({
+          serviceName: "",
+          imageName: "",
+          tag: "",
+          port: null,
+          envs: [],
+        });
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Oops something went wrong!");
+    }
   };
 
   return (
@@ -67,6 +75,11 @@ export default function DeployImageForm({
           Docker Hub Container Image Library
         </p>
       </div>
+      {error && (
+        <div>
+          <ErrorBanner text={error} />
+        </div>
+      )}
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-1">
           <p className="text-sm">Service Name</p>

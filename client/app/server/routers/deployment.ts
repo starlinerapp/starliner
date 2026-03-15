@@ -112,16 +112,28 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
-      return await deploymentApiFactory
-        .deployImage(userId, {
+      try {
+        const res = await deploymentApiFactory.deployImage(userId, {
           environmentId: input.id,
           serviceName: input.serviceName,
           imageName: input.imageName,
           tag: input.tag,
           port: input.port,
           envs: input.envs,
-        })
-        .then((res) => res.data);
+        });
+        return res.data;
+      } catch (err) {
+        if (isAxiosError(err) && err.response?.data?.error) {
+          throw new TRPCError({
+            code:
+              err.response.status === 409
+                ? "CONFLICT"
+                : "INTERNAL_SERVER_ERROR",
+            message: err.response.data.error,
+          });
+        }
+        throw err;
+      }
     }),
   updateImage: protectedProcedure
     .input(
@@ -162,12 +174,24 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
-      return await deploymentApiFactory
-        .deployDatabase(userId, {
+      try {
+        const res = await deploymentApiFactory.deployDatabase(userId, {
           environmentId: input.id,
           serviceName: input.serviceName,
-        })
-        .then((res) => res.data);
+        });
+        return res.data;
+      } catch (err) {
+        if (isAxiosError(err) && err.response?.data?.error) {
+          throw new TRPCError({
+            code:
+              err.response.status === 409
+                ? "CONFLICT"
+                : "INTERNAL_SERVER_ERROR",
+            message: err.response.data.error,
+          });
+        }
+        throw err;
+      }
     }),
   deleteDeployment: protectedProcedure
     .input(
