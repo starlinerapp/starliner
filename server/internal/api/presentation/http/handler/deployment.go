@@ -105,6 +105,10 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
 
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
 	c.Status(http.StatusOK)
 }
 
