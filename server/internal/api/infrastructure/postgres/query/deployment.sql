@@ -19,7 +19,6 @@ WHERE deployments.id = $1;
 -- name: GetEnvironmentDeploymentByName :one
 SELECT deployments.*
 FROM deployments
-INNER JOIN environments ON deployments.environment_id = environments.id
 WHERE deployments.name = $1
     AND environment_id = $2;
 ;

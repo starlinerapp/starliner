@@ -26,7 +26,7 @@ export default function WarningBanner({
         className,
       )}
     >
-      <div className="bg-amber-9 flex w-11 items-center justify-center rounded-l-md">
+      <div className="bg-amber-9 flex w-11 items-center justify-center rounded-l-sm">
         <ExclamationTriangle width={18} strokeWidth={2} />
       </div>
       <div className="flex items-center gap-2 p-2.5">

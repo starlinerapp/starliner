@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/value"
 )
@@ -90,4 +91,6 @@ type DeploymentRepository interface {
 	GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error)
 
 	UpdateDeploymentStatus(ctx context.Context, deploymentId int64, status string) error
+
+	GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error)
 }

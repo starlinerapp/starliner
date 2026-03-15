@@ -3,17 +3,18 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/mapper"
 	"starliner.app/internal/api/presentation/http/sse"
-	"strconv"
 )
 
 type DeploymentHandler struct {
@@ -234,7 +235,12 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
 	if err != nil {
+		if errors.Is(err, value.ErrDeploymentNameAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)

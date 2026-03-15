@@ -1,8 +1,12 @@
 package value
 
 import (
+	"errors"
+
 	"starliner.app/internal/api/domain/entity"
 )
+
+var ErrDeploymentNameAlreadyExists = errors.New("deployment name already exists")
 
 type Deployments struct {
 	Ingresses      []*IngressDeployment
