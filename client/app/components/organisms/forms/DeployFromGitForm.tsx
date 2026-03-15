@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -17,14 +17,12 @@ interface DeployFromGitFormProps {
   defaultValues?: DeployFromGitFormInput;
   onSubmit: (data: DeployFromGitFormInput) => Promise<void>;
   resetOnSuccess?: boolean;
-  error?: string | null;
 }
 
 export default function DeployFromGitForm({
   defaultValues,
   onSubmit,
   resetOnSuccess = false,
-  error = null,
 }: DeployFromGitFormProps) {
   const {
     register,
@@ -40,6 +38,8 @@ export default function DeployFromGitForm({
     name: "envs",
   });
 
+  const [error, setError] = useState<string | null>(null);
+
   const urlInput = watch("url", "");
   const serviceNameInput = watch("serviceName", "");
   const port = watch("port", null);
@@ -51,16 +51,23 @@ export default function DeployFromGitForm({
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
-    await onSubmit(data);
-    if (resetOnSuccess)
-      reset({
-        url: "",
-        serviceName: "",
-        dockerfilePath: "",
-        projectDirectoryPath: "",
-        port: null,
-        envs: [],
-      });
+    try {
+      await onSubmit(data);
+
+      if (resetOnSuccess)
+        reset({
+          url: "",
+          serviceName: "",
+          dockerfilePath: "",
+          projectDirectoryPath: "",
+          port: null,
+          envs: [],
+        });
+
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ups something went wrong");
+    }
   };
 
   const inputValid =

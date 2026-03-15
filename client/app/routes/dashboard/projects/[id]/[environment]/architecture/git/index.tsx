@@ -45,11 +45,7 @@ export default function Git() {
 
   return (
     <>
-      <DeployFromGitForm
-        onSubmit={onSubmit}
-        resetOnSuccess={true}
-        error={createDeploymentMutation.error?.message ?? null}
-      />
+      <DeployFromGitForm onSubmit={onSubmit} resetOnSuccess={true} />
     </>
   );
 }
