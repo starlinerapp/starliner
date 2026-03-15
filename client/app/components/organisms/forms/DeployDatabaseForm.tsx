@@ -1,10 +1,11 @@
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight } from "~/components/atoms/icons";
-import React from "react";
+import React, { useState } from "react";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 interface DeployDatabaseFormInput {
   serviceName: string;
@@ -22,6 +23,8 @@ export default function DeployDatabaseForm({
       defaultValues,
     });
   const serviceNameInput = watch("serviceName", "");
+
+  const [error, setError] = useState<string | null>(null);
 
   const trpc = useTRPC();
 
@@ -42,6 +45,12 @@ export default function DeployDatabaseForm({
       {
         onSuccess: () => {
           reset();
+          setError(null);
+        },
+        onError: (e) => {
+          setError(
+            e instanceof Error ? e.message : "Oops something went wrong!",
+          );
         },
       },
     );
@@ -55,6 +64,11 @@ export default function DeployDatabaseForm({
           Powerful, open source relational database
         </p>
       </div>
+      {error && (
+        <div>
+          <ErrorBanner text={error} />
+        </div>
+      )}
       <div className="flex flex-col gap-1">
         <p className="text-sm">Service Name</p>
         <div className="flex gap-2">

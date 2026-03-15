@@ -188,6 +188,15 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	found, err := da.deploymentRepository.GetEnvironmentDeploymentByName(ctx, environmentId, serviceName)
+
+	if err != nil {
+		return err
+	}
+	if found != nil {
+		return fmt.Errorf("%w: %s", value.ErrDeploymentNameAlreadyExists, serviceName)
+	}
+
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
 	if err != nil {
 		return err
@@ -326,6 +335,15 @@ func (da *DeploymentApplication) DeployDatabase(
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
+	}
+
+	found, err := da.deploymentRepository.GetEnvironmentDeploymentByName(ctx, environmentId, serviceName)
+
+	if err != nil {
+		return err
+	}
+	if found != nil {
+		return fmt.Errorf("%w: %s", value.ErrDeploymentNameAlreadyExists, serviceName)
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
