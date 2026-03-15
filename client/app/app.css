@@ -84,3 +84,7 @@ html,
 body {
   @apply bg-white-a12 text-mauve-12;
 }
+
+.xterm-viewport {
+  overflow-y: auto !important;
+}
