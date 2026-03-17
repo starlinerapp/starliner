@@ -21,6 +21,7 @@ type Config struct {
 	AWSSecretAccessKey  string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
 	GithubAppPrivateKey string `mapstructure:"GITHUB_APP_PRIVATE_KEY" validate:"required"`
+	GithubAppID         int64  `mapstructure:"GITHUB_APP_ID" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
