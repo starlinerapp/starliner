@@ -23,14 +23,8 @@ export default function DeployFromGitForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployFromGitFormProps) {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    control,
-    formState: { isDirty },
-  } = useForm<DeployFromGitFormInput>({ defaultValues });
+  const { register, handleSubmit, watch, reset, control } =
+    useForm<DeployFromGitFormInput>({ defaultValues });
 
   const { fields, append } = useFieldArray({
     control,
@@ -173,7 +167,7 @@ export default function DeployFromGitForm({
         <Button
           type="submit"
           size="sm"
-          disabled={!isDirty || !inputValid}
+          disabled={!inputValid}
           className="w-28 flex-shrink-0 py-1.5"
         >
           {defaultValues ? "Redeploy" : "Deploy"}
