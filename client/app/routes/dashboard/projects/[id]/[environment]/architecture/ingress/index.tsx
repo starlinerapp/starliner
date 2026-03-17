@@ -5,12 +5,9 @@ import DeployIngressForm, {
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useParams } from "react-router";
-import { toSlug } from "~/utils/slug";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
 
 export default function Index() {
-  const { id: projectId } = useParams<{ id: string }>();
-
   const trpc = useTRPC();
   const createIngressMutation = useMutation(
     trpc.deployment.deployIngress.mutationOptions(),
@@ -22,19 +19,15 @@ export default function Index() {
       { enabled: !!clusterId },
     ),
   );
-  const { data: projectData } = useQuery(
-    trpc.project.getProject.queryOptions({
-      id: Number(projectId),
-    }),
-  );
 
-  const projectNameSlug = toSlug(projectData?.name ?? "");
+  const organization = useOrganizationContext();
 
   const onSubmit = async (data: IngressFormInput) => {
     await createIngressMutation.mutateAsync({
       id: currentEnvironment.id,
       ingressHosts: data.hosts.map((h) => ({
-        host: h.name + `.${projectNameSlug}.${clusterData?.ipv4Address}.nip.io`,
+        host:
+          h.name + `.${organization.slug}.${clusterData?.ipv4Address}.nip.io`,
         paths: h.paths.map((p) => ({
           path: p.path,
           pathType: p.pathType as "Prefix" | "Exact",

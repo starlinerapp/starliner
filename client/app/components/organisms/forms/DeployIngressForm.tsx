@@ -12,9 +12,8 @@ import {
   type UseFormRegister,
 } from "react-hook-form";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import { useParams } from "react-router";
-import { toSlug } from "~/utils/slug";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
 
 interface Path {
   path: string;
@@ -169,8 +168,6 @@ function HostEditor({
   showRemove,
   onRemove,
 }: HostEditorProps) {
-  const { id: projectId } = useParams<{ id: string }>();
-
   const trpc = useTRPC();
 
   const { environment, clusterId } = useEnvironment();
@@ -179,10 +176,6 @@ function HostEditor({
       { id: clusterId! },
       { enabled: !!clusterId },
     ),
-  );
-
-  const { data: projectData } = useQuery(
-    trpc.project.getProject.queryOptions({ id: Number(projectId) }),
   );
 
   const { data: deploymentsData } = useQuery(
@@ -205,7 +198,7 @@ function HostEditor({
     ...(deploymentsData?.images.map((d) => d.serviceName) ?? []),
   ];
 
-  const projectNameSlug = toSlug(projectData?.name ?? "");
+  const organization = useOrganizationContext();
 
   return (
     <div className="relative">
@@ -229,9 +222,9 @@ function HostEditor({
               placeholder="Host*"
               {...register(`hosts.${hostIndex}.name`)}
             />
-            {clusterData?.ipv4Address && projectData?.name ? (
+            {clusterData?.ipv4Address ? (
               <div className="border-mauve-6 text-mauve-11 flex flex-none rounded-md border-1 p-2 text-sm whitespace-nowrap">
-                <p>.{projectNameSlug}</p>
+                <p>.{organization.slug}</p>
                 <p>.{clusterData?.ipv4Address}</p>
                 <p>.nip.io</p>
               </div>
