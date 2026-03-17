@@ -573,3 +573,15 @@ func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Conte
 		EnvironmentId: row.EnvironmentID,
 	}, nil
 }
+
+func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostName string) (*string, error) {
+	row, err := dr.queries.GetIngressHostByName(ctx, hostName)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &row.Host, nil
+}

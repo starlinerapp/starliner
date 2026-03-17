@@ -395,6 +395,11 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		return err
 	}
 
+	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
+	if err != nil {
+		return err
+	}
+
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
 	if err != nil {
 		return err
@@ -478,6 +483,11 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	hosts []*value.IngressHost,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
 	if err != nil {
 		return err
 	}

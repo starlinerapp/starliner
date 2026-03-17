@@ -79,3 +79,8 @@ LEFT JOIN deployments svc ON svc.id = ip.deployment_id
 WHERE d.environment_id = $1
 AND users.id = $2
 ORDER BY d.id DESC;
+
+-- name: GetIngressHostByName :one
+SELECT *
+FROM ingress_hosts i
+where i.host = $1;

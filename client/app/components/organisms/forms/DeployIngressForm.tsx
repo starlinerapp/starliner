@@ -1,19 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { ArrowRight, ChevronDown, Minus, Plus } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import {
+  type Control,
+  type SubmitHandler,
   useFieldArray,
   useForm,
-  type Control,
   type UseFormRegister,
-  type SubmitHandler,
 } from "react-hook-form";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useParams } from "react-router";
 import { toSlug } from "~/utils/slug";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 interface Path {
   path: string;
@@ -56,6 +57,8 @@ export default function DeployIngressForm({
     mode: "onSubmit",
   });
 
+  const [error, setError] = useState<string | null>(null);
+
   const {
     fields: hostFields,
     append: appendHost,
@@ -80,11 +83,16 @@ export default function DeployIngressForm({
     });
 
   const submit: SubmitHandler<IngressFormInput> = async (data) => {
-    await onSubmit(data);
-    if (resetOnSuccess)
-      reset({
-        hosts: [{ name: "", paths: [{ ...emptyPathEntry }] }],
-      });
+    try {
+      await onSubmit(data);
+      if (resetOnSuccess)
+        reset({
+          hosts: [{ name: "", paths: [{ ...emptyPathEntry }] }],
+        });
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Oops something went wrong!");
+    }
   };
 
   return (
@@ -95,6 +103,12 @@ export default function DeployIngressForm({
           Make your HTTP(S) network service available
         </p>
       </div>
+
+      {error && (
+        <div>
+          <ErrorBanner text={error} />
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <p className="text-sm">Hosts</p>

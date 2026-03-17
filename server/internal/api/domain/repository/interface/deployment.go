@@ -93,4 +93,6 @@ type DeploymentRepository interface {
 	UpdateDeploymentStatus(ctx context.Context, deploymentId int64, status string) error
 
 	GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error)
+
+	GetIngressHostByName(ctx context.Context, hostName string) (*string, error)
 }

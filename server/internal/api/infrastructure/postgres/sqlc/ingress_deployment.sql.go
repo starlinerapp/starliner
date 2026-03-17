@@ -224,6 +224,25 @@ func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, arg GetE
 	return items, nil
 }
 
+const getIngressHostByName = `-- name: GetIngressHostByName :one
+SELECT id, deployment_id, host, created_at, updated_at
+FROM ingress_hosts i
+where i.host = $1
+`
+
+func (q *Queries) GetIngressHostByName(ctx context.Context, host string) (IngressHost, error) {
+	row := q.db.QueryRowContext(ctx, getIngressHostByName, host)
+	var i IngressHost
+	err := row.Scan(
+		&i.ID,
+		&i.DeploymentID,
+		&i.Host,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
 WITH updated_ingress AS (
     UPDATE deployments

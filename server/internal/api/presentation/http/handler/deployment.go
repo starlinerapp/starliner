@@ -172,8 +172,19 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 		currentUser.Id,
 		body.EnvironmentId,
 	)
+
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		if errors.Is(err, value.ErrIngressHostAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal Server Error",
+		})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -210,8 +221,19 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 		deploymentId,
 		mapper.MapHostsFromRequest(body.IngressHosts),
 	)
+
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		if errors.Is(err, value.ErrIngressHostAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal Server Error",
+		})
+		return
 	}
 
 	c.Status(http.StatusOK)
