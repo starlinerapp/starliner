@@ -30,7 +30,7 @@ func NewProjectApplication(
 	}
 }
 
-func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64) (*value.Project, error) {
+func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
 	err := ps.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 		namespace,
 		productionEnvName,
 		strings.ToLower(productionEnvName),
-		organizationId,
+		teamId,
 		clusterId,
 	)
 	if err != nil {
@@ -71,6 +71,7 @@ func (ps *ProjectApplication) DeleteProject(ctx context.Context, projectId int64
 }
 
 func (ps *ProjectApplication) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*value.ProjectCluster, error) {
+
 	cluster, err := ps.projectRepository.GetProjectCluster(ctx, projectId, userId)
 	if err != nil {
 		return nil, err

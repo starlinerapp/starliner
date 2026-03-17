@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/google/uuid"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"time"
 )
 
 type OrganizationRepository struct {
@@ -71,8 +73,11 @@ func (or *OrganizationRepository) GetUserOrganizations(ctx context.Context, user
 	return result, nil
 }
 
-func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]*entity.Project, error) {
-	rows, err := or.queries.GetOrganizationProjects(ctx, organizationID)
+func (or *OrganizationRepository) GetUserProjects(ctx context.Context, organizationID int64, userID int64) ([]*entity.Project, error) {
+	rows, err := or.queries.GetUserProjects(ctx, sqlc.GetUserProjectsParams{
+		OrganizationID: organizationID,
+		UserID:         userID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +87,11 @@ func (or *OrganizationRepository) GetOrganizationProjects(ctx context.Context, o
 		proj, exists := projectsMap[row.ID]
 		if !exists {
 			proj = &entity.Project{
-				Id:             row.ID,
-				Name:           row.Name,
-				Environments:   []*entity.Environment{},
-				OrganizationId: row.OrganizationID,
-				CreatedAt:      row.CreatedAt,
+				Id:           row.ID,
+				Name:         row.Name,
+				Environments: []*entity.Environment{},
+				TeamId:       row.TeamID,
+				CreatedAt:    row.CreatedAt,
 			}
 			projectsMap[proj.Id] = proj
 		}
@@ -164,5 +169,59 @@ func (or *OrganizationRepository) GetOrganizationProvisioningCredential(
 	return &value.ProvisioningCredential{
 		Provider: value.ProvisioningCredentialProvider(credential.Provider),
 		Secret:   credential.Secret,
+	}, nil
+}
+
+func (or *OrganizationRepository) AddOrganizationMember(ctx context.Context, organizationID int64, userID int64) error {
+	err := or.queries.AddOrganizationMember(ctx, sqlc.AddOrganizationMemberParams{
+		OrganizationID: organizationID,
+		UserID:         userID,
+	})
+
+	return err
+}
+
+func (or *OrganizationRepository) RemoveOrganizationMember(ctx context.Context, organizationID int64, userID int64) error {
+	err := or.queries.RemoveOrganizationMember(ctx, sqlc.RemoveOrganizationMemberParams{
+		OrganizationID: organizationID,
+		UserID:         userID,
+	})
+
+	return err
+}
+
+func (or *OrganizationRepository) CreateOrganizationInvite(ctx context.Context, organizationID int64, expiresAt time.Time) (*entity.OrganizationInvite, error) {
+	invite, err := or.queries.CreateOrganizationInvite(ctx, sqlc.CreateOrganizationInviteParams{
+		OrganizationID: organizationID,
+		ExpiresAt:      expiresAt,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.OrganizationInvite{
+		Id:             invite.ID.String(),
+		OrganizationId: invite.OrganizationID,
+		ExpiresAt:      invite.ExpiresAt,
+		CreatedAt:      invite.CreatedAt,
+	}, nil
+}
+
+func (or *OrganizationRepository) GetOrganizationInviteById(ctx context.Context, inviteId string) (*entity.OrganizationInvite, error) {
+	id, err := uuid.Parse(inviteId)
+	if err != nil {
+		return nil, err
+	}
+	invite, err := or.queries.GetOrganizationInviteById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.OrganizationInvite{
+		Id:             invite.ID.String(),
+		OrganizationId: invite.OrganizationID,
+		ExpiresAt:      invite.ExpiresAt,
+		CreatedAt:      invite.CreatedAt,
 	}, nil
 }

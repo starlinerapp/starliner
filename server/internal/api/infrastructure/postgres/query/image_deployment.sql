@@ -64,7 +64,8 @@ FROM deployments d
 INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
-INNER JOIN organizations ON organizations.id = projects.organization_id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN organizations ON organizations.id = teams.organization_id
 INNER JOIN users ON users.id = organizations.owner_id
 WHERE environment_id = $1
 AND users.id = $2

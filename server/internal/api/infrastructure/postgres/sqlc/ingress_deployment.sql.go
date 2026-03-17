@@ -160,7 +160,8 @@ FROM deployments d
 INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
-INNER JOIN organizations ON organizations.id = projects.organization_id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN organizations ON organizations.id = teams.organization_id
 INNER JOIN users ON users.id = organizations.owner_id
 LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
 LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id

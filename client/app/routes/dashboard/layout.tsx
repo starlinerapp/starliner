@@ -42,29 +42,33 @@ export async function loader(loaderArgs: Route.LoaderArgs) {
     throw new Response(undefined, { status: 404 });
   }
 
+  const user = await trpc.user.getUser();
+
   return {
     organization: userOrganization,
+    isOwner: userOrganization.owner_id === Number(user.user_id),
   };
 }
 
 export default function Layout() {
-  const { organization } = useLoaderData<typeof loader>();
+  const { organization, isOwner } = useLoaderData<typeof loader>();
 
   const location = useLocation();
   const { slug } = useParams<{ slug: string }>();
 
   const trpc = useTRPC();
   const { data: projects, isLoading: isProjectsLoading } = useQuery(
-    trpc.organization.getOrganizationProjects.queryOptions({
+    trpc.organization.getUserProjects.queryOptions({
       id: organization.id,
     }),
   );
 
-  const { data: clusters, isLoading: isClustersLoading } = useQuery(
-    trpc.organization.getOrganizationClusters.queryOptions({
+  const { data: clusters, isLoading: isClustersLoading } = useQuery({
+    ...trpc.organization.getOrganizationClusters.queryOptions({
       id: organization.id,
     }),
-  );
+    enabled: isOwner,
+  });
 
   const sidebarItems = [
     {
@@ -89,28 +93,32 @@ export default function Layout() {
         ],
       ],
     },
-    {
-      id: "clusters",
-      title: "Clusters",
-      icon: <Servers />,
-      href: `/${slug}/clusters`,
-      extended: [
-        [
+    ...(isOwner
+      ? [
           {
-            id: "all-clusters",
-            title: "All Clusters",
-            href: `/${slug}/clusters/all`,
+            id: "clusters",
+            title: "Clusters",
+            icon: <Servers />,
+            href: `/${slug}/clusters`,
+            extended: [
+              [
+                {
+                  id: "all-clusters",
+                  title: "All Clusters",
+                  href: `/${slug}/clusters/all`,
+                },
+              ],
+              [
+                ...(clusters?.map((cluster) => ({
+                  id: `cluster-${cluster.id}`,
+                  title: cluster.name ?? "",
+                  href: `/${slug}/clusters/${cluster.id}`,
+                })) ?? []),
+              ],
+            ],
           },
-        ],
-        [
-          ...(clusters?.map((cluster) => ({
-            id: `cluster-${cluster.id}`,
-            title: cluster.name ?? "",
-            href: `/${slug}/clusters/${cluster.id}`,
-          })) ?? []),
-        ],
-      ],
-    },
+        ]
+      : []),
     {
       id: "settings",
       title: "Settings",
@@ -137,6 +145,7 @@ export default function Layout() {
       name={organization.name}
       id={organization.id}
       slug={organization.slug}
+      isOwner={isOwner}
     >
       <Sidebar sidebarItems={sidebarItems}>
         <ExtendedSidebar

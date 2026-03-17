@@ -7,6 +7,7 @@
 | **cluster_id**      | **number** |             | [default to undefined] |
 | **name**            | **string** |             | [default to undefined] |
 | **organization_id** | **number** |             | [default to undefined] |
+| **team_id**         | **number** |             | [default to undefined] |
 
 ## Example
 
@@ -17,6 +18,7 @@ const instance: RequestCreateProject = {
   cluster_id,
   name,
   organization_id,
+  team_id,
 };
 ```
 

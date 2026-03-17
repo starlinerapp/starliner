@@ -92,7 +92,8 @@ SELECT
     clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type
 FROM clusters
 INNER JOIN organizations ON organizations.id = clusters.organization_id
-INNER JOIN projects ON projects.organization_id = organizations.id
+INNER JOIN teams ON teams.organization_id = organizations.id
+INNER JOIN projects ON projects.team_id = teams.id
 INNER JOIN environments ON projects.id = environments.project_id
 INNER JOIN deployments ON environments.id = deployments.environment_id
 WHERE deployments.id = $1

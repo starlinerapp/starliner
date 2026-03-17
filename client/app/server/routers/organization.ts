@@ -21,7 +21,7 @@ export const organizationRouter = {
       .getUserOrganizations(userId)
       .then((res) => res.data);
   }),
-  getOrganizationProjects: protectedProcedure
+  getUserProjects: protectedProcedure
     .input(
       z.object({
         id: z.number(),
@@ -30,7 +30,7 @@ export const organizationRouter = {
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await organizationApiFactory
-        .getOrganizationProjects(userId, input.id)
+        .getUserProjects(userId, input.id)
         .then((res) => res.data);
     }),
   getOrganizationClusters: protectedProcedure
@@ -70,6 +70,30 @@ export const organizationRouter = {
       const userId = ctx.user?.id;
       return await organizationApiFactory
         .getHetznerCredential(userId, input.id)
+        .then((res) => res.data);
+    }),
+  createInvite: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await organizationApiFactory
+        .createOrganizationInvite(userId, input.organizationId)
+        .then((res) => res.data);
+    }),
+  acceptInvite: protectedProcedure
+    .input(
+      z.object({
+        inviteId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await organizationApiFactory
+        .acceptOrganizationInvite(userId, { inviteId: input.inviteId })
         .then((res) => res.data);
     }),
 };

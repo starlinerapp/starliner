@@ -9,7 +9,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   });
 
   if (session) {
-    return redirect("/");
+    const url = new URL(request.url);
+    const redirectTo = url.searchParams.get("redirectTo") || "/";
+    return redirect(redirectTo);
   }
 }
 
