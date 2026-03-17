@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Button from "~/components/atoms/button/Button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
@@ -38,11 +38,7 @@ export default function OrganizationTeams() {
   } = useForm<JoinTeamFormInput>();
   const slugInput = watchJoin("slug", "");
 
-  const {
-    data: teamsData,
-    isLoading,
-    error,
-  } = useQuery(
+  const { data: teamsData, isLoading } = useQuery(
     trpc.team.getUserTeams.queryOptions({
       organizationId: organization.id,
     }),

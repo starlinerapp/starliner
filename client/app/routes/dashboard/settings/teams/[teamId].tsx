@@ -1,26 +1,19 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import Button from "~/components/atoms/button/Button";
 
 export default function TeamDetail() {
   const { teamId } = useParams();
   const trpc = useTRPC();
   const organization = useOrganizationContext();
 
-  const queryClient = useQueryClient();
-
   const { data: members, isLoading } = useQuery(
     trpc.team.getTeamMembers.queryOptions({
       organizationId: organization.id,
       teamId: Number(teamId),
     }),
-  );
-
-  const leaveTeamMutation = useMutation(
-    trpc.team.removeTeamMember.mutationOptions(),
   );
 
   return (
