@@ -53,8 +53,8 @@ export default function AcceptInvite() {
         </p>
       ) : (
         <p className="text-mauve-11 text-sm">
-          You&#39;ve been invited to join an organization. Click the button below
-          to accept the invite and get started.
+          You&#39;ve been invited to join an organization. Click the button
+          below to accept the invite and get started.
         </p>
       )}
       {error && <ErrorBanner text={error} />}

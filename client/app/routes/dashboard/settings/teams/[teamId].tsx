@@ -41,7 +41,8 @@ export default function TeamDetail() {
                 key={member.user_id}
                 className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
               >
-                <span>{member.better_auth_id}</span>
+                <span>{member.name}</span>
+                <span className="text-mauve-11 text-xs">{member.email}</span>
               </div>
             ))
           )}
