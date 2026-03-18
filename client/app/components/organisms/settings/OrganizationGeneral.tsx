@@ -59,6 +59,8 @@ export default function OrganizationGeneral() {
 
   const [show, setShow] = useState(false);
 
+  if (!organization.isOwner) return null;
+
   return (
     <div className="w-full xl:w-3/5">
       <div className="border-mauve-6 rounded-md border-1 text-sm">

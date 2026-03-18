@@ -129,6 +129,11 @@ func (oa *OrganizationApplication) GetHetznerCredential(ctx context.Context, use
 		return nil, err
 	}
 
+	err = oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, userID)
+	if err != nil {
+		return nil, err
+	}
+
 	c, err := oa.organizationRepository.GetOrganizationProvisioningCredential(ctx, organizationID, value.HetznerCredential)
 	if err != nil {
 		return nil, err
