@@ -1029,6 +1029,49 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
+  /invites/{inviteId}:
+    get:
+      operationId: getOrganizationInviteDetails
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Invite ID
+        in: path
+        name: inviteId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OrganizationInvite'
+      summary: Get organization invite details
+      tags:
+      - organization
+  /invites/accept:
+    post:
+      operationId: acceptOrganizationInvite
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Accept Invite
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AcceptInvite'
+      responses:
+        "200":
+          description: OK
+      summary: Accept organization invite
+      tags:
+      - organization
   /me:
     get:
       operationId: getUser
@@ -1202,49 +1245,6 @@ paths:
         "200":
           description: OK
       summary: Upsert Hetzner Provisioning Credential
-      tags:
-      - organization
-  /organizations/invites/{inviteId}:
-    get:
-      operationId: getOrganizationInviteDetails
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Invite ID
-        in: path
-        name: inviteId
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.OrganizationInvite'
-      summary: Get organization invite details
-      tags:
-      - organization
-  /organizations/invites/accept:
-    post:
-      operationId: acceptOrganizationInvite
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Accept Invite
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.AcceptInvite'
-      responses:
-        "200":
-          description: OK
-      summary: Accept organization invite
       tags:
       - organization
   /projects:

@@ -3558,7 +3558,7 @@ export const OrganizationApiAxiosParamCreator = function (
       assertParamExists("acceptOrganizationInvite", "xUserID", xUserID);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("acceptOrganizationInvite", "data", data);
-      const localVarPath = `/organizations/invites/accept`;
+      const localVarPath = `/invites/accept`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -3832,7 +3832,7 @@ export const OrganizationApiAxiosParamCreator = function (
       assertParamExists("getOrganizationInviteDetails", "xUserID", xUserID);
       // verify required parameter 'inviteId' is not null or undefined
       assertParamExists("getOrganizationInviteDetails", "inviteId", inviteId);
-      const localVarPath = `/organizations/invites/{inviteId}`.replace(
+      const localVarPath = `/invites/{inviteId}`.replace(
         `{${"inviteId"}}`,
         encodeURIComponent(String(inviteId)),
       );

@@ -623,6 +623,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/invites/accept": {
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Accept organization invite",
+                "operationId": "acceptOrganizationInvite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Accept Invite",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AcceptInvite"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/invites/{inviteId}": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get organization invite details",
+                "operationId": "getOrganizationInviteDetails",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Invite ID",
+                        "name": "inviteId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrganizationInvite"
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "tags": [
@@ -706,71 +771,6 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/response.Organization"
-                        }
-                    }
-                }
-            }
-        },
-        "/organizations/invites/accept": {
-            "post": {
-                "tags": [
-                    "organization"
-                ],
-                "summary": "Accept organization invite",
-                "operationId": "acceptOrganizationInvite",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Accept Invite",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.AcceptInvite"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/organizations/invites/{inviteId}": {
-            "get": {
-                "tags": [
-                    "organization"
-                ],
-                "summary": "Get organization invite details",
-                "operationId": "getOrganizationInviteDetails",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Invite ID",
-                        "name": "inviteId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.OrganizationInvite"
                         }
                     }
                 }

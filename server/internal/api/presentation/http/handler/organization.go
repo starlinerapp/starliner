@@ -216,7 +216,7 @@ func (oh *OrganizationHandler) CreateInvite(c *gin.Context) {
 // @Param X-User-ID header string true "User ID"
 // @Param inviteId path string true "Invite ID"
 // @Success 200 {object} response.OrganizationInvite
-// @Router /organizations/invites/{inviteId} [get]
+// @Router /invites/{inviteId} [get]
 func (oh *OrganizationHandler) GetInviteDetails(c *gin.Context) {
 	inviteId := c.Param("inviteId")
 
@@ -235,7 +235,7 @@ func (oh *OrganizationHandler) GetInviteDetails(c *gin.Context) {
 // @Param X-User-ID header string true "User ID"
 // @Param data body request.AcceptInvite true "Accept Invite"
 // @Success 200
-// @Router /organizations/invites/accept [post]
+// @Router /invites/accept [post]
 func (oh *OrganizationHandler) AcceptInvite(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 	var body request.AcceptInvite

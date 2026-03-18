@@ -4,12 +4,12 @@ All URIs are relative to _http://localhost_
 
 | Method                                                            | HTTP request                                             | Description                            |
 | ----------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------- |
-| [**acceptOrganizationInvite**](#acceptorganizationinvite)         | **POST** /organizations/invites/accept                   | Accept organization invite             |
+| [**acceptOrganizationInvite**](#acceptorganizationinvite)         | **POST** /invites/accept                                 | Accept organization invite             |
 | [**createOrganization**](#createorganization)                     | **POST** /organizations                                  | Create organization                    |
 | [**createOrganizationInvite**](#createorganizationinvite)         | **POST** /organizations/{id}/invites                     | Create organization invite             |
 | [**getHetznerCredential**](#gethetznercredential)                 | **GET** /organizations/{id}/settings/credential/hetzner  | Get Hetzner Provisioning Credential    |
 | [**getOrganizationClusters**](#getorganizationclusters)           | **GET** /organizations/{id}/clusters                     | Get Organization Clusters              |
-| [**getOrganizationInviteDetails**](#getorganizationinvitedetails) | **GET** /organizations/invites/{inviteId}                | Get organization invite details        |
+| [**getOrganizationInviteDetails**](#getorganizationinvitedetails) | **GET** /invites/{inviteId}                              | Get organization invite details        |
 | [**getUserOrganizations**](#getuserorganizations)                 | **GET** /organizations                                   | Get user organizations                 |
 | [**getUserProjects**](#getuserprojects)                           | **GET** /organizations/{id}/projects                     | Get Organization Projects              |
 | [**upsertHetznerCredential**](#upserthetznercredential)           | **POST** /organizations/{id}/settings/credential/hetzner | Upsert Hetzner Provisioning Credential |
