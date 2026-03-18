@@ -41,7 +41,8 @@ SELECT
     clusters.*
 FROM clusters
 INNER JOIN organizations ON organizations.id = clusters.organization_id
-INNER JOIN projects ON projects.organization_id = organizations.id
+INNER JOIN teams ON teams.organization_id = organizations.id
+INNER JOIN projects ON projects.team_id = teams.id
 INNER JOIN environments ON projects.id = environments.project_id
 INNER JOIN deployments ON environments.id = deployments.environment_id
 WHERE deployments.id = @deployment_id;

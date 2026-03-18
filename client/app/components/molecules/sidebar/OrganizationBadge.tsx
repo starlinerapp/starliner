@@ -42,7 +42,7 @@ export default function OrganizationBadge() {
   }, [organizations, slug]);
 
   const { data: projects } = useQuery(
-    trpc.organization.getOrganizationProjects.queryOptions(
+    trpc.organization.getUserProjects.queryOptions(
       { id: currentOrganization?.id ?? 0 },
       { enabled: !!currentOrganization?.id },
     ),

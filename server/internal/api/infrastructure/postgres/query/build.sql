@@ -20,10 +20,10 @@ FROM builds b
 INNER JOIN deployments d ON d.id = b.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
-INNER JOIN organizations ON organizations.id = projects.organization_id
-INNER JOIN users ON users.id = organizations.owner_id
+INNER JOIN teams ON teams.id = projects.team_id
+INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE b.id = @build_id
-AND users.id = @user_id;
+AND team_members.user_id = @user_id;
 
 -- name: GetEnvironmentGitDeploymentBuilds :many
 SELECT

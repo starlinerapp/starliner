@@ -100,6 +100,7 @@ export default [
       ...prefix("settings", [
         index("routes/dashboard/settings/index.tsx"),
         route("organization", "routes/dashboard/settings/organization.tsx"),
+        route("teams/:teamId", "routes/dashboard/settings/teams/[teamId].tsx"),
       ]),
     ]),
   ]),
@@ -111,6 +112,7 @@ export default [
 
   layout("routes/organizations/layout.tsx", [
     route("/organizations/new", "routes/organizations/new.tsx"),
+    route("/organizations/invite/:inviteId", "routes/organizations/invite.tsx"),
   ]),
 
   ...prefix("api", [

@@ -1,7 +1,7 @@
 -- name: CreateProject :one
 INSERT INTO projects (
     name,
-    organization_id,
+    team_id,
     cluster_id
 ) VALUES (
     $1,
@@ -10,48 +10,53 @@ INSERT INTO projects (
 )
 RETURNING *;
 
--- name: GetProject :many
+-- name: GetProject :one
 SELECT
     projects.id as id,
     projects.name as name,
-    projects.organization_id as organization_id,
+    projects.team_id as team_id,
     projects.cluster_id as cluster_id,
     environments.id as environment_id,
     environments.name as environment_name,
     environments.slug as environment_slug
 FROM projects
-INNER JOIN organizations ON projects.organization_id = organizations.id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON teams.id = team_members.team_id
 INNER JOIN environments ON projects.id = environments.project_id
 WHERE projects.id = $1
-AND organizations.owner_id = $2;
+    AND team_members.user_id = $2;
 
--- name: GetOrganizationProjects :many
+-- name: GetUserProjects :many
 SELECT
     projects.id as id,
     projects.name as name,
-    projects.organization_id as organization_id,
+    projects.team_id as team_id,
     environments.id as environment_id,
     environments.name as environment_name,
     environments.slug as environment_slug,
     environments.created_at as created_at
 FROM projects
-INNER JOIN organizations ON projects.organization_id = organizations.id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON teams.id = team_members.team_id
 INNER JOIN environments ON projects.id = environments.project_id
-WHERE projects.organization_id = $1
+WHERE teams.organization_id = $1
+  AND team_members.user_id = $2
 ORDER BY environments.created_at;
 
 -- name: DeleteProject :exec
 DELETE
 FROM projects p
-USING organizations o
-WHERE p.organization_id = o.id
-    AND p.id = $1
-    AND o.owner_id = $2;
+USING organizations o, teams t
+WHERE t.organization_id = o.id
+  AND p.team_id = t.id
+  AND p.id = $1
+  AND o.owner_id = $2;
 
 -- name: GetProjectCluster :one
 SELECT c.id, c.name
 FROM projects p
 INNER JOIN clusters c ON p.cluster_id = c.id
-INNER JOIN organizations o ON o.id = p.organization_id
+INNER JOIN teams t ON p.team_id = t.id
+INNER JOIN team_members tm ON tm.team_id = t.id
 WHERE p.id = $1
-    AND o.owner_id = $2;
+  AND tm.user_id = $2;

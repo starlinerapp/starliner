@@ -75,16 +75,16 @@ FROM deployments d
 INNER JOIN database_deployments db ON d.id = db.deployment_id
 INNER JOIN environments ON d.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id
-INNER JOIN organizations ON organizations.id = projects.organization_id
-INNER JOIN users ON users.id = organizations.owner_id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
-AND users.id = $2
+AND team_members.user_id = $2
 ORDER BY d.id DESC
 `
 
 type GetEnvironmentDatabaseDeploymentsParams struct {
 	EnvironmentID int64
-	ID            int64
+	UserID        int64
 }
 
 type GetEnvironmentDatabaseDeploymentsRow struct {
@@ -99,7 +99,7 @@ type GetEnvironmentDatabaseDeploymentsRow struct {
 }
 
 func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg GetEnvironmentDatabaseDeploymentsParams) ([]GetEnvironmentDatabaseDeploymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEnvironmentDatabaseDeployments, arg.EnvironmentID, arg.ID)
+	rows, err := q.db.QueryContext(ctx, getEnvironmentDatabaseDeployments, arg.EnvironmentID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
