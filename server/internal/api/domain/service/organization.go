@@ -36,3 +36,21 @@ func (os *OrganizationService) ValidateUserInOrg(ctx context.Context, organizati
 	}
 	return nil
 }
+
+func (os *OrganizationService) ValidateUserOrgOwner(ctx context.Context, organizationId int64, userId int64) error {
+	organizations, err := os.organizationRepository.GetUserOrganizations(ctx, userId)
+	if err != nil {
+		return nil
+	}
+	found := false
+	for _, org := range organizations {
+		if org.Id == organizationId && org.OwnerId == userId {
+			found = true
+		}
+	}
+
+	if !found {
+		return errors.New("user does not own organization")
+	}
+	return nil
+}

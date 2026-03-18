@@ -15,3 +15,11 @@ func NewUser(u *entity.User) *User {
 		BetterAuthId: u.BetterAuthId,
 	}
 }
+
+func NewUsers(us []*entity.User) []*User {
+	users := make([]*User, len(us))
+	for i, u := range us {
+		users[i] = NewUser(u)
+	}
+	return users
+}

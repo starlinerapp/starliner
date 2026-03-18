@@ -9,7 +9,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   });
 
   if (!session) {
-    return redirect("/login");
+    const url = new URL(request.url);
+    return redirect(`/login?redirectTo=${encodeURIComponent(url.pathname)}`);
   }
 }
 

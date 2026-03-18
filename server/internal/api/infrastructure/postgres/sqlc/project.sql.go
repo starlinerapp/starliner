@@ -14,29 +14,29 @@ import (
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (
     name,
-    organization_id,
+    team_id,
     cluster_id
 ) VALUES (
     $1,
     $2,
     $3
 )
-RETURNING id, name, organization_id, created_at, updated_at, cluster_id
+RETURNING id, name, team_id, created_at, updated_at, cluster_id
 `
 
 type CreateProjectParams struct {
-	Name           string
-	OrganizationID int64
-	ClusterID      sql.NullInt64
+	Name      string
+	TeamID    int64
+	ClusterID sql.NullInt64
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
-	row := q.db.QueryRowContext(ctx, createProject, arg.Name, arg.OrganizationID, arg.ClusterID)
+	row := q.db.QueryRowContext(ctx, createProject, arg.Name, arg.TeamID, arg.ClusterID)
 	var i Project
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.OrganizationID,
+		&i.TeamID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ClusterID,
@@ -47,10 +47,11 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 const deleteProject = `-- name: DeleteProject :exec
 DELETE
 FROM projects p
-USING organizations o
-WHERE p.organization_id = o.id
-    AND p.id = $1
-    AND o.owner_id = $2
+USING organizations o, teams t
+WHERE t.organization_id = o.id
+  AND p.team_id = t.id
+  AND p.id = $1
+  AND o.owner_id = $2
 `
 
 type DeleteProjectParams struct {
@@ -63,45 +64,126 @@ func (q *Queries) DeleteProject(ctx context.Context, arg DeleteProjectParams) er
 	return err
 }
 
-const getOrganizationProjects = `-- name: GetOrganizationProjects :many
+const getProject = `-- name: GetProject :one
 SELECT
     projects.id as id,
     projects.name as name,
-    projects.organization_id as organization_id,
+    projects.team_id as team_id,
+    projects.cluster_id as cluster_id,
+    environments.id as environment_id,
+    environments.name as environment_name,
+    environments.slug as environment_slug
+FROM projects
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON teams.id = team_members.team_id
+INNER JOIN environments ON projects.id = environments.project_id
+WHERE projects.id = $1
+    AND team_members.user_id = $2
+`
+
+type GetProjectParams struct {
+	ID     int64
+	UserID int64
+}
+
+type GetProjectRow struct {
+	ID              int64
+	Name            string
+	TeamID          int64
+	ClusterID       sql.NullInt64
+	EnvironmentID   int64
+	EnvironmentName string
+	EnvironmentSlug string
+}
+
+func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) (GetProjectRow, error) {
+	row := q.db.QueryRowContext(ctx, getProject, arg.ID, arg.UserID)
+	var i GetProjectRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.TeamID,
+		&i.ClusterID,
+		&i.EnvironmentID,
+		&i.EnvironmentName,
+		&i.EnvironmentSlug,
+	)
+	return i, err
+}
+
+const getProjectCluster = `-- name: GetProjectCluster :one
+SELECT c.id, c.name
+FROM projects p
+INNER JOIN clusters c ON p.cluster_id = c.id
+INNER JOIN teams t ON p.team_id = t.id
+INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE p.id = $1
+  AND tm.user_id = $2
+`
+
+type GetProjectClusterParams struct {
+	ID     int64
+	UserID int64
+}
+
+type GetProjectClusterRow struct {
+	ID   int64
+	Name string
+}
+
+func (q *Queries) GetProjectCluster(ctx context.Context, arg GetProjectClusterParams) (GetProjectClusterRow, error) {
+	row := q.db.QueryRowContext(ctx, getProjectCluster, arg.ID, arg.UserID)
+	var i GetProjectClusterRow
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const getUserProjects = `-- name: GetUserProjects :many
+SELECT
+    projects.id as id,
+    projects.name as name,
+    projects.team_id as team_id,
     environments.id as environment_id,
     environments.name as environment_name,
     environments.slug as environment_slug,
     environments.created_at as created_at
 FROM projects
-INNER JOIN organizations ON projects.organization_id = organizations.id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON teams.id = team_members.team_id
 INNER JOIN environments ON projects.id = environments.project_id
-WHERE projects.organization_id = $1
+WHERE teams.organization_id = $1
+  AND team_members.user_id = $2
 ORDER BY environments.created_at
 `
 
-type GetOrganizationProjectsRow struct {
+type GetUserProjectsParams struct {
+	OrganizationID int64
+	UserID         int64
+}
+
+type GetUserProjectsRow struct {
 	ID              int64
 	Name            string
-	OrganizationID  int64
+	TeamID          int64
 	EnvironmentID   int64
 	EnvironmentName string
 	EnvironmentSlug string
 	CreatedAt       time.Time
 }
 
-func (q *Queries) GetOrganizationProjects(ctx context.Context, organizationID int64) ([]GetOrganizationProjectsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getOrganizationProjects, organizationID)
+func (q *Queries) GetUserProjects(ctx context.Context, arg GetUserProjectsParams) ([]GetUserProjectsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserProjects, arg.OrganizationID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetOrganizationProjectsRow
+	var items []GetUserProjectsRow
 	for rows.Next() {
-		var i GetOrganizationProjectsRow
+		var i GetUserProjectsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.OrganizationID,
+			&i.TeamID,
 			&i.EnvironmentID,
 			&i.EnvironmentName,
 			&i.EnvironmentSlug,
@@ -118,92 +200,4 @@ func (q *Queries) GetOrganizationProjects(ctx context.Context, organizationID in
 		return nil, err
 	}
 	return items, nil
-}
-
-const getProject = `-- name: GetProject :many
-SELECT
-    projects.id as id,
-    projects.name as name,
-    projects.organization_id as organization_id,
-    projects.cluster_id as cluster_id,
-    environments.id as environment_id,
-    environments.name as environment_name,
-    environments.slug as environment_slug
-FROM projects
-INNER JOIN organizations ON projects.organization_id = organizations.id
-INNER JOIN environments ON projects.id = environments.project_id
-WHERE projects.id = $1
-AND organizations.owner_id = $2
-`
-
-type GetProjectParams struct {
-	ID      int64
-	OwnerID int64
-}
-
-type GetProjectRow struct {
-	ID              int64
-	Name            string
-	OrganizationID  int64
-	ClusterID       sql.NullInt64
-	EnvironmentID   int64
-	EnvironmentName string
-	EnvironmentSlug string
-}
-
-func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetProjectRow, error) {
-	rows, err := q.db.QueryContext(ctx, getProject, arg.ID, arg.OwnerID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetProjectRow
-	for rows.Next() {
-		var i GetProjectRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.OrganizationID,
-			&i.ClusterID,
-			&i.EnvironmentID,
-			&i.EnvironmentName,
-			&i.EnvironmentSlug,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getProjectCluster = `-- name: GetProjectCluster :one
-SELECT c.id, c.name
-FROM projects p
-INNER JOIN clusters c ON p.cluster_id = c.id
-INNER JOIN organizations o ON o.id = p.organization_id
-WHERE p.id = $1
-    AND o.owner_id = $2
-`
-
-type GetProjectClusterParams struct {
-	ID      int64
-	OwnerID int64
-}
-
-type GetProjectClusterRow struct {
-	ID   int64
-	Name string
-}
-
-func (q *Queries) GetProjectCluster(ctx context.Context, arg GetProjectClusterParams) (GetProjectClusterRow, error) {
-	row := q.db.QueryRowContext(ctx, getProjectCluster, arg.ID, arg.OwnerID)
-	var i GetProjectClusterRow
-	err := row.Scan(&i.ID, &i.Name)
-	return i, err
 }

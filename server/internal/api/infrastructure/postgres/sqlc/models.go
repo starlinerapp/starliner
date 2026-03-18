@@ -9,6 +9,8 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type BuildStatus string
@@ -293,13 +295,27 @@ type Organization struct {
 	UpdatedAt time.Time
 }
 
-type Project struct {
-	ID             int64
-	Name           string
+type OrganizationInvite struct {
+	ID             uuid.UUID
 	OrganizationID int64
+	ExpiresAt      time.Time
+	CreatedAt      time.Time
+}
+
+type OrganizationMember struct {
+	OrganizationID int64
+	UserID         int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	ClusterID      sql.NullInt64
+}
+
+type Project struct {
+	ID        int64
+	Name      string
+	TeamID    int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ClusterID sql.NullInt64
 }
 
 type ProvisioningCredential struct {
@@ -309,6 +325,22 @@ type ProvisioningCredential struct {
 	Secret         string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type Team struct {
+	ID             int64
+	Name           string
+	Slug           string
+	OrganizationID int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type TeamMember struct {
+	TeamID    int64
+	UserID    int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type User struct {

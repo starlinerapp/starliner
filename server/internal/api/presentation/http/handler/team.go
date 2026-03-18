@@ -1,0 +1,206 @@
+package handler
+
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"starliner.app/internal/api/application"
+	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/api/presentation/http/dto/request"
+	"starliner.app/internal/api/presentation/http/dto/response"
+	"strconv"
+)
+
+type TeamHandler struct {
+	teamApplication *application.TeamApplication
+}
+
+func NewTeamHandler(teamApplication *application.TeamApplication) *TeamHandler {
+	return &TeamHandler{
+		teamApplication: teamApplication,
+	}
+}
+
+// CreateTeam FindAll godoc
+// @Summary Create team
+// @Tags team
+// @ID createTeam
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param data body request.CreateTeam true "Create Team"
+// @Param organizationId path int true "Organization ID"
+// @Success 201 {object} response.Team
+// @Router /teams/{organizationId} [post]
+func (th *TeamHandler) CreateTeam(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	var team request.CreateTeam
+	if err := c.BindJSON(&team); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	newTeam, err := th.teamApplication.CreateTeam(c, team.Name, organizationId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusCreated, response.NewTeam(newTeam))
+}
+
+// GetUserTeams FindAll godoc
+// @Summary Get User Teams
+// @Tags team
+// @ID getUserTeams
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
+// @Success 200 {array} response.Team
+// @Router /teams/{organizationId} [get]
+func (th *TeamHandler) GetUserTeams(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	teams, err := th.teamApplication.GetUserTeams(c, organizationId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.NewTeams(teams))
+}
+
+// GetTeamMembers FindAll godoc
+// @Summary Get Team Members
+// @Tags team
+// @ID getTeamMembers
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
+// @Param teamId path int true "Team ID"
+// @Success 200 {array} response.User
+// @Router /teams/{organizationId}/{teamId}/members [get]
+func (th *TeamHandler) GetTeamMembers(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	teamMembers, err := th.teamApplication.GetTeamMembers(c, organizationId, currentUser.Id, teamId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewUsers(teamMembers))
+}
+
+// JoinTeam FindAll godoc
+// @Summary Join a team by slug
+// @Tags team
+// @ID joinTeam
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
+// @Param data body request.JoinTeam true "Join Team"
+// @Success 201
+// @Router /teams/{organizationId}/join [post]
+func (th *TeamHandler) JoinTeam(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	var body request.JoinTeam
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = th.teamApplication.JoinTeam(c, organizationId, currentUser.Id, body.Slug)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+// AddTeamMember FindAll godoc
+// @Summary Add current user to team
+// @Tags team
+// @ID addTeamMember
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
+// @Param teamId path int true "Team ID"
+// @Success 201
+// @Router /teams/{organizationId}/{teamId}/members [post]
+func (th *TeamHandler) AddTeamMember(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = th.teamApplication.AddTeamMember(c, organizationId, currentUser.Id, teamId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+// RemoveTeamMember FindAll godoc
+// @Summary Remove Team Member
+// @Tags team
+// @ID removeTeamMember
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
+// @Param teamId path int true "Team ID"
+// @Success 200
+// @Router /teams/{organizationId}/{teamId}/members [delete]
+func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = th.teamApplication.RemoveTeamMember(c, organizationId, currentUser.Id, teamId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}

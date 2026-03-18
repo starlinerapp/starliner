@@ -52,11 +52,11 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 }
 
 const getEnvironmentAuthorizedUsers = `-- name: GetEnvironmentAuthorizedUsers :many
-SELECT u.id
+SELECT tm.user_id
 FROM environments
 INNER JOIN projects p ON p.id = environments.project_id
-INNER JOIN organizations o ON o.id = p.organization_id
-INNER JOIN users u ON o.owner_id = u.id
+INNER JOIN teams t ON t.id = p.team_id
+INNER JOIN team_members tm ON tm.team_id = t.id
 WHERE environments.id = $1
 `
 
@@ -68,11 +68,11 @@ func (q *Queries) GetEnvironmentAuthorizedUsers(ctx context.Context, id int64) (
 	defer rows.Close()
 	var items []int64
 	for rows.Next() {
-		var id int64
-		if err := rows.Scan(&id); err != nil {
+		var user_id int64
+		if err := rows.Scan(&user_id); err != nil {
 			return nil, err
 		}
-		items = append(items, id)
+		items = append(items, user_id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

@@ -14,5 +14,6 @@ var Module = fx.Module(
 		NewClusterApplication,
 		NewDeploymentApplication,
 		NewBuildApplication,
+		NewTeamApplication,
 	),
 )

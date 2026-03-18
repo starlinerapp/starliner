@@ -623,6 +623,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/invites/accept": {
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Accept organization invite",
+                "operationId": "acceptOrganizationInvite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Accept Invite",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AcceptInvite"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/invites/{inviteId}": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get organization invite details",
+                "operationId": "getOrganizationInviteDetails",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Invite ID",
+                        "name": "inviteId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrganizationInvite"
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "tags": [
@@ -747,13 +812,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizations/{id}/invites": {
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Create organization invite",
+                "operationId": "createOrganizationInvite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrganizationInvite"
+                        }
+                    }
+                }
+            }
+        },
         "/organizations/{id}/projects": {
             "get": {
                 "tags": [
                     "organization"
                 ],
                 "summary": "Get Organization Projects",
-                "operationId": "getOrganizationProjects",
+                "operationId": "getUserProjects",
                 "parameters": [
                     {
                         "type": "string",
@@ -981,9 +1079,248 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/teams/{organizationId}": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get User Teams",
+                "operationId": "getUserTeams",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Team"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Create team",
+                "operationId": "createTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateTeam"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Team"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{organizationId}/join": {
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Join a team by slug",
+                "operationId": "joinTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Join Team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.JoinTeam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/teams/{organizationId}/{teamId}/members": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get Team Members",
+                "operationId": "getTeamMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Add current user to team",
+                "operationId": "addTeamMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Remove Team Member",
+                "operationId": "removeTeamMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "request.AcceptInvite": {
+            "type": "object",
+            "required": [
+                "inviteId"
+            ],
+            "properties": {
+                "inviteId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateCluster": {
             "type": "object",
             "required": [
@@ -1042,7 +1379,8 @@ const docTemplate = `{
             "required": [
                 "cluster_id",
                 "name",
-                "organization_id"
+                "organization_id",
+                "team_id"
             ],
             "properties": {
                 "cluster_id": {
@@ -1053,6 +1391,20 @@ const docTemplate = `{
                 },
                 "organization_id": {
                     "type": "integer"
+                },
+                "team_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateTeam": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -1213,6 +1565,17 @@ const docTemplate = `{
                     ]
                 },
                 "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.JoinTeam": {
+            "type": "object",
+            "required": [
+                "slug"
+            ],
+            "properties": {
+                "slug": {
                     "type": "string"
                 }
             }
@@ -1711,6 +2074,33 @@ const docTemplate = `{
                 }
             }
         },
+        "response.OrganizationInvite": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "expires_at",
+                "id",
+                "organization_id",
+                "organization_name"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "organization_name": {
+                    "type": "string"
+                }
+            }
+        },
         "response.OrganizationProvisioningCredential": {
             "type": "object",
             "required": [
@@ -1778,6 +2168,29 @@ const docTemplate = `{
             ],
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Team": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "organization_id",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "slug": {
                     "type": "string"
                 }
             }
