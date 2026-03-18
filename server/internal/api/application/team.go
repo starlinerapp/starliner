@@ -2,6 +2,9 @@ package application
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -36,6 +39,12 @@ func (ts *TeamApplication) CreateTeam(ctx context.Context, name string, organiza
 	if err != nil {
 		return nil, err
 	}
+
+	suffix := make([]byte, 4)
+	if _, err := rand.Read(suffix); err != nil {
+		return nil, err
+	}
+	teamSlug = fmt.Sprintf("%s-%s", teamSlug, hex.EncodeToString(suffix))
 
 	team, err := ts.teamRepository.CreateTeam(
 		ctx,
