@@ -87,9 +87,14 @@ export default function OrganizationTeams() {
         onSuccess: async () => {
           resetJoin();
           setShowJoinDialog(false);
-          await queryClient.invalidateQueries({
-            queryKey: trpc.team.getUserTeams.queryKey(),
-          });
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: trpc.team.getUserTeams.queryKey(),
+            }),
+            queryClient.invalidateQueries({
+              queryKey: trpc.organization.getUserProjects.queryKey(),
+            }),
+          ]);
         },
       },
     );
@@ -103,9 +108,14 @@ export default function OrganizationTeams() {
       },
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: trpc.team.getUserTeams.queryKey(),
-          });
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: trpc.team.getUserTeams.queryKey(),
+            }),
+            queryClient.invalidateQueries({
+              queryKey: trpc.organization.getUserProjects.queryKey(),
+            }),
+          ]);
         },
       },
     );
