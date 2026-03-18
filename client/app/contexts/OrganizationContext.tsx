@@ -4,6 +4,7 @@ interface OrganizationContextProps {
   id: number;
   name: string;
   slug: string;
+  isOwner: boolean;
 }
 
 const OrganizationContext = createContext<OrganizationContextProps | undefined>(
@@ -12,9 +13,9 @@ const OrganizationContext = createContext<OrganizationContextProps | undefined>(
 
 export const OrganizationProvider: React.FC<
   OrganizationContextProps & { children: React.ReactNode }
-> = ({ id, name, slug, children }) => {
+> = ({ id, name, slug, children, isOwner }) => {
   return (
-    <OrganizationContext.Provider value={{ id, name, slug }}>
+    <OrganizationContext.Provider value={{ id, name, slug, isOwner }}>
       {children}
     </OrganizationContext.Provider>
   );

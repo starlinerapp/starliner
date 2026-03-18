@@ -1,4 +1,11 @@
 definitions:
+  request.AcceptInvite:
+    properties:
+      inviteId:
+        type: string
+    required:
+    - inviteId
+    type: object
   request.CreateCluster:
     properties:
       name:
@@ -43,10 +50,20 @@ definitions:
         type: string
       organization_id:
         type: integer
+      team_id:
+        type: integer
     required:
     - cluster_id
     - name
     - organization_id
+    - team_id
+    type: object
+  request.CreateTeam:
+    properties:
+      name:
+        type: string
+    required:
+    - name
     type: object
   request.DeployDatabase:
     properties:
@@ -158,6 +175,13 @@ definitions:
     - path
     - pathType
     - serviceName
+    type: object
+  request.JoinTeam:
+    properties:
+      slug:
+        type: string
+    required:
+    - slug
     type: object
   request.UpdateDeployFromGit:
     properties:
@@ -503,6 +527,25 @@ definitions:
     - owner_id
     - slug
     type: object
+  response.OrganizationInvite:
+    properties:
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      organization_id:
+        type: integer
+      organization_name:
+        type: string
+    required:
+    - created_at
+    - expires_at
+    - id
+    - organization_id
+    - organization_name
+    type: object
   response.OrganizationProvisioningCredential:
     properties:
       provider:
@@ -550,6 +593,22 @@ definitions:
         type: string
     required:
     - message
+    type: object
+  response.Team:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      organization_id:
+        type: integer
+      slug:
+        type: string
+    required:
+    - id
+    - name
+    - organization_id
+    - slug
     type: object
   response.User:
     properties:
@@ -970,6 +1029,49 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
+  /invites/{inviteId}:
+    get:
+      operationId: getOrganizationInviteDetails
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Invite ID
+        in: path
+        name: inviteId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OrganizationInvite'
+      summary: Get organization invite details
+      tags:
+      - organization
+  /invites/accept:
+    post:
+      operationId: acceptOrganizationInvite
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Accept Invite
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AcceptInvite'
+      responses:
+        "200":
+          description: OK
+      summary: Accept organization invite
+      tags:
+      - organization
   /me:
     get:
       operationId: getUser
@@ -1052,9 +1154,31 @@ paths:
       summary: Get Organization Clusters
       tags:
       - organization
+  /organizations/{id}/invites:
+    post:
+      operationId: createOrganizationInvite
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.OrganizationInvite'
+      summary: Create organization invite
+      tags:
+      - organization
   /organizations/{id}/projects:
     get:
-      operationId: getOrganizationProjects
+      operationId: getUserProjects
       parameters:
       - description: User ID
         in: header
@@ -1209,6 +1333,160 @@ paths:
       summary: Get Project Cluster
       tags:
       - project
+  /teams/{organizationId}:
+    get:
+      operationId: getUserTeams
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Team'
+            type: array
+      summary: Get User Teams
+      tags:
+      - team
+    post:
+      operationId: createTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Create Team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTeam'
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Team'
+      summary: Create team
+      tags:
+      - team
+  /teams/{organizationId}/{teamId}/members:
+    delete:
+      operationId: removeTeamMember
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Remove Team Member
+      tags:
+      - team
+    get:
+      operationId: getTeamMembers
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.User'
+            type: array
+      summary: Get Team Members
+      tags:
+      - team
+    post:
+      operationId: addTeamMember
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+      summary: Add current user to team
+      tags:
+      - team
+  /teams/{organizationId}/join:
+    post:
+      operationId: joinTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Join Team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.JoinTeam'
+      responses:
+        "201":
+          description: Created
+      summary: Join a team by slug
+      tags:
+      - team
 securityDefinitions:
   BasicAuth:
     type: basic

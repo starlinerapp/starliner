@@ -16,9 +16,10 @@ FROM organizations
 WHERE id = $1;
 
 -- name: GetUserOrganizations :many
-SELECT *
+SELECT organizations.*
 FROM organizations
-WHERE owner_id = $1;
+INNER JOIN organization_members ON organization_members.organization_id = organizations.id
+WHERE organization_members.user_id = $1;
 
 -- name: UpsertProvisioningCredential :exec
 INSERT INTO provisioning_credentials (
@@ -42,3 +43,36 @@ SELECT
 FROM provisioning_credentials pc
 WHERE organization_id = $1
   AND provider = $2;
+
+-- name: AddOrganizationMember :exec
+INSERT INTO organization_members (
+    organization_id,
+    user_id
+) VALUES (
+    $1,
+    $2
+ );
+
+-- name: RemoveOrganizationMember :exec
+DELETE FROM organization_members
+WHERE organization_members.organization_id = $1
+    AND organization_members.user_id = $2;
+
+-- name: CreateOrganizationInvite :one
+INSERT INTO organization_invites (
+    organization_id,
+    expires_at
+)
+VALUES (
+    $1,
+    $2
+)
+RETURNING *;
+
+-- name: GetOrganizationInviteById :one
+SELECT
+    organization_invites.*,
+    organizations.name AS organization_name
+FROM organization_invites
+INNER JOIN organizations ON organizations.id = organization_invites.organization_id
+WHERE organization_invites.id = $1;

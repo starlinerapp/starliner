@@ -160,19 +160,19 @@ FROM deployments d
 INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
-INNER JOIN organizations ON organizations.id = projects.organization_id
-INNER JOIN users ON users.id = organizations.owner_id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON team_members.team_id = teams.id
 LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
 LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
 LEFT JOIN deployments svc ON svc.id = ip.deployment_id
 WHERE d.environment_id = $1
-AND users.id = $2
+AND team_members.user_id = $2
 ORDER BY d.id DESC
 `
 
 type GetEnvironmentIngressDeploymentsParams struct {
 	EnvironmentID int64
-	ID            int64
+	UserID        int64
 }
 
 type GetEnvironmentIngressDeploymentsRow struct {
@@ -190,7 +190,7 @@ type GetEnvironmentIngressDeploymentsRow struct {
 }
 
 func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, arg GetEnvironmentIngressDeploymentsParams) ([]GetEnvironmentIngressDeploymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEnvironmentIngressDeployments, arg.EnvironmentID, arg.ID)
+	rows, err := q.db.QueryContext(ctx, getEnvironmentIngressDeployments, arg.EnvironmentID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}

@@ -18,7 +18,7 @@ export default function Projects() {
 
   const trpc = useTRPC();
   const { data: projectsData, isLoading } = useQuery(
-    trpc.organization.getOrganizationProjects.queryOptions({
+    trpc.organization.getUserProjects.queryOptions({
       id: organization.id,
     }),
   );

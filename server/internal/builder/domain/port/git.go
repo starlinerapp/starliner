@@ -1,5 +1,5 @@
 package port
 
 type Git interface {
-	CloneRepository(repoUrl string) (string, error)
+	CloneRepository(repoUrl string) (dir string, commitHash string, err error)
 }
