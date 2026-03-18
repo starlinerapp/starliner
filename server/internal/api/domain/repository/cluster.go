@@ -40,8 +40,8 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 
 func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, clusterId int64) (*entity.Cluster, error) {
 	cluster, err := cr.queries.GetUserCluster(ctx, sqlc.GetUserClusterParams{
-		OwnerID: userId,
-		ID:      clusterId,
+		UserID: userId,
+		ID:     clusterId,
 	})
 	if err != nil {
 		return nil, err
