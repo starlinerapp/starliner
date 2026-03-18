@@ -84,6 +84,18 @@ export const organizationRouter = {
         .createOrganizationInvite(userId, input.organizationId)
         .then((res) => res.data);
     }),
+  getInvite: protectedProcedure
+    .input(
+      z.object({
+        inviteId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await organizationApiFactory
+        .getOrganizationInviteDetails(userId, input.inviteId)
+        .then((res) => res.data);
+    }),
   acceptInvite: protectedProcedure
     .input(
       z.object({

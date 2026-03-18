@@ -208,6 +208,26 @@ func (oh *OrganizationHandler) CreateInvite(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.NewOrganizationInvite(invite))
 }
 
+// GetInviteDetails godoc
+// @Summary Get organization invite details
+// @Tags organization
+// @ID getOrganizationInviteDetails
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param inviteId path string true "Invite ID"
+// @Success 200 {object} response.OrganizationInvite
+// @Router /organizations/invites/{inviteId} [get]
+func (oh *OrganizationHandler) GetInviteDetails(c *gin.Context) {
+	inviteId := c.Param("inviteId")
+
+	invite, err := oh.organizationApplication.GetInviteDetails(c.Request.Context(), inviteId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.NewOrganizationInvite(invite))
+}
+
 // AcceptInvite godoc
 // @Summary Accept organization invite
 // @Tags organization

@@ -148,10 +148,9 @@ FROM  deployments
 INNER JOIN environments ON deployments.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id
 INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN organizations o ON teams.organization_id = o.id
-INNER JOIN users ON o.owner_id = users.id
+INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE deployments.id = $1
-    AND users.id = $2
+    AND team_members.user_id = $2
 `
 
 type GetUserDeploymentParams struct {

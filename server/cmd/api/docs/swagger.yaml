@@ -537,11 +537,14 @@ definitions:
         type: string
       organization_id:
         type: integer
+      organization_name:
+        type: string
     required:
     - created_at
     - expires_at
     - id
     - organization_id
+    - organization_name
     type: object
   response.OrganizationProvisioningCredential:
     properties:
@@ -1199,6 +1202,28 @@ paths:
         "200":
           description: OK
       summary: Upsert Hetzner Provisioning Credential
+      tags:
+      - organization
+  /organizations/invites/{inviteId}:
+    get:
+      operationId: getOrganizationInviteDetails
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Invite ID
+        in: path
+        name: inviteId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OrganizationInvite'
+      summary: Get organization invite details
       tags:
       - organization
   /organizations/invites/accept:

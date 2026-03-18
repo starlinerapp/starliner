@@ -2,15 +2,22 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ChevronRight } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 export default function AcceptInvite() {
   const trpc = useTRPC();
   const navigate = useNavigate();
   const { inviteId } = useParams<{ inviteId: string }>();
   const [error, setError] = useState<string | null>(null);
+
+  const { data: invite, isLoading } = useQuery(
+    trpc.organization.getInvite.queryOptions({
+      inviteId: inviteId!,
+    }),
+  );
 
   const acceptInviteMutation = useMutation(
     trpc.organization.acceptInvite.mutationOptions(),
@@ -34,10 +41,22 @@ export default function AcceptInvite() {
   return (
     <div className="flex w-[500px] flex-col gap-4">
       <h1 className="text-xl font-medium">Join Organization</h1>
-      <p className="text-mauve-11 text-sm">
-        You&#39;ve been invited to join an organization. Click the button below
-        to accept the invite and get started.
-      </p>
+      {isLoading ? (
+        <Skeleton className="h-5 w-64" />
+      ) : invite ? (
+        <p className="text-mauve-11 text-sm">
+          You&#39;ve been invited to join{" "}
+          <span className="text-mauve-12 font-medium">
+            {invite.organization_name}
+          </span>
+          . Click the button below to accept the invite and get started.
+        </p>
+      ) : (
+        <p className="text-mauve-11 text-sm">
+          You&#39;ve been invited to join an organization. Click the button below
+          to accept the invite and get started.
+        </p>
+      )}
       {error && <ErrorBanner text={error} />}
       <Button
         size="md"

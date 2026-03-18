@@ -2,12 +2,13 @@
 
 ## Properties
 
-| Name                | Type       | Description | Notes                  |
-| ------------------- | ---------- | ----------- | ---------------------- |
-| **created_at**      | **string** |             | [default to undefined] |
-| **expires_at**      | **string** |             | [default to undefined] |
-| **id**              | **string** |             | [default to undefined] |
-| **organization_id** | **number** |             | [default to undefined] |
+| Name                  | Type       | Description | Notes                  |
+| --------------------- | ---------- | ----------- | ---------------------- |
+| **created_at**        | **string** |             | [default to undefined] |
+| **expires_at**        | **string** |             | [default to undefined] |
+| **id**                | **string** |             | [default to undefined] |
+| **organization_id**   | **number** |             | [default to undefined] |
+| **organization_name** | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -19,6 +20,7 @@ const instance: ResponseOrganizationInvite = {
   expires_at,
   id,
   organization_id,
+  organization_name,
 };
 ```
 

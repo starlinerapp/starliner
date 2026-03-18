@@ -743,6 +743,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizations/invites/{inviteId}": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get organization invite details",
+                "operationId": "getOrganizationInviteDetails",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Invite ID",
+                        "name": "inviteId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrganizationInvite"
+                        }
+                    }
+                }
+            }
+        },
         "/organizations/{id}/clusters": {
             "get": {
                 "tags": [
@@ -2047,7 +2080,8 @@ const docTemplate = `{
                 "created_at",
                 "expires_at",
                 "id",
-                "organization_id"
+                "organization_id",
+                "organization_name"
             ],
             "properties": {
                 "created_at": {
@@ -2061,6 +2095,9 @@ const docTemplate = `{
                 },
                 "organization_id": {
                     "type": "integer"
+                },
+                "organization_name": {
+                    "type": "string"
                 }
             }
         },

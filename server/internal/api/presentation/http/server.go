@@ -49,6 +49,7 @@ func NewServer(
 		organizationRoutes.POST("/:id/settings/credential/hetzner", organizationHandler.UpsertHetznerCredential)
 		organizationRoutes.GET("/:id/settings/credential/hetzner", organizationHandler.GetHetznerCredential)
 		organizationRoutes.POST("/:id/invites", organizationHandler.CreateInvite)
+		organizationRoutes.GET("/invites/:inviteId", organizationHandler.GetInviteDetails)
 		organizationRoutes.POST("/invites/accept", organizationHandler.AcceptInvite)
 	}
 

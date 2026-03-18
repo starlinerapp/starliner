@@ -10,8 +10,9 @@ type Organization struct {
 }
 
 type OrganizationInvite struct {
-	Id             string
-	OrganizationId int64
-	ExpiresAt      time.Time
-	CreatedAt      time.Time
+	Id               string
+	OrganizationId   int64
+	OrganizationName string
+	ExpiresAt        time.Time
+	CreatedAt        time.Time
 }

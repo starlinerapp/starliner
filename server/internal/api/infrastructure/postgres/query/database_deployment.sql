@@ -41,8 +41,7 @@ INNER JOIN database_deployments db ON d.id = db.deployment_id
 INNER JOIN environments ON d.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id
 INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN organizations ON organizations.id = teams.organization_id
-INNER JOIN users ON users.id = organizations.owner_id
+INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
-AND users.id = $2
+AND team_members.user_id = $2
 ORDER BY d.id DESC;

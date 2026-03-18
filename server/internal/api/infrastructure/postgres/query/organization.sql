@@ -70,5 +70,9 @@ VALUES (
 RETURNING *;
 
 -- name: GetOrganizationInviteById :one
-SELECT * FROM organization_invites
-WHERE id = $1;
+SELECT
+    organization_invites.*,
+    organizations.name AS organization_name
+FROM organization_invites
+INNER JOIN organizations ON organizations.id = organization_invites.organization_id
+WHERE organization_invites.id = $1;

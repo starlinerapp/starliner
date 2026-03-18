@@ -64,7 +64,7 @@ func (q *Queries) DeleteProject(ctx context.Context, arg DeleteProjectParams) er
 	return err
 }
 
-const getProject = `-- name: GetProject :many
+const getProject = `-- name: GetProject :one
 SELECT
     projects.id as id,
     projects.name as name,
@@ -96,35 +96,19 @@ type GetProjectRow struct {
 	EnvironmentSlug string
 }
 
-func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetProjectRow, error) {
-	rows, err := q.db.QueryContext(ctx, getProject, arg.ID, arg.UserID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetProjectRow
-	for rows.Next() {
-		var i GetProjectRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.TeamID,
-			&i.ClusterID,
-			&i.EnvironmentID,
-			&i.EnvironmentName,
-			&i.EnvironmentSlug,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) (GetProjectRow, error) {
+	row := q.db.QueryRowContext(ctx, getProject, arg.ID, arg.UserID)
+	var i GetProjectRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.TeamID,
+		&i.ClusterID,
+		&i.EnvironmentID,
+		&i.EnvironmentName,
+		&i.EnvironmentSlug,
+	)
+	return i, err
 }
 
 const getProjectCluster = `-- name: GetProjectCluster :one

@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 export default function TeamDetail() {
   const { teamId } = useParams();
@@ -25,7 +26,11 @@ export default function TeamDetail() {
             Members
           </div>
           {isLoading ? (
-            <div className="text-mauve-11 px-4 py-3 text-sm">Loading...</div>
+            <div className="flex flex-col gap-2 px-4 py-3">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-5 w-36" />
+              <Skeleton className="h-5 w-52" />
+            </div>
           ) : members?.length === 0 ? (
             <div className="text-mauve-11 px-4 py-3 text-sm">
               No members yet.

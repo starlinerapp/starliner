@@ -2,16 +2,17 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                                    | HTTP request                                             | Description                            |
-| --------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------- |
-| [**acceptOrganizationInvite**](#acceptorganizationinvite) | **POST** /organizations/invites/accept                   | Accept organization invite             |
-| [**createOrganization**](#createorganization)             | **POST** /organizations                                  | Create organization                    |
-| [**createOrganizationInvite**](#createorganizationinvite) | **POST** /organizations/{id}/invites                     | Create organization invite             |
-| [**getHetznerCredential**](#gethetznercredential)         | **GET** /organizations/{id}/settings/credential/hetzner  | Get Hetzner Provisioning Credential    |
-| [**getOrganizationClusters**](#getorganizationclusters)   | **GET** /organizations/{id}/clusters                     | Get Organization Clusters              |
-| [**getUserOrganizations**](#getuserorganizations)         | **GET** /organizations                                   | Get user organizations                 |
-| [**getUserProjects**](#getuserprojects)                   | **GET** /organizations/{id}/projects                     | Get Organization Projects              |
-| [**upsertHetznerCredential**](#upserthetznercredential)   | **POST** /organizations/{id}/settings/credential/hetzner | Upsert Hetzner Provisioning Credential |
+| Method                                                            | HTTP request                                             | Description                            |
+| ----------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------- |
+| [**acceptOrganizationInvite**](#acceptorganizationinvite)         | **POST** /organizations/invites/accept                   | Accept organization invite             |
+| [**createOrganization**](#createorganization)                     | **POST** /organizations                                  | Create organization                    |
+| [**createOrganizationInvite**](#createorganizationinvite)         | **POST** /organizations/{id}/invites                     | Create organization invite             |
+| [**getHetznerCredential**](#gethetznercredential)                 | **GET** /organizations/{id}/settings/credential/hetzner  | Get Hetzner Provisioning Credential    |
+| [**getOrganizationClusters**](#getorganizationclusters)           | **GET** /organizations/{id}/clusters                     | Get Organization Clusters              |
+| [**getOrganizationInviteDetails**](#getorganizationinvitedetails) | **GET** /organizations/invites/{inviteId}                | Get organization invite details        |
+| [**getUserOrganizations**](#getuserorganizations)                 | **GET** /organizations                                   | Get user organizations                 |
+| [**getUserProjects**](#getuserprojects)                           | **GET** /organizations/{id}/projects                     | Get Organization Projects              |
+| [**upsertHetznerCredential**](#upserthetznercredential)           | **POST** /organizations/{id}/settings/credential/hetzner | Upsert Hetzner Provisioning Credential |
 
 # **acceptOrganizationInvite**
 
@@ -235,6 +236,55 @@ const { status, data } = await apiInstance.getOrganizationClusters(xUserID, id);
 ### Return type
 
 **Array<ResponseCluster>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getOrganizationInviteDetails**
+
+> ResponseOrganizationInvite getOrganizationInviteDetails()
+
+### Example
+
+```typescript
+import { OrganizationApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new OrganizationApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let inviteId: string; //Invite ID (default to undefined)
+
+const { status, data } = await apiInstance.getOrganizationInviteDetails(
+  xUserID,
+  inviteId,
+);
+```
+
+### Parameters
+
+| Name         | Type         | Description | Notes                 |
+| ------------ | ------------ | ----------- | --------------------- |
+| **xUserID**  | [**string**] | User ID     | defaults to undefined |
+| **inviteId** | [**string**] | Invite ID   | defaults to undefined |
+
+### Return type
+
+**ResponseOrganizationInvite**
 
 ### Authorization
 

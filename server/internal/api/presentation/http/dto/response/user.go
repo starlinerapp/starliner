@@ -7,15 +7,15 @@ type User struct {
 	BetterAuthId string `json:"better_auth_id" binding:"required"`
 }
 
-func NewUser(user *value.User) *User {
-	return &User{
+func NewUser(user *value.User) User {
+	return User{
 		UserId:       user.Id,
 		BetterAuthId: user.BetterAuthId,
 	}
 }
 
-func NewUsers(users []*value.User) []*User {
-	result := make([]*User, len(users))
+func NewUsers(users []*value.User) []User {
+	result := make([]User, len(users))
 	for i, user := range users {
 		result[i] = NewUser(user)
 	}

@@ -115,18 +115,31 @@ func (q *Queries) GetOrganization(ctx context.Context, id int64) (Organization, 
 }
 
 const getOrganizationInviteById = `-- name: GetOrganizationInviteById :one
-SELECT id, organization_id, expires_at, created_at FROM organization_invites
-WHERE id = $1
+SELECT
+    organization_invites.id, organization_invites.organization_id, organization_invites.expires_at, organization_invites.created_at,
+    organizations.name AS organization_name
+FROM organization_invites
+INNER JOIN organizations ON organizations.id = organization_invites.organization_id
+WHERE organization_invites.id = $1
 `
 
-func (q *Queries) GetOrganizationInviteById(ctx context.Context, id uuid.UUID) (OrganizationInvite, error) {
+type GetOrganizationInviteByIdRow struct {
+	ID               uuid.UUID
+	OrganizationID   int64
+	ExpiresAt        time.Time
+	CreatedAt        time.Time
+	OrganizationName string
+}
+
+func (q *Queries) GetOrganizationInviteById(ctx context.Context, id uuid.UUID) (GetOrganizationInviteByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getOrganizationInviteById, id)
-	var i OrganizationInvite
+	var i GetOrganizationInviteByIdRow
 	err := row.Scan(
 		&i.ID,
 		&i.OrganizationID,
 		&i.ExpiresAt,
 		&i.CreatedAt,
+		&i.OrganizationName,
 	)
 	return i, err
 }

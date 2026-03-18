@@ -219,9 +219,10 @@ func (or *OrganizationRepository) GetOrganizationInviteById(ctx context.Context,
 	}
 
 	return &entity.OrganizationInvite{
-		Id:             invite.ID.String(),
-		OrganizationId: invite.OrganizationID,
-		ExpiresAt:      invite.ExpiresAt,
-		CreatedAt:      invite.CreatedAt,
+		Id:               invite.ID.String(),
+		OrganizationId:   invite.OrganizationID,
+		OrganizationName: invite.OrganizationName,
+		ExpiresAt:        invite.ExpiresAt,
+		CreatedAt:        invite.CreatedAt,
 	}, nil
 }

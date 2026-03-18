@@ -30,17 +30,19 @@ func NewOrganizations(os []*entity.Organization) []*Organization {
 }
 
 type OrganizationInvite struct {
-	Id             string
-	OrganizationId int64
-	ExpiresAt      time.Time
-	CreatedAt      time.Time
+	Id               string
+	OrganizationId   int64
+	OrganizationName string
+	ExpiresAt        time.Time
+	CreatedAt        time.Time
 }
 
 func NewOrganizationInvite(oi *entity.OrganizationInvite) *OrganizationInvite {
 	return &OrganizationInvite{
-		Id:             oi.Id,
-		OrganizationId: oi.OrganizationId,
-		ExpiresAt:      oi.ExpiresAt,
-		CreatedAt:      oi.CreatedAt,
+		Id:               oi.Id,
+		OrganizationId:   oi.OrganizationId,
+		OrganizationName: oi.OrganizationName,
+		ExpiresAt:        oi.ExpiresAt,
+		CreatedAt:        oi.CreatedAt,
 	}
 }

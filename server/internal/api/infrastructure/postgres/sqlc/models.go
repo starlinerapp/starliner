@@ -305,6 +305,8 @@ type OrganizationInvite struct {
 type OrganizationMember struct {
 	OrganizationID int64
 	UserID         int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type Project struct {
@@ -335,8 +337,10 @@ type Team struct {
 }
 
 type TeamMember struct {
-	TeamID int64
-	UserID int64
+	TeamID    int64
+	UserID    int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type User struct {

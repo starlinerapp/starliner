@@ -5,6 +5,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { Link, useParams } from "react-router";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "~/components/atoms/dialog/Dialog";
 
 interface CreateTeamFormInput {
   name: string;
@@ -19,8 +24,8 @@ export default function OrganizationTeams() {
   const { slug } = useParams();
   const organization = useOrganizationContext();
   const queryClient = useQueryClient();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showJoinForm, setShowJoinForm] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
 
   const {
     register: registerCreate,
@@ -54,123 +59,148 @@ export default function OrganizationTeams() {
     trpc.team.removeTeamMember.mutationOptions(),
   );
 
+  function onCreateTeam(data: CreateTeamFormInput) {
+    createTeamMutation.mutate(
+      {
+        organizationId: organization.id,
+        name: data.name,
+      },
+      {
+        onSuccess: async () => {
+          resetCreate();
+          setShowCreateDialog(false);
+          await queryClient.invalidateQueries({
+            queryKey: trpc.team.getUserTeams.queryKey(),
+          });
+        },
+      },
+    );
+  }
+
+  function onJoinTeam(data: JoinTeamFormInput) {
+    joinTeamMutation.mutate(
+      {
+        organizationId: organization.id,
+        slug: data.slug,
+      },
+      {
+        onSuccess: async () => {
+          resetJoin();
+          setShowJoinDialog(false);
+          await queryClient.invalidateQueries({
+            queryKey: trpc.team.getUserTeams.queryKey(),
+          });
+        },
+      },
+    );
+  }
+
+  function onLeaveTeam(teamId: number) {
+    leaveTeamMutation.mutate(
+      {
+        organizationId: organization.id,
+        teamId,
+      },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: trpc.team.getUserTeams.queryKey(),
+          });
+        },
+      },
+    );
+  }
+
   return (
     <div className="w-full xl:w-3/5">
       <div className="border-mauve-6 w-full rounded-md border-1 text-sm">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
           <p>Your Teams</p>
           <div className="flex gap-2">
-            <Button
-              className="h-7 w-24 text-xs"
-              intent="secondary"
-              onClick={() => {
-                setShowJoinForm(!showJoinForm);
-                setShowCreateForm(false);
-              }}
-            >
-              Join Team
-            </Button>
-            <Button
-              className="h-7 w-24 text-xs"
-              onClick={() => {
-                setShowCreateForm(!showCreateForm);
-                setShowJoinForm(false);
-              }}
-            >
-              Create Team
-            </Button>
+            <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
+              <DialogTrigger asChild>
+                <Button className="h-7 w-24 text-xs" intent="secondary">
+                  Join Team
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <h2 className="text-mauve-12 mb-4 text-lg font-bold">
+                  Join Team
+                </h2>
+                <form
+                  className="flex flex-col gap-3"
+                  onSubmit={handleJoinSubmit(onJoinTeam)}
+                >
+                  <input
+                    className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
+                    placeholder="Team slug"
+                    {...registerJoin("slug")}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      className="h-9 w-24 text-xs"
+                      intent="secondary"
+                      type="button"
+                      onClick={() => {
+                        setShowJoinDialog(false);
+                        resetJoin();
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="h-9 w-24 text-xs"
+                      type="submit"
+                      disabled={!slugInput || joinTeamMutation.isPending}
+                    >
+                      Join
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <DialogTrigger asChild>
+                <Button className="h-7 w-24 text-xs">Create Team</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <h2 className="text-mauve-12 mb-4 text-lg font-bold">
+                  Create Team
+                </h2>
+                <form
+                  className="flex flex-col gap-3"
+                  onSubmit={handleCreateSubmit(onCreateTeam)}
+                >
+                  <input
+                    className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
+                    placeholder="Team name"
+                    {...registerCreate("name")}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      className="h-9 w-24 text-xs"
+                      intent="secondary"
+                      type="button"
+                      onClick={() => {
+                        setShowCreateDialog(false);
+                        resetCreate();
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="h-9 w-24 text-xs"
+                      type="submit"
+                      disabled={!nameInput || createTeamMutation.isPending}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
-        {showCreateForm && (
-          <form
-            className="flex items-center gap-2 px-4 py-3"
-            onSubmit={handleCreateSubmit((data) => {
-              createTeamMutation.mutate(
-                {
-                  organizationId: organization.id,
-                  name: data.name,
-                },
-                {
-                  onSuccess: async () => {
-                    resetCreate();
-                    setShowCreateForm(false);
-                    await queryClient.invalidateQueries({
-                      queryKey: trpc.team.getUserTeams.queryKey(),
-                    });
-                  },
-                },
-              );
-            })}
-          >
-            <input
-              className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
-              placeholder="Team name"
-              {...registerCreate("name")}
-            />
-            <Button
-              className="h-9 w-24 text-xs"
-              type="submit"
-              disabled={!nameInput || createTeamMutation.isPending}
-            >
-              Save
-            </Button>
-            <Button
-              className="h-9 w-24 text-xs"
-              intent="secondary"
-              onClick={() => {
-                setShowCreateForm(false);
-                resetCreate();
-              }}
-            >
-              Cancel
-            </Button>
-          </form>
-        )}
-        {showJoinForm && (
-          <form
-            className="flex items-center gap-2 px-4 py-3"
-            onSubmit={handleJoinSubmit((data) => {
-              joinTeamMutation.mutate(
-                {
-                  organizationId: organization.id,
-                  slug: data.slug,
-                },
-                {
-                  onSuccess: async () => {
-                    resetJoin();
-                    setShowJoinForm(false);
-                    await queryClient.invalidateQueries({
-                      queryKey: trpc.team.getUserTeams.queryKey(),
-                    });
-                  },
-                },
-              );
-            })}
-          >
-            <input
-              className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
-              placeholder="Team slug"
-              {...registerJoin("slug")}
-            />
-            <Button
-              className="h-9 w-24 text-xs"
-              type="submit"
-              disabled={!slugInput || joinTeamMutation.isPending}
-            >
-              Join
-            </Button>
-            <Button
-              className="h-9 w-24 text-xs"
-              intent="secondary"
-              onClick={() => {
-                setShowJoinForm(false);
-                resetJoin();
-              }}
-            >
-              Cancel
-            </Button>
-          </form>
-        )}
         {isLoading ? (
           <div className="text-mauve-11 px-4 py-3 text-sm">Loading...</div>
         ) : teamsData?.length === 0 ? (
@@ -190,19 +220,7 @@ export default function OrganizationTeams() {
                 disabled={leaveTeamMutation.isPending}
                 onClick={(e) => {
                   e.preventDefault();
-                  leaveTeamMutation.mutate(
-                    {
-                      organizationId: organization.id,
-                      teamId: team.id,
-                    },
-                    {
-                      onSuccess: async () => {
-                        await queryClient.invalidateQueries({
-                          queryKey: trpc.team.getUserTeams.queryKey(),
-                        });
-                      },
-                    },
-                  );
+                  onLeaveTeam(team.id);
                 }}
               >
                 Leave Team

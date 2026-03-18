@@ -9,8 +9,8 @@ type Team struct {
 	OrganizationId int64  `json:"organization_id" binding:"required"`
 }
 
-func NewTeam(team *value.Team) *Team {
-	return &Team{
+func NewTeam(team *value.Team) Team {
+	return Team{
 		Id:             team.Id,
 		Name:           team.Name,
 		Slug:           team.Slug,
@@ -18,8 +18,8 @@ func NewTeam(team *value.Team) *Team {
 	}
 }
 
-func NewTeams(teams []*value.Team) []*Team {
-	res := make([]*Team, len(teams))
+func NewTeams(teams []*value.Team) []Team {
+	res := make([]Team, len(teams))
 	for i, team := range teams {
 		res[i] = NewTeam(team)
 	}

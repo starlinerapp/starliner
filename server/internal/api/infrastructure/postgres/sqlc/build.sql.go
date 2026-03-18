@@ -42,10 +42,9 @@ INNER JOIN deployments d ON d.id = b.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
 INNER JOIN teams ON teams.id = projects.team_id
-INNER JOIN organizations ON organizations.id = teams.organization_id
-INNER JOIN users ON users.id = organizations.owner_id
+INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE b.id = $1
-AND users.id = $2
+AND team_members.user_id = $2
 `
 
 type GetBuildLogsParams struct {

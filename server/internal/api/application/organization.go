@@ -14,6 +14,7 @@ import (
 type OrganizationApplication struct {
 	crypto                 port.Crypto
 	organizationRepository interfaces.OrganizationRepository
+	teamRepository         interfaces.TeamRepository
 	normalizationService   *coreService.NormalizerService
 	organizationService    *service.OrganizationService
 }
@@ -21,12 +22,14 @@ type OrganizationApplication struct {
 func NewOrganizationApplication(
 	crypto port.Crypto,
 	organizationRepository interfaces.OrganizationRepository,
+	teamRepository interfaces.TeamRepository,
 	normalizationService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 ) *OrganizationApplication {
 	return &OrganizationApplication{
 		crypto:                 crypto,
 		organizationRepository: organizationRepository,
+		teamRepository:         teamRepository,
 		normalizationService:   normalizationService,
 		organizationService:    organizationService,
 	}
@@ -44,6 +47,21 @@ func (oa *OrganizationApplication) CreateOrganization(ctx context.Context, name 
 	}
 
 	err = oa.organizationRepository.AddOrganizationMember(ctx, org.Id, ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	defaultTeamSlug, err := oa.normalizationService.FormatToDNS1123(name + "-default")
+	if err != nil {
+		return nil, err
+	}
+
+	team, err := oa.teamRepository.CreateTeam(ctx, "Default", defaultTeamSlug, org.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = oa.teamRepository.AddTeamMember(ctx, team.Id, ownerID)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +149,15 @@ func (oa *OrganizationApplication) GetHetznerCredential(ctx context.Context, use
 	}, nil
 }
 
+func (oa *OrganizationApplication) GetInviteDetails(ctx context.Context, inviteID string) (*value.OrganizationInvite, error) {
+	invite, err := oa.organizationRepository.GetOrganizationInviteById(ctx, inviteID)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewOrganizationInvite(invite), nil
+}
+
 func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID string, userID int64) error {
 	invite, err := oa.organizationRepository.GetOrganizationInviteById(ctx, inviteID)
 	if err != nil {
@@ -146,11 +173,6 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 
 func (oa *OrganizationApplication) CreateInvite(ctx context.Context, userID int64, organizationID int64) (*value.OrganizationInvite, error) {
 	err := oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
 	if err != nil {
 		return nil, err
 	}
