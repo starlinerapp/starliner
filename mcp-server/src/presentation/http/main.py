@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastmcp import FastMCP
 
-app = FastAPI()
+mcp = FastMCP("starliner")
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+@mcp.tool()
+async def hello() -> str:
+    """Returns a hello world message."""
+    return "Hello World"
+
