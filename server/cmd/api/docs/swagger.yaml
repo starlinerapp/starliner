@@ -1333,6 +1333,30 @@ paths:
       summary: Get Project Cluster
       tags:
       - project
+  /projects/{id}/environments:
+    get:
+      operationId: getProjectEnvironments
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Environment'
+            type: array
+      summary: Get Project Environments
+      tags:
+      - project
   /teams/{organizationId}:
     get:
       operationId: getUserTeams

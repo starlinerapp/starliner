@@ -63,6 +63,7 @@ func NewServer(
 		projectRoutes.GET("/:id", projectHandler.GetProject)
 		projectRoutes.DELETE("/:id", projectHandler.DeleteProject)
 		projectRoutes.GET("/:id/cluster", projectHandler.GetProjectCluster)
+		projectRoutes.GET("/:id/environments", projectHandler.GetProjectEnvironments)
 	}
 
 	environmentRoutes := engine.Group("/environments")

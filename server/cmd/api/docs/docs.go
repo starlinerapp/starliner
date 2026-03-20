@@ -1080,6 +1080,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/projects/{id}/environments": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Environments",
+                "operationId": "getProjectEnvironments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Environment"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/teams/{organizationId}": {
             "get": {
                 "tags": [
