@@ -13,6 +13,8 @@ services:
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./.docker/nginx/ssl/dev.starliner.app.crt:/etc/nginx/dev.starliner.app.crt:ro
       - ./.docker/nginx/ssl/dev.starliner.app.key:/etc/nginx/dev.starliner.app.key:ro
+      - ./.docker/nginx/ssl/mcp.dev.starliner.app.crt:/etc/nginx/mcp.dev.starliner.app.crt:ro
+      - ./.docker/nginx/ssl/mcp.dev.starliner.app.key:/etc/nginx/mcp.dev.starliner.app.key:ro
       - ./.docker/nginx/ssl/registry.dev.starliner.app.crt:/etc/nginx/registry.dev.starliner.app.crt:ro
       - ./.docker/nginx/ssl/registry.dev.starliner.app.key:/etc/nginx/registry.dev.starliner.app.key:ro
     depends_on:
@@ -43,6 +45,17 @@ services:
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
+    networks:
+      - internal
+
+  mcp:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: .docker/mcp/Dockerfile
+      target: dev
+    ports:
+      - "8080:8080"
     networks:
       - internal
 
