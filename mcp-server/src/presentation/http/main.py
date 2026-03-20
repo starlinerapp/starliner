@@ -1,5 +1,11 @@
 from fastmcp import FastMCP
 
+auth = JWTVerifier(
+    jwks_uri=os.environ["BETTER_AUTH_JWKS_URI"],
+    issuer=os.environ["BETTER_AUTH_ISSUER"],
+    audience=os.environ["BETTER_AUTH_AUDIENCE"],
+)
+
 mcp = FastMCP("starliner")
 
 

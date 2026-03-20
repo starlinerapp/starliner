@@ -1,5 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { jwt } from "better-auth/plugins";
+import { oauthProvider } from "@better-auth/oauth-provider";
 import { db } from "~/db";
 import * as schema from "~/db/schema";
 
@@ -11,6 +13,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [
+    jwt(),
+    oauthProvider({
+      loginPage: "/login",
+      consentPage: "/consent",
+      signup: {
+        page: "/signup",
+      },
+    }),
+  ],
 });
 
 export const getServerSession = async (request: Request) => {
