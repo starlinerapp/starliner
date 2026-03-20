@@ -48,11 +48,11 @@ services:
     networks:
       - internal
 
-  mcp:
+  mcp-server:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: .docker/mcp/Dockerfile
+      dockerfile: .docker/mcp-server/Dockerfile
       target: dev
     ports:
       - "8080:8080"
