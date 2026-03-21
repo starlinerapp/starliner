@@ -494,6 +494,77 @@ async def get_deployment_logs(
     return "\n".join(logs)
 
 
+@mcp.tool()
+async def create_cluster(token: str, name: str, serverType: str, organizationId: int):
+    """Provision a cluster.
+
+    Args:
+        token: The bearer token from the login tool call.
+        name: Name for the cluster.
+        serverType: Either "cx23" or "ccx33".
+        organizationId: The organization for which to provision the server.
+
+    Returns:
+        The newly provisioned cluster.
+    """
+    user_id = await get_user_id_from_token(token)
+    auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+    headers = {"X-User-ID": str(user_id)}
+    json = {"name": name, "serverType": serverType, "organizationId": organizationId}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(f"{API_BASE_URL}/clusters", auth=auth, headers=headers, json=json)
+        response.raise_for_status()
+        return response.json()
+
+@mcp.tool()
+async def create_project(token: str, organization_id: int, name: str, team_id: int, cluster_id: int):
+    """Create a project.
+
+    IMPORTANT: If you don't know the team, first call get_teams
+    to list available teams for the project.
+
+    Args:
+        token: The bearer token from the login tool call.
+        name: Name for the project.
+        organization_id: The organization to which the project exists.
+        team_id: The team for which the project exists.
+        cluster_id: The cluster that the project will be deployed on.
+
+    Returns:
+        Newly created project.
+    """
+    user_id = await get_user_id_from_token(token)
+    auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+    headers = {"X-User-ID": str(user_id)}
+    json = {"name": name, "organization_id": organization_id, "team_id": team_id, "cluster_id": cluster_id}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(f"{API_BASE_URL}/projects", auth=auth, headers=headers, json=json)
+        response.raise_for_status()
+        return response.json()
+
+
+@mcp.tool()
+async def get_teams(token: str, organizationId: int):
+    """Get the teams the user is part of.
+
+    Args:
+        token: The bearer token from the login tool call.
+        organizationId: The organization in which to create the team.
+
+    Returns:
+        The newly created team.
+    """
+    user_id = await get_user_id_from_token(token)
+    auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+    headers = {"X-User-ID": str(user_id)}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{API_BASE_URL}/teams/{organizationId}", headers=headers, auth=auth)
+        response.raise_for_status()
+        return response.json()
+
 app = mcp.http_app()
 
 
