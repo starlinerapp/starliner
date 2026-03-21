@@ -54,6 +54,11 @@ services:
       context: .
       dockerfile: .docker/mcp-server/Dockerfile
       target: dev
+    environment:
+      BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASS: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      AUTH_BASE_URL: ${AUTH_BASE_URL:-http://client:5173/api/auth}
+      API_BASE_URL: ${API_BASE_URL:-http://server-api:9090}
     volumes:
       - ./mcp-server:/app
       - mcp-server-venv:/app/.venv

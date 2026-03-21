@@ -1,5 +1,6 @@
 from fastmcp import FastMCP
 from pydantic import BaseModel
+import asyncio
 import logging
 import os
 import httpx
@@ -21,11 +22,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 mcp = FastMCP("starliner")
 
-AUTH_BASE_URL = os.getenv("AUTH_BASE_URL", "http://client:5173/api/auth")
-API_BASE_URL = os.getenv("API_URL", "http://server-api:9090")
-BASIC_AUTH_USER = os.getenv("AUTH_USER", "test")
-BASIC_AUTH_PASS = os.getenv("AUTH_PASS", "test")
 
+def get_required_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
+
+AUTH_BASE_URL = get_required_env("AUTH_BASE_URL")
+API_BASE_URL = get_required_env("API_BASE_URL")
+BASIC_AUTH_USER = get_required_env("BASIC_AUTH_USER")
+BASIC_AUTH_PASS = get_required_env("BASIC_AUTH_PASS")
 
 @mcp.tool()
 async def login(email: str, password: str):
@@ -276,6 +283,65 @@ async def get_projects(token: str, organization_id: int) -> list[dict]:
         )
         response.raise_for_status()
         return response.json()
+
+
+@mcp.tool()
+async def get_deployment_logs(token: str, deployment_id: int, collect_seconds: int = 5) -> str:
+    """Get logs for a specific deployment.
+
+    IMPORTANT: If you don't know the deployment_id, first call get_environment_deployments
+    to list available deployments for the environment, then ask the user which deployment
+    they want to see logs for.
+
+    Args:
+        token: The bearer token from the login tool call.
+        deployment_id: The ID of the deployment to get logs for.
+        collect_seconds: How many seconds to collect logs for (default 5).
+
+    Returns:
+        The deployment logs as a string.
+    """
+    logger.info(f"Getting logs for deployment {deployment_id} for {collect_seconds}s")
+    auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+    logs: list[str] = []
+
+    async with httpx.AsyncClient() as client:
+        user_id = await get_user_id_from_token(token)
+
+    async def collect_logs():
+        timeout = httpx.Timeout(10.0, read=None)
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            url = f"{API_BASE_URL}/deployments/{deployment_id}/logs"
+            logger.info(f"Connecting to {url}")
+            async with client.stream(
+                    "GET",
+                    url,
+                    headers={"X-User-ID": str(user_id)},
+                    auth=auth,
+            ) as response:
+                logger.info(f"Response status: {response.status_code}")
+                response.raise_for_status()
+                async for line in response.aiter_lines():
+                    logger.debug(f"Raw line: {line}")
+                    if line.startswith("data:"):
+                        log_line = line[5:].strip()
+                        logger.info(f"Log: {log_line}")
+                        logs.append(log_line)
+
+    try:
+        await asyncio.wait_for(collect_logs(), timeout=collect_seconds)
+    except asyncio.TimeoutError:
+        logger.info(f"Timeout after {collect_seconds}s, collected {len(logs)} lines")
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error: {e}")
+        return f"Error: {e}"
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        return f"Error: {e}"
+
+    if not logs:
+        return "No logs received. The deployment may not be running or producing logs."
+    return "\n".join(logs)
 
 
 app = mcp.http_app()
