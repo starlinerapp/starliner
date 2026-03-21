@@ -9,6 +9,11 @@ import (
 var ErrDeploymentNameAlreadyExists = errors.New("deployment name already exists")
 var ErrIngressHostAlreadyExists = errors.New("ingress host already exists")
 
+type IngressHostLookup struct {
+	Host         string
+	DeploymentId int64
+}
+
 type Deployments struct {
 	Ingresses      []*IngressDeployment
 	GitDeployments []*GitDeployment
