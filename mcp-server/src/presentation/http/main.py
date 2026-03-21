@@ -1,7 +1,13 @@
+import asyncio
+import logging
 import os
+from collections.abc import AsyncIterator
 
 import httpx
 from fastmcp import FastMCP
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 mcp = FastMCP("starliner")
 
@@ -57,4 +63,3 @@ async def get_environment_deployments(environment_id: int) -> dict:
         )
         response.raise_for_status()
         return response.json()
-

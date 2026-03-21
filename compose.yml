@@ -56,6 +56,7 @@ services:
       target: dev
     volumes:
       - ./mcp-server:/app
+      - mcp-server-venv:/app/.venv
     networks:
       - internal
 
@@ -364,6 +365,7 @@ volumes:
   nats-data:
   registry-data:
   dagger-data:
+  mcp-server-venv:
 
 networks:
   internal:
