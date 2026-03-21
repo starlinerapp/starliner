@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP("starliner")
 
 
+
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
     if not value:
@@ -127,15 +128,18 @@ async def deploy_ingress(
     Before calling this tool, you MUST:
       1. Call get_environment_deployments(token, environment_id) to discover existing services.
          - Use the service names from existing deployments to populate the `serviceName` field.
-      2. Ask the user for the host prefix(es) and path routing rules if not provided.
-      3. Confirm the ingress configuration with the user before deploying.
+      2. Get the organization slug and and cluster ip.
+         - Use get_project_cluster(token, organization_id, project_id) to get the cluster ip.
+         - Use get_organizations(token) to list available organizations the user can deploy to.
+      3. Ask the user for the host prefix(es) and path routing rules if not provided.
+      4. Confirm the ingress configuration with the user before deploying.
 
     Args:
         token: The bearer token from the login tool call.
         environmentId: The ID of the target environment.
         ingressHosts: List of host routing rules. Each entry has the shape:
             {
-                "host": str,        # Subdomain prefix (e.g. "myapp" → "myapp.<cluster-domain>")
+                "host": str,        # Full hostname (e.g. "myapp.org-slug.1.2.3.4.nip.io")
                 "paths": [
                     {
                         "pathType": str,    # "Prefix" or "Exact"
@@ -223,7 +227,7 @@ async def get_environments(token: str, project_id: int) -> list[dict]:
 
 @mcp.tool()
 async def get_environment_deployments(token: str, environment_id: int) -> dict:
-    """Get all deployments for an environment. You can use this tool to check the status after deploying.
+    """Get all deployments for an environment.
 
     Args:
         token: The bearer token from the login tool call.
@@ -283,6 +287,38 @@ async def get_projects(token: str, organization_id: int) -> list[dict]:
         )
         response.raise_for_status()
         return response.json()
+
+@mcp.tool()
+async def get_project_cluster(token: str, project_id: int):
+    """Get the cluster details for a project, including its IPv4 address.
+
+    Args:
+        token: The bearer token from the login tool call.
+        project_id: The ID of the project to get the cluster for.
+
+    Returns:
+        Cluster details including clusterId, clusterName, and ipv4Address.
+    """
+    user_id = await get_user_id_from_token(token)
+    auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+    headers = {"X-User-ID": str(user_id)}
+
+    async with httpx.AsyncClient() as client:
+        project_response = await client.get(
+            f"{API_BASE_URL}/projects/{project_id}/cluster",
+            headers=headers,
+            auth=auth,
+        )
+        project_response.raise_for_status()
+        project_cluster = project_response.json()
+
+        cluster_response = await client.get(
+            f"{API_BASE_URL}/clusters/{project_cluster['clusterId']}",
+            headers=headers,
+            auth=auth,
+        )
+        cluster_response.raise_for_status()
+        return cluster_response.json()
 
 
 @mcp.tool()
