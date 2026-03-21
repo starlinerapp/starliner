@@ -61,7 +61,6 @@ services:
       API_BASE_URL: ${API_BASE_URL:-http://server-api:9090}
     volumes:
       - ./mcp-server:/app
-      - mcp-server-venv:/app/.venv
     networks:
       - internal
 
@@ -370,7 +369,6 @@ volumes:
   nats-data:
   registry-data:
   dagger-data:
-  mcp-server-venv:
 
 networks:
   internal:
