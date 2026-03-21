@@ -182,6 +182,7 @@ async def redeploy_from_git(
         response.raise_for_status()
         return {"status": "ok"}
 
+
 @mcp.tool()
 async def deploy_ingress(
     token: str, environmentId: int, ingressHosts: list[IngressHost]
