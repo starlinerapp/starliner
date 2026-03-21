@@ -3,11 +3,10 @@ import os
 
 import httpx
 from fastmcp import FastMCP
+from src.infrastructure.auth.session import get_user_id_from_token
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-from src.presentation.http.middleware.auth import AuthMiddleware
 
 mcp = FastMCP("starliner")
 
@@ -51,20 +50,9 @@ async def get_environments(token: str, project_id: int) -> list[dict]:
     Returns:
         A list of environments with id, name, and slug.
     """
+    user_id = await get_user_id_from_token(token)
+
     async with httpx.AsyncClient() as client:
-        session_res = await client.get(
-            "http://client:5173/api/auth/get-session", headers={"Authorization": f"Bearer {token}"}, )
-        if session_res.status_code != 200:
-            raise Exception("Unauthorized: invalid session")
-
-        data = session_res.json()
-
-        if not data.get("user"):
-            raise Exception("Unauthorized: no user")
-
-        user = data["user"]
-        user_id = user["id"]
-
         response = await client.get(
             f"{API_BASE_URL}/projects/{project_id}/environments",
             headers={"X-User-ID": str(user_id)},
@@ -78,17 +66,18 @@ async def get_environment_deployments(token: str, environment_id: int) -> dict:
     """Get all deployments for an environment.
 
     Args:
+        token: The bearer token from the login tool call.
         environment_id: The ID of the environment to get deployments for.
 
     Returns:
         A dict containing deployments (git, images, ingresses, databases).
     """
-    auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+    user_id = await get_user_id_from_token(token)
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{API_BASE_URL}/environments/{environment_id}/deployments",
-            headers={"X-User-ID": USER_ID},
-            auth=auth,
+            headers={"X-User-ID": user_id},
+            auth=httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS),
         )
         response.raise_for_status()
         return response.json()
