@@ -77,7 +77,7 @@ async def deploy_from_git(
          - Use get_environments(token, project_id) to list available environments for the chosen project.
       2. Call get_environment_deployments(token, environment_id) to discover existing deployments in the target
       environment.
-         - Use credentials and connection details from existing deployments (like database name, username, password, etc.) to automatically populate the env vars the application needs.
+         - [IMPORTANT!!!!] Use credentials and connection details from existing deployments (like database name, username, password, etc.) to automatically populate the env vars the application needs.
       3. Infer git_url, dockerfile_path, and project_repository_path from the repo.
       4. Try to create a Dockerfile if there is none. You don't need to create one for the database, instead use the
       deploy_database(token: str, environment_id: str, serviceName: str) tool.
@@ -119,6 +119,68 @@ async def deploy_from_git(
         response.raise_for_status()
         return {"status": "ok"}
 
+
+@mcp.tool()
+async def redeploy_from_git(
+    token: str,
+    deploymentId: int,
+    environmentId: int,
+    port: int,
+    projectRepositoryPath: str,
+    dockerfilePath: str,
+    envs: list[dict[str, str]] = [],
+):
+    """Redeploy an existing Git-based service with updated configuration.
+
+    Use this tool to trigger a redeployment of an existing service, which was previously deployed with git. This is useful when:
+      - You need to update environment variables
+      - You want to change the port the application listens on
+      - You need to update the Dockerfile path or project repository path
+      - The source code has been updated and you want to rebuild and redeploy
+
+    IMPORTANT CONSTRAINTS:
+      - You CANNOT change the service name - it is fixed from the initial deployment
+      - You CANNOT change the Git repository URL - it is fixed from the initial deployment
+      - To change the service name or Git URL, you must delete the deployment and create a new one
+
+    Before calling this tool, you MUST:
+      1. Call get_environment_deployments(token, environment_id) to get existing deployments.
+      2. Identify the deployment you want to redeploy and obtain its deploymentId.
+      3. Use the existing deployment's configuration as a baseline.
+      4. Only modify the fields that need to be updated (port, envs, paths).
+
+    Args:
+        token: The bearer token from the login tool call.
+        deploymentId: The ID of the existing deployment to redeploy.
+        environmentId: The ID of the environment where the deployment exists.
+        port: The port the application listens on.
+        projectRepositoryPath: Root directory of the project in the repo.
+        dockerfilePath: Path to the Dockerfile in the repo, relative to the projectRepositoryPath.
+        envs: List of environment variables, each as {"name": "VAR_NAME", "value": "VAR_VALUE"}.
+
+    Returns:
+        The redeployment response from the backend.
+    """
+    user_id = await get_user_id_from_token(token)
+
+    async with httpx.AsyncClient() as client:
+        auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+        headers = {"X-User-ID": str(user_id)}
+        json = {
+            "environmentId": environmentId,
+            "port": port,
+            "projectRepositoryPath": projectRepositoryPath,
+            "dockerfilePath": dockerfilePath,
+            "envs": envs,
+        }
+        response = await client.put(
+            f"{API_BASE_URL}/deployments/git/{deploymentId}",
+            headers=headers,
+            json=json,
+            auth=auth,
+        )
+        response.raise_for_status()
+        return {"status": "ok"}
 
 @mcp.tool()
 async def deploy_ingress(
@@ -164,6 +226,61 @@ async def deploy_ingress(
         }
         response = await client.post(
             f"{API_BASE_URL}/deployments/ingresses",
+            headers=headers,
+            json=json,
+            auth=auth,
+        )
+        response.raise_for_status()
+        return {"status": "ok"}
+
+
+@mcp.tool()
+async def update_ingress(
+    token: str, deploymentId: int, environmentId: int, ingressHosts: list[IngressHost]
+):
+    """Update an existing Traefik ingress deployment.
+
+    Use this tool to modify the routing rules of an existing ingress. This is useful when:
+      - You need to add or remove host routing rules
+      - You want to change path routing (e.g., add new paths or modify existing ones)
+      - You need to route traffic to different services
+
+    Before calling this tool, you MUST:
+      1. Call get_environment_deployments(token, environment_id) to get existing ingress deployments.
+      2. Identify the ingress deployment you want to update and obtain its deploymentId.
+      3. Use the existing ingress configuration as a baseline and modify as needed.
+      4. Confirm the updated ingress configuration with the user before applying.
+
+    Args:
+        token: The bearer token from the login tool call.
+        deploymentId: The ID of the existing ingress deployment to update.
+        environmentId: The ID of the environment where the ingress exists.
+        ingressHosts: List of host routing rules. Each entry has the shape:
+            {
+                "host": str,        # Full hostname (e.g. "myapp.org-slug.1.2.3.4.nip.io")
+                "paths": [
+                    {
+                        "pathType": str,    # "Prefix" or "Exact"
+                        "path": str,        # URL path to match, e.g. "/" or "/api"
+                        "serviceName": str  # Name of the target service to route traffic to
+                    }
+                ]
+            }
+
+    Returns:
+        The update response from the backend.
+    """
+    user_id = await get_user_id_from_token(token)
+
+    async with httpx.AsyncClient() as client:
+        auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+        headers = {"X-User-ID": str(user_id)}
+        json = {
+            "environmentId": environmentId,
+            "ingressHosts": [h.model_dump() for h in ingressHosts],
+        }
+        response = await client.put(
+            f"{API_BASE_URL}/deployments/ingresses/{deploymentId}",
             headers=headers,
             json=json,
             auth=auth,
