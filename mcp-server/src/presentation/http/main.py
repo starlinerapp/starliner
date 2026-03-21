@@ -22,10 +22,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 mcp = FastMCP("starliner")
 
-AUTH_BASE_URL = os.getenv("AUTH_BASE_URL", "http://client:5173/api/auth")
-API_BASE_URL = os.getenv("API_URL", "http://server-api:9090")
-BASIC_AUTH_USER = os.getenv("AUTH_USER", "test")
-BASIC_AUTH_PASS = os.getenv("AUTH_PASS", "test")
+
+def get_required_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
+
+AUTH_BASE_URL = get_required_env("AUTH_BASE_URL")
+API_BASE_URL = get_required_env("API_BASE_URL")
+BASIC_AUTH_USER = get_required_env("BASIC_AUTH_USER")
+BASIC_AUTH_PASS = get_required_env("BASIC_AUTH_PASS")
 
 @mcp.tool()
 async def login(email: str, password: str):
