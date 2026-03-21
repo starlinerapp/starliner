@@ -117,3 +117,28 @@ func (ph *ProjectHandler) GetProjectCluster(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.NewProjectCluster(cluster))
 }
+
+// GetProjectEnvironments godoc
+// @Summary Get Project Environments
+// @Tags project
+// @ID getProjectEnvironments
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Project ID"
+// @Success 200 {array} response.Environment
+// @Router /projects/{id}/environments [get]
+func (ph *ProjectHandler) GetProjectEnvironments(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	environments, err := ph.projectApplication.GetProjectEnvironments(c.Request.Context(), projectId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.NewEnvironments(environments))
+}

@@ -28,10 +28,16 @@ openssl req -x509 -newkey rsa:4096 -sha256 -days 365 \
   -subj "/CN=registry.dev.starliner.app" \
   -addext "subjectAltName=DNS:registry.dev.starliner.app"
 ```
+```bash
+openssl req -x509 -newkey rsa:4096 -sha256 -days 365 \
+  -nodes -keyout .docker/nginx/ssl/mcp.dev.starliner.app.key -out .docker/nginx/ssl/mcp.dev.starliner.app.crt \
+  -subj "/CN=mcp.dev.starliner.app" \
+  -addext "subjectAltName=DNS:mcp.dev.starliner.app"
+```
 
 Then add the development domain to your hosts file:
 ```bash
-grep -qXF "127.0.0.1 dev.starliner.app registry.dev.starliner.app" /etc/hosts || echo "127.0.0.1 dev.starliner.app registry.dev.starliner.app" >> /etc/hosts
+grep -qXF "127.0.0.1 dev.starliner.app registry.dev.starliner.app mcp.dev.starliner.app" /etc/hosts || echo "127.0.0.1 dev.starliner.app registry.dev.starliner.app mcp.dev.starliner.app" >> /etc/hosts
 ```
 
 ### Docker Compose

@@ -120,3 +120,25 @@ func (pr *ProjectRepository) GetProjectCluster(ctx context.Context, projectId in
 		ClusterName: row.Name,
 	}, nil
 }
+
+func (pr *ProjectRepository) GetProjectEnvironments(ctx context.Context, projectId int64, userId int64) ([]*entity.Environment, error) {
+	rows, err := pr.queries.GetProjectEnvironments(ctx, sqlc.GetProjectEnvironmentsParams{
+		ProjectID: projectId,
+		UserID:    userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	environments := make([]*entity.Environment, len(rows))
+	for i, row := range rows {
+		environments[i] = &entity.Environment{
+			Id:        row.ID,
+			Slug:      row.Slug,
+			Name:      row.Name,
+			Namespace: row.Namespace,
+		}
+	}
+
+	return environments, nil
+}

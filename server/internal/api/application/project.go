@@ -2,11 +2,12 @@ package application
 
 import (
 	"context"
+	"strings"
+
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	coreService "starliner.app/internal/core/domain/service"
-	"strings"
 )
 
 type ProjectApplication struct {
@@ -77,4 +78,21 @@ func (ps *ProjectApplication) GetProjectCluster(ctx context.Context, projectId i
 		return nil, err
 	}
 	return value.NewProjectCluster(cluster), nil
+}
+
+func (ps *ProjectApplication) GetProjectEnvironments(ctx context.Context, projectId int64, userId int64) ([]*value.Environment, error) {
+	environments, err := ps.projectRepository.GetProjectEnvironments(ctx, projectId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	valueEnvironments := make([]*value.Environment, len(environments))
+	for i, e := range environments {
+		valueEnvironments[i] = &value.Environment{
+			Id:   e.Id,
+			Name: e.Name,
+			Slug: e.Slug,
+		}
+	}
+	return valueEnvironments, nil
 }

@@ -138,6 +138,51 @@ func (q *Queries) GetProjectCluster(ctx context.Context, arg GetProjectClusterPa
 	return i, err
 }
 
+const getProjectEnvironments = `-- name: GetProjectEnvironments :many
+SELECT e.id, e.name, e.slug, e.project_id, e.created_at, e.updated_at, e.namespace
+FROM environments e
+         INNER JOIN projects p ON p.id = e.project_id
+         INNER JOIN teams t ON t.id = p.team_id
+         INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE e.project_id = $1 AND tm.user_id = $2
+`
+
+type GetProjectEnvironmentsParams struct {
+	ProjectID int64
+	UserID    int64
+}
+
+func (q *Queries) GetProjectEnvironments(ctx context.Context, arg GetProjectEnvironmentsParams) ([]Environment, error) {
+	rows, err := q.db.QueryContext(ctx, getProjectEnvironments, arg.ProjectID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Environment
+	for rows.Next() {
+		var i Environment
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Slug,
+			&i.ProjectID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Namespace,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserProjects = `-- name: GetUserProjects :many
 SELECT
     projects.id as id,
