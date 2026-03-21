@@ -2,9 +2,9 @@ from fastmcp import FastMCP
 from pydantic import BaseModel
 import asyncio
 import logging
-import os
 import httpx
 from src.infrastructure.auth.session import get_user_id_from_token
+from src.utils.env import get_required_env
 
 
 class IngressPath(BaseModel):
@@ -21,14 +21,6 @@ class IngressHost(BaseModel):
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 mcp = FastMCP("starliner")
-
-
-def get_required_env(name: str) -> str:
-    value = os.getenv(name)
-    if not value:
-        raise RuntimeError(f"Missing required environment variable: {name}")
-    return value
-
 
 AUTH_BASE_URL = get_required_env("AUTH_BASE_URL")
 API_BASE_URL = get_required_env("API_BASE_URL")
@@ -78,7 +70,7 @@ async def deploy_from_git(
       2. Call get_environment_deployments(token, environment_id) to discover existing deployments in the target
       environment.
          - [IMPORTANT!!!!] Use credentials and connection details from existing deployments (like database name, username, password, etc.) to automatically populate the env vars the application needs.
-      3. Infer git_url, dockerfile_path, and project_repository_path from the repo.
+      3. Infer git_url, dockerfile_path, and project_repository_path from the repo. You can find the git_url using the following command: `git remote get-url origin`.
       4. Try to create a Dockerfile if there is none. You don't need to create one for the database, instead use the
       deploy_database(token: str, environment_id: str, serviceName: str) tool.
       5. Infer port from the Dockerfile (e.g. EXPOSE directive).
@@ -136,7 +128,7 @@ async def redeploy_from_git(
       - You need to update environment variables
       - You want to change the port the application listens on
       - You need to update the Dockerfile path or project repository path
-      - The source code has been updated and you want to rebuild and redeploy
+      - The source code has been updated, and you want to rebuild and redeploy
 
     IMPORTANT CONSTRAINTS:
       - You CANNOT change the service name - it is fixed from the initial deployment

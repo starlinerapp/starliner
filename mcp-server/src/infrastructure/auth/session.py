@@ -1,6 +1,8 @@
 import httpx
 
-AUTH_SESSION_URL = "http://client:5173/api/auth/get-session"
+from src.utils.env import get_required_env
+
+AUTH_SESSION_URL = get_required_env("AUTH_BASE_URL") + "/get-session"
 
 
 class UnauthorizedError(Exception):
