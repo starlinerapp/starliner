@@ -496,7 +496,7 @@ async def get_deployment_logs(
 
 @mcp.tool()
 async def create_cluster(token: str, name: str, serverType: str, organizationId: int):
-    """Provision a cluster.
+    """Provision a cluster. Only create a cluster if the user specifically requests it or if there are no existing clusters available.
 
     Args:
         token: The bearer token from the login tool call.
