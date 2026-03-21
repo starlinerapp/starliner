@@ -5,6 +5,7 @@ import os
 import httpx
 from src.infrastructure.auth.session import get_user_id_from_token
 
+
 class IngressPath(BaseModel):
     pathType: str
     path: str
@@ -15,6 +16,7 @@ class IngressHost(BaseModel):
     host: str
     paths: list[IngressPath]
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 mcp = FastMCP("starliner")
@@ -23,6 +25,7 @@ AUTH_BASE_URL = os.getenv("AUTH_BASE_URL", "http://client:5173/api/auth")
 API_BASE_URL = os.getenv("API_URL", "http://server-api:9090")
 BASIC_AUTH_USER = os.getenv("AUTH_USER", "test")
 BASIC_AUTH_PASS = os.getenv("AUTH_PASS", "test")
+
 
 @mcp.tool()
 async def login(email: str, password: str):
@@ -38,17 +41,24 @@ async def login(email: str, password: str):
     async with httpx.AsyncClient() as client:
         response = await client.post(
             f"{AUTH_BASE_URL}/sign-in/email",
-            files={
-                "email": (None, email),
-                "password": (None, password)
-            },
+            files={"email": (None, email), "password": (None, password)},
         )
 
         response.raise_for_status()
         return response.json()["token"]
 
+
 @mcp.tool()
-async def deploy_from_git(token: str, gitUrl: str, environmentId: int, serviceName: str, port: int, projectRepositoryPath: str, dockerfilePath: str, envs: list[dict[str, str]] = []):
+async def deploy_from_git(
+    token: str,
+    gitUrl: str,
+    environmentId: int,
+    serviceName: str,
+    port: int,
+    projectRepositoryPath: str,
+    dockerfilePath: str,
+    envs: list[dict[str, str]] = [],
+):
     """Deploy a service from a Git repository.
 
     Before calling this tool, you MUST:
@@ -81,14 +91,26 @@ async def deploy_from_git(token: str, gitUrl: str, environmentId: int, serviceNa
     async with httpx.AsyncClient() as client:
         auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
         headers = {"X-User-ID": str(user_id)}
-        json = {"environmentId": environmentId, "serviceName": serviceName, "port": port, "gitUrl": gitUrl, "projectRepositoryPath": projectRepositoryPath, "dockerfilePath": dockerfilePath, "envs": envs}
-        response = await client.post(f"{API_BASE_URL}/deployments/git", headers=headers, json=json, auth=auth)
+        json = {
+            "environmentId": environmentId,
+            "serviceName": serviceName,
+            "port": port,
+            "gitUrl": gitUrl,
+            "projectRepositoryPath": projectRepositoryPath,
+            "dockerfilePath": dockerfilePath,
+            "envs": envs,
+        }
+        response = await client.post(
+            f"{API_BASE_URL}/deployments/git", headers=headers, json=json, auth=auth
+        )
         response.raise_for_status()
         return {"status": "ok"}
 
 
 @mcp.tool()
-async def deploy_ingress(token: str, environmentId: int, ingressHosts: list[IngressHost]):
+async def deploy_ingress(
+    token: str, environmentId: int, ingressHosts: list[IngressHost]
+):
     """Deploy a Traefik ingress to expose HTTP(S) services in an environment.
 
     Before calling this tool, you MUST:
@@ -120,10 +142,19 @@ async def deploy_ingress(token: str, environmentId: int, ingressHosts: list[Ingr
     async with httpx.AsyncClient() as client:
         auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
         headers = {"X-User-ID": str(user_id)}
-        json = {"environmentId": environmentId, "ingressHosts": [h.model_dump() for h in ingressHosts]}
-        response = await client.post(f"{API_BASE_URL}/deployments/ingresses", headers=headers, json=json, auth=auth)
+        json = {
+            "environmentId": environmentId,
+            "ingressHosts": [h.model_dump() for h in ingressHosts],
+        }
+        response = await client.post(
+            f"{API_BASE_URL}/deployments/ingresses",
+            headers=headers,
+            json=json,
+            auth=auth,
+        )
         response.raise_for_status()
         return {"status": "ok"}
+
 
 @mcp.tool()
 async def get_environments(token: str, project_id: int) -> list[dict]:
@@ -148,6 +179,7 @@ async def get_environments(token: str, project_id: int) -> list[dict]:
         response.raise_for_status()
         return response.json()
 
+
 @mcp.tool()
 async def get_environment_deployments(token: str, environment_id: int) -> dict:
     """Get all deployments for an environment.
@@ -168,6 +200,7 @@ async def get_environment_deployments(token: str, environment_id: int) -> dict:
         )
         response.raise_for_status()
         return response.json()
+
 
 @mcp.tool()
 async def get_projects(token: str, organization_id: int) -> list[dict]:
@@ -193,10 +226,13 @@ async def get_projects(token: str, organization_id: int) -> list[dict]:
 
 app = mcp.http_app()
 
+
 def create_app():
     return mcp.http_app(transport="streamable-http")
 
+
 if __name__ == "__main__":
     import uvicorn
+
     app = create_app()
     uvicorn.run(app, host="0.0.0.0", port=8080)
