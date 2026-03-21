@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP("starliner")
 
 
-
 def get_required_env(name: str) -> str:
     value = os.getenv(name)
     if not value:
@@ -35,6 +34,7 @@ AUTH_BASE_URL = get_required_env("AUTH_BASE_URL")
 API_BASE_URL = get_required_env("API_BASE_URL")
 BASIC_AUTH_USER = get_required_env("BASIC_AUTH_USER")
 BASIC_AUTH_PASS = get_required_env("BASIC_AUTH_PASS")
+
 
 @mcp.tool()
 async def login(email: str, password: str):
@@ -174,7 +174,7 @@ async def deploy_ingress(
 
 @mcp.tool()
 async def deploy_database(token: str, environment_id: int, service_name: str):
-    """ Deploy a database. Call get_environment_deployments(token: str, environment_id: int) to view the status after deploying.
+    """Deploy a database. Call get_environment_deployments(token: str, environment_id: int) to view the status after deploying.
 
     Args:
         token: The bearer token from the login tool call.
@@ -289,6 +289,7 @@ async def get_projects(token: str, organization_id: int) -> list[dict]:
         response.raise_for_status()
         return response.json()
 
+
 @mcp.tool()
 async def get_project_cluster(token: str, project_id: int):
     """Get the cluster details for a project, including its IPv4 address.
@@ -323,7 +324,9 @@ async def get_project_cluster(token: str, project_id: int):
 
 
 @mcp.tool()
-async def get_deployment_logs(token: str, deployment_id: int, collect_seconds: int = 5) -> str:
+async def get_deployment_logs(
+    token: str, deployment_id: int, collect_seconds: int = 5
+) -> str:
     """Get logs for a specific deployment.
 
     IMPORTANT: If you don't know the deployment_id, first call get_environment_deployments
@@ -342,7 +345,7 @@ async def get_deployment_logs(token: str, deployment_id: int, collect_seconds: i
     auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
     logs: list[str] = []
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient():
         user_id = await get_user_id_from_token(token)
 
     async def collect_logs():
@@ -351,10 +354,10 @@ async def get_deployment_logs(token: str, deployment_id: int, collect_seconds: i
             url = f"{API_BASE_URL}/deployments/{deployment_id}/logs"
             logger.info(f"Connecting to {url}")
             async with client.stream(
-                    "GET",
-                    url,
-                    headers={"X-User-ID": str(user_id)},
-                    auth=auth,
+                "GET",
+                url,
+                headers={"X-User-ID": str(user_id)},
+                auth=auth,
             ) as response:
                 logger.info(f"Response status: {response.status_code}")
                 response.raise_for_status()
