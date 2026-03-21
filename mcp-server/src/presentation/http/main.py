@@ -62,15 +62,19 @@ async def deploy_from_git(
     """Deploy a service from a Git repository.
 
     Before calling this tool, you MUST:
-      1. Ask the user which project and environment they want to deploy to.
-         - Use get_projects(organization_id) to list available projects.
-         - Use get_environments(project_id) to list available environments for the chosen project.
-      2. Call get_environment_deployments(environment_id) to discover existing deployments in the target environment.
+      1. Ask the user which organization, project and environment they want to deploy to.
+         - Use get_organizations(token) to get a list of all organizations.
+         - Use get_projects(token, organization_id) to list available projects.
+         - Use get_environments(token, project_id) to list available environments for the chosen project.
+      2. Call get_environment_deployments(token, environment_id) to discover existing deployments in the target
+      environment.
          - Use credentials and connection details from existing deployments (e.g. databases) to automatically populate the env vars the application needs.
       3. Infer git_url, dockerfile_path, and project_repository_path from the repo.
-      4. Try to create a Dockerfile if there is none.
+      4. Try to create a Dockerfile if there is none. You don't need to create one for the database, instead use the
+      deploy_database(token: str, environment_id: str, serviceName: str) tool.
       5. Infer port from the Dockerfile (e.g. EXPOSE directive).
-      6. Scan the application code for any additional required env var names and resolve their values from step 2 or ask the user.
+      6. Scan the application code for any additional required env var names and resolve dependent values (like
+      database name, host etc.) from get_environment_deployments(token, environment_id) or ask the user.
       7. Ask the user for: service_name and any env var values you could not resolve automatically.
 
     Args:
@@ -114,7 +118,7 @@ async def deploy_ingress(
     """Deploy a Traefik ingress to expose HTTP(S) services in an environment.
 
     Before calling this tool, you MUST:
-      1. Call get_environment_deployments(environment_id) to discover existing services.
+      1. Call get_environment_deployments(token, environment_id) to discover existing services.
          - Use the service names from existing deployments to populate the `serviceName` field.
       2. Ask the user for the host prefix(es) and path routing rules if not provided.
       3. Confirm the ingress configuration with the user before deploying.
@@ -157,6 +161,36 @@ async def deploy_ingress(
 
 
 @mcp.tool()
+async def deploy_database(token: str, environment_id: int, service_name: str):
+    """ Deploy a database. Call get_environment_deployments(token: str, environment_id: int) to view the status after deploying.
+
+    Args:
+        token: The bearer token from the login tool call.
+        environment_id: The ID of the target environment.
+        service_name: The name of the service to deploy.
+
+    Returns:
+        The deployment response from the backend.
+    """
+    user_id = await get_user_id_from_token(token)
+    async with httpx.AsyncClient() as client:
+        auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
+        headers = {"X-User-ID": str(user_id)}
+        json = {
+            "environmentId": environment_id,
+            "serviceName": service_name,
+        }
+        response = await client.post(
+            f"{API_BASE_URL}/deployments/databases",
+            headers=headers,
+            json=json,
+            auth=auth,
+        )
+        response.raise_for_status()
+        return {"status": "ok"}
+
+
+@mcp.tool()
 async def get_environments(token: str, project_id: int) -> list[dict]:
     """Get all environments for a project.
 
@@ -182,7 +216,7 @@ async def get_environments(token: str, project_id: int) -> list[dict]:
 
 @mcp.tool()
 async def get_environment_deployments(token: str, environment_id: int) -> dict:
-    """Get all deployments for an environment.
+    """Get all deployments for an environment. You can use this tool to check the status after deploying.
 
     Args:
         token: The bearer token from the login tool call.
