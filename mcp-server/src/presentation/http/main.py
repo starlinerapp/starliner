@@ -203,6 +203,26 @@ async def get_environment_deployments(token: str, environment_id: int) -> dict:
 
 
 @mcp.tool()
+async def get_organizations(token: str) -> list[dict]:
+    """Get all organizations for a user
+    Args:
+        token: The bearer token from the login tool call.
+
+    Returns:
+        A list of organizations with id, name, ownerId, and slug.
+    """
+    user_id = await get_user_id_from_token(token)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{API_BASE_URL}/organizations",
+            headers={"X-User-ID": str(user_id)},
+            auth=httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS),
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+@mcp.tool()
 async def get_projects(token: str, organization_id: int) -> list[dict]:
     """Get all projects for an organization.
 
