@@ -30,6 +30,7 @@ def get_required_env(name: str) -> str:
         raise RuntimeError(f"Missing required environment variable: {name}")
     return value
 
+
 AUTH_BASE_URL = get_required_env("AUTH_BASE_URL")
 API_BASE_URL = get_required_env("API_BASE_URL")
 BASIC_AUTH_USER = get_required_env("BASIC_AUTH_USER")
@@ -76,8 +77,8 @@ async def deploy_from_git(
          - Use get_environments(token, project_id) to list available environments for the chosen project.
       2. Call get_environment_deployments(token, environment_id) to discover existing deployments in the target
       environment.
-         - [IMPORTANT!!!!] Use credentials and connection details from existing deployments (e.g. databases) to automatically populate the env vars the application needs.
-      3. Infer git_url, dockerfile_path, and project_repository_path from the repo.If you cannot find it in the repo then run: git remote show origin
+         - [IMPORTANT!!!!] Use credentials and connection details from existing deployments (like database name, username, password, etc.) to automatically populate the env vars the application needs.
+      3. Infer git_url, dockerfile_path, and project_repository_path from the repo.
       4. Try to create a Dockerfile if there is none. You don't need to create one for the database, instead use the
       deploy_database(token: str, environment_id: str, serviceName: str) tool.
       5. Infer port from the Dockerfile (e.g. EXPOSE directive).
