@@ -513,12 +513,17 @@ async def create_cluster(token: str, name: str, serverType: str, organizationId:
     json = {"name": name, "serverType": serverType, "organizationId": organizationId}
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{API_BASE_URL}/clusters", auth=auth, headers=headers, json=json)
+        response = await client.post(
+            f"{API_BASE_URL}/clusters", auth=auth, headers=headers, json=json
+        )
         response.raise_for_status()
         return response.json()
 
+
 @mcp.tool()
-async def create_project(token: str, organization_id: int, name: str, team_id: int, cluster_id: int):
+async def create_project(
+    token: str, organization_id: int, name: str, team_id: int, cluster_id: int
+):
     """Create a project.
 
     IMPORTANT: If you don't know the team, first call get_teams
@@ -537,10 +542,17 @@ async def create_project(token: str, organization_id: int, name: str, team_id: i
     user_id = await get_user_id_from_token(token)
     auth = httpx.BasicAuth(BASIC_AUTH_USER, BASIC_AUTH_PASS)
     headers = {"X-User-ID": str(user_id)}
-    json = {"name": name, "organization_id": organization_id, "team_id": team_id, "cluster_id": cluster_id}
+    json = {
+        "name": name,
+        "organization_id": organization_id,
+        "team_id": team_id,
+        "cluster_id": cluster_id,
+    }
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{API_BASE_URL}/projects", auth=auth, headers=headers, json=json)
+        response = await client.post(
+            f"{API_BASE_URL}/projects", auth=auth, headers=headers, json=json
+        )
         response.raise_for_status()
         return response.json()
 
@@ -561,9 +573,12 @@ async def get_teams(token: str, organizationId: int):
     headers = {"X-User-ID": str(user_id)}
 
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"{API_BASE_URL}/teams/{organizationId}", headers=headers, auth=auth)
+        response = await client.get(
+            f"{API_BASE_URL}/teams/{organizationId}", headers=headers, auth=auth
+        )
         response.raise_for_status()
         return response.json()
+
 
 app = mcp.http_app()
 
