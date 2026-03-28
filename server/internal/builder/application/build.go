@@ -35,7 +35,7 @@ func NewBuildApplication(
 func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
 
-	tmpDir, err := ba.git.CloneRepository(build.GitUrl)
+	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl)
 	if err != nil {
 		log.Printf("failed to clone repository: %v", err)
 	}
@@ -53,7 +53,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		ba.cfg.ImageRegistryUrl,
 		build.ImageName,
 	)
-	tag := imagePath + ":latest"
+	tag := imagePath + ":" + commitHash
 
 	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag)
 
@@ -67,7 +67,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		DeploymentId:     build.DeploymentId,
 		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
 		ImageName:        build.ImageName,
-		Tag:              "latest",
+		Tag:              commitHash,
 		Logs:             logs,
 		BuildStatus:      buildStatus,
 	})

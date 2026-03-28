@@ -18,7 +18,7 @@ export default function ProjectLayout() {
   const trpc = useTRPC();
 
   const { data: projects, isLoading: isProjectsLoading } = useQuery(
-    trpc.organization.getOrganizationProjects.queryOptions({
+    trpc.organization.getUserProjects.queryOptions({
       id: organization.id,
     }),
   );

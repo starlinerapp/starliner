@@ -92,7 +92,8 @@ SELECT
     clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type
 FROM clusters
 INNER JOIN organizations ON organizations.id = clusters.organization_id
-INNER JOIN projects ON projects.organization_id = organizations.id
+INNER JOIN teams ON teams.organization_id = organizations.id
+INNER JOIN projects ON projects.team_id = teams.id
 INNER JOIN environments ON projects.id = environments.project_id
 INNER JOIN deployments ON environments.id = deployments.environment_id
 WHERE deployments.id = $1
@@ -167,13 +168,14 @@ const getUserCluster = `-- name: GetUserCluster :one
 SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
 FROM clusters c
 LEFT JOIN organizations o ON c.organization_id = o.id
-WHERE o.owner_id = $1
+LEFT JOIN organization_members om ON o.id = om.organization_id
+WHERE om.user_id = $1
 AND c.id = $2
 `
 
 type GetUserClusterParams struct {
-	OwnerID int64
-	ID      int64
+	UserID int64
+	ID     int64
 }
 
 type GetUserClusterRow struct {
@@ -189,7 +191,7 @@ type GetUserClusterRow struct {
 }
 
 func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) (GetUserClusterRow, error) {
-	row := q.db.QueryRowContext(ctx, getUserCluster, arg.OwnerID, arg.ID)
+	row := q.db.QueryRowContext(ctx, getUserCluster, arg.UserID, arg.ID)
 	var i GetUserClusterRow
 	err := row.Scan(
 		&i.ID,

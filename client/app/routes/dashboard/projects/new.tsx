@@ -12,6 +12,7 @@ import WarningBanner from "~/components/atoms/banner/WarningBanner";
 interface NewProjectFormInput {
   name: string;
   clusterId: string;
+  teamId: string;
 }
 
 export default function NewProject() {
@@ -21,17 +22,25 @@ export default function NewProject() {
 
   const organization = useOrganizationContext();
 
-  const { data: clustersData, isLoading } = useQuery(
+  const { data: clustersData, isLoading: isClustersLoading } = useQuery(
     trpc.organization.getOrganizationClusters.queryOptions({
       id: organization.id,
     }),
   );
 
+  const { data: teamsData, isLoading: isTeamsLoading } = useQuery(
+    trpc.team.getUserTeams.queryOptions({
+      organizationId: organization.id,
+    }),
+  );
+
+  const isLoading = isClustersLoading || isTeamsLoading;
+
   const createProjectMutation = useMutation(
     trpc.project.createProject.mutationOptions({
       onSuccess: async (project) => {
         await queryClient.invalidateQueries({
-          queryKey: trpc.organization.getOrganizationProjects.queryKey({
+          queryKey: trpc.organization.getUserProjects.queryKey({
             id: organization.id,
           }),
         });
@@ -43,20 +52,33 @@ export default function NewProject() {
   const { register, handleSubmit, watch } = useForm<NewProjectFormInput>();
   const nameInput = watch("name", "");
   const clusterIdInput = watch("clusterId", "");
+  const teamIdInput = watch("teamId", "");
 
   const onSubmit: SubmitHandler<NewProjectFormInput> = (data) => {
     createProjectMutation.mutate({
       organizationId: organization.id,
       name: data.name,
       clusterId: Number(data.clusterId),
+      teamId: Number(data.teamId),
     });
   };
 
   const clusterExists = clustersData && clustersData.length > 0;
+  const teamExists = teamsData && teamsData.length > 0;
 
   return (
     <div className="flex flex-col gap-2 px-8 py-4">
       <h1 className="text-xl font-bold">New Project</h1>
+      {!teamExists && !isLoading ? (
+        <WarningBanner
+          text="You must join or create a team before creating projects."
+          linkOut={{
+            text: "Manage Teams",
+            href: `/${organization.slug}/settings/organization`,
+          }}
+          className="my-2"
+        />
+      ) : null}
       {!clusterExists && !isLoading ? (
         <WarningBanner
           text="You must create a cluster before creating projects."
@@ -86,6 +108,38 @@ export default function NewProject() {
           />
           <div className="relative w-52">
             <select
+              {...register("teamId", { required: true })}
+              name="teamId"
+              className={cn(
+                "border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm",
+                teamExists ? "" : "text-mauve-11",
+              )}
+              disabled={!teamExists}
+              defaultValue=""
+            >
+              {teamExists ? (
+                <>
+                  <option value="" disabled>
+                    Team*
+                  </option>
+                  {teamsData.map((team, i) => (
+                    <option key={i} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </>
+              ) : (
+                <option value="" disabled>
+                  Team*
+                </option>
+              )}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+              <ChevronDown width={15} className="stroke-mauve-10" />
+            </div>
+          </div>
+          <div className="relative w-52">
+            <select
               {...register("clusterId", { required: true })}
               name="clusterId"
               className={cn(
@@ -113,7 +167,7 @@ export default function NewProject() {
           </div>
           <Button
             className="w-32"
-            disabled={!nameInput || !clusterIdInput}
+            disabled={!nameInput || !clusterIdInput || !teamIdInput}
             type="submit"
           >
             Create Project

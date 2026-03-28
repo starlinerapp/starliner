@@ -21,7 +21,7 @@ export default function ProjectSettings() {
     trpc.project.deleteProject.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: trpc.organization.getOrganizationProjects.queryKey({
+          queryKey: trpc.organization.getUserProjects.queryKey({
             id: organization.id,
           }),
         });

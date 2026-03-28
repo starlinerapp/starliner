@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -23,19 +24,15 @@ export default function DeployFromGitForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployFromGitFormProps) {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    control,
-    formState: { isDirty },
-  } = useForm<DeployFromGitFormInput>({ defaultValues });
+  const { register, handleSubmit, watch, reset, control } =
+    useForm<DeployFromGitFormInput>({ defaultValues });
 
   const { fields, append } = useFieldArray({
     control,
     name: "envs",
   });
+
+  const [error, setError] = useState<string | null>(null);
 
   const urlInput = watch("url", "");
   const serviceNameInput = watch("serviceName", "");
@@ -48,16 +45,23 @@ export default function DeployFromGitForm({
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
-    await onSubmit(data);
-    if (resetOnSuccess)
-      reset({
-        url: "",
-        serviceName: "",
-        dockerfilePath: "",
-        projectDirectoryPath: "",
-        port: null,
-        envs: [],
-      });
+    try {
+      await onSubmit(data);
+
+      if (resetOnSuccess)
+        reset({
+          url: "",
+          serviceName: "",
+          dockerfilePath: "",
+          projectDirectoryPath: "",
+          port: null,
+          envs: [],
+        });
+
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Oops something went wrong!");
+    }
   };
 
   const inputValid =
@@ -76,6 +80,11 @@ export default function DeployFromGitForm({
             Enter a Git repository URL to deploy.
           </p>
         </div>
+        {error && (
+          <div>
+            <ErrorBanner text={error} />
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
             <p className="text-sm">Service Name</p>
@@ -173,7 +182,7 @@ export default function DeployFromGitForm({
         <Button
           type="submit"
           size="sm"
-          disabled={!isDirty || !inputValid}
+          disabled={!inputValid}
           className="w-28 flex-shrink-0 py-1.5"
         >
           {defaultValues ? "Redeploy" : "Deploy"}

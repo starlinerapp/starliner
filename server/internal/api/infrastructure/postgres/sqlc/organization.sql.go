@@ -7,7 +7,30 @@ package sqlc
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 )
+
+const addOrganizationMember = `-- name: AddOrganizationMember :exec
+INSERT INTO organization_members (
+    organization_id,
+    user_id
+) VALUES (
+    $1,
+    $2
+ )
+`
+
+type AddOrganizationMemberParams struct {
+	OrganizationID int64
+	UserID         int64
+}
+
+func (q *Queries) AddOrganizationMember(ctx context.Context, arg AddOrganizationMemberParams) error {
+	_, err := q.db.ExecContext(ctx, addOrganizationMember, arg.OrganizationID, arg.UserID)
+	return err
+}
 
 const createOrganization = `-- name: CreateOrganization :one
 INSERT INTO organizations (
@@ -42,6 +65,35 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 	return i, err
 }
 
+const createOrganizationInvite = `-- name: CreateOrganizationInvite :one
+INSERT INTO organization_invites (
+    organization_id,
+    expires_at
+)
+VALUES (
+    $1,
+    $2
+)
+RETURNING id, organization_id, expires_at, created_at
+`
+
+type CreateOrganizationInviteParams struct {
+	OrganizationID int64
+	ExpiresAt      time.Time
+}
+
+func (q *Queries) CreateOrganizationInvite(ctx context.Context, arg CreateOrganizationInviteParams) (OrganizationInvite, error) {
+	row := q.db.QueryRowContext(ctx, createOrganizationInvite, arg.OrganizationID, arg.ExpiresAt)
+	var i OrganizationInvite
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getOrganization = `-- name: GetOrganization :one
 SELECT id, name, slug, owner_id, created_at, updated_at
 FROM organizations
@@ -58,6 +110,36 @@ func (q *Queries) GetOrganization(ctx context.Context, id int64) (Organization, 
 		&i.OwnerID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getOrganizationInviteById = `-- name: GetOrganizationInviteById :one
+SELECT
+    organization_invites.id, organization_invites.organization_id, organization_invites.expires_at, organization_invites.created_at,
+    organizations.name AS organization_name
+FROM organization_invites
+INNER JOIN organizations ON organizations.id = organization_invites.organization_id
+WHERE organization_invites.id = $1
+`
+
+type GetOrganizationInviteByIdRow struct {
+	ID               uuid.UUID
+	OrganizationID   int64
+	ExpiresAt        time.Time
+	CreatedAt        time.Time
+	OrganizationName string
+}
+
+func (q *Queries) GetOrganizationInviteById(ctx context.Context, id uuid.UUID) (GetOrganizationInviteByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getOrganizationInviteById, id)
+	var i GetOrganizationInviteByIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.OrganizationName,
 	)
 	return i, err
 }
@@ -91,13 +173,14 @@ func (q *Queries) GetOrganizationProvisioningCredential(ctx context.Context, arg
 }
 
 const getUserOrganizations = `-- name: GetUserOrganizations :many
-SELECT id, name, slug, owner_id, created_at, updated_at
+SELECT organizations.id, organizations.name, organizations.slug, organizations.owner_id, organizations.created_at, organizations.updated_at
 FROM organizations
-WHERE owner_id = $1
+INNER JOIN organization_members ON organization_members.organization_id = organizations.id
+WHERE organization_members.user_id = $1
 `
 
-func (q *Queries) GetUserOrganizations(ctx context.Context, ownerID int64) ([]Organization, error) {
-	rows, err := q.db.QueryContext(ctx, getUserOrganizations, ownerID)
+func (q *Queries) GetUserOrganizations(ctx context.Context, userID int64) ([]Organization, error) {
+	rows, err := q.db.QueryContext(ctx, getUserOrganizations, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +207,22 @@ func (q *Queries) GetUserOrganizations(ctx context.Context, ownerID int64) ([]Or
 		return nil, err
 	}
 	return items, nil
+}
+
+const removeOrganizationMember = `-- name: RemoveOrganizationMember :exec
+DELETE FROM organization_members
+WHERE organization_members.organization_id = $1
+    AND organization_members.user_id = $2
+`
+
+type RemoveOrganizationMemberParams struct {
+	OrganizationID int64
+	UserID         int64
+}
+
+func (q *Queries) RemoveOrganizationMember(ctx context.Context, arg RemoveOrganizationMemberParams) error {
+	_, err := q.db.ExecContext(ctx, removeOrganizationMember, arg.OrganizationID, arg.UserID)
+	return err
 }
 
 const upsertProvisioningCredential = `-- name: UpsertProvisioningCredential :exec

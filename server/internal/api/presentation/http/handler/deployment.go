@@ -3,17 +3,18 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/mapper"
 	"starliner.app/internal/api/presentation/http/sse"
-	"strconv"
 )
 
 type DeploymentHandler struct {
@@ -56,8 +57,14 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 		body.Port,
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
+
 	if err != nil {
+		if errors.Is(err, value.ErrDeploymentNameAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -97,6 +104,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 		body.Port,
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 	}
@@ -129,7 +137,12 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 		body.ServiceName,
 	)
 	if err != nil {
+		if errors.Is(err, value.ErrDeploymentNameAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -159,8 +172,19 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 		currentUser.Id,
 		body.EnvironmentId,
 	)
+
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		if errors.Is(err, value.ErrIngressHostAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal Server Error",
+		})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -197,8 +221,19 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 		deploymentId,
 		mapper.MapHostsFromRequest(body.IngressHosts),
 	)
+
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		if errors.Is(err, value.ErrIngressHostAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal Server Error",
+		})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -234,7 +269,12 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
 	if err != nil {
+		if errors.Is(err, value.ErrDeploymentNameAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)

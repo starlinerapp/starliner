@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useNavigate, useSearchParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
 import { authClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
@@ -15,6 +15,8 @@ interface SignUpFormInput {
 export default function SignUp() {
   const { register, handleSubmit } = useForm<SignUpFormInput>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") || "/";
 
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +32,7 @@ export default function SignUp() {
           // show loading state
         },
         onSuccess: () => {
-          navigate("/");
+          navigate(redirectTo);
         },
         onError: (ctx) => {
           setError(ctx.error.message);
@@ -39,12 +41,17 @@ export default function SignUp() {
     );
   };
 
+  const loginLink =
+    redirectTo !== "/"
+      ? `/login?redirectTo=${encodeURIComponent(redirectTo)}`
+      : "/login";
+
   return (
     <div className="flex w-[500px] flex-col gap-4">
       <p className="flex items-center justify-end gap-2 py-0.5 text-sm font-light">
         Already have an account?
         <NavLink
-          to="/login"
+          to={loginLink}
           className="hover:bg-gray-4 flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline"
         >
           Sign in <ArrowRight className="w-3" />

@@ -29,6 +29,7 @@ func NewServer(
 	clusterHandler *handler.ClusterHandler,
 	deploymentHandler *handler.DeploymentHandler,
 	buildHandler *handler.BuildHandler,
+	teamHandler *handler.TeamHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -43,10 +44,17 @@ func NewServer(
 	{
 		organizationRoutes.POST("", organizationHandler.CreateOrganization)
 		organizationRoutes.GET("", organizationHandler.GetUserOrganizations)
-		organizationRoutes.GET("/:id/projects", organizationHandler.GetOrganizationProjects)
+		organizationRoutes.GET("/:id/projects", organizationHandler.GetUserProjects)
 		organizationRoutes.GET("/:id/clusters", organizationHandler.GetOrganizationClusters)
 		organizationRoutes.POST("/:id/settings/credential/hetzner", organizationHandler.UpsertHetznerCredential)
 		organizationRoutes.GET("/:id/settings/credential/hetzner", organizationHandler.GetHetznerCredential)
+		organizationRoutes.POST("/:id/invites", organizationHandler.CreateInvite)
+	}
+
+	inviteRoutes := engine.Group("/invites")
+	{
+		inviteRoutes.GET("/:inviteId", organizationHandler.GetInviteDetails)
+		inviteRoutes.POST("/accept", organizationHandler.AcceptInvite)
 	}
 
 	projectRoutes := engine.Group("/projects")
@@ -55,6 +63,7 @@ func NewServer(
 		projectRoutes.GET("/:id", projectHandler.GetProject)
 		projectRoutes.DELETE("/:id", projectHandler.DeleteProject)
 		projectRoutes.GET("/:id/cluster", projectHandler.GetProjectCluster)
+		projectRoutes.GET("/:id/environments", projectHandler.GetProjectEnvironments)
 	}
 
 	environmentRoutes := engine.Group("/environments")
@@ -93,6 +102,16 @@ func NewServer(
 	webSocketRoutes := engine.Group("/ws")
 	{
 		webSocketRoutes.GET("/deployments/:id", deploymentHandler.OpenTTY)
+	}
+
+	teamRoutes := engine.Group("/teams")
+	{
+		teamRoutes.POST("/:organizationId", teamHandler.CreateTeam)
+		teamRoutes.GET("/:organizationId", teamHandler.GetUserTeams)
+		teamRoutes.POST("/:organizationId/join", teamHandler.JoinTeam)
+		teamRoutes.GET("/:organizationId/:teamId/members", teamHandler.GetTeamMembers)
+		teamRoutes.POST("/:organizationId/:teamId/members", teamHandler.AddTeamMember)
+		teamRoutes.DELETE("/:organizationId/:teamId/members", teamHandler.RemoveTeamMember)
 	}
 
 	return &Server{engine: engine}

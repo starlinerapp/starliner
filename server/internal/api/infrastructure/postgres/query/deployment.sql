@@ -3,10 +3,10 @@ SELECT deployments.*
 FROM  deployments
 INNER JOIN environments ON deployments.environment_id = environments.id
 INNER JOIN projects ON environments.project_id = projects.id
-INNER JOIN organizations o on projects.organization_id = o.id
-INNER JOIN users ON o.owner_id = users.id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE deployments.id = @deployment_id
-    AND users.id = @user_id;
+    AND team_members.user_id = @user_id;
 
 -- name: GetDeploymentWithNamespace :one
 SELECT
@@ -19,7 +19,6 @@ WHERE deployments.id = $1;
 -- name: GetEnvironmentDeploymentByName :one
 SELECT deployments.*
 FROM deployments
-INNER JOIN environments ON deployments.environment_id = environments.id
 WHERE deployments.name = $1
     AND environment_id = $2;
 ;

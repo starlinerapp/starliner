@@ -2,11 +2,12 @@ package application
 
 import (
 	"context"
+	"strings"
+
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	coreService "starliner.app/internal/core/domain/service"
-	"strings"
 )
 
 type ProjectApplication struct {
@@ -30,7 +31,7 @@ func NewProjectApplication(
 	}
 }
 
-func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64) (*value.Project, error) {
+func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
 	err := ps.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
@@ -48,7 +49,7 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 		namespace,
 		productionEnvName,
 		strings.ToLower(productionEnvName),
-		organizationId,
+		teamId,
 		clusterId,
 	)
 	if err != nil {
@@ -71,9 +72,27 @@ func (ps *ProjectApplication) DeleteProject(ctx context.Context, projectId int64
 }
 
 func (ps *ProjectApplication) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*value.ProjectCluster, error) {
+
 	cluster, err := ps.projectRepository.GetProjectCluster(ctx, projectId, userId)
 	if err != nil {
 		return nil, err
 	}
 	return value.NewProjectCluster(cluster), nil
+}
+
+func (ps *ProjectApplication) GetProjectEnvironments(ctx context.Context, projectId int64, userId int64) ([]*value.Environment, error) {
+	environments, err := ps.projectRepository.GetProjectEnvironments(ctx, projectId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	valueEnvironments := make([]*value.Environment, len(environments))
+	for i, e := range environments {
+		valueEnvironments[i] = &value.Environment{
+			Id:   e.Id,
+			Name: e.Name,
+			Slug: e.Slug,
+		}
+	}
+	return valueEnvironments, nil
 }

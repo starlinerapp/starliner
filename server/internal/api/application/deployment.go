@@ -3,9 +3,11 @@ package application
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"log"
+	"strconv"
+
+	"github.com/google/uuid"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
@@ -14,7 +16,6 @@ import (
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
-	"strconv"
 )
 
 type DeploymentApplication struct {
@@ -70,6 +71,15 @@ func (da *DeploymentApplication) DeployFromGit(
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
+	}
+
+	found, err := da.deploymentRepository.GetEnvironmentDeploymentByName(ctx, environmentId, serviceName)
+
+	if err != nil {
+		return err
+	}
+	if found != nil {
+		return fmt.Errorf("%w: %s", value.ErrDeploymentNameAlreadyExists, serviceName)
 	}
 
 	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
@@ -176,6 +186,15 @@ func (da *DeploymentApplication) DeployImage(
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
+	}
+
+	found, err := da.deploymentRepository.GetEnvironmentDeploymentByName(ctx, environmentId, serviceName)
+
+	if err != nil {
+		return err
+	}
+	if found != nil {
+		return fmt.Errorf("%w: %s", value.ErrDeploymentNameAlreadyExists, serviceName)
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
@@ -318,6 +337,15 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	found, err := da.deploymentRepository.GetEnvironmentDeploymentByName(ctx, environmentId, serviceName)
+
+	if err != nil {
+		return err
+	}
+	if found != nil {
+		return fmt.Errorf("%w: %s", value.ErrDeploymentNameAlreadyExists, serviceName)
+	}
+
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
 	if err != nil {
 		return err
@@ -363,6 +391,11 @@ func (da *DeploymentApplication) DeployDatabase(
 
 func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*value.IngressHost, userId int64, environmentId int64) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
 	if err != nil {
 		return err
 	}
@@ -450,6 +483,11 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	hosts []*value.IngressHost,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
 	if err != nil {
 		return err
 	}

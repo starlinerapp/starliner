@@ -6,12 +6,12 @@ import (
 )
 
 type Project struct {
-	Id             int64
-	Name           string
-	Environments   []*Environment
-	OrganizationId int64
-	ClusterId      *int64
-	CreatedAt      time.Time
+	Id           int64
+	Name         string
+	Environments []*Environment
+	TeamId       int64
+	ClusterId    *int64
+	CreatedAt    time.Time
 }
 
 func NewProject(p *entity.Project) *Project {
@@ -24,12 +24,12 @@ func NewProject(p *entity.Project) *Project {
 		}
 	}
 	return &Project{
-		Id:             p.Id,
-		Name:           p.Name,
-		Environments:   environments,
-		OrganizationId: p.OrganizationId,
-		ClusterId:      p.ClusterId,
-		CreatedAt:      p.CreatedAt,
+		Id:           p.Id,
+		Name:         p.Name,
+		Environments: environments,
+		TeamId:       p.TeamId,
+		ClusterId:    p.ClusterId,
+		CreatedAt:    p.CreatedAt,
 	}
 }
 

@@ -8,6 +8,7 @@ import {
   ClusterApiFactory,
   DeploymentApiFactory,
   BuildApiFactory,
+  TeamApiFactory,
 } from "~/server/api/client/generated";
 
 import { serverEnv } from "~/env.server";
@@ -60,6 +61,12 @@ export const deploymentApiFactory = DeploymentApiFactory(
 );
 
 export const buildApiFactory = BuildApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const teamsApiFactory = TeamApiFactory(
   configuration,
   undefined,
   axiosInstance,

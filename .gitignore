@@ -2,6 +2,8 @@
 
 .docker/nginx/ssl/dev.starliner.app.crt
 .docker/nginx/ssl/dev.starliner.app.key
+.docker/nginx/ssl/mcp.dev.starliner.app.crt
+.docker/nginx/ssl/mcp.dev.starliner.app.key
 .docker/nginx/ssl/registry.dev.starliner.app.crt
 .docker/nginx/ssl/registry.dev.starliner.app.key
 

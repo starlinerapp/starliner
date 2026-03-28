@@ -3,7 +3,11 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
+
 	interfaces "starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/domain/value"
 )
 
 type DeploymentService struct {
@@ -23,6 +27,38 @@ func (ds *DeploymentService) ValidateUserPermission(ctx context.Context, userId 
 	}
 	if deployment == nil {
 		return errors.New("user not authorized")
+	}
+
+	return nil
+}
+
+func (ds *DeploymentService) ValidateIngressHostsAvailable(
+	ctx context.Context,
+	hosts []*value.IngressHost,
+) error {
+
+	var duplicates []string
+
+	for _, h := range hosts {
+		if h == nil {
+			continue
+		}
+
+		found, err := ds.deploymentRepository.GetIngressHostByName(ctx, h.Host)
+		if err != nil {
+			return err
+		}
+
+		if found != nil {
+			duplicates = append(duplicates, h.Host)
+		}
+	}
+
+	if len(duplicates) > 0 {
+		return fmt.Errorf("%w: %s",
+			value.ErrIngressHostAlreadyExists,
+			strings.Join(duplicates, ", "),
+		)
 	}
 
 	return nil
