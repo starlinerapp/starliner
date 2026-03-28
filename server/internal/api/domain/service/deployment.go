@@ -35,6 +35,7 @@ func (ds *DeploymentService) ValidateUserPermission(ctx context.Context, userId 
 func (ds *DeploymentService) ValidateIngressHostsAvailable(
 	ctx context.Context,
 	hosts []*value.IngressHost,
+	excludeDeploymentId *int64,
 ) error {
 
 	var duplicates []string
@@ -50,6 +51,9 @@ func (ds *DeploymentService) ValidateIngressHostsAvailable(
 		}
 
 		if found != nil {
+			if excludeDeploymentId != nil && found.DeploymentId == *excludeDeploymentId {
+				continue
+			}
 			duplicates = append(duplicates, h.Host)
 		}
 	}
