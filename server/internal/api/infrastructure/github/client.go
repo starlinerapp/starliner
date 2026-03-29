@@ -11,7 +11,7 @@ type Client struct {
 	creator githubapp.ClientCreator
 }
 
-func NewClient(creator githubapp.ClientCreator) *Client {
+func NewClient(creator githubapp.ClientCreator) port.GitHub {
 	return &Client{
 		creator: creator,
 	}

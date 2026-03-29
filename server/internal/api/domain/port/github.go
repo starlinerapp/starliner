@@ -16,6 +16,6 @@ type Repository struct {
 	CloneURL    *string
 }
 
-type Client interface {
+type GitHub interface {
 	ListRepositories(ctx context.Context, installationId int64) ([]*Repository, error)
 }

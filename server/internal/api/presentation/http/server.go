@@ -30,6 +30,7 @@ func NewServer(
 	deploymentHandler *handler.DeploymentHandler,
 	buildHandler *handler.BuildHandler,
 	teamHandler *handler.TeamHandler,
+	githubHandler *handler.GithubHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -112,6 +113,11 @@ func NewServer(
 		teamRoutes.GET("/:organizationId/:teamId/members", teamHandler.GetTeamMembers)
 		teamRoutes.POST("/:organizationId/:teamId/members", teamHandler.AddTeamMember)
 		teamRoutes.DELETE("/:organizationId/:teamId/members", teamHandler.RemoveTeamMember)
+	}
+
+	githubRoutes := engine.Group("/github")
+	{
+		githubRoutes.GET("/repositories", githubHandler.GetRepositories)
 	}
 
 	return &Server{engine: engine}

@@ -623,6 +623,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/github/repositories": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get Repositories",
+                "operationId": "getRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Repository"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/invites/accept": {
             "post": {
                 "tags": [
@@ -2193,6 +2222,44 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "clusterName": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Repository": {
+            "type": "object",
+            "required": [
+                "clone_url",
+                "created_at",
+                "full_name",
+                "id",
+                "name",
+                "pushed_at",
+                "updated_at"
+            ],
+            "properties": {
+                "clone_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pushed_at": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

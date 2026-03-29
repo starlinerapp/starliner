@@ -587,6 +587,33 @@ definitions:
     - clusterId
     - clusterName
     type: object
+  response.Repository:
+    properties:
+      clone_url:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      pushed_at:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - clone_url
+    - created_at
+    - full_name
+    - id
+    - name
+    - pushed_at
+    - updated_at
+    type: object
   response.Root:
     properties:
       message:
@@ -1029,6 +1056,25 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
+  /github/repositories:
+    get:
+      operationId: getRepositories
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Repository'
+            type: array
+      summary: Get Repositories
+      tags:
+      - github
   /invites/{inviteId}:
     get:
       operationId: getOrganizationInviteDetails
