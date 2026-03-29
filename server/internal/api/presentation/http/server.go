@@ -31,6 +31,7 @@ func NewServer(
 	buildHandler *handler.BuildHandler,
 	teamHandler *handler.TeamHandler,
 	githubHandler *handler.GithubHandler,
+	githubAppHandler *handler.GithubAppHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -117,7 +118,12 @@ func NewServer(
 
 	githubRoutes := engine.Group("/github")
 	{
-		githubRoutes.GET("/repositories", githubHandler.GetRepositories)
+		githubRoutes.GET("/repositories/:organizationId", githubHandler.GetRepositories)
+	}
+
+	githubAppRoutes := engine.Group("/githubapps")
+	{
+		githubAppRoutes.POST("", githubAppHandler.CreateGithubApp)
 	}
 
 	return &Server{engine: engine}

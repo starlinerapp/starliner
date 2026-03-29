@@ -15,5 +15,6 @@ var Module = fx.Module(
 		NewBuildHandler,
 		NewTeamHandler,
 		NewGithubHandler,
+		NewGithubAppHandler,
 	),
 )

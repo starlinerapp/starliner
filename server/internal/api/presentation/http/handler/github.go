@@ -5,6 +5,7 @@ import (
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/response"
+	"strconv"
 )
 
 type GithubHandler struct {
@@ -22,13 +23,15 @@ func NewGithubHandler(githubApplication *application.GitHubApplication) *GithubH
 // @Tags github
 // @ID getRepositories
 // @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
 // @Product JSON
 // @Success 200 {array} response.Repository
-// @Router /github/repositories [get]
+// @Router /github/repositories/{organizationId} [get]
 func (gh *GithubHandler) GetRepositories(c *gin.Context) {
-	_ = c.MustGet("user").(*value.User)
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
 
-	repos, err := gh.githubApplication.GetRepositories(c.Request.Context())
+	repos, err := gh.githubApplication.GetRepositories(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return

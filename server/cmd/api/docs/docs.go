@@ -623,7 +623,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/github/repositories": {
+        "/github/repositories/{organizationId}": {
             "get": {
                 "tags": [
                     "github"
@@ -637,6 +637,13 @@ const docTemplate = `{
                         "name": "X-User-ID",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -648,6 +655,38 @@ const docTemplate = `{
                                 "$ref": "#/definitions/response.Repository"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/githubapps": {
+            "post": {
+                "tags": [
+                    "githubapp"
+                ],
+                "summary": "Create GitHub App",
+                "operationId": "createGithubApp",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create GitHub App",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateGithubApp"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
@@ -1424,6 +1463,21 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "project_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateGithubApp": {
+            "type": "object",
+            "required": [
+                "installationId",
+                "organizationId"
+            ],
+            "properties": {
+                "installationId": {
+                    "type": "integer"
+                },
+                "organizationId": {
                     "type": "integer"
                 }
             }

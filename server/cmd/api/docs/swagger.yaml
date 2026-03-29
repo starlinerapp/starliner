@@ -35,6 +35,16 @@ definitions:
     - organization_id
     - project_id
     type: object
+  request.CreateGithubApp:
+    properties:
+      installationId:
+        type: integer
+      organizationId:
+        type: integer
+    required:
+    - installationId
+    - organizationId
+    type: object
   request.CreateOrganization:
     properties:
       name:
@@ -1056,7 +1066,7 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
-  /github/repositories:
+  /github/repositories/{organizationId}:
     get:
       operationId: getRepositories
       parameters:
@@ -1065,6 +1075,11 @@ paths:
         name: X-User-ID
         required: true
         type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
       responses:
         "200":
           description: OK
@@ -1075,6 +1090,27 @@ paths:
       summary: Get Repositories
       tags:
       - github
+  /githubapps:
+    post:
+      operationId: createGithubApp
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Create GitHub App
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateGithubApp'
+      responses:
+        "201":
+          description: Created
+      summary: Create GitHub App
+      tags:
+      - githubapp
   /invites/{inviteId}:
     get:
       operationId: getOrganizationInviteDetails
