@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Button from "~/components/atoms/button/Button";
-import { ArrowRight, Plus } from "~/components/atoms/icons";
+import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
