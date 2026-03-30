@@ -5,6 +5,7 @@ type TriggerBuild struct {
 	DeploymentId   int64
 	ImageName      string
 	GitUrl         string
+	AccessToken    string
 	RootDirectory  string
 	DockerfilePath string
 }

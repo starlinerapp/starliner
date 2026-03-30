@@ -30,7 +30,7 @@ export default function ProjectSettings() {
     }),
   );
 
-  const { data: clusterData, isLoading: isProjectDataLoading } = useQuery(
+  const { data: clusterData, isLoading: isClusterDataLoading } = useQuery(
     trpc.project.getProjectCluster.queryOptions({ id: Number(id) }),
   );
 
@@ -42,7 +42,7 @@ export default function ProjectSettings() {
         </div>
         <div className="flex items-center justify-between px-4 py-2">
           <div>Assigned Cluster</div>
-          {isProjectDataLoading ? (
+          {isClusterDataLoading ? (
             <Skeleton className="h-9.5 w-60" />
           ) : (
             <input
@@ -68,6 +68,7 @@ export default function ProjectSettings() {
           <Button
             className="w-36"
             intent="danger"
+            disabled={isClusterDataLoading}
             size="sm"
             onClick={() =>
               deleteProjectMutation.mutate({

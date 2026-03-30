@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import Button from "~/components/atoms/button/Button";
-import { ArrowRight, Plus } from "~/components/atoms/icons";
+import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
+import { useTRPC } from "~/utils/trpc/react";
+import { useQuery } from "@tanstack/react-query";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -25,6 +29,15 @@ export default function DeployFromGitForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployFromGitFormProps) {
+  const trpc = useTRPC();
+  const organization = useOrganizationContext();
+
+  const { data: repositoriesData, isLoading } = useQuery(
+    trpc.github.getRepositories.queryOptions({
+      organizationId: organization.id,
+    }),
+  );
+
   const { register, handleSubmit, watch, reset, control } =
     useForm<DeployFromGitFormInput>({ defaultValues });
 
@@ -95,9 +108,9 @@ export default function DeployFromGitForm({
     <>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
         <div className="flex flex-col gap-1">
-          <p>Import Git Repository</p>
+          <p>Select Git Repository</p>
           <p className="text-mauve-11 truncate text-sm">
-            Enter a Git repository URL to deploy.
+            Select the repository you want to deploy.
           </p>
         </div>
         {error && (
@@ -121,17 +134,28 @@ export default function DeployFromGitForm({
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-sm">Git Repository URL</p>
+            <p className="text-sm">Repository</p>
             <div className="flex gap-2">
-              <input
-                className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
-                type="text"
-                placeholder="Git URL*"
-                disabled={!!defaultValues?.url}
-                {...register("url", {
-                  required: true,
-                })}
-              />
+              {isLoading ? (
+                <Skeleton className="h-10 w-full" />
+              ) : (
+                <div className="relative w-full">
+                  <select
+                    {...register("url", { required: true })}
+                    disabled={!!defaultValues?.url}
+                    className="border-mauve-6 disabled:bg-gray-2 disabled:text-gray-10 w-full appearance-none rounded-md border-1 p-2 text-sm"
+                  >
+                    {repositoriesData?.map((repo, i) => (
+                      <option key={i} value={repo.clone_url}>
+                        {repo.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                    <ChevronDown width={15} className="stroke-mauve-10" />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex flex-col gap-1">

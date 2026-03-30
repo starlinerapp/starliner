@@ -105,6 +105,8 @@ export default [
     ]),
   ]),
 
+  ...prefix("github", [route("app", "routes/github/app.tsx")]),
+
   layout("routes/auth/layout.tsx", [
     route("signup", "routes/auth/signup.tsx"),
     route("login", "routes/auth/login.tsx"),
