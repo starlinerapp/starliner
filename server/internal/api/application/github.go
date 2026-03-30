@@ -31,7 +31,7 @@ func NewGitHubApplication(
 }
 
 func (ga *GitHubApplication) GetRepositories(ctx context.Context, userId int64, organizationId int64) ([]*value.Repository, error) {
-	err := ga.organizationService.ValidateUserInOrg(ctx, userId, organizationId)
+	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
