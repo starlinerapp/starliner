@@ -21,7 +21,10 @@ jobs:
         working-directory: server
 
       - name: Run architecture check
-        run: arch-go
+        run: |
+          go mod download
+          go mod verify
+          arch-go
         working-directory: server
 
       - name: Run linter
