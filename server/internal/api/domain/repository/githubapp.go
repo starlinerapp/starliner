@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"starliner.app/internal/api/domain/entity"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
@@ -36,6 +38,9 @@ func (gr *GithubAppRepository) CreateGithubApp(ctx context.Context, installation
 func (gr *GithubAppRepository) GetOrganizationGithubApp(ctx context.Context, organizationId int64) (*entity.GithubApp, error) {
 	ghApp, err := gr.queries.GetOrganizationGithubApp(ctx, organizationId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

@@ -848,6 +848,31 @@ export interface ResponseGitDeploymentBuild {
 /**
  *
  * @export
+ * @interface ResponseGithubApp
+ */
+export interface ResponseGithubApp {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGithubApp
+   */
+  created_at: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseGithubApp
+   */
+  installation_id: number;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseGithubApp
+   */
+  organization_id: number;
+}
+/**
+ *
+ * @export
  * @interface ResponseImageDeployment
  */
 export interface ResponseImageDeployment {
@@ -3840,6 +3865,59 @@ export const GithubappApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Get GitHub App
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getGithubApp: async (
+      xUserID: string,
+      organizationId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getGithubApp", "xUserID", xUserID);
+      // verify required parameter 'organizationId' is not null or undefined
+      assertParamExists("getGithubApp", "organizationId", organizationId);
+      const localVarPath = `/githubapps/{organizationId}`.replace(
+        `{${"organizationId"}}`,
+        encodeURIComponent(String(organizationId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -3884,6 +3962,42 @@ export const GithubappApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Get GitHub App
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getGithubApp(
+      xUserID: string,
+      organizationId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseGithubApp>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getGithubApp(
+        xUserID,
+        organizationId,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["GithubappApi.getGithubApp"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -3915,6 +4029,23 @@ export const GithubappApiFactory = function (
         .createGithubApp(xUserID, data, options)
         .then((request) => request(axios, basePath));
     },
+    /**
+     *
+     * @summary Get GitHub App
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getGithubApp(
+      xUserID: string,
+      organizationId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseGithubApp> {
+      return localVarFp
+        .getGithubApp(xUserID, organizationId, options)
+        .then((request) => request(axios, basePath));
+    },
   };
 };
 
@@ -3941,6 +4072,25 @@ export class GithubappApi extends BaseAPI {
   ) {
     return GithubappApiFp(this.configuration)
       .createGithubApp(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get GitHub App
+   * @param {string} xUserID User ID
+   * @param {number} organizationId Organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof GithubappApi
+   */
+  public getGithubApp(
+    xUserID: string,
+    organizationId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return GithubappApiFp(this.configuration)
+      .getGithubApp(xUserID, organizationId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

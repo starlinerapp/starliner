@@ -124,6 +124,7 @@ func NewServer(
 	githubAppRoutes := engine.Group("/githubapps")
 	{
 		githubAppRoutes.POST("", githubAppHandler.CreateGithubApp)
+		githubAppRoutes.GET("/:organizationId", githubAppHandler.GetGithubApp)
 	}
 
 	return &Server{engine: engine}

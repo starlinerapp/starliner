@@ -4,13 +4,22 @@ import DeployFromGitForm, {
 } from "~/components/organisms/forms/DeployFromGitForm";
 import { useTRPC } from "~/utils/trpc/react";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
 
 export default function Git() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
   const { environment: currentEnvironment } = useEnvironment();
+  const organization = useOrganizationContext();
+
+  const { data: githubApp, isLoading } = useQuery(
+    trpc.githubApp.getGithubApp.queryOptions({
+      organizationId: organization.id,
+    }),
+  );
 
   const createDeploymentMutation = useMutation(
     trpc.deployment.deployFromGitRepo.mutationOptions(),
@@ -43,9 +52,26 @@ export default function Git() {
     );
   };
 
+  if (isLoading) {
+    // TODO: Add Skeleton
+    return null;
+  }
+
   return (
     <>
-      <DeployFromGitForm onSubmit={onSubmit} resetOnSuccess={true} />
+      {githubApp ? (
+        <DeployFromGitForm onSubmit={onSubmit} resetOnSuccess={true} />
+      ) : (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <p>Install GitHub App</p>
+            <p className="text-mauve-11 truncate text-sm">
+              Install the GitHub App to get started.
+            </p>
+          </div>
+          <InstallGitHubApp />
+        </div>
+      )}
     </>
   );
 }

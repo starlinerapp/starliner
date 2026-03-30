@@ -10,6 +10,7 @@ import {
   BuildApiFactory,
   TeamApiFactory,
   GithubappApiFactory,
+  GithubApiFactory,
 } from "~/server/api/client/generated";
 
 import { serverEnv } from "~/env.server";
@@ -68,6 +69,12 @@ export const buildApiFactory = BuildApiFactory(
 );
 
 export const teamsApiFactory = TeamApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const githubFactory = GithubApiFactory(
   configuration,
   undefined,
   axiosInstance,

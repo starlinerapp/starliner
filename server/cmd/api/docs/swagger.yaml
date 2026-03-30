@@ -442,6 +442,19 @@ definitions:
     - projectPath
     - status
     type: object
+  response.GithubApp:
+    properties:
+      created_at:
+        type: string
+      installation_id:
+        type: integer
+      organization_id:
+        type: integer
+    required:
+    - created_at
+    - installation_id
+    - organization_id
+    type: object
   response.ImageDeployment:
     properties:
       envVars:
@@ -1109,6 +1122,28 @@ paths:
         "201":
           description: Created
       summary: Create GitHub App
+      tags:
+      - githubapp
+  /githubapps/{organizationId}:
+    get:
+      operationId: getGithubApp
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GithubApp'
+      summary: Get GitHub App
       tags:
       - githubapp
   /invites/{inviteId}:

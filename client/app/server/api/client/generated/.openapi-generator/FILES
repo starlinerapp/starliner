@@ -41,6 +41,7 @@ docs/ResponseEnvironment.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseGitDeployment.md
 docs/ResponseGitDeploymentBuild.md
+docs/ResponseGithubApp.md
 docs/ResponseImageDeployment.md
 docs/ResponseIngressDeployment.md
 docs/ResponseIngressHost.md

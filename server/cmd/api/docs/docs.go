@@ -691,6 +691,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/githubapps/{organizationId}": {
+            "get": {
+                "tags": [
+                    "githubapp"
+                ],
+                "summary": "Get GitHub App",
+                "operationId": "getGithubApp",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GithubApp"
+                        }
+                    }
+                }
+            }
+        },
         "/invites/accept": {
             "post": {
                 "tags": [
@@ -2054,6 +2087,25 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "response.GithubApp": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "installation_id",
+                "organization_id"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "installation_id": {
+                    "type": "integer"
+                },
+                "organization_id": {
+                    "type": "integer"
                 }
             }
         },

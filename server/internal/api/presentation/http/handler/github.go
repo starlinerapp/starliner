@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/response"
@@ -30,6 +31,10 @@ func NewGithubHandler(githubApplication *application.GitHubApplication) *GithubH
 func (gh *GithubHandler) GetRepositories(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
 
 	repos, err := gh.githubApplication.GetRepositories(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
