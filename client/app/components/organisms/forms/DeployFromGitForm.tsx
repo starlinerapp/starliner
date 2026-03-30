@@ -3,6 +3,7 @@ import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -27,7 +28,7 @@ export default function DeployFromGitForm({
   const { register, handleSubmit, watch, reset, control } =
     useForm<DeployFromGitFormInput>({ defaultValues });
 
-  const { fields, append } = useFieldArray({
+  const { fields, append, replace } = useFieldArray({
     control,
     name: "envs",
   });
@@ -62,6 +63,25 @@ export default function DeployFromGitForm({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Oops something went wrong!");
     }
+  };
+
+  const handleEnvPaste = (
+    index: number,
+    e: React.ClipboardEvent<HTMLInputElement>,
+  ) => {
+    const pasted = e.clipboardData.getData("text");
+    if (!isEnvFile(pasted)) return;
+
+    e.preventDefault();
+    const parsed = parseEnvFile(pasted);
+    if (parsed.length === 0) return;
+
+    const before = fields
+      .slice(0, index)
+      .map((f) => ({ name: f.name, value: f.value }))
+      .filter((f) => f.name.trim() !== "" || f.value.trim() !== "");
+
+    replace([...before, ...parsed]);
   };
 
   const inputValid =
@@ -159,6 +179,7 @@ export default function DeployFromGitForm({
                   className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
                   type="text"
                   placeholder="Name*"
+                  onPaste={(e) => handleEnvPaste(index, e)}
                   {...register(`envs.${index}.name`)}
                 />
                 <input
