@@ -123,6 +123,9 @@ func (da *DeploymentApplication) DeployFromGit(
 	}
 
 	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
+	if err != nil {
+		return err
+	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
