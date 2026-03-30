@@ -181,6 +181,7 @@ func (da *DeploymentApplication) DeployImage(
 	imageName string,
 	tag string,
 	port int,
+	volumeSizeMB *int32,
 	envs []*value.EnvVar,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
@@ -213,6 +214,7 @@ func (da *DeploymentApplication) DeployImage(
 		imageName,
 		tag,
 		strconv.Itoa(port),
+		volumeSizeMB,
 		environmentId,
 		envs,
 	)

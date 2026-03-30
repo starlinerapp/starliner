@@ -40,6 +40,7 @@ type ImageDeployment struct {
 	Tag           string
 	Port          string
 	EnvironmentId int64
+	VolumeSizeMB  *int32
 	EnvVars       []*EnvVar
 }
 

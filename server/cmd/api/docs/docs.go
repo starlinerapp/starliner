@@ -1528,6 +1528,9 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeSizeMB": {
+                    "type": "integer"
                 }
             }
         },
@@ -2013,6 +2016,9 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeSizeMB": {
+                    "type": "integer"
                 }
             }
         },

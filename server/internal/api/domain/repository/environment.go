@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
@@ -150,6 +151,7 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 			Tag:           d.Tag,
 			Port:          d.Port,
 			EnvironmentId: d.EnvironmentID,
+			VolumeSizeMB:  utils.PtrFromNullInt32(d.VolumeSizeMb),
 			EnvVars:       variables,
 		}
 	}

@@ -55,6 +55,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 		body.ImageName,
 		body.Tag,
 		body.Port,
+		body.VolumeSizeMB,
 		mapper.MapEnvVarsFromRequest(body.Envs),
 	)
 

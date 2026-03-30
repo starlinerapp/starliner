@@ -20,6 +20,11 @@ SELECT
 FROM new_deployment d
 INNER JOIN new_image_deployment img_d ON d.id = img_d.deployment_id;
 
+-- name: CreateDeploymentVolume :one
+INSERT INTO deployment_volumes (deployment_id, volume_size_mb)
+VALUES (@deployment_id, @volume_size_mb)
+RETURNING *;
+
 -- name: UpdateImageDeployment :one
 WITH updated_deployment AS (
     UPDATE deployments
@@ -59,9 +64,11 @@ SELECT
     d.status,
     d.environment_id,
     img_d.name AS image_name,
-    img_d.tag
+    img_d.tag,
+    dv.volume_size_mb
 FROM deployments d
 INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id
+LEFT JOIN deployment_volumes dv ON d.id = dv.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
 INNER JOIN teams ON projects.team_id = teams.id

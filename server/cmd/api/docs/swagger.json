@@ -1519,6 +1519,9 @@
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeSizeMB": {
+                    "type": "integer"
                 }
             }
         },
@@ -2004,6 +2007,9 @@
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeSizeMB": {
+                    "type": "integer"
                 }
             }
         },

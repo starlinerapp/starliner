@@ -29,6 +29,7 @@ type DeployImage struct {
 	ImageName     string   `json:"imageName" binding:"required"`
 	Tag           string   `json:"tag" binding:"required"`
 	Port          int      `json:"port" binding:"required"`
+	VolumeSizeMB  *int32   `json:"volumeSizeMB"`
 	Envs          []EnvVar `json:"envs" binding:"required"`
 }
 

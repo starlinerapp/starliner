@@ -235,6 +235,14 @@ type DeploymentEnvironmentVar struct {
 	UpdatedAt    time.Time
 }
 
+type DeploymentVolume struct {
+	ID           int64
+	DeploymentID int64
+	VolumeSizeMb int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type Environment struct {
 	ID        int64
 	Name      string

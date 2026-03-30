@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createDeploymentEnvVar = `-- name: CreateDeploymentEnvVar :one
@@ -29,6 +30,30 @@ func (q *Queries) CreateDeploymentEnvVar(ctx context.Context, arg CreateDeployme
 		&i.DeploymentID,
 		&i.Name,
 		&i.Value,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createDeploymentVolume = `-- name: CreateDeploymentVolume :one
+INSERT INTO deployment_volumes (deployment_id, volume_size_mb)
+VALUES ($1, $2)
+RETURNING id, deployment_id, volume_size_mb, created_at, updated_at
+`
+
+type CreateDeploymentVolumeParams struct {
+	DeploymentID int64
+	VolumeSizeMb int32
+}
+
+func (q *Queries) CreateDeploymentVolume(ctx context.Context, arg CreateDeploymentVolumeParams) (DeploymentVolume, error) {
+	row := q.db.QueryRowContext(ctx, createDeploymentVolume, arg.DeploymentID, arg.VolumeSizeMb)
+	var i DeploymentVolume
+	err := row.Scan(
+		&i.ID,
+		&i.DeploymentID,
+		&i.VolumeSizeMb,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -105,9 +130,11 @@ SELECT
     d.status,
     d.environment_id,
     img_d.name AS image_name,
-    img_d.tag
+    img_d.tag,
+    dv.volume_size_mb
 FROM deployments d
 INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id
+LEFT JOIN deployment_volumes dv ON d.id = dv.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
 INNER JOIN teams ON projects.team_id = teams.id
@@ -130,6 +157,7 @@ type GetEnvironmentImageDeploymentsRow struct {
 	EnvironmentID int64
 	ImageName     string
 	Tag           string
+	VolumeSizeMb  sql.NullInt32
 }
 
 func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnvironmentImageDeploymentsParams) ([]GetEnvironmentImageDeploymentsRow, error) {
@@ -149,6 +177,7 @@ func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnv
 			&i.EnvironmentID,
 			&i.ImageName,
 			&i.Tag,
+			&i.VolumeSizeMb,
 		); err != nil {
 			return nil, err
 		}

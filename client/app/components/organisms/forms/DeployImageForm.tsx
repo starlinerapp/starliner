@@ -10,6 +10,7 @@ export interface ImageFormInput {
   imageName: string;
   tag: string;
   port: number | null;
+  volumeSizeMB: number | null;
   envs: { name: string; value: string }[];
 }
 
@@ -35,6 +36,9 @@ export default function DeployImageForm({
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [isAddedVolume, setAddedVolume] = useState<boolean>(
+    !!defaultValues?.volumeSizeMB,
+  );
 
   const serviceNameInput = watch("serviceName", "");
   const imageNameInput = watch("imageName", "");
@@ -165,6 +169,35 @@ export default function DeployImageForm({
           >
             <Plus className="w-3 stroke-3" /> Add Another
           </Button>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <p className="text-sm">Persisted volume</p>
+          {isAddedVolume && (
+            <div className="flex items-center gap-2">
+              <input
+                className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+                type="number"
+                placeholder="Size*"
+                disabled={!!defaultValues?.volumeSizeMB}
+                {...register("volumeSizeMB", {
+                  required: false,
+                  valueAsNumber: true,
+                })}
+              />
+              <span className="text-mauve-11 text-sm">MB</span>
+            </div>
+          )}
+          {!isAddedVolume && (
+            <Button
+              intent="text"
+              className="py-1"
+              type="button"
+              onClick={() => setAddedVolume(true)}
+            >
+              <Plus className="w-3 stroke-3" /> Add Volume
+            </Button>
+          )}
         </div>
         <Button
           size="sm"

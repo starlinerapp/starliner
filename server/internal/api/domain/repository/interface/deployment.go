@@ -34,6 +34,7 @@ type DeploymentRepository interface {
 		imageName string,
 		tag string,
 		port string,
+		volumeSizeMB *int32,
 		environmentId int64,
 		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)

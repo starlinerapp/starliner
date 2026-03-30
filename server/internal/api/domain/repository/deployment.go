@@ -161,6 +161,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	imageName string,
 	tag string,
 	port string,
+	volumeSizeMB *int32,
 	environmentId int64,
 	envs []*value.EnvVar,
 ) (deployment *entity.ImageDeployment, err error) {
@@ -182,6 +183,18 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	var resultVolumeSizeMB *int32
+	if volumeSizeMB != nil {
+		dv, err := qtx.CreateDeploymentVolume(ctx, sqlc.CreateDeploymentVolumeParams{
+			DeploymentID: d.DeploymentID,
+			VolumeSizeMb: *volumeSizeMB,
+		})
+		if err != nil {
+			return nil, err
+		}
+		resultVolumeSizeMB = &dv.VolumeSizeMb
 	}
 
 	vars := make([]*entity.EnvVar, len(envs))
@@ -211,6 +224,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		ImageName:     d.ImageName,
 		Tag:           d.ImageTag,
 		Port:          d.Port,
+		VolumeSizeMB:  resultVolumeSizeMB,
 		EnvironmentId: d.EnvironmentID,
 		EnvVars:       vars,
 	}, nil
