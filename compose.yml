@@ -42,6 +42,7 @@ services:
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules

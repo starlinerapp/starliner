@@ -7,8 +7,19 @@ import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/a
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
+import { useLoaderData } from "react-router";
+
+export function loader() {
+  return {
+    githubAppName: process.env.GITHUB_APP_NAME,
+  };
+}
 
 export default function Git() {
+  const { githubAppName } = useLoaderData<typeof loader>();
+
+  console.log(githubAppName);
+
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -69,7 +80,7 @@ export default function Git() {
               Install the GitHub App to get started.
             </p>
           </div>
-          <InstallGitHubApp />
+          <InstallGitHubApp githubAppName={githubAppName} />
         </div>
       )}
     </>

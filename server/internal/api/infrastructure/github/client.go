@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/go-github/v84/github"
 	"github.com/palantir/go-githubapp/githubapp"
 	"starliner.app/internal/api/domain/port"
@@ -24,6 +25,32 @@ func (c *Client) installationClient(installationId int64) (*github.Client, error
 	}
 
 	return gh, nil
+}
+
+func (c *Client) appClient() (*github.Client, error) {
+	gh, err := c.creator.NewAppClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return gh, nil
+}
+
+func (c *Client) GetInstallationToken(ctx context.Context, installationId int64) (string, error) {
+	gh, err := c.appClient()
+	if err != nil {
+		return "", err
+	}
+
+	token, _, err := gh.Apps.CreateInstallationToken(ctx, installationId, nil)
+	if err != nil {
+		return "", err
+	}
+
+	if token.Token == nil {
+		return "", fmt.Errorf("failed to create installation token")
+	}
+	return *token.Token, nil
 }
 
 func (c *Client) ListRepositories(ctx context.Context, installationId int64) ([]*port.Repository, error) {

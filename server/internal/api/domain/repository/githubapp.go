@@ -50,3 +50,19 @@ func (gr *GithubAppRepository) GetOrganizationGithubApp(ctx context.Context, org
 		CreatedAt:      ghApp.CreatedAt,
 	}, nil
 }
+
+func (gr *GithubAppRepository) GetEnvironmentGithubApp(ctx context.Context, environmentId int64) (*entity.GithubApp, error) {
+	ghApp, err := gr.queries.GetEnvironmentGithubApp(ctx, environmentId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &entity.GithubApp{
+		InstallationID: ghApp.InstallationID,
+		OrganizationID: ghApp.OrganizationID,
+		CreatedAt:      ghApp.CreatedAt,
+	}, nil
+}

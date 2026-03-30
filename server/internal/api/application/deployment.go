@@ -25,6 +25,8 @@ type DeploymentApplication struct {
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
 	buildRepository       interfaces.BuildRepository
+	githubAppRepository   interfaces.GithubAppRepository
+	gitHub                port.GitHub
 	grpcClient            port.GrpcClient
 	queue                 port.Queue
 	pubsub                port.Pubsub
@@ -38,6 +40,8 @@ func NewDeploymentApplication(
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
 	buildRepository interfaces.BuildRepository,
+	githubAppRepository interfaces.GithubAppRepository,
+	gitHub port.GitHub,
 	grpcClient port.GrpcClient,
 	queue port.Queue,
 	pubsub port.Pubsub,
@@ -50,6 +54,8 @@ func NewDeploymentApplication(
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
 		buildRepository:       buildRepository,
+		githubAppRepository:   githubAppRepository,
+		gitHub:                gitHub,
 		grpcClient:            grpcClient,
 		queue:                 queue,
 		pubsub:                pubsub,
@@ -111,11 +117,19 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	ghApp, err := da.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         gitUrl,
+		AccessToken:    accessToken,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
 	})
@@ -163,10 +177,20 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
+	ghApp, err := da.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
+	if err != nil {
+		return err
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
+		AccessToken:    accessToken,
 		GitUrl:         d.GitUrl,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,

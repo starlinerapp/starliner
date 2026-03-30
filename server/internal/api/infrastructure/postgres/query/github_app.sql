@@ -11,3 +11,12 @@ RETURNING *;
 SELECT *
 FROM github_apps
 WHERE organization_id = $1;
+
+-- name: GetEnvironmentGithubApp :one
+SELECT ga.*
+FROM github_apps ga
+INNER JOIN organizations o ON o.id = ga.organization_id
+INNER JOIN teams t ON t.organization_id = o.id
+INNER JOIN projects p ON p.team_id = t.id
+INNER JOIN environments e ON e.project_id = p.id
+WHERE e.id = $1;

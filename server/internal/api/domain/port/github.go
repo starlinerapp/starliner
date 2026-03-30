@@ -18,4 +18,5 @@ type Repository struct {
 
 type GitHub interface {
 	ListRepositories(ctx context.Context, installationId int64) ([]*Repository, error)
+	GetInstallationToken(ctx context.Context, installationId int64) (string, error)
 }

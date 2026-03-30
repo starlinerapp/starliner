@@ -37,6 +37,29 @@ func (q *Queries) CreateGithubApp(ctx context.Context, arg CreateGithubAppParams
 	return i, err
 }
 
+const getEnvironmentGithubApp = `-- name: GetEnvironmentGithubApp :one
+SELECT ga.id, ga.installation_id, ga.organization_id, ga.created_at, ga.updated_at
+FROM github_apps ga
+INNER JOIN organizations o ON o.id = ga.organization_id
+INNER JOIN teams t ON t.organization_id = o.id
+INNER JOIN projects p ON p.team_id = t.id
+INNER JOIN environments e ON e.project_id = p.id
+WHERE e.id = $1
+`
+
+func (q *Queries) GetEnvironmentGithubApp(ctx context.Context, id int64) (GithubApp, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentGithubApp, id)
+	var i GithubApp
+	err := row.Scan(
+		&i.ID,
+		&i.InstallationID,
+		&i.OrganizationID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getOrganizationGithubApp = `-- name: GetOrganizationGithubApp :one
 SELECT id, installation_id, organization_id, created_at, updated_at
 FROM github_apps
