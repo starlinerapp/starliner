@@ -11,8 +11,16 @@ export const githubRouter = {
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
-      return await githubFactory
-        .getRepositories(userId, input.organizationId)
-        .then((res) => res.data);
+      try {
+        const res = await githubFactory.getRepositories(
+          userId,
+          input.organizationId,
+        );
+
+        return res.data;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
     }),
 };
