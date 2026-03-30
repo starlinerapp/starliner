@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
 import { useLoaderData } from "react-router";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 export function loader() {
   return {
@@ -64,8 +65,49 @@ export default function Git() {
   };
 
   if (isLoading) {
-    // TODO: Add Skeleton
-    return null;
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-6 w-44" />
+          <Skeleton className="h-6 w-64" />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+
+          <div className="flex items-end gap-2">
+            <div className="flex w-full flex-col gap-1">
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="h-9 w-full" />
+            </div>
+            <div className="flex w-full flex-col gap-1">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-9 w-full" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-5 w-10" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-5 w-36" />
+            <Skeleton className="h-6 w-24" />
+          </div>
+        </div>
+
+        <Skeleton className="h-8 w-28" />
+      </div>
+    );
   }
 
   return (
