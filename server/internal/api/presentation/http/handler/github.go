@@ -32,13 +32,13 @@ func (gh *GithubHandler) GetRepositories(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	repos, err := gh.githubApplication.GetRepositories(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": err})
+		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
