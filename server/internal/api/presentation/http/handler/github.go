@@ -38,7 +38,7 @@ func (gh *GithubHandler) GetRepositories(c *gin.Context) {
 
 	repos, err := gh.githubApplication.GetRepositories(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		c.AbortWithStatusJSON(500, gin.H{"error": err})
 		return
 	}
 
