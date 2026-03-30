@@ -19,8 +19,6 @@ export function loader() {
 export default function Git() {
   const { githubAppName } = useLoaderData<typeof loader>();
 
-  console.log(githubAppName);
-
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
