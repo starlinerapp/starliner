@@ -143,7 +143,7 @@ export default function DeployFromGitForm({
                   <select
                     {...register("url", { required: true })}
                     disabled={!!defaultValues?.url}
-                    className="border-mauve-6 disabled:bg-gray-2 disabled:text-gray-10 w-full appearance-none rounded-md border-1 p-2 text-sm"
+                    className="border-mauve-6 bg-gray-2 disabled:bg-gray-2 disabled:text-gray-10 w-full appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
                   >
                     {repositoriesData?.map((repo, i) => (
                       <option key={i} value={repo.clone_url}>
