@@ -254,6 +254,14 @@ type GitDeployment struct {
 	UpdatedAt      time.Time
 }
 
+type GithubApp struct {
+	ID             int64
+	InstallationID int64
+	OrganizationID int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type ImageDeployment struct {
 	DeploymentID int64
 	Name         string

@@ -14,14 +14,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.24.3"
+          go-version: "1.25.0"
 
       - name: Install Arch-Go
         run: go install -v github.com/arch-go/arch-go/v2@latest
         working-directory: server
 
       - name: Run architecture check
-        run: arch-go
+        run: |
+          go mod download
+          go mod verify
+          arch-go
         working-directory: server
 
       - name: Run linter

@@ -13,6 +13,8 @@ services:
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./.docker/nginx/ssl/dev.starliner.app.crt:/etc/nginx/dev.starliner.app.crt:ro
       - ./.docker/nginx/ssl/dev.starliner.app.key:/etc/nginx/dev.starliner.app.key:ro
+      - ./.docker/nginx/ssl/mcp.dev.starliner.app.crt:/etc/nginx/mcp.dev.starliner.app.crt:ro
+      - ./.docker/nginx/ssl/mcp.dev.starliner.app.key:/etc/nginx/mcp.dev.starliner.app.key:ro
       - ./.docker/nginx/ssl/registry.dev.starliner.app.crt:/etc/nginx/registry.dev.starliner.app.crt:ro
       - ./.docker/nginx/ssl/registry.dev.starliner.app.key:/etc/nginx/registry.dev.starliner.app.key:ro
     depends_on:
@@ -40,9 +42,26 @@ services:
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
+    networks:
+      - internal
+
+  mcp-server:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: .docker/mcp-server/Dockerfile
+      target: dev
+    environment:
+      BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
+      BASIC_AUTH_PASS: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      AUTH_BASE_URL: ${AUTH_BASE_URL:-http://client:5173/api/auth}
+      API_BASE_URL: ${API_BASE_URL:-http://server-api:9090}
+    volumes:
+      - ./mcp-server:/app
     networks:
       - internal
 
@@ -74,6 +93,8 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
+      GITHUB_APP_ID: ${GITHUB_APP_ID}
     volumes:
       - ./server:/app
     networks:

@@ -13,6 +13,7 @@ export { default as EyeSlash } from "./EyeSlash";
 export { default as Eye } from "./Eye";
 export { default as FolderOpen } from "./FolderOpen";
 export { default as GitBranch } from "./GitBranch";
+export { default as GithubLogo } from "./GithubLogo";
 export { default as InboxStack } from "./InboxStack";
 export { default as LinkOut } from "./LinkOut";
 export { default as Minus } from "./Minus";

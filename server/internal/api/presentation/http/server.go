@@ -30,6 +30,8 @@ func NewServer(
 	deploymentHandler *handler.DeploymentHandler,
 	buildHandler *handler.BuildHandler,
 	teamHandler *handler.TeamHandler,
+	githubHandler *handler.GithubHandler,
+	githubAppHandler *handler.GithubAppHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -63,6 +65,7 @@ func NewServer(
 		projectRoutes.GET("/:id", projectHandler.GetProject)
 		projectRoutes.DELETE("/:id", projectHandler.DeleteProject)
 		projectRoutes.GET("/:id/cluster", projectHandler.GetProjectCluster)
+		projectRoutes.GET("/:id/environments", projectHandler.GetProjectEnvironments)
 	}
 
 	environmentRoutes := engine.Group("/environments")
@@ -111,6 +114,17 @@ func NewServer(
 		teamRoutes.GET("/:organizationId/:teamId/members", teamHandler.GetTeamMembers)
 		teamRoutes.POST("/:organizationId/:teamId/members", teamHandler.AddTeamMember)
 		teamRoutes.DELETE("/:organizationId/:teamId/members", teamHandler.RemoveTeamMember)
+	}
+
+	githubRoutes := engine.Group("/github")
+	{
+		githubRoutes.GET("/repositories/:organizationId", githubHandler.GetRepositories)
+	}
+
+	githubAppRoutes := engine.Group("/githubapps")
+	{
+		githubAppRoutes.POST("", githubAppHandler.CreateGithubApp)
+		githubAppRoutes.GET("/:organizationId", githubAppHandler.GetGithubApp)
 	}
 
 	return &Server{engine: engine}

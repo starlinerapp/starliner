@@ -60,3 +60,11 @@ INNER JOIN teams t ON p.team_id = t.id
 INNER JOIN team_members tm ON tm.team_id = t.id
 WHERE p.id = $1
   AND tm.user_id = $2;
+
+-- name: GetProjectEnvironments :many
+SELECT e.*
+FROM environments e
+         INNER JOIN projects p ON p.id = e.project_id
+         INNER JOIN teams t ON t.id = p.team_id
+         INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE e.project_id = $1 AND tm.user_id = $2;
