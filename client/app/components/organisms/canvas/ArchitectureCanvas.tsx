@@ -27,7 +27,7 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
 import getElkLayout from "~/service/reactflow/getElkLayout";
-import { useMatch, useNavigate, useParams } from "react-router";
+import { useLocation, useMatch, useNavigate, useParams } from "react-router";
 import GitNode from "~/components/atoms/nodes/GitNode";
 import {
   buildEdgePairs,
@@ -55,6 +55,7 @@ export default function ArchitectureCanvas({
   }>();
 
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
@@ -105,14 +106,12 @@ export default function ArchitectureCanvas({
   }
 
   const isOnDetailPage = !!useMatch(
-    "/starliner/projects/:id/:environment/architecture/:type/:deploymentId",
+    `/${slug}/projects/:id/:environment/architecture/:type/:deploymentId`,
   );
   function handlePlaneClick() {
     if (isOnDetailPage) {
-      navigate(
-        `/${slug}/projects/${organizationId}/${environment.slug}/architecture`,
-        { relative: "path", replace: true },
-      );
+      const parent = pathname.replace(/\/[^/]+\/?$/, "");
+      navigate(parent, { relative: "path", replace: true });
     }
   }
 
