@@ -27,7 +27,7 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
 import getElkLayout from "~/service/reactflow/getElkLayout";
-import { useLocation, useMatch, useNavigate, useParams } from "react-router";
+import { useMatch, useNavigate, useParams } from "react-router";
 import GitNode from "~/components/atoms/nodes/GitNode";
 import {
   buildEdgePairs,
@@ -55,7 +55,6 @@ export default function ArchitectureCanvas({
   }>();
 
   const navigate = useNavigate();
-  const { pathname } = useLocation();
 
   const trpc = useTRPC();
   const { data: deployments } = useQuery(
@@ -110,8 +109,10 @@ export default function ArchitectureCanvas({
   );
   function handlePlaneClick() {
     if (isOnDetailPage) {
-      const parent = pathname.replace(/\/[^/]+\/?$/, "");
-      navigate(parent, { relative: "path", replace: true });
+      navigate(
+        `/${slug}/projects/${organizationId}/${environment.slug}/architecture`,
+        { relative: "path", replace: true },
+      );
     }
   }
 
