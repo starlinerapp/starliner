@@ -2,16 +2,17 @@ package helm
 
 import (
 	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"time"
+
 	"helm.sh/helm/v4/pkg/action"
 	v2 "helm.sh/helm/v4/pkg/chart/v2"
 	"helm.sh/helm/v4/pkg/chart/v2/loader"
-	"io/fs"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"os"
-	"path/filepath"
 	"starliner.app/internal/cluster/domain/port"
 	"starliner.app/internal/cluster/infrastructure/shared/kubeconfig"
-	"time"
 )
 
 const (
@@ -38,7 +39,7 @@ func (d *Deploy) DeployImage(
 		})
 	}
 
-	return installChart(ApplicationChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, map[string]interface{}{
+	values := map[string]interface{}{
 		"image": map[string]interface{}{
 			"repository": args.ImageRepository,
 			"tag":        args.ImageTag,
@@ -46,7 +47,17 @@ func (d *Deploy) DeployImage(
 		"port":       args.Port,
 		"targetPort": args.Port,
 		"env":        envValues,
-	})
+	}
+
+	if args.VolumeSizeMB != nil && *args.VolumeSizeMB > 0 {
+		values["volume"] = map[string]interface{}{
+			"sizeMB":    *args.VolumeSizeMB,
+			"mountPath": "/data",
+		}
+		return installChart(StatefulSetChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, values)
+	}
+
+	return installChart(DeploymentChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, values)
 }
 
 func (d *Deploy) DeployCloudNativePg(namespace string, releaseName string, kubeconfigBase64 string) error {

@@ -1,0 +1,10 @@
+apiVersion: v2
+name: statefulset
+description: A Helm chart for stateful Kubernetes deployments with persistent volumes
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.16.0"
+

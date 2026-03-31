@@ -13,6 +13,7 @@ type ImageDeployment struct {
 	ImageName        string
 	ImageTag         string
 	Port             int
+	VolumeSizeMB     *int32
 	EnvVars          []*EnvVar
 }
 

@@ -248,6 +248,7 @@ func (da *DeploymentApplication) DeployImage(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
+		VolumeSizeMB:     volumeSizeMB,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {
@@ -319,6 +320,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
+		VolumeSizeMB:     deployment.VolumeSizeMB,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {

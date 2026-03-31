@@ -1,6 +1,6 @@
 apiVersion: v2
-name: application
-description: A Helm chart for Kubernetes
+name: deployment
+description: A Helm chart for stateless Kubernetes Deployments
 
 # A chart can be either an 'application' or a 'library' chart.
 #
