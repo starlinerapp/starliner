@@ -103,7 +103,6 @@ export default function OrganizationTeams() {
   function onLeaveTeam(teamId: number) {
     leaveTeamMutation.mutate(
       {
-        organizationId: organization.id,
         teamId,
       },
       {

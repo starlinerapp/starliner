@@ -11,6 +11,20 @@ type TeamRepository struct {
 	queries *sqlc.Queries
 }
 
+func (tr TeamRepository) GetTeamById(ctx context.Context, id int64) (*entity.Team, error) {
+	t, err := tr.queries.GetTeamById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Team{
+		Id:             t.ID,
+		Name:           t.Name,
+		Slug:           t.Slug,
+		OrganizationId: t.OrganizationID,
+	}, nil
+}
+
 func (tr TeamRepository) CreateTeam(ctx context.Context, name string, slug string, organizationID int64) (*entity.Team, error) {
 	t, err := tr.queries.CreateTeam(ctx, sqlc.CreateTeamParams{
 		Name:           name,

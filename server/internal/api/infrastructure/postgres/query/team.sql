@@ -44,3 +44,6 @@ ON CONFLICT (team_id, user_id) DO NOTHING;
 DELETE FROM team_members
 WHERE team_members.team_id = $1
     AND team_members.user_id = $2;
+
+-- name: GetTeamById :one
+SELECT * FROM teams WHERE teams.id = $1;

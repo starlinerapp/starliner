@@ -27,12 +27,12 @@ func NewTeamHandler(teamApplication *application.TeamApplication) *TeamHandler {
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
 // @Param data body request.CreateTeam true "Create Team"
-// @Param organizationId path int true "Organization ID"
+// @Param id path int true "Organization ID"
 // @Success 201 {object} response.Team
-// @Router /teams/{organizationId} [post]
+// @Router /organizations/{id}/teams [post]
 func (th *TeamHandler) CreateTeam(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
@@ -57,12 +57,12 @@ func (th *TeamHandler) CreateTeam(c *gin.Context) {
 // @ID getUserTeams
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId path int true "Organization ID"
+// @Param id path int true "Organization ID"
 // @Success 200 {array} response.Team
-// @Router /teams/{organizationId} [get]
+// @Router /organizations/{id}/teams [get]
 func (th *TeamHandler) GetUserTeams(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
@@ -82,24 +82,18 @@ func (th *TeamHandler) GetUserTeams(c *gin.Context) {
 // @ID getTeamMembers
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId path int true "Organization ID"
 // @Param teamId path int true "Team ID"
 // @Success 200 {array} response.User
-// @Router /teams/{organizationId}/{teamId}/members [get]
+// @Router /teams/{teamId}/members [get]
 func (th *TeamHandler) GetTeamMembers(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	teamMembers, err := th.teamApplication.GetTeamMembers(c, organizationId, currentUser.Id, teamId)
+	teamMembers, err := th.teamApplication.GetTeamMembers(c, currentUser.Id, teamId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -113,13 +107,13 @@ func (th *TeamHandler) GetTeamMembers(c *gin.Context) {
 // @Tags team
 // @ID joinTeam
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId path int true "Organization ID"
+// @Param id path int true "Organization ID"
 // @Param data body request.JoinTeam true "Join Team"
 // @Success 201
-// @Router /teams/{organizationId}/join [post]
+// @Router /organizations/{id}/teams/join [post]
 func (th *TeamHandler) JoinTeam(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
@@ -145,17 +139,11 @@ func (th *TeamHandler) JoinTeam(c *gin.Context) {
 // @Tags team
 // @ID addTeamMember
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId path int true "Organization ID"
 // @Param teamId path int true "Team ID"
 // @Success 201
-// @Router /teams/{organizationId}/{teamId}/members [post]
+// @Router /teams/{teamId}/members [post]
 func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
 
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
 	if err != nil {
@@ -163,7 +151,7 @@ func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 		return
 	}
 
-	err = th.teamApplication.AddTeamMember(c, organizationId, currentUser.Id, teamId)
+	err = th.teamApplication.AddTeamMember(c, currentUser.Id, teamId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -178,17 +166,11 @@ func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 // @ID removeTeamMember
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId path int true "Organization ID"
 // @Param teamId path int true "Team ID"
 // @Success 200
-// @Router /teams/{organizationId}/{teamId}/members [delete]
+// @Router /teams/{teamId}/members [delete]
 func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
 
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
 	if err != nil {
@@ -196,7 +178,7 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 		return
 	}
 
-	err = th.teamApplication.RemoveTeamMember(c, organizationId, currentUser.Id, teamId)
+	err = th.teamApplication.RemoveTeamMember(c, currentUser.Id, teamId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

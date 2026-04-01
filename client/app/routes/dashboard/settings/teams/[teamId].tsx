@@ -2,17 +2,14 @@ import React from "react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 
 export default function TeamDetail() {
   const { teamId } = useParams();
   const trpc = useTRPC();
-  const organization = useOrganizationContext();
 
   const { data: members, isLoading } = useQuery(
     trpc.team.getTeamMembers.queryOptions({
-      organizationId: organization.id,
       teamId: Number(teamId),
     }),
   );
