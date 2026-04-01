@@ -14,7 +14,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.25.0"
+          go-version: "1.25.8"
 
       - name: Install Arch-Go
         run: go install -v github.com/arch-go/arch-go/v2@latest
@@ -32,3 +32,8 @@ jobs:
         with:
           version: v2.6
           working-directory: server
+
+      - name: Run vulnerabilities check
+        run: |
+          go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+        working-directory: server
