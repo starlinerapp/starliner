@@ -78,8 +78,13 @@ func (ts *TeamApplication) GetUserTeams(ctx context.Context, organizationId int6
 	return value.NewTeams(teams), nil
 }
 
-func (ts *TeamApplication) GetTeamMembers(ctx context.Context, organizationId int64, userId int64, teamId int64) ([]*value.User, error) {
-	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
+	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ts.organizationService.ValidateUserInOrg(ctx, team.OrganizationId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -92,8 +97,13 @@ func (ts *TeamApplication) GetTeamMembers(ctx context.Context, organizationId in
 	return value.NewUsers(members), nil
 }
 
-func (ts *TeamApplication) AddTeamMember(ctx context.Context, organizationId int64, userId int64, teamId int64) error {
-	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+func (ts *TeamApplication) AddTeamMember(ctx context.Context, userId int64, teamId int64) error {
+	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	err = ts.organizationService.ValidateUserInOrg(ctx, team.OrganizationId, userId)
 	if err != nil {
 		return err
 	}
@@ -120,8 +130,13 @@ func (ts *TeamApplication) JoinTeam(ctx context.Context, organizationId int64, u
 	return ts.teamRepository.AddTeamMember(ctx, team.Id, userId)
 }
 
-func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, organizationId int64, userId int64, teamId int64) error {
-	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, teamId int64) error {
+	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	err = ts.organizationService.ValidateUserInOrg(ctx, team.OrganizationId, userId)
 	if err != nil {
 		return err
 	}

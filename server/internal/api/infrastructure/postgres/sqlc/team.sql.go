@@ -72,6 +72,24 @@ func (q *Queries) DeleteTeam(ctx context.Context, id int64) error {
 	return err
 }
 
+const getTeamById = `-- name: GetTeamById :one
+SELECT id, name, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
+`
+
+func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
+	row := q.db.QueryRowContext(ctx, getTeamById, id)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.OrganizationID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getTeamBySlug = `-- name: GetTeamBySlug :one
 SELECT id, name, slug, organization_id, created_at, updated_at FROM teams
 WHERE slug = $1 AND organization_id = $2
