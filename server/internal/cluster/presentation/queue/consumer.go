@@ -3,9 +3,9 @@ package queue
 import (
 	"context"
 	"go.uber.org/fx"
-	"log"
 	"starliner.app/internal/cluster/application"
 	"starliner.app/internal/cluster/domain/port"
+	"starliner.app/internal/core/util/concurrent"
 )
 
 type Consumer struct {
@@ -41,29 +41,21 @@ func NewConsumer(
 }
 
 func (c *Consumer) Start() error {
-	go func() {
-		err := c.queue.SubscribeToDeployImage(c.imageApplication.HandleDeployImage)
-		if err != nil {
-			log.Fatalf("failed to subscribe to queue: %v", err)
-		}
-	}()
-	go func() {
-		err := c.queue.SubscribeToDeployDatabase(c.databaseApplication.HandleDeployDatabase)
-		if err != nil {
-			log.Fatalf("failed to subscribe to queue: %v", err)
-		}
-	}()
-	go func() {
-		err := c.queue.SubscribeToDeleteDeployment(c.deploymentApplication.HandleDeleteDeployment)
-		if err != nil {
-			log.Fatalf("failed to subscribe to queue: %v", err)
-		}
-	}()
-	go func() {
-		err := c.queue.SubscribeToDeployIngress(c.ingressApplication.HandleDeployIngress)
-		if err != nil {
-			log.Fatalf("failed to subscribe to queue: %v", err)
-		}
-	}()
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeployImage", func() error {
+		return c.queue.SubscribeToDeployImage(c.imageApplication.HandleDeployImage)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeployDatabase", func() error {
+		return c.queue.SubscribeToDeployDatabase(c.databaseApplication.HandleDeployDatabase)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeleteDeployment", func() error {
+		return c.queue.SubscribeToDeleteDeployment(c.deploymentApplication.HandleDeleteDeployment)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeployIngress", func() error {
+		return c.queue.SubscribeToDeployIngress(c.ingressApplication.HandleDeployIngress)
+	})
+
 	return nil
 }

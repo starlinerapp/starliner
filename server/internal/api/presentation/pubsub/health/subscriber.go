@@ -3,9 +3,9 @@ package health
 import (
 	"context"
 	"go.uber.org/fx"
-	"log"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/port"
+	"starliner.app/internal/core/util/concurrent"
 )
 
 type Subscriber struct {
@@ -32,11 +32,9 @@ func NewSubscriber(
 }
 
 func (s *Subscriber) Start() error {
-	go func() {
-		err := s.pubsub.SubscribeToDeploymentStatusResponse(s.deploymentApplication.HandleDeploymentStatusResponse)
-		if err != nil {
-			log.Fatalf("failed to subscribe to pubsub: %v", err)
-		}
-	}()
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentStatusResponse", func() error {
+		return s.pubsub.SubscribeToDeploymentStatusResponse(s.deploymentApplication.HandleDeploymentStatusResponse)
+	})
+
 	return nil
 }

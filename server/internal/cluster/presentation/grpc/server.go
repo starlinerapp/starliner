@@ -4,9 +4,12 @@ import (
 	"context"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 	"log"
 	"net"
+	"runtime/debug"
 	"starliner.app/internal/cluster/presentation/grpc/handler"
 	pb "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
@@ -19,13 +22,46 @@ func NewServer(
 	logsHandler *handler.LogsHandler,
 	ttyHandler *handler.TtyHandler,
 ) *Server {
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(recoveryUnaryInterceptor),
+		grpc.StreamInterceptor(recoveryStreamInterceptor),
+	)
 	reflection.Register(server)
 
 	pb.RegisterLogsServiceServer(server, logsHandler)
 	pb.RegisterTTYServiceServer(server, ttyHandler)
 
 	return &Server{server: server}
+}
+
+func recoveryUnaryInterceptor(
+	ctx context.Context,
+	req any,
+	_ *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp any, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("panic recovered in unary handler: %v\n%s", r, debug.Stack())
+			err = status.Errorf(codes.Internal, "internal server error")
+		}
+	}()
+	return handler(ctx, req)
+}
+
+func recoveryStreamInterceptor(
+	srv any,
+	ss grpc.ServerStream,
+	_ *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("panic recovered in stream handler: %v\n%s", r, debug.Stack())
+			err = status.Errorf(codes.Internal, "internal server error")
+		}
+	}()
+	return handler(srv, ss)
 }
 
 func RegisterServer(lc fx.Lifecycle, s *Server) {

@@ -3,7 +3,7 @@ package queue
 import (
 	"context"
 	"go.uber.org/fx"
-	"log"
+	"starliner.app/internal/core/util/concurrent"
 	"starliner.app/internal/provisioner/application"
 	"starliner.app/internal/provisioner/domain/port"
 )
@@ -32,18 +32,13 @@ func NewConsumer(
 }
 
 func (c *Consumer) Start() error {
-	go func() {
-		err := c.queue.SubscribeToCreateCluster(c.clusterApplication.HandleProvisionCluster)
-		if err != nil {
-			log.Fatalf("failed to subscribe to queue: %v", err)
-		}
-	}()
+	go concurrent.WithRecovery(context.Background(), "SubscribeToCreateCluster", func() error {
+		return c.queue.SubscribeToCreateCluster(c.clusterApplication.HandleProvisionCluster)
+	})
 
-	go func() {
-		err := c.queue.SubscribeToDeleteCluster(c.clusterApplication.HandleDeleteCluster)
-		if err != nil {
-			log.Fatalf("failed to subscribe to queue: %v", err)
-		}
-	}()
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeleteCluster", func() error {
+		return c.queue.SubscribeToDeleteCluster(c.clusterApplication.HandleDeleteCluster)
+	})
+
 	return nil
 }

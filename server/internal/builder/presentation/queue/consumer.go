@@ -3,9 +3,9 @@ package queue
 import (
 	"context"
 	"go.uber.org/fx"
-	"log"
 	"starliner.app/internal/builder/application"
 	"starliner.app/internal/builder/domain/port"
+	"starliner.app/internal/core/util/concurrent"
 )
 
 type Consumer struct {
@@ -32,11 +32,8 @@ func NewConsumer(
 }
 
 func (c *Consumer) Start() error {
-	go func() {
-		err := c.queue.SubscribeToBuildTriggered(c.buildApplication.HandleBuildTriggered)
-		if err != nil {
-			log.Fatalf("failed to subscribe to queue: %v", err)
-		}
-	}()
+	go concurrent.WithRecovery(context.Background(), "SubscribeToBuildTriggered", func() error {
+		return c.queue.SubscribeToBuildTriggered(c.buildApplication.HandleBuildTriggered)
+	})
 	return nil
 }
