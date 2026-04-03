@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -8,6 +8,7 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import SelectProjectDirectoryDialog from "~/components/organisms/dialog/SelectProjectDirectoryDialog";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -47,12 +48,18 @@ export default function DeployFromGitForm({
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [isSelectProjectDialogOpen, setIsSelectProjectDialogOpen] =
+    useState(false);
 
   const urlInput = watch("url", "");
   const serviceNameInput = watch("serviceName", "");
   const port = watch("port", null);
   const projectDirectoryPathInput = watch("projectDirectoryPath", "");
   const dockerFilePathInput = watch("dockerfilePath", "");
+
+  const selectedRepository = useMemo(() => {
+    return repositoriesData?.find((repo) => repo.clone_url === urlInput);
+  }, [repositoriesData, urlInput]);
 
   const submit: SubmitHandler<DeployFromGitFormInput> = async (data) => {
     data.envs = (data.envs ?? []).filter(
@@ -143,7 +150,7 @@ export default function DeployFromGitForm({
                   <select
                     {...register("url", { required: true })}
                     disabled={!!defaultValues?.url}
-                    className="border-mauve-6 bg-gray-2 disabled:bg-gray-2 disabled:text-gray-10 w-full appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+                    className="border-mauve-6 bg-gray-2 disabled:bg-gray-2 hover:bg-gray-3 disabled:text-gray-10 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
                   >
                     {repositoriesData?.map((repo, i) => (
                       <option key={i} value={repo.clone_url}>
@@ -162,10 +169,14 @@ export default function DeployFromGitForm({
             <div className="flex items-center gap-2">
               <div className="w-full">
                 <p className="text-sm">Project Directory</p>
+                <div
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm"
+                  onClick={() => setIsSelectProjectDialogOpen(true)}
+                >
+                  <p>{projectDirectoryPathInput || "Select directory*"}</p>
+                </div>
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
-                  type="text"
-                  placeholder="Path*"
+                  type="hidden"
                   {...register("projectDirectoryPath", {
                     required: true,
                   })}
@@ -173,10 +184,11 @@ export default function DeployFromGitForm({
               </div>
               <div className="w-full">
                 <p className="text-sm">Dockerfile</p>
+                <div className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm">
+                  <p>{dockerFilePathInput || "Select Dockerfile*"}</p>
+                </div>
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-24 rounded-md border-1 p-2 text-sm"
-                  type="text"
-                  placeholder="Path*"
+                  type="hidden"
                   {...register("dockerfilePath", {
                     required: true,
                   })}
@@ -234,6 +246,18 @@ export default function DeployFromGitForm({
           <ArrowRight className="w-4 stroke-2" />
         </Button>
       </form>
+      <SelectProjectDirectoryDialog
+        repositoryOwner={"starlinerapp"}
+        repositoryName={selectedRepository?.name ?? ""}
+        isOpen={isSelectProjectDialogOpen}
+        onOpenChange={setIsSelectProjectDialogOpen}
+        onConfirm={(directory) => {
+          reset({
+            ...defaultValues,
+            projectDirectoryPath: directory,
+          });
+        }}
+      />
     </>
   );
 }

@@ -1216,6 +1216,49 @@ export interface ResponseRepository {
 /**
  *
  * @export
+ * @interface ResponseRepositoryFile
+ */
+export interface ResponseRepositoryFile {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRepositoryFile
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRepositoryFile
+   */
+  path: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRepositoryFile
+   */
+  sha: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseRepositoryFile
+   */
+  size: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRepositoryFile
+   */
+  type: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRepositoryFile
+   */
+  url: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseRoot
  */
 export interface ResponseRoot {
@@ -3693,6 +3736,81 @@ export const GithubApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Get Repository Content
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getRepositoryContents: async (
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      path?: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getRepositoryContents", "xUserID", xUserID);
+      // verify required parameter 'organizationId' is not null or undefined
+      assertParamExists(
+        "getRepositoryContents",
+        "organizationId",
+        organizationId,
+      );
+      // verify required parameter 'owner' is not null or undefined
+      assertParamExists("getRepositoryContents", "owner", owner);
+      // verify required parameter 'repository' is not null or undefined
+      assertParamExists("getRepositoryContents", "repository", repository);
+      const localVarPath =
+        `/github/repositories/{organizationId}/{owner}/{repository}/contents`
+          .replace(
+            `{${"organizationId"}}`,
+            encodeURIComponent(String(organizationId)),
+          )
+          .replace(`{${"owner"}}`, encodeURIComponent(String(owner)))
+          .replace(`{${"repository"}}`, encodeURIComponent(String(repository)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (path !== undefined) {
+        localVarQueryParameter["path"] = path;
+      }
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -3739,6 +3857,52 @@ export const GithubApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Get Repository Content
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getRepositoryContents(
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      path?: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<Array<ResponseRepositoryFile>>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getRepositoryContents(
+          xUserID,
+          organizationId,
+          owner,
+          repository,
+          path,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["GithubApi.getRepositoryContents"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -3770,6 +3934,36 @@ export const GithubApiFactory = function (
         .getRepositories(xUserID, organizationId, options)
         .then((request) => request(axios, basePath));
     },
+    /**
+     *
+     * @summary Get Repository Content
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getRepositoryContents(
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      path?: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<ResponseRepositoryFile>> {
+      return localVarFp
+        .getRepositoryContents(
+          xUserID,
+          organizationId,
+          owner,
+          repository,
+          path,
+          options,
+        )
+        .then((request) => request(axios, basePath));
+    },
   };
 };
 
@@ -3796,6 +3990,38 @@ export class GithubApi extends BaseAPI {
   ) {
     return GithubApiFp(this.configuration)
       .getRepositories(xUserID, organizationId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Repository Content
+   * @param {string} xUserID User ID
+   * @param {number} organizationId Organization ID
+   * @param {string} owner Repository owner (user or org)
+   * @param {string} repository Repository name
+   * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof GithubApi
+   */
+  public getRepositoryContents(
+    xUserID: string,
+    organizationId: number,
+    owner: string,
+    repository: string,
+    path?: string,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return GithubApiFp(this.configuration)
+      .getRepositoryContents(
+        xUserID,
+        organizationId,
+        owner,
+        repository,
+        path,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 }
