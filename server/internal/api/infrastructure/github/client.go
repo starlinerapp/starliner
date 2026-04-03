@@ -91,3 +91,36 @@ func (c *Client) ListRepositories(ctx context.Context, installationId int64) ([]
 
 	return all, nil
 }
+
+func (c *Client) ListRepositoryContents(
+	ctx context.Context,
+	installationId int64,
+	owner string,
+	repository string,
+	path string,
+) ([]*port.RepositoryFile, error) {
+	gh, err := c.installationClient(installationId)
+	if err != nil {
+		return nil, err
+	}
+
+	_, dirContents, _, err := gh.Repositories.GetContents(ctx, owner, repository, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*port.RepositoryFile
+
+	for _, item := range dirContents {
+		result = append(result, &port.RepositoryFile{
+			Name: item.Name,
+			Path: item.Path,
+			Type: item.Type,
+			SHA:  item.SHA,
+			Size: item.Size,
+			URL:  item.GetHTMLURL(),
+		})
+	}
+
+	return result, nil
+}

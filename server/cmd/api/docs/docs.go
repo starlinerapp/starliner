@@ -659,6 +659,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/github/repositories/{organizationId}/{owner}/{repository}/contents": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get Repository Content",
+                "operationId": "getRepositoryContents",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository owner (user or org)",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository name",
+                        "name": "repository",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Path within the repository (e.g. src or src/main.go)",
+                        "name": "path",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.RepositoryFile"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/githubapps": {
             "post": {
                 "tags": [
@@ -2366,6 +2422,37 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.RepositoryFile": {
+            "type": "object",
+            "required": [
+                "name",
+                "path",
+                "sha",
+                "size",
+                "type",
+                "url"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "sha": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
                     "type": "string"
                 }
             }
