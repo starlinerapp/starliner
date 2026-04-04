@@ -10,6 +10,7 @@
 | **full_name**   | **string** |             | [default to undefined]            |
 | **id**          | **number** |             | [default to undefined]            |
 | **name**        | **string** |             | [default to undefined]            |
+| **owner**       | **string** |             | [default to undefined]            |
 | **pushed_at**   | **string** |             | [default to undefined]            |
 | **updated_at**  | **string** |             | [default to undefined]            |
 
@@ -25,6 +26,7 @@ const instance: ResponseRepository = {
   full_name,
   id,
   name,
+  owner,
   pushed_at,
   updated_at,
 };

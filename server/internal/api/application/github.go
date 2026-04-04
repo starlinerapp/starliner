@@ -48,3 +48,22 @@ func (ga *GitHubApplication) GetRepositories(ctx context.Context, userId int64, 
 
 	return value.NewRepositories(repos), nil
 }
+
+func (ga *GitHubApplication) GetRepositoryContents(ctx context.Context, userId int64, organizationId int64, owner string, repository string, repositoryPath string) ([]*value.RepositoryFile, error) {
+	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	ghApp, err := ga.githubAppRepository.GetOrganizationGithubApp(ctx, organizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := ga.gitHub.ListRepositoryContents(ctx, ghApp.InstallationID, owner, repository, repositoryPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewRepositoryFiles(content), nil
+}

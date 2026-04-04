@@ -52,6 +52,7 @@ docs/ResponseOrganizationProvisioningCredential.md
 docs/ResponseProject.md
 docs/ResponseProjectCluster.md
 docs/ResponseRepository.md
+docs/ResponseRepositoryFile.md
 docs/ResponseRoot.md
 docs/ResponseTeam.md
 docs/ResponseUser.md

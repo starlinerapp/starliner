@@ -23,4 +23,24 @@ export const githubRouter = {
         throw err;
       }
     }),
+  getRepositoryFiles: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        owner: z.string(),
+        repo: z.string(),
+        path: z.string().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      const res = await githubFactory.getRepositoryContents(
+        userId,
+        input.organizationId,
+        input.owner,
+        input.repo,
+        input.path,
+      );
+      return res.data;
+    }),
 };
