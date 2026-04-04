@@ -24,7 +24,7 @@ type ClusterApplication struct {
 	organizationService    *service.OrganizationService
 	crypto                 corePort.Crypto
 	queue                  port.Queue
-	grpcClient             port.ProvisionerClient
+	grpcProvisionerClient  port.ProvisionerClient
 }
 
 func NewClusterApplication(
@@ -33,7 +33,7 @@ func NewClusterApplication(
 	organizationService *service.OrganizationService,
 	crypto corePort.Crypto,
 	queue port.Queue,
-	grpcClient port.ProvisionerClient,
+	grpcProvisionerClient port.ProvisionerClient,
 ) *ClusterApplication {
 	return &ClusterApplication{
 		clusterRepository:      clusterRepository,
@@ -41,7 +41,7 @@ func NewClusterApplication(
 		organizationService:    organizationService,
 		crypto:                 crypto,
 		queue:                  queue,
-		grpcClient:             grpcClient,
+		grpcProvisionerClient:  grpcProvisionerClient,
 	}
 }
 
@@ -197,7 +197,7 @@ func (ca *ClusterApplication) OpenTTY(
 	}
 
 	// TODO: Don't hardcode user
-	return ca.grpcClient.OpenTTY(ctx, *cluster.IPv4Address, "root", pemBytes, stdin, stdout, sizes)
+	return ca.grpcProvisionerClient.OpenTTY(ctx, *cluster.IPv4Address, "root", pemBytes, stdin, stdout, sizes)
 }
 
 func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) {
