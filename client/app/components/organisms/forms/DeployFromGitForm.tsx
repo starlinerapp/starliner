@@ -55,6 +55,9 @@ export default function DeployFromGitForm({
   const [isSelectDockerFileDialogOpen, setIsSelectDockerFileDialogOpen] =
     useState(false);
 
+  const { onChange: onUrlChange, ...urlRegister } = register("url", {
+    required: true,
+  });
   const urlInput = watch("url", "");
   const serviceNameInput = watch("serviceName", "");
   const port = watch("port", null);
@@ -152,16 +155,21 @@ export default function DeployFromGitForm({
               ) : (
                 <div className="relative w-full">
                   <select
-                    {...register("url", { required: true })}
+                    {...urlRegister}
                     disabled={!!defaultValues?.url}
-                    onChange={() => {
+                    onChange={(e) => {
+                      void onUrlChange(e);
                       setValue("projectDirectoryPath", "");
                       setValue("dockerfilePath", "");
                     }}
-                    className="border-mauve-6 bg-gray-2 disabled:bg-gray-2 hover:bg-gray-3 disabled:text-gray-10 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+                    className={cn(
+                      "border-mauve-6 bg-gray-2 hover:bg-gray-3 disabled:bg-gray-2 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed",
+                      urlInput ? "text-mauve-12" : "text-mauve-11",
+                    )}
                   >
-                    {repositoriesData?.map((repo, i) => (
-                      <option key={i} value={repo.clone_url}>
+                    <option value="">Select repository*</option>
+                    {repositoriesData?.map((repo) => (
+                      <option key={repo.clone_url} value={repo.clone_url}>
                         {repo.name}
                       </option>
                     ))}
@@ -181,8 +189,12 @@ export default function DeployFromGitForm({
                   className={cn(
                     "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm",
                     !projectDirectoryPathInput && "text-mauve-11",
+                    !selectedRepository && "hover:bg-gray-2 cursor-not-allowed",
                   )}
-                  onClick={() => setIsSelectProjectDialogOpen(true)}
+                  onClick={() => {
+                    if (!selectedRepository) return;
+                    setIsSelectProjectDialogOpen(true);
+                  }}
                 >
                   <p>{projectDirectoryPathInput || "Select directory*"}</p>
                 </div>
@@ -199,8 +211,14 @@ export default function DeployFromGitForm({
                   className={cn(
                     "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm",
                     !dockerFilePathInput && "text-mauve-11",
+                    (!selectedRepository || !projectDirectoryPathInput) &&
+                      "hover:bg-gray-2 cursor-not-allowed",
                   )}
-                  onClick={() => setIsSelectDockerFileDialogOpen(true)}
+                  onClick={() => {
+                    if (!selectedRepository || !projectDirectoryPathInput)
+                      return;
+                    setIsSelectDockerFileDialogOpen(true);
+                  }}
                 >
                   <p>{dockerFilePathInput || "Select Dockerfile*"}</p>
                 </div>
