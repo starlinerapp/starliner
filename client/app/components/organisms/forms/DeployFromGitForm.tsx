@@ -264,7 +264,7 @@ export default function DeployFromGitForm({
         </Button>
       </form>
       <SelectProjectDirectoryDialog
-        repositoryOwner={"starlinerapp"}
+        repositoryOwner={selectedRepository?.owner ?? ""}
         repositoryName={selectedRepository?.name ?? ""}
         isOpen={isSelectProjectDialogOpen}
         onOpenChange={setIsSelectProjectDialogOpen}
@@ -274,7 +274,7 @@ export default function DeployFromGitForm({
         }}
       />
       <SelectDockerfileDialog
-        repositoryOwner={"starlinerapp"}
+        repositoryOwner={selectedRepository?.owner ?? ""}
         repositoryName={selectedRepository?.name ?? ""}
         isOpen={isSelectDockerFileDialogOpen}
         onOpenChange={setIsSelectDockerFileDialogOpen}

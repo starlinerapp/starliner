@@ -72,7 +72,7 @@ let xUserID: string; //User ID (default to undefined)
 let organizationId: number; //Organization ID (default to undefined)
 let owner: string; //Repository owner (user or org) (default to undefined)
 let repository: string; //Repository name (default to undefined)
-let path: string; //Path within the repository (e.g. src or src/main.go) (optional) (default to undefined)
+let path: string; //Path within the repository (e.g., src or src/main.go) (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getRepositoryContents(
   xUserID,
@@ -85,13 +85,13 @@ const { status, data } = await apiInstance.getRepositoryContents(
 
 ### Parameters
 
-| Name               | Type         | Description                                          | Notes                            |
-| ------------------ | ------------ | ---------------------------------------------------- | -------------------------------- |
-| **xUserID**        | [**string**] | User ID                                              | defaults to undefined            |
-| **organizationId** | [**number**] | Organization ID                                      | defaults to undefined            |
-| **owner**          | [**string**] | Repository owner (user or org)                       | defaults to undefined            |
-| **repository**     | [**string**] | Repository name                                      | defaults to undefined            |
-| **path**           | [**string**] | Path within the repository (e.g. src or src/main.go) | (optional) defaults to undefined |
+| Name               | Type         | Description                                           | Notes                            |
+| ------------------ | ------------ | ----------------------------------------------------- | -------------------------------- |
+| **xUserID**        | [**string**] | User ID                                               | defaults to undefined            |
+| **organizationId** | [**number**] | Organization ID                                       | defaults to undefined            |
+| **owner**          | [**string**] | Repository owner (user or org)                        | defaults to undefined            |
+| **repository**     | [**string**] | Repository name                                       | defaults to undefined            |
+| **path**           | [**string**] | Path within the repository (e.g., src or src/main.go) | (optional) defaults to undefined |
 
 ### Return type
 

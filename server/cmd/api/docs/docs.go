@@ -697,7 +697,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Path within the repository (e.g. src or src/main.go)",
+                        "description": "Path within the repository (e.g., src or src/main.go)",
                         "name": "path",
                         "in": "query"
                     }
@@ -2396,6 +2396,7 @@ const docTemplate = `{
                 "full_name",
                 "id",
                 "name",
+                "owner",
                 "pushed_at",
                 "updated_at"
             ],
@@ -2416,6 +2417,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "owner": {
                     "type": "string"
                 },
                 "pushed_at": {

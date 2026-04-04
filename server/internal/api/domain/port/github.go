@@ -9,6 +9,7 @@ type Repository struct {
 	Id          *int64
 	Name        *string
 	FullName    *string
+	Owner       *string
 	Description *string
 	CreatedAt   *time.Time
 	PushedAt    *time.Time

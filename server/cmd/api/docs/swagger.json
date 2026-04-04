@@ -688,7 +688,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Path within the repository (e.g. src or src/main.go)",
+                        "description": "Path within the repository (e.g., src or src/main.go)",
                         "name": "path",
                         "in": "query"
                     }
@@ -2387,6 +2387,7 @@
                 "full_name",
                 "id",
                 "name",
+                "owner",
                 "pushed_at",
                 "updated_at"
             ],
@@ -2407,6 +2408,9 @@
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "owner": {
                     "type": "string"
                 },
                 "pushed_at": {

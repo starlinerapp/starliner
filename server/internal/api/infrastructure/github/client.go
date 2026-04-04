@@ -75,6 +75,7 @@ func (c *Client) ListRepositories(ctx context.Context, installationId int64) ([]
 				Id:          r.ID,
 				Name:        r.Name,
 				FullName:    r.FullName,
+				Owner:       r.Owner.Login,
 				Description: r.Description,
 				CreatedAt:   r.CreatedAt.GetTime(),
 				PushedAt:    r.PushedAt.GetTime(),

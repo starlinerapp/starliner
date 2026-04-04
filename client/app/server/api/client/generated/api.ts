@@ -1205,6 +1205,12 @@ export interface ResponseRepository {
    * @type {string}
    * @memberof ResponseRepository
    */
+  owner: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRepository
+   */
   pushed_at: string;
   /**
    *
@@ -3743,7 +3749,7 @@ export const GithubApiAxiosParamCreator = function (
      * @param {number} organizationId Organization ID
      * @param {string} owner Repository owner (user or org)
      * @param {string} repository Repository name
-     * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+     * @param {string} [path] Path within the repository (e.g., src or src/main.go)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -3864,7 +3870,7 @@ export const GithubApiFp = function (configuration?: Configuration) {
      * @param {number} organizationId Organization ID
      * @param {string} owner Repository owner (user or org)
      * @param {string} repository Repository name
-     * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+     * @param {string} [path] Path within the repository (e.g., src or src/main.go)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -3941,7 +3947,7 @@ export const GithubApiFactory = function (
      * @param {number} organizationId Organization ID
      * @param {string} owner Repository owner (user or org)
      * @param {string} repository Repository name
-     * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+     * @param {string} [path] Path within the repository (e.g., src or src/main.go)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -4000,7 +4006,7 @@ export class GithubApi extends BaseAPI {
    * @param {number} organizationId Organization ID
    * @param {string} owner Repository owner (user or org)
    * @param {string} repository Repository name
-   * @param {string} [path] Path within the repository (e.g. src or src/main.go)
+   * @param {string} [path] Path within the repository (e.g., src or src/main.go)
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof GithubApi
