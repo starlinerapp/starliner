@@ -6,8 +6,8 @@ import type {
   ResponseIngressDeployment,
 } from "~/server/api/client/generated";
 import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
-import Logs from "~/components/organisms/bottom-bar/Logs";
-import TerminalClient from "~/components/organisms/bottom-bar/Terminal.client";
+import Logs from "~/components/organisms/bottom-bar/deployment/Logs";
+import TerminalClient from "~/components/atoms/terminal/Terminal.client";
 
 type Deployment =
   | ResponseGitDeployment
@@ -36,8 +36,14 @@ function BottomBarComponent({ deployment }: BottomBarProps) {
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           <Logs deployment={deployment} />
         </div>
+      ) : deployment ? (
+        <TerminalClient
+          webSocketUrl={`wss://${window.location.host}/ws/deployments/${deployment?.id}`}
+        />
       ) : (
-        <TerminalClient deployment={deployment} />
+        <p className="text-mauve-11">
+          No deployment selected. Select one to connect to the terminal.
+        </p>
       )}
     </div>
   );
