@@ -119,6 +119,7 @@ func NewServer(
 	githubRoutes := engine.Group("/github")
 	{
 		githubRoutes.GET("/repositories/:organizationId", githubHandler.GetRepositories)
+		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/contents", githubHandler.GetRepositoryContents)
 	}
 
 	githubAppRoutes := engine.Group("/githubapps")

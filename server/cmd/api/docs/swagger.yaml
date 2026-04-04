@@ -624,6 +624,8 @@ definitions:
         type: integer
       name:
         type: string
+      owner:
+        type: string
       pushed_at:
         type: string
       updated_at:
@@ -634,8 +636,31 @@ definitions:
     - full_name
     - id
     - name
+    - owner
     - pushed_at
     - updated_at
+    type: object
+  response.RepositoryFile:
+    properties:
+      name:
+        type: string
+      path:
+        type: string
+      sha:
+        type: string
+      size:
+        type: integer
+      type:
+        type: string
+      url:
+        type: string
+    required:
+    - name
+    - path
+    - sha
+    - size
+    - type
+    - url
     type: object
   response.Root:
     properties:
@@ -1101,6 +1126,44 @@ paths:
               $ref: '#/definitions/response.Repository'
             type: array
       summary: Get Repositories
+      tags:
+      - github
+  /github/repositories/{organizationId}/{owner}/{repository}/contents:
+    get:
+      operationId: getRepositoryContents
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Repository owner (user or org)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repository
+        required: true
+        type: string
+      - description: Path within the repository (e.g., src or src/main.go)
+        in: query
+        name: path
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.RepositoryFile'
+            type: array
+      summary: Get Repository Content
       tags:
       - github
   /githubapps:

@@ -42,5 +42,44 @@ func (gh *GithubHandler) GetRepositories(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, response.NewRepositories(repos))
+	c.JSON(http.StatusOK, response.NewRepositories(repos))
+}
+
+// GetRepositoryContents FindAll godoc
+// @Summary Get Repository Content
+// @Tags github
+// @ID getRepositoryContents
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
+// @Param owner path string true "Repository owner (user or org)"
+// @Param repository path string true "Repository name"
+// @Param path query string false "Path within the repository (e.g., src or src/main.go)"
+// @Product JSON
+// @Success 200 {array} response.RepositoryFile
+// @Router /github/repositories/{organizationId}/{owner}/{repository}/contents [get]
+func (gh *GithubHandler) GetRepositoryContents(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	owner := c.Param("owner")
+	repository := c.Param("repository")
+	repositoryPath := c.Query("path")
+
+	repoContent, err := gh.githubApplication.GetRepositoryContents(
+		c.Request.Context(),
+		currentUser.Id,
+		organizationId,
+		owner,
+		repository,
+		repositoryPath,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewRepositoryFiles(repoContent))
 }

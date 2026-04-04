@@ -9,6 +9,7 @@ type Repository struct {
 	Id          *int64
 	Name        *string
 	FullName    *string
+	Owner       *string
 	Description *string
 	CreatedAt   *time.Time
 	PushedAt    *time.Time
@@ -21,6 +22,7 @@ func NewRepository(r *port.Repository) *Repository {
 		Id:          r.Id,
 		Name:        r.Name,
 		FullName:    r.FullName,
+		Owner:       r.Owner,
 		Description: r.Description,
 		CreatedAt:   r.CreatedAt,
 		PushedAt:    r.PushedAt,
