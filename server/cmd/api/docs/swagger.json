@@ -1888,7 +1888,8 @@
                 "name",
                 "organizationId",
                 "serverType",
-                "status"
+                "status",
+                "user"
             ],
             "properties": {
                 "createdAt": {
@@ -1920,6 +1921,9 @@
                             "$ref": "#/definitions/response.ClusterStatus"
                         }
                     ]
+                },
+                "user": {
+                    "type": "string"
                 }
             }
         },

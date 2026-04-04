@@ -27,7 +27,7 @@ type DeploymentApplication struct {
 	buildRepository       interfaces.BuildRepository
 	githubAppRepository   interfaces.GithubAppRepository
 	gitHub                port.GitHub
-	grpcClient            port.GrpcClient
+	grpcClusterClient     port.ClusterClient
 	queue                 port.Queue
 	pubsub                port.Pubsub
 	crypto                corePort.Crypto
@@ -42,7 +42,7 @@ func NewDeploymentApplication(
 	buildRepository interfaces.BuildRepository,
 	githubAppRepository interfaces.GithubAppRepository,
 	gitHub port.GitHub,
-	grpcClient port.GrpcClient,
+	grpcClusterClient port.ClusterClient,
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
@@ -56,7 +56,7 @@ func NewDeploymentApplication(
 		buildRepository:       buildRepository,
 		githubAppRepository:   githubAppRepository,
 		gitHub:                gitHub,
-		grpcClient:            grpcClient,
+		grpcClusterClient:     grpcClusterClient,
 		queue:                 queue,
 		pubsub:                pubsub,
 		crypto:                crypto,
@@ -659,7 +659,7 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
-	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
+	return da.grpcClusterClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
 }
 
 func (da *DeploymentApplication) OpenTTY(
@@ -695,7 +695,7 @@ func (da *DeploymentApplication) OpenTTY(
 		return err
 	}
 
-	return da.grpcClient.OpenTTY(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, stdin, stdout, sizes)
+	return da.grpcClusterClient.OpenTTY(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, stdin, stdout, sizes)
 }
 
 func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {

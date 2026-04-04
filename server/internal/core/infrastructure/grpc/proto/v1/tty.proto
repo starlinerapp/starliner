@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.v1;
 
-option go_package = "starliner.app/internal/cluster/presentation/grpc/proto/v1";
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
 
 message TerminalSize {
   uint32 cols = 1;

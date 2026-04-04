@@ -10,6 +10,7 @@ import (
 	"starliner.app/internal/provisioner/infrastructure/nats/impl/queue"
 	"starliner.app/internal/provisioner/infrastructure/pulumi"
 	"starliner.app/internal/provisioner/infrastructure/ssh"
+	"starliner.app/internal/provisioner/presentation/grpc"
 	provisionerqueue "starliner.app/internal/provisioner/presentation/queue"
 )
 
@@ -24,5 +25,6 @@ func main() {
 		coreService.Module,
 		application.Module,
 		provisionerqueue.Module,
+		grpc.Module,
 	).Run()
 }

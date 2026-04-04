@@ -22,6 +22,7 @@ type Cluster struct {
 	Name           string
 	ServerType     ServerType
 	Status         ClusterStatus
+	User           string
 	IPv4Address    *string
 	PublicKey      *string
 	PrivateKey     *string
