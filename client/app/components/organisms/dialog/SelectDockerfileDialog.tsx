@@ -179,7 +179,7 @@ function DirectoryItem({
             onChange={() => onSelect(path)}
           />
         )}
-        <label htmlFor={path} className="font-mono text-sm">
+        <label htmlFor={path} className="text-mauve-11 font-mono text-sm">
           {name}
         </label>
       </fieldset>

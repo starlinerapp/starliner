@@ -83,7 +83,10 @@ export default function SelectProjectDirectoryDialog({
                   checked={selectedPath === ""}
                   onChange={() => setSelectedPath("")}
                 />
-                <label htmlFor="root" className="font-mono text-sm">
+                <label
+                  htmlFor="root"
+                  className="text-mauve-11 font-mono text-sm"
+                >
                   ./
                 </label>
               </fieldset>
