@@ -132,7 +132,10 @@ export default function General() {
               {isLoading || clusterData?.status === "pending" ? (
                 <Skeleton className="h-5 w-14" />
               ) : (
-                <CopyToClipboard className="text-mauve-11" text="root" />
+                <CopyToClipboard
+                  className="text-mauve-11"
+                  text={clusterData?.user ?? ""}
+                />
               )}
             </div>
             <div className="flex items-center justify-between px-4 py-2">

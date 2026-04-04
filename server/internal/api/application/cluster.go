@@ -196,8 +196,7 @@ func (ca *ClusterApplication) OpenTTY(
 		return fmt.Errorf("failed to encode private key to PEM: %v", err)
 	}
 
-	// TODO: Don't hardcode user
-	return ca.grpcProvisionerClient.OpenTTY(ctx, *cluster.IPv4Address, "root", pemBytes, stdin, stdout, sizes)
+	return ca.grpcProvisionerClient.OpenTTY(ctx, *cluster.IPv4Address, cluster.User, pemBytes, stdin, stdout, sizes)
 }
 
 func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) {

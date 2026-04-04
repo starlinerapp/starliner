@@ -24,6 +24,7 @@ type Cluster struct {
 	Id             int64
 	Name           string
 	Status         ClusterStatus
+	User           string
 	IPv4Address    *string
 	OrganizationId int64
 	CreatedAt      time.Time
@@ -43,6 +44,7 @@ func NewCluster(c *entity.Cluster) *Cluster {
 		Id:             c.Id,
 		Name:           c.Name,
 		Status:         mapStatus(c.Status),
+		User:           c.User,
 		IPv4Address:    c.IPv4Address,
 		OrganizationId: c.OrganizationId,
 		CreatedAt:      c.CreatedAt,

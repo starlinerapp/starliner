@@ -569,6 +569,12 @@ export interface ResponseCluster {
    * @memberof ResponseCluster
    */
   status: ResponseClusterStatus;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
+  user: string;
 }
 
 /**
