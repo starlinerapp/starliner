@@ -102,6 +102,7 @@ services:
 
   server-builder:
     restart: unless-stopped
+    privileged: true
     build:
       context: .
       dockerfile: .docker/server/builder/Dockerfile
@@ -338,9 +339,7 @@ services:
     networks:
       - internal
 
-  # Fully qualified hostname necessary, so Dagger’s internal DNS can resolve it
-  # See: https://github.com/dagger/dagger/issues/9439#issuecomment-3656217482
-  registry.dev:
+  registry:
     build:
       context: .
       dockerfile: .docker/registry/Dockerfile
@@ -354,14 +353,14 @@ services:
     networks:
       - internal
 
-  dagger:
+  buildkit:
     build:
       context: .
-      dockerfile: .docker/dagger/Dockerfile
+      dockerfile: .docker/buildkit/Dockerfile
     privileged: true
     restart: unless-stopped
     volumes:
-      - dagger-data:/var/lib/dagger
+      - buildkit-data:/var/lib/buildkit
     networks:
       - internal
 
@@ -371,7 +370,7 @@ volumes:
   db-data:
   nats-data:
   registry-data:
-  dagger-data:
+  buildkit-data:
 
 networks:
   internal:

@@ -4,7 +4,7 @@ import (
 	"go.uber.org/fx"
 	"starliner.app/internal/builder/application"
 	"starliner.app/internal/builder/conf"
-	docker "starliner.app/internal/builder/infrastructure/dagger"
+	docker "starliner.app/internal/builder/infrastructure/buildkit"
 	"starliner.app/internal/builder/infrastructure/git"
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
 	builderqueue "starliner.app/internal/builder/presentation/queue"
