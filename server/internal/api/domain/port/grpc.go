@@ -10,7 +10,7 @@ type TerminalSize struct {
 	Rows    int
 }
 
-type GrpcClient interface {
+type ClusterClient interface {
 	StreamLogs(
 		ctx context.Context,
 		namespace string,
@@ -24,6 +24,18 @@ type GrpcClient interface {
 		namespace string,
 		releaseName string,
 		kubeconfigBase64 string,
+		stdin io.Reader,
+		stdout io.Writer,
+		sizes <-chan TerminalSize,
+	) error
+}
+
+type ProvisionerClient interface {
+	OpenTTY(
+		ctx context.Context,
+		ip string,
+		user string,
+		pemKey []byte,
 		stdin io.Reader,
 		stdout io.Writer,
 		sizes <-chan TerminalSize,

@@ -27,7 +27,7 @@ type DeploymentApplication struct {
 	buildRepository       interfaces.BuildRepository
 	githubAppRepository   interfaces.GithubAppRepository
 	gitHub                port.GitHub
-	grpcClient            port.GrpcClient
+	grpcClient            port.ClusterClient
 	queue                 port.Queue
 	pubsub                port.Pubsub
 	crypto                corePort.Crypto
@@ -42,7 +42,7 @@ func NewDeploymentApplication(
 	buildRepository interfaces.BuildRepository,
 	githubAppRepository interfaces.GithubAppRepository,
 	gitHub port.GitHub,
-	grpcClient port.GrpcClient,
+	grpcClient port.ClusterClient,
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,

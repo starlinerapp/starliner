@@ -41,7 +41,7 @@ function BottomBarComponent({ deployment }: BottomBarProps) {
           webSocketUrl={`wss://${window.location.host}/ws/deployments/${deployment?.id}`}
         />
       ) : (
-        <p className="text-mauve-11">
+        <p className="text-mauve-11 p-4">
           No deployment selected. Select one to connect to the terminal.
         </p>
       )}

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
+
+message ClusterTerminalSize {
+  uint32 cols = 1;
+  uint32 rows = 2;
+}
+
+message OpenClusterTTYRequest {
+  oneof payload {
+    ClusterTTYSession session = 1;
+    bytes stdin = 2;
+    ClusterTerminalSize size = 3;
+  }
+}
+
+message ClusterTTYSession {
+  string ip = 1;
+  string user = 2;
+  bytes pemKey = 3;
+}
+
+message OpenClusterTTYResponse {
+  bytes stdout = 1;
+}
+
+service ClusterTTYService {
+  rpc OpenTTY(stream OpenClusterTTYRequest) returns (stream OpenClusterTTYResponse);
+}

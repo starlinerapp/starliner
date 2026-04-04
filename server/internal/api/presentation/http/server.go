@@ -104,6 +104,7 @@ func NewServer(
 	webSocketRoutes := engine.Group("/ws")
 	{
 		webSocketRoutes.GET("/deployments/:id", deploymentHandler.OpenTTY)
+		webSocketRoutes.GET("/clusters/:id", clusterHandler.OpenTTY)
 	}
 
 	teamRoutes := engine.Group("/teams")

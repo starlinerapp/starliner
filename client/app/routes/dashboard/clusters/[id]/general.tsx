@@ -162,15 +162,17 @@ export default function General() {
 
       <ResizableHandle />
 
-      <ResizablePanel
-        ref={bottomPanelRef}
-        defaultSize={3}
-        minSize={4}
-        maxSize={85}
-        className="border-mauve-6 border-t-1"
-      >
-        <BottomBar />
-      </ResizablePanel>
+      {clusterData?.id && clusterData.status === "running" && (
+        <ResizablePanel
+          ref={bottomPanelRef}
+          defaultSize={85}
+          minSize={4}
+          maxSize={85}
+          className="border-mauve-6 border-t-1"
+        >
+          <BottomBar clusterId={clusterData?.id} />
+        </ResizablePanel>
+      )}
     </ResizablePanelGroup>
   );
 }
