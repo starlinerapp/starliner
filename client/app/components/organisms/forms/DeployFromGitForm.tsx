@@ -9,6 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import SelectProjectDirectoryDialog from "~/components/organisms/dialog/SelectProjectDirectoryDialog";
+import SelectDockerfileDialog from "~/components/organisms/dialog/SelectDockerfileDialog";
+import { cn } from "~/utils/cn";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -39,7 +41,7 @@ export default function DeployFromGitForm({
     }),
   );
 
-  const { register, handleSubmit, watch, reset, control } =
+  const { register, handleSubmit, watch, reset, control, setValue } =
     useForm<DeployFromGitFormInput>({ defaultValues });
 
   const { fields, append, replace } = useFieldArray({
@@ -49,6 +51,8 @@ export default function DeployFromGitForm({
 
   const [error, setError] = useState<string | null>(null);
   const [isSelectProjectDialogOpen, setIsSelectProjectDialogOpen] =
+    useState(false);
+  const [isSelectDockerFileDialogOpen, setIsSelectDockerFileDialogOpen] =
     useState(false);
 
   const urlInput = watch("url", "");
@@ -150,6 +154,10 @@ export default function DeployFromGitForm({
                   <select
                     {...register("url", { required: true })}
                     disabled={!!defaultValues?.url}
+                    onChange={() => {
+                      setValue("projectDirectoryPath", "");
+                      setValue("dockerfilePath", "");
+                    }}
                     className="border-mauve-6 bg-gray-2 disabled:bg-gray-2 hover:bg-gray-3 disabled:text-gray-10 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
                   >
                     {repositoriesData?.map((repo, i) => (
@@ -170,7 +178,10 @@ export default function DeployFromGitForm({
               <div className="w-full">
                 <p className="text-sm">Project Directory</p>
                 <div
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm"
+                  className={cn(
+                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm",
+                    !projectDirectoryPathInput && "text-mauve-11",
+                  )}
                   onClick={() => setIsSelectProjectDialogOpen(true)}
                 >
                   <p>{projectDirectoryPathInput || "Select directory*"}</p>
@@ -184,7 +195,13 @@ export default function DeployFromGitForm({
               </div>
               <div className="w-full">
                 <p className="text-sm">Dockerfile</p>
-                <div className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm">
+                <div
+                  className={cn(
+                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm",
+                    !dockerFilePathInput && "text-mauve-11",
+                  )}
+                  onClick={() => setIsSelectDockerFileDialogOpen(true)}
+                >
                   <p>{dockerFilePathInput || "Select Dockerfile*"}</p>
                 </div>
                 <input
@@ -252,10 +269,18 @@ export default function DeployFromGitForm({
         isOpen={isSelectProjectDialogOpen}
         onOpenChange={setIsSelectProjectDialogOpen}
         onConfirm={(directory) => {
-          reset({
-            ...defaultValues,
-            projectDirectoryPath: directory,
-          });
+          setValue("projectDirectoryPath", directory);
+          setValue("dockerfilePath", "");
+        }}
+      />
+      <SelectDockerfileDialog
+        repositoryOwner={"starlinerapp"}
+        repositoryName={selectedRepository?.name ?? ""}
+        isOpen={isSelectDockerFileDialogOpen}
+        onOpenChange={setIsSelectDockerFileDialogOpen}
+        path={projectDirectoryPathInput}
+        onConfirm={(file) => {
+          setValue("dockerfilePath", file);
         }}
       />
     </>
