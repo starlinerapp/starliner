@@ -144,15 +144,16 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 		}
 
 		deployments[i] = &entity.ImageDeployment{
-			Id:            d.DeploymentID,
-			Status:        string(d.Status),
-			ServiceName:   d.ServiceName,
-			ImageName:     d.ImageName,
-			Tag:           d.Tag,
-			Port:          d.Port,
-			EnvironmentId: d.EnvironmentID,
-			VolumeSizeMB:  utils.PtrFromNullInt32(d.VolumeSizeMb),
-			EnvVars:       variables,
+			Id:              d.DeploymentID,
+			Status:          string(d.Status),
+			ServiceName:     d.ServiceName,
+			ImageName:       d.ImageName,
+			Tag:             d.Tag,
+			Port:            d.Port,
+			EnvironmentId:   d.EnvironmentID,
+			VolumeSizeMB:    utils.PtrFromNullInt32(d.VolumeSizeMb),
+			VolumeMountPath: utils.PtrFromNullString(d.MountPath),
+			EnvVars:         variables,
 		}
 	}
 	return deployments, nil

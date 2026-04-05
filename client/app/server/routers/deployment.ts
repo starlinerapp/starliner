@@ -100,6 +100,7 @@ export const deploymentRouter = {
         imageName: z.string(),
         tag: z.string(),
         volumeSizeMB: z.number().optional(),
+        volumeMountPath: z.string().optional(),
         port: z.number(),
         envs: z
           .array(
@@ -120,6 +121,7 @@ export const deploymentRouter = {
           imageName: input.imageName,
           tag: input.tag,
           volumeSizeMB: input.volumeSizeMB,
+          volumeMountPath: input.volumeMountPath,
           port: input.port,
           envs: input.envs,
         });

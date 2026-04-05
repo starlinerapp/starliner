@@ -1701,6 +1701,9 @@ const docTemplate = `{
                 "tag": {
                     "type": "string"
                 },
+                "volumeMountPath": {
+                    "type": "string"
+                },
                 "volumeSizeMB": {
                     "type": "integer"
                 }
@@ -2210,6 +2213,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "tag": {
+                    "type": "string"
+                },
+                "volumeMountPath": {
                     "type": "string"
                 },
                 "volumeSizeMB": {

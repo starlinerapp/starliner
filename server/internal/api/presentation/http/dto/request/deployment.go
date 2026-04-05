@@ -24,13 +24,14 @@ type UpdateDeployFromGit struct {
 }
 
 type DeployImage struct {
-	EnvironmentId int64    `json:"environmentId" binding:"required"`
-	ServiceName   string   `json:"serviceName" binding:"required"`
-	ImageName     string   `json:"imageName" binding:"required"`
-	Tag           string   `json:"tag" binding:"required"`
-	Port          int      `json:"port" binding:"required"`
-	VolumeSizeMB  *int32   `json:"volumeSizeMB"`
-	Envs          []EnvVar `json:"envs" binding:"required"`
+	EnvironmentId   int64    `json:"environmentId" binding:"required"`
+	ServiceName     string   `json:"serviceName" binding:"required"`
+	ImageName       string   `json:"imageName" binding:"required"`
+	Tag             string   `json:"tag" binding:"required"`
+	Port            int      `json:"port" binding:"required"`
+	VolumeSizeMB    *int32   `json:"volumeSizeMB"`
+	VolumeMountPath *string  `json:"volumeMountPath"`
+	Envs            []EnvVar `json:"envs" binding:"required"`
 }
 
 type UpdateImage struct {

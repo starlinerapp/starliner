@@ -238,10 +238,12 @@ type DeploymentEnvironmentVar struct {
 
 type DeploymentVolume struct {
 	ID           int64
-	DeploymentID int64
+	DeploymentID sql.NullInt64
 	VolumeSizeMb int32
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	MountPath    string
+	DeletedAt    sql.NullTime
 }
 
 type Environment struct {

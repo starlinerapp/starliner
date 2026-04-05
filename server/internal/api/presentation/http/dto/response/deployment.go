@@ -128,6 +128,7 @@ type ImageDeployment struct {
 	Status           string   `json:"status" binding:"required"`
 	Port             string   `json:"port" binding:"required"`
 	VolumeSizeMB     *int32   `json:"volumeSizeMB"`
+	VolumeMountPath  *string  `json:"volumeMountPath"`
 	EnvVars          []EnvVar `json:"envVars" binding:"required"`
 }
 
@@ -141,6 +142,7 @@ func NewImageDeployment(imageDeployment *value.ImageDeployment) ImageDeployment 
 		Status:           imageDeployment.Status,
 		Port:             imageDeployment.Port,
 		VolumeSizeMB:     imageDeployment.VolumeSizeMB,
+		VolumeMountPath:  imageDeployment.VolumeMountPath,
 		EnvVars:          mapEnvVarsFromValue(imageDeployment.EnvVars),
 	}
 }

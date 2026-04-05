@@ -35,6 +35,7 @@ type DeploymentRepository interface {
 		tag string,
 		port string,
 		volumeSizeMB *int32,
+		volumeMountPath *string,
 		environmentId int64,
 		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)
@@ -86,6 +87,8 @@ type DeploymentRepository interface {
 	GetDeploymentWithNamespace(ctx context.Context, deploymentId int64) (*entity.Deployment, error)
 
 	GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error)
+
+	SoftDeleteDeploymentVolume(ctx context.Context, deploymentId int64) error
 
 	DeleteDeployment(ctx context.Context, deploymentId int64) error
 

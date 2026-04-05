@@ -11,6 +11,7 @@ export interface ImageFormInput {
   tag: string;
   port: number | null;
   volumeSizeMB: number | null;
+  volumeMountPath: string | null;
   envs: { name: string; value: string }[];
 }
 
@@ -25,10 +26,16 @@ export default function DeployImageForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployImageFormProps) {
-  const { register, handleSubmit, watch, reset, control } =
-    useForm<ImageFormInput>({
-      defaultValues,
-    });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<ImageFormInput>({
+    defaultValues,
+  });
 
   const { fields, append, replace } = useFieldArray({
     control,
@@ -36,19 +43,36 @@ export default function DeployImageForm({
   });
 
   const [error, setError] = useState<string | null>(null);
-  const [isAddedVolume, setAddedVolume] = useState<boolean>(
-    !!defaultValues?.volumeSizeMB,
+  const [addedVolume, setAddedVolume] = useState<boolean>(
+    !!defaultValues?.volumeSizeMB || !!defaultValues?.volumeMountPath,
   );
+
+  const isExistingDeployment = !!defaultValues;
+  const existingHasVolume =
+    !!defaultValues?.volumeSizeMB || !!defaultValues?.volumeMountPath;
 
   const serviceNameInput = watch("serviceName", "");
   const imageNameInput = watch("imageName", "");
   const tagInput = watch("tag", "");
   const portInput = watch("port", null);
+  const volumeSizeInput = watch("volumeSizeMB", null);
+  const volumeMountPathInput = watch("volumeMountPath", null);
+
+  const hasVolumeSize = !!volumeSizeInput && !isNaN(volumeSizeInput);
+  const hasVolumeMountPath = !!volumeMountPathInput?.trim();
+  const isVolumeIncomplete = hasVolumeSize !== hasVolumeMountPath;
 
   const submit: SubmitHandler<ImageFormInput> = async (data) => {
     data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
+
+    if (!data.volumeSizeMB || isNaN(data.volumeSizeMB)) {
+      data.volumeSizeMB = null;
+    }
+    if (!data.volumeMountPath?.trim()) {
+      data.volumeMountPath = null;
+    }
 
     try {
       await onSubmit(data);
@@ -58,6 +82,8 @@ export default function DeployImageForm({
           imageName: "",
           tag: "",
           port: null,
+          volumeSizeMB: null,
+          volumeMountPath: null,
           envs: [],
         });
       setError(null);
@@ -172,23 +198,51 @@ export default function DeployImageForm({
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-sm">Persisted volume</p>
-          {isAddedVolume && (
-            <div className="flex items-center gap-2">
+          <p className="text-sm">Persistent volume</p>
+          {isExistingDeployment && !existingHasVolume && (
+            <p className="text-mauve-11 text-sm">No volume attached</p>
+          )}
+          {addedVolume && (
+            <div className="flex flex-col gap-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+                  type="number"
+                  placeholder="Size*"
+                  disabled={!!defaultValues?.volumeSizeMB}
+                  {...register("volumeSizeMB", {
+                    required: false,
+                    valueAsNumber: true,
+                  })}
+                />
+                <span className="text-mauve-11 text-sm">MB</span>
+              </div>
+
               <input
                 className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
-                type="number"
-                placeholder="Size*"
-                disabled={!!defaultValues?.volumeSizeMB}
-                {...register("volumeSizeMB", {
+                type="text"
+                placeholder="Mount Path* (e.g. /data)"
+                disabled={!!defaultValues?.volumeMountPath}
+                {...register("volumeMountPath", {
                   required: false,
-                  valueAsNumber: true,
+                  validate: (value) => {
+                    if (!value) return true;
+                    return (
+                      /^\/(([a-zA-Z0-9_\-.]+)(\/[a-zA-Z0-9_\-.]+)*)?$/.test(
+                        value,
+                      ) || "Must be a valid absolute path (e.g. /data)"
+                    );
+                  },
                 })}
               />
-              <span className="text-mauve-11 text-sm">MB</span>
+              {errors.volumeMountPath && (
+                <p className="text-xs text-red-500">
+                  {errors.volumeMountPath.message}
+                </p>
+              )}
             </div>
           )}
-          {!isAddedVolume && (
+          {!addedVolume && !isExistingDeployment && (
             <Button
               intent="text"
               className="py-1"
@@ -203,7 +257,7 @@ export default function DeployImageForm({
           size="sm"
           className="mt-2 w-28 flex-shrink-0 py-1.5"
           disabled={
-            !serviceNameInput || !imageNameInput || !tagInput || !portInput
+            !serviceNameInput || !imageNameInput || !tagInput || !portInput || isVolumeIncomplete
           }
         >
           {defaultValues ? "Redeploy" : "Deploy"}

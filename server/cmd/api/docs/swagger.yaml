@@ -128,6 +128,8 @@ definitions:
         type: string
       tag:
         type: string
+      volumeMountPath:
+        type: string
       volumeSizeMB:
         type: integer
     required:
@@ -479,6 +481,8 @@ definitions:
       status:
         type: string
       tag:
+        type: string
+      volumeMountPath:
         type: string
       volumeSizeMB:
         type: integer

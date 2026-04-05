@@ -50,9 +50,13 @@ func (d *Deploy) DeployImage(
 	}
 
 	if args.VolumeSizeMB != nil && *args.VolumeSizeMB > 0 {
+		mountPath := "/data"
+		if args.VolumeMountPath != nil && *args.VolumeMountPath != "" {
+			mountPath = *args.VolumeMountPath
+		}
 		values["volume"] = map[string]interface{}{
 			"sizeMB":    *args.VolumeSizeMB,
-			"mountPath": "/data",
+			"mountPath": mountPath,
 		}
 		return installChart(StatefulSetChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, values)
 	}

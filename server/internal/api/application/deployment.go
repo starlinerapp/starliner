@@ -209,6 +209,7 @@ func (da *DeploymentApplication) DeployImage(
 	tag string,
 	port int,
 	volumeSizeMB *int32,
+	volumeMountPath *string,
 	envs []*value.EnvVar,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
@@ -242,6 +243,7 @@ func (da *DeploymentApplication) DeployImage(
 		tag,
 		strconv.Itoa(port),
 		volumeSizeMB,
+		volumeMountPath,
 		environmentId,
 		envs,
 	)
@@ -276,6 +278,7 @@ func (da *DeploymentApplication) DeployImage(
 		ImageTag:         tag,
 		Port:             port,
 		VolumeSizeMB:     volumeSizeMB,
+		VolumeMountPath:  volumeMountPath,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {
@@ -348,6 +351,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		ImageTag:         tag,
 		Port:             port,
 		VolumeSizeMB:     deployment.VolumeSizeMB,
+		VolumeMountPath:  deployment.VolumeMountPath,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {
@@ -620,6 +624,11 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	}
 
 	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deployment.Name)
+	if err != nil {
+		return err
+	}
+
+	err = da.deploymentRepository.SoftDeleteDeploymentVolume(ctx, deploymentId)
 	if err != nil {
 		return err
 	}

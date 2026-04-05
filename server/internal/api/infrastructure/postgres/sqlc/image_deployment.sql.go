@@ -37,18 +37,19 @@ func (q *Queries) CreateDeploymentEnvVar(ctx context.Context, arg CreateDeployme
 }
 
 const createDeploymentVolume = `-- name: CreateDeploymentVolume :one
-INSERT INTO deployment_volumes (deployment_id, volume_size_mb)
-VALUES ($1, $2)
-RETURNING id, deployment_id, volume_size_mb, created_at, updated_at
+INSERT INTO deployment_volumes (deployment_id, volume_size_mb, mount_path)
+VALUES ($1, $2, $3)
+RETURNING id, deployment_id, volume_size_mb, created_at, updated_at, mount_path, deleted_at
 `
 
 type CreateDeploymentVolumeParams struct {
-	DeploymentID int64
+	DeploymentID sql.NullInt64
 	VolumeSizeMb int32
+	MountPath    string
 }
 
 func (q *Queries) CreateDeploymentVolume(ctx context.Context, arg CreateDeploymentVolumeParams) (DeploymentVolume, error) {
-	row := q.db.QueryRowContext(ctx, createDeploymentVolume, arg.DeploymentID, arg.VolumeSizeMb)
+	row := q.db.QueryRowContext(ctx, createDeploymentVolume, arg.DeploymentID, arg.VolumeSizeMb, arg.MountPath)
 	var i DeploymentVolume
 	err := row.Scan(
 		&i.ID,
@@ -56,6 +57,8 @@ func (q *Queries) CreateDeploymentVolume(ctx context.Context, arg CreateDeployme
 		&i.VolumeSizeMb,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.MountPath,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -131,10 +134,11 @@ SELECT
     d.environment_id,
     img_d.name AS image_name,
     img_d.tag,
-    dv.volume_size_mb
+    dv.volume_size_mb,
+    dv.mount_path
 FROM deployments d
 INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id
-LEFT JOIN deployment_volumes dv ON d.id = dv.deployment_id
+LEFT JOIN deployment_volumes dv ON d.id = dv.deployment_id AND dv.deleted_at IS NULL
 INNER JOIN environments e ON d.environment_id = e.id
 INNER JOIN projects ON e.project_id = projects.id
 INNER JOIN teams ON projects.team_id = teams.id
@@ -158,6 +162,7 @@ type GetEnvironmentImageDeploymentsRow struct {
 	ImageName     string
 	Tag           string
 	VolumeSizeMb  sql.NullInt32
+	MountPath     sql.NullString
 }
 
 func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnvironmentImageDeploymentsParams) ([]GetEnvironmentImageDeploymentsRow, error) {
@@ -178,6 +183,7 @@ func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnv
 			&i.ImageName,
 			&i.Tag,
 			&i.VolumeSizeMb,
+			&i.MountPath,
 		); err != nil {
 			return nil, err
 		}
@@ -190,6 +196,17 @@ func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnv
 		return nil, err
 	}
 	return items, nil
+}
+
+const softDeleteDeploymentVolume = `-- name: SoftDeleteDeploymentVolume :exec
+UPDATE deployment_volumes
+SET deleted_at = NOW()
+WHERE deployment_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteDeploymentVolume(ctx context.Context, deploymentID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, softDeleteDeploymentVolume, deploymentID)
+	return err
 }
 
 const updateImageDeployment = `-- name: UpdateImageDeployment :one

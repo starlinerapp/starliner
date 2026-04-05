@@ -162,6 +162,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	tag string,
 	port string,
 	volumeSizeMB *int32,
+	volumeMountPath *string,
 	environmentId int64,
 	envs []*value.EnvVar,
 ) (deployment *entity.ImageDeployment, err error) {
@@ -186,15 +187,22 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	}
 
 	var resultVolumeSizeMB *int32
+	var resultVolumeMountPath *string
 	if volumeSizeMB != nil {
+		mountPath := "/data"
+		if volumeMountPath != nil && *volumeMountPath != "" {
+			mountPath = *volumeMountPath
+		}
 		dv, err := qtx.CreateDeploymentVolume(ctx, sqlc.CreateDeploymentVolumeParams{
-			DeploymentID: d.DeploymentID,
+			DeploymentID: sql.NullInt64{Int64: d.DeploymentID, Valid: true},
 			VolumeSizeMb: *volumeSizeMB,
+			MountPath:    mountPath,
 		})
 		if err != nil {
 			return nil, err
 		}
 		resultVolumeSizeMB = &dv.VolumeSizeMb
+		resultVolumeMountPath = &dv.MountPath
 	}
 
 	vars := make([]*entity.EnvVar, len(envs))
@@ -218,15 +226,16 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		return nil, err
 	}
 	return &entity.ImageDeployment{
-		Id:            d.DeploymentID,
-		Status:        string(d.Status),
-		ServiceName:   d.ServiceName,
-		ImageName:     d.ImageName,
-		Tag:           d.ImageTag,
-		Port:          d.Port,
-		VolumeSizeMB:  resultVolumeSizeMB,
-		EnvironmentId: d.EnvironmentID,
-		EnvVars:       vars,
+		Id:              d.DeploymentID,
+		Status:          string(d.Status),
+		ServiceName:     d.ServiceName,
+		ImageName:       d.ImageName,
+		Tag:             d.ImageTag,
+		Port:            d.Port,
+		VolumeSizeMB:    resultVolumeSizeMB,
+		VolumeMountPath: resultVolumeMountPath,
+		EnvironmentId:   d.EnvironmentID,
+		EnvVars:         vars,
 	}, nil
 }
 
@@ -533,6 +542,10 @@ func (dr *DeploymentRepository) GetDeploymentCluster(ctx context.Context, deploy
 		Kubeconfig:     utils.PtrFromNullString(res.Kubeconfig),
 		OrganizationId: res.OrganizationID,
 	}, nil
+}
+
+func (dr *DeploymentRepository) SoftDeleteDeploymentVolume(ctx context.Context, deploymentId int64) error {
+	return dr.queries.SoftDeleteDeploymentVolume(ctx, sql.NullInt64{Int64: deploymentId, Valid: true})
 }
 
 func (dr *DeploymentRepository) DeleteDeployment(ctx context.Context, deploymentId int64) error {

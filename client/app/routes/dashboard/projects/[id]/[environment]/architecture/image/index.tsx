@@ -27,6 +27,7 @@ export default function Index() {
       tag: data.tag,
       port: data.port,
       volumeSizeMB: data.volumeSizeMB ?? undefined,
+      volumeMountPath: data.volumeMountPath ?? undefined,
       envs: data.envs,
     });
   };

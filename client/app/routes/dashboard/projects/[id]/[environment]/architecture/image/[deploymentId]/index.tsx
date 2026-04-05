@@ -55,6 +55,7 @@ export default function UpdateImageForm() {
             tag: imageDeployment?.tag ?? "",
             port: imageDeployment ? Number(imageDeployment.port) : null,
             volumeSizeMB: imageDeployment?.volumeSizeMB ?? null,
+            volumeMountPath: imageDeployment?.volumeMountPath ?? null,
             envs: imageDeployment?.envVars ?? [],
           }}
         />
