@@ -51,6 +51,7 @@ func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, c
 		Id:             cluster.ID,
 		Name:           cluster.Name,
 		Status:         entity.ClusterStatus(cluster.Status),
+		User:           cluster.User,
 		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
 		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
 		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),

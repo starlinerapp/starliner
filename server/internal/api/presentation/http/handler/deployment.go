@@ -387,7 +387,7 @@ func (dh *DeploymentHandler) StreamDeploymentLogs(c *gin.Context) {
 	}
 }
 
-var upgrader = websocket.Upgrader{
+var deploymentUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -404,7 +404,7 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 	rows, _ := strconv.Atoi(c.Query("tty_height"))
 	cols, _ := strconv.Atoi(c.Query("tty_width"))
 
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	conn, err := deploymentUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "websocket upgrade failed"})
 		return

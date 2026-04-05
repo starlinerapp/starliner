@@ -93,7 +93,7 @@ export default function BuildCard({
                 {isLoading || !logsData?.logs ? (
                   <BuildCardSkeleton />
                 ) : (
-                  <pre className="text-mauve-11 max-h-[500px] overflow-y-scroll whitespace-pre-wrap">
+                  <pre className="text-mauve-11 max-h-[500px] overflow-y-auto whitespace-pre-wrap">
                     {logsData?.logs || "No logs available"}
                   </pre>
                 )}

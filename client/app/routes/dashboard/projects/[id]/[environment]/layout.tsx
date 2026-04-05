@@ -134,7 +134,7 @@ export default function ProjectLayout() {
         )}
         <LinkNavigationBar items={navigationBarItems} />
       </div>
-      <div className="h-[calc(100vh-90px)] overflow-y-scroll">
+      <div className="h-[calc(100vh-90px)] overflow-y-auto">
         <Outlet />
       </div>
     </div>

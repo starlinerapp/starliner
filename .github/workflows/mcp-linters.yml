@@ -33,3 +33,8 @@ jobs:
         run: |
           uv run ruff check .
         working-directory: mcp-server
+
+      - name: Run vulnerability check
+        run: |
+          uv audit
+        working-directory: mcp-server

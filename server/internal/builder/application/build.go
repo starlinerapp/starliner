@@ -35,7 +35,7 @@ func NewBuildApplication(
 func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
 
-	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl)
+	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.AccessToken)
 	if err != nil {
 		log.Printf("failed to clone repository: %v", err)
 	}

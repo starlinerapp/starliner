@@ -5,6 +5,7 @@ import (
 	"go.uber.org/fx"
 	"log"
 	"starliner.app/internal/api/application"
+	"starliner.app/internal/core/util/concurrent"
 	"time"
 )
 
@@ -29,7 +30,7 @@ func NewScheduler(
 }
 
 func (s *Scheduler) Start() error {
-	go func() {
+	go concurrent.WithRecovery(context.Background(), "RequestDeploymentStatus", func() error {
 		interval := 2 * time.Second
 
 		ticker := time.NewTicker(interval)
@@ -40,6 +41,8 @@ func (s *Scheduler) Start() error {
 				log.Printf("failed to request deployment status: %v", err)
 			}
 		}
-	}()
+
+		return nil
+	})
 	return nil
 }

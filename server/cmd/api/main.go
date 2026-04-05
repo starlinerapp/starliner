@@ -6,6 +6,7 @@ import (
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/repository"
 	"starliner.app/internal/api/domain/service"
+	"starliner.app/internal/api/infrastructure/github"
 	"starliner.app/internal/api/infrastructure/grpc"
 	"starliner.app/internal/api/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
@@ -31,6 +32,7 @@ func main() {
 		s3.Module,
 		crypto.Module,
 		grpc.Module,
+		github.Module,
 		repository.Module,
 		coreService.Module,
 		service.Module,

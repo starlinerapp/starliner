@@ -8,11 +8,14 @@ docs/BuildApi.md
 docs/ClusterApi.md
 docs/DeploymentApi.md
 docs/EnvironmentApi.md
+docs/GithubApi.md
+docs/GithubappApi.md
 docs/OrganizationApi.md
 docs/ProjectApi.md
 docs/RequestAcceptInvite.md
 docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
+docs/RequestCreateGithubApp.md
 docs/RequestCreateOrganization.md
 docs/RequestCreateProject.md
 docs/RequestCreateTeam.md
@@ -38,6 +41,7 @@ docs/ResponseEnvironment.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseGitDeployment.md
 docs/ResponseGitDeploymentBuild.md
+docs/ResponseGithubApp.md
 docs/ResponseImageDeployment.md
 docs/ResponseIngressDeployment.md
 docs/ResponseIngressHost.md
@@ -47,6 +51,8 @@ docs/ResponseOrganizationInvite.md
 docs/ResponseOrganizationProvisioningCredential.md
 docs/ResponseProject.md
 docs/ResponseProjectCluster.md
+docs/ResponseRepository.md
+docs/ResponseRepositoryFile.md
 docs/ResponseRoot.md
 docs/ResponseTeam.md
 docs/ResponseUser.md

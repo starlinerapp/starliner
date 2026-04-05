@@ -17,6 +17,7 @@ type Cluster struct {
 	Id             int64         `json:"id" binding:"required"`
 	Name           string        `json:"name" binding:"required"`
 	Status         ClusterStatus `json:"status" binding:"required,oneof=pending running deleted"`
+	User           string        `json:"user" binding:"required"`
 	IPv4Address    *string       `json:"ipv4Address" binding:"required"`
 	OrganizationId int64         `json:"organizationId" binding:"required"`
 	CreatedAt      time.Time     `json:"createdAt" binding:"required"`
@@ -36,6 +37,7 @@ func NewCluster(cluster *value.Cluster) Cluster {
 		Id:             cluster.Id,
 		Name:           cluster.Name,
 		Status:         ClusterStatus(cluster.Status),
+		User:           cluster.User,
 		IPv4Address:    cluster.IPv4Address,
 		OrganizationId: cluster.OrganizationId,
 		CreatedAt:      cluster.CreatedAt,
