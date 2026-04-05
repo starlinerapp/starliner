@@ -25,6 +25,13 @@ func (wh *WebhookHandler) HandleGithubWebhook(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
+
+	signature := c.GetHeader("X-Hub-Signature-256")
+	if !wh.githubApplication.VerifySignature(payload, signature) {
+		c.Status(http.StatusUnauthorized)
+		return
+	}
+
 	eventType := c.GetHeader("X-GitHub-Event")
 
 	err = wh.githubApplication.HandleGithubWebhook(c.Request.Context(), eventType, payload)

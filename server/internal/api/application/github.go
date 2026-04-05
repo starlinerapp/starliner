@@ -2,6 +2,9 @@ package application
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"starliner.app/internal/api/conf"
@@ -47,6 +50,13 @@ func NewGitHubApplication(
 		organizationService:   organizationService,
 		cfg:                   cfg,
 	}
+}
+
+func (ga *GitHubApplication) VerifySignature(payload []byte, signature string) bool {
+	mac := hmac.New(sha256.New, []byte(ga.cfg.GithubWebhookSecret))
+	mac.Write(payload)
+	expected := "sha256=" + hex.EncodeToString(mac.Sum(nil))
+	return hmac.Equal([]byte(expected), []byte(signature))
 }
 
 func (ga *GitHubApplication) GetRepositories(ctx context.Context, userId int64, organizationId int64) ([]*value.Repository, error) {
