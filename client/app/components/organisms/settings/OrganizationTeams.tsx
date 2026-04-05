@@ -222,10 +222,7 @@ export default function OrganizationTeams() {
               className="border-mauve-6 text-mauve-12 hover:bg-gray-2 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
             >
               <div className="flex flex-col">
-                <span>{team.name}</span>
-                <span className="text-mauve-11 font-mono text-xs">
-                  Slug: {team.slug}
-                </span>
+                <span>#{team.slug}</span>
               </div>
               <Button
                 className="h-7 w-24 text-xs"

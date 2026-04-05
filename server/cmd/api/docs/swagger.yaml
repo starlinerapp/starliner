@@ -682,15 +682,12 @@ definitions:
     properties:
       id:
         type: integer
-      name:
-        type: string
       organization_id:
         type: integer
       slug:
         type: string
     required:
     - id
-    - name
     - organization_id
     - slug
     type: object

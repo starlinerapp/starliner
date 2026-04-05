@@ -32,29 +32,25 @@ func (q *Queries) AddTeamMember(ctx context.Context, arg AddTeamMemberParams) er
 
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (
-    name,
     slug,
     organization_id
 ) VALUES (
     $1,
-    $2,
-    $3
+    $2
 )
-RETURNING id, name, slug, organization_id, created_at, updated_at
+RETURNING id, slug, organization_id, created_at, updated_at
 `
 
 type CreateTeamParams struct {
-	Name           string
 	Slug           string
 	OrganizationID int64
 }
 
 func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, error) {
-	row := q.db.QueryRowContext(ctx, createTeam, arg.Name, arg.Slug, arg.OrganizationID)
+	row := q.db.QueryRowContext(ctx, createTeam, arg.Slug, arg.OrganizationID)
 	var i Team
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
 		&i.Slug,
 		&i.OrganizationID,
 		&i.CreatedAt,
@@ -113,7 +109,7 @@ func (q *Queries) FindTeamByIdAndUserId(ctx context.Context, arg FindTeamByIdAnd
 }
 
 const getTeamById = `-- name: GetTeamById :one
-SELECT id, name, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
+SELECT id, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
 `
 
 func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
@@ -121,7 +117,6 @@ func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
 	var i Team
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
 		&i.Slug,
 		&i.OrganizationID,
 		&i.CreatedAt,
@@ -131,7 +126,7 @@ func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
 }
 
 const getTeamBySlug = `-- name: GetTeamBySlug :one
-SELECT id, name, slug, organization_id, created_at, updated_at FROM teams
+SELECT id, slug, organization_id, created_at, updated_at FROM teams
 WHERE slug = $1 AND organization_id = $2
 `
 
@@ -145,7 +140,6 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, arg GetTeamBySlugParams) (T
 	var i Team
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
 		&i.Slug,
 		&i.OrganizationID,
 		&i.CreatedAt,
@@ -190,7 +184,7 @@ func (q *Queries) GetTeamMembers(ctx context.Context, teamID int64) ([]GetTeamMe
 }
 
 const getUserTeams = `-- name: GetUserTeams :many
-SELECT teams.id, teams.name, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
 INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE teams.organization_id = $1
@@ -213,7 +207,6 @@ func (q *Queries) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]T
 		var i Team
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
 			&i.Slug,
 			&i.OrganizationID,
 			&i.CreatedAt,

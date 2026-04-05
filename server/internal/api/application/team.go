@@ -48,7 +48,6 @@ func (ts *TeamApplication) CreateTeam(ctx context.Context, name string, organiza
 
 	team, err := ts.teamRepository.CreateTeam(
 		ctx,
-		name,
 		teamSlug,
 		organizationId,
 	)

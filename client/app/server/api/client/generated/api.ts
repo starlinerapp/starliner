@@ -1307,12 +1307,6 @@ export interface ResponseTeam {
   id: number;
   /**
    *
-   * @type {string}
-   * @memberof ResponseTeam
-   */
-  name: string;
-  /**
-   *
    * @type {number}
    * @memberof ResponseTeam
    */
