@@ -257,7 +257,11 @@ export default function DeployImageForm({
           size="sm"
           className="mt-2 w-28 flex-shrink-0 py-1.5"
           disabled={
-            !serviceNameInput || !imageNameInput || !tagInput || !portInput || isVolumeIncomplete
+            !serviceNameInput ||
+            !imageNameInput ||
+            !tagInput ||
+            !portInput ||
+            isVolumeIncomplete
           }
         >
           {defaultValues ? "Redeploy" : "Deploy"}
