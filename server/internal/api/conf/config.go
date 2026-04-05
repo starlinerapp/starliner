@@ -7,19 +7,22 @@ import (
 )
 
 type Config struct {
-	DBHost              string `mapstructure:"DB_HOST" validate:"required"`
-	DBPort              int    `mapstructure:"DB_PORT" validate:"required"`
-	DBUser              string `mapstructure:"DB_USER" validate:"required"`
-	DBPassword          string `mapstructure:"DB_PASSWORD" validate:"required"`
-	DBName              string `mapstructure:"DB_NAME" validate:"required"`
-	BasicAuthUser       string `mapstructure:"BASIC_AUTH_USER" validate:"required"`
-	BasicAuthPassword   string `mapstructure:"BASIC_AUTH_PASSWORD" validate:"required"`
-	ClusterGrpcEndpoint string `mapstructure:"CLUSTER_GRPC_ENDPOINT" validate:"required"`
-	S3EndpointUrl       string `mapstructure:"S3_ENDPOINT_URL" validate:"required"`
-	NatsUrl             string `mapstructure:"NATS_URL" validate:"required"`
-	AWSAccessKeyId      string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
-	AWSSecretAccessKey  string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
-	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
+	DBHost                  string `mapstructure:"DB_HOST" validate:"required"`
+	DBPort                  int    `mapstructure:"DB_PORT" validate:"required"`
+	DBUser                  string `mapstructure:"DB_USER" validate:"required"`
+	DBPassword              string `mapstructure:"DB_PASSWORD" validate:"required"`
+	DBName                  string `mapstructure:"DB_NAME" validate:"required"`
+	BasicAuthUser           string `mapstructure:"BASIC_AUTH_USER" validate:"required"`
+	BasicAuthPassword       string `mapstructure:"BASIC_AUTH_PASSWORD" validate:"required"`
+	ClusterGrpcEndpoint     string `mapstructure:"CLUSTER_GRPC_ENDPOINT" validate:"required"`
+	ProvisionerGrpcEndpoint string `mapstructure:"PROVISIONER_GRPC_ENDPOINT" validate:"required"`
+	S3EndpointUrl           string `mapstructure:"S3_ENDPOINT_URL" validate:"required"`
+	NatsUrl                 string `mapstructure:"NATS_URL" validate:"required"`
+	AWSAccessKeyId          string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
+	AWSSecretAccessKey      string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
+	EncryptionKeyBase64     string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
+	GithubAppPrivateKey     string `mapstructure:"GITHUB_APP_PRIVATE_KEY" validate:"required"`
+	GithubAppID             int64  `mapstructure:"GITHUB_APP_ID" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {

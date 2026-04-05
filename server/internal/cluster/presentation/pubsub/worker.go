@@ -3,9 +3,9 @@ package pubsub
 import (
 	"context"
 	"go.uber.org/fx"
-	"log"
 	"starliner.app/internal/cluster/application"
 	"starliner.app/internal/cluster/domain/port"
+	"starliner.app/internal/core/util/concurrent"
 )
 
 type Worker struct {
@@ -29,11 +29,9 @@ func NewWorker(statusApplication *application.StatusApplication, pubsub port.Pub
 }
 
 func (w *Worker) Start() error {
-	go func() {
-		err := w.pubsub.SubscribeToDeploymentStatusRequest(w.statusApplication.HandleRequestDeploymentStatus)
-		if err != nil {
-			log.Fatalf("failed to subscribe to pubsub: %v", err)
-		}
-	}()
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentStatusRequest", func() error {
+		return w.pubsub.SubscribeToDeploymentStatusRequest(w.statusApplication.HandleRequestDeploymentStatus)
+	})
+
 	return nil
 }

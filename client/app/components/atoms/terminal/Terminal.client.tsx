@@ -3,24 +3,12 @@ import { XTerm } from "react-xtermjs";
 import { AttachAddon } from "@xterm/addon-attach";
 import { FitAddon } from "@xterm/addon-fit";
 import type { ITerminalAddon } from "@xterm/xterm";
-import type {
-  ResponseDatabaseDeployment,
-  ResponseGitDeployment,
-  ResponseImageDeployment,
-  ResponseIngressDeployment,
-} from "~/server/api/client/generated";
-
-type Deployment =
-  | ResponseGitDeployment
-  | ResponseImageDeployment
-  | ResponseIngressDeployment
-  | ResponseDatabaseDeployment;
 
 interface TerminalProps {
-  deployment: Deployment | undefined;
+  webSocketUrl: string;
 }
 
-export default function TerminalClient({ deployment }: TerminalProps) {
+export default function TerminalClient({ webSocketUrl }: TerminalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const [addons, setAddons] = useState<ITerminalAddon[]>([]);
@@ -39,7 +27,7 @@ export default function TerminalClient({ deployment }: TerminalProps) {
     const { rows, cols } = getTtySize();
 
     const ws = new WebSocket(
-      `wss://${window.location.host}/ws/deployments/${deployment?.id}?tty_height=${rows}&tty_width=${cols}`,
+      `${webSocketUrl}?tty_height=${rows}&tty_width=${cols}`,
     );
     ws.binaryType = "arraybuffer";
 
@@ -61,7 +49,7 @@ export default function TerminalClient({ deployment }: TerminalProps) {
     ws.onerror = (err) => console.error("WebSocket error:", err);
 
     return () => ws.close();
-  }, [deployment, getTtySize]);
+  }, [webSocketUrl, getTtySize]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -76,25 +64,19 @@ export default function TerminalClient({ deployment }: TerminalProps) {
   }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full p-4">
-      {!deployment ? (
-        <p className="text-mauve-11">
-          No deployment selected. Select one to connect to the terminal.
-        </p>
-      ) : (
-        <XTerm
-          className="h-full w-full"
-          addons={addons}
-          options={{
-            cursorStyle: "block",
-            theme: {
-              background: "#ffffff",
-              foreground: "#65636D",
-              cursor: "#65636D",
-            },
-          }}
-        />
-      )}
+    <div ref={containerRef} className="m-4 h-full w-full">
+      <XTerm
+        className="h-full w-full"
+        addons={addons}
+        options={{
+          cursorStyle: "block",
+          theme: {
+            background: "#ffffff",
+            foreground: "#65636D",
+            cursor: "#65636D",
+          },
+        }}
+      />
     </div>
   );
 }

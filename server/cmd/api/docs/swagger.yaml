@@ -35,6 +35,16 @@ definitions:
     - organization_id
     - project_id
     type: object
+  request.CreateGithubApp:
+    properties:
+      installationId:
+        type: integer
+      organizationId:
+        type: integer
+    required:
+    - installationId
+    - organizationId
+    type: object
   request.CreateOrganization:
     properties:
       name:
@@ -272,6 +282,8 @@ definitions:
         - pending
         - running
         - deleted
+      user:
+        type: string
     required:
     - createdAt
     - id
@@ -280,6 +292,7 @@ definitions:
     - organizationId
     - serverType
     - status
+    - user
     type: object
   response.ClusterStatus:
     enum:
@@ -431,6 +444,19 @@ definitions:
     - gitUrl
     - projectPath
     - status
+    type: object
+  response.GithubApp:
+    properties:
+      created_at:
+        type: string
+      installation_id:
+        type: integer
+      organization_id:
+        type: integer
+    required:
+    - created_at
+    - installation_id
+    - organization_id
     type: object
   response.ImageDeployment:
     properties:
@@ -586,6 +612,58 @@ definitions:
     required:
     - clusterId
     - clusterName
+    type: object
+  response.Repository:
+    properties:
+      clone_url:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      owner:
+        type: string
+      pushed_at:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - clone_url
+    - created_at
+    - full_name
+    - id
+    - name
+    - owner
+    - pushed_at
+    - updated_at
+    type: object
+  response.RepositoryFile:
+    properties:
+      name:
+        type: string
+      path:
+        type: string
+      sha:
+        type: string
+      size:
+        type: integer
+      type:
+        type: string
+      url:
+        type: string
+    required:
+    - name
+    - path
+    - sha
+    - size
+    - type
+    - url
     type: object
   response.Root:
     properties:
@@ -1029,6 +1107,111 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
+  /github/repositories/{organizationId}:
+    get:
+      operationId: getRepositories
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Repository'
+            type: array
+      summary: Get Repositories
+      tags:
+      - github
+  /github/repositories/{organizationId}/{owner}/{repository}/contents:
+    get:
+      operationId: getRepositoryContents
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Repository owner (user or org)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repository
+        required: true
+        type: string
+      - description: Path within the repository (e.g., src or src/main.go)
+        in: query
+        name: path
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.RepositoryFile'
+            type: array
+      summary: Get Repository Content
+      tags:
+      - github
+  /githubapps:
+    post:
+      operationId: createGithubApp
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Create GitHub App
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateGithubApp'
+      responses:
+        "201":
+          description: Created
+      summary: Create GitHub App
+      tags:
+      - githubapp
+  /githubapps/{organizationId}:
+    get:
+      operationId: getGithubApp
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GithubApp'
+      summary: Get GitHub App
+      tags:
+      - githubapp
   /invites/{inviteId}:
     get:
       operationId: getOrganizationInviteDetails

@@ -205,6 +205,7 @@ type Cluster struct {
 	UpdatedAt      time.Time
 	Kubeconfig     sql.NullString
 	ServerType     string
+	User           string
 }
 
 type DatabaseDeployment struct {
@@ -250,6 +251,14 @@ type GitDeployment struct {
 	Url            string
 	ProjectPath    string
 	DockerfilePath string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type GithubApp struct {
+	ID             int64
+	InstallationID int64
+	OrganizationID int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

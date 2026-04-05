@@ -85,11 +85,14 @@ export default function OrganizationGeneral() {
               </p>
             </div>
             {isHetznerCredentialLoading ? (
-              <Skeleton className="h-8 w-96" />
+              <div className="flex w-1/2 items-center">
+                <Skeleton className="mr-3 h-9.5 w-full" />
+                <Eye className="h-4 w-4 flex-shrink-0" />
+              </div>
             ) : (
-              <div className="flex items-center">
+              <div className="flex w-1/2 items-center">
                 <input
-                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-90 min-w-52 rounded-md border p-2 text-sm"
+                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border p-2 text-sm"
                   type={show ? "text" : "password"}
                   placeholder="API Key*"
                   {...register("apiKey")}

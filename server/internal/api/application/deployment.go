@@ -25,7 +25,9 @@ type DeploymentApplication struct {
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
 	buildRepository       interfaces.BuildRepository
-	grpcClient            port.GrpcClient
+	githubAppRepository   interfaces.GithubAppRepository
+	gitHub                port.GitHub
+	grpcClusterClient     port.ClusterClient
 	queue                 port.Queue
 	pubsub                port.Pubsub
 	crypto                corePort.Crypto
@@ -38,7 +40,9 @@ func NewDeploymentApplication(
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
 	buildRepository interfaces.BuildRepository,
-	grpcClient port.GrpcClient,
+	githubAppRepository interfaces.GithubAppRepository,
+	gitHub port.GitHub,
+	grpcClusterClient port.ClusterClient,
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
@@ -50,7 +54,9 @@ func NewDeploymentApplication(
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
 		buildRepository:       buildRepository,
-		grpcClient:            grpcClient,
+		githubAppRepository:   githubAppRepository,
+		gitHub:                gitHub,
+		grpcClusterClient:     grpcClusterClient,
 		queue:                 queue,
 		pubsub:                pubsub,
 		crypto:                crypto,
@@ -111,11 +117,22 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	ghApp, err := da.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
+	if err != nil {
+		return err
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         gitUrl,
+		AccessToken:    accessToken,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
 	})
@@ -163,10 +180,20 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
+	ghApp, err := da.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
+	if err != nil {
+		return err
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
+		AccessToken:    accessToken,
 		GitUrl:         d.GitUrl,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
@@ -647,7 +674,7 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
-	return da.grpcClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
+	return da.grpcClusterClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
 }
 
 func (da *DeploymentApplication) OpenTTY(
@@ -683,7 +710,7 @@ func (da *DeploymentApplication) OpenTTY(
 		return err
 	}
 
-	return da.grpcClient.OpenTTY(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, stdin, stdout, sizes)
+	return da.grpcClusterClient.OpenTTY(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, stdin, stdout, sizes)
 }
 
 func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {

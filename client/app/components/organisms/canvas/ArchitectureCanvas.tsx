@@ -106,7 +106,7 @@ export default function ArchitectureCanvas({
   }
 
   const isOnDetailPage = !!useMatch(
-    "/starliner/projects/:id/:environment/architecture/:type/:deploymentId",
+    `/${slug}/projects/:id/:environment/architecture/:type/:deploymentId`,
   );
   function handlePlaneClick() {
     if (isOnDetailPage) {

@@ -21,7 +21,7 @@ INSERT INTO clusters (
     $2,
     $3
  )
-RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type
+RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user"
 `
 
 type CreateClusterParams struct {
@@ -46,6 +46,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		&i.UpdatedAt,
 		&i.Kubeconfig,
 		&i.ServerType,
+		&i.User,
 	)
 	return i, err
 }
@@ -62,7 +63,7 @@ func (q *Queries) DeleteCluster(ctx context.Context, id int64) error {
 }
 
 const getCluster = `-- name: GetCluster :one
-SELECT id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type
+SELECT id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user"
 FROM clusters
 WHERE id = $1
 `
@@ -83,13 +84,14 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.UpdatedAt,
 		&i.Kubeconfig,
 		&i.ServerType,
+		&i.User,
 	)
 	return i, err
 }
 
 const getDeploymentCluster = `-- name: GetDeploymentCluster :one
 SELECT
-    clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type
+    clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
 FROM clusters
 INNER JOIN organizations ON organizations.id = clusters.organization_id
 INNER JOIN teams ON teams.organization_id = organizations.id
@@ -115,6 +117,7 @@ func (q *Queries) GetDeploymentCluster(ctx context.Context, deploymentID int64) 
 		&i.UpdatedAt,
 		&i.Kubeconfig,
 		&i.ServerType,
+		&i.User,
 	)
 	return i, err
 }
@@ -165,7 +168,7 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 }
 
 const getUserCluster = `-- name: GetUserCluster :one
-SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
+SELECT c.id, c.name, c.user, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
 FROM clusters c
 LEFT JOIN organizations o ON c.organization_id = o.id
 LEFT JOIN organization_members om ON o.id = om.organization_id
@@ -181,6 +184,7 @@ type GetUserClusterParams struct {
 type GetUserClusterRow struct {
 	ID             int64
 	Name           string
+	User           string
 	Ipv4Address    sql.NullString
 	PublicKey      sql.NullString
 	PrivateKey     sql.NullString
@@ -196,6 +200,7 @@ func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) 
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.User,
 		&i.Ipv4Address,
 		&i.PublicKey,
 		&i.PrivateKey,

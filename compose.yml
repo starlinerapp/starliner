@@ -42,6 +42,7 @@ services:
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
@@ -87,11 +88,14 @@ services:
       BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
       CLUSTER_GRPC_ENDPOINT: ${CLUSTER_GRPC_ENDPOINT:-server-cluster:57400}
+      PROVISIONER_GRPC_ENDPOINT: ${PROVISIONER_GRPC_ENDPOINT:-server-provisioner:57400}
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
       NATS_URL: ${NATS_URL:-http://nats:4222}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
+      GITHUB_APP_ID: ${GITHUB_APP_ID}
     volumes:
       - ./server:/app
     networks:
