@@ -2459,16 +2459,12 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "name",
                 "organization_id",
                 "slug"
             ],
             "properties": {
                 "id": {
                     "type": "integer"
-                },
-                "name": {
-                    "type": "string"
                 },
                 "organization_id": {
                     "type": "integer"

@@ -115,7 +115,7 @@ export default function NewProject() {
                 teamExists ? "" : "text-mauve-11",
               )}
               disabled={!teamExists}
-              defaultValue=""
+              defaultValue={teamsData?.[0]?.id ?? ""}
             >
               {teamExists ? (
                 <>
@@ -124,7 +124,7 @@ export default function NewProject() {
                   </option>
                   {teamsData.map((team, i) => (
                     <option key={i} value={team.id}>
-                      {team.name}
+                      {team.slug}
                     </option>
                   ))}
                 </>
