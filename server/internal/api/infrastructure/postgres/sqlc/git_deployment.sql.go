@@ -142,6 +142,64 @@ func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, arg GetEnvir
 	return items, nil
 }
 
+const getGitDeploymentsByRepositoryUrl = `-- name: GetGitDeploymentsByRepositoryUrl :many
+SELECT
+    d.id AS deployment_id,
+    d.name,
+    d.port,
+    d.status,
+    d.environment_id,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path
+FROM deployments d
+INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+WHERE gd.url = $1
+`
+
+type GetGitDeploymentsByRepositoryUrlRow struct {
+	DeploymentID   int64
+	Name           string
+	Port           string
+	Status         DeploymentStatus
+	EnvironmentID  int64
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+}
+
+func (q *Queries) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]GetGitDeploymentsByRepositoryUrlRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGitDeploymentsByRepositoryUrl, repositoryUrl)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGitDeploymentsByRepositoryUrlRow
+	for rows.Next() {
+		var i GetGitDeploymentsByRepositoryUrlRow
+		if err := rows.Scan(
+			&i.DeploymentID,
+			&i.Name,
+			&i.Port,
+			&i.Status,
+			&i.EnvironmentID,
+			&i.Url,
+			&i.ProjectPath,
+			&i.DockerfilePath,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateGitDeployment = `-- name: UpdateGitDeployment :one
 WITH updated_deployment AS (
     UPDATE deployments
