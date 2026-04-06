@@ -126,6 +126,22 @@ func (tr TeamRepository) RemoveTeamMember(ctx context.Context, teamID int64, use
 	return err
 }
 
+func (tr TeamRepository) ValidateUserTeamAccess(ctx context.Context, teamID int64, userID int64) error {
+	_, err := tr.queries.ValidateUserTeamAccess(ctx, sqlc.ValidateUserTeamAccessParams{
+		ID:     teamID,
+		UserID: userID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tr TeamRepository) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
+	return tr.queries.DeleteTeamIfEmpty(ctx, id)
+}
+
 var _ interfaces.TeamRepository = (*TeamRepository)(nil)
 
 func NewTeamRepository(queries *sqlc.Queries) interfaces.TeamRepository {

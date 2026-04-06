@@ -79,12 +79,7 @@ func (ts *TeamApplication) GetUserTeams(ctx context.Context, organizationId int6
 }
 
 func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
-	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ts.organizationService.ValidateUserInOrg(ctx, team.OrganizationId, userId)
+	err := ts.teamRepository.ValidateUserTeamAccess(ctx, teamId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -98,22 +93,12 @@ func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, tea
 }
 
 func (ts *TeamApplication) AddTeamMember(ctx context.Context, userId int64, teamId int64) error {
-	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
+	err := ts.teamRepository.ValidateUserTeamAccess(ctx, teamId, userId)
 	if err != nil {
 		return err
 	}
 
-	err = ts.organizationService.ValidateUserInOrg(ctx, team.OrganizationId, userId)
-	if err != nil {
-		return err
-	}
-
-	err = ts.teamRepository.AddTeamMember(ctx, teamId, userId)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ts.teamRepository.AddTeamMember(ctx, teamId, userId)
 }
 
 func (ts *TeamApplication) JoinTeam(ctx context.Context, organizationId int64, userId int64, teamSlug string) error {
@@ -131,12 +116,7 @@ func (ts *TeamApplication) JoinTeam(ctx context.Context, organizationId int64, u
 }
 
 func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, teamId int64) error {
-	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
-	if err != nil {
-		return err
-	}
-
-	err = ts.organizationService.ValidateUserInOrg(ctx, team.OrganizationId, userId)
+	err := ts.teamRepository.ValidateUserTeamAccess(ctx, teamId, userId)
 	if err != nil {
 		return err
 	}
@@ -146,17 +126,5 @@ func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, t
 		return err
 	}
 
-	members, err := ts.teamRepository.GetTeamMembers(ctx, teamId)
-	if err != nil {
-		return err
-	}
-
-	if len(members) == 0 {
-		err = ts.teamRepository.DeleteTeam(ctx, teamId)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return ts.teamRepository.DeleteTeamIfEmpty(ctx, teamId)
 }

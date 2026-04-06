@@ -47,3 +47,17 @@ WHERE team_members.team_id = $1
 
 -- name: GetTeamById :one
 SELECT * FROM teams WHERE teams.id = $1;
+
+-- name: ValidateUserTeamAccess :one
+SELECT teams.id
+FROM teams
+INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
+WHERE teams.id = $1
+    AND organization_members.user_id = $2;
+
+-- name: DeleteTeamIfEmpty :exec
+DELETE FROM teams
+WHERE id = $1
+    AND NOT EXISTS (
+        SELECT 1 FROM team_members WHERE team_members.team_id = $1
+    );

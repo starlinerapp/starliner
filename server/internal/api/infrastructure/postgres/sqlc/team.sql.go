@@ -72,6 +72,19 @@ func (q *Queries) DeleteTeam(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteTeamIfEmpty = `-- name: DeleteTeamIfEmpty :exec
+DELETE FROM teams
+WHERE id = $1
+    AND NOT EXISTS (
+        SELECT 1 FROM team_members WHERE team_members.team_id = $1
+    )
+`
+
+func (q *Queries) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTeamIfEmpty, id)
+	return err
+}
+
 const getTeamById = `-- name: GetTeamById :one
 SELECT id, name, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
 `
@@ -206,4 +219,24 @@ type RemoveTeamMemberParams struct {
 func (q *Queries) RemoveTeamMember(ctx context.Context, arg RemoveTeamMemberParams) error {
 	_, err := q.db.ExecContext(ctx, removeTeamMember, arg.TeamID, arg.UserID)
 	return err
+}
+
+const validateUserTeamAccess = `-- name: ValidateUserTeamAccess :one
+SELECT teams.id
+FROM teams
+INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
+WHERE teams.id = $1
+    AND organization_members.user_id = $2
+`
+
+type ValidateUserTeamAccessParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) ValidateUserTeamAccess(ctx context.Context, arg ValidateUserTeamAccessParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, validateUserTeamAccess, arg.ID, arg.UserID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
