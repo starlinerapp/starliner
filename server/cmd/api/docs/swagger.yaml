@@ -282,6 +282,8 @@ definitions:
         - pending
         - running
         - deleted
+      user:
+        type: string
     required:
     - createdAt
     - id
@@ -290,6 +292,7 @@ definitions:
     - organizationId
     - serverType
     - status
+    - user
     type: object
   response.ClusterStatus:
     enum:

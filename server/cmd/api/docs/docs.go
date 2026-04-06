@@ -1897,7 +1897,8 @@ const docTemplate = `{
                 "name",
                 "organizationId",
                 "serverType",
-                "status"
+                "status",
+                "user"
             ],
             "properties": {
                 "createdAt": {
@@ -1929,6 +1930,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ClusterStatus"
                         }
                     ]
+                },
+                "user": {
+                    "type": "string"
                 }
             }
         },

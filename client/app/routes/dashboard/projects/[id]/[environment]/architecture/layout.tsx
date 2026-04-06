@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import type { ResponseEnvironment } from "~/server/api/client/generated";
 import { ReactFlowProvider } from "@xyflow/react";
-import BottomBar from "~/components/organisms/bottom-bar/BottomBar";
+import BottomBar from "~/components/organisms/bottom-bar/deployment/BottomBar";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 
 type ContextType = {

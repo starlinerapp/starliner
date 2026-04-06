@@ -8,5 +8,6 @@ var Module = fx.Module(
 	"application",
 	fx.Provide(
 		NewClusterApplication,
+		NewTTYApplication,
 	),
 )

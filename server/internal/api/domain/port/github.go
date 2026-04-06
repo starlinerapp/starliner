@@ -26,6 +26,10 @@ type RepositoryFile struct {
 	URL  string
 }
 
+type GitEvent interface {
+	EventName() string
+}
+
 type GitHub interface {
 	ListRepositories(ctx context.Context, installationId int64) ([]*Repository, error)
 	GetInstallationToken(ctx context.Context, installationId int64) (string, error)
@@ -36,4 +40,5 @@ type GitHub interface {
 		repository string,
 		path string,
 	) ([]*RepositoryFile, error)
+	ParseGitEvent(eventType string, eventPayload []byte) (GitEvent, error)
 }

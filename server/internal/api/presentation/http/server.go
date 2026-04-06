@@ -32,11 +32,17 @@ func NewServer(
 	teamHandler *handler.TeamHandler,
 	githubHandler *handler.GithubHandler,
 	githubAppHandler *handler.GithubAppHandler,
+	webhookHandler *handler.WebhookHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	webhookRoutes := engine.Group("/webhooks")
+	{
+		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)
+	}
 
 	engine.Use(auth.WithBasicAuth(), user.WithUser())
 	engine.GET("/", rootHandler.GetRoot)
@@ -104,6 +110,7 @@ func NewServer(
 	webSocketRoutes := engine.Group("/ws")
 	{
 		webSocketRoutes.GET("/deployments/:id", deploymentHandler.OpenTTY)
+		webSocketRoutes.GET("/clusters/:id", clusterHandler.OpenTTY)
 	}
 
 	teamRoutes := engine.Group("/teams")
