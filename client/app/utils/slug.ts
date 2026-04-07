@@ -3,5 +3,5 @@ export function formatSlugInput(input: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/-+/g, "-")
-    .slice(0, 63);
+    .slice(0, 50);
 }
