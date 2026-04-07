@@ -201,3 +201,17 @@ func (oa *OrganizationApplication) CreateInvite(ctx context.Context, userID int6
 
 	return value.NewOrganizationInvite(invite), nil
 }
+
+func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, userID int64, organizationID int64) ([]*value.User, error) {
+	err := oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	members, err := oa.organizationRepository.GetOrganizationMembers(ctx, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewUsers(members), nil
+}

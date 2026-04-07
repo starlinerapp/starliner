@@ -28,7 +28,7 @@ func NewTeamApplication(
 }
 
 func (ts *TeamApplication) CreateTeam(ctx context.Context, slug string, organizationId int64, userId int64) (*value.Team, error) {
-	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	err := ts.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,13 @@ func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, tea
 	return value.NewUsers(members), nil
 }
 
-func (ts *TeamApplication) AddTeamMember(ctx context.Context, userId int64, teamId int64) error {
-	_, err := ts.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
+func (ts *TeamApplication) AddTeamMember(ctx context.Context, userId int64, teamId int64, callerId int64) error {
+	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	err = ts.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, callerId)
 	if err != nil {
 		return err
 	}
@@ -110,10 +115,21 @@ func (ts *TeamApplication) JoinTeam(ctx context.Context, organizationId int64, u
 	return ts.teamRepository.AddTeamMember(ctx, team.Id, userId)
 }
 
-func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, teamId int64) error {
-	_, err := ts.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
+func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, teamId int64, callerId int64) error {
+	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
 	if err != nil {
 		return err
+	}
+
+	err = ts.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, callerId)
+	if err != nil {
+		return err
+	}
+
+	// Only the org owner is allowed to manage team members and is part of every team.
+	// This check enforces the owner does not remove himself from a team.
+	if callerId == userId {
+		return errors.New("organization owner cannot be removed from team")
 	}
 
 	err = ts.teamRepository.RemoveTeamMember(ctx, teamId, userId)
