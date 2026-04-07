@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "~/components/atoms/dialog/Dialog";
+import { formatSlugInput } from "~/utils/slug";
 
 interface CreateTeamFormInput {
   name: string;
@@ -32,6 +33,7 @@ export default function OrganizationTeams() {
     handleSubmit: handleCreateSubmit,
     reset: resetCreate,
     watch: watchCreate,
+    setValue: setCreateValue,
   } = useForm<CreateTeamFormInput>();
   const nameInput = watchCreate("name", "");
 
@@ -182,8 +184,12 @@ export default function OrganizationTeams() {
                 >
                   <input
                     className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
-                    placeholder="Team name"
+                    placeholder="team-slug"
+                    maxLength={50}
                     {...registerCreate("name")}
+                    onChange={(e) => {
+                      setCreateValue("name", formatSlugInput(e.target.value));
+                    }}
                   />
                   <div className="flex justify-end gap-2">
                     <Button

@@ -2,9 +2,7 @@ package application
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
-	"fmt"
+	"errors"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -29,26 +27,24 @@ func NewTeamApplication(
 	}
 }
 
-func (ts *TeamApplication) CreateTeam(ctx context.Context, name string, organizationId int64, userId int64) (*value.Team, error) {
+func (ts *TeamApplication) CreateTeam(ctx context.Context, slug string, organizationId int64, userId int64) (*value.Team, error) {
 	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	teamSlug, err := ts.normalizationService.FormatToDNS1123(name)
+	normalized, err := ts.normalizationService.FormatToDNS1123(slug)
 	if err != nil {
 		return nil, err
 	}
 
-	suffix := make([]byte, 4)
-	if _, err := rand.Read(suffix); err != nil {
-		return nil, err
+	if normalized != slug {
+		return nil, errors.New("invalid slug format")
 	}
-	teamSlug = fmt.Sprintf("%s-%s", teamSlug, hex.EncodeToString(suffix))
 
 	team, err := ts.teamRepository.CreateTeam(
 		ctx,
-		teamSlug,
+		slug,
 		organizationId,
 	)
 	if err != nil {

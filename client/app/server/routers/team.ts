@@ -17,7 +17,7 @@ export const teamRouter = {
       const userId = ctx.user?.id;
       return await teamsApiFactory
         .createTeam(userId, input.organizationId, {
-          name: input.name,
+          slug: input.name,
         })
         .then((res) => res.data);
     }),
