@@ -70,10 +70,11 @@ definitions:
     type: object
   request.CreateTeam:
     properties:
-      name:
+      slug:
+        maxLength: 50
         type: string
     required:
-    - name
+    - slug
     type: object
   request.DeployDatabase:
     properties:
@@ -1459,7 +1460,7 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Create Team
+      - description: Team slug (lowercase, alphanumeric, hyphens only)
         in: body
         name: data
         required: true
