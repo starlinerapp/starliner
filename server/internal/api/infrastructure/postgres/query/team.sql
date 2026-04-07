@@ -48,8 +48,8 @@ WHERE team_members.team_id = $1
 -- name: GetTeamById :one
 SELECT * FROM teams WHERE teams.id = $1;
 
--- name: ValidateUserTeamAccess :one
-SELECT teams.id
+-- name: FindTeamByIdAndUserId :one
+SELECT teams.*
 FROM teams
 INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
 WHERE teams.id = $1

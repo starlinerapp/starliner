@@ -79,7 +79,7 @@ func (ts *TeamApplication) GetUserTeams(ctx context.Context, organizationId int6
 }
 
 func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
-	err := ts.teamRepository.ValidateUserTeamAccess(ctx, teamId, userId)
+	_, err := ts.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, tea
 }
 
 func (ts *TeamApplication) AddTeamMember(ctx context.Context, userId int64, teamId int64) error {
-	err := ts.teamRepository.ValidateUserTeamAccess(ctx, teamId, userId)
+	_, err := ts.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func (ts *TeamApplication) JoinTeam(ctx context.Context, organizationId int64, u
 }
 
 func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, teamId int64) error {
-	err := ts.teamRepository.ValidateUserTeamAccess(ctx, teamId, userId)
+	_, err := ts.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
 	if err != nil {
 		return err
 	}
