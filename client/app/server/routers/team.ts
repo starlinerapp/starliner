@@ -76,16 +76,30 @@ export const teamRouter = {
         })
         .then((res) => res.data);
     }),
+  addTeamMember: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+        userId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const callerId = ctx.user?.id;
+      return await teamsApiFactory
+        .addTeamMember(callerId, input.teamId, { userId: input.userId })
+        .then((res) => res.data);
+    }),
   removeTeamMember: protectedProcedure
     .input(
       z.object({
         teamId: z.number(),
+        userId: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user?.id;
+      const callerId = ctx.user?.id;
       return await teamsApiFactory
-        .removeTeamMember(userId, input.teamId)
+        .removeTeamMember(callerId, input.teamId, { userId: input.userId })
         .then((res) => res.data);
     }),
 };

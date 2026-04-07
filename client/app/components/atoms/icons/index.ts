@@ -16,6 +16,7 @@ export { default as GitBranch } from "./GitBranch";
 export { default as GithubLogo } from "./GithubLogo";
 export { default as InboxStack } from "./InboxStack";
 export { default as LinkOut } from "./LinkOut";
+export { default as MagnifyingGlass } from "./MagnifyingGlass";
 export { default as Minus } from "./Minus";
 export { default as Plus } from "./Plus";
 export { default as Servers } from "./Servers";

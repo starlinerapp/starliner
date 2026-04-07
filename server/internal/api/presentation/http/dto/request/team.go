@@ -7,3 +7,11 @@ type CreateTeam struct {
 type JoinTeam struct {
 	Slug string `json:"slug" binding:"required"`
 }
+
+type AddTeamMember struct {
+	UserID int64 `json:"userId" binding:"required"`
+}
+
+type RemoveTeamMember struct {
+	UserID int64 `json:"userId" binding:"required"`
+}

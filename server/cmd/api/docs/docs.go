@@ -1002,6 +1002,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizations/{id}/members": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get all organization members",
+                "operationId": "getOrganizationMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/organizations/{id}/projects": {
             "get": {
                 "tags": [
@@ -1427,7 +1463,7 @@ const docTemplate = `{
                 "tags": [
                     "team"
                 ],
-                "summary": "Add current user to team",
+                "summary": "Add organization member to team",
                 "operationId": "addTeamMember",
                 "parameters": [
                     {
@@ -1443,6 +1479,15 @@ const docTemplate = `{
                         "name": "teamId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "ID of member to add",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddTeamMember"
+                        }
                     }
                 ],
                 "responses": {
@@ -1455,7 +1500,7 @@ const docTemplate = `{
                 "tags": [
                     "team"
                 ],
-                "summary": "Remove Team Member",
+                "summary": "Remove organization member from team",
                 "operationId": "removeTeamMember",
                 "parameters": [
                     {
@@ -1471,11 +1516,20 @@ const docTemplate = `{
                         "name": "teamId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "ID of the organization member to remove from the team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RemoveTeamMember"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK"
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -1490,6 +1544,17 @@ const docTemplate = `{
             "properties": {
                 "inviteId": {
                     "type": "string"
+                }
+            }
+        },
+        "request.AddTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
                 }
             }
         },
@@ -1765,6 +1830,17 @@ const docTemplate = `{
             "properties": {
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "request.RemoveTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
                 }
             }
         },

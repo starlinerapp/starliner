@@ -125,13 +125,27 @@ export default function Layout() {
       icon: <Cog />,
       href: `/${slug}/settings`,
       extended: [
-        [
-          {
-            id: "organization-settings",
-            title: "Organization",
-            href: `/${slug}/settings/organization`,
-          },
-        ],
+        {
+          id: "organization-group",
+          title: "Organization",
+          children: [
+            {
+              id: "organization-general",
+              title: "General",
+              href: `/${slug}/settings/organization`,
+            },
+            {
+              id: "organization-members",
+              title: "Members",
+              href: `/${slug}/settings/members`,
+            },
+            {
+              id: "organization-teams",
+              title: "Teams",
+              href: `/${slug}/settings/teams`,
+            },
+          ],
+        },
       ],
     },
   ];
