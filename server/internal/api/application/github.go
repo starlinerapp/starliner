@@ -131,7 +131,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		b, err := ga.buildRepository.CreateBuild(ctx, deployment.Id)
+		b, err := ga.buildRepository.CreateBuild(ctx, deployment.Id, "push")
 		if err != nil {
 			errs = append(errs, err)
 			continue

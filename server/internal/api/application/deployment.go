@@ -107,7 +107,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id)
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id)
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
 	if err != nil {
 		return err
 	}
@@ -764,7 +764,7 @@ func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValu
 
 func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {
 	ctx := context.Background()
-	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.Logs)
+	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.CommitHash, b.Logs)
 	if err != nil {
 		log.Printf("failed to update build status: %v\n", err)
 	}

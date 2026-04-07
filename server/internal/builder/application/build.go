@@ -67,6 +67,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		DeploymentId:     build.DeploymentId,
 		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
 		ImageName:        build.ImageName,
+		CommitHash:       commitHash,
 		Tag:              commitHash,
 		Logs:             logs,
 		BuildStatus:      buildStatus,

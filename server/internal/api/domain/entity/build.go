@@ -22,6 +22,8 @@ type GitDeploymentBuild struct {
 	BuildId        int64
 	DeploymentId   int64
 	DeploymentName string
+	CommitHash     *string
+	Source         string
 	Status         BuildStatus
 	GitUrl         string
 	ProjectPath    string
