@@ -36,10 +36,10 @@ func (br *BuildRepository) CreateBuild(ctx context.Context, deploymentId int64, 
 	}, nil
 }
 
-func (br *BuildRepository) UpdateBuild(ctx context.Context, id int64, status value.BuildStatus, commitHash string, logs string) error {
+func (br *BuildRepository) UpdateBuild(ctx context.Context, id int64, status value.BuildStatus, commitHash *string, logs string) error {
 	return br.queries.UpdateBuildInformation(ctx, sqlc.UpdateBuildInformationParams{
 		Status:     sqlc.BuildStatus(status),
-		CommitHash: utils.NullStringFromPtr(&commitHash),
+		CommitHash: utils.NullStringFromPtr(commitHash),
 		Logs:       utils.NullStringFromPtr(&logs),
 		ID:         id,
 	})

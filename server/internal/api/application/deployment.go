@@ -820,7 +820,7 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		Namespace:        deployment.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 		ImageName:        fmt.Sprintf("%s/%s", b.ImageRegistryUrl, b.ImageName),
-		ImageTag:         b.Tag,
+		ImageTag:         *b.Tag,
 		Port:             deploymentPort,
 		EnvVars:          coreEnvs,
 	})
