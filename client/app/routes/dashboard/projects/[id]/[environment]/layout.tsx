@@ -38,6 +38,7 @@ export default function ProjectLayout() {
       enabled: !!currentEnvironment,
       refetchOnWindowFocus: "always",
       refetchOnMount: "always",
+      refetchInterval: 2000,
     });
 
   const projectEnvironmentKey = useMemo(() => {

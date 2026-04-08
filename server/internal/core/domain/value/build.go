@@ -25,6 +25,7 @@ type BuildCompleted struct {
 	ImageRegistryUrl string
 	BuildStatus      BuildStatus
 	ImageName        string
-	Tag              string
+	CommitHash       *string
+	Tag              *string
 	Logs             string
 }

@@ -421,6 +421,8 @@ definitions:
     properties:
       buildId:
         type: integer
+      commitHash:
+        type: string
       createdAt:
         type: string
       deploymentId:
@@ -433,16 +435,20 @@ definitions:
         type: string
       projectPath:
         type: string
+      source:
+        type: string
       status:
         type: string
     required:
     - buildId
+    - commitHash
     - createdAt
     - deploymentId
     - deploymentName
     - dockerfilePath
     - gitUrl
     - projectPath
+    - source
     - status
     type: object
   response.GithubApp:

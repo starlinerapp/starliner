@@ -53,6 +53,8 @@ export default function Builds() {
           isCollapsed={i > 0}
           key={i}
           buildId={build.buildId}
+          commitHash={build.commitHash}
+          source={build.source}
           serviceName={build.deploymentName}
           createdAt={build.createdAt}
           status={build.status}
