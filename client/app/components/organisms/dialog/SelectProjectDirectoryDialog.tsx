@@ -28,12 +28,17 @@ export default function SelectProjectDirectoryDialog({
   const [isRootExpanded, setIsRootExpanded] = useState(true);
 
   const { data: repositoryContentData, isLoading: isRootLoading } = useQuery(
-    trpc.github.getRepositoryFiles.queryOptions({
-      organizationId: organizationContext.id,
-      owner: repositoryOwner,
-      repo: repositoryName,
-      path: "",
-    }),
+    trpc.github.getRepositoryFiles.queryOptions(
+      {
+        organizationId: organizationContext.id,
+        owner: repositoryOwner,
+        repo: repositoryName,
+        path: "",
+      },
+      {
+        enabled: repositoryOwner !== "" && repositoryName !== "",
+      },
+    ),
   );
 
   const projectDirectories =

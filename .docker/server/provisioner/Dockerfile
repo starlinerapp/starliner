@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine AS dev
+FROM golang:1.26-alpine AS dev
 
 ENV PATH=/go/bin:$PATH:/root/.pulumi/bin
 

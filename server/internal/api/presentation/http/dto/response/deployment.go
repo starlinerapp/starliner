@@ -195,6 +195,8 @@ type GitDeploymentBuild struct {
 	BuildId        int64     `json:"buildId" binding:"required"`
 	DeploymentId   int64     `json:"deploymentId" binding:"required"`
 	DeploymentName string    `json:"deploymentName" binding:"required"`
+	CommitHash     *string   `json:"commitHash" binding:"required"`
+	Source         string    `json:"source" binding:"required"`
 	Status         string    `json:"status" binding:"required"`
 	GitUrl         string    `json:"gitUrl" binding:"required"`
 	ProjectPath    string    `json:"projectPath" binding:"required"`
@@ -207,6 +209,8 @@ func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
 		BuildId:        build.BuildId,
 		DeploymentId:   build.DeploymentId,
 		DeploymentName: build.DeploymentName,
+		CommitHash:     build.CommitHash,
+		Source:         build.Source,
 		Status:         string(build.Status),
 		GitUrl:         build.GitUrl,
 		ProjectPath:    build.ProjectPath,

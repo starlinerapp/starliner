@@ -1,8 +1,10 @@
 -- name: CreateBuild :one
 INSERT INTO builds (
-    deployment_id
+    deployment_id,
+    source
 ) VALUES (
-    $1
+    $1,
+          $2
 )
 RETURNING *;
 
@@ -10,8 +12,9 @@ RETURNING *;
 UPDATE builds
 SET
     status = $1,
-    logs = $2
-WHERE id = $3;
+    commit_hash = $2,
+    logs = $3
+WHERE id = $4;
 
 -- name: GetBuildLogs :one
 SELECT
@@ -30,6 +33,8 @@ SELECT
     b.id as build_id,
     d.id as deployment_id,
     d.name as deployment_name,
+    b.commit_hash,
+    b.source,
     b.status,
     gd.url,
     gd.project_path,

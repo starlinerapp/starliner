@@ -2115,17 +2115,22 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "buildId",
+                "commitHash",
                 "createdAt",
                 "deploymentId",
                 "deploymentName",
                 "dockerfilePath",
                 "gitUrl",
                 "projectPath",
+                "source",
                 "status"
             ],
             "properties": {
                 "buildId": {
                     "type": "integer"
+                },
+                "commitHash": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
@@ -2143,6 +2148,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "projectPath": {
+                    "type": "string"
+                },
+                "source": {
                     "type": "string"
                 },
                 "status": {

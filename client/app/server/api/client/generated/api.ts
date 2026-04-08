@@ -813,6 +813,12 @@ export interface ResponseGitDeploymentBuild {
    * @type {string}
    * @memberof ResponseGitDeploymentBuild
    */
+  commitHash: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
   createdAt: string;
   /**
    *
@@ -844,6 +850,12 @@ export interface ResponseGitDeploymentBuild {
    * @memberof ResponseGitDeploymentBuild
    */
   projectPath: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  source: string;
   /**
    *
    * @type {string}
