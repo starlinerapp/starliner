@@ -34,7 +34,7 @@ type DeploymentRepository interface {
 		imageName string,
 		tag string,
 		port string,
-		volumeSizeMB *int32,
+		volumeSizeMiB *int32,
 		volumeMountPath *string,
 		environmentId int64,
 		envs []*value.EnvVar,

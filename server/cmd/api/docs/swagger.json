@@ -1695,7 +1695,7 @@
                 "volumeMountPath": {
                     "type": "string"
                 },
-                "volumeSizeMB": {
+                "volumeSizeMiB": {
                     "type": "integer"
                 }
             }
@@ -2209,7 +2209,7 @@
                 "volumeMountPath": {
                     "type": "string"
                 },
-                "volumeSizeMB": {
+                "volumeSizeMiB": {
                     "type": "integer"
                 }
             }

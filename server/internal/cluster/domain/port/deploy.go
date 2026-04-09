@@ -38,7 +38,7 @@ type DeployImageArgs struct {
 	ImageRepository  string
 	ImageTag         string
 	Port             int
-	VolumeSizeMB     *int32
+	VolumeSizeMiB    *int32
 	VolumeMountPath  *string
 	EnvVars          []*EnvVar
 }

@@ -21,8 +21,8 @@ FROM new_deployment d
 INNER JOIN new_image_deployment img_d ON d.id = img_d.deployment_id;
 
 -- name: CreateDeploymentVolume :one
-INSERT INTO deployment_volumes (deployment_id, volume_size_mb, mount_path)
-VALUES (@deployment_id, @volume_size_mb, @mount_path)
+INSERT INTO deployment_volumes (deployment_id, volume_size_mib, mount_path)
+VALUES (@deployment_id, @volume_size_mib, @mount_path)
 RETURNING *;
 
 -- name: SoftDeleteDeploymentVolume :exec
@@ -70,7 +70,7 @@ SELECT
     d.environment_id,
     img_d.name AS image_name,
     img_d.tag,
-    dv.volume_size_mb,
+    dv.volume_size_mib,
     dv.mount_path
 FROM deployments d
 INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id

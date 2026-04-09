@@ -11,7 +11,7 @@
 | **serviceName**     | **string**                                         |             | [default to undefined]            |
 | **tag**             | **string**                                         |             | [default to undefined]            |
 | **volumeMountPath** | **string**                                         |             | [optional] [default to undefined] |
-| **volumeSizeMB**    | **number**                                         |             | [optional] [default to undefined] |
+| **volumeSizeMiB**   | **number**                                         |             | [optional] [default to undefined] |
 
 ## Example
 
@@ -26,7 +26,7 @@ const instance: RequestDeployImage = {
   serviceName,
   tag,
   volumeMountPath,
-  volumeSizeMB,
+  volumeSizeMiB,
 };
 ```
 

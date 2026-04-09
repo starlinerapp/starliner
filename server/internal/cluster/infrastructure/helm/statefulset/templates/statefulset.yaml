@@ -45,5 +45,5 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: {{ .Values.volume.sizeMB }}Mi
+            storage: {{ .Values.volume.sizeMiB }}Mi
 

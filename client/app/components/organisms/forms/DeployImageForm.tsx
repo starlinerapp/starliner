@@ -10,7 +10,7 @@ export interface ImageFormInput {
   imageName: string;
   tag: string;
   port: number | null;
-  volumeSizeMB: number | null;
+  volumeSizeMiB: number | null;
   volumeMountPath: string | null;
   envs: { name: string; value: string }[];
 }
@@ -44,18 +44,18 @@ export default function DeployImageForm({
 
   const [error, setError] = useState<string | null>(null);
   const [addedVolume, setAddedVolume] = useState<boolean>(
-    !!defaultValues?.volumeSizeMB || !!defaultValues?.volumeMountPath,
+    !!defaultValues?.volumeSizeMiB || !!defaultValues?.volumeMountPath,
   );
 
   const isExistingDeployment = !!defaultValues;
   const existingHasVolume =
-    !!defaultValues?.volumeSizeMB || !!defaultValues?.volumeMountPath;
+    !!defaultValues?.volumeSizeMiB || !!defaultValues?.volumeMountPath;
 
   const serviceNameInput = watch("serviceName", "");
   const imageNameInput = watch("imageName", "");
   const tagInput = watch("tag", "");
   const portInput = watch("port", null);
-  const volumeSizeInput = watch("volumeSizeMB", null);
+  const volumeSizeInput = watch("volumeSizeMiB", null);
   const volumeMountPathInput = watch("volumeMountPath", null);
 
   const hasVolumeSize = !!volumeSizeInput && !isNaN(volumeSizeInput);
@@ -67,8 +67,8 @@ export default function DeployImageForm({
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
-    if (!data.volumeSizeMB || isNaN(data.volumeSizeMB)) {
-      data.volumeSizeMB = null;
+    if (!data.volumeSizeMiB || isNaN(data.volumeSizeMiB)) {
+      data.volumeSizeMiB = null;
     }
     if (!data.volumeMountPath?.trim()) {
       data.volumeMountPath = null;
@@ -82,7 +82,7 @@ export default function DeployImageForm({
           imageName: "",
           tag: "",
           port: null,
-          volumeSizeMB: null,
+          volumeSizeMiB: null,
           volumeMountPath: null,
           envs: [],
         });
@@ -209,13 +209,13 @@ export default function DeployImageForm({
                   className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
                   type="number"
                   placeholder="Size*"
-                  disabled={!!defaultValues?.volumeSizeMB}
-                  {...register("volumeSizeMB", {
+                  disabled={!!defaultValues?.volumeSizeMiB}
+                  {...register("volumeSizeMiB", {
                     required: false,
                     valueAsNumber: true,
                   })}
                 />
-                <span className="text-mauve-11 text-sm">MB</span>
+                <span className="text-mauve-11 text-sm">MiB</span>
               </div>
 
               <input

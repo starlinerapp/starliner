@@ -161,7 +161,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	imageName string,
 	tag string,
 	port string,
-	volumeSizeMB *int32,
+	volumeSizeMiB *int32,
 	volumeMountPath *string,
 	environmentId int64,
 	envs []*value.EnvVar,
@@ -186,22 +186,22 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		return nil, err
 	}
 
-	var resultVolumeSizeMB *int32
+	var resultVolumeSizeMiB *int32
 	var resultVolumeMountPath *string
-	if volumeSizeMB != nil {
+	if volumeSizeMiB != nil {
 		mountPath := "/data"
 		if volumeMountPath != nil && *volumeMountPath != "" {
 			mountPath = *volumeMountPath
 		}
 		dv, err := qtx.CreateDeploymentVolume(ctx, sqlc.CreateDeploymentVolumeParams{
-			DeploymentID: sql.NullInt64{Int64: d.DeploymentID, Valid: true},
-			VolumeSizeMb: *volumeSizeMB,
-			MountPath:    mountPath,
+			DeploymentID:  sql.NullInt64{Int64: d.DeploymentID, Valid: true},
+			VolumeSizeMib: *volumeSizeMiB,
+			MountPath:     mountPath,
 		})
 		if err != nil {
 			return nil, err
 		}
-		resultVolumeSizeMB = &dv.VolumeSizeMb
+		resultVolumeSizeMiB = &dv.VolumeSizeMib
 		resultVolumeMountPath = &dv.MountPath
 	}
 
@@ -232,7 +232,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		ImageName:       d.ImageName,
 		Tag:             d.ImageTag,
 		Port:            d.Port,
-		VolumeSizeMB:    resultVolumeSizeMB,
+		VolumeSizeMiB:   resultVolumeSizeMiB,
 		VolumeMountPath: resultVolumeMountPath,
 		EnvironmentId:   d.EnvironmentID,
 		EnvVars:         vars,

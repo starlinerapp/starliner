@@ -1704,7 +1704,7 @@ const docTemplate = `{
                 "volumeMountPath": {
                     "type": "string"
                 },
-                "volumeSizeMB": {
+                "volumeSizeMiB": {
                     "type": "integer"
                 }
             }
@@ -2218,7 +2218,7 @@ const docTemplate = `{
                 "volumeMountPath": {
                     "type": "string"
                 },
-                "volumeSizeMB": {
+                "volumeSizeMiB": {
                     "type": "integer"
                 }
             }

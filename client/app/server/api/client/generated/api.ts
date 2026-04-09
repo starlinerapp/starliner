@@ -308,7 +308,7 @@ export interface RequestDeployImage {
    * @type {number}
    * @memberof RequestDeployImage
    */
-  volumeSizeMB?: number;
+  volumeSizeMiB?: number;
 }
 /**
  *
@@ -953,7 +953,7 @@ export interface ResponseImageDeployment {
    * @type {number}
    * @memberof ResponseImageDeployment
    */
-  volumeSizeMB?: number;
+  volumeSizeMiB?: number;
 }
 /**
  *

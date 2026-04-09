@@ -151,7 +151,7 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 			Tag:             d.Tag,
 			Port:            d.Port,
 			EnvironmentId:   d.EnvironmentID,
-			VolumeSizeMB:    utils.PtrFromNullInt32(d.VolumeSizeMb),
+			VolumeSizeMiB:   utils.PtrFromNullInt32(d.VolumeSizeMib),
 			VolumeMountPath: utils.PtrFromNullString(d.MountPath),
 			EnvVars:         variables,
 		}

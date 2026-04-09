@@ -130,7 +130,7 @@ definitions:
         type: string
       volumeMountPath:
         type: string
-      volumeSizeMB:
+      volumeSizeMiB:
         type: integer
     required:
     - environmentId
@@ -484,7 +484,7 @@ definitions:
         type: string
       volumeMountPath:
         type: string
-      volumeSizeMB:
+      volumeSizeMiB:
         type: integer
     required:
     - envVars

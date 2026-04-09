@@ -13,7 +13,7 @@
 | **status**           | **string**                                           |             | [default to undefined]            |
 | **tag**              | **string**                                           |             | [default to undefined]            |
 | **volumeMountPath**  | **string**                                           |             | [optional] [default to undefined] |
-| **volumeSizeMB**     | **number**                                           |             | [optional] [default to undefined] |
+| **volumeSizeMiB**    | **number**                                           |             | [optional] [default to undefined] |
 
 ## Example
 
@@ -30,7 +30,7 @@ const instance: ResponseImageDeployment = {
   status,
   tag,
   volumeMountPath,
-  volumeSizeMB,
+  volumeSizeMiB,
 };
 ```
 

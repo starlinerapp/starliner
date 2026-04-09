@@ -31,7 +31,7 @@ func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
 		ImageRepository:  a.ImageName,
 		ImageTag:         a.ImageTag,
 		Port:             a.Port,
-		VolumeSizeMB:     a.VolumeSizeMB,
+		VolumeSizeMiB:    a.VolumeSizeMiB,
 		VolumeMountPath:  a.VolumeMountPath,
 		EnvVars:          portEnvs,
 	}

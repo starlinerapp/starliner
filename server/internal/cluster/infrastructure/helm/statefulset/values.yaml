@@ -7,6 +7,6 @@ env:
   - name:
     value:
 volume:
-  sizeMB:
+  sizeMiB:
   mountPath: /data
 

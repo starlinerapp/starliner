@@ -26,7 +26,7 @@ export default function Index() {
       imageName: data.imageName,
       tag: data.tag,
       port: data.port,
-      volumeSizeMB: data.volumeSizeMB ?? undefined,
+      volumeSizeMiB: data.volumeSizeMiB ?? undefined,
       volumeMountPath: data.volumeMountPath ?? undefined,
       envs: data.envs,
     });

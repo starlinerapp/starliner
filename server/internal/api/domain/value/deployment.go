@@ -140,7 +140,7 @@ type ImageDeployment struct {
 	ImageName        string
 	Tag              string
 	Port             string
-	VolumeSizeMB     *int32
+	VolumeSizeMiB    *int32
 	VolumeMountPath  *string
 	EnvVars          []*EnvVar
 }
@@ -154,7 +154,7 @@ func NewImageDeployment(d *entity.ImageDeployment, internalEndpoint string) *Ima
 		ImageName:        d.ImageName,
 		Tag:              d.Tag,
 		Port:             d.Port,
-		VolumeSizeMB:     d.VolumeSizeMB,
+		VolumeSizeMiB:    d.VolumeSizeMiB,
 		VolumeMountPath:  d.VolumeMountPath,
 		EnvVars:          mapEnvVars(d.EnvVars),
 	}

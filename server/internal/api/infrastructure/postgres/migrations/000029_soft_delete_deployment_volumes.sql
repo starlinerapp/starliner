@@ -8,6 +8,8 @@ ALTER TABLE deployment_volumes
         FOREIGN KEY (deployment_id) REFERENCES deployments(id) ON DELETE SET NULL;
 
 -- +goose Down
+DELETE FROM deployment_volumes WHERE deployment_id IS NULL;
+
 ALTER TABLE deployment_volumes
     DROP CONSTRAINT deployment_volumes_deployment_id_fkey,
     ALTER COLUMN deployment_id SET NOT NULL,

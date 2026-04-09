@@ -208,7 +208,7 @@ func (da *DeploymentApplication) DeployImage(
 	imageName string,
 	tag string,
 	port int,
-	volumeSizeMB *int32,
+	volumeSizeMiB *int32,
 	volumeMountPath *string,
 	envs []*value.EnvVar,
 ) error {
@@ -242,7 +242,7 @@ func (da *DeploymentApplication) DeployImage(
 		imageName,
 		tag,
 		strconv.Itoa(port),
-		volumeSizeMB,
+		volumeSizeMiB,
 		volumeMountPath,
 		environmentId,
 		envs,
@@ -277,7 +277,7 @@ func (da *DeploymentApplication) DeployImage(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
-		VolumeSizeMB:     volumeSizeMB,
+		VolumeSizeMiB:    volumeSizeMiB,
 		VolumeMountPath:  volumeMountPath,
 		EnvVars:          coreEnvs,
 	})
@@ -350,7 +350,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
-		VolumeSizeMB:     deployment.VolumeSizeMB,
+		VolumeSizeMiB:    deployment.VolumeSizeMiB,
 		VolumeMountPath:  deployment.VolumeMountPath,
 		EnvVars:          coreEnvs,
 	})
