@@ -44,3 +44,20 @@ ON CONFLICT (team_id, user_id) DO NOTHING;
 DELETE FROM team_members
 WHERE team_members.team_id = $1
     AND team_members.user_id = $2;
+
+-- name: GetTeamById :one
+SELECT * FROM teams WHERE teams.id = $1;
+
+-- name: FindTeamByIdAndUserId :one
+SELECT teams.*
+FROM teams
+INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
+WHERE teams.id = $1
+    AND organization_members.user_id = $2;
+
+-- name: DeleteTeamIfEmpty :exec
+DELETE FROM teams
+WHERE id = $1
+    AND NOT EXISTS (
+        SELECT 1 FROM team_members WHERE team_members.team_id = $1
+    );
