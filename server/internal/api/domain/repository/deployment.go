@@ -574,7 +574,7 @@ func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Conte
 	}, nil
 }
 
-func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostName string) (*value.IngressHostLookup, error) {
+func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostName string) (*value.IngressHostDeployment, error) {
 	row, err := dr.queries.GetIngressHostByName(ctx, hostName)
 
 	if err != nil {
@@ -583,7 +583,7 @@ func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostNa
 		}
 		return nil, err
 	}
-	return &value.IngressHostLookup{
+	return &value.IngressHostDeployment{
 		Host:         row.Host,
 		DeploymentId: row.DeploymentID,
 	}, nil
