@@ -72,6 +72,64 @@ func (q *Queries) DeleteTeam(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteTeamIfEmpty = `-- name: DeleteTeamIfEmpty :exec
+DELETE FROM teams
+WHERE id = $1
+    AND NOT EXISTS (
+        SELECT 1 FROM team_members WHERE team_members.team_id = $1
+    )
+`
+
+func (q *Queries) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTeamIfEmpty, id)
+	return err
+}
+
+const findTeamByIdAndUserId = `-- name: FindTeamByIdAndUserId :one
+SELECT teams.id, teams.name, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+FROM teams
+INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
+WHERE teams.id = $1
+    AND organization_members.user_id = $2
+`
+
+type FindTeamByIdAndUserIdParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) FindTeamByIdAndUserId(ctx context.Context, arg FindTeamByIdAndUserIdParams) (Team, error) {
+	row := q.db.QueryRowContext(ctx, findTeamByIdAndUserId, arg.ID, arg.UserID)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.OrganizationID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getTeamById = `-- name: GetTeamById :one
+SELECT id, name, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
+`
+
+func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
+	row := q.db.QueryRowContext(ctx, getTeamById, id)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.OrganizationID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getTeamBySlug = `-- name: GetTeamBySlug :one
 SELECT id, name, slug, organization_id, created_at, updated_at FROM teams
 WHERE slug = $1 AND organization_id = $2

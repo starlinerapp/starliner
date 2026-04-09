@@ -36,14 +36,13 @@ export const teamRouter = {
   getTeamMembers: protectedProcedure
     .input(
       z.object({
-        organizationId: z.number(),
         teamId: z.number(),
       }),
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       const members = await teamsApiFactory
-        .getTeamMembers(userId, input.organizationId, input.teamId)
+        .getTeamMembers(userId, input.teamId)
         .then((res) => res.data);
 
       const betterAuthIds = members.map((m) => m.better_auth_id);
@@ -80,14 +79,13 @@ export const teamRouter = {
   removeTeamMember: protectedProcedure
     .input(
       z.object({
-        organizationId: z.number(),
         teamId: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await teamsApiFactory
-        .removeTeamMember(userId, input.organizationId, input.teamId)
+        .removeTeamMember(userId, input.teamId)
         .then((res) => res.data);
     }),
 };

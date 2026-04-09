@@ -190,6 +190,8 @@ type Build struct {
 	Logs         sql.NullString
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	CommitHash   sql.NullString
+	Source       string
 }
 
 type Cluster struct {

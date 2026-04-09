@@ -96,6 +96,7 @@ services:
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
       GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
       GITHUB_APP_ID: ${GITHUB_APP_ID}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
     volumes:
       - ./server:/app
     networks:

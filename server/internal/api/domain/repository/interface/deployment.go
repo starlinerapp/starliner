@@ -99,4 +99,6 @@ type DeploymentRepository interface {
 	GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error)
 
 	GetIngressHostByName(ctx context.Context, hostName string) (*string, error)
+
+	GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error)
 }

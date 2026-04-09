@@ -425,6 +425,8 @@ definitions:
     properties:
       buildId:
         type: integer
+      commitHash:
+        type: string
       createdAt:
         type: string
       deploymentId:
@@ -437,16 +439,20 @@ definitions:
         type: string
       projectPath:
         type: string
+      source:
+        type: string
       status:
         type: string
     required:
     - buildId
+    - commitHash
     - createdAt
     - deploymentId
     - deploymentName
     - dockerfilePath
     - gitUrl
     - projectPath
+    - source
     - status
     type: object
   response.GithubApp:
@@ -1438,6 +1444,83 @@ paths:
       summary: Upsert Hetzner Provisioning Credential
       tags:
       - organization
+  /organizations/{id}/teams:
+    get:
+      operationId: getUserTeams
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Team'
+            type: array
+      summary: Get User Teams
+      tags:
+      - team
+    post:
+      operationId: createTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Create Team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTeam'
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Team'
+      summary: Create team
+      tags:
+      - team
+  /organizations/{id}/teams/join:
+    post:
+      operationId: joinTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Join Team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.JoinTeam'
+      responses:
+        "201":
+          description: Created
+      summary: Join a team by slug
+      tags:
+      - team
   /projects:
     post:
       operationId: createProject
@@ -1548,58 +1631,7 @@ paths:
       summary: Get Project Environments
       tags:
       - project
-  /teams/{organizationId}:
-    get:
-      operationId: getUserTeams
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/response.Team'
-            type: array
-      summary: Get User Teams
-      tags:
-      - team
-    post:
-      operationId: createTeam
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Create Team
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.CreateTeam'
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/response.Team'
-      summary: Create team
-      tags:
-      - team
-  /teams/{organizationId}/{teamId}/members:
+  /teams/{teamId}/members:
     delete:
       operationId: removeTeamMember
       parameters:
@@ -1608,11 +1640,6 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
@@ -1632,11 +1659,6 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
@@ -1660,11 +1682,6 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
@@ -1674,32 +1691,6 @@ paths:
         "201":
           description: Created
       summary: Add current user to team
-      tags:
-      - team
-  /teams/{organizationId}/join:
-    post:
-      operationId: joinTeam
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
-      - description: Join Team
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.JoinTeam'
-      responses:
-        "201":
-          description: Created
-      summary: Join a team by slug
       tags:
       - team
 securityDefinitions:

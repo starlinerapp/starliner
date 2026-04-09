@@ -2,32 +2,61 @@ package application
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"fmt"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
+	coreService "starliner.app/internal/core/domain/service"
+	coreValue "starliner.app/internal/core/domain/value"
 )
 
 type GitHubApplication struct {
-	gitHub              port.GitHub
-	githubAppRepository interfaces.GithubAppRepository
-	organizationService *service.OrganizationService
-	cfg                 *conf.Config
+	gitHub                port.GitHub
+	queue                 port.Queue
+	deploymentRepository  interfaces.DeploymentRepository
+	buildRepository       interfaces.BuildRepository
+	environmentRepository interfaces.EnvironmentRepository
+	githubAppRepository   interfaces.GithubAppRepository
+	normalizerService     *coreService.NormalizerService
+	organizationService   *service.OrganizationService
+	cfg                   *conf.Config
 }
 
 func NewGitHubApplication(
 	gitHub port.GitHub,
+	queue port.Queue,
+	deploymentRepository interfaces.DeploymentRepository,
+	buildRepository interfaces.BuildRepository,
+	environmentRepository interfaces.EnvironmentRepository,
 	githubAppRepository interfaces.GithubAppRepository,
+	normalizerService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 	cfg *conf.Config,
 ) *GitHubApplication {
 	return &GitHubApplication{
-		gitHub:              gitHub,
-		githubAppRepository: githubAppRepository,
-		organizationService: organizationService,
-		cfg:                 cfg,
+		gitHub:                gitHub,
+		queue:                 queue,
+		deploymentRepository:  deploymentRepository,
+		buildRepository:       buildRepository,
+		environmentRepository: environmentRepository,
+		githubAppRepository:   githubAppRepository,
+		normalizerService:     normalizerService,
+		organizationService:   organizationService,
+		cfg:                   cfg,
 	}
+}
+
+func (ga *GitHubApplication) VerifySignature(payload []byte, signature string) bool {
+	mac := hmac.New(sha256.New, []byte(ga.cfg.GithubWebhookSecret))
+	mac.Write(payload)
+	expected := "sha256=" + hex.EncodeToString(mac.Sum(nil))
+	return hmac.Equal([]byte(expected), []byte(signature))
 }
 
 func (ga *GitHubApplication) GetRepositories(ctx context.Context, userId int64, organizationId int64) ([]*value.Repository, error) {
@@ -66,4 +95,79 @@ func (ga *GitHubApplication) GetRepositoryContents(ctx context.Context, userId i
 	}
 
 	return value.NewRepositoryFiles(content), nil
+}
+
+func (ga *GitHubApplication) HandleGithubWebhook(ctx context.Context, eventType string, payload []byte) error {
+	event, err := ga.gitHub.ParseGitEvent(eventType, payload)
+	if err != nil {
+		return err
+	}
+
+	switch e := event.(type) {
+	case *value.PullRequestClosedEvent:
+		return ga.triggerBuildsForRepository(ctx, e.RepositoryUrl)
+	case *value.PushToBranchEvent:
+		if e.TargetBranch != "main" {
+			return nil
+		}
+		return ga.triggerBuildsForRepository(ctx, e.RepositoryUrl)
+	default:
+		return nil
+	}
+}
+
+func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, repositoryUrl string) error {
+	deployments, err := ga.deploymentRepository.GetGitDeploymentsByRepositoryUrl(ctx, repositoryUrl)
+	if err != nil {
+		return err
+	}
+
+	var errs []error
+
+	for _, deployment := range deployments {
+		env, err := ga.environmentRepository.GetEnvironmentById(ctx, deployment.EnvironmentId)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		b, err := ga.buildRepository.CreateBuild(ctx, deployment.Id, "push")
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(deployment.Name)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, deployment.EnvironmentId)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		accessToken, err := ga.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
+			BuildId:        b.Id,
+			DeploymentId:   deployment.Id,
+			ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
+			GitUrl:         deployment.GitUrl,
+			AccessToken:    accessToken,
+			RootDirectory:  deployment.ProjectRepositoryPath,
+			DockerfilePath: deployment.DockerfilePath,
+		})
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+	}
+
+	return errors.Join(errs...)
 }

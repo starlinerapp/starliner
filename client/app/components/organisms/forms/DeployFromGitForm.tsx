@@ -123,8 +123,9 @@ export default function DeployFromGitForm({
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
         <div className="flex flex-col gap-1">
           <p>Select Git Repository</p>
-          <p className="text-mauve-11 truncate text-sm">
-            Select the repository you want to deploy.
+          <p className="text-mauve-11 text-sm">
+            Your service will automatically be redeployed when you push to the
+            main branch.
           </p>
         </div>
         {error && (

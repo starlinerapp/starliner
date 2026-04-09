@@ -169,6 +169,8 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 			BuildId:        b.BuildId,
 			DeploymentId:   b.DeploymentId,
 			DeploymentName: b.DeploymentName,
+			CommitHash:     b.CommitHash,
+			Source:         b.Source,
 			Status:         value.BuildStatus(b.Status),
 			GitUrl:         b.GitUrl,
 			ProjectPath:    b.ProjectPath,
