@@ -1108,6 +1108,121 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizations/{id}/teams": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get User Teams",
+                "operationId": "getUserTeams",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Team"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Create team",
+                "operationId": "createTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateTeam"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Team"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/teams/join": {
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Join a team by slug",
+                "operationId": "joinTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Join Team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.JoinTeam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
         "/projects": {
             "post": {
                 "tags": [
@@ -1273,122 +1388,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/teams/{organizationId}": {
-            "get": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Get User Teams",
-                "operationId": "getUserTeams",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.Team"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Create team",
-                "operationId": "createTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Create Team",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateTeam"
-                        }
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.Team"
-                        }
-                    }
-                }
-            }
-        },
-        "/teams/{organizationId}/join": {
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Join a team by slug",
-                "operationId": "joinTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Join Team",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.JoinTeam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    }
-                }
-            }
-        },
-        "/teams/{organizationId}/{teamId}/members": {
+        "/teams/{teamId}/members": {
             "get": {
                 "tags": [
                     "team"
@@ -1401,13 +1401,6 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "X-User-ID",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
                         "required": true
                     },
                     {
@@ -1446,13 +1439,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Team ID",
                         "name": "teamId",
                         "in": "path",
@@ -1477,13 +1463,6 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "X-User-ID",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
                         "required": true
                     },
                     {
@@ -2115,17 +2094,22 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "buildId",
+                "commitHash",
                 "createdAt",
                 "deploymentId",
                 "deploymentName",
                 "dockerfilePath",
                 "gitUrl",
                 "projectPath",
+                "source",
                 "status"
             ],
             "properties": {
                 "buildId": {
                     "type": "integer"
+                },
+                "commitHash": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
@@ -2143,6 +2127,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "projectPath": {
+                    "type": "string"
+                },
+                "source": {
                     "type": "string"
                 },
                 "status": {

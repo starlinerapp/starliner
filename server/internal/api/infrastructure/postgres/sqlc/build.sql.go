@@ -13,15 +13,22 @@ import (
 
 const createBuild = `-- name: CreateBuild :one
 INSERT INTO builds (
-    deployment_id
+    deployment_id,
+    source
 ) VALUES (
-    $1
+    $1,
+          $2
 )
-RETURNING id, deployment_id, status, logs, created_at, updated_at
+RETURNING id, deployment_id, status, logs, created_at, updated_at, commit_hash, source
 `
 
-func (q *Queries) CreateBuild(ctx context.Context, deploymentID sql.NullInt64) (Build, error) {
-	row := q.db.QueryRowContext(ctx, createBuild, deploymentID)
+type CreateBuildParams struct {
+	DeploymentID sql.NullInt64
+	Source       string
+}
+
+func (q *Queries) CreateBuild(ctx context.Context, arg CreateBuildParams) (Build, error) {
+	row := q.db.QueryRowContext(ctx, createBuild, arg.DeploymentID, arg.Source)
 	var i Build
 	err := row.Scan(
 		&i.ID,
@@ -30,6 +37,8 @@ func (q *Queries) CreateBuild(ctx context.Context, deploymentID sql.NullInt64) (
 		&i.Logs,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CommitHash,
+		&i.Source,
 	)
 	return i, err
 }
@@ -64,6 +73,8 @@ SELECT
     b.id as build_id,
     d.id as deployment_id,
     d.name as deployment_name,
+    b.commit_hash,
+    b.source,
     b.status,
     gd.url,
     gd.project_path,
@@ -81,6 +92,8 @@ type GetEnvironmentGitDeploymentBuildsRow struct {
 	BuildID        int64
 	DeploymentID   int64
 	DeploymentName string
+	CommitHash     sql.NullString
+	Source         string
 	Status         BuildStatus
 	Url            string
 	ProjectPath    string
@@ -101,6 +114,8 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 			&i.BuildID,
 			&i.DeploymentID,
 			&i.DeploymentName,
+			&i.CommitHash,
+			&i.Source,
 			&i.Status,
 			&i.Url,
 			&i.ProjectPath,
@@ -124,17 +139,24 @@ const updateBuildInformation = `-- name: UpdateBuildInformation :exec
 UPDATE builds
 SET
     status = $1,
-    logs = $2
-WHERE id = $3
+    commit_hash = $2,
+    logs = $3
+WHERE id = $4
 `
 
 type UpdateBuildInformationParams struct {
-	Status BuildStatus
-	Logs   sql.NullString
-	ID     int64
+	Status     BuildStatus
+	CommitHash sql.NullString
+	Logs       sql.NullString
+	ID         int64
 }
 
 func (q *Queries) UpdateBuildInformation(ctx context.Context, arg UpdateBuildInformationParams) error {
-	_, err := q.db.ExecContext(ctx, updateBuildInformation, arg.Status, arg.Logs, arg.ID)
+	_, err := q.db.ExecContext(ctx, updateBuildInformation,
+		arg.Status,
+		arg.CommitHash,
+		arg.Logs,
+		arg.ID,
+	)
 	return err
 }

@@ -29,3 +29,27 @@ func NewRepositoryFiles(fs []*port.RepositoryFile) []*RepositoryFile {
 	}
 	return files
 }
+
+type PullRequestClosedEvent struct {
+	RepositoryOwner string
+	RepositoryName  string
+	RepositoryUrl   string
+	TargetBranch    string
+	Merged          bool
+}
+
+func (e *PullRequestClosedEvent) EventName() string {
+	return "pull_request.closed"
+}
+
+type PushToBranchEvent struct {
+	RepositoryOwner string
+	RepositoryName  string
+	RepositoryUrl   string
+	TargetBranch    string
+	Ref             string
+}
+
+func (e *PushToBranchEvent) EventName() string {
+	return "push"
+}

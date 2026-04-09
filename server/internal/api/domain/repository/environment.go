@@ -288,6 +288,8 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 			BuildId:        row.BuildID,
 			DeploymentId:   row.DeploymentID,
 			DeploymentName: row.DeploymentName,
+			CommitHash:     utils.PtrFromNullString(row.CommitHash),
+			Source:         row.Source,
 			Status:         entity.BuildStatus(row.Status),
 			GitUrl:         row.Url,
 			ProjectPath:    row.ProjectPath,

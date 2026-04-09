@@ -588,3 +588,39 @@ func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostNa
 		DeploymentId: row.DeploymentID,
 	}, nil
 }
+
+func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error) {
+	rows, err := dr.queries.GetGitDeploymentsByRepositoryUrl(ctx, repositoryUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	deployments := make([]*entity.GitDeployment, len(rows))
+	for i, d := range rows {
+		envs, err := dr.queries.GetDeploymentEnvironmentVars(ctx, d.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		envVars := make([]*entity.EnvVar, len(envs))
+		for j, e := range envs {
+			envVars[j] = &entity.EnvVar{
+				Name:  e.Name,
+				Value: e.Value,
+			}
+		}
+
+		deployments[i] = &entity.GitDeployment{
+			Id:                    d.DeploymentID,
+			Name:                  d.Name,
+			Status:                string(d.Status),
+			Port:                  d.Port,
+			EnvironmentId:         d.EnvironmentID,
+			GitUrl:                d.Url,
+			ProjectRepositoryPath: d.ProjectPath,
+			DockerfilePath:        d.DockerfilePath,
+			EnvVars:               envVars,
+		}
+	}
+	return deployments, nil
+}
