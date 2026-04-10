@@ -78,3 +78,8 @@ type DeploymentWithKubeconfig struct {
 	Deployment Deployment
 	Kubeconfig *string
 }
+
+type IngressHostDeployment struct {
+	Host         string
+	DeploymentId int64
+}
