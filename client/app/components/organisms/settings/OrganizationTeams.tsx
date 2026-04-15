@@ -193,9 +193,8 @@ export default function OrganizationTeams() {
                   />
                   <div className="flex justify-end gap-2">
                     <Button
-                      className="h-9 w-24 text-xs"
                       intent="secondary"
-                      type="button"
+                      className="w-24"
                       onClick={() => {
                         setShowCreateDialog(false);
                         resetCreate();
@@ -204,11 +203,12 @@ export default function OrganizationTeams() {
                       Cancel
                     </Button>
                     <Button
-                      className="h-9 w-24 text-xs"
+                      intent="secondary"
+                      className="w-24"
                       type="submit"
                       disabled={!nameInput || createTeamMutation.isPending}
                     >
-                      Save
+                      Create
                     </Button>
                   </div>
                 </form>
