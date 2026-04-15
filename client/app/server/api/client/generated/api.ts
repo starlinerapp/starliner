@@ -185,7 +185,7 @@ export interface RequestCreateTeam {
    * @type {string}
    * @memberof RequestCreateTeam
    */
-  name: string;
+  slug: string;
 }
 /**
  *
@@ -1329,12 +1329,6 @@ export interface ResponseTeam {
    * @memberof ResponseTeam
    */
   id: number;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseTeam
-   */
-  name: string;
   /**
    *
    * @type {number}
@@ -6431,7 +6425,7 @@ export const TeamApiAxiosParamCreator = function (
      * @summary Create team
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
-     * @param {RequestCreateTeam} data Create Team
+     * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -6761,7 +6755,7 @@ export const TeamApiFp = function (configuration?: Configuration) {
      * @summary Create team
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
-     * @param {RequestCreateTeam} data Create Team
+     * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -6968,7 +6962,7 @@ export const TeamApiFactory = function (
      * @summary Create team
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
-     * @param {RequestCreateTeam} data Create Team
+     * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -7086,7 +7080,7 @@ export class TeamApi extends BaseAPI {
    * @summary Create team
    * @param {string} xUserID User ID
    * @param {number} id Organization ID
-   * @param {RequestCreateTeam} data Create Team
+   * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof TeamApi

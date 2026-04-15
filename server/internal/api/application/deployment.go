@@ -522,7 +522,22 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		return err
 	}
 
-	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
+	hostsToValidate := make([]*value.IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		if h == nil {
+			continue
+		}
+		existing, err := da.deploymentRepository.GetIngressHostByName(ctx, h.Host)
+		if err != nil {
+			return err
+		}
+		if existing != nil && existing.DeploymentId == deploymentId {
+			continue
+		}
+		hostsToValidate = append(hostsToValidate, h)
+	}
+
+	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hostsToValidate)
 	if err != nil {
 		return err
 	}

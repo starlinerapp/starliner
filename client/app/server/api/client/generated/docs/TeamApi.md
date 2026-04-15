@@ -71,18 +71,18 @@ const apiInstance = new TeamApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Organization ID (default to undefined)
-let data: RequestCreateTeam; //Create Team
+let data: RequestCreateTeam; //Team slug (lowercase, alphanumeric, hyphens only)
 
 const { status, data } = await apiInstance.createTeam(xUserID, id, data);
 ```
 
 ### Parameters
 
-| Name        | Type                  | Description     | Notes                 |
-| ----------- | --------------------- | --------------- | --------------------- |
-| **data**    | **RequestCreateTeam** | Create Team     |                       |
-| **xUserID** | [**string**]          | User ID         | defaults to undefined |
-| **id**      | [**number**]          | Organization ID | defaults to undefined |
+| Name        | Type                  | Description                                       | Notes                 |
+| ----------- | --------------------- | ------------------------------------------------- | --------------------- |
+| **data**    | **RequestCreateTeam** | Team slug (lowercase, alphanumeric, hyphens only) |                       |
+| **xUserID** | [**string**]          | User ID                                           | defaults to undefined |
+| **id**      | [**number**]          | Organization ID                                   | defaults to undefined |
 
 ### Return type
 

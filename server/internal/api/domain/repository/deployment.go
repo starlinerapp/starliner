@@ -601,7 +601,7 @@ func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Conte
 	}, nil
 }
 
-func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostName string) (*string, error) {
+func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostName string) (*entity.IngressHostDeployment, error) {
 	row, err := dr.queries.GetIngressHostByName(ctx, hostName)
 
 	if err != nil {
@@ -610,7 +610,10 @@ func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostNa
 		}
 		return nil, err
 	}
-	return &row.Host, nil
+	return &entity.IngressHostDeployment{
+		Host:         row.Host,
+		DeploymentId: row.DeploymentID,
+	}, nil
 }
 
 func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error) {

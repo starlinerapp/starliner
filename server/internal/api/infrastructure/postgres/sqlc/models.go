@@ -350,7 +350,6 @@ type ProvisioningCredential struct {
 
 type Team struct {
 	ID             int64
-	Name           string
 	Slug           string
 	OrganizationID int64
 	CreatedAt      time.Time
