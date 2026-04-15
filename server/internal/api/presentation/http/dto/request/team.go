@@ -1,7 +1,7 @@
 package request
 
 type CreateTeam struct {
-	Name string `json:"name" binding:"required"`
+	Slug string `json:"slug" binding:"required,max=50"`
 }
 
 type JoinTeam struct {

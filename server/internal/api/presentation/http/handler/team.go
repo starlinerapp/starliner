@@ -27,7 +27,7 @@ func NewTeamHandler(teamApplication *application.TeamApplication) *TeamHandler {
 // @ID createTeam
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
-// @Param data body request.CreateTeam true "Create Team"
+// @Param data body request.CreateTeam true "Team slug (lowercase, alphanumeric, hyphens only)"
 // @Param id path int true "Organization ID"
 // @Success 201 {object} response.Team
 // @Router /organizations/{id}/teams [post]
@@ -44,7 +44,7 @@ func (th *TeamHandler) CreateTeam(c *gin.Context) {
 		return
 	}
 
-	newTeam, err := th.teamApplication.CreateTeam(c, team.Name, organizationId, currentUser.Id)
+	newTeam, err := th.teamApplication.CreateTeam(c, team.Slug, organizationId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

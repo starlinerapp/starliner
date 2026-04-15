@@ -238,6 +238,16 @@ type DeploymentEnvironmentVar struct {
 	UpdatedAt    time.Time
 }
 
+type DeploymentVolume struct {
+	ID            int64
+	DeploymentID  sql.NullInt64
+	VolumeSizeMib int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	MountPath     string
+	DeletedAt     sql.NullTime
+}
+
 type Environment struct {
 	ID        int64
 	Name      string
@@ -340,7 +350,6 @@ type ProvisioningCredential struct {
 
 type Team struct {
 	ID             int64
-	Name           string
 	Slug           string
 	OrganizationID int64
 	CreatedAt      time.Time

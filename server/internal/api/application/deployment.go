@@ -208,6 +208,8 @@ func (da *DeploymentApplication) DeployImage(
 	imageName string,
 	tag string,
 	port int,
+	volumeSizeMiB *int32,
+	volumeMountPath *string,
 	envs []*value.EnvVar,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
@@ -234,12 +236,18 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	if (volumeSizeMiB != nil && volumeMountPath == nil) || (volumeSizeMiB == nil && volumeMountPath != nil) {
+		return fmt.Errorf("volumeMountPath=%v, volumeSizeMiB=%v: must be both nil or both not nil", volumeMountPath, volumeSizeMiB)
+	}
+
 	deployment, err := da.deploymentRepository.CreateImageDeployment(
 		ctx,
 		serviceName,
 		imageName,
 		tag,
 		strconv.Itoa(port),
+		volumeSizeMiB,
+		volumeMountPath,
 		environmentId,
 		envs,
 	)
@@ -273,6 +281,8 @@ func (da *DeploymentApplication) DeployImage(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
+		VolumeSizeMiB:    volumeSizeMiB,
+		VolumeMountPath:  volumeMountPath,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {
@@ -344,6 +354,8 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
+		VolumeSizeMiB:    deployment.VolumeSizeMiB,
+		VolumeMountPath:  deployment.VolumeMountPath,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {
@@ -631,6 +643,11 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	}
 
 	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deployment.Name)
+	if err != nil {
+		return err
+	}
+
+	err = da.deploymentRepository.SoftDeleteDeploymentVolume(ctx, deploymentId)
 	if err != nil {
 		return err
 	}

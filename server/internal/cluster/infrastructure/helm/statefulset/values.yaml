@@ -1,0 +1,12 @@
+image:
+  repository:
+  tag:
+port:
+targetPort:
+env:
+  - name:
+    value:
+volume:
+  sizeMiB:
+  mountPath:
+

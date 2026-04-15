@@ -1,12 +1,10 @@
 -- name: CreateTeam :one
 INSERT INTO teams (
-    name,
     slug,
     organization_id
 ) VALUES (
     $1,
-    $2,
-    $3
+    $2
 )
 RETURNING *;
 

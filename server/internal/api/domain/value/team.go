@@ -4,7 +4,6 @@ import "starliner.app/internal/api/domain/entity"
 
 type Team struct {
 	Id             int64
-	Name           string
 	Slug           string
 	OrganizationId int64
 }
@@ -12,7 +11,6 @@ type Team struct {
 func NewTeam(t *entity.Team) *Team {
 	return &Team{
 		Id:             t.Id,
-		Name:           t.Name,
 		Slug:           t.Slug,
 		OrganizationId: t.OrganizationId,
 	}
