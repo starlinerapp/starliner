@@ -3,9 +3,6 @@ package application
 import (
 	"context"
 	"errors"
-	"crypto/rand"
-	"encoding/hex"
-	"fmt"
 
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"

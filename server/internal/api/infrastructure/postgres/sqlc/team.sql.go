@@ -241,7 +241,7 @@ func (q *Queries) GetTeamRepositories(ctx context.Context, teamID int64) ([]GetT
 }
 
 const getTeamsByRepoAndOrg = `-- name: GetTeamsByRepoAndOrg :many
-SELECT teams.id, teams.name, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
 INNER JOIN team_repositories ON team_repositories.team_id = teams.id
 WHERE teams.organization_id = $1
@@ -264,7 +264,6 @@ func (q *Queries) GetTeamsByRepoAndOrg(ctx context.Context, arg GetTeamsByRepoAn
 		var i Team
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
 			&i.Slug,
 			&i.OrganizationID,
 			&i.CreatedAt,

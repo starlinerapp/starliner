@@ -39,7 +39,7 @@ func (q *Queries) CreateDeploymentEnvVar(ctx context.Context, arg CreateDeployme
 const createDeploymentVolume = `-- name: CreateDeploymentVolume :one
 INSERT INTO deployment_volumes (deployment_id, volume_size_mib, mount_path)
 VALUES ($1, $2, $3)
-RETURNING id, deployment_id, volume_size_mib, created_at, updated_at, mount_path, deleted_at
+RETURNING id, deployment_id, volume_size_mib, mount_path, deleted_at, created_at, updated_at
 `
 
 type CreateDeploymentVolumeParams struct {
@@ -55,10 +55,10 @@ func (q *Queries) CreateDeploymentVolume(ctx context.Context, arg CreateDeployme
 		&i.ID,
 		&i.DeploymentID,
 		&i.VolumeSizeMib,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 		&i.MountPath,
 		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
