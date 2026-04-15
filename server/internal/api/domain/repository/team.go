@@ -132,7 +132,6 @@ func (tr TeamRepository) FindTeamByIdAndUserId(ctx context.Context, teamID int64
 
 	return &entity.Team{
 		Id:             t.ID,
-		Name:           t.Name,
 		Slug:           t.Slug,
 		OrganizationId: t.OrganizationID,
 	}, nil
