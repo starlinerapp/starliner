@@ -8,5 +8,5 @@ env:
     value:
 volume:
   sizeMiB:
-  mountPath: /data
+  mountPath:
 

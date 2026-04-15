@@ -1,8 +1,10 @@
 -- +goose Up
 CREATE TABLE deployment_volumes (
     id BIGSERIAL PRIMARY KEY,
-    deployment_id BIGINT NOT NULL REFERENCES deployments(id) ON DELETE CASCADE,
+    deployment_id BIGINT REFERENCES deployments(id) ON DELETE SET NULL,
     volume_size_mib INTEGER NOT NULL,
+    mount_path TEXT NOT NULL,
+    deleted_at timestamptz,
 
     created_at timestamptz NOT NULL DEFAULT NOW(),
     updated_at timestamptz NOT NULL DEFAULT NOW()

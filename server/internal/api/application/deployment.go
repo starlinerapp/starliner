@@ -236,6 +236,11 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	if (volumeSizeMiB != nil && volumeMountPath == nil) || (volumeSizeMiB == nil && volumeMountPath != nil) {
+		log.Printf("volumeMountPath and volumeSizeMiB must be both nil or both not nil")
+		return fmt.Errorf("volumeMountPath=%v, volumeSizeMiB=%v: must be both nil or both not nil", volumeMountPath, volumeSizeMiB)
+	}
+
 	deployment, err := da.deploymentRepository.CreateImageDeployment(
 		ctx,
 		serviceName,

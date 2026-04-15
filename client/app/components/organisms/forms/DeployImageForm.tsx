@@ -198,7 +198,7 @@ export default function DeployImageForm({
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-sm">Persistent volume</p>
+          <p className="text-sm">Persistent Volume</p>
           {isExistingDeployment && !existingHasVolume && (
             <p className="text-mauve-11 text-sm">No volume attached</p>
           )}
@@ -215,13 +215,13 @@ export default function DeployImageForm({
                     valueAsNumber: true,
                   })}
                 />
-                <span className="text-mauve-11 text-sm">MiB</span>
+                <span className="text-mauve-12 text-sm">MiB</span>
               </div>
 
               <input
                 className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
                 type="text"
-                placeholder="Mount Path* (e.g. /data)"
+                placeholder="Mount Path*"
                 disabled={!!defaultValues?.volumeMountPath}
                 {...register("volumeMountPath", {
                   required: false,
@@ -236,7 +236,7 @@ export default function DeployImageForm({
                 })}
               />
               {errors.volumeMountPath && (
-                <p className="text-xs text-red-500">
+                <p className="text-red-11 text-xs">
                   {errors.volumeMountPath.message}
                 </p>
               )}
