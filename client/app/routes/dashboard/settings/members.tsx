@@ -23,11 +23,17 @@ export default function Members() {
             Organization Members
           </div>
           {isLoading ? (
-            <div className="flex flex-col gap-2 px-4 py-3">
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-5 w-36" />
-              <Skeleton className="h-5 w-52" />
-            </div>
+            <>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+                >
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-5 w-36" />
+                </div>
+              ))}
+            </>
           ) : members?.length === 0 ? (
             <div className="text-mauve-11 px-4 py-3 text-sm">
               No members yet.
