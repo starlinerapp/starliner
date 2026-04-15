@@ -82,7 +82,7 @@ func (q *Queries) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
 }
 
 const findTeamByIdAndUserId = `-- name: FindTeamByIdAndUserId :one
-SELECT teams.id, teams.name, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
 INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
 WHERE teams.id = $1
@@ -99,7 +99,6 @@ func (q *Queries) FindTeamByIdAndUserId(ctx context.Context, arg FindTeamByIdAnd
 	var i Team
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
 		&i.Slug,
 		&i.OrganizationID,
 		&i.CreatedAt,
