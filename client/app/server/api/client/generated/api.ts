@@ -297,6 +297,18 @@ export interface RequestDeployImage {
    * @memberof RequestDeployImage
    */
   tag: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  volumeMountPath?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployImage
+   */
+  volumeSizeMiB?: number;
 }
 /**
  *
@@ -942,6 +954,18 @@ export interface ResponseImageDeployment {
    * @memberof ResponseImageDeployment
    */
   tag: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  volumeMountPath?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseImageDeployment
+   */
+  volumeSizeMiB?: number;
 }
 /**
  *

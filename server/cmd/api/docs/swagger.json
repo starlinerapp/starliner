@@ -1671,6 +1671,12 @@
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },
@@ -2187,6 +2193,12 @@
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },

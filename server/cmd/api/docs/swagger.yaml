@@ -129,6 +129,10 @@ definitions:
         type: string
       tag:
         type: string
+      volumeMountPath:
+        type: string
+      volumeSizeMiB:
+        type: integer
     required:
     - environmentId
     - envs
@@ -485,6 +489,10 @@ definitions:
         type: string
       tag:
         type: string
+      volumeMountPath:
+        type: string
+      volumeSizeMiB:
+        type: integer
     required:
     - envVars
     - id

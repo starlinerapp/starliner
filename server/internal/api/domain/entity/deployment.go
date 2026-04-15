@@ -33,14 +33,16 @@ type EnvVar struct {
 }
 
 type ImageDeployment struct {
-	Id            int64
-	Status        string
-	ServiceName   string
-	ImageName     string
-	Tag           string
-	Port          string
-	EnvironmentId int64
-	EnvVars       []*EnvVar
+	Id              int64
+	Status          string
+	ServiceName     string
+	ImageName       string
+	Tag             string
+	Port            string
+	EnvironmentId   int64
+	VolumeSizeMiB   *int32
+	VolumeMountPath *string
+	EnvVars         []*EnvVar
 }
 
 type DatabaseDeployment struct {

@@ -238,6 +238,16 @@ type DeploymentEnvironmentVar struct {
 	UpdatedAt    time.Time
 }
 
+type DeploymentVolume struct {
+	ID            int64
+	DeploymentID  sql.NullInt64
+	VolumeSizeMib int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	MountPath     string
+	DeletedAt     sql.NullTime
+}
+
 type Environment struct {
 	ID        int64
 	Name      string
@@ -351,6 +361,13 @@ type TeamMember struct {
 	UserID    int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type TeamRepository struct {
+	TeamID       int64
+	GithubRepoID int64
+	RepoName     string
+	CreatedAt    time.Time
 }
 
 type User struct {

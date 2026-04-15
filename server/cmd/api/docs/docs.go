@@ -1680,6 +1680,12 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },
@@ -2196,6 +2202,12 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },
