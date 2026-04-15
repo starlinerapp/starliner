@@ -354,6 +354,13 @@ type TeamMember struct {
 	UpdatedAt time.Time
 }
 
+type TeamRepository struct {
+	TeamID       int64
+	GithubRepoID int64
+	RepoName     string
+	CreatedAt    time.Time
+}
+
 type User struct {
 	ID           int64
 	BetterAuthID string

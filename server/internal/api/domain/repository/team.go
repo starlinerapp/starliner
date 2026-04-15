@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
@@ -145,6 +146,39 @@ func (tr TeamRepository) FindTeamByIdAndUserId(ctx context.Context, teamID int64
 
 func (tr TeamRepository) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
 	return tr.queries.DeleteTeamIfEmpty(ctx, id)
+}
+
+func (tr TeamRepository) AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string) error {
+	return tr.queries.AssignRepoToTeam(ctx, sqlc.AssignRepoToTeamParams{
+		TeamID:       teamID,
+		GithubRepoID: githubRepoID,
+		RepoName:     repoName,
+	})
+}
+
+func (tr TeamRepository) UnassignRepoFromTeam(ctx context.Context, teamID int64, githubRepoID int64) error {
+	return tr.queries.UnassignRepoFromTeam(ctx, sqlc.UnassignRepoFromTeamParams{
+		TeamID:       teamID,
+		GithubRepoID: githubRepoID,
+	})
+}
+
+func (tr TeamRepository) GetTeamRepositories(ctx context.Context, teamID int64) ([]*entity.TeamRepository, error) {
+	rows, err := tr.queries.GetTeamRepositories(ctx, teamID)
+	if err != nil {
+		return nil, err
+	}
+
+	repos := make([]*entity.TeamRepository, len(rows))
+	for i, row := range rows {
+		repos[i] = &entity.TeamRepository{
+			TeamId:       teamID,
+			GithubRepoId: row.GithubRepoID,
+			RepoName:     row.RepoName,
+		}
+	}
+
+	return repos, nil
 }
 
 var _ interfaces.TeamRepository = (*TeamRepository)(nil)

@@ -10,7 +10,7 @@ import DeployFromGitForm, {
 export default function UpdateGitDeployment() {
   const { deploymentId } = useParams<{ deploymentId: string }>();
 
-  const { environment: currentEnvironment } = useEnvironment();
+  const { environment: currentEnvironment, teamId } = useEnvironment();
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -62,6 +62,7 @@ export default function UpdateGitDeployment() {
         <DeployFromGitForm
           key={deploymentId}
           onSubmit={onSubmit}
+          teamId={teamId}
           defaultValues={{
             serviceName: gitDeployment?.serviceName ?? "",
             url: gitDeployment?.gitUrl ?? "",

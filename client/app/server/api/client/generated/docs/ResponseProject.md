@@ -9,6 +9,7 @@
 | **environments** | [**Array&lt;ResponseEnvironment&gt;**](ResponseEnvironment.md) |             | [default to undefined] |
 | **id**           | **number**                                                     |             | [default to undefined] |
 | **name**         | **string**                                                     |             | [default to undefined] |
+| **teamId**       | **number**                                                     |             | [default to undefined] |
 
 ## Example
 
@@ -21,6 +22,7 @@ const instance: ResponseProject = {
   environments,
   id,
   name,
+  teamId,
 };
 ```
 

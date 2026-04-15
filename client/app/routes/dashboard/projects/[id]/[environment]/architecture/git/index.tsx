@@ -22,7 +22,7 @@ export default function Git() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const { environment: currentEnvironment } = useEnvironment();
+  const { environment: currentEnvironment, teamId } = useEnvironment();
   const organization = useOrganizationContext();
 
   const { data: githubApp, isLoading } = useQuery(
@@ -111,7 +111,7 @@ export default function Git() {
   return (
     <>
       {githubApp ? (
-        <DeployFromGitForm onSubmit={onSubmit} resetOnSuccess={true} />
+        <DeployFromGitForm onSubmit={onSubmit} resetOnSuccess={true} teamId={teamId} />
       ) : (
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">

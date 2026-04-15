@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 )
 
@@ -16,4 +17,7 @@ type TeamRepository interface {
 	RemoveTeamMember(ctx context.Context, teamID int64, userID int64) error
 	GetTeamById(ctx context.Context, id int64) (*entity.Team, error)
 	FindTeamByIdAndUserId(ctx context.Context, teamID int64, userID int64) (*entity.Team, error)
+	AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string) error
+	UnassignRepoFromTeam(ctx context.Context, teamID int64, githubRepoID int64) error
+	GetTeamRepositories(ctx context.Context, teamID int64) ([]*entity.TeamRepository, error)
 }

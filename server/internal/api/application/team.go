@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -127,4 +128,36 @@ func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, t
 	}
 
 	return ts.teamRepository.DeleteTeamIfEmpty(ctx, teamId)
+}
+
+func (ts *TeamApplication) AssignRepoToTeam(ctx context.Context, organizationId int64, userId int64, teamId int64, githubRepoId int64, repoName string) error {
+	err := ts.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	return ts.teamRepository.AssignRepoToTeam(ctx, teamId, githubRepoId, repoName)
+}
+
+func (ts *TeamApplication) UnassignRepoFromTeam(ctx context.Context, organizationId int64, userId int64, teamId int64, githubRepoId int64) error {
+	err := ts.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	return ts.teamRepository.UnassignRepoFromTeam(ctx, teamId, githubRepoId)
+}
+
+func (ts *TeamApplication) GetTeamRepositories(ctx context.Context, organizationId int64, userId int64, teamId int64) ([]*value.TeamRepo, error) {
+	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	repos, err := ts.teamRepository.GetTeamRepositories(ctx, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewTeamRepos(repos), nil
 }

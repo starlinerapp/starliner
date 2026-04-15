@@ -88,4 +88,54 @@ export const teamRouter = {
         .removeTeamMember(userId, input.teamId)
         .then((res) => res.data);
     }),
+  getTeamRepositories: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        teamId: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .getTeamRepositories(userId, input.organizationId, input.teamId)
+        .then((res) => res.data);
+    }),
+  assignRepoToTeam: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        teamId: z.number(),
+        githubRepoId: z.number(),
+        repoName: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .assignRepoToTeam(userId, input.organizationId, input.teamId, {
+          github_repo_id: input.githubRepoId,
+          repo_name: input.repoName,
+        })
+        .then((res) => res.data);
+    }),
+  unassignRepoFromTeam: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        teamId: z.number(),
+        githubRepoId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .unassignRepoFromTeam(
+          userId,
+          input.organizationId,
+          input.teamId,
+          input.githubRepoId,
+        )
+        .then((res) => res.data);
+    }),
 };

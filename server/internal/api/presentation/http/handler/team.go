@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
-	"strconv"
 )
 
 type TeamHandler struct {
@@ -185,4 +186,110 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+// AssignRepoToTeam godoc
+// @Summary Assign a GitHub repository to a team
+// @Tags team
+// @ID assignRepoToTeam
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId query int true "Organization ID"
+// @Param teamId path int true "Team ID"
+// @Param data body request.AssignRepoToTeam true "Assign Repo"
+// @Success 201
+// @Router /teams/{teamId}/repos [post]
+func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Query("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "organizationId query parameter is required"})
+		return
+	}
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	var body request.AssignRepoToTeam
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = th.teamApplication.AssignRepoToTeam(c, organizationId, currentUser.Id, teamId, body.GithubRepoId, body.RepoName)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+// UnassignRepoFromTeam godoc
+// @Summary Unassign a GitHub repository from a team
+// @Tags team
+// @ID unassignRepoFromTeam
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId query int true "Organization ID"
+// @Param teamId path int true "Team ID"
+// @Param repoId path int true "GitHub Repo ID"
+// @Success 204
+// @Router /teams/{teamId}/repos/{repoId} [delete]
+func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Query("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "organizationId query parameter is required"})
+		return
+	}
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	repoId, err := strconv.ParseInt(c.Param("repoId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = th.teamApplication.UnassignRepoFromTeam(c, organizationId, currentUser.Id, teamId, repoId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// GetTeamRepositories godoc
+// @Summary Get repositories assigned to a team
+// @Tags team
+// @ID getTeamRepositories
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId query int true "Organization ID"
+// @Param teamId path int true "Team ID"
+// @Success 200 {array} response.TeamRepo
+// @Router /teams/{teamId}/repos [get]
+func (th *TeamHandler) GetTeamRepositories(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Query("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "organizationId query parameter is required"})
+		return
+	}
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	repos, err := th.teamApplication.GetTeamRepositories(c, organizationId, currentUser.Id, teamId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewTeamRepos(repos))
 }
