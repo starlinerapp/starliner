@@ -6,7 +6,7 @@ import (
 )
 
 type TeamRepository interface {
-	CreateTeam(ctx context.Context, name string, slug string, organizationID int64) (*entity.Team, error)
+	CreateTeam(ctx context.Context, slug string, organizationID int64) (*entity.Team, error)
 	DeleteTeam(ctx context.Context, id int64) error
 	DeleteTeamIfEmpty(ctx context.Context, id int64) error
 	GetTeamBySlug(ctx context.Context, slug string, organizationID int64) (*entity.Team, error)

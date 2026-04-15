@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "~/components/atoms/dialog/Dialog";
+import { formatSlugInput } from "~/utils/slug";
 
 interface CreateTeamFormInput {
   name: string;
@@ -32,6 +33,7 @@ export default function OrganizationTeams() {
     handleSubmit: handleCreateSubmit,
     reset: resetCreate,
     watch: watchCreate,
+    setValue: setCreateValue,
   } = useForm<CreateTeamFormInput>();
   const nameInput = watchCreate("name", "");
 
@@ -182,14 +184,17 @@ export default function OrganizationTeams() {
                 >
                   <input
                     className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
-                    placeholder="Team name"
+                    placeholder="team-slug"
+                    maxLength={50}
                     {...registerCreate("name")}
+                    onChange={(e) => {
+                      setCreateValue("name", formatSlugInput(e.target.value));
+                    }}
                   />
                   <div className="flex justify-end gap-2">
                     <Button
-                      className="h-9 w-24 text-xs"
                       intent="secondary"
-                      type="button"
+                      className="w-24"
                       onClick={() => {
                         setShowCreateDialog(false);
                         resetCreate();
@@ -198,11 +203,12 @@ export default function OrganizationTeams() {
                       Cancel
                     </Button>
                     <Button
-                      className="h-9 w-24 text-xs"
+                      intent="secondary"
+                      className="w-24"
                       type="submit"
                       disabled={!nameInput || createTeamMutation.isPending}
                     >
-                      Save
+                      Create
                     </Button>
                   </div>
                 </form>
@@ -222,10 +228,7 @@ export default function OrganizationTeams() {
               className="border-mauve-6 text-mauve-12 hover:bg-gray-2 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
             >
               <div className="flex flex-col">
-                <span>{team.name}</span>
-                <span className="text-mauve-11 font-mono text-xs">
-                  Slug: {team.slug}
-                </span>
+                <span>#{team.slug}</span>
               </div>
               <Button
                 className="h-7 w-24 text-xs"

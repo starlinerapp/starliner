@@ -1158,7 +1158,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Create Team",
+                        "description": "Team slug (lowercase, alphanumeric, hyphens only)",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -1587,11 +1587,12 @@ const docTemplate = `{
         "request.CreateTeam": {
             "type": "object",
             "required": [
-                "name"
+                "slug"
             ],
             "properties": {
-                "name": {
-                    "type": "string"
+                "slug": {
+                    "type": "string",
+                    "maxLength": 50
                 }
             }
         },
@@ -2467,16 +2468,12 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "name",
                 "organization_id",
                 "slug"
             ],
             "properties": {
                 "id": {
                     "type": "integer"
-                },
-                "name": {
-                    "type": "string"
                 },
                 "organization_id": {
                     "type": "integer"

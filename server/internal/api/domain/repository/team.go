@@ -19,15 +19,13 @@ func (tr TeamRepository) GetTeamById(ctx context.Context, id int64) (*entity.Tea
 
 	return &entity.Team{
 		Id:             t.ID,
-		Name:           t.Name,
 		Slug:           t.Slug,
 		OrganizationId: t.OrganizationID,
 	}, nil
 }
 
-func (tr TeamRepository) CreateTeam(ctx context.Context, name string, slug string, organizationID int64) (*entity.Team, error) {
+func (tr TeamRepository) CreateTeam(ctx context.Context, slug string, organizationID int64) (*entity.Team, error) {
 	t, err := tr.queries.CreateTeam(ctx, sqlc.CreateTeamParams{
-		Name:           name,
 		Slug:           slug,
 		OrganizationID: organizationID,
 	})
@@ -37,7 +35,6 @@ func (tr TeamRepository) CreateTeam(ctx context.Context, name string, slug strin
 
 	return &entity.Team{
 		Id:             t.ID,
-		Name:           t.Name,
 		Slug:           t.Slug,
 		OrganizationId: t.OrganizationID,
 	}, nil
@@ -63,7 +60,6 @@ func (tr TeamRepository) GetTeamBySlug(ctx context.Context, slug string, organiz
 
 	return &entity.Team{
 		Id:             t.ID,
-		Name:           t.Name,
 		Slug:           t.Slug,
 		OrganizationId: t.OrganizationID,
 	}, nil
@@ -82,7 +78,6 @@ func (tr TeamRepository) GetUserTeams(ctx context.Context, organizationID int64,
 	for i, row := range rows {
 		teams[i] = &entity.Team{
 			Id:             row.ID,
-			Name:           row.Name,
 			Slug:           row.Slug,
 			OrganizationId: row.OrganizationID,
 		}
@@ -137,7 +132,6 @@ func (tr TeamRepository) FindTeamByIdAndUserId(ctx context.Context, teamID int64
 
 	return &entity.Team{
 		Id:             t.ID,
-		Name:           t.Name,
 		Slug:           t.Slug,
 		OrganizationId: t.OrganizationID,
 	}, nil
