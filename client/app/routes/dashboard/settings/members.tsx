@@ -15,9 +15,9 @@ export default function Members() {
   );
 
   return (
-    <div className="flex flex-col gap-8 px-8 py-4">
+    <div className="flex flex-col px-8 py-4">
       <h1 className="pt-1 text-xl font-bold">Members</h1>
-      <div className="w-full xl:w-3/5">
+      <div className="w-full pt-10 xl:w-3/5">
         <div className="border-mauve-6 rounded-md border-1 text-sm">
           <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
             Organization Members
