@@ -19,6 +19,7 @@ export interface DeployFromGitFormInput {
   projectDirectoryPath: string;
   port: number | null;
   envs: { name: string; value: string }[];
+  args: { name: string; value: string }[];
 }
 
 interface DeployFromGitFormProps {
@@ -49,6 +50,15 @@ export default function DeployFromGitForm({
     name: "envs",
   });
 
+  const {
+    fields: argsFields,
+    append: appendArg,
+    replace: replaceArgs,
+  } = useFieldArray({
+    control,
+    name: "args",
+  });
+
   const [error, setError] = useState<string | null>(null);
   const [isSelectProjectDialogOpen, setIsSelectProjectDialogOpen] =
     useState(false);
@@ -72,6 +82,9 @@ export default function DeployFromGitForm({
     data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
+    data.args = (data.args ?? []).filter(
+      (a) => a.name.trim() !== "" || a.value.trim() !== "",
+    );
 
     try {
       await onSubmit(data);
@@ -84,6 +97,7 @@ export default function DeployFromGitForm({
           projectDirectoryPath: "",
           port: null,
           envs: [],
+          args: [],
         });
 
       setError(null);
@@ -267,6 +281,33 @@ export default function DeployFromGitForm({
               className="py-1"
               type="button"
               onClick={() => append({ name: "", value: "" })}
+            >
+              <Plus className="w-3 stroke-3" /> Add Another
+            </Button>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm">Build Arguments</p>
+            {argsFields.map((field, index) => (
+              <div key={field.id} className="flex gap-2">
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Name*"
+                  {...register(`args.${index}.name`)}
+                />
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Value*"
+                  {...register(`args.${index}.value`)}
+                />
+              </div>
+            ))}
+            <Button
+              intent="text"
+              className="py-1"
+              type="button"
+              onClick={() => appendArg({ name: "", value: "" })}
             >
               <Plus className="w-3 stroke-3" /> Add Another
             </Button>

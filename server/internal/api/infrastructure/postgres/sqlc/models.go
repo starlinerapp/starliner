@@ -229,6 +229,15 @@ type Deployment struct {
 	UpdatedAt     time.Time
 }
 
+type DeploymentArg struct {
+	ID           int64
+	DeploymentID int64
+	Name         string
+	Value        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type DeploymentEnvironmentVar struct {
 	ID           int64
 	DeploymentID int64
@@ -242,10 +251,10 @@ type DeploymentVolume struct {
 	ID            int64
 	DeploymentID  sql.NullInt64
 	VolumeSizeMib int32
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
 	MountPath     string
 	DeletedAt     sql.NullTime
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type Environment struct {
@@ -361,13 +370,6 @@ type TeamMember struct {
 	UserID    int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
-}
-
-type TeamRepository struct {
-	TeamID       int64
-	GithubRepoID int64
-	RepoName     string
-	CreatedAt    time.Time
 }
 
 type User struct {

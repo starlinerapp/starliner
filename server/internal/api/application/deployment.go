@@ -73,6 +73,7 @@ func (da *DeploymentApplication) DeployFromGit(
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
+	args []*value.Arg,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -102,6 +103,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		projectRepositoryPath,
 		dockerfilePath,
 		envs,
+		args,
 	)
 	if err != nil {
 		return err
@@ -127,6 +129,14 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	coreArgs := make([]*coreValue.Arg, len(args))
+	for i, a := range args {
+		coreArgs[i] = &coreValue.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
@@ -135,6 +145,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		AccessToken:    accessToken,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
+		Args:           coreArgs,
 	})
 }
 
@@ -147,6 +158,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
+	args []*value.Arg,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -165,6 +177,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		projectRepositoryPath,
 		dockerfilePath,
 		envs,
+		args,
 	)
 	if err != nil {
 		return err
@@ -189,6 +202,14 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
+	coreArgs := make([]*coreValue.Arg, len(args))
+	for i, a := range args {
+		coreArgs[i] = &coreValue.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
@@ -197,6 +218,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		GitUrl:         d.GitUrl,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
+		Args:           coreArgs,
 	})
 }
 

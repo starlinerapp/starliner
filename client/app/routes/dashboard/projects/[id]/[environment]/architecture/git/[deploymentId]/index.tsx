@@ -39,6 +39,7 @@ export default function UpdateGitDeployment() {
         dockerfilePath: data.dockerfilePath,
         projectRepositoryPath: data.projectDirectoryPath,
         envs: data.envs,
+        args: data.args,
       },
       {
         onSuccess: () => {
@@ -69,6 +70,7 @@ export default function UpdateGitDeployment() {
             projectDirectoryPath: gitDeployment?.projectRepositoryPath ?? "",
             port: gitDeployment ? Number(gitDeployment?.port) : null,
             envs: gitDeployment?.envVars ?? [],
+            args: gitDeployment?.args ?? [],
           }}
         />
       )}

@@ -3,9 +3,12 @@ package docker
 import (
 	"bytes"
 	"context"
-	"dagger.io/dagger"
+	"fmt"
 	"regexp"
+
+	"dagger.io/dagger"
 	"starliner.app/internal/builder/domain/port"
+	"starliner.app/internal/core/domain/value"
 )
 
 type Docker struct {
@@ -20,6 +23,7 @@ func (c *Docker) BuildAndPublish(
 	projectDir string,
 	dockerfilePath string,
 	imageTag string,
+	args []*value.Arg,
 ) (string, error) {
 	var logBuffer bytes.Buffer
 
@@ -34,12 +38,30 @@ func (c *Docker) BuildAndPublish(
 		_ = client.Close()
 	}(client)
 
+	var buildArgs []dagger.BuildArg
+	for _, a := range args {
+		if a != nil {
+			buildArgs = append(buildArgs, dagger.BuildArg{
+				Name:  a.Name,
+				Value: a.Value,
+			})
+		}
+	}
+
 	buildContainer := client.Host().
 		Directory(projectDir).
 		DockerBuild(dagger.DirectoryDockerBuildOpts{
 			Dockerfile: dockerfilePath,
 			Platform:   "linux/amd64",
+			BuildArgs:  buildArgs,
 		})
+
+	contents, err := buildContainer.File("/tmp/build_args.txt").Contents(ctx)
+	if err != nil {
+		return logBuffer.String(), fmt.Errorf("failed to read build args file: %w", err)
+	}
+	fmt.Println("Build args captured in Dockerfile:")
+	fmt.Println(contents)
 
 	_, err = buildContainer.Publish(ctx, imageTag)
 	if err != nil {

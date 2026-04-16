@@ -1493,6 +1493,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateCluster": {
             "type": "object",
             "required": [
@@ -1623,6 +1638,12 @@ const docTemplate = `{
                 "serviceName"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -1784,6 +1805,12 @@ const docTemplate = `{
                 "projectRepositoryPath"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -1859,6 +1886,21 @@ const docTemplate = `{
             ],
             "properties": {
                 "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -2054,6 +2096,7 @@ const docTemplate = `{
         "response.GitDeployment": {
             "type": "object",
             "required": [
+                "args",
                 "dockerfilePath",
                 "envVars",
                 "gitUrl",
@@ -2065,6 +2108,12 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -2100,6 +2149,7 @@ const docTemplate = `{
         "response.GitDeploymentBuild": {
             "type": "object",
             "required": [
+                "args",
                 "buildId",
                 "commitHash",
                 "createdAt",
@@ -2112,6 +2162,12 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
                 "buildId": {
                     "type": "integer"
                 },

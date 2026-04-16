@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
@@ -154,6 +155,14 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
+		coreArgs := make([]*coreValue.Arg, len(deployment.Args))
+		for i, a := range deployment.Args {
+			coreArgs[i] = &coreValue.Arg{
+				Name:  a.Name,
+				Value: a.Value,
+			}
+		}
+
 		err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 			BuildId:        b.Id,
 			DeploymentId:   deployment.Id,
@@ -162,6 +171,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			AccessToken:    accessToken,
 			RootDirectory:  deployment.ProjectRepositoryPath,
 			DockerfilePath: deployment.DockerfilePath,
+			Args:           coreArgs,
 		})
 		if err != nil {
 			errs = append(errs, err)

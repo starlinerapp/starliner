@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -165,6 +166,14 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 
 	valueBuilds := make([]*value.GitDeploymentBuild, len(builds))
 	for i, b := range builds {
+		args := make([]*value.Arg, len(b.Args))
+		for j, a := range b.Args {
+			args[j] = &value.Arg{
+				Name:  a.Name,
+				Value: a.Value,
+			}
+		}
+
 		valueBuilds[i] = &value.GitDeploymentBuild{
 			BuildId:        b.BuildId,
 			DeploymentId:   b.DeploymentId,
@@ -176,6 +185,7 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 			ProjectPath:    b.ProjectPath,
 			DockerfilePath: b.DockerfilePath,
 			CreatedAt:      b.CreatedAt,
+			Args:           args,
 		}
 	}
 	return valueBuilds, nil
