@@ -60,6 +60,7 @@ func NewServer(
 		organizationRoutes.POST("/:id/teams", teamHandler.CreateTeam)
 		organizationRoutes.GET("/:id/teams", teamHandler.GetUserTeams)
 		organizationRoutes.POST("/:id/teams/join", teamHandler.JoinTeam)
+		organizationRoutes.GET("/:id/members", organizationHandler.GetOrganizationMembers)
 	}
 
 	inviteRoutes := engine.Group("/invites")
