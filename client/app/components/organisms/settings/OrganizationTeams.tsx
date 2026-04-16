@@ -30,7 +30,6 @@ export default function OrganizationTeams() {
                 className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
               >
                 <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-5 w-36" />
               </div>
             ))}
           </>

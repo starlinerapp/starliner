@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
@@ -20,7 +19,6 @@ interface CreateTeamFormInput {
 
 export default function Teams() {
   const trpc = useTRPC();
-  const { slug } = useParams();
   const organization = useOrganizationContext();
   const queryClient = useQueryClient();
   const [showCreateDialog, setShowCreateDialog] = useState(false);

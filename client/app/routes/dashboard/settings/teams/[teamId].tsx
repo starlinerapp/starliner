@@ -95,14 +95,18 @@ export default function TeamDetail() {
         <nav className="text-mauve-11 flex items-center gap-1 pb-4 text-xs">
           <button
             onClick={() => navigate("../", { relative: "path" })}
-            className="hover:text-mauve-12"
+            className="hover:text-mauve-12 cursor-pointer hover:underline"
           >
             Teams
           </button>
           <span>&gt;</span>
           <span className="text-mauve-12">#{team?.slug}</span>
         </nav>
-        <h1 className="text-xl font-bold">#{team?.slug}</h1>
+        {isLoading ? (
+          <Skeleton className="h-6 w-32" />
+        ) : (
+          <h1 className="text-xl font-bold">#{team?.slug}</h1>
+        )}
       </div>
       <div className="w-full xl:w-3/5">
         <div className="border-mauve-6 rounded-md border-1 text-sm">
@@ -114,7 +118,7 @@ export default function TeamDetail() {
                 onOpenChange={setAddMemberOpen}
               >
                 <Popover.Trigger asChild>
-                  <Button intent="secondary" className="h-7 w-32 text-xs">
+                  <Button intent="secondary" className="h-7 w-28 text-xs">
                     Add Member
                     <ChevronDown
                       className={`h-3 w-3 ${addMemberOpen ? "rotate-180" : ""}`}
@@ -164,10 +168,12 @@ export default function TeamDetail() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
-                  className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-5 text-sm last:border-b-0"
+                  className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-2 text-sm last:border-b-0"
                 >
-                  <Skeleton className="h-5 w-24" />
-                  <Skeleton className="h-5 w-36" />
+                  <div className="flex flex-col gap-1">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-36" />
+                  </div>
                 </div>
               ))}
             </>
@@ -183,7 +189,7 @@ export default function TeamDetail() {
               >
                 <div className="flex flex-col">
                   <span>{member.name}</span>
-                  <span className="text-mauve-11 text-xs">{member.email}</span>
+                  <span className="text-mauve-11">{member.email}</span>
                 </div>
                 {organization.isOwner &&
                   member.user_id !== Number(user?.user_id) && (
