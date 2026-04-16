@@ -50,11 +50,7 @@ export default function DeployFromGitForm({
     name: "envs",
   });
 
-  const {
-    fields: argsFields,
-    append: appendArg,
-    replace: replaceArgs,
-  } = useFieldArray({
+  const { fields: argsFields, append: appendArg } = useFieldArray({
     control,
     name: "args",
   });
