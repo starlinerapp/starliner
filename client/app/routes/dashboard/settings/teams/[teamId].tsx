@@ -100,7 +100,11 @@ export default function TeamDetail() {
             Teams
           </button>
           <span>&gt;</span>
-          <span className="text-mauve-12">#{team?.slug}</span>
+          {isLoading ? (
+            <Skeleton className="h-4 w-16" />
+          ) : (
+            <span className="text-mauve-12">#{team?.slug}</span>
+          )}
         </nav>
         {isLoading ? (
           <Skeleton className="h-6 w-32" />
