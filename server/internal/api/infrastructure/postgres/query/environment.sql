@@ -31,3 +31,8 @@ INNER JOIN projects p ON p.id = environments.project_id
 INNER JOIN teams t ON t.id = p.team_id
 INNER JOIN team_members tm ON tm.team_id = t.id
 WHERE environments.id = $1;
+
+-- name: GetEnvironmentBranch :one
+SELECT e.connected_branch
+FROM environments e
+WHERE e.id = $1;

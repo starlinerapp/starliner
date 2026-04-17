@@ -19,3 +19,7 @@ func NewEnvironments(environments []*value.Environment) []Environment {
 	}
 	return result
 }
+
+type EnvironmentBranch struct {
+	Branch string `json:"branch" binding:"required"`
+}

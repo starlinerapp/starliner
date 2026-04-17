@@ -303,3 +303,12 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 
 	return builds, nil
 }
+
+func (er *EnvironmentRepository) GetEnvironmentBranch(ctx context.Context, environmentId int64) (string, error) {
+	branch, err := er.queries.GetEnvironmentBranch(ctx, environmentId)
+	if err != nil {
+		return "", err
+	}
+
+	return branch, nil
+}

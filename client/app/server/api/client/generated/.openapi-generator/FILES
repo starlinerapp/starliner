@@ -40,6 +40,7 @@ docs/ResponseDatabaseDeployment.md
 docs/ResponseDeployments.md
 docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
+docs/ResponseEnvironmentBranch.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseGitDeployment.md
 docs/ResponseGitDeploymentBuild.md

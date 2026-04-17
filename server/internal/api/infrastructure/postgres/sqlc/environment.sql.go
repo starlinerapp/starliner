@@ -21,7 +21,7 @@ INSERT INTO environments (
     $3,
     $4
 )
-RETURNING id, name, slug, project_id, created_at, updated_at, namespace
+RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 `
 
 type CreateEnvironmentParams struct {
@@ -47,6 +47,7 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Namespace,
+		&i.ConnectedBranch,
 	)
 	return i, err
 }
@@ -83,8 +84,21 @@ func (q *Queries) GetEnvironmentAuthorizedUsers(ctx context.Context, id int64) (
 	return items, nil
 }
 
+const getEnvironmentBranch = `-- name: GetEnvironmentBranch :one
+SELECT e.connected_branch
+FROM environments e
+WHERE e.id = $1
+`
+
+func (q *Queries) GetEnvironmentBranch(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentBranch, id)
+	var connected_branch string
+	err := row.Scan(&connected_branch)
+	return connected_branch, err
+}
+
 const getEnvironmentById = `-- name: GetEnvironmentById :one
-SELECT id, name, slug, project_id, created_at, updated_at, namespace
+SELECT id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 FROM environments
 WHERE environments.id = $1
 `
@@ -100,6 +114,7 @@ func (q *Queries) GetEnvironmentById(ctx context.Context, id int64) (Environment
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Namespace,
+		&i.ConnectedBranch,
 	)
 	return i, err
 }

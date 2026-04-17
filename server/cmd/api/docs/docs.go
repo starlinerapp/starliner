@@ -554,6 +554,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}/branch": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Connected Branch",
+                "operationId": "getEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EnvironmentBranch"
+                        }
+                    }
+                }
+            }
+        },
         "/environments/{id}/builds": {
             "get": {
                 "tags": [
@@ -2115,6 +2148,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.EnvironmentBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
                     "type": "string"
                 }
             }

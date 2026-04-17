@@ -180,3 +180,16 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 	}
 	return valueBuilds, nil
 }
+
+func (ea *EnvironmentApplication) GetEnvironmentBranch(ctx context.Context, userId int64, environmentId int64) (string, error) {
+	err := ea.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return "", err
+	}
+
+	branch, err := ea.environmentRepository.GetEnvironmentBranch(ctx, environmentId)
+	if err != nil {
+		return "", err
+	}
+	return branch, nil
+}

@@ -92,3 +92,28 @@ func (eh *EnvironmentHandler) GetEnvironmentBuilds(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.NewGitDeploymentBuilds(builds))
 }
+
+// GetEnvironmentConnectedBranch FindAll godoc
+// @Summary Get Environment Connected Branch
+// @Tags environment
+// @ID getEnvironmentConnectedBranch
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Success 200 {object} response.EnvironmentBranch
+// @Router /environments/{id}/branch [get]
+func (eh *EnvironmentHandler) GetEnvironmentConnectedBranch(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	branch, err := eh.environmentApplication.GetEnvironmentBranch(c.Request.Context(), currentUser.Id, environmentId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.EnvironmentBranch{Branch: branch})
+}

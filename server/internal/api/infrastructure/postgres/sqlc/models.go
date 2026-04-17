@@ -242,20 +242,21 @@ type DeploymentVolume struct {
 	ID            int64
 	DeploymentID  sql.NullInt64
 	VolumeSizeMib int32
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
 	MountPath     string
 	DeletedAt     sql.NullTime
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type Environment struct {
-	ID        int64
-	Name      string
-	Slug      string
-	ProjectID int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Namespace string
+	ID              int64
+	Name            string
+	Slug            string
+	ProjectID       int64
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	Namespace       string
+	ConnectedBranch string
 }
 
 type GitDeployment struct {
@@ -361,13 +362,6 @@ type TeamMember struct {
 	UserID    int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
-}
-
-type TeamRepository struct {
-	TeamID       int64
-	GithubRepoID int64
-	RepoName     string
-	CreatedAt    time.Time
 }
 
 type User struct {

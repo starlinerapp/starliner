@@ -34,13 +34,20 @@ export default function ProjectSettings() {
     trpc.project.getProjectCluster.queryOptions({ id: Number(id) }),
   );
 
+  const { data: connectedBranchData, isLoading: isConnectedBranchLoading } =
+    useQuery(
+      trpc.environment.getEnvironmentConnectedBranch.queryOptions({
+        id: Number(id),
+      }),
+    );
+
   return (
     <div className="w-full space-y-4 p-4 xl:w-3/5">
       <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
-          General
+          Environment Settings
         </div>
-        <div className="flex items-center justify-between px-4 py-2">
+        <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
           <div className="flex flex-col">
             <p className="text-md font-bold">Assigned Cluster</p>
             <p className="text-mauve-11 text-xs">
@@ -54,6 +61,23 @@ export default function ProjectSettings() {
               className="border-mauve-6 disabled:text-mauve-11 w-1/2 cursor-not-allowed rounded-md border-1 p-2"
               value={clusterData?.clusterName}
               disabled
+            />
+          )}
+        </div>
+        <div className="flex items-center justify-between px-4 py-2">
+          <div className="flex flex-col">
+            <p className="text-md font-bold">Connected Branch</p>
+            <p className="text-mauve-11 text-xs">
+              Changes made to this GitHub branch will be automatically
+              redeployed.
+            </p>
+          </div>
+          {isConnectedBranchLoading ? (
+            <Skeleton className="h-9.5 w-1/2" />
+          ) : (
+            <input
+              className="border-mauve-6 disabled:text-mauve-11 w-1/2 rounded-md border-1 p-2"
+              value={connectedBranchData?.branch}
             />
           )}
         </div>
