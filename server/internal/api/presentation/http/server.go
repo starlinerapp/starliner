@@ -56,7 +56,7 @@ func NewServer(
 		organizationRoutes.GET("/:id/clusters", organizationHandler.GetOrganizationClusters)
 		organizationRoutes.POST("/:id/settings/credential/hetzner", organizationHandler.UpsertHetznerCredential)
 		organizationRoutes.GET("/:id/settings/credential/hetzner", organizationHandler.GetHetznerCredential)
-		organizationRoutes.POST("/:id/invites", organizationHandler.CreateInvite)
+		organizationRoutes.POST("/:id/invites", organizationHandler.SendEmailInvite)
 		organizationRoutes.POST("/:id/teams", teamHandler.CreateTeam)
 		organizationRoutes.GET("/:id/teams", teamHandler.GetUserTeams)
 		organizationRoutes.POST("/:id/teams/join", teamHandler.JoinTeam)

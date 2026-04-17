@@ -29,6 +29,7 @@ docs/RequestIngressHost.md
 docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
 docs/RequestRemoveTeamMember.md
+docs/RequestSendInvite.md
 docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
