@@ -6,15 +6,12 @@ definitions:
     required:
     - inviteId
     type: object
-  request.Arg:
+  request.AddTeamMember:
     properties:
-      name:
-        type: string
-      value:
-        type: string
+      userId:
+        type: integer
     required:
-    - name
-    - value
+    - userId
     type: object
   request.CreateCluster:
     properties:
@@ -98,10 +95,6 @@ definitions:
     type: object
   request.DeployFromGit:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/request.Arg'
-        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -212,12 +205,15 @@ definitions:
     required:
     - slug
     type: object
+  request.RemoveTeamMember:
+    properties:
+      userId:
+        type: integer
+    required:
+    - userId
+    type: object
   request.UpdateDeployFromGit:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/request.Arg'
-        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -276,16 +272,6 @@ definitions:
         type: string
     required:
     - apiKey
-    type: object
-  response.Arg:
-    properties:
-      name:
-        type: string
-      value:
-        type: string
-    required:
-    - name
-    - value
     type: object
   response.BuildLogs:
     properties:
@@ -419,10 +405,6 @@ definitions:
     type: object
   response.GitDeployment:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/response.Arg'
-        type: array
       dockerfilePath:
         type: string
       envVars:
@@ -444,7 +426,6 @@ definitions:
       status:
         type: string
     required:
-    - args
     - dockerfilePath
     - envVars
     - gitUrl
@@ -457,10 +438,6 @@ definitions:
     type: object
   response.GitDeploymentBuild:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/response.Arg'
-        type: array
       buildId:
         type: integer
       commitHash:
@@ -482,7 +459,6 @@ definitions:
       status:
         type: string
     required:
-    - args
     - buildId
     - commitHash
     - createdAt
@@ -1409,6 +1385,30 @@ paths:
       summary: Create organization invite
       tags:
       - organization
+  /organizations/{id}/members:
+    get:
+      operationId: getOrganizationMembers
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.User'
+            type: array
+      summary: Get all organization members
+      tags:
+      - organization
   /organizations/{id}/projects:
     get:
       operationId: getUserProjects
@@ -1681,10 +1681,16 @@ paths:
         name: teamId
         required: true
         type: integer
+      - description: ID of the organization member to remove from the team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RemoveTeamMember'
       responses:
-        "200":
-          description: OK
-      summary: Remove Team Member
+        "204":
+          description: No Content
+      summary: Remove organization member from team
       tags:
       - team
     get:
@@ -1723,10 +1729,16 @@ paths:
         name: teamId
         required: true
         type: integer
+      - description: ID of member to add
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddTeamMember'
       responses:
         "201":
           description: Created
-      summary: Add current user to team
+      summary: Add organization member to team
       tags:
       - team
 securityDefinitions:

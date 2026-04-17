@@ -13,7 +13,7 @@ docs/GithubappApi.md
 docs/OrganizationApi.md
 docs/ProjectApi.md
 docs/RequestAcceptInvite.md
-docs/RequestArg.md
+docs/RequestAddTeamMember.md
 docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateGithubApp.md
@@ -28,11 +28,11 @@ docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
+docs/RequestRemoveTeamMember.md
 docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md
-docs/ResponseArg.md
 docs/ResponseBuildLogs.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md

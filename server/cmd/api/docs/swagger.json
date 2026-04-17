@@ -993,6 +993,42 @@
                 }
             }
         },
+        "/organizations/{id}/members": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get all organization members",
+                "operationId": "getOrganizationMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/organizations/{id}/projects": {
             "get": {
                 "tags": [
@@ -1418,7 +1454,7 @@
                 "tags": [
                     "team"
                 ],
-                "summary": "Add current user to team",
+                "summary": "Add organization member to team",
                 "operationId": "addTeamMember",
                 "parameters": [
                     {
@@ -1434,6 +1470,15 @@
                         "name": "teamId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "ID of member to add",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddTeamMember"
+                        }
                     }
                 ],
                 "responses": {
@@ -1446,7 +1491,7 @@
                 "tags": [
                     "team"
                 ],
-                "summary": "Remove Team Member",
+                "summary": "Remove organization member from team",
                 "operationId": "removeTeamMember",
                 "parameters": [
                     {
@@ -1462,11 +1507,20 @@
                         "name": "teamId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "ID of the organization member to remove from the team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RemoveTeamMember"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK"
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -1484,18 +1538,14 @@
                 }
             }
         },
-        "request.Arg": {
+        "request.AddTeamMember": {
             "type": "object",
             "required": [
-                "name",
-                "value"
+                "userId"
             ],
             "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
+                "userId": {
+                    "type": "integer"
                 }
             }
         },
@@ -1629,12 +1679,6 @@
                 "serviceName"
             ],
             "properties": {
-                "args": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/request.Arg"
-                    }
-                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -1786,6 +1830,17 @@
                 }
             }
         },
+        "request.RemoveTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.UpdateDeployFromGit": {
             "type": "object",
             "required": [
@@ -1796,12 +1851,6 @@
                 "projectRepositoryPath"
             ],
             "properties": {
-                "args": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/request.Arg"
-                    }
-                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -1877,21 +1926,6 @@
             ],
             "properties": {
                 "apiKey": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.Arg": {
-            "type": "object",
-            "required": [
-                "name",
-                "value"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "value": {
                     "type": "string"
                 }
             }
@@ -2087,7 +2121,6 @@
         "response.GitDeployment": {
             "type": "object",
             "required": [
-                "args",
                 "dockerfilePath",
                 "envVars",
                 "gitUrl",
@@ -2099,12 +2132,6 @@
                 "status"
             ],
             "properties": {
-                "args": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Arg"
-                    }
-                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -2140,7 +2167,6 @@
         "response.GitDeploymentBuild": {
             "type": "object",
             "required": [
-                "args",
                 "buildId",
                 "commitHash",
                 "createdAt",
@@ -2153,12 +2179,6 @@
                 "status"
             ],
             "properties": {
-                "args": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Arg"
-                    }
-                },
                 "buildId": {
                     "type": "integer"
                 },

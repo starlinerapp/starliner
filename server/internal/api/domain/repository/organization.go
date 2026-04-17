@@ -226,3 +226,23 @@ func (or *OrganizationRepository) GetOrganizationInviteById(ctx context.Context,
 		CreatedAt:        invite.CreatedAt,
 	}, nil
 }
+
+func (or *OrganizationRepository) GetOrganizationMembers(ctx context.Context, organizationID int64) ([]*entity.User, error) {
+	rows, err := or.queries.GetOrganizationMembers(ctx, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows == nil {
+		return []*entity.User{}, nil
+	}
+
+	users := make([]*entity.User, 0, len(rows))
+	for _, user := range rows {
+		users = append(users, &entity.User{
+			Id:           user.ID,
+			BetterAuthId: user.BetterAuthID,
+		})
+	}
+	return users, nil
+}

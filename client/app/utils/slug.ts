@@ -5,3 +5,7 @@ export function formatSlugInput(input: string): string {
     .replace(/-+/g, "-")
     .slice(0, 50);
 }
+
+export function sanitizeSlug(input: string): string {
+  return formatSlugInput(input).replace(/^-+|-+$/g, "");
+}
