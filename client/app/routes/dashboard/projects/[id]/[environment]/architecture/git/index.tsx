@@ -111,7 +111,11 @@ export default function Git() {
   return (
     <>
       {githubApp ? (
-        <DeployFromGitForm onSubmit={onSubmit} resetOnSuccess={true} teamId={teamId} />
+        <DeployFromGitForm
+          onSubmit={onSubmit}
+          resetOnSuccess={true}
+          teamId={teamId}
+        />
       ) : (
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
