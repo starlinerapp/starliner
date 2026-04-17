@@ -136,11 +136,12 @@ func (th *TeamHandler) JoinTeam(c *gin.Context) {
 }
 
 // AddTeamMember FindAll godoc
-// @Summary Add current user to team
+// @Summary Add organization member to team
 // @Tags team
 // @ID addTeamMember
 // @Param X-User-ID header string true "User ID"
 // @Param teamId path int true "Team ID"
+// @Param data body request.AddTeamMember true "ID of member to add"
 // @Success 201
 // @Router /teams/{teamId}/members [post]
 func (th *TeamHandler) AddTeamMember(c *gin.Context) {
@@ -152,7 +153,13 @@ func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 		return
 	}
 
-	err = th.teamApplication.AddTeamMember(c, currentUser.Id, teamId)
+	var body request.AddTeamMember
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = th.teamApplication.AddTeamMember(c, body.UserID, teamId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -162,13 +169,14 @@ func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 }
 
 // RemoveTeamMember FindAll godoc
-// @Summary Remove Team Member
+// @Summary Remove organization member from team
 // @Tags team
 // @ID removeTeamMember
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
 // @Param teamId path int true "Team ID"
-// @Success 200
+// @Param data body request.RemoveTeamMember true "ID of the organization member to remove from the team"
+// @Success 204
 // @Router /teams/{teamId}/members [delete]
 func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -179,7 +187,13 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 		return
 	}
 
-	err = th.teamApplication.RemoveTeamMember(c, currentUser.Id, teamId)
+	var body request.RemoveTeamMember
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = th.teamApplication.RemoveTeamMember(c, body.UserID, teamId, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

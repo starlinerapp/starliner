@@ -6,15 +6,12 @@ definitions:
     required:
     - inviteId
     type: object
-  request.AssignRepoToTeam:
+  request.AddTeamMember:
     properties:
-      github_repo_id:
+      userId:
         type: integer
-      repo_name:
-        type: string
     required:
-    - github_repo_id
-    - repo_name
+    - userId
     type: object
   request.CreateCluster:
     properties:
@@ -207,6 +204,13 @@ definitions:
         type: string
     required:
     - slug
+    type: object
+  request.RemoveTeamMember:
+    properties:
+      userId:
+        type: integer
+    required:
+    - userId
     type: object
   request.UpdateDeployFromGit:
     properties:
@@ -621,15 +625,12 @@ definitions:
         type: integer
       name:
         type: string
-      teamId:
-        type: integer
     required:
     - clusterId
     - createdAt
     - environments
     - id
     - name
-    - teamId
     type: object
   response.ProjectCluster:
     properties:
@@ -712,19 +713,6 @@ definitions:
     - id
     - organization_id
     - slug
-    type: object
-  response.TeamRepo:
-    properties:
-      github_repo_id:
-        type: integer
-      repo_name:
-        type: string
-      team_id:
-        type: integer
-    required:
-    - github_repo_id
-    - repo_name
-    - team_id
     type: object
   response.User:
     properties:
@@ -1145,30 +1133,6 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
-  /github/all-repositories/{organizationId}:
-    get:
-      operationId: getAllRepositories
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/response.Repository'
-            type: array
-      summary: Get All Repositories (owner only, unfiltered)
-      tags:
-      - github
   /github/repositories/{organizationId}:
     get:
       operationId: getRepositories
@@ -1419,6 +1383,30 @@ paths:
           schema:
             $ref: '#/definitions/response.OrganizationInvite'
       summary: Create organization invite
+      tags:
+      - organization
+  /organizations/{id}/members:
+    get:
+      operationId: getOrganizationMembers
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.User'
+            type: array
+      summary: Get all organization members
       tags:
       - organization
   /organizations/{id}/projects:
@@ -1693,10 +1681,16 @@ paths:
         name: teamId
         required: true
         type: integer
+      - description: ID of the organization member to remove from the team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RemoveTeamMember'
       responses:
-        "200":
-          description: OK
-      summary: Remove Team Member
+        "204":
+          description: No Content
+      summary: Remove organization member from team
       tags:
       - team
     get:
@@ -1735,99 +1729,16 @@ paths:
         name: teamId
         required: true
         type: integer
-      responses:
-        "201":
-          description: Created
-      summary: Add current user to team
-      tags:
-      - team
-  /teams/{teamId}/repos:
-    get:
-      operationId: getTeamRepositories
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Organization ID
-        in: query
-        name: organizationId
-        required: true
-        type: integer
-      - description: Team ID
-        in: path
-        name: teamId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/response.TeamRepo'
-            type: array
-      summary: Get repositories assigned to a team
-      tags:
-      - team
-    post:
-      operationId: assignRepoToTeam
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Organization ID
-        in: query
-        name: organizationId
-        required: true
-        type: integer
-      - description: Team ID
-        in: path
-        name: teamId
-        required: true
-        type: integer
-      - description: Assign Repo
+      - description: ID of member to add
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.AssignRepoToTeam'
+          $ref: '#/definitions/request.AddTeamMember'
       responses:
         "201":
           description: Created
-      summary: Assign a GitHub repository to a team
-      tags:
-      - team
-  /teams/{teamId}/repos/{repoId}:
-    delete:
-      operationId: unassignRepoFromTeam
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Organization ID
-        in: query
-        name: organizationId
-        required: true
-        type: integer
-      - description: Team ID
-        in: path
-        name: teamId
-        required: true
-        type: integer
-      - description: GitHub Repo ID
-        in: path
-        name: repoId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: No Content
-      summary: Unassign a GitHub repository from a team
+      summary: Add organization member to team
       tags:
       - team
 securityDefinitions:

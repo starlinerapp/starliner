@@ -10,6 +10,7 @@ All URIs are relative to _http://localhost_
 | [**getHetznerCredential**](#gethetznercredential)                 | **GET** /organizations/{id}/settings/credential/hetzner  | Get Hetzner Provisioning Credential    |
 | [**getOrganizationClusters**](#getorganizationclusters)           | **GET** /organizations/{id}/clusters                     | Get Organization Clusters              |
 | [**getOrganizationInviteDetails**](#getorganizationinvitedetails) | **GET** /invites/{inviteId}                              | Get organization invite details        |
+| [**getOrganizationMembers**](#getorganizationmembers)             | **GET** /organizations/{id}/members                      | Get all organization members           |
 | [**getUserOrganizations**](#getuserorganizations)                 | **GET** /organizations                                   | Get user organizations                 |
 | [**getUserProjects**](#getuserprojects)                           | **GET** /organizations/{id}/projects                     | Get Organization Projects              |
 | [**upsertHetznerCredential**](#upserthetznercredential)           | **POST** /organizations/{id}/settings/credential/hetzner | Upsert Hetzner Provisioning Credential |
@@ -285,6 +286,52 @@ const { status, data } = await apiInstance.getOrganizationInviteDetails(
 ### Return type
 
 **ResponseOrganizationInvite**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getOrganizationMembers**
+
+> Array<ResponseUser> getOrganizationMembers()
+
+### Example
+
+```typescript
+import { OrganizationApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new OrganizationApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let id: number; //Organization ID (default to undefined)
+
+const { status, data } = await apiInstance.getOrganizationMembers(xUserID, id);
+```
+
+### Parameters
+
+| Name        | Type         | Description     | Notes                 |
+| ----------- | ------------ | --------------- | --------------------- |
+| **xUserID** | [**string**] | User ID         | defaults to undefined |
+| **id**      | [**number**] | Organization ID | defaults to undefined |
+
+### Return type
+
+**Array<ResponseUser>**
 
 ### Authorization
 

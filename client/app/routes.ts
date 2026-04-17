@@ -100,7 +100,11 @@ export default [
       ...prefix("settings", [
         index("routes/dashboard/settings/index.tsx"),
         route("organization", "routes/dashboard/settings/organization.tsx"),
-        route("teams/:teamId", "routes/dashboard/settings/teams/[teamId].tsx"),
+        route("members", "routes/dashboard/settings/members.tsx"),
+        ...prefix("teams", [
+          index("routes/dashboard/settings/teams/index.tsx"),
+          route(":teamId", "routes/dashboard/settings/teams/[teamId].tsx"),
+        ]),
       ]),
     ]),
   ]),

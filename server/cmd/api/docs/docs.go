@@ -623,42 +623,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/github/all-repositories/{organizationId}": {
-            "get": {
-                "tags": [
-                    "github"
-                ],
-                "summary": "Get All Repositories (owner only, unfiltered)",
-                "operationId": "getAllRepositories",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.Repository"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/github/repositories/{organizationId}": {
             "get": {
                 "tags": [
@@ -1033,6 +997,42 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/response.OrganizationInvite"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/members": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get all organization members",
+                "operationId": "getOrganizationMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
                         }
                     }
                 }
@@ -1463,7 +1463,7 @@ const docTemplate = `{
                 "tags": [
                     "team"
                 ],
-                "summary": "Add current user to team",
+                "summary": "Add organization member to team",
                 "operationId": "addTeamMember",
                 "parameters": [
                     {
@@ -1479,6 +1479,15 @@ const docTemplate = `{
                         "name": "teamId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "ID of member to add",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddTeamMember"
+                        }
                     }
                 ],
                 "responses": {
@@ -1491,7 +1500,7 @@ const docTemplate = `{
                 "tags": [
                     "team"
                 ],
-                "summary": "Remove Team Member",
+                "summary": "Remove organization member from team",
                 "operationId": "removeTeamMember",
                 "parameters": [
                     {
@@ -1507,137 +1516,15 @@ const docTemplate = `{
                         "name": "teamId",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/teams/{teamId}/repos": {
-            "get": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Get repositories assigned to a team",
-                "operationId": "getTeamRepositories",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID",
-                        "name": "teamId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.TeamRepo"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Assign a GitHub repository to a team",
-                "operationId": "assignRepoToTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID",
-                        "name": "teamId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Assign Repo",
+                        "description": "ID of the organization member to remove from the team",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AssignRepoToTeam"
+                            "$ref": "#/definitions/request.RemoveTeamMember"
                         }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    }
-                }
-            }
-        },
-        "/teams/{teamId}/repos/{repoId}": {
-            "delete": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Unassign a GitHub repository from a team",
-                "operationId": "unassignRepoFromTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID",
-                        "name": "teamId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "GitHub Repo ID",
-                        "name": "repoId",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -1660,18 +1547,14 @@ const docTemplate = `{
                 }
             }
         },
-        "request.AssignRepoToTeam": {
+        "request.AddTeamMember": {
             "type": "object",
             "required": [
-                "github_repo_id",
-                "repo_name"
+                "userId"
             ],
             "properties": {
-                "github_repo_id": {
+                "userId": {
                     "type": "integer"
-                },
-                "repo_name": {
-                    "type": "string"
                 }
             }
         },
@@ -1953,6 +1836,17 @@ const docTemplate = `{
             "properties": {
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "request.RemoveTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
                 }
             }
         },
@@ -2536,8 +2430,7 @@ const docTemplate = `{
                 "createdAt",
                 "environments",
                 "id",
-                "name",
-                "teamId"
+                "name"
             ],
             "properties": {
                 "clusterId": {
@@ -2557,9 +2450,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "teamId": {
-                    "type": "integer"
                 }
             }
         },
@@ -2678,25 +2568,6 @@ const docTemplate = `{
                 },
                 "slug": {
                     "type": "string"
-                }
-            }
-        },
-        "response.TeamRepo": {
-            "type": "object",
-            "required": [
-                "github_repo_id",
-                "repo_name",
-                "team_id"
-            ],
-            "properties": {
-                "github_repo_id": {
-                    "type": "integer"
-                },
-                "repo_name": {
-                    "type": "string"
-                },
-                "team_id": {
-                    "type": "integer"
                 }
             }
         },

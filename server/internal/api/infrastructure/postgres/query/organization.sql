@@ -51,7 +51,8 @@ INSERT INTO organization_members (
 ) VALUES (
     $1,
     $2
- );
+ )
+ON CONFLICT (organization_id, user_id) DO NOTHING;
 
 -- name: RemoveOrganizationMember :exec
 DELETE FROM organization_members
@@ -76,3 +77,9 @@ SELECT
 FROM organization_invites
 INNER JOIN organizations ON organizations.id = organization_invites.organization_id
 WHERE organization_invites.id = $1;
+
+-- name: GetOrganizationMembers :many
+SELECT users.id, users.better_auth_id
+FROM users
+INNER JOIN organization_members on organization_members.user_id = users.id
+WHERE organization_members.organization_id = $1;
