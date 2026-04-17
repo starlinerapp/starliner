@@ -14,6 +14,7 @@ docs/OrganizationApi.md
 docs/ProjectApi.md
 docs/RequestAcceptInvite.md
 docs/RequestAddTeamMember.md
+docs/RequestArg.md
 docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateGithubApp.md
@@ -33,6 +34,7 @@ docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md
+docs/ResponseArg.md
 docs/ResponseBuildLogs.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
