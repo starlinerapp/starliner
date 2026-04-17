@@ -1,6 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
 import { organizationApiFactory } from "~/server/api/client";
 import { z } from "zod";
+import { enrichMembersWithAuthDetails } from "~/server/services/organization";
 
 export const organizationRouter = {
   createOrganization: protectedProcedure
@@ -107,5 +108,19 @@ export const organizationRouter = {
       return await organizationApiFactory
         .acceptOrganizationInvite(userId, { inviteId: input.inviteId })
         .then((res) => res.data);
+    }),
+  getOrganizationMembers: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      const members = await organizationApiFactory
+        .getOrganizationMembers(userId, input.id)
+        .then((res) => res.data);
+
+      return await enrichMembersWithAuthDetails(members);
     }),
 };
