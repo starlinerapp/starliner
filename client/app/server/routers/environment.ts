@@ -57,4 +57,19 @@ export const environmentRouter = {
         .getEnvironmentConnectedBranch(userId, input.id)
         .then((res) => res.data);
     }),
+  updateEnvironmentConnectedBranch: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        branchName: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await environmentApiFactory
+        .updateEnvironmentConnectedBranch(userId, input.id, {
+          branch: input.branchName,
+        })
+        .then((res) => res.data);
+    }),
 };

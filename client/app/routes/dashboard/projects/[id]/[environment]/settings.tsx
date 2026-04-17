@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import UpdateConnectedBranchForm from "~/components/organisms/forms/UpdateConnectedBranchForm";
 
 export default function ProjectSettings() {
   const navigate = useNavigate();
@@ -34,13 +35,6 @@ export default function ProjectSettings() {
     trpc.project.getProjectCluster.queryOptions({ id: Number(id) }),
   );
 
-  const { data: connectedBranchData, isLoading: isConnectedBranchLoading } =
-    useQuery(
-      trpc.environment.getEnvironmentConnectedBranch.queryOptions({
-        id: Number(id),
-      }),
-    );
-
   return (
     <div className="w-full space-y-4 p-4 xl:w-3/5">
       <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
@@ -64,23 +58,7 @@ export default function ProjectSettings() {
             />
           )}
         </div>
-        <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex flex-col">
-            <p className="text-md font-bold">Connected Branch</p>
-            <p className="text-mauve-11 text-xs">
-              Changes made to this GitHub branch will be automatically
-              redeployed.
-            </p>
-          </div>
-          {isConnectedBranchLoading ? (
-            <Skeleton className="h-9.5 w-1/2" />
-          ) : (
-            <input
-              className="border-mauve-6 disabled:text-mauve-11 w-1/2 rounded-md border-1 p-2"
-              value={connectedBranchData?.branch}
-            />
-          )}
-        </div>
+        <UpdateConnectedBranchForm />
       </div>
       <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">

@@ -18,4 +18,5 @@ type EnvironmentRepository interface {
 	GetEnvironmentDeploymentByName(ctx context.Context, name string, environmentId int64) (*entity.Deployment, error)
 	GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error)
 	GetEnvironmentBranch(ctx context.Context, environmentId int64) (string, error)
+	UpdateEnvironmentBranch(ctx context.Context, environmentId int64, branch string) error
 }

@@ -147,3 +147,19 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 	)
 	return i, err
 }
+
+const updateEnvironmentBranch = `-- name: UpdateEnvironmentBranch :exec
+UPDATE environments
+SET connected_branch = $1
+WHERE id = $2
+`
+
+type UpdateEnvironmentBranchParams struct {
+	ConnectedBranch string
+	ID              int64
+}
+
+func (q *Queries) UpdateEnvironmentBranch(ctx context.Context, arg UpdateEnvironmentBranchParams) error {
+	_, err := q.db.ExecContext(ctx, updateEnvironmentBranch, arg.ConnectedBranch, arg.ID)
+	return err
+}

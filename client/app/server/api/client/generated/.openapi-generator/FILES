@@ -30,6 +30,7 @@ docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
 docs/RequestRemoveTeamMember.md
 docs/RequestUpdateDeployFromGit.md
+docs/RequestUpdateEnvironmentConnectBranch.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md

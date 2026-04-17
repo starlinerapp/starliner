@@ -312,3 +312,10 @@ func (er *EnvironmentRepository) GetEnvironmentBranch(ctx context.Context, envir
 
 	return branch, nil
 }
+
+func (er *EnvironmentRepository) UpdateEnvironmentBranch(ctx context.Context, environmentId int64, branch string) error {
+	return er.queries.UpdateEnvironmentBranch(ctx, sqlc.UpdateEnvironmentBranchParams{
+		ConnectedBranch: branch,
+		ID:              environmentId,
+	})
+}

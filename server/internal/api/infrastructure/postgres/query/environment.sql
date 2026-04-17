@@ -36,3 +36,8 @@ WHERE environments.id = $1;
 SELECT e.connected_branch
 FROM environments e
 WHERE e.id = $1;
+
+-- name: UpdateEnvironmentBranch :exec
+UPDATE environments
+SET connected_branch = $1
+WHERE id = $2;

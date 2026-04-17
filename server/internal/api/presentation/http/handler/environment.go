@@ -117,3 +117,35 @@ func (eh *EnvironmentHandler) GetEnvironmentConnectedBranch(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.EnvironmentBranch{Branch: branch})
 }
+
+// UpdateEnvironmentConnectedBranch FindAll godoc
+// @Summary Update Environment Connected Branch
+// @Tags environment
+// @ID updateEnvironmentConnectedBranch
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Product JSON
+// @Param data body request.UpdateEnvironmentConnectBranch true "Update Environment Connected Branch"
+// @Success 200
+// @Router /environments/{id}/branch [put]
+func (eh *EnvironmentHandler) UpdateEnvironmentConnectedBranch(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	var branch request.UpdateEnvironmentConnectBranch
+	if err := c.BindJSON(&branch); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = eh.environmentApplication.UpdateEnvironmentBranch(c.Request.Context(), currentUser.Id, environmentId, branch.Branch)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

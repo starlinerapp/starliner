@@ -193,3 +193,16 @@ func (ea *EnvironmentApplication) GetEnvironmentBranch(ctx context.Context, user
 	}
 	return branch, nil
 }
+
+func (ea *EnvironmentApplication) UpdateEnvironmentBranch(ctx context.Context, userId int64, environmentId int64, branch string) error {
+	err := ea.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	err = ea.environmentRepository.UpdateEnvironmentBranch(ctx, environmentId, branch)
+	if err != nil {
+		return err
+	}
+	return nil
+}

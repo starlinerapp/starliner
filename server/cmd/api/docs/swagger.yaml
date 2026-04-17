@@ -233,6 +233,13 @@ definitions:
     - port
     - projectRepositoryPath
     type: object
+  request.UpdateEnvironmentConnectBranch:
+    properties:
+      branch:
+        type: string
+    required:
+    - branch
+    type: object
   request.UpdateImage:
     properties:
       environmentId:
@@ -1114,6 +1121,31 @@ paths:
           schema:
             $ref: '#/definitions/response.EnvironmentBranch'
       summary: Get Environment Connected Branch
+      tags:
+      - environment
+    put:
+      operationId: updateEnvironmentConnectedBranch
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Environment Connected Branch
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateEnvironmentConnectBranch'
+      responses:
+        "200":
+          description: OK
+      summary: Update Environment Connected Branch
       tags:
       - environment
   /environments/{id}/builds:
