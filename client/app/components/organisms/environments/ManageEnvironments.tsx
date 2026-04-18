@@ -99,7 +99,7 @@ export default function ManageEnvironments({
             <ChevronDown height={15} width={15} />
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="min-w-48">
           {environments.length > 0 &&
             environments
               .filter((env) => currentEnvironment?.slug !== env.slug)
@@ -109,7 +109,7 @@ export default function ManageEnvironments({
                   key={env.slug}
                   onClick={() => {
                     navigate(
-                      `/${slug}/projects/${id}/${env.slug}/architecture`,
+                      `/${slug}/projects/${id}/${env.slug}/architecture/git`,
                     );
                   }}
                 >

@@ -54,7 +54,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		return err
 	}
 
-	project, err := ea.projectRepository.GetProject(ctx, userId, projectId)
+	project, err := ea.projectRepository.GetProject(ctx, projectId, userId)
 	if err != nil {
 		return err
 	}
