@@ -13,15 +13,15 @@ definitions:
     required:
     - userId
     type: object
-  request.Arg:
+  request.AssignRepoToTeam:
     properties:
-      name:
-        type: string
-      value:
+      githubRepoId:
+        type: integer
+      repoName:
         type: string
     required:
-    - name
-    - value
+    - githubRepoId
+    - repoName
     type: object
   request.CreateCluster:
     properties:
@@ -105,10 +105,6 @@ definitions:
     type: object
   request.DeployFromGit:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/request.Arg'
-        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -228,10 +224,6 @@ definitions:
     type: object
   request.UpdateDeployFromGit:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/request.Arg'
-        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -297,16 +289,6 @@ definitions:
         type: string
     required:
     - apiKey
-    type: object
-  response.Arg:
-    properties:
-      name:
-        type: string
-      value:
-        type: string
-    required:
-    - name
-    - value
     type: object
   response.BuildLogs:
     properties:
@@ -447,10 +429,6 @@ definitions:
     type: object
   response.GitDeployment:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/response.Arg'
-        type: array
       dockerfilePath:
         type: string
       envVars:
@@ -472,7 +450,6 @@ definitions:
       status:
         type: string
     required:
-    - args
     - dockerfilePath
     - envVars
     - gitUrl
@@ -485,10 +462,6 @@ definitions:
     type: object
   response.GitDeploymentBuild:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/response.Arg'
-        type: array
       buildId:
         type: integer
       commitHash:
@@ -510,7 +483,6 @@ definitions:
       status:
         type: string
     required:
-    - args
     - buildId
     - commitHash
     - createdAt
@@ -677,12 +649,15 @@ definitions:
         type: integer
       name:
         type: string
+      teamId:
+        type: integer
     required:
     - clusterId
     - createdAt
     - environments
     - id
     - name
+    - teamId
     type: object
   response.ProjectCluster:
     properties:
@@ -765,6 +740,19 @@ definitions:
     - id
     - organization_id
     - slug
+    type: object
+  response.TeamRepo:
+    properties:
+      githubRepoId:
+        type: integer
+      repoName:
+        type: string
+      teamId:
+        type: integer
+    required:
+    - githubRepoId
+    - repoName
+    - teamId
     type: object
   response.User:
     properties:
@@ -1232,6 +1220,30 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
+  /github/all-repositories/{organizationId}:
+    get:
+      operationId: getAllRepositories
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Repository'
+            type: array
+      summary: Get All Repositories (owner only, unfiltered)
+      tags:
+      - github
   /github/repositories/{organizationId}:
     get:
       operationId: getRepositories
@@ -1838,6 +1850,80 @@ paths:
         "201":
           description: Created
       summary: Add organization member to team
+      tags:
+      - team
+  /teams/{teamId}/repos:
+    get:
+      operationId: getTeamRepositories
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.TeamRepo'
+            type: array
+      summary: Get repositories assigned to a team
+      tags:
+      - team
+    post:
+      operationId: assignRepoToTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Assign Repo
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AssignRepoToTeam'
+      responses:
+        "201":
+          description: Created
+      summary: Assign a GitHub repository to a team
+      tags:
+      - team
+  /teams/{teamId}/repos/{repoId}:
+    delete:
+      operationId: unassignRepoFromTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: GitHub Repo ID
+        in: path
+        name: repoId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: Unassign a GitHub repository from a team
       tags:
       - team
 securityDefinitions:

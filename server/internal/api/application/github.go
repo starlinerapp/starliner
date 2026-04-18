@@ -25,6 +25,7 @@ type GitHubApplication struct {
 	buildRepository       interfaces.BuildRepository
 	environmentRepository interfaces.EnvironmentRepository
 	githubAppRepository   interfaces.GithubAppRepository
+	teamRepository        interfaces.TeamRepository
 	normalizerService     *coreService.NormalizerService
 	organizationService   *service.OrganizationService
 	cfg                   *conf.Config
@@ -37,6 +38,7 @@ func NewGitHubApplication(
 	buildRepository interfaces.BuildRepository,
 	environmentRepository interfaces.EnvironmentRepository,
 	githubAppRepository interfaces.GithubAppRepository,
+	teamRepository interfaces.TeamRepository,
 	normalizerService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 	cfg *conf.Config,
@@ -48,6 +50,7 @@ func NewGitHubApplication(
 		buildRepository:       buildRepository,
 		environmentRepository: environmentRepository,
 		githubAppRepository:   githubAppRepository,
+		teamRepository:        teamRepository,
 		normalizerService:     normalizerService,
 		organizationService:   organizationService,
 		cfg:                   cfg,
@@ -63,6 +66,49 @@ func (ga *GitHubApplication) VerifySignature(payload []byte, signature string) b
 
 func (ga *GitHubApplication) GetRepositories(ctx context.Context, userId int64, organizationId int64) ([]*value.Repository, error) {
 	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	ghApp, err := ga.githubAppRepository.GetOrganizationGithubApp(ctx, organizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	repos, err := ga.gitHub.ListRepositories(ctx, ghApp.InstallationID)
+	if err != nil {
+		return nil, err
+	}
+
+	userTeams, err := ga.teamRepository.GetUserTeams(ctx, organizationId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	allowedRepoIDs := make(map[int64]bool)
+
+	for _, team := range userTeams {
+		teamRepos, err := ga.teamRepository.GetTeamRepositories(ctx, team.Id)
+		if err != nil {
+			return nil, err
+		}
+		for _, tr := range teamRepos {
+			allowedRepoIDs[tr.GithubRepoId] = true
+		}
+	}
+
+	var filtered []*value.Repository
+	for _, repo := range repos {
+		if repo.Id != nil && allowedRepoIDs[*repo.Id] {
+			filtered = append(filtered, value.NewRepository(repo))
+		}
+	}
+
+	return filtered, nil
+}
+
+func (ga *GitHubApplication) GetAllRepositories(ctx context.Context, userId int64, organizationId int64) ([]*value.Repository, error) {
+	err := ga.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}

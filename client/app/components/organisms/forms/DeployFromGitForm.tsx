@@ -26,21 +26,44 @@ interface DeployFromGitFormProps {
   defaultValues?: DeployFromGitFormInput;
   onSubmit: (data: DeployFromGitFormInput) => Promise<void>;
   resetOnSuccess?: boolean;
+  teamId?: number;
 }
 
 export default function DeployFromGitForm({
   defaultValues,
   onSubmit,
   resetOnSuccess = false,
+  teamId,
 }: DeployFromGitFormProps) {
   const trpc = useTRPC();
   const organization = useOrganizationContext();
 
-  const { data: repositoriesData, isLoading } = useQuery(
+  const { data: allRepositoriesData, isLoading: isReposLoading } = useQuery(
     trpc.github.getRepositories.queryOptions({
       organizationId: organization.id,
     }),
   );
+
+  const { data: teamReposData, isLoading: isTeamReposLoading } = useQuery({
+    ...trpc.team.getTeamRepositories.queryOptions({
+      teamId: teamId!,
+    }),
+    enabled: !!teamId,
+  });
+
+  const repositoriesData = useMemo(() => {
+    if (!allRepositoriesData) return undefined;
+    if (!teamId) {
+      return allRepositoriesData;
+    }
+    if (!teamReposData || teamReposData.length === 0) {
+      return [];
+    }
+    const teamRepoIds = new Set(teamReposData.map((tr) => tr.githubRepoId));
+    return allRepositoriesData.filter((repo) => teamRepoIds.has(repo.id));
+  }, [allRepositoriesData, teamId, teamReposData]);
+
+  const isLoading = isReposLoading || (!!teamId && isTeamReposLoading);
 
   const { register, handleSubmit, watch, reset, control, setValue } =
     useForm<DeployFromGitFormInput>({ defaultValues });

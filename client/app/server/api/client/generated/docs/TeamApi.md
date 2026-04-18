@@ -2,14 +2,17 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                    | HTTP request                            | Description                          |
-| ----------------------------------------- | --------------------------------------- | ------------------------------------ |
-| [**addTeamMember**](#addteammember)       | **POST** /teams/{teamId}/members        | Add organization member to team      |
-| [**createTeam**](#createteam)             | **POST** /organizations/{id}/teams      | Create team                          |
-| [**getTeamMembers**](#getteammembers)     | **GET** /teams/{teamId}/members         | Get Team Members                     |
-| [**getUserTeams**](#getuserteams)         | **GET** /organizations/{id}/teams       | Get User Teams                       |
-| [**joinTeam**](#jointeam)                 | **POST** /organizations/{id}/teams/join | Join a team by slug                  |
-| [**removeTeamMember**](#removeteammember) | **DELETE** /teams/{teamId}/members      | Remove organization member from team |
+| Method                                            | HTTP request                              | Description                              |
+| ------------------------------------------------- | ----------------------------------------- | ---------------------------------------- |
+| [**addTeamMember**](#addteammember)               | **POST** /teams/{teamId}/members          | Add organization member to team          |
+| [**assignRepoToTeam**](#assignrepototeam)         | **POST** /teams/{teamId}/repos            | Assign a GitHub repository to a team     |
+| [**createTeam**](#createteam)                     | **POST** /organizations/{id}/teams        | Create team                              |
+| [**getTeamMembers**](#getteammembers)             | **GET** /teams/{teamId}/members           | Get Team Members                         |
+| [**getTeamRepositories**](#getteamrepositories)   | **GET** /teams/{teamId}/repos             | Get repositories assigned to a team      |
+| [**getUserTeams**](#getuserteams)                 | **GET** /organizations/{id}/teams         | Get User Teams                           |
+| [**joinTeam**](#jointeam)                         | **POST** /organizations/{id}/teams/join   | Join a team by slug                      |
+| [**removeTeamMember**](#removeteammember)         | **DELETE** /teams/{teamId}/members        | Remove organization member from team     |
+| [**unassignRepoFromTeam**](#unassignrepofromteam) | **DELETE** /teams/{teamId}/repos/{repoId} | Unassign a GitHub repository from a team |
 
 # **addTeamMember**
 
@@ -37,6 +40,58 @@ const { status, data } = await apiInstance.addTeamMember(xUserID, teamId, data);
 | **data**    | **RequestAddTeamMember** | ID of member to add |                       |
 | **xUserID** | [**string**]             | User ID             | defaults to undefined |
 | **teamId**  | [**number**]             | Team ID             | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **201**     | Created     | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **assignRepoToTeam**
+
+> assignRepoToTeam(data)
+
+### Example
+
+```typescript
+import { TeamApi, Configuration, RequestAssignRepoToTeam } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new TeamApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let teamId: number; //Team ID (default to undefined)
+let data: RequestAssignRepoToTeam; //Assign Repo
+
+const { status, data } = await apiInstance.assignRepoToTeam(
+  xUserID,
+  teamId,
+  data,
+);
+```
+
+### Parameters
+
+| Name        | Type                        | Description | Notes                 |
+| ----------- | --------------------------- | ----------- | --------------------- |
+| **data**    | **RequestAssignRepoToTeam** | Assign Repo |                       |
+| **xUserID** | [**string**]                | User ID     | defaults to undefined |
+| **teamId**  | [**number**]                | Team ID     | defaults to undefined |
 
 ### Return type
 
@@ -135,6 +190,52 @@ const { status, data } = await apiInstance.getTeamMembers(xUserID, teamId);
 ### Return type
 
 **Array<ResponseUser>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getTeamRepositories**
+
+> Array<ResponseTeamRepo> getTeamRepositories()
+
+### Example
+
+```typescript
+import { TeamApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new TeamApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let teamId: number; //Team ID (default to undefined)
+
+const { status, data } = await apiInstance.getTeamRepositories(xUserID, teamId);
+```
+
+### Parameters
+
+| Name        | Type         | Description | Notes                 |
+| ----------- | ------------ | ----------- | --------------------- |
+| **xUserID** | [**string**] | User ID     | defaults to undefined |
+| **teamId**  | [**number**] | Team ID     | defaults to undefined |
+
+### Return type
+
+**Array<ResponseTeamRepo>**
 
 ### Authorization
 
@@ -277,6 +378,58 @@ const { status, data } = await apiInstance.removeTeamMember(
 | **data**    | **RequestRemoveTeamMember** | ID of the organization member to remove from the team |                       |
 | **xUserID** | [**string**]                | User ID                                               | defaults to undefined |
 | **teamId**  | [**number**]                | Team ID                                               | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **204**     | No Content  | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **unassignRepoFromTeam**
+
+> unassignRepoFromTeam()
+
+### Example
+
+```typescript
+import { TeamApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new TeamApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let teamId: number; //Team ID (default to undefined)
+let repoId: number; //GitHub Repo ID (default to undefined)
+
+const { status, data } = await apiInstance.unassignRepoFromTeam(
+  xUserID,
+  teamId,
+  repoId,
+);
+```
+
+### Parameters
+
+| Name        | Type         | Description    | Notes                 |
+| ----------- | ------------ | -------------- | --------------------- |
+| **xUserID** | [**string**] | User ID        | defaults to undefined |
+| **teamId**  | [**number**] | Team ID        | defaults to undefined |
+| **repoId**  | [**number**] | GitHub Repo ID | defaults to undefined |
 
 ### Return type
 
