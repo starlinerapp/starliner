@@ -75,13 +75,11 @@ const configuration = new Configuration();
 const apiInstance = new TeamApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
-let organizationId: number; //Organization ID (default to undefined)
 let teamId: number; //Team ID (default to undefined)
 let data: RequestAssignRepoToTeam; //Assign Repo
 
 const { status, data } = await apiInstance.assignRepoToTeam(
   xUserID,
-  organizationId,
   teamId,
   data,
 );
@@ -89,12 +87,11 @@ const { status, data } = await apiInstance.assignRepoToTeam(
 
 ### Parameters
 
-| Name               | Type                        | Description     | Notes                 |
-| ------------------ | --------------------------- | --------------- | --------------------- |
-| **data**           | **RequestAssignRepoToTeam** | Assign Repo     |                       |
-| **xUserID**        | [**string**]                | User ID         | defaults to undefined |
-| **organizationId** | [**number**]                | Organization ID | defaults to undefined |
-| **teamId**         | [**number**]                | Team ID         | defaults to undefined |
+| Name        | Type                        | Description | Notes                 |
+| ----------- | --------------------------- | ----------- | --------------------- |
+| **data**    | **RequestAssignRepoToTeam** | Assign Repo |                       |
+| **xUserID** | [**string**]                | User ID     | defaults to undefined |
+| **teamId**  | [**number**]                | Team ID     | defaults to undefined |
 
 ### Return type
 
@@ -224,23 +221,17 @@ const configuration = new Configuration();
 const apiInstance = new TeamApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
-let organizationId: number; //Organization ID (default to undefined)
 let teamId: number; //Team ID (default to undefined)
 
-const { status, data } = await apiInstance.getTeamRepositories(
-  xUserID,
-  organizationId,
-  teamId,
-);
+const { status, data } = await apiInstance.getTeamRepositories(xUserID, teamId);
 ```
 
 ### Parameters
 
-| Name               | Type         | Description     | Notes                 |
-| ------------------ | ------------ | --------------- | --------------------- |
-| **xUserID**        | [**string**] | User ID         | defaults to undefined |
-| **organizationId** | [**number**] | Organization ID | defaults to undefined |
-| **teamId**         | [**number**] | Team ID         | defaults to undefined |
+| Name        | Type         | Description | Notes                 |
+| ----------- | ------------ | ----------- | --------------------- |
+| **xUserID** | [**string**] | User ID     | defaults to undefined |
+| **teamId**  | [**number**] | Team ID     | defaults to undefined |
 
 ### Return type
 
@@ -422,13 +413,11 @@ const configuration = new Configuration();
 const apiInstance = new TeamApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
-let organizationId: number; //Organization ID (default to undefined)
 let teamId: number; //Team ID (default to undefined)
 let repoId: number; //GitHub Repo ID (default to undefined)
 
 const { status, data } = await apiInstance.unassignRepoFromTeam(
   xUserID,
-  organizationId,
   teamId,
   repoId,
 );
@@ -436,12 +425,11 @@ const { status, data } = await apiInstance.unassignRepoFromTeam(
 
 ### Parameters
 
-| Name               | Type         | Description     | Notes                 |
-| ------------------ | ------------ | --------------- | --------------------- |
-| **xUserID**        | [**string**] | User ID         | defaults to undefined |
-| **organizationId** | [**number**] | Organization ID | defaults to undefined |
-| **teamId**         | [**number**] | Team ID         | defaults to undefined |
-| **repoId**         | [**number**] | GitHub Repo ID  | defaults to undefined |
+| Name        | Type         | Description    | Notes                 |
+| ----------- | ------------ | -------------- | --------------------- |
+| **xUserID** | [**string**] | User ID        | defaults to undefined |
+| **teamId**  | [**number**] | Team ID        | defaults to undefined |
+| **repoId**  | [**number**] | GitHub Repo ID | defaults to undefined |
 
 ### Return type
 

@@ -15,13 +15,13 @@ definitions:
     type: object
   request.AssignRepoToTeam:
     properties:
-      github_repo_id:
+      githubRepoId:
         type: integer
-      repo_name:
+      repoName:
         type: string
     required:
-    - github_repo_id
-    - repo_name
+    - githubRepoId
+    - repoName
     type: object
   request.CreateCluster:
     properties:
@@ -743,16 +743,16 @@ definitions:
     type: object
   response.TeamRepo:
     properties:
-      github_repo_id:
+      githubRepoId:
         type: integer
-      repo_name:
+      repoName:
         type: string
-      team_id:
+      teamId:
         type: integer
     required:
-    - github_repo_id
-    - repo_name
-    - team_id
+    - githubRepoId
+    - repoName
+    - teamId
     type: object
   response.User:
     properties:
@@ -1861,11 +1861,6 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: query
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
@@ -1889,11 +1884,6 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: query
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
@@ -1920,11 +1910,6 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: query
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId

@@ -2,10 +2,10 @@
 
 ## Properties
 
-| Name               | Type       | Description | Notes                  |
-| ------------------ | ---------- | ----------- | ---------------------- |
-| **github_repo_id** | **number** |             | [default to undefined] |
-| **repo_name**      | **string** |             | [default to undefined] |
+| Name             | Type       | Description | Notes                  |
+| ---------------- | ---------- | ----------- | ---------------------- |
+| **githubRepoId** | **number** |             | [default to undefined] |
+| **repoName**     | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -13,8 +13,8 @@
 import { RequestAssignRepoToTeam } from "./api";
 
 const instance: RequestAssignRepoToTeam = {
-  github_repo_id,
-  repo_name,
+  githubRepoId,
+  repoName,
 };
 ```
 

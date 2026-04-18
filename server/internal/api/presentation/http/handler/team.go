@@ -207,18 +207,13 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 // @Tags team
 // @ID assignRepoToTeam
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId query int true "Organization ID"
 // @Param teamId path int true "Team ID"
 // @Param data body request.AssignRepoToTeam true "Assign Repo"
 // @Success 201
 // @Router /teams/{teamId}/repos [post]
 func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Query("organizationId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "organizationId query parameter is required"})
-		return
-	}
+
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -231,7 +226,7 @@ func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
 		return
 	}
 
-	err = th.teamApplication.AssignRepoToTeam(c, organizationId, currentUser.Id, teamId, body.GithubRepoId, body.RepoName)
+	err = th.teamApplication.AssignRepoToTeam(c, currentUser.Id, teamId, body.GithubRepoId, body.RepoName)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -245,18 +240,13 @@ func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
 // @Tags team
 // @ID unassignRepoFromTeam
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId query int true "Organization ID"
 // @Param teamId path int true "Team ID"
 // @Param repoId path int true "GitHub Repo ID"
 // @Success 204
 // @Router /teams/{teamId}/repos/{repoId} [delete]
 func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Query("organizationId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "organizationId query parameter is required"})
-		return
-	}
+
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -268,7 +258,7 @@ func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
 		return
 	}
 
-	err = th.teamApplication.UnassignRepoFromTeam(c, organizationId, currentUser.Id, teamId, repoId)
+	err = th.teamApplication.UnassignRepoFromTeam(c, currentUser.Id, teamId, repoId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -282,24 +272,18 @@ func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
 // @Tags team
 // @ID getTeamRepositories
 // @Param X-User-ID header string true "User ID"
-// @Param organizationId query int true "Organization ID"
 // @Param teamId path int true "Team ID"
 // @Success 200 {array} response.TeamRepo
 // @Router /teams/{teamId}/repos [get]
 func (th *TeamHandler) GetTeamRepositories(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
-	organizationId, err := strconv.ParseInt(c.Query("organizationId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "organizationId query parameter is required"})
-		return
-	}
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	repos, err := th.teamApplication.GetTeamRepositories(c, organizationId, currentUser.Id, teamId)
+	repos, err := th.teamApplication.GetTeamRepositories(c, currentUser.Id, teamId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

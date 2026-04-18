@@ -1657,13 +1657,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Team ID",
                         "name": "teamId",
                         "in": "path",
@@ -1694,13 +1687,6 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "X-User-ID",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
                         "required": true
                     },
                     {
@@ -1740,13 +1726,6 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "X-User-ID",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
                         "required": true
                     },
                     {
@@ -1798,14 +1777,14 @@ const docTemplate = `{
         "request.AssignRepoToTeam": {
             "type": "object",
             "required": [
-                "github_repo_id",
-                "repo_name"
+                "githubRepoId",
+                "repoName"
             ],
             "properties": {
-                "github_repo_id": {
+                "githubRepoId": {
                     "type": "integer"
                 },
-                "repo_name": {
+                "repoName": {
                     "type": "string"
                 }
             }
@@ -2852,18 +2831,18 @@ const docTemplate = `{
         "response.TeamRepo": {
             "type": "object",
             "required": [
-                "github_repo_id",
-                "repo_name",
-                "team_id"
+                "githubRepoId",
+                "repoName",
+                "teamId"
             ],
             "properties": {
-                "github_repo_id": {
+                "githubRepoId": {
                     "type": "integer"
                 },
-                "repo_name": {
+                "repoName": {
                     "type": "string"
                 },
-                "team_id": {
+                "teamId": {
                     "type": "integer"
                 }
             }

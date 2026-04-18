@@ -2,11 +2,11 @@
 
 ## Properties
 
-| Name               | Type       | Description | Notes                  |
-| ------------------ | ---------- | ----------- | ---------------------- |
-| **github_repo_id** | **number** |             | [default to undefined] |
-| **repo_name**      | **string** |             | [default to undefined] |
-| **team_id**        | **number** |             | [default to undefined] |
+| Name             | Type       | Description | Notes                  |
+| ---------------- | ---------- | ----------- | ---------------------- |
+| **githubRepoId** | **number** |             | [default to undefined] |
+| **repoName**     | **string** |             | [default to undefined] |
+| **teamId**       | **number** |             | [default to undefined] |
 
 ## Example
 
@@ -14,9 +14,9 @@
 import { ResponseTeamRepo } from "./api";
 
 const instance: ResponseTeamRepo = {
-  github_repo_id,
-  repo_name,
-  team_id,
+  githubRepoId,
+  repoName,
+  teamId,
 };
 ```
 

@@ -3,9 +3,9 @@ package response
 import "starliner.app/internal/api/domain/value"
 
 type TeamRepo struct {
-	TeamId       int64  `json:"team_id" binding:"required"`
-	GithubRepoId int64  `json:"github_repo_id" binding:"required"`
-	RepoName     string `json:"repo_name" binding:"required"`
+	TeamId       int64  `json:"teamId" binding:"required"`
+	GithubRepoId int64  `json:"githubRepoId" binding:"required"`
+	RepoName     string `json:"repoName" binding:"required"`
 }
 
 func NewTeamRepo(tr *value.TeamRepo) TeamRepo {

@@ -111,7 +111,6 @@ export default function TeamDetail() {
 
   const { data: teamRepos, isLoading: isTeamReposLoading } = useQuery(
     trpc.team.getTeamRepositories.queryOptions({
-      organizationId: organization.id,
       teamId: Number(teamId),
     }),
   );
@@ -140,7 +139,6 @@ export default function TeamDetail() {
   function onAssignRepo(repoId: number, repoName: string) {
     assignMutation.mutate(
       {
-        organizationId: organization.id,
         teamId: Number(teamId),
         githubRepoId: repoId,
         repoName,
@@ -158,7 +156,6 @@ export default function TeamDetail() {
   function onUnassignRepo(repoId: number) {
     unassignMutation.mutate(
       {
-        organizationId: organization.id,
         teamId: Number(teamId),
         githubRepoId: repoId,
       },
@@ -172,9 +169,7 @@ export default function TeamDetail() {
     );
   }
 
-  const assignedRepoIds = new Set(
-    teamRepos?.map((r) => r.github_repo_id) ?? [],
-  );
+  const assignedRepoIds = new Set(teamRepos?.map((r) => r.githubRepoId) ?? []);
   const unassignedRepos =
     allRepos?.filter((r) => !assignedRepoIds.has(r.id)) ?? [];
 
@@ -401,14 +396,14 @@ export default function TeamDetail() {
               ) : (
                 teamRepos?.map((repo) => (
                   <div
-                    key={repo.github_repo_id}
+                    key={repo.githubRepoId}
                     className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
                   >
-                    <span className="font-mono text-xs">{repo.repo_name}</span>
+                    <span className="font-mono text-xs">{repo.repoName}</span>
                     <button
                       className="text-mauve-11 hover:text-mauve-12 cursor-pointer"
                       disabled={unassignMutation.isPending}
-                      onClick={() => onUnassignRepo(repo.github_repo_id)}
+                      onClick={() => onUnassignRepo(repo.githubRepoId)}
                       title="Revoke repository access"
                     >
                       <Cross width={16} height={16} />

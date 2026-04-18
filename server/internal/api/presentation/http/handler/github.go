@@ -39,7 +39,7 @@ func (gh *GithubHandler) GetRepositories(c *gin.Context) {
 
 	repos, err := gh.githubApplication.GetRepositories(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -65,7 +65,7 @@ func (gh *GithubHandler) GetAllRepositories(c *gin.Context) {
 
 	repos, err := gh.githubApplication.GetAllRepositories(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -104,7 +104,7 @@ func (gh *GithubHandler) GetRepositoryContents(c *gin.Context) {
 		repositoryPath,
 	)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

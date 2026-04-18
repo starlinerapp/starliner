@@ -45,7 +45,6 @@ export default function DeployFromGitForm({
 
   const { data: teamReposData, isLoading: isTeamReposLoading } = useQuery({
     ...trpc.team.getTeamRepositories.queryOptions({
-      organizationId: organization.id,
       teamId: teamId!,
     }),
     enabled: !!teamId,
@@ -53,16 +52,13 @@ export default function DeployFromGitForm({
 
   const repositoriesData = useMemo(() => {
     if (!allRepositoriesData) return undefined;
-    // If no teamId, show all repos the user has access to
     if (!teamId) {
       return allRepositoriesData;
     }
-    // If team has no assigned repos, show nothing (no repos by default)
     if (!teamReposData || teamReposData.length === 0) {
       return [];
     }
-    // Filter to only repos assigned to this team
-    const teamRepoIds = new Set(teamReposData.map((tr) => tr.github_repo_id));
+    const teamRepoIds = new Set(teamReposData.map((tr) => tr.githubRepoId));
     return allRepositoriesData.filter((repo) => teamRepoIds.has(repo.id));
   }, [allRepositoriesData, teamId, teamReposData]);
 

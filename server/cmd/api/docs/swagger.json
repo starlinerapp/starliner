@@ -1648,13 +1648,6 @@
                     },
                     {
                         "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Team ID",
                         "name": "teamId",
                         "in": "path",
@@ -1685,13 +1678,6 @@
                         "description": "User ID",
                         "name": "X-User-ID",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
                         "required": true
                     },
                     {
@@ -1731,13 +1717,6 @@
                         "description": "User ID",
                         "name": "X-User-ID",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "query",
                         "required": true
                     },
                     {
@@ -1789,14 +1768,14 @@
         "request.AssignRepoToTeam": {
             "type": "object",
             "required": [
-                "github_repo_id",
-                "repo_name"
+                "githubRepoId",
+                "repoName"
             ],
             "properties": {
-                "github_repo_id": {
+                "githubRepoId": {
                     "type": "integer"
                 },
-                "repo_name": {
+                "repoName": {
                     "type": "string"
                 }
             }
@@ -2843,18 +2822,18 @@
         "response.TeamRepo": {
             "type": "object",
             "required": [
-                "github_repo_id",
-                "repo_name",
-                "team_id"
+                "githubRepoId",
+                "repoName",
+                "teamId"
             ],
             "properties": {
-                "github_repo_id": {
+                "githubRepoId": {
                     "type": "integer"
                 },
-                "repo_name": {
+                "repoName": {
                     "type": "string"
                 },
-                "team_id": {
+                "teamId": {
                     "type": "integer"
                 }
             }

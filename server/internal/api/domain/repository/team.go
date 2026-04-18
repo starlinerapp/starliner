@@ -12,7 +12,7 @@ type TeamRepository struct {
 	queries *sqlc.Queries
 }
 
-func (tr TeamRepository) GetTeamById(ctx context.Context, id int64) (*entity.Team, error) {
+func (tr *TeamRepository) GetTeamById(ctx context.Context, id int64) (*entity.Team, error) {
 	t, err := tr.queries.GetTeamById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (tr TeamRepository) GetTeamById(ctx context.Context, id int64) (*entity.Tea
 	}, nil
 }
 
-func (tr TeamRepository) CreateTeam(ctx context.Context, slug string, organizationID int64) (*entity.Team, error) {
+func (tr *TeamRepository) CreateTeam(ctx context.Context, slug string, organizationID int64) (*entity.Team, error) {
 	t, err := tr.queries.CreateTeam(ctx, sqlc.CreateTeamParams{
 		Slug:           slug,
 		OrganizationID: organizationID,
@@ -41,7 +41,7 @@ func (tr TeamRepository) CreateTeam(ctx context.Context, slug string, organizati
 	}, nil
 }
 
-func (tr TeamRepository) DeleteTeam(ctx context.Context, id int64) error {
+func (tr *TeamRepository) DeleteTeam(ctx context.Context, id int64) error {
 	err := tr.queries.DeleteTeam(ctx, id)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (tr TeamRepository) DeleteTeam(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (tr TeamRepository) GetTeamBySlug(ctx context.Context, slug string, organizationID int64) (*entity.Team, error) {
+func (tr *TeamRepository) GetTeamBySlug(ctx context.Context, slug string, organizationID int64) (*entity.Team, error) {
 	t, err := tr.queries.GetTeamBySlug(ctx, sqlc.GetTeamBySlugParams{
 		Slug:           slug,
 		OrganizationID: organizationID,
@@ -66,7 +66,7 @@ func (tr TeamRepository) GetTeamBySlug(ctx context.Context, slug string, organiz
 	}, nil
 }
 
-func (tr TeamRepository) GetUserTeams(ctx context.Context, organizationID int64, userID int64) ([]*entity.Team, error) {
+func (tr *TeamRepository) GetUserTeams(ctx context.Context, organizationID int64, userID int64) ([]*entity.Team, error) {
 	rows, err := tr.queries.GetUserTeams(ctx, sqlc.GetUserTeamsParams{
 		OrganizationID: organizationID,
 		UserID:         userID,
@@ -87,7 +87,7 @@ func (tr TeamRepository) GetUserTeams(ctx context.Context, organizationID int64,
 	return teams, nil
 }
 
-func (tr TeamRepository) GetTeamMembers(ctx context.Context, teamID int64) ([]*entity.User, error) {
+func (tr *TeamRepository) GetTeamMembers(ctx context.Context, teamID int64) ([]*entity.User, error) {
 	rows, err := tr.queries.GetTeamMembers(ctx, teamID)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (tr TeamRepository) GetTeamMembers(ctx context.Context, teamID int64) ([]*e
 	return users, nil
 }
 
-func (tr TeamRepository) AddTeamMember(ctx context.Context, teamID int64, userID int64) error {
+func (tr *TeamRepository) AddTeamMember(ctx context.Context, teamID int64, userID int64) error {
 	err := tr.queries.AddTeamMember(ctx, sqlc.AddTeamMemberParams{
 		TeamID: teamID,
 		UserID: userID,
@@ -113,7 +113,7 @@ func (tr TeamRepository) AddTeamMember(ctx context.Context, teamID int64, userID
 	return err
 }
 
-func (tr TeamRepository) RemoveTeamMember(ctx context.Context, teamID int64, userID int64) error {
+func (tr *TeamRepository) RemoveTeamMember(ctx context.Context, teamID int64, userID int64) error {
 	err := tr.queries.RemoveTeamMember(ctx, sqlc.RemoveTeamMemberParams{
 		TeamID: teamID,
 		UserID: userID,
@@ -122,7 +122,7 @@ func (tr TeamRepository) RemoveTeamMember(ctx context.Context, teamID int64, use
 	return err
 }
 
-func (tr TeamRepository) FindTeamByIdAndUserId(ctx context.Context, teamID int64, userID int64) (*entity.Team, error) {
+func (tr *TeamRepository) FindTeamByIdAndUserId(ctx context.Context, teamID int64, userID int64) (*entity.Team, error) {
 	t, err := tr.queries.FindTeamByIdAndUserId(ctx, sqlc.FindTeamByIdAndUserIdParams{
 		ID:     teamID,
 		UserID: userID,
@@ -138,11 +138,11 @@ func (tr TeamRepository) FindTeamByIdAndUserId(ctx context.Context, teamID int64
 	}, nil
 }
 
-func (tr TeamRepository) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
+func (tr *TeamRepository) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
 	return tr.queries.DeleteTeamIfEmpty(ctx, id)
 }
 
-func (tr TeamRepository) AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string) error {
+func (tr *TeamRepository) AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string) error {
 	return tr.queries.AssignRepoToTeam(ctx, sqlc.AssignRepoToTeamParams{
 		TeamID:       teamID,
 		GithubRepoID: githubRepoID,
@@ -150,14 +150,14 @@ func (tr TeamRepository) AssignRepoToTeam(ctx context.Context, teamID int64, git
 	})
 }
 
-func (tr TeamRepository) UnassignRepoFromTeam(ctx context.Context, teamID int64, githubRepoID int64) error {
+func (tr *TeamRepository) UnassignRepoFromTeam(ctx context.Context, teamID int64, githubRepoID int64) error {
 	return tr.queries.UnassignRepoFromTeam(ctx, sqlc.UnassignRepoFromTeamParams{
 		TeamID:       teamID,
 		GithubRepoID: githubRepoID,
 	})
 }
 
-func (tr TeamRepository) GetTeamRepositories(ctx context.Context, teamID int64) ([]*entity.TeamRepository, error) {
+func (tr *TeamRepository) GetTeamRepositories(ctx context.Context, teamID int64) ([]*entity.TeamRepository, error) {
 	rows, err := tr.queries.GetTeamRepositories(ctx, teamID)
 	if err != nil {
 		return nil, err
