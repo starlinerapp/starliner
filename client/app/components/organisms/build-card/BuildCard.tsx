@@ -27,7 +27,6 @@ export default function BuildCard({
   serviceName,
   status,
   createdAt,
-  args,
 }: LogsCardProps) {
   const trpc = useTRPC();
 
@@ -87,17 +86,6 @@ export default function BuildCard({
               <p>
                 {source === "manual" ? "Manually triggered" : "Commit to main"}
               </p>
-              {args && args.length > 0 && (
-                <p className="mt-1">
-                  Build Args:{" "}
-                  {args.map((arg, i) => (
-                    <span key={arg.name} className="text-mauve-11">
-                      {arg.name}
-                      {i < args.length - 1 ? ", " : ""}
-                    </span>
-                  ))}
-                </p>
-              )}
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ type EnvironmentApplication struct {
 	normalizerService     *coreService.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	projectRepository     interfaces.ProjectRepository
+	buildRepository       interfaces.BuildRepository
 }
 
 func NewEnvironmentApplication(
@@ -27,6 +28,7 @@ func NewEnvironmentApplication(
 	environmentService *service.EnvironmentService,
 	environmentRepository interfaces.EnvironmentRepository,
 	projectRepository interfaces.ProjectRepository,
+	buildRepository interfaces.BuildRepository,
 ) *EnvironmentApplication {
 	return &EnvironmentApplication{
 		crypto:                crypto,
@@ -35,6 +37,7 @@ func NewEnvironmentApplication(
 		environmentService:    environmentService,
 		environmentRepository: environmentRepository,
 		projectRepository:     projectRepository,
+		buildRepository:       buildRepository,
 	}
 }
 
@@ -91,7 +94,22 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		}
 
 		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
-		gitDeployments[i] = value.NewGitDeployment(d, internalEndpoint)
+
+		latestArgs, err := ea.buildRepository.GetLatestBuildArgs(ctx, d.Id)
+		var args []*value.Arg
+		if err == nil {
+			args = make([]*value.Arg, len(latestArgs))
+			for j, a := range latestArgs {
+				args[j] = &value.Arg{
+					Name:  a.Name,
+					Value: a.Value,
+				}
+			}
+		} else {
+			args = []*value.Arg{}
+		}
+
+		gitDeployments[i] = value.NewGitDeployment(d, internalEndpoint, args)
 	}
 
 	images, err := ea.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId, userId)

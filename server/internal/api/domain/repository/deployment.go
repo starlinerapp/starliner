@@ -33,7 +33,6 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
-	args []*value.Arg,
 ) (deployment *entity.GitDeployment, err error) {
 	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
@@ -74,23 +73,6 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 		}
 	}
 
-	resultArgs := make([]*entity.Arg, len(args))
-	for i, a := range args {
-		arg, err := qtx.CreateDeploymentArg(ctx, sqlc.CreateDeploymentArgParams{
-			DeploymentID: d.DeploymentID,
-			Name:         a.Name,
-			Value:        a.Value,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		resultArgs[i] = &entity.Arg{
-			Name:  arg.Name,
-			Value: arg.Value,
-		}
-	}
-
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -104,7 +86,6 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               vars,
-		Args:                  resultArgs,
 	}, nil
 }
 
@@ -115,7 +96,6 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
-	args []*value.Arg,
 ) (deployment *entity.GitDeployment, err error) {
 	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
@@ -158,27 +138,6 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 		}
 	}
 
-	if err := qtx.DeleteArgsByDeploymentId(ctx, deploymentId); err != nil {
-		return nil, err
-	}
-
-	resultArgs := make([]*entity.Arg, len(args))
-	for i, a := range args {
-		arg, err := qtx.CreateDeploymentArg(ctx, sqlc.CreateDeploymentArgParams{
-			DeploymentID: d.DeploymentID,
-			Name:         a.Name,
-			Value:        a.Value,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		resultArgs[i] = &entity.Arg{
-			Name:  arg.Name,
-			Value: arg.Value,
-		}
-	}
-
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -193,7 +152,6 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               vars,
-		Args:                  resultArgs,
 	}, nil
 }
 
@@ -567,22 +525,6 @@ func (dr *DeploymentRepository) GetDeploymentEnvs(ctx context.Context, deploymen
 	return variables, nil
 }
 
-func (dr *DeploymentRepository) GetDeploymentArgs(ctx context.Context, deploymentId int64) ([]*entity.Arg, error) {
-	args, err := dr.queries.GetDeploymentArgs(ctx, deploymentId)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]*entity.Arg, len(args))
-	for i, a := range args {
-		result[i] = &entity.Arg{
-			Name:  a.Name,
-			Value: a.Value,
-		}
-	}
-	return result, nil
-}
-
 func (dr *DeploymentRepository) GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error) {
 	res, err := dr.queries.GetDeploymentCluster(ctx, deploymentId)
 	if err != nil {
@@ -695,19 +637,6 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 			}
 		}
 
-		args, err := dr.queries.GetDeploymentArgs(ctx, d.DeploymentID)
-		if err != nil {
-			return nil, err
-		}
-
-		deploymentArgs := make([]*entity.Arg, len(args))
-		for j, a := range args {
-			deploymentArgs[j] = &entity.Arg{
-				Name:  a.Name,
-				Value: a.Value,
-			}
-		}
-
 		deployments[i] = &entity.GitDeployment{
 			Id:                    d.DeploymentID,
 			Name:                  d.Name,
@@ -718,7 +647,6 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 			ProjectRepositoryPath: d.ProjectPath,
 			DockerfilePath:        d.DockerfilePath,
 			EnvVars:               envVars,
-			Args:                  deploymentArgs,
 		}
 	}
 	return deployments, nil

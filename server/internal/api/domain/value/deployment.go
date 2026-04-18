@@ -36,7 +36,7 @@ type GitDeployment struct {
 	Args                  []*Arg
 }
 
-func NewGitDeployment(d *entity.GitDeployment, internalEndpoint string) *GitDeployment {
+func NewGitDeployment(d *entity.GitDeployment, internalEndpoint string, args []*Arg) *GitDeployment {
 	return &GitDeployment{
 		Id:                    d.Id,
 		ServiceName:           d.Name,
@@ -47,7 +47,7 @@ func NewGitDeployment(d *entity.GitDeployment, internalEndpoint string) *GitDepl
 		ProjectRepositoryPath: d.ProjectRepositoryPath,
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               mapEnvVars(d.EnvVars),
-		Args:                  mapArgs(d.Args),
+		Args:                  args,
 	}
 }
 

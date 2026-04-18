@@ -16,6 +16,7 @@ type Build struct {
 	DeploymentId *int64
 	Status       BuildStatus
 	Logs         *string
+	Args         []*Arg
 }
 
 type GitDeploymentBuild struct {

@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"starliner.app/internal/api/conf"
+	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
@@ -132,7 +133,20 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		b, err := ga.buildRepository.CreateBuild(ctx, deployment.Id, "push")
+		latestArgs, err := ga.buildRepository.GetLatestBuildArgs(ctx, deployment.Id)
+		if err != nil {
+			latestArgs = []*entity.Arg{}
+		}
+
+		valueArgs := make([]*value.Arg, len(latestArgs))
+		for i, a := range latestArgs {
+			valueArgs[i] = &value.Arg{
+				Name:  a.Name,
+				Value: a.Value,
+			}
+		}
+
+		b, err := ga.buildRepository.CreateBuild(ctx, deployment.Id, "push", valueArgs)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -155,8 +169,8 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		coreArgs := make([]*coreValue.Arg, len(deployment.Args))
-		for i, a := range deployment.Args {
+		coreArgs := make([]*coreValue.Arg, len(latestArgs))
+		for i, a := range latestArgs {
 			coreArgs[i] = &coreValue.Arg{
 				Name:  a.Name,
 				Value: a.Value,

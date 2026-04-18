@@ -71,7 +71,6 @@ type GitDeployment struct {
 	ProjectRepositoryPath string
 	DockerfilePath        string
 	EnvVars               []*EnvVar
-	Args                  []*Arg
 }
 
 type Deployment struct {

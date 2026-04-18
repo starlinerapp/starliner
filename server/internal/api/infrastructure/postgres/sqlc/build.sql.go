@@ -135,6 +135,21 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 	return items, nil
 }
 
+const getLatestBuildIdByDeploymentId = `-- name: GetLatestBuildIdByDeploymentId :one
+SELECT b.id
+FROM builds b
+WHERE b.deployment_id = $1
+ORDER BY b.created_at DESC
+LIMIT 1
+`
+
+func (q *Queries) GetLatestBuildIdByDeploymentId(ctx context.Context, deploymentID sql.NullInt64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getLatestBuildIdByDeploymentId, deploymentID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const updateBuildInformation = `-- name: UpdateBuildInformation :exec
 UPDATE builds
 SET

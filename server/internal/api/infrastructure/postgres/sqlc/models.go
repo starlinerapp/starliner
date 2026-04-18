@@ -194,6 +194,15 @@ type Build struct {
 	Source       string
 }
 
+type BuildArg struct {
+	ID        int64
+	BuildID   int64
+	Name      string
+	Value     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type Cluster struct {
 	ID             int64
 	Name           string
@@ -227,15 +236,6 @@ type Deployment struct {
 	EnvironmentID int64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-}
-
-type DeploymentArg struct {
-	ID           int64
-	DeploymentID int64
-	Name         string
-	Value        string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
 }
 
 type DeploymentEnvironmentVar struct {

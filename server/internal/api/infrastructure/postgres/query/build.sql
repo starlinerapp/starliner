@@ -46,3 +46,10 @@ INNER JOIN builds b ON d.id = b.deployment_id
 INNER JOIN environments e ON d.environment_id = e.id
 WHERE environment_id = $1
 ORDER BY b.created_at DESC;
+
+-- name: GetLatestBuildIdByDeploymentId :one
+SELECT b.id
+FROM builds b
+WHERE b.deployment_id = $1
+ORDER BY b.created_at DESC
+LIMIT 1;

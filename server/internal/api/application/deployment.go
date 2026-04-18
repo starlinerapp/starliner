@@ -103,13 +103,12 @@ func (da *DeploymentApplication) DeployFromGit(
 		projectRepositoryPath,
 		dockerfilePath,
 		envs,
-		args,
 	)
 	if err != nil {
 		return err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual", args)
 	if err != nil {
 		return err
 	}
@@ -177,13 +176,12 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		projectRepositoryPath,
 		dockerfilePath,
 		envs,
-		args,
 	)
 	if err != nil {
 		return err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual", args)
 	if err != nil {
 		return err
 	}
