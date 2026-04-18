@@ -43,6 +43,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 	userId int64,
 	organizationId int64,
 	projectId int64,
+	sourceEnvironmentId *int64,
 ) error {
 	err := ea.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
@@ -64,11 +65,13 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		return err
 	}
 
-	_, err = ea.environmentRepository.CreateEnvironment(ctx, name, namespace, environmentSlug, projectId)
-	if err != nil {
+	if sourceEnvironmentId != nil {
+		_, err := ea.environmentRepository.DuplicateEnvironment(ctx, userId, name, namespace, environmentSlug, projectId, *sourceEnvironmentId)
 		return err
 	}
-	return nil
+
+	_, err = ea.environmentRepository.CreateEnvironment(ctx, name, namespace, environmentSlug, projectId)
+	return err
 }
 
 func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) (*value.Deployments, error) {

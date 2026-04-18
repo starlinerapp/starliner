@@ -1667,6 +1667,9 @@ const docTemplate = `{
                 },
                 "project_id": {
                     "type": "integer"
+                },
+                "source_environment_id": {
+                    "type": "integer"
                 }
             }
         },

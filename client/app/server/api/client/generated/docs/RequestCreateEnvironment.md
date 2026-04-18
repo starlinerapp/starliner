@@ -2,11 +2,12 @@
 
 ## Properties
 
-| Name                | Type       | Description | Notes                  |
-| ------------------- | ---------- | ----------- | ---------------------- |
-| **name**            | **string** |             | [default to undefined] |
-| **organization_id** | **number** |             | [default to undefined] |
-| **project_id**      | **number** |             | [default to undefined] |
+| Name                      | Type       | Description | Notes                             |
+| ------------------------- | ---------- | ----------- | --------------------------------- |
+| **name**                  | **string** |             | [default to undefined]            |
+| **organization_id**       | **number** |             | [default to undefined]            |
+| **project_id**            | **number** |             | [default to undefined]            |
+| **source_environment_id** | **number** |             | [optional] [default to undefined] |
 
 ## Example
 
@@ -17,6 +18,7 @@ const instance: RequestCreateEnvironment = {
   name,
   organization_id,
   project_id,
+  source_environment_id,
 };
 ```
 

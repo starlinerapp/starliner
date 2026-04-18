@@ -123,6 +123,12 @@ export interface RequestCreateEnvironment {
    * @memberof RequestCreateEnvironment
    */
   project_id: number;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestCreateEnvironment
+   */
+  source_environment_id?: number;
 }
 /**
  *

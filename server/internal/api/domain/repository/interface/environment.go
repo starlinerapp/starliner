@@ -9,6 +9,7 @@ import (
 type EnvironmentRepository interface {
 	CreateEnvironment(ctx context.Context, name string, namespace string, slug string, projectId int64) (*entity.Environment, error)
 	GetEnvironmentById(ctx context.Context, environmentId int64) (*entity.Environment, error)
+	DuplicateEnvironment(ctx context.Context, userId int64, name string, namespace string, slug string, projectId int64, sourceEnvironmentId int64) (*entity.Environment, error)
 	GetEnvironmentAuthorizedUsers(ctx context.Context, clusterId int64) (users []int64, err error)
 	GetEnvironmentCluster(ctx context.Context, environmentId int64) (*entity.Cluster, error)
 	GetEnvironmentGitDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.GitDeployment, error)

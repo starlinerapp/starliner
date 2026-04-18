@@ -86,6 +86,7 @@ export default function ManageEnvironments({
       name: data.environmentName,
       organizationId: organization.id,
       projectId: project?.id ?? 0,
+      sourceEnvironmentId: data.sourceEnvironment,
     });
     setEnvironmentDialogOpen(false);
   };

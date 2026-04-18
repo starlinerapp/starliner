@@ -37,6 +37,8 @@ definitions:
         type: integer
       project_id:
         type: integer
+      source_environment_id:
+        type: integer
     required:
     - name
     - organization_id

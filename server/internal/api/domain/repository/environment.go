@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
@@ -10,13 +11,17 @@ import (
 )
 
 type EnvironmentRepository struct {
+	db      *sql.DB
 	queries *sqlc.Queries
 }
 
 var _ interfaces.EnvironmentRepository = (*EnvironmentRepository)(nil)
 
-func NewEnvironmentRepository(queries *sqlc.Queries) interfaces.EnvironmentRepository {
-	return &EnvironmentRepository{queries: queries}
+func NewEnvironmentRepository(db *sql.DB, queries *sqlc.Queries) interfaces.EnvironmentRepository {
+	return &EnvironmentRepository{
+		db:      db,
+		queries: queries,
+	}
 }
 
 func (er *EnvironmentRepository) CreateEnvironment(ctx context.Context, name string, namespace string, slug string, projectId int64) (*entity.Environment, error) {
@@ -35,6 +40,152 @@ func (er *EnvironmentRepository) CreateEnvironment(ctx context.Context, name str
 		Slug:      env.Slug,
 		Namespace: env.Namespace,
 		Name:      env.Name,
+	}, nil
+}
+
+func (er *EnvironmentRepository) DuplicateEnvironment(
+	ctx context.Context,
+	userId int64,
+	name string,
+	namespace string,
+	slug string,
+	projectId int64,
+	sourceEnvironmentId int64,
+) (*entity.Environment, error) {
+	tx, err := er.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := er.queries.WithTx(tx)
+
+	newEnv, err := qtx.CreateEnvironment(ctx, sqlc.CreateEnvironmentParams{
+		Name:      name,
+		Slug:      slug,
+		Namespace: namespace,
+		ProjectID: projectId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	databaseDeployments, err := qtx.GetEnvironmentDatabaseDeployments(ctx, sqlc.GetEnvironmentDatabaseDeploymentsParams{
+		EnvironmentID: sourceEnvironmentId,
+		UserID:        userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, d := range databaseDeployments {
+		_, err := qtx.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
+			Name:          d.Name,
+			Port:          d.Port,
+			EnvironmentID: newEnv.ID,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	imageDeployments, err := qtx.GetEnvironmentImageDeployments(ctx, sqlc.GetEnvironmentImageDeploymentsParams{
+		EnvironmentID: sourceEnvironmentId,
+		UserID:        userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, d := range imageDeployments {
+		imageDeployment, err := qtx.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
+			ServiceName:   d.ServiceName,
+			Port:          d.Port,
+			EnvironmentID: newEnv.ID,
+			ImageName:     d.ImageName,
+			Tag:           d.Tag,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		envVars, err := qtx.GetDeploymentEnvironmentVars(ctx, d.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+		for _, e := range envVars {
+			_, err := qtx.CreateDeploymentEnvVar(ctx, sqlc.CreateDeploymentEnvVarParams{
+				DeploymentID: imageDeployment.DeploymentID,
+				Name:         e.Name,
+				Value:        e.Value,
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		volume, err := qtx.GetDeploymentVolume(ctx, utils.NullInt64FromPtr(&d.DeploymentID))
+		if err != nil {
+			return nil, err
+		}
+		_, err = qtx.CreateDeploymentVolume(ctx, sqlc.CreateDeploymentVolumeParams{
+			DeploymentID:  utils.NullInt64FromPtr(&imageDeployment.DeploymentID),
+			VolumeSizeMib: volume.VolumeSizeMib,
+			MountPath:     volume.MountPath,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	gitDeployments, err := qtx.GetEnvironmentGitDeployments(ctx, sqlc.GetEnvironmentGitDeploymentsParams{
+		EnvironmentID: sourceEnvironmentId,
+		UserID:        userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, d := range gitDeployments {
+		newDeployment, err := qtx.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
+			Name:           d.Name,
+			Port:           d.Port,
+			EnvironmentID:  newEnv.ID,
+			Url:            d.Url,
+			ProjectPath:    d.ProjectPath,
+			DockerfilePath: d.DockerfilePath,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		envVars, err := qtx.GetDeploymentEnvironmentVars(ctx, d.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+		for _, e := range envVars {
+			_, err := qtx.CreateDeploymentEnvVar(ctx, sqlc.CreateDeploymentEnvVarParams{
+				DeploymentID: newDeployment.DeploymentID,
+				Name:         e.Name,
+				Value:        e.Value,
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return &entity.Environment{
+		Id:        newEnv.ID,
+		Slug:      newEnv.Slug,
+		Name:      newEnv.Name,
+		Namespace: newEnv.Namespace,
 	}, nil
 }
 

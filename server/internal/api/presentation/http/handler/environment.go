@@ -35,7 +35,7 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 		return
 	}
 
-	err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID)
+	err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID, env.SourceEnvironmentID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
 		return

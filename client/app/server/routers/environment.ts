@@ -9,6 +9,7 @@ export const environmentRouter = {
         name: z.string(),
         organizationId: z.number(),
         projectId: z.number(),
+        sourceEnvironmentId: z.number().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -18,6 +19,7 @@ export const environmentRouter = {
           name: input.name,
           organization_id: input.organizationId,
           project_id: input.projectId,
+          source_environment_id: input.sourceEnvironmentId,
         })
         .then((res) => res.data);
     }),
