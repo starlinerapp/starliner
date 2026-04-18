@@ -60,15 +60,17 @@ WHERE organization_members.organization_id = $1
     AND organization_members.user_id = $2;
 
 -- name: CreateOrganizationInvite :one
-INSERT INTO organization_invites (
-    organization_id,
-    expires_at
+WITH new_invite AS ( INSERT INTO organization_invites (
+                                                       organization_id,
+                                                       expires_at
+    )
+    VALUES ($1,
+            $2)
+    RETURNING *
 )
-VALUES (
-    $1,
-    $2
-)
-RETURNING *;
+SELECT new_invite.*, organizations.name AS organization_name
+FROM new_invite
+INNER JOIN organizations ON organizations.id = new_invite.organization_id;
 
 -- name: GetOrganizationInviteById :one
 SELECT

@@ -5,7 +5,7 @@ const InviteEmail = `<div style="font-family: Arial, sans-serif; max-width: 600p
   <p style="color: #555; font-size: 16px; line-height: 1.5;">
     You've been invited to join <strong>{{.OrganizationName}}</strong> on Starliner.
   </p>
-  <a href="{{.InviteLink}}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 20px;">
+  <a href="{{.InviteLink}}" style="display: inline-block; background-color: #6955C4; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 20px;">
     Accept Invite
   </a>
   <p style="color: #999; font-size: 12px; margin-top: 40px;">

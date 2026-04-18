@@ -67,15 +67,17 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 }
 
 const createOrganizationInvite = `-- name: CreateOrganizationInvite :one
-INSERT INTO organization_invites (
-    organization_id,
-    expires_at
+WITH new_invite AS ( INSERT INTO organization_invites (
+                                                       organization_id,
+                                                       expires_at
+    )
+    VALUES ($1,
+            $2)
+    RETURNING id, organization_id, expires_at, created_at
 )
-VALUES (
-    $1,
-    $2
-)
-RETURNING id, organization_id, expires_at, created_at
+SELECT new_invite.id, new_invite.organization_id, new_invite.expires_at, new_invite.created_at, organizations.name AS organization_name
+FROM new_invite
+INNER JOIN organizations ON organizations.id = new_invite.organization_id
 `
 
 type CreateOrganizationInviteParams struct {
@@ -83,14 +85,23 @@ type CreateOrganizationInviteParams struct {
 	ExpiresAt      time.Time
 }
 
-func (q *Queries) CreateOrganizationInvite(ctx context.Context, arg CreateOrganizationInviteParams) (OrganizationInvite, error) {
+type CreateOrganizationInviteRow struct {
+	ID               uuid.UUID
+	OrganizationID   int64
+	ExpiresAt        time.Time
+	CreatedAt        time.Time
+	OrganizationName string
+}
+
+func (q *Queries) CreateOrganizationInvite(ctx context.Context, arg CreateOrganizationInviteParams) (CreateOrganizationInviteRow, error) {
 	row := q.db.QueryRowContext(ctx, createOrganizationInvite, arg.OrganizationID, arg.ExpiresAt)
-	var i OrganizationInvite
+	var i CreateOrganizationInviteRow
 	err := row.Scan(
 		&i.ID,
 		&i.OrganizationID,
 		&i.ExpiresAt,
 		&i.CreatedAt,
+		&i.OrganizationName,
 	)
 	return i, err
 }

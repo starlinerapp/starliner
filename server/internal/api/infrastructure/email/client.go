@@ -2,6 +2,7 @@ package email
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/mail"
@@ -31,6 +32,9 @@ func (c *Client) Send(ctx context.Context, message port.Message) error {
 	defer client.Quit()
 
 	if c.cfg.SmtpUsername != "" && c.cfg.SmtpPassword != "" {
+		if err = client.StartTLS(&tls.Config{ServerName: c.cfg.SmtpHost}); err != nil {
+			return fmt.Errorf("failed to start TLS: %w", err)
+		}
 		auth := smtp.PlainAuth("", c.cfg.SmtpUsername, c.cfg.SmtpPassword, c.cfg.SmtpHost)
 		if err = client.Auth(auth); err != nil {
 			return fmt.Errorf("failed to authenticate: %w", err)
