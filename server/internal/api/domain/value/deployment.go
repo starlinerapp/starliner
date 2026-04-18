@@ -173,17 +173,6 @@ func mapEnvVars(envVars []*entity.EnvVar) []*EnvVar {
 	return variables
 }
 
-func mapArgs(args []*entity.Arg) []*Arg {
-	result := make([]*Arg, len(args))
-	for i, a := range args {
-		result[i] = &Arg{
-			Name:  a.Name,
-			Value: a.Value,
-		}
-	}
-	return result
-}
-
 type DatabaseDeployment struct {
 	Id               int64
 	ServiceName      string
