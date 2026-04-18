@@ -83,6 +83,8 @@ func NewServer(
 		environmentRoutes.POST("", environmentHandler.CreateEnvironment)
 		environmentRoutes.GET("/:id/deployments", environmentHandler.GetEnvironmentDeployments)
 		environmentRoutes.GET("/:id/builds", environmentHandler.GetEnvironmentBuilds)
+		environmentRoutes.GET("/:id/branch", environmentHandler.GetEnvironmentConnectedBranch)
+		environmentRoutes.PUT("/:id/branch", environmentHandler.UpdateEnvironmentConnectedBranch)
 	}
 
 	clusterRoutes := engine.Group("/clusters")

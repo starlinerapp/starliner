@@ -139,7 +139,7 @@ func (q *Queries) GetProjectCluster(ctx context.Context, arg GetProjectClusterPa
 }
 
 const getProjectEnvironments = `-- name: GetProjectEnvironments :many
-SELECT e.id, e.name, e.slug, e.project_id, e.created_at, e.updated_at, e.namespace
+SELECT e.id, e.name, e.slug, e.project_id, e.created_at, e.updated_at, e.namespace, e.connected_branch
 FROM environments e
          INNER JOIN projects p ON p.id = e.project_id
          INNER JOIN teams t ON t.id = p.team_id
@@ -169,6 +169,7 @@ func (q *Queries) GetProjectEnvironments(ctx context.Context, arg GetProjectEnvi
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Namespace,
+			&i.ConnectedBranch,
 		); err != nil {
 			return nil, err
 		}

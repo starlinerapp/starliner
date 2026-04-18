@@ -480,6 +480,19 @@ export interface RequestUpdateDeployFromGit {
 /**
  *
  * @export
+ * @interface RequestUpdateEnvironmentConnectBranch
+ */
+export interface RequestUpdateEnvironmentConnectBranch {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateEnvironmentConnectBranch
+   */
+  branch: string;
+}
+/**
+ *
+ * @export
  * @interface RequestUpdateImage
  */
 export interface RequestUpdateImage {
@@ -759,6 +772,19 @@ export interface ResponseEnvironment {
    * @memberof ResponseEnvironment
    */
   slug: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseEnvironmentBranch
+ */
+export interface ResponseEnvironmentBranch {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseEnvironmentBranch
+   */
+  branch: string;
 }
 /**
  *
@@ -3440,6 +3466,59 @@ export const EnvironmentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Get Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getEnvironmentConnectedBranch: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getEnvironmentConnectedBranch", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getEnvironmentConnectedBranch", "id", id);
+      const localVarPath = `/environments/{id}/branch`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -3485,6 +3564,70 @@ export const EnvironmentApiAxiosParamCreator = function (
         ...headersFromBaseOptions,
         ...options.headers,
       };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Update Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateEnvironmentConnectedBranch: async (
+      xUserID: string,
+      id: number,
+      data: RequestUpdateEnvironmentConnectBranch,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("updateEnvironmentConnectedBranch", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("updateEnvironmentConnectedBranch", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("updateEnvironmentConnectedBranch", "data", data);
+      const localVarPath = `/environments/{id}/branch`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3575,6 +3718,43 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Get Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseEnvironmentBranch>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getEnvironmentConnectedBranch(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["EnvironmentApi.getEnvironmentConnectedBranch"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -3600,6 +3780,43 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["EnvironmentApi.getEnvironmentDeployments"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Update Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      data: RequestUpdateEnvironmentConnectBranch,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.updateEnvironmentConnectedBranch(
+          xUserID,
+          id,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["EnvironmentApi.updateEnvironmentConnectedBranch"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -3660,6 +3877,23 @@ export const EnvironmentApiFactory = function (
     },
     /**
      *
+     * @summary Get Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseEnvironmentBranch> {
+      return localVarFp
+        .getEnvironmentConnectedBranch(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -3673,6 +3907,25 @@ export const EnvironmentApiFactory = function (
     ): AxiosPromise<ResponseDeployments> {
       return localVarFp
         .getEnvironmentDeployments(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Update Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      data: RequestUpdateEnvironmentConnectBranch,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .updateEnvironmentConnectedBranch(xUserID, id, data, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -3725,6 +3978,25 @@ export class EnvironmentApi extends BaseAPI {
 
   /**
    *
+   * @summary Get Environment Connected Branch
+   * @param {string} xUserID User ID
+   * @param {number} id Environment ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof EnvironmentApi
+   */
+  public getEnvironmentConnectedBranch(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return EnvironmentApiFp(this.configuration)
+      .getEnvironmentConnectedBranch(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @summary Get Environment Deployments
    * @param {string} xUserID User ID
    * @param {number} id Environment ID
@@ -3739,6 +4011,27 @@ export class EnvironmentApi extends BaseAPI {
   ) {
     return EnvironmentApiFp(this.configuration)
       .getEnvironmentDeployments(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Update Environment Connected Branch
+   * @param {string} xUserID User ID
+   * @param {number} id Environment ID
+   * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof EnvironmentApi
+   */
+  public updateEnvironmentConnectedBranch(
+    xUserID: string,
+    id: number,
+    data: RequestUpdateEnvironmentConnectBranch,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return EnvironmentApiFp(this.configuration)
+      .updateEnvironmentConnectedBranch(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

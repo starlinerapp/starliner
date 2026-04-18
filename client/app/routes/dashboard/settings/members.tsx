@@ -17,7 +17,7 @@ export default function Members() {
   return (
     <div className="flex flex-col px-8 py-4">
       <h1 className="pt-1 text-xl font-bold">Members</h1>
-      <div className="w-full pt-10 xl:w-3/5">
+      <div className="w-full pt-12 xl:w-3/5">
         <div className="border-mauve-6 rounded-md border-1 text-sm">
           <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
             Organization Members
@@ -45,7 +45,7 @@ export default function Members() {
                 className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
               >
                 <span>{member.name}</span>
-                <span className="text-mauve-11 text-xs">{member.email}</span>
+                <span className="text-mauve-11">{member.email}</span>
               </div>
             ))
           )}

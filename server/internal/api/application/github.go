@@ -104,19 +104,14 @@ func (ga *GitHubApplication) HandleGithubWebhook(ctx context.Context, eventType 
 	}
 
 	switch e := event.(type) {
-	case *value.PullRequestClosedEvent:
-		return ga.triggerBuildsForRepository(ctx, e.RepositoryUrl)
 	case *value.PushToBranchEvent:
-		if e.TargetBranch != "main" {
-			return nil
-		}
-		return ga.triggerBuildsForRepository(ctx, e.RepositoryUrl)
+		return ga.triggerBuildsForRepository(ctx, e.RepositoryUrl, e.TargetBranch)
 	default:
 		return nil
 	}
 }
 
-func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, repositoryUrl string) error {
+func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, repositoryUrl string, branch string) error {
 	deployments, err := ga.deploymentRepository.GetGitDeploymentsByRepositoryUrl(ctx, repositoryUrl)
 	if err != nil {
 		return err
@@ -128,6 +123,15 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 		env, err := ga.environmentRepository.GetEnvironmentById(ctx, deployment.EnvironmentId)
 		if err != nil {
 			errs = append(errs, err)
+			continue
+		}
+
+		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, deployment.EnvironmentId)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		if environmentBranch != branch {
 			continue
 		}
 
@@ -148,6 +152,10 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			errs = append(errs, err)
 			continue
 		}
+		if ghApp == nil {
+			continue
+		}
+
 		accessToken, err := ga.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
 		if err != nil {
 			errs = append(errs, err)
