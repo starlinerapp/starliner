@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
@@ -173,6 +172,116 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 			})
 			if err != nil {
 				return nil, err
+			}
+		}
+	}
+
+	ingressRows, err := qtx.GetEnvironmentIngressDeployments(ctx, sqlc.GetEnvironmentIngressDeploymentsParams{
+		EnvironmentID: sourceEnvironmentId,
+		UserID:        userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	depByID := map[int64]*entity.IngressDeployment{}
+	hostByDep := map[int64]map[int64]*entity.IngressHost{}
+
+	for _, r := range ingressRows {
+		dep, exists := depByID[r.DeploymentID]
+		if !exists {
+			dep = &entity.IngressDeployment{
+				Id:            r.DeploymentID,
+				EnvironmentId: r.EnvironmentID,
+				Status:        string(r.Status),
+				Name:          r.DeploymentName,
+				Port:          r.Port,
+				IngressHosts:  []*entity.IngressHost{},
+			}
+			depByID[r.DeploymentID] = dep
+			hostByDep[r.DeploymentID] = map[int64]*entity.IngressHost{}
+		}
+
+		if !r.HostID.Valid {
+			continue
+		}
+
+		hID := r.HostID.Int64
+		hostMap := hostByDep[r.DeploymentID]
+
+		host, exists := hostMap[hID]
+		if !exists {
+			host = &entity.IngressHost{
+				Host:  "",
+				Paths: []*entity.IngressPath{},
+			}
+			hostMap[hID] = host
+			dep.IngressHosts = append(dep.IngressHosts, host)
+		}
+
+		if !r.PathID.Valid {
+			continue
+		}
+
+		serviceName := ""
+		if r.ServiceName.Valid {
+			serviceName = r.ServiceName.String
+		}
+
+		path := ""
+		if r.Path.Valid {
+			path = r.Path.String
+		}
+
+		pathType := ""
+		if r.PathType.Valid {
+			pathType = r.PathType.String
+		}
+
+		host.Paths = append(host.Paths, &entity.IngressPath{
+			Path:        path,
+			PathType:    entity.PathType(pathType),
+			ServiceName: serviceName,
+		})
+	}
+
+	for _, i := range depByID {
+		createdIngress, err := qtx.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
+			Name:          i.Name,
+			Port:          i.Port,
+			EnvironmentID: newEnv.ID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, h := range i.IngressHosts {
+			createdHost, err := qtx.CreateIngressHost(ctx, sqlc.CreateIngressHostParams{
+				DeploymentID: createdIngress.DeploymentID,
+				Host:         h.Host,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			for _, p := range h.Paths {
+				targetDeployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
+					Name:          p.ServiceName,
+					EnvironmentID: newEnv.ID,
+				})
+				if err != nil {
+					return nil, err
+				}
+
+				_, err = qtx.CreateIngressPath(ctx, sqlc.CreateIngressPathParams{
+					IngressHostID: createdHost.ID,
+					DeploymentID:  targetDeployment.ID,
+					Path:          p.Path,
+					PathType:      string(p.PathType),
+				})
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
