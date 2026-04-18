@@ -29,7 +29,13 @@ func (c *Client) Send(ctx context.Context, message port.Message) error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to SMTP server: %w", err)
 	}
-	defer client.Quit()
+	defer func() {
+		if err != nil {
+			_ = client.Close()
+		} else {
+			_ = client.Quit()
+		}
+	}()
 
 	if c.cfg.SmtpUsername != "" && c.cfg.SmtpPassword != "" {
 		if err = client.StartTLS(&tls.Config{ServerName: c.cfg.SmtpHost}); err != nil {
