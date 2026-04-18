@@ -15,9 +15,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import type { ResponseProject } from "~/server/api/client/generated";
+import { cn } from "~/utils/cn";
 
 interface NewEnvironmentFormInput {
   environmentName: string;
+  creationMode: "duplicate" | "empty";
+  sourceEnvironment?: number;
 }
 
 interface ManageEnvironmentsProps {
@@ -66,12 +69,15 @@ export default function ManageEnvironments({
   const {
     register,
     handleSubmit,
-    formState: { isDirty },
+    watch,
+    formState: { isValid },
   } = useForm<NewEnvironmentFormInput>({
     defaultValues: {
       environmentName: "",
+      creationMode: "duplicate",
     },
   });
+  const creationMode = watch("creationMode");
 
   const onNewEnvironmentSubmit: SubmitHandler<NewEnvironmentFormInput> = (
     data,
@@ -138,9 +144,77 @@ export default function ManageEnvironments({
               <input
                 type="text"
                 placeholder="Staging"
-                className="border-mauve-6 rounded-md border-1 px-2 py-1 text-sm focus:outline-none"
-                {...register("environmentName")}
+                className="border-mauve-6 rounded-md border-1 p-2 text-sm focus:outline-none"
+                {...register("environmentName", {
+                  required: true,
+                  validate: (v) => v.trim().length > 0,
+                })}
               />
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="creation-mode-duplicate"
+                  className={cn(
+                    "border-mauve-6 flex cursor-pointer items-start gap-2 rounded-md border p-2",
+                    creationMode === "duplicate" &&
+                      "border-violet-9 bg-violet-2",
+                  )}
+                >
+                  <input
+                    id="creation-mode-duplicate"
+                    type="radio"
+                    value="duplicate"
+                    className="mt-[3px]"
+                    {...register("creationMode")}
+                  />
+                  <div className="flex w-full flex-col gap-2">
+                    <h2 className="text-sm">Duplicate Environment</h2>
+                    <div className="relative w-full">
+                      <select
+                        {...register("sourceEnvironment", {
+                          required: creationMode === "duplicate",
+                          valueAsNumber: true,
+                        })}
+                        className="border-mauve-6 hover:bg-gray-3 h-10 w-full cursor-pointer appearance-none rounded-md border bg-white p-2 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {environments.map((env) => (
+                          <option key={env.id} value={env.id}>
+                            {env.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                        <ChevronDown width={15} className="stroke-mauve-10" />
+                      </div>
+                    </div>
+                    <p className="text-mauve-11 text-sm">
+                      Copy all the services from an existing environment.
+                    </p>
+                  </div>
+                </label>
+
+                <label
+                  htmlFor="creation-mode-empty"
+                  className={cn(
+                    "border-mauve-6 flex cursor-pointer items-start gap-2 rounded-md border p-2",
+                    creationMode === "empty" && "border-violet-9 bg-violet-2",
+                  )}
+                >
+                  <input
+                    id="creation-mode-empty"
+                    type="radio"
+                    value="empty"
+                    className="mt-[3px]"
+                    {...register("creationMode")}
+                  />
+                  <div className="flex w-full flex-col gap-2">
+                    <h2 className="text-sm">Empty Environment</h2>
+                    <p className="text-mauve-11 text-sm">
+                      An empty environment with no services included.
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button
@@ -153,7 +227,7 @@ export default function ManageEnvironments({
               <Button
                 type="submit"
                 className="w-24 self-end"
-                disabled={!isDirty}
+                disabled={!isValid}
               >
                 Create
               </Button>
