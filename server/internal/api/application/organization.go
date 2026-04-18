@@ -210,7 +210,7 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context,
 
 	body, err := template.RenderInvite(template.InviteData{
 		OrganizationName: invite.OrganizationName,
-		InviteLink:       oa.cfg.AppUrl + "/organizations/invite/" + invite.Id,
+		InviteLink:       oa.cfg.ClientUrl + "/organizations/invite/" + invite.Id,
 	})
 	if err != nil {
 		return err

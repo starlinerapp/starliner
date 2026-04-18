@@ -47,7 +47,7 @@ func (c *Client) Send(ctx context.Context, message port.Message) error {
 		}
 	}
 
-	if err = client.Mail(c.cfg.FromMail); err != nil {
+	if err = client.Mail(c.cfg.SenderMail); err != nil {
 		return fmt.Errorf("failed to set sender: %w", err)
 	}
 	if err = client.Rcpt(recipient.Address); err != nil {
@@ -61,7 +61,7 @@ func (c *Client) Send(ctx context.Context, message port.Message) error {
 
 	_, err = fmt.Fprintf(wc,
 		"From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n",
-		c.cfg.FromMail, recipient.Address, message.Subject,
+		c.cfg.SenderMail, recipient.Address, message.Subject,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to write headers: %w", err)

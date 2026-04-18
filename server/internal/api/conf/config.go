@@ -24,12 +24,12 @@ type Config struct {
 	GithubAppPrivateKey     string `mapstructure:"GITHUB_APP_PRIVATE_KEY" validate:"required"`
 	GithubAppID             int64  `mapstructure:"GITHUB_APP_ID" validate:"required"`
 	GithubWebhookSecret     string `mapstructure:"GITHUB_WEBHOOK_SECRET" validate:"required"`
-	FromMail                string `mapstructure:"FROM_MAIL" validate:"required"`
+	SenderMail              string `mapstructure:"SENDER_MAIL" validate:"required"`
 	SmtpHost                string `mapstructure:"SMTP_HOST" validate:"required"`
 	SmtpPort                string `mapstructure:"SMTP_PORT" validate:"required"`
 	SmtpUsername            string `mapstructure:"SMTP_USERNAME"`
 	SmtpPassword            string `mapstructure:"SMTP_PASSWORD"`
-	AppUrl                  string `mapstructure:"APP_URL" validate:"required"`
+	ClientUrl               string `mapstructure:"CLIENT_URL" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
