@@ -1,15 +1,14 @@
 name: Build Images
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-      - develop
 
 env:
-  IMAGE_TAG: ${{ github.ref_name == 'develop' && 'develop' || 'latest' }}
-  ENVIRONMENT: ${{ github.ref_name == 'develop' && 'staging' || github.ref_name == 'main' && 'production' }}
-
+  IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && 'develop' || 'latest' }}
+  ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && 'staging' || 'production' }}
 jobs:
   build-client:
     runs-on: blacksmith-4vcpu-ubuntu-2404
