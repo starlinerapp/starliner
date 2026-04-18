@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -27,13 +28,13 @@ func NewTeamApplication(
 	}
 }
 
-func (ts *TeamApplication) CreateTeam(ctx context.Context, slug string, organizationId int64, userId int64) (*value.Team, error) {
-	err := ts.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
+func (ta *TeamApplication) CreateTeam(ctx context.Context, slug string, organizationId int64, userId int64) (*value.Team, error) {
+	err := ta.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	normalized, err := ts.normalizationService.FormatToDNS1123(slug)
+	normalized, err := ta.normalizationService.FormatToDNS1123(slug)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +43,7 @@ func (ts *TeamApplication) CreateTeam(ctx context.Context, slug string, organiza
 		return nil, errors.New("invalid slug format")
 	}
 
-	team, err := ts.teamRepository.CreateTeam(
+	team, err := ta.teamRepository.CreateTeam(
 		ctx,
 		slug,
 		organizationId,
@@ -51,7 +52,7 @@ func (ts *TeamApplication) CreateTeam(ctx context.Context, slug string, organiza
 		return nil, err
 	}
 
-	err = ts.teamRepository.AddTeamMember(ctx, team.Id, userId)
+	err = ta.teamRepository.AddTeamMember(ctx, team.Id, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -59,13 +60,13 @@ func (ts *TeamApplication) CreateTeam(ctx context.Context, slug string, organiza
 	return value.NewTeam(team), nil
 }
 
-func (ts *TeamApplication) GetUserTeams(ctx context.Context, organizationId int64, userId int64) ([]*value.Team, error) {
-	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+func (ta *TeamApplication) GetUserTeams(ctx context.Context, organizationId int64, userId int64) ([]*value.Team, error) {
+	err := ta.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	teams, err := ts.teamRepository.GetUserTeams(ctx, organizationId, userId)
+	teams, err := ta.teamRepository.GetUserTeams(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -73,13 +74,13 @@ func (ts *TeamApplication) GetUserTeams(ctx context.Context, organizationId int6
 	return value.NewTeams(teams), nil
 }
 
-func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
-	_, err := ts.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
+func (ta *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
+	_, err := ta.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	members, err := ts.teamRepository.GetTeamMembers(ctx, teamId)
+	members, err := ta.teamRepository.GetTeamMembers(ctx, teamId)
 	if err != nil {
 		return nil, err
 	}
@@ -87,41 +88,41 @@ func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, tea
 	return value.NewUsers(members), nil
 }
 
-func (ts *TeamApplication) AddTeamMember(ctx context.Context, userId int64, teamId int64, callerId int64) error {
-	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
+func (ta *TeamApplication) AddTeamMember(ctx context.Context, userId int64, teamId int64, callerId int64) error {
+	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
 	if err != nil {
 		return err
 	}
 
-	err = ts.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, callerId)
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, callerId)
 	if err != nil {
 		return err
 	}
 
-	return ts.teamRepository.AddTeamMember(ctx, teamId, userId)
+	return ta.teamRepository.AddTeamMember(ctx, teamId, userId)
 }
 
-func (ts *TeamApplication) JoinTeam(ctx context.Context, organizationId int64, userId int64, teamSlug string) error {
-	err := ts.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+func (ta *TeamApplication) JoinTeam(ctx context.Context, organizationId int64, userId int64, teamSlug string) error {
+	err := ta.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return err
 	}
 
-	team, err := ts.teamRepository.GetTeamBySlug(ctx, teamSlug, organizationId)
+	team, err := ta.teamRepository.GetTeamBySlug(ctx, teamSlug, organizationId)
 	if err != nil {
 		return err
 	}
 
-	return ts.teamRepository.AddTeamMember(ctx, team.Id, userId)
+	return ta.teamRepository.AddTeamMember(ctx, team.Id, userId)
 }
 
-func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, teamId int64, callerId int64) error {
-	team, err := ts.teamRepository.GetTeamById(ctx, teamId)
+func (ta *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, teamId int64, callerId int64) error {
+	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
 	if err != nil {
 		return err
 	}
 
-	err = ts.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, callerId)
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, callerId)
 	if err != nil {
 		return err
 	}
@@ -132,10 +133,51 @@ func (ts *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, t
 		return errors.New("organization owner cannot be removed from team")
 	}
 
-	err = ts.teamRepository.RemoveTeamMember(ctx, teamId, userId)
+	err = ta.teamRepository.RemoveTeamMember(ctx, teamId, userId)
 	if err != nil {
 		return err
 	}
 
-	return ts.teamRepository.DeleteTeamIfEmpty(ctx, teamId)
+	return ta.teamRepository.DeleteTeamIfEmpty(ctx, teamId)
+}
+
+func (ta *TeamApplication) AssignRepoToTeam(ctx context.Context, userId int64, teamId int64, githubRepoId int64, repoName string) error {
+	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	return ta.teamRepository.AssignRepoToTeam(ctx, teamId, githubRepoId, repoName)
+}
+
+func (ta *TeamApplication) UnassignRepoFromTeam(ctx context.Context, userId int64, teamId int64, githubRepoId int64) error {
+	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	return ta.teamRepository.UnassignRepoFromTeam(ctx, teamId, githubRepoId)
+}
+
+func (ta *TeamApplication) GetTeamRepositories(ctx context.Context, userId int64, teamId int64) ([]*value.TeamRepo, error) {
+	_, err := ta.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
+	if err != nil {
+		return nil, err
+	}
+	repos, err := ta.teamRepository.GetTeamRepositories(ctx, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewTeamRepos(repos), nil
 }
