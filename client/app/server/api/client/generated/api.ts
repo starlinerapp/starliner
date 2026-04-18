@@ -68,6 +68,25 @@ export interface RequestAddTeamMember {
 /**
  *
  * @export
+ * @interface RequestArg
+ */
+export interface RequestArg {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestArg
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestArg
+   */
+  value: string;
+}
+/**
+ *
+ * @export
  * @interface RequestAssignRepoToTeam
  */
 export interface RequestAssignRepoToTeam {
@@ -244,6 +263,12 @@ export interface RequestDeployDatabase {
  * @interface RequestDeployFromGit
  */
 export interface RequestDeployFromGit {
+  /**
+   *
+   * @type {Array<RequestArg>}
+   * @memberof RequestDeployFromGit
+   */
+  args?: Array<RequestArg>;
   /**
    *
    * @type {string}
@@ -467,6 +492,12 @@ export interface RequestRemoveTeamMember {
 export interface RequestUpdateDeployFromGit {
   /**
    *
+   * @type {Array<RequestArg>}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  args?: Array<RequestArg>;
+  /**
+   *
    * @type {string}
    * @memberof RequestUpdateDeployFromGit
    */
@@ -577,6 +608,25 @@ export interface RequestUpsertHetznerCredential {
    * @memberof RequestUpsertHetznerCredential
    */
   apiKey: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseArg
+ */
+export interface ResponseArg {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseArg
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseArg
+   */
+  value: string;
 }
 /**
  *
@@ -826,6 +876,12 @@ export interface ResponseGetOrganizationProvisioningCredentialResponse {
 export interface ResponseGitDeployment {
   /**
    *
+   * @type {Array<ResponseArg>}
+   * @memberof ResponseGitDeployment
+   */
+  args: Array<ResponseArg>;
+  /**
+   *
    * @type {string}
    * @memberof ResponseGitDeployment
    */
@@ -885,6 +941,12 @@ export interface ResponseGitDeployment {
  * @interface ResponseGitDeploymentBuild
  */
 export interface ResponseGitDeploymentBuild {
+  /**
+   *
+   * @type {Array<ResponseArg>}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  args: Array<ResponseArg>;
   /**
    *
    * @type {number}
