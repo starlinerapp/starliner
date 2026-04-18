@@ -20,6 +20,7 @@ INSERT INTO organization_members (
     $1,
     $2
  )
+ON CONFLICT (organization_id, user_id) DO NOTHING
 `
 
 type AddOrganizationMemberParams struct {
@@ -142,6 +143,41 @@ func (q *Queries) GetOrganizationInviteById(ctx context.Context, id uuid.UUID) (
 		&i.OrganizationName,
 	)
 	return i, err
+}
+
+const getOrganizationMembers = `-- name: GetOrganizationMembers :many
+SELECT users.id, users.better_auth_id
+FROM users
+INNER JOIN organization_members on organization_members.user_id = users.id
+WHERE organization_members.organization_id = $1
+`
+
+type GetOrganizationMembersRow struct {
+	ID           int64
+	BetterAuthID string
+}
+
+func (q *Queries) GetOrganizationMembers(ctx context.Context, organizationID int64) ([]GetOrganizationMembersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrganizationMembers, organizationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrganizationMembersRow
+	for rows.Next() {
+		var i GetOrganizationMembersRow
+		if err := rows.Scan(&i.ID, &i.BetterAuthID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOrganizationProvisioningCredential = `-- name: GetOrganizationProvisioningCredential :one

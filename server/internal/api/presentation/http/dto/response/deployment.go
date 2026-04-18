@@ -1,8 +1,9 @@
 package response
 
 import (
-	"starliner.app/internal/api/domain/value"
 	"time"
+
+	"starliner.app/internal/api/domain/value"
 )
 
 type Deployments struct {
@@ -126,6 +127,8 @@ type ImageDeployment struct {
 	Tag              string   `json:"tag" binding:"required"`
 	Status           string   `json:"status" binding:"required"`
 	Port             string   `json:"port" binding:"required"`
+	VolumeSizeMiB    *int32   `json:"volumeSizeMiB"`
+	VolumeMountPath  *string  `json:"volumeMountPath"`
 	EnvVars          []EnvVar `json:"envVars" binding:"required"`
 }
 
@@ -138,6 +141,8 @@ func NewImageDeployment(imageDeployment *value.ImageDeployment) ImageDeployment 
 		Tag:              imageDeployment.Tag,
 		Status:           imageDeployment.Status,
 		Port:             imageDeployment.Port,
+		VolumeSizeMiB:    imageDeployment.VolumeSizeMiB,
+		VolumeMountPath:  imageDeployment.VolumeMountPath,
 		EnvVars:          mapEnvVarsFromValue(imageDeployment.EnvVars),
 	}
 }
@@ -195,6 +200,8 @@ type GitDeploymentBuild struct {
 	BuildId        int64     `json:"buildId" binding:"required"`
 	DeploymentId   int64     `json:"deploymentId" binding:"required"`
 	DeploymentName string    `json:"deploymentName" binding:"required"`
+	CommitHash     *string   `json:"commitHash" binding:"required"`
+	Source         string    `json:"source" binding:"required"`
 	Status         string    `json:"status" binding:"required"`
 	GitUrl         string    `json:"gitUrl" binding:"required"`
 	ProjectPath    string    `json:"projectPath" binding:"required"`
@@ -207,6 +214,8 @@ func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
 		BuildId:        build.BuildId,
 		DeploymentId:   build.DeploymentId,
 		DeploymentName: build.DeploymentName,
+		CommitHash:     build.CommitHash,
+		Source:         build.Source,
 		Status:         string(build.Status),
 		GitUrl:         build.GitUrl,
 		ProjectPath:    build.ProjectPath,

@@ -33,4 +33,3 @@ spec:
               value: {{ tpl .value $ | quote }}
             {{- end }}
           {{- end }}
-

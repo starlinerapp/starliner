@@ -1,24 +1,24 @@
 name: Build Images
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-      - develop
 
 env:
-  IMAGE_TAG: ${{ github.ref_name == 'develop' && 'develop' || 'latest' }}
-  ENVIRONMENT: ${{ github.ref_name == 'develop' && 'staging' || github.ref_name == 'main' && 'production' }}
-
+  IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && 'develop' || 'latest' }}
+  ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && 'staging' || 'production' }}
 jobs:
   build-client:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        with:
+          ref: ${{ github.ref_name }}
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -28,24 +28,22 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push client image
-        uses: docker/build-push-action@v6
+        uses: useblacksmith/build-push-action@v2
         with:
           context: .
           file: .docker/client/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:cache,mode=max
 
   build-mcp-server:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -55,24 +53,22 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push mcp-server image
-        uses: docker/build-push-action@v6
+        uses: useblacksmith/build-push-action@v2
         with:
           context: .
           file: .docker/mcp-server/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/mcp-server:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/mcp-server:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/mcp-server:cache,mode=max
 
   build-server-api:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -82,24 +78,22 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push server-api image
-        uses: docker/build-push-action@v6
+        uses: useblacksmith/build-push-action@v2
         with:
           context: .
           file: .docker/server/api/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:cache,mode=max
 
   build-server-builder:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -109,24 +103,22 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push server-builder image
-        uses: docker/build-push-action@v6
+        uses: useblacksmith/build-push-action@v2
         with:
           context: .
           file: .docker/server/builder/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:cache,mode=max
 
   build-server-cluster:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -136,24 +128,22 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push server-cluster image
-        uses: docker/build-push-action@v6
+        uses: useblacksmith/build-push-action@v2
         with:
           context: .
           file: .docker/server/cluster/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:cache,mode=max
 
   build-server-provisioner:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -163,15 +153,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push server-provisioner image
-        uses: docker/build-push-action@v6
+        uses: useblacksmith/build-push-action@v2
         with:
           context: .
           file: .docker/server/provisioner/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:cache,mode=max
 
   trigger-deployment:
     needs:
@@ -181,7 +169,7 @@ jobs:
       - build-server-builder
       - build-server-cluster
       - build-server-provisioner
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Trigger Deployment
         uses: peter-evans/repository-dispatch@v4

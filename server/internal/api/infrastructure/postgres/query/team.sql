@@ -1,12 +1,10 @@
 -- name: CreateTeam :one
 INSERT INTO teams (
-    name,
     slug,
     organization_id
 ) VALUES (
     $1,
-    $2,
-    $3
+    $2
 )
 RETURNING *;
 
@@ -44,3 +42,49 @@ ON CONFLICT (team_id, user_id) DO NOTHING;
 DELETE FROM team_members
 WHERE team_members.team_id = $1
     AND team_members.user_id = $2;
+
+-- name: GetTeamById :one
+SELECT * FROM teams WHERE teams.id = $1;
+
+-- name: FindTeamByIdAndUserId :one
+SELECT teams.*
+FROM teams
+INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
+WHERE teams.id = $1
+    AND organization_members.user_id = $2;
+
+-- name: DeleteTeamIfEmpty :exec
+DELETE FROM teams
+WHERE id = $1
+    AND NOT EXISTS (
+        SELECT 1 FROM team_members WHERE team_members.team_id = $1
+    );
+
+-- name: AssignRepoToTeam :exec
+INSERT INTO team_repositories (
+    team_id,
+    github_repo_id,
+    repo_name
+) VALUES (
+    $1,
+    $2,
+    $3
+)
+ON CONFLICT (team_id, github_repo_id) DO NOTHING;
+
+-- name: UnassignRepoFromTeam :exec
+DELETE FROM team_repositories
+WHERE team_id = $1
+    AND github_repo_id = $2;
+
+-- name: GetTeamRepositories :many
+SELECT github_repo_id, repo_name
+FROM team_repositories
+WHERE team_id = $1;
+
+-- name: GetTeamsByRepoAndOrg :many
+SELECT teams.*
+FROM teams
+INNER JOIN team_repositories ON team_repositories.team_id = teams.id
+WHERE teams.organization_id = $1
+    AND team_repositories.github_repo_id = $2;

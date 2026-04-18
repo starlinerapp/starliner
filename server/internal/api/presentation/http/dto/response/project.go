@@ -1,8 +1,9 @@
 package response
 
 import (
-	"starliner.app/internal/api/domain/value"
 	"time"
+
+	"starliner.app/internal/api/domain/value"
 )
 
 type Project struct {
@@ -10,6 +11,7 @@ type Project struct {
 	Name         string        `json:"name" binding:"required"`
 	Environments []Environment `json:"environments" binding:"required"`
 	ClusterId    *int64        `json:"clusterId" binding:"required"`
+	TeamId       int64         `json:"teamId" binding:"required"`
 	CreatedAt    time.Time     `json:"createdAt" binding:"required"`
 }
 
@@ -27,6 +29,7 @@ func NewProject(p *value.Project) Project {
 		Name:         p.Name,
 		Environments: environments,
 		ClusterId:    p.ClusterId,
+		TeamId:       p.TeamId,
 		CreatedAt:    p.CreatedAt,
 	}
 }

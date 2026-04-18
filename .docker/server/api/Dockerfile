@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine AS dev
+FROM golang:1.26-alpine AS dev
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ ENTRYPOINT ["air", \
   "--build.full_bin=dlv exec --accept-multiclient --headless --continue --log --listen=:40000 --api-version=2 ./build/api --" \
 ]
 
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ COPY ../../../server .
 ENV CGO_ENABLED=0
 RUN go build -o api ./cmd/api/main.go
 
-FROM golang:1.25-alpine AS runner
+FROM golang:1.26-alpine AS runner
 
 WORKDIR /app
 

@@ -51,12 +51,7 @@ func (oa *OrganizationApplication) CreateOrganization(ctx context.Context, name 
 		return nil, err
 	}
 
-	defaultTeamSlug, err := oa.normalizationService.FormatToDNS1123(name + "-default")
-	if err != nil {
-		return nil, err
-	}
-
-	team, err := oa.teamRepository.CreateTeam(ctx, "Default", defaultTeamSlug, org.Id)
+	team, err := oa.teamRepository.CreateTeam(ctx, org.Slug, org.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +168,23 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 		return errors.New("invite has expired")
 	}
 
-	return oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
+	err = oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
+	if err != nil {
+		return err
+	}
+
+	org, err := oa.organizationRepository.GetOrganization(ctx, invite.OrganizationId)
+	if err != nil {
+		return err
+	}
+
+	// TODO: better to store default team explicitly, works as long as you can't change team slugs
+	team, err := oa.teamRepository.GetTeamBySlug(ctx, org.Slug, org.Id)
+	if err != nil {
+		return err
+	}
+
+	return oa.teamRepository.AddTeamMember(ctx, team.Id, userID)
 }
 
 func (oa *OrganizationApplication) CreateInvite(ctx context.Context, userID int64, organizationID int64) (*value.OrganizationInvite, error) {
@@ -189,4 +200,18 @@ func (oa *OrganizationApplication) CreateInvite(ctx context.Context, userID int6
 	}
 
 	return value.NewOrganizationInvite(invite), nil
+}
+
+func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, userID int64, organizationID int64) ([]*value.User, error) {
+	err := oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	members, err := oa.organizationRepository.GetOrganizationMembers(ctx, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewUsers(members), nil
 }

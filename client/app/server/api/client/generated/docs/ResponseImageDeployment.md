@@ -2,16 +2,18 @@
 
 ## Properties
 
-| Name                 | Type                                                 | Description | Notes                  |
-| -------------------- | ---------------------------------------------------- | ----------- | ---------------------- |
-| **envVars**          | [**Array&lt;ResponseEnvVar&gt;**](ResponseEnvVar.md) |             | [default to undefined] |
-| **id**               | **number**                                           |             | [default to undefined] |
-| **imageName**        | **string**                                           |             | [default to undefined] |
-| **internalEndpoint** | **string**                                           |             | [default to undefined] |
-| **port**             | **string**                                           |             | [default to undefined] |
-| **serviceName**      | **string**                                           |             | [default to undefined] |
-| **status**           | **string**                                           |             | [default to undefined] |
-| **tag**              | **string**                                           |             | [default to undefined] |
+| Name                 | Type                                                 | Description | Notes                             |
+| -------------------- | ---------------------------------------------------- | ----------- | --------------------------------- |
+| **envVars**          | [**Array&lt;ResponseEnvVar&gt;**](ResponseEnvVar.md) |             | [default to undefined]            |
+| **id**               | **number**                                           |             | [default to undefined]            |
+| **imageName**        | **string**                                           |             | [default to undefined]            |
+| **internalEndpoint** | **string**                                           |             | [default to undefined]            |
+| **port**             | **string**                                           |             | [default to undefined]            |
+| **serviceName**      | **string**                                           |             | [default to undefined]            |
+| **status**           | **string**                                           |             | [default to undefined]            |
+| **tag**              | **string**                                           |             | [default to undefined]            |
+| **volumeMountPath**  | **string**                                           |             | [optional] [default to undefined] |
+| **volumeSizeMiB**    | **number**                                           |             | [optional] [default to undefined] |
 
 ## Example
 
@@ -27,6 +29,8 @@ const instance: ResponseImageDeployment = {
   serviceName,
   status,
   tag,
+  volumeMountPath,
+  volumeSizeMiB,
 };
 ```
 

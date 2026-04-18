@@ -3,12 +3,13 @@ package http
 import (
 	"context"
 	"errors"
+	"log"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
-	"log"
-	"net/http"
 	_ "starliner.app/cmd/api/docs"
 	"starliner.app/internal/api/presentation/http/handler"
 	"starliner.app/internal/api/presentation/http/middleware"
@@ -57,6 +58,10 @@ func NewServer(
 		organizationRoutes.POST("/:id/settings/credential/hetzner", organizationHandler.UpsertHetznerCredential)
 		organizationRoutes.GET("/:id/settings/credential/hetzner", organizationHandler.GetHetznerCredential)
 		organizationRoutes.POST("/:id/invites", organizationHandler.CreateInvite)
+		organizationRoutes.POST("/:id/teams", teamHandler.CreateTeam)
+		organizationRoutes.GET("/:id/teams", teamHandler.GetUserTeams)
+		organizationRoutes.POST("/:id/teams/join", teamHandler.JoinTeam)
+		organizationRoutes.GET("/:id/members", organizationHandler.GetOrganizationMembers)
 	}
 
 	inviteRoutes := engine.Group("/invites")
@@ -79,6 +84,8 @@ func NewServer(
 		environmentRoutes.POST("", environmentHandler.CreateEnvironment)
 		environmentRoutes.GET("/:id/deployments", environmentHandler.GetEnvironmentDeployments)
 		environmentRoutes.GET("/:id/builds", environmentHandler.GetEnvironmentBuilds)
+		environmentRoutes.GET("/:id/branch", environmentHandler.GetEnvironmentConnectedBranch)
+		environmentRoutes.PUT("/:id/branch", environmentHandler.UpdateEnvironmentConnectedBranch)
 	}
 
 	clusterRoutes := engine.Group("/clusters")
@@ -115,17 +122,18 @@ func NewServer(
 
 	teamRoutes := engine.Group("/teams")
 	{
-		teamRoutes.POST("/:organizationId", teamHandler.CreateTeam)
-		teamRoutes.GET("/:organizationId", teamHandler.GetUserTeams)
-		teamRoutes.POST("/:organizationId/join", teamHandler.JoinTeam)
-		teamRoutes.GET("/:organizationId/:teamId/members", teamHandler.GetTeamMembers)
-		teamRoutes.POST("/:organizationId/:teamId/members", teamHandler.AddTeamMember)
-		teamRoutes.DELETE("/:organizationId/:teamId/members", teamHandler.RemoveTeamMember)
+		teamRoutes.GET("/:teamId/members", teamHandler.GetTeamMembers)
+		teamRoutes.POST("/:teamId/members", teamHandler.AddTeamMember)
+		teamRoutes.DELETE("/:teamId/members", teamHandler.RemoveTeamMember)
+		teamRoutes.GET("/:teamId/repos", teamHandler.GetTeamRepositories)
+		teamRoutes.POST("/:teamId/repos", teamHandler.AssignRepoToTeam)
+		teamRoutes.DELETE("/:teamId/repos/:repoId", teamHandler.UnassignRepoFromTeam)
 	}
 
 	githubRoutes := engine.Group("/github")
 	{
 		githubRoutes.GET("/repositories/:organizationId", githubHandler.GetRepositories)
+		githubRoutes.GET("/all-repositories/:organizationId", githubHandler.GetAllRepositories)
 		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/contents", githubHandler.GetRepositoryContents)
 	}
 

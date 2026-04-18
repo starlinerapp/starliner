@@ -225,21 +225,20 @@ func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, arg GetE
 }
 
 const getIngressHostByName = `-- name: GetIngressHostByName :one
-SELECT id, deployment_id, host, created_at, updated_at
+SELECT i.host, i.deployment_id
 FROM ingress_hosts i
-where i.host = $1
+WHERE i.host = $1
 `
 
-func (q *Queries) GetIngressHostByName(ctx context.Context, host string) (IngressHost, error) {
+type GetIngressHostByNameRow struct {
+	Host         string
+	DeploymentID int64
+}
+
+func (q *Queries) GetIngressHostByName(ctx context.Context, host string) (GetIngressHostByNameRow, error) {
 	row := q.db.QueryRowContext(ctx, getIngressHostByName, host)
-	var i IngressHost
-	err := row.Scan(
-		&i.ID,
-		&i.DeploymentID,
-		&i.Host,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
+	var i GetIngressHostByNameRow
+	err := row.Scan(&i.Host, &i.DeploymentID)
 	return i, err
 }
 

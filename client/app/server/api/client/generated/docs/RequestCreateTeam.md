@@ -4,7 +4,7 @@
 
 | Name     | Type       | Description | Notes                  |
 | -------- | ---------- | ----------- | ---------------------- |
-| **name** | **string** |             | [default to undefined] |
+| **slug** | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -12,7 +12,7 @@
 import { RequestCreateTeam } from "./api";
 
 const instance: RequestCreateTeam = {
-  name,
+  slug,
 };
 ```
 

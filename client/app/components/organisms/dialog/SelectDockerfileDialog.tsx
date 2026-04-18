@@ -29,12 +29,17 @@ export default function SelectDockerfileDialog({
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
   const { data: repositoryContentData, isLoading: isRootLoading } = useQuery(
-    trpc.github.getRepositoryFiles.queryOptions({
-      organizationId: organizationContext.id,
-      owner: repositoryOwner,
-      repo: repositoryName,
-      path: path,
-    }),
+    trpc.github.getRepositoryFiles.queryOptions(
+      {
+        organizationId: organizationContext.id,
+        owner: repositoryOwner,
+        repo: repositoryName,
+        path: path,
+      },
+      {
+        enabled: repositoryOwner !== "" && repositoryName !== "",
+      },
+    ),
   );
 
   function handleContinue() {

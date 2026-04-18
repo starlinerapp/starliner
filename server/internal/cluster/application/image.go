@@ -2,6 +2,7 @@ package application
 
 import (
 	"log"
+
 	"starliner.app/internal/cluster/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
@@ -30,6 +31,8 @@ func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
 		ImageRepository:  a.ImageName,
 		ImageTag:         a.ImageTag,
 		Port:             a.Port,
+		VolumeSizeMiB:    a.VolumeSizeMiB,
+		VolumeMountPath:  a.VolumeMountPath,
 		EnvVars:          portEnvs,
 	}
 

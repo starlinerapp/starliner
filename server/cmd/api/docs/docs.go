@@ -554,6 +554,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}/branch": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Connected Branch",
+                "operationId": "getEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EnvironmentBranch"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Update Environment Connected Branch",
+                "operationId": "updateEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Environment Connected Branch",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateEnvironmentConnectBranch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments/{id}/builds": {
             "get": {
                 "tags": [
@@ -618,6 +688,42 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Deployments"
+                        }
+                    }
+                }
+            }
+        },
+        "/github/all-repositories/{organizationId}": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get All Repositories (owner only, unfiltered)",
+                "operationId": "getAllRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Repository"
+                            }
                         }
                     }
                 }
@@ -1002,6 +1108,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/organizations/{id}/members": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get all organization members",
+                "operationId": "getOrganizationMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/organizations/{id}/projects": {
             "get": {
                 "tags": [
@@ -1104,6 +1246,121 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/teams": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get User Teams",
+                "operationId": "getUserTeams",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Team"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Create team",
+                "operationId": "createTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Team slug (lowercase, alphanumeric, hyphens only)",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateTeam"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Team"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/teams/join": {
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Join a team by slug",
+                "operationId": "joinTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Join Team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.JoinTeam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
@@ -1273,122 +1530,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/teams/{organizationId}": {
-            "get": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Get User Teams",
-                "operationId": "getUserTeams",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.Team"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Create team",
-                "operationId": "createTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Create Team",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateTeam"
-                        }
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.Team"
-                        }
-                    }
-                }
-            }
-        },
-        "/teams/{organizationId}/join": {
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Join a team by slug",
-                "operationId": "joinTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Join Team",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.JoinTeam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    }
-                }
-            }
-        },
-        "/teams/{organizationId}/{teamId}/members": {
+        "/teams/{teamId}/members": {
             "get": {
                 "tags": [
                     "team"
@@ -1401,13 +1543,6 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "X-User-ID",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
                         "required": true
                     },
                     {
@@ -1434,7 +1569,7 @@ const docTemplate = `{
                 "tags": [
                     "team"
                 ],
-                "summary": "Add current user to team",
+                "summary": "Add organization member to team",
                 "operationId": "addTeamMember",
                 "parameters": [
                     {
@@ -1446,17 +1581,19 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Team ID",
                         "name": "teamId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "ID of member to add",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddTeamMember"
+                        }
                     }
                 ],
                 "responses": {
@@ -1469,7 +1606,7 @@ const docTemplate = `{
                 "tags": [
                     "team"
                 ],
-                "summary": "Remove Team Member",
+                "summary": "Remove organization member from team",
                 "operationId": "removeTeamMember",
                 "parameters": [
                     {
@@ -1481,9 +1618,41 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Organization ID",
-                        "name": "organizationId",
+                        "description": "Team ID",
+                        "name": "teamId",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ID of the organization member to remove from the team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RemoveTeamMember"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/repos": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get repositories assigned to a team",
+                "operationId": "getTeamRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -1496,7 +1665,87 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.TeamRepo"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Assign a GitHub repository to a team",
+                "operationId": "assignRepoToTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Assign Repo",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AssignRepoToTeam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/repos/{repoId}": {
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Unassign a GitHub repository from a team",
+                "operationId": "unassignRepoFromTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "GitHub Repo ID",
+                        "name": "repoId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -1510,6 +1759,32 @@ const docTemplate = `{
             ],
             "properties": {
                 "inviteId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AddTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.AssignRepoToTeam": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
                     "type": "string"
                 }
             }
@@ -1608,11 +1883,12 @@ const docTemplate = `{
         "request.CreateTeam": {
             "type": "object",
             "required": [
-                "name"
+                "slug"
             ],
             "properties": {
-                "name": {
-                    "type": "string"
+                "slug": {
+                    "type": "string",
+                    "maxLength": 50
                 }
             }
         },
@@ -1700,6 +1976,12 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },
@@ -1788,6 +2070,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.RemoveTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.UpdateDeployFromGit": {
             "type": "object",
             "required": [
@@ -1814,6 +2107,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "projectRepositoryPath": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateEnvironmentConnectBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
                     "type": "string"
                 }
             }
@@ -2057,6 +2361,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.EnvironmentBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GetOrganizationProvisioningCredentialResponse": {
             "type": "object",
             "properties": {
@@ -2115,17 +2430,22 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "buildId",
+                "commitHash",
                 "createdAt",
                 "deploymentId",
                 "deploymentName",
                 "dockerfilePath",
                 "gitUrl",
                 "projectPath",
+                "source",
                 "status"
             ],
             "properties": {
                 "buildId": {
                     "type": "integer"
+                },
+                "commitHash": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
@@ -2143,6 +2463,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "projectPath": {
+                    "type": "string"
+                },
+                "source": {
                     "type": "string"
                 },
                 "status": {
@@ -2208,6 +2531,12 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },
@@ -2354,7 +2683,8 @@ const docTemplate = `{
                 "createdAt",
                 "environments",
                 "id",
-                "name"
+                "name",
+                "teamId"
             ],
             "properties": {
                 "clusterId": {
@@ -2374,6 +2704,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },
@@ -2480,7 +2813,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "name",
                 "organization_id",
                 "slug"
             ],
@@ -2488,14 +2820,30 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "organization_id": {
                     "type": "integer"
                 },
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "response.TeamRepo": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName",
+                "teamId"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },

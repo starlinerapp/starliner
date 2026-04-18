@@ -26,6 +26,8 @@ export default function Index() {
       imageName: data.imageName,
       tag: data.tag,
       port: data.port,
+      volumeSizeMiB: data.volumeSizeMiB ?? undefined,
+      volumeMountPath: data.volumeMountPath ?? undefined,
       envs: data.envs,
     });
   };

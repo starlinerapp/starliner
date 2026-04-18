@@ -2,10 +2,60 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                              | HTTP request                                                                | Description            |
-| --------------------------------------------------- | --------------------------------------------------------------------------- | ---------------------- |
-| [**getRepositories**](#getrepositories)             | **GET** /github/repositories/{organizationId}                               | Get Repositories       |
-| [**getRepositoryContents**](#getrepositorycontents) | **GET** /github/repositories/{organizationId}/{owner}/{repository}/contents | Get Repository Content |
+| Method                                              | HTTP request                                                                | Description                                   |
+| --------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------- |
+| [**getAllRepositories**](#getallrepositories)       | **GET** /github/all-repositories/{organizationId}                           | Get All Repositories (owner only, unfiltered) |
+| [**getRepositories**](#getrepositories)             | **GET** /github/repositories/{organizationId}                               | Get Repositories                              |
+| [**getRepositoryContents**](#getrepositorycontents) | **GET** /github/repositories/{organizationId}/{owner}/{repository}/contents | Get Repository Content                        |
+
+# **getAllRepositories**
+
+> Array<ResponseRepository> getAllRepositories()
+
+### Example
+
+```typescript
+import { GithubApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new GithubApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let organizationId: number; //Organization ID (default to undefined)
+
+const { status, data } = await apiInstance.getAllRepositories(
+  xUserID,
+  organizationId,
+);
+```
+
+### Parameters
+
+| Name               | Type         | Description     | Notes                 |
+| ------------------ | ------------ | --------------- | --------------------- |
+| **xUserID**        | [**string**] | User ID         | defaults to undefined |
+| **organizationId** | [**number**] | Organization ID | defaults to undefined |
+
+### Return type
+
+**Array<ResponseRepository>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getRepositories**
 

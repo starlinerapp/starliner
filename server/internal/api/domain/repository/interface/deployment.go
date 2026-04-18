@@ -34,6 +34,8 @@ type DeploymentRepository interface {
 		imageName string,
 		tag string,
 		port string,
+		volumeSizeMiB *int32,
+		volumeMountPath *string,
 		environmentId int64,
 		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)
@@ -86,6 +88,8 @@ type DeploymentRepository interface {
 
 	GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error)
 
+	SoftDeleteDeploymentVolume(ctx context.Context, deploymentId int64) error
+
 	DeleteDeployment(ctx context.Context, deploymentId int64) error
 
 	GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error)
@@ -94,7 +98,7 @@ type DeploymentRepository interface {
 
 	GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error)
 
-	GetIngressHostByName(ctx context.Context, hostName string) (*string, error)
+	GetIngressHostByName(ctx context.Context, hostName string) (*entity.IngressHostDeployment, error)
 
 	GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error)
 }

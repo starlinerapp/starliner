@@ -107,7 +107,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id)
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id)
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
 	if err != nil {
 		return err
 	}
@@ -208,6 +208,8 @@ func (da *DeploymentApplication) DeployImage(
 	imageName string,
 	tag string,
 	port int,
+	volumeSizeMiB *int32,
+	volumeMountPath *string,
 	envs []*value.EnvVar,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
@@ -234,12 +236,18 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	if (volumeSizeMiB != nil && volumeMountPath == nil) || (volumeSizeMiB == nil && volumeMountPath != nil) {
+		return fmt.Errorf("volumeMountPath=%v, volumeSizeMiB=%v: must be both nil or both not nil", volumeMountPath, volumeSizeMiB)
+	}
+
 	deployment, err := da.deploymentRepository.CreateImageDeployment(
 		ctx,
 		serviceName,
 		imageName,
 		tag,
 		strconv.Itoa(port),
+		volumeSizeMiB,
+		volumeMountPath,
 		environmentId,
 		envs,
 	)
@@ -273,6 +281,8 @@ func (da *DeploymentApplication) DeployImage(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
+		VolumeSizeMiB:    volumeSizeMiB,
+		VolumeMountPath:  volumeMountPath,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {
@@ -344,6 +354,8 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		ImageName:        imageName,
 		ImageTag:         tag,
 		Port:             port,
+		VolumeSizeMiB:    deployment.VolumeSizeMiB,
+		VolumeMountPath:  deployment.VolumeMountPath,
 		EnvVars:          coreEnvs,
 	})
 	if err != nil {
@@ -514,7 +526,22 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		return err
 	}
 
-	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
+	hostsToValidate := make([]*value.IngressHost, 0, len(hosts))
+	for _, h := range hosts {
+		if h == nil {
+			continue
+		}
+		existing, err := da.deploymentRepository.GetIngressHostByName(ctx, h.Host)
+		if err != nil {
+			return err
+		}
+		if existing != nil && existing.DeploymentId == deploymentId {
+			continue
+		}
+		hostsToValidate = append(hostsToValidate, h)
+	}
+
+	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hostsToValidate)
 	if err != nil {
 		return err
 	}
@@ -616,6 +643,11 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	}
 
 	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deployment.Name)
+	if err != nil {
+		return err
+	}
+
+	err = da.deploymentRepository.SoftDeleteDeploymentVolume(ctx, deploymentId)
 	if err != nil {
 		return err
 	}
@@ -764,7 +796,7 @@ func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValu
 
 func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {
 	ctx := context.Background()
-	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.Logs)
+	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.CommitHash, b.Logs)
 	if err != nil {
 		log.Printf("failed to update build status: %v\n", err)
 	}
@@ -820,7 +852,7 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		Namespace:        deployment.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 		ImageName:        fmt.Sprintf("%s/%s", b.ImageRegistryUrl, b.ImageName),
-		ImageTag:         b.Tag,
+		ImageTag:         *b.Tag,
 		Port:             deploymentPort,
 		EnvVars:          coreEnvs,
 	})

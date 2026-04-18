@@ -81,6 +81,6 @@ AND team_members.user_id = $2
 ORDER BY d.id DESC;
 
 -- name: GetIngressHostByName :one
-SELECT *
+SELECT i.host, i.deployment_id
 FROM ingress_hosts i
-where i.host = $1;
+WHERE i.host = $1;
