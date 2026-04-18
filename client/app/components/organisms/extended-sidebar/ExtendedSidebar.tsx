@@ -7,7 +7,7 @@ import {
 import { NavLink, useLocation } from "react-router";
 import { cn } from "~/utils/cn";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import { ChevronDown, ChevronRight } from "~/components/atoms/icons";
+import { ChevronDown } from "~/components/atoms/icons";
 import { motion } from "framer-motion";
 
 type SidebarItem = {
