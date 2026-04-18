@@ -554,6 +554,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}/branch": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Connected Branch",
+                "operationId": "getEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EnvironmentBranch"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Update Environment Connected Branch",
+                "operationId": "updateEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Environment Connected Branch",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateEnvironmentConnectBranch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments/{id}/builds": {
             "get": {
                 "tags": [
@@ -2062,6 +2132,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateEnvironmentConnectBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateImage": {
             "type": "object",
             "required": [
@@ -2297,6 +2378,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.EnvironmentBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
                     "type": "string"
                 }
             }
