@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight } from "~/components/atoms/icons";
 import { formatDistanceToNow } from "date-fns";
 import { Spinner } from "~/components/atoms/spinner/Spinner";
-import { Check, X } from "lucide-react";
+import { Check, GitMerge, X } from "lucide-react";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 interface LogsCardProps {
   isCollapsed?: boolean;
   buildId: number;
+  commitHash: string;
+  source: string;
   serviceName: string;
   createdAt: string;
   status: string;
@@ -19,6 +21,8 @@ interface LogsCardProps {
 export default function BuildCard({
   isCollapsed: collapsed = true,
   buildId,
+  commitHash,
+  source,
   serviceName,
   status,
   createdAt,
@@ -42,27 +46,44 @@ export default function BuildCard({
 
   return (
     <div className="shadow-xs">
-      <div className="border-mauve-6 rounded-t-md border-1 px-4 py-3 text-sm">
-        <div className="flex items-center gap-3">
-          {(status === "queued" || status === "building") && (
-            <Spinner className="stroke-violet-10 size-5" />
-          )}
-          {status === "success" && (
-            <div className="bg-grass-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
-              <Check className="w-3.5 stroke-white stroke-2" />
+      <div className="border-mauve-6 rounded-t-md border px-4 py-3 text-sm">
+        <div className="flex gap-3">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+            {(status === "queued" || status === "building") && (
+              <Spinner className="stroke-violet-10 size-5" />
+            )}
+            {status === "success" && (
+              <div className="bg-grass-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
+                <Check className="w-3.5 stroke-white stroke-2" />
+              </div>
+            )}
+            {status === "failure" && (
+              <div className="bg-red-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
+                <X className="w-3.5 stroke-white stroke-2" />
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2">
+                <p>{serviceName}</p>
+              </span>
+              <p>·</p>
+              <p className="text-mauve-10">
+                {formatDistanceToNow(new Date(createdAt))} ago
+              </p>
+              {commitHash && (
+                <p className="text-mauve-10 bg-gray-3 border-mauve-6 flex items-center gap-1 rounded-md border px-1.5">
+                  <GitMerge size={16} />
+                  {commitHash.slice(0, 7)}
+                </p>
+              )}
             </div>
-          )}
-          {status === "failure" && (
-            <div className="bg-red-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
-              <X className="w-3.5 stroke-white stroke-2" />
+
+            <div className="text-mauve-10 mt-0.5 text-sm">
+              <p>{source === "manual" ? "Manually triggered" : "On Push"}</p>
             </div>
-          )}
-          <div className="flex gap-2">
-            <p className="font-bold">{serviceName}</p>
-            <p>·</p>
-            <p className="text-mauve-10">
-              {formatDistanceToNow(createdAt)} ago
-            </p>
           </div>
         </div>
       </div>

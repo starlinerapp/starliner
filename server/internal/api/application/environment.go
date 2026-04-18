@@ -169,6 +169,8 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 			BuildId:        b.BuildId,
 			DeploymentId:   b.DeploymentId,
 			DeploymentName: b.DeploymentName,
+			CommitHash:     b.CommitHash,
+			Source:         b.Source,
 			Status:         value.BuildStatus(b.Status),
 			GitUrl:         b.GitUrl,
 			ProjectPath:    b.ProjectPath,
@@ -177,4 +179,30 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 		}
 	}
 	return valueBuilds, nil
+}
+
+func (ea *EnvironmentApplication) GetEnvironmentBranch(ctx context.Context, userId int64, environmentId int64) (string, error) {
+	err := ea.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return "", err
+	}
+
+	branch, err := ea.environmentRepository.GetEnvironmentBranch(ctx, environmentId)
+	if err != nil {
+		return "", err
+	}
+	return branch, nil
+}
+
+func (ea *EnvironmentApplication) UpdateEnvironmentBranch(ctx context.Context, userId int64, environmentId int64, branch string) error {
+	err := ea.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return err
+	}
+
+	err = ea.environmentRepository.UpdateEnvironmentBranch(ctx, environmentId, branch)
+	if err != nil {
+		return err
+	}
+	return nil
 }

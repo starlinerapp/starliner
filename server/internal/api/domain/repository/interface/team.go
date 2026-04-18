@@ -15,5 +15,5 @@ type TeamRepository interface {
 	AddTeamMember(ctx context.Context, teamID int64, userID int64) error
 	RemoveTeamMember(ctx context.Context, teamID int64, userID int64) error
 	GetTeamById(ctx context.Context, id int64) (*entity.Team, error)
-	ValidateUserTeamAccess(ctx context.Context, teamID int64, userID int64) error
+	FindTeamByIdAndUserId(ctx context.Context, teamID int64, userID int64) (*entity.Team, error)
 }

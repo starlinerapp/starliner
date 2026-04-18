@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine AS dev
+FROM golang:1.26-alpine AS dev
 
 ENV PATH=/go/bin:$PATH:/root/.pulumi/bin
 
@@ -24,7 +24,7 @@ ENTRYPOINT ["air", \
   "--build.full_bin=dlv exec --accept-multiclient --headless --continue --log --listen=:40003 --api-version=2 ./build/provisioner --" \
 ]
 
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
@@ -35,7 +35,7 @@ COPY ../../../server .
 ENV CGO_ENABLED=0
 RUN go build -o provisioner ./cmd/provisioner/main.go
 
-FROM golang:1.25-alpine AS runner
+FROM golang:1.26-alpine AS runner
 
 WORKDIR /app
 

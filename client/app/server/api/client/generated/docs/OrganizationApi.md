@@ -301,6 +301,52 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getOrganizationMembers**
+
+> Array<ResponseUser> getOrganizationMembers()
+
+### Example
+
+```typescript
+import { OrganizationApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new OrganizationApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let id: number; //Organization ID (default to undefined)
+
+const { status, data } = await apiInstance.getOrganizationMembers(xUserID, id);
+```
+
+### Parameters
+
+| Name        | Type         | Description     | Notes                 |
+| ----------- | ------------ | --------------- | --------------------- |
+| **xUserID** | [**string**] | User ID         | defaults to undefined |
+| **id**      | [**number**] | Organization ID | defaults to undefined |
+
+### Return type
+
+**Array<ResponseUser>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getUserOrganizations**
 
 > Array<ResponseOrganization> getUserOrganizations()

@@ -8,6 +8,7 @@ import { NavLink, useLocation } from "react-router";
 import { cn } from "~/utils/cn";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { ChevronDown, ChevronRight } from "~/components/atoms/icons";
+import { motion } from "framer-motion";
 
 type SidebarItem = {
   id: string;
@@ -66,16 +67,18 @@ function CollapsibleGroup({ group }: { group: SidebarGroup }) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "hover:bg-gray-3 flex w-full items-center gap-1 rounded-md px-3 py-2 text-sm",
+          "hover:bg-gray-3 flex w-full items-center justify-between rounded-md px-3 py-2 text-sm",
           isChildActive ? "text-violet-11 font-bold" : "text-violet-12",
         )}
       >
-        {isOpen ? (
-          <ChevronDown className="h-3 w-3 shrink-0" />
-        ) : (
-          <ChevronRight className="h-3 w-3 shrink-0" />
-        )}
         <span className="truncate">{group.title}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 0 : -90 }}
+          transition={{ duration: 0.1, ease: "easeInOut" }}
+          className="shrink-0"
+        >
+          <ChevronDown className="h-4 w-4 stroke-2" />
+        </motion.div>
       </button>
       {isOpen && (
         <div className="flex flex-col gap-0.5 pl-3">

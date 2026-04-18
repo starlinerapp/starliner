@@ -74,7 +74,7 @@ func (ts *TeamApplication) GetUserTeams(ctx context.Context, organizationId int6
 }
 
 func (ts *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
-	err := ts.teamRepository.ValidateUserTeamAccess(ctx, teamId, userId)
+	_, err := ts.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -94,11 +94,6 @@ func (ts *TeamApplication) AddTeamMember(ctx context.Context, userId int64, team
 	}
 
 	err = ts.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, callerId)
-	if err != nil {
-		return err
-	}
-
-	err = ts.organizationService.ValidateUserInOrg(ctx, team.OrganizationId, userId)
 	if err != nil {
 		return err
 	}

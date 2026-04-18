@@ -554,6 +554,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}/branch": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Connected Branch",
+                "operationId": "getEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EnvironmentBranch"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Update Environment Connected Branch",
+                "operationId": "updateEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Environment Connected Branch",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateEnvironmentConnectBranch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments/{id}/builds": {
             "get": {
                 "tags": [
@@ -974,8 +1044,8 @@ const docTemplate = `{
                 "tags": [
                     "organization"
                 ],
-                "summary": "Send organization invite via email",
-                "operationId": "sendOrganizationInvite",
+                "summary": "Create organization invite",
+                "operationId": "createOrganizationInvite",
                 "parameters": [
                     {
                         "type": "string",
@@ -990,20 +1060,14 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Send Invite",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.SendInvite"
-                        }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrganizationInvite"
+                        }
                     }
                 }
             }
@@ -1751,6 +1815,12 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },
@@ -1850,17 +1920,6 @@ const docTemplate = `{
                 }
             }
         },
-        "request.SendInvite": {
-            "type": "object",
-            "required": [
-                "toEmail"
-            ],
-            "properties": {
-                "toEmail": {
-                    "type": "string"
-                }
-            }
-        },
         "request.UpdateDeployFromGit": {
             "type": "object",
             "required": [
@@ -1887,6 +1946,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "projectRepositoryPath": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateEnvironmentConnectBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
                     "type": "string"
                 }
             }
@@ -2130,6 +2200,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.EnvironmentBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GetOrganizationProvisioningCredentialResponse": {
             "type": "object",
             "properties": {
@@ -2188,17 +2269,22 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "buildId",
+                "commitHash",
                 "createdAt",
                 "deploymentId",
                 "deploymentName",
                 "dockerfilePath",
                 "gitUrl",
                 "projectPath",
+                "source",
                 "status"
             ],
             "properties": {
                 "buildId": {
                     "type": "integer"
+                },
+                "commitHash": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
@@ -2216,6 +2302,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "projectPath": {
+                    "type": "string"
+                },
+                "source": {
                     "type": "string"
                 },
                 "status": {
@@ -2281,6 +2370,12 @@ const docTemplate = `{
                 },
                 "tag": {
                     "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
                 }
             }
         },

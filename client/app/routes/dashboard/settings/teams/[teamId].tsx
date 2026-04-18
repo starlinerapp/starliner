@@ -1,19 +1,21 @@
 import React, { useMemo, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import Button from "~/components/atoms/button/Button";
-import { MagnifyingGlass } from "~/components/atoms/icons";
 import * as Popover from "@radix-ui/react-popover";
+import { ChevronDown, MagnifyingGlass } from "~/components/atoms/icons";
 
 export default function TeamDetail() {
   const { teamId } = useParams();
+  const navigate = useNavigate();
   const trpc = useTRPC();
   const organization = useOrganizationContext();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
 
   const { data: user } = useQuery(trpc.user.getUser.queryOptions());
 
@@ -88,16 +90,44 @@ export default function TeamDetail() {
   }
 
   return (
-    <div className="flex flex-col gap-8 px-8 py-4">
-      <h1 className="pt-1 text-xl font-bold">#{team?.slug}</h1>
+    <div className="flex flex-col gap-8 px-8 py-3">
+      <div className="flex flex-col gap-1">
+        <nav className="text-mauve-11 flex items-center gap-1 pb-4 text-sm">
+          <button
+            onClick={() => navigate("../", { relative: "path" })}
+            className="hover:text-mauve-12 cursor-pointer hover:underline"
+          >
+            Teams
+          </button>
+          <span>&gt;</span>
+          {isLoading ? (
+            <Skeleton className="h-4 w-16" />
+          ) : (
+            <span className="text-mauve-12">#{team?.slug}</span>
+          )}
+        </nav>
+        {isLoading ? (
+          <Skeleton className="h-6 w-32" />
+        ) : (
+          <h1 className="text-xl font-bold">#{team?.slug}</h1>
+        )}
+      </div>
       <div className="w-full xl:w-3/5">
         <div className="border-mauve-6 rounded-md border-1 text-sm">
           <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
             <p>Members</p>
             {organization.isOwner && (
-              <Popover.Root>
+              <Popover.Root
+                open={addMemberOpen}
+                onOpenChange={setAddMemberOpen}
+              >
                 <Popover.Trigger asChild>
-                  <Button className="h-7 w-24 text-xs">Add Member</Button>
+                  <Button intent="secondary" className="h-7 w-28 text-xs">
+                    Add Member
+                    <ChevronDown
+                      className={`h-3 w-3 ${addMemberOpen ? "rotate-180" : ""}`}
+                    />
+                  </Button>
                 </Popover.Trigger>
                 <Popover.Portal>
                   <Popover.Content className="border-mauve-6 w-70 space-y-2 rounded-md border bg-white p-2 shadow-md">
@@ -138,11 +168,19 @@ export default function TeamDetail() {
             )}
           </div>
           {isLoading ? (
-            <div className="flex flex-col gap-2 px-4 py-3">
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-5 w-36" />
-              <Skeleton className="h-5 w-52" />
-            </div>
+            <>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+                >
+                  <div className="flex flex-col gap-1">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-36" />
+                  </div>
+                </div>
+              ))}
+            </>
           ) : members?.length === 0 ? (
             <div className="text-mauve-11 px-4 py-3 text-sm">
               No members yet.
@@ -155,7 +193,7 @@ export default function TeamDetail() {
               >
                 <div className="flex flex-col">
                   <span>{member.name}</span>
-                  <span className="text-mauve-11 text-xs">{member.email}</span>
+                  <span className="text-mauve-11">{member.email}</span>
                 </div>
                 {organization.isOwner &&
                   member.user_id !== Number(user?.user_id) && (

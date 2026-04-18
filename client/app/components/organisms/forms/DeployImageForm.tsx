@@ -10,6 +10,8 @@ export interface ImageFormInput {
   imageName: string;
   tag: string;
   port: number | null;
+  volumeSizeMiB: number | null;
+  volumeMountPath: string | null;
   envs: { name: string; value: string }[];
 }
 
@@ -24,10 +26,16 @@ export default function DeployImageForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployImageFormProps) {
-  const { register, handleSubmit, watch, reset, control } =
-    useForm<ImageFormInput>({
-      defaultValues,
-    });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<ImageFormInput>({
+    defaultValues,
+  });
 
   const { fields, append, replace } = useFieldArray({
     control,
@@ -35,16 +43,36 @@ export default function DeployImageForm({
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [addedVolume, setAddedVolume] = useState<boolean>(
+    !!defaultValues?.volumeSizeMiB || !!defaultValues?.volumeMountPath,
+  );
+
+  const isExistingDeployment = !!defaultValues;
+  const existingHasVolume =
+    !!defaultValues?.volumeSizeMiB || !!defaultValues?.volumeMountPath;
 
   const serviceNameInput = watch("serviceName", "");
   const imageNameInput = watch("imageName", "");
   const tagInput = watch("tag", "");
   const portInput = watch("port", null);
+  const volumeSizeInput = watch("volumeSizeMiB", null);
+  const volumeMountPathInput = watch("volumeMountPath", null);
+
+  const hasVolumeSize = !!volumeSizeInput && !isNaN(volumeSizeInput);
+  const hasVolumeMountPath = !!volumeMountPathInput?.trim();
+  const isVolumeIncomplete = hasVolumeSize !== hasVolumeMountPath;
 
   const submit: SubmitHandler<ImageFormInput> = async (data) => {
     data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
+
+    if (!data.volumeSizeMiB || isNaN(data.volumeSizeMiB)) {
+      data.volumeSizeMiB = null;
+    }
+    if (!data.volumeMountPath?.trim()) {
+      data.volumeMountPath = null;
+    }
 
     try {
       await onSubmit(data);
@@ -54,6 +82,8 @@ export default function DeployImageForm({
           imageName: "",
           tag: "",
           port: null,
+          volumeSizeMiB: null,
+          volumeMountPath: null,
           envs: [],
         });
       setError(null);
@@ -166,11 +196,72 @@ export default function DeployImageForm({
             <Plus className="w-3 stroke-3" /> Add Another
           </Button>
         </div>
+
+        <div className="flex flex-col gap-1">
+          <p className="text-sm">Persistent Volume</p>
+          {isExistingDeployment && !existingHasVolume && (
+            <p className="text-mauve-11 text-sm">No volume attached</p>
+          )}
+          {addedVolume && (
+            <div className="flex flex-col gap-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+                  type="number"
+                  placeholder="Size*"
+                  disabled={!!defaultValues?.volumeSizeMiB}
+                  {...register("volumeSizeMiB", {
+                    required: false,
+                    valueAsNumber: true,
+                  })}
+                />
+                <span className="text-mauve-12 text-sm">MiB</span>
+              </div>
+
+              <input
+                className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+                type="text"
+                placeholder="Mount Path*"
+                disabled={!!defaultValues?.volumeMountPath}
+                {...register("volumeMountPath", {
+                  required: false,
+                  validate: (value) => {
+                    if (!value) return true;
+                    return (
+                      /^\/(([a-zA-Z0-9_\-.]+)(\/[a-zA-Z0-9_\-.]+)*)?$/.test(
+                        value,
+                      ) || "Must be a valid absolute path (e.g. /data)"
+                    );
+                  },
+                })}
+              />
+              {errors.volumeMountPath && (
+                <p className="text-red-11 text-xs">
+                  {errors.volumeMountPath.message}
+                </p>
+              )}
+            </div>
+          )}
+          {!addedVolume && !isExistingDeployment && (
+            <Button
+              intent="text"
+              className="py-1"
+              type="button"
+              onClick={() => setAddedVolume(true)}
+            >
+              <Plus className="w-3 stroke-3" /> Add Volume
+            </Button>
+          )}
+        </div>
         <Button
           size="sm"
           className="mt-2 w-28 flex-shrink-0 py-1.5"
           disabled={
-            !serviceNameInput || !imageNameInput || !tagInput || !portInput
+            !serviceNameInput ||
+            !imageNameInput ||
+            !tagInput ||
+            !portInput ||
+            isVolumeIncomplete
           }
         >
           {defaultValues ? "Redeploy" : "Deploy"}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
@@ -143,14 +144,16 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 		}
 
 		deployments[i] = &entity.ImageDeployment{
-			Id:            d.DeploymentID,
-			Status:        string(d.Status),
-			ServiceName:   d.ServiceName,
-			ImageName:     d.ImageName,
-			Tag:           d.Tag,
-			Port:          d.Port,
-			EnvironmentId: d.EnvironmentID,
-			EnvVars:       variables,
+			Id:              d.DeploymentID,
+			Status:          string(d.Status),
+			ServiceName:     d.ServiceName,
+			ImageName:       d.ImageName,
+			Tag:             d.Tag,
+			Port:            d.Port,
+			EnvironmentId:   d.EnvironmentID,
+			VolumeSizeMiB:   utils.PtrFromNullInt32(d.VolumeSizeMib),
+			VolumeMountPath: utils.PtrFromNullString(d.MountPath),
+			EnvVars:         variables,
 		}
 	}
 	return deployments, nil
@@ -288,6 +291,8 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 			BuildId:        row.BuildID,
 			DeploymentId:   row.DeploymentID,
 			DeploymentName: row.DeploymentName,
+			CommitHash:     utils.PtrFromNullString(row.CommitHash),
+			Source:         row.Source,
 			Status:         entity.BuildStatus(row.Status),
 			GitUrl:         row.Url,
 			ProjectPath:    row.ProjectPath,
@@ -297,4 +302,20 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 	}
 
 	return builds, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentBranch(ctx context.Context, environmentId int64) (string, error) {
+	branch, err := er.queries.GetEnvironmentBranch(ctx, environmentId)
+	if err != nil {
+		return "", err
+	}
+
+	return branch, nil
+}
+
+func (er *EnvironmentRepository) UpdateEnvironmentBranch(ctx context.Context, environmentId int64, branch string) error {
+	return er.queries.UpdateEnvironmentBranch(ctx, sqlc.UpdateEnvironmentBranchParams{
+		ConnectedBranch: branch,
+		ID:              environmentId,
+	})
 }

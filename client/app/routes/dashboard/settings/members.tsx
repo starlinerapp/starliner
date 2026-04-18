@@ -51,69 +51,75 @@ export default function Members() {
   } = useForm<FormInput>({ defaultValues: { email: "" } });
   const emailInput = watch("email", "");
 
-  return (
-    <div className="flex flex-col gap-8 px-8 py-4">
-      <div className="flex w-full items-center justify-between">
-        <h1 className="pt-1 text-xl font-bold">Members</h1>
-        <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
-          <DialogTrigger>
-            <Button className="w-32">Invite Member</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <h2 className="text-mauve-12 mb-4 text-lg font-bold">
-              Invite Member
-            </h2>
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={handleSubmit(onInviteMember)}
-            >
-              <div className="flex items-center gap-2">
-                <input
-                  type="email"
-                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
-                  placeholder="Email*"
-                  {...register("email")}
-                />
-                <Button
-                  className="h-10 w-24 text-xs"
-                  type="submit"
-                  disabled={!emailInput}
-                >
-                  Invite
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="w-full xl:w-3/5">
-        <div className="border-mauve-6 rounded-md border-1 text-sm">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-3 text-xs font-bold uppercase">
-            <span>Organization Members</span>
-          </div>
-          {isLoading ? (
-            <div className="flex flex-col gap-2 px-4 py-3">
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-5 w-36" />
-              <Skeleton className="h-5 w-52" />
+    return (
+        <div className="flex flex-col gap-8 px-8 py-4">
+            <div className="flex w-full items-center justify-between">
+                <h1 className="pt-1 text-xl font-bold">Members</h1>
+                <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
+                    <DialogTrigger>
+                        <Button className="w-32">Invite Member</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <h2 className="text-mauve-12 mb-4 text-lg font-bold">
+                            Invite Member
+                        </h2>
+                        <form
+                            className="flex flex-col gap-3"
+                            onSubmit={handleSubmit(onInviteMember)}
+                        >
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="email"
+                                    className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
+                                    placeholder="Email*"
+                                    {...register("email")}
+                                />
+                                <Button
+                                    className="h-10 w-24 text-xs"
+                                    type="submit"
+                                    disabled={!emailInput}
+                                >
+                                    Invite
+                                </Button>
+                            </div>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
-          ) : members?.length === 0 ? (
-            <div className="text-mauve-11 px-4 py-3 text-sm">
-              No members yet.
+            <div className="w-full xl:w-3/5">
+                <div className="border-mauve-6 rounded-md border-1 text-sm">
+                    <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
+                        Organization Members
+                    </div>
+                    {isLoading ? (
+                        <>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+                                >
+                                    <Skeleton className="h-5 w-24" />
+                                    <Skeleton className="h-5 w-36" />
+                                </div>
+                            ))}
+                        </>
+                    ) : members?.length === 0 ? (
+                        <div className="text-mauve-11 px-4 py-3 text-sm">
+                            No members yet.
+                        </div>
+                    ) : (
+                        members?.map((member) => (
+                            <div
+                                key={member.user_id}
+                                className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+                            >
+                                <span>{member.name}</span>
+                                <span className="text-mauve-11">{member.email}</span>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
-          ) : (
-            members?.map((member) => (
-              <div
-                key={member.user_id}
-                className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
-              >
-                <span>{member.name}</span>
-                <span className="text-mauve-11 text-xs">{member.email}</span>
-              </div>
-            ))
-          )}
         </div>
-      </div>
-    </div>
-  );
+    );
 }
