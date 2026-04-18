@@ -125,7 +125,10 @@ export default function Git() {
               Install the GitHub App to get started.
             </p>
           </div>
-          <InstallGitHubApp githubAppName={githubAppName} redirectTo={location.pathname} />
+          <InstallGitHubApp
+            githubAppName={githubAppName}
+            redirectTo={location.pathname}
+          />
         </div>
       )}
     </>
