@@ -97,10 +97,10 @@ services:
       GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
       GITHUB_APP_ID: ${GITHUB_APP_ID}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
-      SENDER_MAIL: ${SENDER_MAIL}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USERNAME: ${SMTP_USERNAME}
+      SENDER_MAIL: ${SENDER_MAIL:-no-reply@starliner.dev}
+      SMTP_HOST: ${SMTP_HOST:-smtp.sendgrid.net}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-apikey}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       CLIENT_URL: ${CLIENT_URL:-https://dev.starliner.app}
     volumes:
