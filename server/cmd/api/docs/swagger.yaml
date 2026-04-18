@@ -1100,6 +1100,8 @@ paths:
       responses:
         "201":
           description: Created
+          schema:
+            $ref: '#/definitions/response.Environment'
       summary: Create Environment
       tags:
       - environment

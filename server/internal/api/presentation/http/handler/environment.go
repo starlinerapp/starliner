@@ -25,7 +25,7 @@ func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplic
 // @Param X-User-ID header string true "User ID"
 // @Product JSON
 // @Param data body request.CreateEnvironment true "Create Environment"
-// @Success 201
+// @Success 201 {object} response.Environment
 // @Router /environments [post]
 func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -35,12 +35,12 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 		return
 	}
 
-	err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID, env.SourceEnvironmentID)
+	newEnv, err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID, env.SourceEnvironmentID)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, response.NewEnvironment(newEnv))
 }
 
 // GetEnvironmentDeployments FindAll godoc

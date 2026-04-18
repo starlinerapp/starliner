@@ -48,12 +48,13 @@ export default function ManageEnvironments({
   const queryClient = useQueryClient();
   const createEnvironmentMutation = useMutation(
     trpc.environment.createEnvironment.mutationOptions({
-      onSuccess: async () => {
+      onSuccess: async (data) => {
         await queryClient.invalidateQueries({
           queryKey: trpc.organization.getUserProjects.queryKey({
             id: organization.id,
           }),
         });
+        navigate(`/${slug}/projects/${id}/${data.slug}/architecture/git`);
       },
     }),
   );
@@ -86,7 +87,8 @@ export default function ManageEnvironments({
       name: data.environmentName,
       organizationId: organization.id,
       projectId: project?.id ?? 0,
-      sourceEnvironmentId: data.sourceEnvironment,
+      sourceEnvironmentId:
+        creationMode === "duplicate" ? data.sourceEnvironment : undefined,
     });
     setEnvironmentDialogOpen(false);
   };

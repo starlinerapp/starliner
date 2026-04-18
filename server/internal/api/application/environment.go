@@ -44,34 +44,38 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 	organizationId int64,
 	projectId int64,
 	sourceEnvironmentId *int64,
-) error {
+) (*value.Environment, error) {
 	err := ea.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	environmentSlug, err := ea.normalizerService.FormatToDNS1123(name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	project, err := ea.projectRepository.GetProject(ctx, projectId, userId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	namespace, err := ea.normalizerService.FormatToDNS1123(project.Name + "-" + name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if sourceEnvironmentId != nil {
-		_, err := ea.environmentRepository.DuplicateEnvironment(ctx, userId, name, namespace, environmentSlug, projectId, *sourceEnvironmentId)
-		return err
+		env, err := ea.environmentRepository.DuplicateEnvironment(ctx, userId, name, namespace, environmentSlug, projectId, *sourceEnvironmentId)
+		return value.NewEnvironment(env), err
 	}
 
-	_, err = ea.environmentRepository.CreateEnvironment(ctx, name, namespace, environmentSlug, projectId)
-	return err
+	env, err := ea.environmentRepository.CreateEnvironment(ctx, name, namespace, environmentSlug, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewEnvironment(env), nil
 }
 
 func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) (*value.Deployments, error) {

@@ -12,7 +12,7 @@ All URIs are relative to _http://localhost_
 
 # **createEnvironment**
 
-> createEnvironment(data)
+> ResponseEnvironment createEnvironment(data)
 
 ### Example
 
@@ -37,7 +37,7 @@ const { status, data } = await apiInstance.createEnvironment(xUserID, data);
 
 ### Return type
 
-void (empty response body)
+**ResponseEnvironment**
 
 ### Authorization
 
@@ -46,7 +46,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 
