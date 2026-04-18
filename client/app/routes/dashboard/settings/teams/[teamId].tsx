@@ -179,7 +179,7 @@ export default function TeamDetail() {
     allRepos?.filter((r) => !assignedRepoIds.has(r.id)) ?? [];
 
   return (
-    <div className="flex flex-col gap-8 px-8 py-3">
+    <div className="flex flex-col px-8 py-3">
       <div className="flex flex-col gap-1">
         <nav className="text-mauve-11 flex items-center gap-1 pb-4 text-sm">
           <button
@@ -201,9 +201,8 @@ export default function TeamDetail() {
           <h1 className="text-xl font-bold">#{team?.slug}</h1>
         )}
       </div>
-      <h1 className="pt-1 text-xl font-bold">Team</h1>
       <div className="flex flex-col gap-4">
-        <div className="w-full xl:w-3/5">
+        <div className="w-full pt-12 xl:w-3/5">
           <div className="border-mauve-6 rounded-md border text-sm">
             <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
               <p>Members</p>
