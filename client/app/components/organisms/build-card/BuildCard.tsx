@@ -83,9 +83,7 @@ export default function BuildCard({
             </div>
 
             <div className="text-mauve-10 mt-0.5 text-sm">
-              <p>
-                {source === "manual" ? "Manually triggered" : "Commit to main"}
-              </p>
+              <p>{source === "manual" ? "Manually triggered" : "On Push"}</p>
             </div>
           </div>
         </div>

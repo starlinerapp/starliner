@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import UpdateConnectedBranchForm from "~/components/organisms/forms/UpdateConnectedBranchForm";
 
 export default function ProjectSettings() {
   const navigate = useNavigate();
@@ -38,9 +39,9 @@ export default function ProjectSettings() {
     <div className="w-full space-y-4 p-4 xl:w-3/5">
       <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
-          General
+          Environment Settings
         </div>
-        <div className="flex items-center justify-between px-4 py-2">
+        <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
           <div className="flex flex-col">
             <p className="text-md font-bold">Assigned Cluster</p>
             <p className="text-mauve-11 text-xs">
@@ -57,6 +58,7 @@ export default function ProjectSettings() {
             />
           )}
         </div>
+        <UpdateConnectedBranchForm />
       </div>
       <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">

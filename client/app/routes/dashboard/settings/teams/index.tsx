@@ -57,7 +57,7 @@ export default function Teams() {
   return (
     <div className="flex flex-col px-8 py-4">
       <div className="flex w-full items-center justify-between">
-        <h1 className="pt-1 text-xl font-bold">Teams</h1>
+        <h1 className="text-xl font-bold">Teams</h1>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
             <Button className="w-32">Create Team</Button>
@@ -75,7 +75,7 @@ export default function Teams() {
             >
               <input
                 className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
-                placeholder="team-slug"
+                placeholder="Team Slug*"
                 maxLength={50}
                 {...registerCreate("name")}
                 onChange={(e) => {
@@ -96,7 +96,7 @@ export default function Teams() {
                   Cancel
                 </Button>
                 <Button
-                  intent="secondary"
+                  intent="primary"
                   className="w-24"
                   type="submit"
                   disabled={!nameInput || createTeamMutation.isPending}
@@ -108,7 +108,7 @@ export default function Teams() {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="flex flex-col gap-4 pt-10">
+      <div className="flex flex-col gap-4 pt-[42px]">
         <OrganizationTeams />
       </div>
     </div>

@@ -31,6 +31,7 @@ docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
 docs/RequestRemoveTeamMember.md
 docs/RequestUpdateDeployFromGit.md
+docs/RequestUpdateEnvironmentConnectBranch.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md
@@ -42,6 +43,7 @@ docs/ResponseDatabaseDeployment.md
 docs/ResponseDeployments.md
 docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
+docs/ResponseEnvironmentBranch.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseGitDeployment.md
 docs/ResponseGitDeploymentBuild.md
