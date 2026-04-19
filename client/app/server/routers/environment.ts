@@ -9,6 +9,7 @@ export const environmentRouter = {
         name: z.string(),
         organizationId: z.number(),
         projectId: z.number(),
+        sourceEnvironmentId: z.number().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -16,8 +17,9 @@ export const environmentRouter = {
       return await environmentApiFactory
         .createEnvironment(userId, {
           name: input.name,
-          organization_id: input.organizationId,
-          project_id: input.projectId,
+          organizationId: input.organizationId,
+          projectId: input.projectId,
+          sourceEnvironmentId: input.sourceEnvironmentId,
         })
         .then((res) => res.data);
     }),

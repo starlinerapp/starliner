@@ -10,7 +10,7 @@ INSERT INTO projects (
 )
 RETURNING *;
 
--- name: GetProject :one
+-- name: GetProject :many
 SELECT
     projects.id as id,
     projects.name as name,

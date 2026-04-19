@@ -2,6 +2,7 @@ package value
 
 import (
 	"errors"
+	coreValue "starliner.app/internal/core/domain/value"
 
 	"starliner.app/internal/api/domain/entity"
 )
@@ -132,6 +133,17 @@ func mapIngressPaths(paths []*entity.IngressPath) []*IngressPath {
 type EnvVar struct {
 	Name  string
 	Value string
+}
+
+func ToCoreEnvVars(envVars []*EnvVar) []*coreValue.EnvVar {
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(envVars))
+	for _, e := range envVars {
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+	return coreEnvs
 }
 
 type ImageDeployment struct {

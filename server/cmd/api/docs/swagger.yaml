@@ -53,14 +53,16 @@ definitions:
     properties:
       name:
         type: string
-      organization_id:
+      organizationId:
         type: integer
-      project_id:
+      projectId:
+        type: integer
+      sourceEnvironmentId:
         type: integer
     required:
     - name
-    - organization_id
-    - project_id
+    - organizationId
+    - projectId
     type: object
   request.CreateGithubApp:
     properties:
@@ -1172,6 +1174,8 @@ paths:
       responses:
         "201":
           description: Created
+          schema:
+            $ref: '#/definitions/response.Environment'
       summary: Create Environment
       tags:
       - environment

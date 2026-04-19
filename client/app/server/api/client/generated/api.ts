@@ -154,13 +154,19 @@ export interface RequestCreateEnvironment {
    * @type {number}
    * @memberof RequestCreateEnvironment
    */
-  organization_id: number;
+  organizationId: number;
   /**
    *
    * @type {number}
    * @memberof RequestCreateEnvironment
    */
-  project_id: number;
+  projectId: number;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestCreateEnvironment
+   */
+  sourceEnvironmentId?: number;
 }
 /**
  *
@@ -3789,7 +3795,10 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
       data: RequestCreateEnvironment,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseEnvironment>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.createEnvironment(
@@ -3984,7 +3993,7 @@ export const EnvironmentApiFactory = function (
       xUserID: string,
       data: RequestCreateEnvironment,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseEnvironment> {
       return localVarFp
         .createEnvironment(xUserID, data, options)
         .then((request) => request(axios, basePath));

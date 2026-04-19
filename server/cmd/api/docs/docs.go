@@ -549,7 +549,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Environment"
+                        }
                     }
                 }
             }
@@ -1837,17 +1840,20 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "organization_id",
-                "project_id"
+                "organizationId",
+                "projectId"
             ],
             "properties": {
                 "name": {
                     "type": "string"
                 },
-                "organization_id": {
+                "organizationId": {
                     "type": "integer"
                 },
-                "project_id": {
+                "projectId": {
+                    "type": "integer"
+                },
+                "sourceEnvironmentId": {
                     "type": "integer"
                 }
             }
