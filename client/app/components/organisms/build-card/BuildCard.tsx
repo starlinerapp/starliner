@@ -16,6 +16,7 @@ interface LogsCardProps {
   serviceName: string;
   createdAt: string;
   status: string;
+  args?: { name: string; value: string }[];
 }
 
 export default function BuildCard({

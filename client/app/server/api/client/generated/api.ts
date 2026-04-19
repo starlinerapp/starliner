@@ -68,6 +68,25 @@ export interface RequestAddTeamMember {
 /**
  *
  * @export
+ * @interface RequestArg
+ */
+export interface RequestArg {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestArg
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestArg
+   */
+  value: string;
+}
+/**
+ *
+ * @export
  * @interface RequestAssignRepoToTeam
  */
 export interface RequestAssignRepoToTeam {
@@ -250,6 +269,12 @@ export interface RequestDeployDatabase {
  * @interface RequestDeployFromGit
  */
 export interface RequestDeployFromGit {
+  /**
+   *
+   * @type {Array<RequestArg>}
+   * @memberof RequestDeployFromGit
+   */
+  args?: Array<RequestArg>;
   /**
    *
    * @type {string}
@@ -468,9 +493,34 @@ export interface RequestRemoveTeamMember {
 /**
  *
  * @export
+ * @interface RequestSendInvite
+ */
+export interface RequestSendInvite {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendInvite
+   */
+  inviteUrlPrefix: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendInvite
+   */
+  toEmail: string;
+}
+/**
+ *
+ * @export
  * @interface RequestUpdateDeployFromGit
  */
 export interface RequestUpdateDeployFromGit {
+  /**
+   *
+   * @type {Array<RequestArg>}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  args?: Array<RequestArg>;
   /**
    *
    * @type {string}
@@ -583,6 +633,25 @@ export interface RequestUpsertHetznerCredential {
    * @memberof RequestUpsertHetznerCredential
    */
   apiKey: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseArg
+ */
+export interface ResponseArg {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseArg
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseArg
+   */
+  value: string;
 }
 /**
  *
@@ -832,6 +901,12 @@ export interface ResponseGetOrganizationProvisioningCredentialResponse {
 export interface ResponseGitDeployment {
   /**
    *
+   * @type {Array<ResponseArg>}
+   * @memberof ResponseGitDeployment
+   */
+  args: Array<ResponseArg>;
+  /**
+   *
    * @type {string}
    * @memberof ResponseGitDeployment
    */
@@ -891,6 +966,12 @@ export interface ResponseGitDeployment {
  * @interface ResponseGitDeploymentBuild
  */
 export interface ResponseGitDeploymentBuild {
+  /**
+   *
+   * @type {Array<ResponseArg>}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  args: Array<ResponseArg>;
   /**
    *
    * @type {number}
@@ -4991,59 +5072,6 @@ export const OrganizationApiAxiosParamCreator = function (
     },
     /**
      *
-     * @summary Create organization invite
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createOrganizationInvite: async (
-      xUserID: string,
-      id: number,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("createOrganizationInvite", "xUserID", xUserID);
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists("createOrganizationInvite", "id", id);
-      const localVarPath = `/organizations/{id}/invites`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @summary Get Hetzner Provisioning Credential
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -5356,6 +5384,70 @@ export const OrganizationApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Send organization invite via email
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestSendInvite} data Send Invite
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendOrganizationInvite: async (
+      xUserID: string,
+      id: number,
+      data: RequestSendInvite,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("sendOrganizationInvite", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("sendOrganizationInvite", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("sendOrganizationInvite", "data", data);
+      const localVarPath = `/organizations/{id}/invites`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Upsert Hetzner Provisioning Credential
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -5491,43 +5583,6 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["OrganizationApi.createOrganization"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-    /**
-     *
-     * @summary Create organization invite
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async createOrganizationInvite(
-      xUserID: string,
-      id: number,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<ResponseOrganizationInvite>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.createOrganizationInvite(
-          xUserID,
-          id,
-          options,
-        );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["OrganizationApi.createOrganizationInvite"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -5755,6 +5810,43 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Send organization invite via email
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestSendInvite} data Send Invite
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async sendOrganizationInvite(
+      xUserID: string,
+      id: number,
+      data: RequestSendInvite,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.sendOrganizationInvite(
+          xUserID,
+          id,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["OrganizationApi.sendOrganizationInvite"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Upsert Hetzner Provisioning Credential
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -5836,23 +5928,6 @@ export const OrganizationApiFactory = function (
     ): AxiosPromise<ResponseOrganization> {
       return localVarFp
         .createOrganization(xUserID, data, options)
-        .then((request) => request(axios, basePath));
-    },
-    /**
-     *
-     * @summary Create organization invite
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createOrganizationInvite(
-      xUserID: string,
-      id: number,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<ResponseOrganizationInvite> {
-      return localVarFp
-        .createOrganizationInvite(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -5957,6 +6032,25 @@ export const OrganizationApiFactory = function (
     },
     /**
      *
+     * @summary Send organization invite via email
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestSendInvite} data Send Invite
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendOrganizationInvite(
+      xUserID: string,
+      id: number,
+      data: RequestSendInvite,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .sendOrganizationInvite(xUserID, id, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Upsert Hetzner Provisioning Credential
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -6019,25 +6113,6 @@ export class OrganizationApi extends BaseAPI {
   ) {
     return OrganizationApiFp(this.configuration)
       .createOrganization(xUserID, data, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @summary Create organization invite
-   * @param {string} xUserID User ID
-   * @param {number} id Organization ID
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof OrganizationApi
-   */
-  public createOrganizationInvite(
-    xUserID: string,
-    id: number,
-    options?: RawAxiosRequestConfig,
-  ) {
-    return OrganizationApiFp(this.configuration)
-      .createOrganizationInvite(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -6150,6 +6225,27 @@ export class OrganizationApi extends BaseAPI {
   ) {
     return OrganizationApiFp(this.configuration)
       .getUserProjects(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Send organization invite via email
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {RequestSendInvite} data Send Invite
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof OrganizationApi
+   */
+  public sendOrganizationInvite(
+    xUserID: string,
+    id: number,
+    data: RequestSendInvite,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return OrganizationApiFp(this.configuration)
+      .sendOrganizationInvite(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

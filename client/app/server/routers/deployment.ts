@@ -34,6 +34,14 @@ export const deploymentRouter = {
             }),
           )
           .default([]),
+        args: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -47,6 +55,7 @@ export const deploymentRouter = {
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
           envs: input.envs,
+          args: input.args,
         });
         return res.data;
       } catch (err) {
@@ -78,6 +87,14 @@ export const deploymentRouter = {
             }),
           )
           .default([]),
+        args: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -89,6 +106,7 @@ export const deploymentRouter = {
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
           envs: input.envs,
+          args: input.args,
         })
         .then((res) => res.data);
     }),

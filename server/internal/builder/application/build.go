@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+
 	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
@@ -73,7 +74,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	imagePath := path.Join(ba.cfg.ImageRegistryUrl, build.ImageName)
 	tag := imagePath + ":" + commitHash
 
-	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag)
+	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag, build.Args)
 
 	status := value.BuildStatusSuccess
 	if err != nil {

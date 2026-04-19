@@ -269,6 +269,15 @@ type GitDeployment struct {
 	UpdatedAt      time.Time
 }
 
+type GitDeploymentArg struct {
+	ID           int64
+	DeploymentID int64
+	Name         string
+	Value        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type GithubApp struct {
 	ID             int64
 	InstallationID int64
@@ -363,6 +372,14 @@ type TeamMember struct {
 	UserID    int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type TeamRepository struct {
+	TeamID       int64
+	GithubRepoID int64
+	RepoName     string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type User struct {

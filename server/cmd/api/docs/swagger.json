@@ -1074,8 +1074,8 @@
                 "tags": [
                     "organization"
                 ],
-                "summary": "Create organization invite",
-                "operationId": "createOrganizationInvite",
+                "summary": "Send organization invite via email",
+                "operationId": "sendOrganizationInvite",
                 "parameters": [
                     {
                         "type": "string",
@@ -1090,14 +1090,20 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Send Invite",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SendInvite"
+                        }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.OrganizationInvite"
-                        }
+                        "description": "Created"
                     }
                 }
             }
@@ -1768,6 +1774,21 @@
                 }
             }
         },
+        "request.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "request.AssignRepoToTeam": {
             "type": "object",
             "required": [
@@ -1916,6 +1937,12 @@
                 "serviceName"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -2078,6 +2105,21 @@
                 }
             }
         },
+        "request.SendInvite": {
+            "type": "object",
+            "required": [
+                "inviteUrlPrefix",
+                "toEmail"
+            ],
+            "properties": {
+                "inviteUrlPrefix": {
+                    "type": "string"
+                },
+                "toEmail": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateDeployFromGit": {
             "type": "object",
             "required": [
@@ -2088,6 +2130,12 @@
                 "projectRepositoryPath"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -2174,6 +2222,21 @@
             ],
             "properties": {
                 "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -2380,6 +2443,7 @@
         "response.GitDeployment": {
             "type": "object",
             "required": [
+                "args",
                 "dockerfilePath",
                 "envVars",
                 "gitUrl",
@@ -2391,6 +2455,12 @@
                 "status"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -2426,6 +2496,7 @@
         "response.GitDeploymentBuild": {
             "type": "object",
             "required": [
+                "args",
                 "buildId",
                 "commitHash",
                 "createdAt",
@@ -2438,6 +2509,12 @@
                 "status"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
                 "buildId": {
                     "type": "integer"
                 },
