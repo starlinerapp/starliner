@@ -71,6 +71,7 @@ export default function ManageEnvironments({
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { isValid },
   } = useForm<NewEnvironmentFormInput>({
     defaultValues: {
@@ -223,7 +224,10 @@ export default function ManageEnvironments({
               <Button
                 intent="secondary"
                 className="w-24"
-                onClick={() => setEnvironmentDialogOpen(false)}
+                onClick={() => {
+                  reset();
+                  setEnvironmentDialogOpen(false);
+                }}
               >
                 Cancel
               </Button>
