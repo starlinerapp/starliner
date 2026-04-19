@@ -17,9 +17,9 @@ export const environmentRouter = {
       return await environmentApiFactory
         .createEnvironment(userId, {
           name: input.name,
-          organization_id: input.organizationId,
-          project_id: input.projectId,
-          source_environment_id: input.sourceEnvironmentId,
+          organizationId: input.organizationId,
+          projectId: input.projectId,
+          sourceEnvironmentId: input.sourceEnvironmentId,
         })
         .then((res) => res.data);
     }),
