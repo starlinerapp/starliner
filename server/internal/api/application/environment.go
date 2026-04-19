@@ -227,7 +227,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				log.Printf("error publishing: %v", err)
 			}
 		}
-		return value.NewEnvironment(env), err
+		return value.NewEnvironment(env), nil
 	}
 
 	env, err := ea.environmentRepository.CreateEnvironment(ctx, name, namespace, environmentSlug, projectId)
