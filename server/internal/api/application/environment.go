@@ -119,13 +119,10 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		imageDeployments := deployments.Images
 		for _, d := range imageDeployments {
 			deploymentPort, err := strconv.Atoi(d.Port)
-			coreEnvs := make([]*coreValue.EnvVar, 0, len(d.EnvVars))
-			for _, e := range d.EnvVars {
-				coreEnvs = append(coreEnvs, &coreValue.EnvVar{
-					Name:  e.Name,
-					Value: e.Value,
-				})
+			if err != nil {
+				return nil, err
 			}
+			coreEnvs := value.ToCoreEnvVars(d.EnvVars)
 
 			normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
 			if err != nil {
@@ -155,14 +152,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 
-			coreEnvs := make([]*coreValue.EnvVar, 0, len(d.EnvVars))
-			for _, e := range d.EnvVars {
-				coreEnvs = append(coreEnvs, &coreValue.EnvVar{
-					Name:  e.Name,
-					Value: e.Value,
-				})
-			}
-
+			coreEnvs := value.ToCoreEnvVars(d.EnvVars)
 			normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
 			if err != nil {
 				return nil, err
