@@ -3,7 +3,6 @@ package docker
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"regexp"
 
 	"dagger.io/dagger"
@@ -55,13 +54,6 @@ func (c *Docker) BuildAndPublish(
 			Platform:   "linux/amd64",
 			BuildArgs:  buildArgs,
 		})
-
-	contents, err := buildContainer.File("/tmp/build_args.txt").Contents(ctx)
-	if err != nil {
-		return logBuffer.String(), fmt.Errorf("failed to read build args file: %w", err)
-	}
-	fmt.Println("Build args captured in Dockerfile:")
-	fmt.Println(contents)
 
 	_, err = buildContainer.Publish(ctx, imageTag)
 	if err != nil {
