@@ -277,6 +277,9 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -350,6 +353,9 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -427,6 +433,9 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -482,6 +491,9 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -589,6 +601,9 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -659,6 +674,9 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -703,6 +721,9 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -739,6 +760,9 @@ func (da *DeploymentApplication) OpenTTY(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is not configured")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -851,6 +875,10 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		})
 	}
 
+	if cluster.Kubeconfig == nil {
+		log.Printf("cluster kubeconfig is not configured for deployment %d\n", b.DeploymentId)
+		return
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		log.Printf("failed to decrypt kubeconfig: %v\n", err)
