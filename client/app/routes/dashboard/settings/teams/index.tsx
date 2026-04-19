@@ -60,53 +60,53 @@ export default function Teams() {
         <h1 className="text-xl font-bold">Teams</h1>
         {organization.isOwner && (
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button className="w-32">Create Team</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <h2 className="text-mauve-12 mb-4 text-lg font-bold">
-              Create Team
-            </h2>
-            {createTeamMutation.isError && (
-              <ErrorBanner text="A team with this slug already exists." />
-            )}
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={handleCreateSubmit(onCreateTeam)}
-            >
-              <input
-                className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
-                placeholder="Team Slug*"
-                maxLength={50}
-                {...registerCreate("name")}
-                onChange={(e) => {
-                  setCreateValue("name", formatSlugInput(e.target.value));
-                  createTeamMutation.reset();
-                }}
-              />
-              <div className="flex justify-end gap-2">
-                <Button
-                  intent="secondary"
-                  className="w-24"
-                  onClick={() => {
-                    setShowCreateDialog(false);
-                    resetCreate();
+            <DialogTrigger asChild>
+              <Button className="w-32">Create Team</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <h2 className="text-mauve-12 mb-4 text-lg font-bold">
+                Create Team
+              </h2>
+              {createTeamMutation.isError && (
+                <ErrorBanner text="A team with this slug already exists." />
+              )}
+              <form
+                className="flex flex-col gap-3"
+                onSubmit={handleCreateSubmit(onCreateTeam)}
+              >
+                <input
+                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
+                  placeholder="Team Slug*"
+                  maxLength={50}
+                  {...registerCreate("name")}
+                  onChange={(e) => {
+                    setCreateValue("name", formatSlugInput(e.target.value));
                     createTeamMutation.reset();
                   }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  intent="primary"
-                  className="w-24"
-                  type="submit"
-                  disabled={!nameInput || createTeamMutation.isPending}
-                >
-                  Create
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    intent="secondary"
+                    className="w-24"
+                    onClick={() => {
+                      setShowCreateDialog(false);
+                      resetCreate();
+                      createTeamMutation.reset();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    intent="primary"
+                    className="w-24"
+                    type="submit"
+                    disabled={!nameInput || createTeamMutation.isPending}
+                  >
+                    Create
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
           </Dialog>
         )}
       </div>
