@@ -14,6 +14,7 @@ docs/OrganizationApi.md
 docs/ProjectApi.md
 docs/RequestAcceptInvite.md
 docs/RequestAddTeamMember.md
+docs/RequestAssignRepoToTeam.md
 docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateGithubApp.md
@@ -60,6 +61,7 @@ docs/ResponseRepository.md
 docs/ResponseRepositoryFile.md
 docs/ResponseRoot.md
 docs/ResponseTeam.md
+docs/ResponseTeamRepo.md
 docs/ResponseUser.md
 docs/RootApi.md
 docs/TeamApi.md

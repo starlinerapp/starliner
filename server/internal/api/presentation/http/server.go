@@ -3,12 +3,13 @@ package http
 import (
 	"context"
 	"errors"
+	"log"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
-	"log"
-	"net/http"
 	_ "starliner.app/cmd/api/docs"
 	"starliner.app/internal/api/presentation/http/handler"
 	"starliner.app/internal/api/presentation/http/middleware"
@@ -124,11 +125,15 @@ func NewServer(
 		teamRoutes.GET("/:teamId/members", teamHandler.GetTeamMembers)
 		teamRoutes.POST("/:teamId/members", teamHandler.AddTeamMember)
 		teamRoutes.DELETE("/:teamId/members", teamHandler.RemoveTeamMember)
+		teamRoutes.GET("/:teamId/repos", teamHandler.GetTeamRepositories)
+		teamRoutes.POST("/:teamId/repos", teamHandler.AssignRepoToTeam)
+		teamRoutes.DELETE("/:teamId/repos/:repoId", teamHandler.UnassignRepoFromTeam)
 	}
 
 	githubRoutes := engine.Group("/github")
 	{
 		githubRoutes.GET("/repositories/:organizationId", githubHandler.GetRepositories)
+		githubRoutes.GET("/all-repositories/:organizationId", githubHandler.GetAllRepositories)
 		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/contents", githubHandler.GetRepositoryContents)
 	}
 

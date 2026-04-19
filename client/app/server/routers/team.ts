@@ -102,4 +102,46 @@ export const teamRouter = {
         .removeTeamMember(callerId, input.teamId, { userId: input.userId })
         .then((res) => res.data);
     }),
+  getTeamRepositories: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .getTeamRepositories(userId, input.teamId)
+        .then((res) => res.data);
+    }),
+  assignRepoToTeam: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+        githubRepoId: z.number(),
+        repoName: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .assignRepoToTeam(userId, input.teamId, {
+          githubRepoId: input.githubRepoId,
+          repoName: input.repoName,
+        })
+        .then((res) => res.data);
+    }),
+  unassignRepoFromTeam: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+        githubRepoId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .unassignRepoFromTeam(userId, input.teamId, input.githubRepoId)
+        .then((res) => res.data);
+    }),
 };
