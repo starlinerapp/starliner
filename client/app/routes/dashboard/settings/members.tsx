@@ -49,9 +49,9 @@ export default function Members() {
   const emailInput = watch("email", "");
 
   return (
-    <div className="flex flex-col gap-8 px-8 py-4">
+    <div className="flex flex-col px-8 py-4">
       <div className="flex w-full items-center justify-between">
-        <h1 className="pt-1 text-xl font-bold">Members</h1>
+        <h1 className="text-xl font-bold">Members</h1>
         <Dialog
           open={showAddMemberDialog}
           onOpenChange={setShowAddMemberDialog}
@@ -80,6 +80,7 @@ export default function Members() {
                 />
                 <div className="flex justify-end gap-2">
                   <Button
+                    type="button"
                     intent="secondary"
                     className="w-24"
                     onClick={() => {
@@ -91,7 +92,7 @@ export default function Members() {
                     Cancel
                   </Button>
                   <Button
-                    className="h-10 w-24 text-xs"
+                    className="h-10 w-24"
                     type="submit"
                     disabled={!emailInput || sendInviteMutation.isPending}
                   >
@@ -103,7 +104,7 @@ export default function Members() {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="w-full xl:w-3/5">
+      <div className="w-full pt-[42px] xl:w-3/5">
         <div className="border-mauve-6 rounded-md border-1 text-sm">
           <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
             Organization Members
