@@ -1819,20 +1819,20 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "organization_id",
-                "project_id"
+                "organizationId",
+                "projectId"
             ],
             "properties": {
                 "name": {
                     "type": "string"
                 },
-                "organization_id": {
+                "organizationId": {
                     "type": "integer"
                 },
-                "project_id": {
+                "projectId": {
                     "type": "integer"
                 },
-                "source_environment_id": {
+                "sourceEnvironmentId": {
                     "type": "integer"
                 }
             }

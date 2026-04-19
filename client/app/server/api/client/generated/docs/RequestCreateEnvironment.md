@@ -2,12 +2,12 @@
 
 ## Properties
 
-| Name                      | Type       | Description | Notes                             |
-| ------------------------- | ---------- | ----------- | --------------------------------- |
-| **name**                  | **string** |             | [default to undefined]            |
-| **organization_id**       | **number** |             | [default to undefined]            |
-| **project_id**            | **number** |             | [default to undefined]            |
-| **source_environment_id** | **number** |             | [optional] [default to undefined] |
+| Name                    | Type       | Description | Notes                             |
+| ----------------------- | ---------- | ----------- | --------------------------------- |
+| **name**                | **string** |             | [default to undefined]            |
+| **organizationId**      | **number** |             | [default to undefined]            |
+| **projectId**           | **number** |             | [default to undefined]            |
+| **sourceEnvironmentId** | **number** |             | [optional] [default to undefined] |
 
 ## Example
 
@@ -16,9 +16,9 @@ import { RequestCreateEnvironment } from "./api";
 
 const instance: RequestCreateEnvironment = {
   name,
-  organization_id,
-  project_id,
-  source_environment_id,
+  organizationId,
+  projectId,
+  sourceEnvironmentId,
 };
 ```
 

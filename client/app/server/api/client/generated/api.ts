@@ -135,19 +135,19 @@ export interface RequestCreateEnvironment {
    * @type {number}
    * @memberof RequestCreateEnvironment
    */
-  organization_id: number;
+  organizationId: number;
   /**
    *
    * @type {number}
    * @memberof RequestCreateEnvironment
    */
-  project_id: number;
+  projectId: number;
   /**
    *
    * @type {number}
    * @memberof RequestCreateEnvironment
    */
-  source_environment_id?: number;
+  sourceEnvironmentId?: number;
 }
 /**
  *

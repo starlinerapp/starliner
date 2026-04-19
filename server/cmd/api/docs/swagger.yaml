@@ -43,16 +43,16 @@ definitions:
     properties:
       name:
         type: string
-      organization_id:
+      organizationId:
         type: integer
-      project_id:
+      projectId:
         type: integer
-      source_environment_id:
+      sourceEnvironmentId:
         type: integer
     required:
     - name
-    - organization_id
-    - project_id
+    - organizationId
+    - projectId
     type: object
   request.CreateGithubApp:
     properties:
