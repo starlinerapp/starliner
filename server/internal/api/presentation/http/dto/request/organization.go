@@ -13,5 +13,6 @@ type AcceptInvite struct {
 }
 
 type SendInvite struct {
-	ToEmail string `json:"toEmail" binding:"required,email"`
+	ToEmail         string `json:"toEmail" binding:"required,email"`
+	InviteUrlPrefix string `json:"inviteUrlPrefix" binding:"required,url"`
 }

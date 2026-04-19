@@ -205,7 +205,7 @@ func (oh *OrganizationHandler) SendEmailInvite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err = oh.organizationApplication.CreateAndSendEmailInvite(c.Request.Context(), currentUser.Id, organizationId, body.ToEmail)
+	err = oh.organizationApplication.CreateAndSendEmailInvite(c.Request.Context(), currentUser.Id, organizationId, body.ToEmail, body.InviteUrlPrefix)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

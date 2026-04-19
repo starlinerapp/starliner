@@ -196,7 +196,7 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 	return oa.teamRepository.AddTeamMember(ctx, team.Id, userID)
 }
 
-func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string) error {
+func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string, inviteUrlPrefix string) error {
 	err := oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, userID)
 	if err != nil {
 		return err
@@ -210,7 +210,7 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context,
 
 	body, err := template.RenderInvite(template.InviteData{
 		OrganizationName: invite.OrganizationName,
-		InviteLink:       oa.cfg.ClientUrl + "/organizations/invite/" + invite.Id,
+		InviteLink:       inviteUrlPrefix + invite.Id,
 	})
 	if err != nil {
 		return err

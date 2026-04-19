@@ -78,6 +78,7 @@ export const organizationRouter = {
       z.object({
         organizationId: z.number(),
         toEmail: z.string(),
+        inviteUrlPrefix: z.string().url(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -85,6 +86,7 @@ export const organizationRouter = {
       return await organizationApiFactory
         .sendOrganizationInvite(userId, input.organizationId, {
           toEmail: input.toEmail,
+          inviteUrlPrefix: input.inviteUrlPrefix,
         })
         .then((res) => res.data);
     }),

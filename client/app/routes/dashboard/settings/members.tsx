@@ -35,6 +35,7 @@ export default function Members() {
       {
         organizationId: organization.id,
         toEmail: data.email,
+        inviteUrlPrefix: `${window.location.origin}/organizations/invite/`,
       },
       {
         onSuccess: () => reset(),

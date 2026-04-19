@@ -1929,9 +1929,13 @@ const docTemplate = `{
         "request.SendInvite": {
             "type": "object",
             "required": [
+                "inviteUrlPrefix",
                 "toEmail"
             ],
             "properties": {
+                "inviteUrlPrefix": {
+                    "type": "string"
+                },
                 "toEmail": {
                     "type": "string"
                 }

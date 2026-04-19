@@ -451,6 +451,12 @@ export interface RequestSendInvite {
    * @type {string}
    * @memberof RequestSendInvite
    */
+  inviteUrlPrefix: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendInvite
+   */
   toEmail: string;
 }
 /**

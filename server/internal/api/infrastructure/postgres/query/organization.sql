@@ -27,13 +27,13 @@ INSERT INTO provisioning_credentials (
     provider,
     secret
 ) VALUES (
-  $1,
-  $2,
-  $3
+    $1,
+    $2,
+    $3
 )
 ON CONFLICT (organization_id, provider)
 DO UPDATE SET
-  secret = EXCLUDED.secret;
+    secret = EXCLUDED.secret;
 
 -- name: GetOrganizationProvisioningCredential :one
 SELECT
@@ -51,7 +51,7 @@ INSERT INTO organization_members (
 ) VALUES (
     $1,
     $2
- )
+)
 ON CONFLICT (organization_id, user_id) DO NOTHING;
 
 -- name: RemoveOrganizationMember :exec
@@ -60,12 +60,14 @@ WHERE organization_members.organization_id = $1
     AND organization_members.user_id = $2;
 
 -- name: CreateOrganizationInvite :one
-WITH new_invite AS ( INSERT INTO organization_invites (
-                                                       organization_id,
-                                                       expires_at
+WITH new_invite AS (
+    INSERT INTO organization_invites (
+        organization_id,
+        expires_at
+    ) VALUES (
+        $1,
+        $2
     )
-    VALUES ($1,
-            $2)
     RETURNING *
 )
 SELECT new_invite.*, organizations.name AS organization_name
@@ -83,5 +85,5 @@ WHERE organization_invites.id = $1;
 -- name: GetOrganizationMembers :many
 SELECT users.id, users.better_auth_id
 FROM users
-INNER JOIN organization_members on organization_members.user_id = users.id
+INNER JOIN organization_members ON organization_members.user_id = users.id
 WHERE organization_members.organization_id = $1;

@@ -29,7 +29,7 @@ type Config struct {
 	SmtpPort                string `mapstructure:"SMTP_PORT" validate:"required"`
 	SmtpUsername            string `mapstructure:"SMTP_USERNAME"`
 	SmtpPassword            string `mapstructure:"SMTP_PASSWORD"`
-	ClientUrl               string `mapstructure:"CLIENT_URL" validate:"required"`
+	SmtpTLS                 bool   `mapstructure:"SMTP_TLS"`
 }
 
 func LoadConfig() (*Config, error) {

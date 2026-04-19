@@ -214,9 +214,12 @@ definitions:
     type: object
   request.SendInvite:
     properties:
+      inviteUrlPrefix:
+        type: string
       toEmail:
         type: string
     required:
+    - inviteUrlPrefix
     - toEmail
     type: object
   request.UpdateDeployFromGit:
