@@ -146,7 +146,7 @@ export default function ManageEnvironments({
               </div>
               <input
                 type="text"
-                placeholder="Staging"
+                placeholder="Staging*"
                 className="border-mauve-6 rounded-md border-1 p-2 text-sm focus:outline-none"
                 {...register("environmentName", {
                   required: true,
