@@ -52,14 +52,15 @@ export default function Members() {
     <div className="flex flex-col px-8 py-4">
       <div className="flex w-full items-center justify-between">
         <h1 className="text-xl font-bold">Members</h1>
-        <Dialog
-          open={showAddMemberDialog}
-          onOpenChange={setShowAddMemberDialog}
-        >
-          <DialogTrigger>
-            <Button className="w-32">Invite Member</Button>
-          </DialogTrigger>
-          <DialogContent>
+        {organization.isOwner && (
+          <Dialog
+            open={showAddMemberDialog}
+            onOpenChange={setShowAddMemberDialog}
+          >
+            <DialogTrigger>
+              <Button className="w-32">Invite Member</Button>
+            </DialogTrigger>
+            <DialogContent>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1>Invite Member</h1>
@@ -101,8 +102,9 @@ export default function Members() {
                 </div>
               </form>
             </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
       <div className="w-full pt-[42px] xl:w-3/5">
         <div className="border-mauve-6 rounded-md border-1 text-sm">
