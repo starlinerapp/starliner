@@ -60,29 +60,46 @@ export default function Members() {
             <Button className="w-32">Invite Member</Button>
           </DialogTrigger>
           <DialogContent>
-            <h2 className="text-mauve-12 mb-4 text-lg font-bold">
-              Invite Member
-            </h2>
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={handleSubmit(onInviteMember)}
-            >
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <h1>Invite Member</h1>
+                <p className="text-mauve-11 text-sm">
+                  They will receive an email with a link to join your
+                  organization.
+                </p>
+              </div>
+              <form
+                className="flex flex-col gap-3"
+                onSubmit={handleSubmit(onInviteMember)}
+              >
                 <input
                   type="email"
                   className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
                   placeholder="Email*"
                   {...register("email")}
                 />
-                <Button
-                  className="h-10 w-24 text-xs"
-                  type="submit"
-                  disabled={!emailInput}
-                >
-                  Invite
-                </Button>
-              </div>
-            </form>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    intent="secondary"
+                    className="w-24"
+                    onClick={() => {
+                      setShowAddMemberDialog(false);
+                      reset();
+                      sendInviteMutation.reset();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="h-10 w-24 text-xs"
+                    type="submit"
+                    disabled={!emailInput || sendInviteMutation.isPending}
+                  >
+                    Invite
+                  </Button>
+                </div>
+              </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

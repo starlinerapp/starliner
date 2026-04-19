@@ -102,8 +102,7 @@ services:
       SMTP_PORT: ${SMTP_PORT:-1025}
       SMTP_USERNAME: ${SMTP_USERNAME}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
-      CLIENT_URL: ${CLIENT_URL:-https://dev.starliner.app}
-      SMTP_TLS: ${SMTP_TLS:-false}
+      SMTP_TLS_ENABLED: ${SMTP_TLS_ENABLED:-false}
     volumes:
       - ./server:/app
     networks:

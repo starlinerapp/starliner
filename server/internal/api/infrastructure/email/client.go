@@ -37,7 +37,7 @@ func (c *Client) Send(ctx context.Context, message port.Message) error {
 		}
 	}()
 
-	if c.cfg.SmtpTLS {
+	if c.cfg.SmtpTLSEnabled {
 		if err = client.StartTLS(&tls.Config{ServerName: c.cfg.SmtpHost}); err != nil {
 			return fmt.Errorf("failed to start TLS: %w", err)
 		}
