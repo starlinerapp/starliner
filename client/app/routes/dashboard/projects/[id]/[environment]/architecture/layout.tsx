@@ -17,6 +17,7 @@ import type { ImperativePanelHandle } from "react-resizable-panels";
 type ContextType = {
   environment: ResponseEnvironment;
   clusterId: number | undefined;
+  teamId: number | undefined;
 };
 
 export default function Layout() {
@@ -129,6 +130,7 @@ export default function Layout() {
             context={{
               environment: currentEnvironment,
               clusterId: project?.clusterId,
+              teamId: project?.teamId,
             }}
           />
         </div>

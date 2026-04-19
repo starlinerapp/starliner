@@ -30,6 +30,30 @@ func (q *Queries) AddTeamMember(ctx context.Context, arg AddTeamMemberParams) er
 	return err
 }
 
+const assignRepoToTeam = `-- name: AssignRepoToTeam :exec
+INSERT INTO team_repositories (
+    team_id,
+    github_repo_id,
+    repo_name
+) VALUES (
+    $1,
+    $2,
+    $3
+)
+ON CONFLICT (team_id, github_repo_id) DO NOTHING
+`
+
+type AssignRepoToTeamParams struct {
+	TeamID       int64
+	GithubRepoID int64
+	RepoName     string
+}
+
+func (q *Queries) AssignRepoToTeam(ctx context.Context, arg AssignRepoToTeamParams) error {
+	_, err := q.db.ExecContext(ctx, assignRepoToTeam, arg.TeamID, arg.GithubRepoID, arg.RepoName)
+	return err
+}
+
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (
     slug,
@@ -182,6 +206,82 @@ func (q *Queries) GetTeamMembers(ctx context.Context, teamID int64) ([]GetTeamMe
 	return items, nil
 }
 
+const getTeamRepositories = `-- name: GetTeamRepositories :many
+SELECT github_repo_id, repo_name
+FROM team_repositories
+WHERE team_id = $1
+`
+
+type GetTeamRepositoriesRow struct {
+	GithubRepoID int64
+	RepoName     string
+}
+
+func (q *Queries) GetTeamRepositories(ctx context.Context, teamID int64) ([]GetTeamRepositoriesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTeamRepositories, teamID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTeamRepositoriesRow
+	for rows.Next() {
+		var i GetTeamRepositoriesRow
+		if err := rows.Scan(&i.GithubRepoID, &i.RepoName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTeamsByRepoAndOrg = `-- name: GetTeamsByRepoAndOrg :many
+SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+FROM teams
+INNER JOIN team_repositories ON team_repositories.team_id = teams.id
+WHERE teams.organization_id = $1
+    AND team_repositories.github_repo_id = $2
+`
+
+type GetTeamsByRepoAndOrgParams struct {
+	OrganizationID int64
+	GithubRepoID   int64
+}
+
+func (q *Queries) GetTeamsByRepoAndOrg(ctx context.Context, arg GetTeamsByRepoAndOrgParams) ([]Team, error) {
+	rows, err := q.db.QueryContext(ctx, getTeamsByRepoAndOrg, arg.OrganizationID, arg.GithubRepoID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Team
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.ID,
+			&i.Slug,
+			&i.OrganizationID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserTeams = `-- name: GetUserTeams :many
 SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
@@ -237,5 +337,21 @@ type RemoveTeamMemberParams struct {
 
 func (q *Queries) RemoveTeamMember(ctx context.Context, arg RemoveTeamMemberParams) error {
 	_, err := q.db.ExecContext(ctx, removeTeamMember, arg.TeamID, arg.UserID)
+	return err
+}
+
+const unassignRepoFromTeam = `-- name: UnassignRepoFromTeam :exec
+DELETE FROM team_repositories
+WHERE team_id = $1
+    AND github_repo_id = $2
+`
+
+type UnassignRepoFromTeamParams struct {
+	TeamID       int64
+	GithubRepoID int64
+}
+
+func (q *Queries) UnassignRepoFromTeam(ctx context.Context, arg UnassignRepoFromTeamParams) error {
+	_, err := q.db.ExecContext(ctx, unassignRepoFromTeam, arg.TeamID, arg.GithubRepoID)
 	return err
 }

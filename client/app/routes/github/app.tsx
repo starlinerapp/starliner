@@ -21,6 +21,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const installationIdParam = url.searchParams.get("installation_id");
+  const stateParam = url.searchParams.get("state");
 
   const installationId = installationIdParam
     ? Number(installationIdParam)
@@ -32,6 +33,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   return {
     installationId,
+    redirectTo: stateParam || "/",
   };
 }
 
@@ -40,7 +42,7 @@ interface GithubAppFormInput {
 }
 
 export default function GithubApp() {
-  const { installationId } = useLoaderData<typeof loader>();
+  const { installationId, redirectTo } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
 
@@ -62,7 +64,7 @@ export default function GithubApp() {
       },
       {
         onSuccess: () => {
-          navigate("/");
+          navigate(redirectTo);
         },
       },
     );

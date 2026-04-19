@@ -84,20 +84,7 @@ export default function BuildCard({
             </div>
 
             <div className="text-mauve-10 mt-0.5 text-sm">
-              <p>
-                {source === "manual" ? "Manually triggered" : "Commit to main"}
-              </p>
-              {args && args.length > 0 && (
-                <p className="mt-1">
-                  Build Args:{" "}
-                  {args.map((arg, i) => (
-                    <span key={arg.name} className="text-mauve-11">
-                      {arg.name}
-                      {i < args.length - 1 ? ", " : ""}
-                    </span>
-                  ))}
-                </p>
-              )}
+              <p>{source === "manual" ? "Manually triggered" : "On Push"}</p>
             </div>
           </div>
         </div>
