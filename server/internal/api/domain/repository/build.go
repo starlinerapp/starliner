@@ -54,8 +54,11 @@ func (br *BuildRepository) GetBuildLogs(ctx context.Context, userId int64, build
 	return utils.PtrFromNullString(res), err
 }
 
-func (br *BuildRepository) GetLatestGitDeploymentBuild(ctx context.Context, deploymentId int64) (*entity.GitDeploymentBuild, error) {
-	build, err := br.queries.GetLatestGitDeploymentBuild(ctx, deploymentId)
+func (br *BuildRepository) GetLatestGitDeploymentBuild(ctx context.Context, environmentId int64, serviceName string) (*entity.GitDeploymentBuild, error) {
+	build, err := br.queries.GetLatestGitDeploymentBuild(ctx, sqlc.GetLatestGitDeploymentBuildParams{
+		EnvironmentID: environmentId,
+		Name:          serviceName,
+	})
 	if err != nil {
 		return nil, err
 	}

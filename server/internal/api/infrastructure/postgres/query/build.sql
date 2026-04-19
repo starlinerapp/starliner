@@ -50,11 +50,11 @@ WHERE environment_id = $1
 ORDER BY b.created_at DESC;
 
 -- name: GetLatestGitDeploymentBuild :one
-SELECT
-    b.id AS build_id,
-    d.id AS deployment_id,
-    d.name AS deployment_name,
-    b.image_name AS image_name,
+SELECT DISTINCT ON (d.id)
+    b.id as build_id,
+    d.id as deployment_id,
+    d.name as deployment_name,
+    b.image_name as image_name,
     b.commit_hash,
     b.source,
     b.status,
@@ -64,7 +64,8 @@ SELECT
     b.created_at
 FROM deployments d
     INNER JOIN git_deployments gd ON gd.deployment_id = d.id
-    INNER JOIN builds b ON b.deployment_id = d.id
-WHERE d.id = $1
-ORDER BY b.created_at DESC
-LIMIT 1;
+    INNER JOIN builds b ON d.id = b.deployment_id
+    INNER JOIN environments e ON d.environment_id = e.id
+WHERE d.environment_id = $1
+AND d.name = $2
+ORDER BY d.id, b.created_at DESC;

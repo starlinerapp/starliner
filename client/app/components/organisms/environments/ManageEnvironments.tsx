@@ -121,7 +121,7 @@ export default function ManageEnvironments({
               ))}
           {environments.length > 1 && <DropdownMenuSeparator />}
           <DropdownMenuItem onClick={() => setEnvironmentDialogOpen(true)}>
-            <div className="flex items-center gap-1.5">
+            <div className="flex w-full items-center justify-between gap-1.5">
               <p className="text-xs">New Environment</p>
               <ChevronRight width={12} height={12} />
             </div>

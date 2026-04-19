@@ -84,7 +84,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		if err != nil {
 			return nil, err
 		}
-		deployments, err := ea.GetEnvironmentDeployments(ctx, *sourceEnvironmentId, userId)
+		deployments, err := ea.GetEnvironmentDeployments(ctx, env.Id, userId)
 		if err != nil {
 			return nil, err
 		}
@@ -147,7 +147,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 
 		gitDeployments := deployments.GitDeployments
 		for _, d := range gitDeployments {
-			latestBuild, err := ea.buildRepository.GetLatestGitDeploymentBuild(ctx, d.Id)
+			latestBuild, err := ea.buildRepository.GetLatestGitDeploymentBuild(ctx, *sourceEnvironmentId, d.ServiceName)
 			if err != nil {
 				return nil, err
 			}
