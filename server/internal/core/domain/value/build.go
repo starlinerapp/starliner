@@ -24,7 +24,7 @@ type BuildCompleted struct {
 	DeploymentId     int64
 	ImageRegistryUrl string
 	BuildStatus      BuildStatus
-	ImageName        string
+	ImageName        *string
 	CommitHash       *string
 	Tag              *string
 	Logs             string

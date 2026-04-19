@@ -192,6 +192,7 @@ type Build struct {
 	UpdatedAt    time.Time
 	CommitHash   sql.NullString
 	Source       string
+	ImageName    sql.NullString
 }
 
 type Cluster struct {

@@ -19,7 +19,7 @@ INSERT INTO builds (
     $1,
           $2
 )
-RETURNING id, deployment_id, status, logs, created_at, updated_at, commit_hash, source
+RETURNING id, deployment_id, status, logs, created_at, updated_at, commit_hash, source, image_name
 `
 
 type CreateBuildParams struct {
@@ -39,6 +39,7 @@ func (q *Queries) CreateBuild(ctx context.Context, arg CreateBuildParams) (Build
 		&i.UpdatedAt,
 		&i.CommitHash,
 		&i.Source,
+		&i.ImageName,
 	)
 	return i, err
 }
@@ -73,6 +74,7 @@ SELECT
     b.id as build_id,
     d.id as deployment_id,
     d.name as deployment_name,
+    b.image_name as image_name,
     b.commit_hash,
     b.source,
     b.status,
@@ -92,6 +94,7 @@ type GetEnvironmentGitDeploymentBuildsRow struct {
 	BuildID        int64
 	DeploymentID   int64
 	DeploymentName string
+	ImageName      sql.NullString
 	CommitHash     sql.NullString
 	Source         string
 	Status         BuildStatus
@@ -114,6 +117,7 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 			&i.BuildID,
 			&i.DeploymentID,
 			&i.DeploymentName,
+			&i.ImageName,
 			&i.CommitHash,
 			&i.Source,
 			&i.Status,
@@ -135,18 +139,74 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 	return items, nil
 }
 
+const getLatestGitDeploymentBuild = `-- name: GetLatestGitDeploymentBuild :one
+SELECT DISTINCT ON (d.id)
+    b.id as build_id,
+    d.id as deployment_id,
+    d.name as deployment_name,
+    b.image_name as image_name,
+    b.commit_hash,
+    b.source,
+    b.status,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path,
+    b.created_at
+FROM deployments d
+    INNER JOIN git_deployments gd ON gd.deployment_id = d.id
+    INNER JOIN builds b ON d.id = b.deployment_id
+    INNER JOIN environments e ON d.environment_id = e.id
+WHERE d.environment_id = $1
+ORDER BY d.id, b.created_at DESC
+`
+
+type GetLatestGitDeploymentBuildRow struct {
+	BuildID        int64
+	DeploymentID   int64
+	DeploymentName string
+	ImageName      sql.NullString
+	CommitHash     sql.NullString
+	Source         string
+	Status         BuildStatus
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+	CreatedAt      time.Time
+}
+
+func (q *Queries) GetLatestGitDeploymentBuild(ctx context.Context, environmentID int64) (GetLatestGitDeploymentBuildRow, error) {
+	row := q.db.QueryRowContext(ctx, getLatestGitDeploymentBuild, environmentID)
+	var i GetLatestGitDeploymentBuildRow
+	err := row.Scan(
+		&i.BuildID,
+		&i.DeploymentID,
+		&i.DeploymentName,
+		&i.ImageName,
+		&i.CommitHash,
+		&i.Source,
+		&i.Status,
+		&i.Url,
+		&i.ProjectPath,
+		&i.DockerfilePath,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateBuildInformation = `-- name: UpdateBuildInformation :exec
 UPDATE builds
 SET
     status = $1,
     commit_hash = $2,
-    logs = $3
-WHERE id = $4
+    image_name = $3,
+    logs = $4
+WHERE id = $5
 `
 
 type UpdateBuildInformationParams struct {
 	Status     BuildStatus
 	CommitHash sql.NullString
+	ImageName  sql.NullString
 	Logs       sql.NullString
 	ID         int64
 }
@@ -155,6 +215,7 @@ func (q *Queries) UpdateBuildInformation(ctx context.Context, arg UpdateBuildInf
 	_, err := q.db.ExecContext(ctx, updateBuildInformation,
 		arg.Status,
 		arg.CommitHash,
+		arg.ImageName,
 		arg.Logs,
 		arg.ID,
 	)
