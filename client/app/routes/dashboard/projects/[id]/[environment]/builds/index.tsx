@@ -58,7 +58,6 @@ export default function Builds() {
           serviceName={build.deploymentName}
           createdAt={build.createdAt}
           status={build.status}
-          args={build.args}
         />
       ))}
     </div>

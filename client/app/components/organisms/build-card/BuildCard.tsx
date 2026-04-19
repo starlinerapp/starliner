@@ -27,7 +27,6 @@ export default function BuildCard({
   serviceName,
   status,
   createdAt,
-  args,
 }: LogsCardProps) {
   const trpc = useTRPC();
 
