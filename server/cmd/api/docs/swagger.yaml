@@ -222,6 +222,16 @@ definitions:
     required:
     - userId
     type: object
+  request.SendInvite:
+    properties:
+      inviteUrlPrefix:
+        type: string
+      toEmail:
+        type: string
+    required:
+    - inviteUrlPrefix
+    - toEmail
+    type: object
   request.UpdateDeployFromGit:
     properties:
       dockerfilePath:
@@ -1476,7 +1486,7 @@ paths:
       - organization
   /organizations/{id}/invites:
     post:
-      operationId: createOrganizationInvite
+      operationId: sendOrganizationInvite
       parameters:
       - description: User ID
         in: header
@@ -1488,12 +1498,16 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Send Invite
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SendInvite'
       responses:
         "201":
           description: Created
-          schema:
-            $ref: '#/definitions/response.OrganizationInvite'
-      summary: Create organization invite
+      summary: Send organization invite via email
       tags:
       - organization
   /organizations/{id}/members:

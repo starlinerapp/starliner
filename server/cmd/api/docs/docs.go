@@ -1080,8 +1080,8 @@ const docTemplate = `{
                 "tags": [
                     "organization"
                 ],
-                "summary": "Create organization invite",
-                "operationId": "createOrganizationInvite",
+                "summary": "Send organization invite via email",
+                "operationId": "sendOrganizationInvite",
                 "parameters": [
                     {
                         "type": "string",
@@ -1096,14 +1096,20 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Send Invite",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SendInvite"
+                        }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.OrganizationInvite"
-                        }
+                        "description": "Created"
                     }
                 }
             }
@@ -2078,6 +2084,21 @@ const docTemplate = `{
             "properties": {
                 "userId": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.SendInvite": {
+            "type": "object",
+            "required": [
+                "inviteUrlPrefix",
+                "toEmail"
+            ],
+            "properties": {
+                "inviteUrlPrefix": {
+                    "type": "string"
+                },
+                "toEmail": {
+                    "type": "string"
                 }
             }
         },
