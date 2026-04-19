@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
@@ -128,15 +129,18 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 
 		volume, err := qtx.GetDeploymentVolume(ctx, utils.NullInt64FromPtr(&d.DeploymentID))
 		if err != nil {
-			return nil, err
-		}
-		_, err = qtx.CreateDeploymentVolume(ctx, sqlc.CreateDeploymentVolumeParams{
-			DeploymentID:  utils.NullInt64FromPtr(&imageDeployment.DeploymentID),
-			VolumeSizeMib: volume.VolumeSizeMib,
-			MountPath:     volume.MountPath,
-		})
-		if err != nil {
-			return nil, err
+			if !errors.Is(err, sql.ErrNoRows) {
+				return nil, err
+			}
+		} else {
+			_, err = qtx.CreateDeploymentVolume(ctx, sqlc.CreateDeploymentVolumeParams{
+				DeploymentID:  utils.NullInt64FromPtr(&imageDeployment.DeploymentID),
+				VolumeSizeMib: volume.VolumeSizeMib,
+				MountPath:     volume.MountPath,
+			})
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
