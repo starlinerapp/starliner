@@ -50,6 +50,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 	slug string,
 	projectId int64,
 	sourceEnvironmentId int64,
+	uniqueIdentifier string,
 ) (*entity.Environment, error) {
 	tx, err := er.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
@@ -211,8 +212,13 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 
 		host, exists := hostMap[hID]
 		if !exists {
+			hostValue := ""
+			if r.Host.Valid {
+				hostValue = r.Host.String
+			}
+
 			host = &entity.IngressHost{
-				Host:  "",
+				Host:  uniqueIdentifier + "-" + hostValue,
 				Paths: []*entity.IngressPath{},
 			}
 			hostMap[hID] = host

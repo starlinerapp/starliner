@@ -3,8 +3,12 @@ package service
 import (
 	"context"
 	"errors"
+	"math/rand"
 	"starliner.app/internal/api/domain/repository/interface"
+	"time"
 )
+
+const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 type EnvironmentService struct {
 	environmentRepository interfaces.EnvironmentRepository
@@ -33,4 +37,13 @@ func (es *EnvironmentService) ValidateUserPermission(ctx context.Context, userId
 		return errors.New("user not authorized")
 	}
 	return nil
+}
+
+func (es *EnvironmentService) RandomPrefix(n int) string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = charset[r.Intn(len(charset))]
+	}
+	return string(b)
 }
