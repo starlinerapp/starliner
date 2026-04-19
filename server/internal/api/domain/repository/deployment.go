@@ -76,7 +76,7 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 
 	resultArgs := make([]*entity.Arg, len(args))
 	for i, a := range args {
-		arg, err := qtx.CreateDeploymentArg(ctx, sqlc.CreateDeploymentArgParams{
+		arg, err := qtx.CreateGitDeploymentArg(ctx, sqlc.CreateGitDeploymentArgParams{
 			DeploymentID: d.DeploymentID,
 			Name:         a.Name,
 			Value:        a.Value,
@@ -164,7 +164,7 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 
 	resultArgs := make([]*entity.Arg, len(args))
 	for i, a := range args {
-		arg, err := qtx.CreateDeploymentArg(ctx, sqlc.CreateDeploymentArgParams{
+		arg, err := qtx.CreateGitDeploymentArg(ctx, sqlc.CreateGitDeploymentArgParams{
 			DeploymentID: d.DeploymentID,
 			Name:         a.Name,
 			Value:        a.Value,
@@ -567,8 +567,8 @@ func (dr *DeploymentRepository) GetDeploymentEnvs(ctx context.Context, deploymen
 	return variables, nil
 }
 
-func (dr *DeploymentRepository) GetDeploymentArgs(ctx context.Context, deploymentId int64) ([]*entity.Arg, error) {
-	args, err := dr.queries.GetDeploymentArgs(ctx, deploymentId)
+func (dr *DeploymentRepository) GetGitDeploymentArgs(ctx context.Context, deploymentId int64) ([]*entity.Arg, error) {
+	args, err := dr.queries.GetGitDeploymentArgs(ctx, deploymentId)
 	if err != nil {
 		return nil, err
 	}
@@ -695,7 +695,7 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 			}
 		}
 
-		args, err := dr.queries.GetDeploymentArgs(ctx, d.DeploymentID)
+		args, err := dr.queries.GetGitDeploymentArgs(ctx, d.DeploymentID)
 		if err != nil {
 			return nil, err
 		}

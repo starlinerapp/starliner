@@ -9,21 +9,21 @@ import (
 	"context"
 )
 
-const createDeploymentArg = `-- name: CreateDeploymentArg :one
-INSERT INTO deployment_args (deployment_id, name, value)
+const createGitDeploymentArg = `-- name: CreateGitDeploymentArg :one
+INSERT INTO git_deployment_args (deployment_id, name, value)
 VALUES ($1, $2, $3)
 RETURNING id, deployment_id, name, value, created_at, updated_at
 `
 
-type CreateDeploymentArgParams struct {
+type CreateGitDeploymentArgParams struct {
 	DeploymentID int64
 	Name         string
 	Value        string
 }
 
-func (q *Queries) CreateDeploymentArg(ctx context.Context, arg CreateDeploymentArgParams) (DeploymentArg, error) {
-	row := q.db.QueryRowContext(ctx, createDeploymentArg, arg.DeploymentID, arg.Name, arg.Value)
-	var i DeploymentArg
+func (q *Queries) CreateGitDeploymentArg(ctx context.Context, arg CreateGitDeploymentArgParams) (GitDeploymentArg, error) {
+	row := q.db.QueryRowContext(ctx, createGitDeploymentArg, arg.DeploymentID, arg.Name, arg.Value)
+	var i GitDeploymentArg
 	err := row.Scan(
 		&i.ID,
 		&i.DeploymentID,
@@ -36,7 +36,7 @@ func (q *Queries) CreateDeploymentArg(ctx context.Context, arg CreateDeploymentA
 }
 
 const deleteArgsByDeploymentId = `-- name: DeleteArgsByDeploymentId :exec
-DELETE FROM deployment_args
+DELETE FROM git_deployment_args
 WHERE deployment_id = $1
 `
 
@@ -45,26 +45,26 @@ func (q *Queries) DeleteArgsByDeploymentId(ctx context.Context, deploymentID int
 	return err
 }
 
-const getDeploymentArgs = `-- name: GetDeploymentArgs :many
+const getGitDeploymentArgs = `-- name: GetGitDeploymentArgs :many
 SELECT da.name, da.value
-FROM deployment_args da
+FROM git_deployment_args da
 WHERE da.deployment_id = $1
 `
 
-type GetDeploymentArgsRow struct {
+type GetGitDeploymentArgsRow struct {
 	Name  string
 	Value string
 }
 
-func (q *Queries) GetDeploymentArgs(ctx context.Context, deploymentID int64) ([]GetDeploymentArgsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getDeploymentArgs, deploymentID)
+func (q *Queries) GetGitDeploymentArgs(ctx context.Context, deploymentID int64) ([]GetGitDeploymentArgsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGitDeploymentArgs, deploymentID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetDeploymentArgsRow
+	var items []GetGitDeploymentArgsRow
 	for rows.Next() {
-		var i GetDeploymentArgsRow
+		var i GetGitDeploymentArgsRow
 		if err := rows.Scan(&i.Name, &i.Value); err != nil {
 			return nil, err
 		}

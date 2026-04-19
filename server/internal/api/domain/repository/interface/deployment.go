@@ -84,7 +84,7 @@ type DeploymentRepository interface {
 
 	GetDeploymentEnvs(ctx context.Context, deploymentId int64) ([]*entity.EnvVar, error)
 
-	GetDeploymentArgs(ctx context.Context, deploymentId int64) ([]*entity.Arg, error)
+	GetGitDeploymentArgs(ctx context.Context, deploymentId int64) ([]*entity.Arg, error)
 
 	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
 

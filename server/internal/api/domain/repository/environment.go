@@ -104,7 +104,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 			}
 		}
 
-		args, err := er.queries.GetDeploymentArgs(ctx, r.DeploymentID)
+		args, err := er.queries.GetGitDeploymentArgs(ctx, r.DeploymentID)
 		if err != nil {
 			return nil, err
 		}
@@ -302,7 +302,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 
 	builds := make([]*entity.GitDeploymentBuild, len(rows))
 	for i, row := range rows {
-		args, err := er.queries.GetDeploymentArgs(ctx, row.DeploymentID)
+		args, err := er.queries.GetGitDeploymentArgs(ctx, row.DeploymentID)
 		if err != nil {
 			return nil, err
 		}
