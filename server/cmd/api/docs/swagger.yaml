@@ -13,6 +13,16 @@ definitions:
     required:
     - userId
     type: object
+  request.Arg:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
+    type: object
   request.AssignRepoToTeam:
     properties:
       githubRepoId:
@@ -105,6 +115,10 @@ definitions:
     type: object
   request.DeployFromGit:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/request.Arg'
+        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -234,6 +248,10 @@ definitions:
     type: object
   request.UpdateDeployFromGit:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/request.Arg'
+        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -299,6 +317,16 @@ definitions:
         type: string
     required:
     - apiKey
+    type: object
+  response.Arg:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
     type: object
   response.BuildLogs:
     properties:
@@ -439,6 +467,10 @@ definitions:
     type: object
   response.GitDeployment:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/response.Arg'
+        type: array
       dockerfilePath:
         type: string
       envVars:
@@ -460,6 +492,7 @@ definitions:
       status:
         type: string
     required:
+    - args
     - dockerfilePath
     - envVars
     - gitUrl
@@ -472,6 +505,10 @@ definitions:
     type: object
   response.GitDeploymentBuild:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/response.Arg'
+        type: array
       buildId:
         type: integer
       commitHash:
@@ -493,6 +530,7 @@ definitions:
       status:
         type: string
     required:
+    - args
     - buildId
     - commitHash
     - createdAt

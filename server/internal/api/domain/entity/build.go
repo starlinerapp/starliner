@@ -29,4 +29,5 @@ type GitDeploymentBuild struct {
 	ProjectPath    string
 	DockerfilePath string
 	CreatedAt      time.Time
+	Args           []*Arg
 }

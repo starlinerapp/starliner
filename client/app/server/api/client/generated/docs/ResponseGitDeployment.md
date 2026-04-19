@@ -4,6 +4,7 @@
 
 | Name                      | Type                                                 | Description | Notes                  |
 | ------------------------- | ---------------------------------------------------- | ----------- | ---------------------- |
+| **args**                  | [**Array&lt;ResponseArg&gt;**](ResponseArg.md)       |             | [default to undefined] |
 | **dockerfilePath**        | **string**                                           |             | [default to undefined] |
 | **envVars**               | [**Array&lt;ResponseEnvVar&gt;**](ResponseEnvVar.md) |             | [default to undefined] |
 | **gitUrl**                | **string**                                           |             | [default to undefined] |
@@ -20,6 +21,7 @@
 import { ResponseGitDeployment } from "./api";
 
 const instance: ResponseGitDeployment = {
+  args,
   dockerfilePath,
   envVars,
   gitUrl,

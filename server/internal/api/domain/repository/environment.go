@@ -103,6 +103,20 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 				Value: e.Value,
 			}
 		}
+
+		args, err := er.queries.GetGitDeploymentArgs(ctx, r.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		deploymentArgs := make([]*entity.Arg, len(args))
+		for j, a := range args {
+			deploymentArgs[j] = &entity.Arg{
+				Name:  a.Name,
+				Value: a.Value,
+			}
+		}
+
 		deployments[i] = &entity.GitDeployment{
 			Id:                    r.DeploymentID,
 			Name:                  r.Name,
@@ -113,6 +127,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 			ProjectRepositoryPath: r.ProjectPath,
 			DockerfilePath:        r.DockerfilePath,
 			EnvVars:               variables,
+			Args:                  deploymentArgs,
 		}
 	}
 
@@ -287,6 +302,19 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 
 	builds := make([]*entity.GitDeploymentBuild, len(rows))
 	for i, row := range rows {
+		args, err := er.queries.GetGitDeploymentArgs(ctx, row.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		deploymentArgs := make([]*entity.Arg, len(args))
+		for j, a := range args {
+			deploymentArgs[j] = &entity.Arg{
+				Name:  a.Name,
+				Value: a.Value,
+			}
+		}
+
 		builds[i] = &entity.GitDeploymentBuild{
 			BuildId:        row.BuildID,
 			DeploymentId:   row.DeploymentID,
@@ -298,6 +326,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 			ProjectPath:    row.ProjectPath,
 			DockerfilePath: row.DockerfilePath,
 			CreatedAt:      row.CreatedAt,
+			Args:           deploymentArgs,
 		}
 	}
 

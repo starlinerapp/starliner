@@ -2,6 +2,8 @@ package port
 
 import (
 	"context"
+
+	"starliner.app/internal/core/domain/value"
 )
 
 type Docker interface {
@@ -10,5 +12,6 @@ type Docker interface {
 		projectDir,
 		dockerfilePath string,
 		imageTag string,
+		args []*value.Arg,
 	) (string, error)
 }

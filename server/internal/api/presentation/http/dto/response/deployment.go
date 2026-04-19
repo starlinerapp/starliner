@@ -18,6 +18,11 @@ type EnvVar struct {
 	Value string `json:"value" binding:"required"`
 }
 
+type Arg struct {
+	Name  string `json:"name" binding:"required"`
+	Value string `json:"value" binding:"required"`
+}
+
 type GitDeployment struct {
 	Id                    int64    `json:"id" binding:"required"`
 	ServiceName           string   `json:"serviceName" binding:"required"`
@@ -28,6 +33,7 @@ type GitDeployment struct {
 	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
 	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
 	EnvVars               []EnvVar `json:"envVars" binding:"required"`
+	Args                  []Arg    `json:"args" binding:"required"`
 }
 
 func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
@@ -41,6 +47,7 @@ func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
 		ProjectRepositoryPath: gitDeployment.ProjectRepositoryPath,
 		DockerfilePath:        gitDeployment.DockerfilePath,
 		EnvVars:               mapEnvVarsFromValue(gitDeployment.EnvVars),
+		Args:                  mapArgsFromValue(gitDeployment.Args),
 	}
 }
 
@@ -53,6 +60,17 @@ func mapEnvVarsFromValue(envVars []*value.EnvVar) []EnvVar {
 		}
 	}
 	return variables
+}
+
+func mapArgsFromValue(args []*value.Arg) []Arg {
+	result := make([]Arg, len(args))
+	for i, a := range args {
+		result[i] = Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+	return result
 }
 
 func NewGitDeployments(gitDeployments []*value.GitDeployment) []GitDeployment {
@@ -207,6 +225,7 @@ type GitDeploymentBuild struct {
 	ProjectPath    string    `json:"projectPath" binding:"required"`
 	DockerfilePath string    `json:"dockerfilePath" binding:"required"`
 	CreatedAt      time.Time `json:"createdAt" binding:"required"`
+	Args           []Arg     `json:"args" binding:"required"`
 }
 
 func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
@@ -221,7 +240,19 @@ func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
 		ProjectPath:    build.ProjectPath,
 		DockerfilePath: build.DockerfilePath,
 		CreatedAt:      build.CreatedAt,
+		Args:           mapArgsFromBuildValue(build.Args),
 	}
+}
+
+func mapArgsFromBuildValue(args []*value.Arg) []Arg {
+	result := make([]Arg, len(args))
+	for i, a := range args {
+		result[i] = Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+	return result
 }
 
 func NewGitDeploymentBuilds(builds []*value.GitDeploymentBuild) []GitDeploymentBuild {
