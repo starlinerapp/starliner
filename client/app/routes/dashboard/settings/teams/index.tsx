@@ -56,9 +56,10 @@ export default function Teams() {
 
   return (
     <div className="flex flex-col px-8 py-4">
-      <div className="flex w-full items-center justify-between">
+      <div className="flex min-h-10 w-full items-center justify-between">
         <h1 className="text-xl font-bold">Teams</h1>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        {organization.isOwner && (
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
             <Button className="w-32">Create Team</Button>
           </DialogTrigger>
@@ -106,7 +107,8 @@ export default function Teams() {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        )}
       </div>
       <div className="flex flex-col gap-4 pt-[42px]">
         <OrganizationTeams />
