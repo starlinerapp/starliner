@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
@@ -173,6 +172,56 @@ func (tr *TeamRepository) GetTeamRepositories(ctx context.Context, teamID int64)
 	}
 
 	return repos, nil
+}
+
+func (tr *TeamRepository) GetTeamClusters(ctx context.Context, teamID int64) ([]*entity.TeamCluster, error) {
+	rows, err := tr.queries.GetTeamClusters(ctx, teamID)
+	if err != nil {
+		return nil, err
+	}
+
+	clusters := make([]*entity.TeamCluster, len(rows))
+	for i, row := range rows {
+		clusters[i] = &entity.TeamCluster{
+			TeamId:      teamID,
+			ClusterId:   row.ID,
+			ClusterName: row.Name,
+			ServerType:  row.ServerType,
+		}
+	}
+	return clusters, nil
+}
+
+func (tr *TeamRepository) AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error {
+	err := tr.queries.AssignTeamCluster(ctx, sqlc.AssignTeamClusterParams{
+		TeamID:    teamID,
+		ClusterID: clusterId,
+	})
+	return err
+}
+
+func (tr *TeamRepository) UnassignClusterFromTeam(ctx context.Context, teamID int64, clusterId int64) error {
+	err := tr.queries.UnassignTeamCluster(ctx, sqlc.UnassignTeamClusterParams{
+		TeamID:    teamID,
+		ClusterID: clusterId,
+	})
+	return err
+}
+
+func (tr *TeamRepository) FindTeamCluster(ctx context.Context, teamID int64, clusterId int64) (*entity.TeamCluster, error) {
+	cluster, err := tr.queries.FindTeamCluster(ctx, sqlc.FindTeamClusterParams{
+		TeamID:    teamID,
+		ClusterID: clusterId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &entity.TeamCluster{
+		TeamId:      teamID,
+		ClusterId:   cluster.ID,
+		ClusterName: cluster.Name,
+		ServerType:  cluster.ServerType,
+	}, nil
 }
 
 var _ interfaces.TeamRepository = (*TeamRepository)(nil)

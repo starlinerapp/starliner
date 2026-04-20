@@ -22,17 +22,34 @@ export default function NewProject() {
 
   const organization = useOrganizationContext();
 
-  const { data: clustersData, isLoading: isClustersLoading } = useQuery(
-    trpc.organization.getOrganizationClusters.queryOptions({
-      id: organization.id,
-    }),
-  );
+  const { register, handleSubmit, watch, setValue } =
+    useForm<NewProjectFormInput>();
+  const nameInput = watch("name", "");
+  const clusterIdInput = watch("clusterId", "");
+  const teamIdInput = watch("teamId", "");
 
   const { data: teamsData, isLoading: isTeamsLoading } = useQuery(
     trpc.team.getUserTeams.queryOptions({
       organizationId: organization.id,
     }),
   );
+
+  const { data: clustersData, isLoading: isClustersLoading } = useQuery(
+    trpc.team.getTeamClusters.queryOptions(
+      { teamId: Number(teamIdInput) },
+      { enabled: !!teamIdInput },
+    ),
+  );
+
+  React.useEffect(() => {
+    if (teamsData?.[0] && !teamIdInput) {
+      setValue("teamId", String(teamsData[0].id));
+    }
+  }, [teamsData, teamIdInput, setValue]);
+
+  React.useEffect(() => {
+    setValue("clusterId", "");
+  }, [teamIdInput, setValue]);
 
   const isLoading = isClustersLoading || isTeamsLoading;
 
@@ -48,11 +65,6 @@ export default function NewProject() {
       },
     }),
   );
-
-  const { register, handleSubmit, watch } = useForm<NewProjectFormInput>();
-  const nameInput = watch("name", "");
-  const clusterIdInput = watch("clusterId", "");
-  const teamIdInput = watch("teamId", "");
 
   const onSubmit: SubmitHandler<NewProjectFormInput> = (data) => {
     createProjectMutation.mutate({
@@ -79,12 +91,12 @@ export default function NewProject() {
           className="my-2"
         />
       ) : null}
-      {!clusterExists && !isLoading ? (
+      {teamExists && !clusterExists && !isLoading && teamIdInput ? (
         <WarningBanner
-          text="You must create a cluster before creating projects."
+          text="This team has no clusters assigned. Assign one before creating projects."
           linkOut={{
-            text: "Create Cluster",
-            href: `/${organization.slug}/clusters/new`,
+            text: "Manage Team",
+            href: `/${organization.slug}/settings/teams/${teamIdInput}`,
           }}
           className="my-2"
         />
@@ -115,7 +127,6 @@ export default function NewProject() {
                 teamExists ? "" : "text-mauve-11",
               )}
               disabled={!teamExists}
-              defaultValue={teamsData?.[0]?.id ?? ""}
             >
               {teamExists ? (
                 <>
@@ -150,11 +161,16 @@ export default function NewProject() {
               defaultValue=""
             >
               {clusterExists ? (
-                clustersData.map((cluster, i) => (
-                  <option key={i} value={cluster.id}>
-                    {cluster.name}
+                <>
+                  <option value="" disabled>
+                    Cluster*
                   </option>
-                ))
+                  {clustersData.map((cluster, i) => (
+                    <option key={i} value={cluster.clusterId}>
+                      {cluster.clusterName}
+                    </option>
+                  ))}
+                </>
               ) : (
                 <option value="" disabled>
                   Cluster*

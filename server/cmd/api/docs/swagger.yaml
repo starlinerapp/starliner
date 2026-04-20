@@ -791,6 +791,22 @@ definitions:
     - organization_id
     - slug
     type: object
+  response.TeamCluster:
+    properties:
+      clusterId:
+        type: integer
+      clusterName:
+        type: string
+      serverType:
+        type: string
+      teamId:
+        type: integer
+    required:
+    - clusterId
+    - clusterName
+    - serverType
+    - teamId
+    type: object
   response.TeamRepo:
     properties:
       githubRepoId:
@@ -1834,6 +1850,79 @@ paths:
       summary: Get Project Environments
       tags:
       - project
+  /teams/{teamId}/clusters:
+    get:
+      operationId: getTeamClusters
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.TeamCluster'
+            type: array
+      summary: Get clusters assigned to a team
+      tags:
+      - team
+  /teams/{teamId}/clusters/{clusterId}:
+    delete:
+      operationId: unassignClusterFromTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Cluster ID
+        in: path
+        name: clusterId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: Unassign a cluster from a team
+      tags:
+      - team
+    post:
+      operationId: assignClusterToTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Cluster ID
+        in: path
+        name: clusterId
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+      summary: Assign a cluster to a team
+      tags:
+      - team
   /teams/{teamId}/members:
     delete:
       operationId: removeTeamMember
