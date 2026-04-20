@@ -239,12 +239,12 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 }
 
 func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) (*value.Deployments, error) {
-	ingresses, err := ea.environmentRepository.GetEnvironmentIngressDeployments(ctx, environmentId, userId)
+	ingresses, err := ea.environmentRepository.GetUserEnvironmentIngressDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	git, err := ea.environmentRepository.GetEnvironmentGitDeployments(ctx, environmentId, userId)
+	git, err := ea.environmentRepository.GetUserEnvironmentGitDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +260,7 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		gitDeployments[i] = value.NewGitDeployment(d, internalEndpoint)
 	}
 
-	images, err := ea.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId, userId)
+	images, err := ea.environmentRepository.GetUserEnvironmentImageDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +276,7 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		imageDeployments[i] = value.NewImageDeployment(d, internalEndpoint)
 	}
 
-	databases, err := ea.environmentRepository.GetEnvironmentDatabaseDeployments(ctx, environmentId, userId)
+	databases, err := ea.environmentRepository.GetUserEnvironmentDatabaseDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}

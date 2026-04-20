@@ -143,7 +143,7 @@ func (q *Queries) DeleteIngressPathsByDeploymentId(ctx context.Context, deployme
 	return err
 }
 
-const getEnvironmentIngressDeployments = `-- name: GetEnvironmentIngressDeployments :many
+const getEnvironmentIngressDeploymentsByName = `-- name: GetEnvironmentIngressDeploymentsByName :many
 SELECT
     d.id AS deployment_id,
     d.name AS deployment_name,
@@ -157,25 +157,21 @@ SELECT
     ip.path_type    AS path_type,
     svc.name        AS service_name
 FROM deployments d
-INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
-INNER JOIN environments e ON d.environment_id = e.id
-INNER JOIN projects ON e.project_id = projects.id
-INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN team_members ON team_members.team_id = teams.id
-LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
-LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
-LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+         INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+         LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
+         LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
+         LEFT JOIN deployments svc ON svc.id = ip.deployment_id
 WHERE d.environment_id = $1
-AND team_members.user_id = $2
+AND d.name = $2
 ORDER BY d.id DESC
 `
 
-type GetEnvironmentIngressDeploymentsParams struct {
+type GetEnvironmentIngressDeploymentsByNameParams struct {
 	EnvironmentID int64
-	UserID        int64
+	Name          string
 }
 
-type GetEnvironmentIngressDeploymentsRow struct {
+type GetEnvironmentIngressDeploymentsByNameRow struct {
 	DeploymentID   int64
 	DeploymentName string
 	Port           string
@@ -189,15 +185,15 @@ type GetEnvironmentIngressDeploymentsRow struct {
 	ServiceName    sql.NullString
 }
 
-func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, arg GetEnvironmentIngressDeploymentsParams) ([]GetEnvironmentIngressDeploymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEnvironmentIngressDeployments, arg.EnvironmentID, arg.UserID)
+func (q *Queries) GetEnvironmentIngressDeploymentsByName(ctx context.Context, arg GetEnvironmentIngressDeploymentsByNameParams) ([]GetEnvironmentIngressDeploymentsByNameRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentIngressDeploymentsByName, arg.EnvironmentID, arg.Name)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetEnvironmentIngressDeploymentsRow
+	var items []GetEnvironmentIngressDeploymentsByNameRow
 	for rows.Next() {
-		var i GetEnvironmentIngressDeploymentsRow
+		var i GetEnvironmentIngressDeploymentsByNameRow
 		if err := rows.Scan(
 			&i.DeploymentID,
 			&i.DeploymentName,
@@ -240,6 +236,87 @@ func (q *Queries) GetIngressHostByName(ctx context.Context, host string) (GetIng
 	var i GetIngressHostByNameRow
 	err := row.Scan(&i.Host, &i.DeploymentID)
 	return i, err
+}
+
+const getUserEnvironmentIngressDeployments = `-- name: GetUserEnvironmentIngressDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name AS deployment_name,
+    d.port,
+    d.status,
+    d.environment_id,
+    ih.id           AS host_id,
+    ih.host         AS host,
+    ip.id           AS path_id,
+    ip.path         AS path,
+    ip.path_type    AS path_type,
+    svc.name        AS service_name
+FROM deployments d
+INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+INNER JOIN environments e ON d.environment_id = e.id
+INNER JOIN projects ON e.project_id = projects.id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON team_members.team_id = teams.id
+LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
+LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
+LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+WHERE d.environment_id = $1
+AND team_members.user_id = $2
+ORDER BY d.id DESC
+`
+
+type GetUserEnvironmentIngressDeploymentsParams struct {
+	EnvironmentID int64
+	UserID        int64
+}
+
+type GetUserEnvironmentIngressDeploymentsRow struct {
+	DeploymentID   int64
+	DeploymentName string
+	Port           string
+	Status         DeploymentStatus
+	EnvironmentID  int64
+	HostID         sql.NullInt64
+	Host           sql.NullString
+	PathID         sql.NullInt64
+	Path           sql.NullString
+	PathType       sql.NullString
+	ServiceName    sql.NullString
+}
+
+func (q *Queries) GetUserEnvironmentIngressDeployments(ctx context.Context, arg GetUserEnvironmentIngressDeploymentsParams) ([]GetUserEnvironmentIngressDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserEnvironmentIngressDeployments, arg.EnvironmentID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserEnvironmentIngressDeploymentsRow
+	for rows.Next() {
+		var i GetUserEnvironmentIngressDeploymentsRow
+		if err := rows.Scan(
+			&i.DeploymentID,
+			&i.DeploymentName,
+			&i.Port,
+			&i.Status,
+			&i.EnvironmentID,
+			&i.HostID,
+			&i.Host,
+			&i.PathID,
+			&i.Path,
+			&i.PathType,
+			&i.ServiceName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
