@@ -23,7 +23,7 @@ func NewGitHubAppApplication(
 }
 
 func (ga *GitHubAppApplication) CreateGitHubApp(ctx context.Context, userId int64, organizationId int64, installationId int64) error {
-	err := ga.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
+	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (ga *GitHubAppApplication) CreateGitHubApp(ctx context.Context, userId int6
 }
 
 func (ga *GitHubAppApplication) GetGithubApp(ctx context.Context, userId int64, organizationId int64) (*value.GithubApp, error) {
-	err := ga.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
+	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
 		return nil, err
 	}

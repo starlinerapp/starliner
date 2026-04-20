@@ -3,8 +3,11 @@ package application
 import (
 	"context"
 	"errors"
+	"starliner.app/internal/api/conf"
+	apiPort "starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
+	"starliner.app/internal/api/domain/template"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
@@ -12,7 +15,9 @@ import (
 )
 
 type OrganizationApplication struct {
+	cfg                    *conf.Config
 	crypto                 port.Crypto
+	email                  apiPort.Email
 	organizationRepository interfaces.OrganizationRepository
 	teamRepository         interfaces.TeamRepository
 	normalizationService   *coreService.NormalizerService
@@ -20,14 +25,18 @@ type OrganizationApplication struct {
 }
 
 func NewOrganizationApplication(
+	cfg *conf.Config,
 	crypto port.Crypto,
+	email apiPort.Email,
 	organizationRepository interfaces.OrganizationRepository,
 	teamRepository interfaces.TeamRepository,
 	normalizationService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 ) *OrganizationApplication {
 	return &OrganizationApplication{
+		cfg:                    cfg,
 		crypto:                 crypto,
+		email:                  email,
 		organizationRepository: organizationRepository,
 		teamRepository:         teamRepository,
 		normalizationService:   normalizationService,
@@ -187,19 +196,31 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 	return oa.teamRepository.AddTeamMember(ctx, team.Id, userID)
 }
 
-func (oa *OrganizationApplication) CreateInvite(ctx context.Context, userID int64, organizationID int64) (*value.OrganizationInvite, error) {
+func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string, inviteUrlPrefix string) error {
 	err := oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
 	invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, expiresAt)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return value.NewOrganizationInvite(invite), nil
+	body, err := template.RenderInvite(template.InviteData{
+		OrganizationName: invite.OrganizationName,
+		InviteLink:       inviteUrlPrefix + invite.Id,
+	})
+	if err != nil {
+		return err
+	}
+
+	return oa.email.Send(ctx, apiPort.Message{
+		To:      toEmail,
+		Subject: "You've been invited to " + invite.OrganizationName,
+		Body:    body,
+	})
 }
 
 func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, userID int64, organizationID int64) ([]*value.User, error) {

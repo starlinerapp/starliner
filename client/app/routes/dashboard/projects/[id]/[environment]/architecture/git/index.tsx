@@ -50,6 +50,7 @@ export default function Git() {
         dockerfilePath: data.dockerfilePath,
         projectRepositoryPath: data.projectDirectoryPath,
         envs: data.envs,
+        args: data.args,
       },
       {
         onSuccess: () => {

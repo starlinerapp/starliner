@@ -7,6 +7,12 @@ export async function loader(loaderArgs: Route.LoaderArgs) {
   const { params } = loaderArgs;
   const trpc = await caller(loaderArgs);
 
+  if (params.environment) {
+    throw redirect(
+      `/${params.slug}/projects/${params.id}/${params.environment}/architecture/git`,
+    );
+  }
+
   const project = await trpc.project.getProject({
     id: Number(params.id),
   });

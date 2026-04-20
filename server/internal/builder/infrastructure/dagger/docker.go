@@ -3,9 +3,11 @@ package docker
 import (
 	"bytes"
 	"context"
-	"dagger.io/dagger"
 	"regexp"
+
+	"dagger.io/dagger"
 	"starliner.app/internal/builder/domain/port"
+	"starliner.app/internal/core/domain/value"
 )
 
 type Docker struct {
@@ -20,6 +22,7 @@ func (c *Docker) BuildAndPublish(
 	projectDir string,
 	dockerfilePath string,
 	imageTag string,
+	args []*value.Arg,
 ) (string, error) {
 	var logBuffer bytes.Buffer
 
@@ -34,11 +37,22 @@ func (c *Docker) BuildAndPublish(
 		_ = client.Close()
 	}(client)
 
+	var buildArgs []dagger.BuildArg
+	for _, a := range args {
+		if a != nil {
+			buildArgs = append(buildArgs, dagger.BuildArg{
+				Name:  a.Name,
+				Value: a.Value,
+			})
+		}
+	}
+
 	buildContainer := client.Host().
 		Directory(projectDir).
 		DockerBuild(dagger.DirectoryDockerBuildOpts{
 			Dockerfile: dockerfilePath,
 			Platform:   "linux/amd64",
+			BuildArgs:  buildArgs,
 		})
 
 	_, err = buildContainer.Publish(ctx, imageTag)

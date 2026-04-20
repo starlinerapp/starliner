@@ -73,16 +73,21 @@ export const organizationRouter = {
         .getHetznerCredential(userId, input.id)
         .then((res) => res.data);
     }),
-  createInvite: protectedProcedure
+  sendInvite: protectedProcedure
     .input(
       z.object({
         organizationId: z.number(),
+        toEmail: z.string(),
+        inviteUrlPrefix: z.string().url(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await organizationApiFactory
-        .createOrganizationInvite(userId, input.organizationId)
+        .sendOrganizationInvite(userId, input.organizationId, {
+          toEmail: input.toEmail,
+          inviteUrlPrefix: input.inviteUrlPrefix,
+        })
         .then((res) => res.data);
     }),
   getInvite: protectedProcedure

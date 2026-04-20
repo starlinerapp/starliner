@@ -5,5 +5,12 @@ metadata:
 spec:
   instances: 3
 
+  bootstrap:
+    initdb:
+      database: {{ .Values.cluster.bootstrap.initdb.database }}
+      owner: {{ .Values.cluster.bootstrap.initdb.owner }}
+      secret:
+        name: {{ .Values.cluster.bootstrap.initdb.secret.name }}
+
   storage:
     size: 1Gi

@@ -1,6 +1,5 @@
 import React from "react";
 import OrganizationGeneral from "~/components/organisms/settings/OrganizationGeneral";
-import OrganizationInvite from "~/components/organisms/settings/OrganizationInvite";
 
 export default function OrganizationSettings() {
   return (
@@ -10,7 +9,6 @@ export default function OrganizationSettings() {
       </div>
       <div className="flex flex-col gap-4 pt-12">
         <OrganizationGeneral />
-        <OrganizationInvite />
       </div>
     </div>
   );

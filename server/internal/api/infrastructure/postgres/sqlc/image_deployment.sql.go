@@ -125,6 +125,27 @@ func (q *Queries) CreateImageDeployment(ctx context.Context, arg CreateImageDepl
 	return i, err
 }
 
+const getDeploymentVolume = `-- name: GetDeploymentVolume :one
+SELECT id, deployment_id, volume_size_mib, mount_path, deleted_at, created_at, updated_at
+FROM deployment_volumes
+WHERE deployment_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetDeploymentVolume(ctx context.Context, deploymentID sql.NullInt64) (DeploymentVolume, error) {
+	row := q.db.QueryRowContext(ctx, getDeploymentVolume, deploymentID)
+	var i DeploymentVolume
+	err := row.Scan(
+		&i.ID,
+		&i.DeploymentID,
+		&i.VolumeSizeMib,
+		&i.MountPath,
+		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getEnvironmentImageDeployments = `-- name: GetEnvironmentImageDeployments :many
 SELECT
     d.id AS deployment_id,

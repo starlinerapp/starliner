@@ -34,3 +34,14 @@ func MapEnvVarsFromRequest(envVars []request.EnvVar) []*value.EnvVar {
 	}
 	return out
 }
+
+func MapArgsFromRequest(args []request.Arg) []*value.Arg {
+	out := make([]*value.Arg, 0, len(args))
+	for _, a := range args {
+		out = append(out, &value.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		})
+	}
+	return out
+}

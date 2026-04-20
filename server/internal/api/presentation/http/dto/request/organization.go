@@ -11,3 +11,8 @@ type UpsertHetznerCredential struct {
 type AcceptInvite struct {
 	InviteId string `json:"inviteId" binding:"required"`
 }
+
+type SendInvite struct {
+	ToEmail         string `json:"toEmail" binding:"required,email"`
+	InviteUrlPrefix string `json:"inviteUrlPrefix" binding:"required,url"`
+}
