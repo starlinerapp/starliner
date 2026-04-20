@@ -293,9 +293,21 @@ func (da *DeploymentApplication) DeployImage(
 
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 
@@ -369,9 +381,21 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 
