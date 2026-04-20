@@ -26,7 +26,7 @@ SET database = @database,
     password = @password
 WHERE deployment_id = @deployment_id;
 
--- name: GetEnvironmentDatabaseDeployments :many
+-- name: GetUserEnvironmentDatabaseDeployments :many
 SELECT
     d.id AS deployment_id,
     d.name,

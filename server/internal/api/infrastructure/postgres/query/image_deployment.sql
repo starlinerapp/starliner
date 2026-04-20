@@ -66,7 +66,7 @@ INSERT INTO deployment_environment_vars (deployment_id, name, value)
 VALUES (@deployment_id, @name, @value)
 RETURNING *;
 
--- name: GetEnvironmentImageDeployments :many
+-- name: GetUserEnvironmentImageDeployments :many
 SELECT
     d.id AS deployment_id,
     d.name AS service_name,

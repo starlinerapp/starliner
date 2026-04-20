@@ -46,7 +46,7 @@ SELECT
 FROM updated_deployment d
 INNER JOIN updated_git_deployment git_d ON d.id = git_d.deployment_id;
 
--- name: GetEnvironmentGitDeployments :many
+-- name: GetUserEnvironmentGitDeployments :many
 SELECT
     d.id AS deployment_id,
     d.name,

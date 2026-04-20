@@ -10,5 +10,7 @@ var Module = fx.Module(
 		NewOrganizationService,
 		NewEnvironmentService,
 		NewDeploymentService,
+		NewParserService,
+		NewResolverService,
 	),
 )

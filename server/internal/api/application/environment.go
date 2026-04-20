@@ -22,6 +22,8 @@ type EnvironmentApplication struct {
 	organizationService   *service.OrganizationService
 	environmentService    *service.EnvironmentService
 	normalizerService     *coreService.NormalizerService
+	parserService         *service.ParserService
+	resolverService       *service.ResolverService
 	buildRepository       interfaces.BuildRepository
 	environmentRepository interfaces.EnvironmentRepository
 	projectRepository     interfaces.ProjectRepository
@@ -32,6 +34,8 @@ func NewEnvironmentApplication(
 	crypto corePort.Crypto,
 	queue port.Queue,
 	normalizerService *coreService.NormalizerService,
+	parserService *service.ParserService,
+	resolverService *service.ResolverService,
 	organizationService *service.OrganizationService,
 	environmentService *service.EnvironmentService,
 	buildRepository interfaces.BuildRepository,
@@ -43,6 +47,8 @@ func NewEnvironmentApplication(
 		crypto:                crypto,
 		queue:                 queue,
 		normalizerService:     normalizerService,
+		parserService:         parserService,
+		resolverService:       resolverService,
 		organizationService:   organizationService,
 		environmentService:    environmentService,
 		buildRepository:       buildRepository,
@@ -99,6 +105,52 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 			return nil, err
 		}
 
+		ingressDeployments := deployments.Ingresses
+		for _, d := range ingressDeployments {
+			coreHosts := make([]coreValue.IngressHost, 0, len(d.IngressHosts))
+			for _, h := range d.IngressHosts {
+				ch := coreValue.IngressHost{
+					Host: h.Host,
+				}
+				ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
+
+				for _, p := range h.Paths {
+					target, err := ea.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, env.Id)
+					if err != nil {
+						return nil, err
+					}
+
+					targetPort, err := strconv.Atoi(target.Port)
+					if err != nil {
+						return nil, err
+					}
+
+					normalizedServiceName, err := ea.normalizerService.FormatToDNS1123(p.ServiceName)
+					if err != nil {
+						return nil, err
+					}
+
+					ch.Paths = append(ch.Paths, coreValue.IngressPath{
+						Path:        p.Path,
+						PathType:    coreValue.PathType(p.PathType),
+						ServiceName: normalizedServiceName,
+						ServicePort: targetPort,
+					})
+				}
+				coreHosts = append(coreHosts, ch)
+			}
+			err = ea.queue.PublishDeployIngress(&coreValue.IngressDeployment{
+				IngressHosts:     coreHosts,
+				DeploymentId:     d.Id,
+				DeploymentName:   d.ServiceName,
+				Namespace:        env.Namespace,
+				KubeconfigBase64: kubeconfigBase64,
+			})
+			if err != nil {
+				log.Printf("error publishing: %v", err)
+			}
+		}
+
 		databaseDeployments := deployments.Databases
 		for _, d := range databaseDeployments {
 			normalizedServiceName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
@@ -153,7 +205,26 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 
-			coreEnvs := value.ToCoreEnvVars(d.EnvVars)
+			coreEnvs := make([]*coreValue.EnvVar, 0, len(d.EnvVars))
+			for _, e := range d.EnvVars {
+				res, err := ea.parserService.Parse(e.Value)
+				if err != nil {
+					log.Printf("failed to parse env var: %v\n", err)
+					continue
+				}
+
+				resolvedValue, err := ea.resolverService.Resolve(ctx, env.Id, res)
+				if err != nil {
+					log.Printf("failed to resolve env var: %v\n", err)
+					continue
+				}
+
+				coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+					Name:  e.Name,
+					Value: resolvedValue,
+				})
+			}
+
 			normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
 			if err != nil {
 				return nil, err
@@ -181,52 +252,6 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				log.Printf("failed to publish: %v\n", err)
 			}
 		}
-
-		ingressDeployments := deployments.Ingresses
-		for _, d := range ingressDeployments {
-			coreHosts := make([]coreValue.IngressHost, 0, len(d.IngressHosts))
-			for _, h := range d.IngressHosts {
-				ch := coreValue.IngressHost{
-					Host: h.Host,
-				}
-				ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
-
-				for _, p := range h.Paths {
-					target, err := ea.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, env.Id)
-					if err != nil {
-						return nil, err
-					}
-
-					targetPort, err := strconv.Atoi(target.Port)
-					if err != nil {
-						return nil, err
-					}
-
-					normalizedServiceName, err := ea.normalizerService.FormatToDNS1123(p.ServiceName)
-					if err != nil {
-						return nil, err
-					}
-
-					ch.Paths = append(ch.Paths, coreValue.IngressPath{
-						Path:        p.Path,
-						PathType:    coreValue.PathType(p.PathType),
-						ServiceName: normalizedServiceName,
-						ServicePort: targetPort,
-					})
-				}
-				coreHosts = append(coreHosts, ch)
-			}
-			err = ea.queue.PublishDeployIngress(&coreValue.IngressDeployment{
-				IngressHosts:     coreHosts,
-				DeploymentId:     d.Id,
-				DeploymentName:   d.ServiceName,
-				Namespace:        env.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-			})
-			if err != nil {
-				log.Printf("error publishing: %v", err)
-			}
-		}
 		return value.NewEnvironment(env), nil
 	}
 
@@ -239,12 +264,12 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 }
 
 func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context, environmentId int64, userId int64) (*value.Deployments, error) {
-	ingresses, err := ea.environmentRepository.GetEnvironmentIngressDeployments(ctx, environmentId, userId)
+	ingresses, err := ea.environmentRepository.GetUserEnvironmentIngressDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	git, err := ea.environmentRepository.GetEnvironmentGitDeployments(ctx, environmentId, userId)
+	git, err := ea.environmentRepository.GetUserEnvironmentGitDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +285,7 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		gitDeployments[i] = value.NewGitDeployment(d, internalEndpoint)
 	}
 
-	images, err := ea.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId, userId)
+	images, err := ea.environmentRepository.GetUserEnvironmentImageDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +301,7 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 		imageDeployments[i] = value.NewImageDeployment(d, internalEndpoint)
 	}
 
-	databases, err := ea.environmentRepository.GetEnvironmentDatabaseDeployments(ctx, environmentId, userId)
+	databases, err := ea.environmentRepository.GetUserEnvironmentDatabaseDeployments(ctx, environmentId, userId)
 	if err != nil {
 		return nil, err
 	}
