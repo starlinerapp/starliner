@@ -12,19 +12,25 @@ import (
 
 type TeamApplication struct {
 	teamRepository       interfaces.TeamRepository
+	clusterRepository    interfaces.ClusterRepository
 	organizationService  *service.OrganizationService
 	normalizationService *coreService.NormalizerService
+	teamService          *service.TeamService
 }
 
 func NewTeamApplication(
 	teamRepository interfaces.TeamRepository,
+	clusterRepository interfaces.ClusterRepository,
 	organizationService *service.OrganizationService,
 	normalizationService *coreService.NormalizerService,
+	teamService *service.TeamService,
 ) *TeamApplication {
 	return &TeamApplication{
 		teamRepository:       teamRepository,
+		clusterRepository:    clusterRepository,
 		organizationService:  organizationService,
 		normalizationService: normalizationService,
+		teamService:          teamService,
 	}
 }
 
@@ -75,7 +81,7 @@ func (ta *TeamApplication) GetUserTeams(ctx context.Context, organizationId int6
 }
 
 func (ta *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
-	_, err := ta.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
+	err := ta.teamService.ValidateUserInTeam(ctx, userId, teamId)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +176,7 @@ func (ta *TeamApplication) UnassignRepoFromTeam(ctx context.Context, userId int6
 }
 
 func (ta *TeamApplication) GetTeamRepositories(ctx context.Context, userId int64, teamId int64) ([]*value.TeamRepo, error) {
-	_, err := ta.teamRepository.FindTeamByIdAndUserId(ctx, teamId, userId)
+	err := ta.teamService.ValidateUserInTeam(ctx, userId, teamId)
 	if err != nil {
 		return nil, err
 	}
@@ -180,4 +186,64 @@ func (ta *TeamApplication) GetTeamRepositories(ctx context.Context, userId int64
 	}
 
 	return value.NewTeamRepos(repos), nil
+}
+
+func (ta *TeamApplication) GetTeamClusters(ctx context.Context, userId int64, teamId int64) ([]*value.TeamCluster, error) {
+	err := ta.teamService.ValidateUserInTeam(ctx, userId, teamId)
+	if err != nil {
+		return nil, err
+	}
+	clusters, err := ta.teamRepository.GetTeamClusters(ctx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	return value.NewTeamClusters(clusters), nil
+}
+
+func (ta *TeamApplication) AssignClusterToTeam(ctx context.Context, userId int64, teamId int64, clusterId int64) error {
+	// TODO: reduce amount of queries
+	cluster, err := ta.clusterRepository.GetCluster(ctx, clusterId)
+	if err != nil {
+		return err
+	}
+
+	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	if cluster.OrganizationId != team.OrganizationId {
+		return errors.New("cluster and team belong to different organizations")
+	}
+
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, cluster.OrganizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	return ta.teamRepository.AssignClusterToTeam(ctx, teamId, clusterId)
+}
+
+func (ta *TeamApplication) UnassignClusterFromTeam(ctx context.Context, userId int64, teamId int64, clusterId int64) error {
+	// TODO: reduce amount of queries
+	cluster, err := ta.clusterRepository.GetCluster(ctx, clusterId)
+	if err != nil {
+		return err
+	}
+
+	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	if cluster.OrganizationId != team.OrganizationId {
+		return errors.New("cluster and team belong to different organizations")
+	}
+
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, cluster.OrganizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	return ta.teamRepository.UnassignClusterFromTeam(ctx, teamId, clusterId)
 }
