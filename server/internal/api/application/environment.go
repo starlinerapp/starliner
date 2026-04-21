@@ -87,7 +87,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 
 	if sourceEnvironmentId != nil {
 		randomPrefix := ea.environmentService.RandomPrefix(4)
-		env, err := ea.environmentRepository.DuplicateEnvironment(ctx, userId, name, namespace, environmentSlug, projectId, *sourceEnvironmentId, randomPrefix)
+		env, err := ea.environmentRepository.DuplicateEnvironment(ctx, name, namespace, environmentSlug, projectId, *sourceEnvironmentId, randomPrefix, nil)
 		if err != nil {
 			return nil, err
 		}

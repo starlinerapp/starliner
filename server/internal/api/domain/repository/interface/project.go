@@ -22,4 +22,5 @@ type ProjectRepository interface {
 	GetProjectEnvironments(ctx context.Context, projectId int64, userId int64) ([]*entity.Environment, error)
 	GetProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error)
 	ToggleProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error)
+	GetProjectProductionEnvironmentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.Environment, error)
 }

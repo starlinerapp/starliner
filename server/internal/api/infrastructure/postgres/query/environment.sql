@@ -12,10 +12,32 @@ INSERT INTO environments (
 )
 RETURNING *;
 
+-- name: CreateEnvironmentWithConnectedBranch :one
+INSERT INTO environments (
+    name,
+    slug,
+    namespace,
+    project_id,
+    connected_branch
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5
+)
+RETURNING *;
+
 -- name: GetEnvironmentById :one
 SELECT *
 FROM environments
 WHERE environments.id = $1;
+
+-- name: GetEnvironmentProject :one
+SELECT p.*
+FROM projects p
+INNER JOIN environments e on p.id = e.project_id
+WHERE e.id = $1;
 
 -- name: GetEnvironmentCluster :one
 SELECT clusters.*

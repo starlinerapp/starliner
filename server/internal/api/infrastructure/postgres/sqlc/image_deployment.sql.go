@@ -146,6 +146,70 @@ func (q *Queries) GetDeploymentVolume(ctx context.Context, deploymentID sql.Null
 	return i, err
 }
 
+const getEnvironmentImageDeployments = `-- name: GetEnvironmentImageDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name AS service_name,
+    d.port,
+    d.status,
+    d.environment_id,
+    img_d.name AS image_name,
+    img_d.tag,
+    dv.volume_size_mib,
+    dv.mount_path
+FROM deployments d
+         INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id
+         LEFT JOIN deployment_volumes dv ON d.id = dv.deployment_id AND dv.deleted_at IS NULL
+         INNER JOIN environments e ON d.environment_id = e.id
+WHERE environment_id = $1
+ORDER BY d.id DESC
+`
+
+type GetEnvironmentImageDeploymentsRow struct {
+	DeploymentID  int64
+	ServiceName   string
+	Port          string
+	Status        DeploymentStatus
+	EnvironmentID int64
+	ImageName     string
+	Tag           string
+	VolumeSizeMib sql.NullInt32
+	MountPath     sql.NullString
+}
+
+func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentImageDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentImageDeployments, environmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEnvironmentImageDeploymentsRow
+	for rows.Next() {
+		var i GetEnvironmentImageDeploymentsRow
+		if err := rows.Scan(
+			&i.DeploymentID,
+			&i.ServiceName,
+			&i.Port,
+			&i.Status,
+			&i.EnvironmentID,
+			&i.ImageName,
+			&i.Tag,
+			&i.VolumeSizeMib,
+			&i.MountPath,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserEnvironmentImageDeployments = `-- name: GetUserEnvironmentImageDeployments :many
 SELECT
     d.id AS deployment_id,

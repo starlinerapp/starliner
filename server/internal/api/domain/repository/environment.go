@@ -45,13 +45,13 @@ func (er *EnvironmentRepository) CreateEnvironment(ctx context.Context, name str
 
 func (er *EnvironmentRepository) DuplicateEnvironment(
 	ctx context.Context,
-	userId int64,
 	name string,
 	namespace string,
 	slug string,
 	projectId int64,
 	sourceEnvironmentId int64,
 	uniqueIdentifier string,
+	connectedBranch *string,
 ) (*entity.Environment, error) {
 	tx, err := er.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
@@ -63,20 +63,29 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 
 	qtx := er.queries.WithTx(tx)
 
-	newEnv, err := qtx.CreateEnvironment(ctx, sqlc.CreateEnvironmentParams{
-		Name:      name,
-		Slug:      slug,
-		Namespace: namespace,
-		ProjectID: projectId,
-	})
+	var newEnv sqlc.Environment
+
+	if connectedBranch != nil {
+		newEnv, err = qtx.CreateEnvironmentWithConnectedBranch(ctx, sqlc.CreateEnvironmentWithConnectedBranchParams{
+			Name:            name,
+			Slug:            slug,
+			Namespace:       namespace,
+			ProjectID:       projectId,
+			ConnectedBranch: *connectedBranch,
+		})
+	} else {
+		newEnv, err = qtx.CreateEnvironment(ctx, sqlc.CreateEnvironmentParams{
+			Name:      name,
+			Slug:      slug,
+			Namespace: namespace,
+			ProjectID: projectId,
+		})
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	databaseDeployments, err := qtx.GetUserEnvironmentDatabaseDeployments(ctx, sqlc.GetUserEnvironmentDatabaseDeploymentsParams{
-		EnvironmentID: sourceEnvironmentId,
-		UserID:        userId,
-	})
+	databaseDeployments, err := qtx.GetEnvironmentDatabaseDeployments(ctx, sourceEnvironmentId)
 	if err != nil {
 		return nil, err
 	}
@@ -92,10 +101,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 		}
 	}
 
-	imageDeployments, err := qtx.GetUserEnvironmentImageDeployments(ctx, sqlc.GetUserEnvironmentImageDeploymentsParams{
-		EnvironmentID: sourceEnvironmentId,
-		UserID:        userId,
-	})
+	imageDeployments, err := qtx.GetEnvironmentImageDeployments(ctx, sourceEnvironmentId)
 	if err != nil {
 		return nil, err
 	}
@@ -144,10 +150,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 		}
 	}
 
-	gitDeployments, err := qtx.GetUserEnvironmentGitDeployments(ctx, sqlc.GetUserEnvironmentGitDeploymentsParams{
-		EnvironmentID: sourceEnvironmentId,
-		UserID:        userId,
-	})
+	gitDeployments, err := qtx.GetEnvironmentGitDeployments(ctx, sourceEnvironmentId)
 	if err != nil {
 		return nil, err
 	}
@@ -181,10 +184,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 		}
 	}
 
-	ingressRows, err := qtx.GetUserEnvironmentIngressDeployments(ctx, sqlc.GetUserEnvironmentIngressDeploymentsParams{
-		EnvironmentID: sourceEnvironmentId,
-		UserID:        userId,
-	})
+	ingressRows, err := qtx.GetEnvironmentIngressDeployments(ctx, sourceEnvironmentId)
 	if err != nil {
 		return nil, err
 	}
@@ -665,4 +665,42 @@ func (er *EnvironmentRepository) UpdateEnvironmentBranch(ctx context.Context, en
 		ConnectedBranch: branch,
 		ID:              environmentId,
 	})
+}
+
+func (er *EnvironmentRepository) GetPreviewEnvironment(ctx context.Context, gitHubRepositoryId int64, prNumber int) (*entity.PreviewEnvironment, error) {
+	env, err := er.queries.GetPreviewEnvironment(ctx, sqlc.GetPreviewEnvironmentParams{
+		GithubRepositoryID: gitHubRepositoryId,
+		PrNumber:           int64(prNumber),
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &entity.PreviewEnvironment{
+		Id:                 env.ID,
+		Slug:               env.Slug,
+		Name:               env.Name,
+		Namespace:          env.Namespace,
+		GithubRepositoryId: env.GithubRepositoryID,
+		PrNumber:           env.PrNumber,
+	}, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentProject(ctx context.Context, environmentId int64) (*entity.Project, error) {
+	project, err := er.queries.GetEnvironmentProject(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Project{
+		Id:                    project.ID,
+		Name:                  project.Name,
+		TeamId:                project.TeamID,
+		PrEnvironmentsEnabled: utils.BoolPtrFromNullBool(project.PreviewEnvironmentsEnabled),
+		ClusterId:             utils.PtrFromNullInt64(project.ClusterID),
+		CreatedAt:             project.CreatedAt,
+	}, nil
 }

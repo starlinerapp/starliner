@@ -221,6 +221,51 @@ func (q *Queries) GetProjectPreviewEnvironmentEnabled(ctx context.Context, arg G
 	return preview_environments_enabled, err
 }
 
+const getProjectProductionEnvironmentsByRepositoryUrl = `-- name: GetProjectProductionEnvironmentsByRepositoryUrl :many
+SELECT e.id, e.name, e.slug, e.project_id, e.created_at, e.updated_at, e.namespace, e.connected_branch
+FROM environments e
+WHERE e.name = 'Production'
+  AND EXISTS (
+    SELECT 1
+    FROM deployments d
+             JOIN git_deployments g ON g.deployment_id = d.id
+    WHERE d.environment_id = e.id
+      AND g.url = $1
+)
+`
+
+func (q *Queries) GetProjectProductionEnvironmentsByRepositoryUrl(ctx context.Context, url string) ([]Environment, error) {
+	rows, err := q.db.QueryContext(ctx, getProjectProductionEnvironmentsByRepositoryUrl, url)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Environment
+	for rows.Next() {
+		var i Environment
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Slug,
+			&i.ProjectID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Namespace,
+			&i.ConnectedBranch,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserProjects = `-- name: GetUserProjects :many
 SELECT
     projects.id as id,

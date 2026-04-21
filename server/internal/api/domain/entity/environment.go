@@ -6,3 +6,12 @@ type Environment struct {
 	Name      string
 	Namespace string
 }
+
+type PreviewEnvironment struct {
+	Id                 int64
+	Slug               string
+	Name               string
+	Namespace          string
+	GithubRepositoryId int64
+	PrNumber           int64
+}

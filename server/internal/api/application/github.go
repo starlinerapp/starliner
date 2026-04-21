@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-
+	"log"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
@@ -21,12 +21,14 @@ type GitHubApplication struct {
 	gitHub                port.GitHub
 	queue                 port.Queue
 	deploymentRepository  interfaces.DeploymentRepository
+	projectRepository     interfaces.ProjectRepository
 	buildRepository       interfaces.BuildRepository
 	environmentRepository interfaces.EnvironmentRepository
 	githubAppRepository   interfaces.GithubAppRepository
 	teamRepository        interfaces.TeamRepository
-	normalizerService     *coreService.NormalizerService
+	environmentService    *service.EnvironmentService
 	organizationService   *service.OrganizationService
+	normalizerService     *coreService.NormalizerService
 	cfg                   *conf.Config
 }
 
@@ -34,24 +36,28 @@ func NewGitHubApplication(
 	gitHub port.GitHub,
 	queue port.Queue,
 	deploymentRepository interfaces.DeploymentRepository,
+	projectRepository interfaces.ProjectRepository,
 	buildRepository interfaces.BuildRepository,
 	environmentRepository interfaces.EnvironmentRepository,
 	githubAppRepository interfaces.GithubAppRepository,
 	teamRepository interfaces.TeamRepository,
-	normalizerService *coreService.NormalizerService,
+	environmentService *service.EnvironmentService,
 	organizationService *service.OrganizationService,
+	normalizerService *coreService.NormalizerService,
 	cfg *conf.Config,
 ) *GitHubApplication {
 	return &GitHubApplication{
 		gitHub:                gitHub,
 		queue:                 queue,
 		deploymentRepository:  deploymentRepository,
+		projectRepository:     projectRepository,
 		buildRepository:       buildRepository,
 		environmentRepository: environmentRepository,
 		githubAppRepository:   githubAppRepository,
 		teamRepository:        teamRepository,
-		normalizerService:     normalizerService,
+		environmentService:    environmentService,
 		organizationService:   organizationService,
+		normalizerService:     normalizerService,
 		cfg:                   cfg,
 	}
 }
@@ -151,6 +157,10 @@ func (ga *GitHubApplication) HandleGithubWebhook(ctx context.Context, eventType 
 	}
 
 	switch e := event.(type) {
+	case *value.PullRequestOpenedEvent:
+		return ga.createPreviewEnvironment(ctx, e)
+	case *value.PullRequestClosedEvent:
+		return ga.deletePreviewEnvironment(ctx, e)
 	case *value.PushToBranchEvent:
 		return ga.triggerBuildsForRepository(ctx, e.RepositoryUrl, e.TargetBranch)
 	default:
@@ -234,4 +244,63 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 	}
 
 	return errors.Join(errs...)
+}
+
+func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event *value.PullRequestOpenedEvent) error {
+	previewEnv, err := ga.environmentRepository.GetPreviewEnvironment(ctx, event.RepositoryId, event.PrNumber)
+	if err != nil {
+		return err
+	}
+	if previewEnv != nil {
+		return nil
+	}
+
+	productionEnvs, err := ga.projectRepository.GetProjectProductionEnvironmentsByRepositoryUrl(ctx, event.RepositoryUrl)
+	if err != nil {
+		return err
+	}
+
+	var errs []error
+	for _, env := range productionEnvs {
+		p, err := ga.environmentRepository.GetEnvironmentProject(ctx, env.Id)
+		if err != nil {
+			errs = append(errs, err)
+		}
+
+		if p.PrEnvironmentsEnabled != nil && !*p.PrEnvironmentsEnabled {
+			continue
+		}
+
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		randomPrefix := ga.environmentService.RandomPrefix(4)
+		previewEnvName := fmt.Sprintf("%s-%s", event.SourceBranch, "preview")
+		environmentSlug, err := ga.normalizerService.FormatToDNS1123(previewEnvName)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		namespace, err := ga.normalizerService.FormatToDNS1123(p.Name + "-" + previewEnvName)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		newEnv, err := ga.environmentRepository.DuplicateEnvironment(ctx, previewEnvName, namespace, environmentSlug, p.Id, env.Id, randomPrefix, &event.SourceBranch)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		log.Printf("created preview environment: %d", newEnv.Id)
+		// TODO: Redeploy all services
+	}
+
+	return errors.Join(errs...)
+}
+
+func (ga *GitHubApplication) deletePreviewEnvironment(ctx context.Context, event *value.PullRequestClosedEvent) error {
+	return nil
 }

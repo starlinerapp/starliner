@@ -52,6 +52,53 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 	return i, err
 }
 
+const createEnvironmentWithConnectedBranch = `-- name: CreateEnvironmentWithConnectedBranch :one
+INSERT INTO environments (
+    name,
+    slug,
+    namespace,
+    project_id,
+    connected_branch
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5
+)
+RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
+`
+
+type CreateEnvironmentWithConnectedBranchParams struct {
+	Name            string
+	Slug            string
+	Namespace       string
+	ProjectID       int64
+	ConnectedBranch string
+}
+
+func (q *Queries) CreateEnvironmentWithConnectedBranch(ctx context.Context, arg CreateEnvironmentWithConnectedBranchParams) (Environment, error) {
+	row := q.db.QueryRowContext(ctx, createEnvironmentWithConnectedBranch,
+		arg.Name,
+		arg.Slug,
+		arg.Namespace,
+		arg.ProjectID,
+		arg.ConnectedBranch,
+	)
+	var i Environment
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.ProjectID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Namespace,
+		&i.ConnectedBranch,
+	)
+	return i, err
+}
+
 const getEnvironmentAuthorizedUsers = `-- name: GetEnvironmentAuthorizedUsers :many
 SELECT tm.user_id
 FROM environments
@@ -144,6 +191,28 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 		&i.Kubeconfig,
 		&i.ServerType,
 		&i.User,
+	)
+	return i, err
+}
+
+const getEnvironmentProject = `-- name: GetEnvironmentProject :one
+SELECT p.id, p.name, p.team_id, p.created_at, p.updated_at, p.cluster_id, p.preview_environments_enabled
+FROM projects p
+INNER JOIN environments e on p.id = e.project_id
+WHERE e.id = $1
+`
+
+func (q *Queries) GetEnvironmentProject(ctx context.Context, id int64) (Project, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentProject, id)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.TeamID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ClusterID,
+		&i.PreviewEnvironmentsEnabled,
 	)
 	return i, err
 }

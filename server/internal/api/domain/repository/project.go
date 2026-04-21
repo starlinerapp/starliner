@@ -174,3 +174,21 @@ func (pr *ProjectRepository) ToggleProjectPreviewEnvironmentEnabled(ctx context.
 
 	return row.Bool, nil
 }
+
+func (pr *ProjectRepository) GetProjectProductionEnvironmentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.Environment, error) {
+	rows, err := pr.queries.GetProjectProductionEnvironmentsByRepositoryUrl(ctx, repositoryUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	environments := make([]*entity.Environment, len(rows))
+	for i, row := range rows {
+		environments[i] = &entity.Environment{
+			Id:        row.ID,
+			Slug:      row.Slug,
+			Name:      row.Name,
+			Namespace: row.Namespace,
+		}
+	}
+	return environments, nil
+}
