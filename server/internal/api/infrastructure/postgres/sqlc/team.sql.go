@@ -54,6 +54,26 @@ func (q *Queries) AssignRepoToTeam(ctx context.Context, arg AssignRepoToTeamPara
 	return err
 }
 
+const assignTeamCluster = `-- name: AssignTeamCluster :exec
+INSERT INTO team_clusters (
+    team_id, cluster_id
+) VALUES (
+     $1,
+     $2
+ )
+ON CONFLICT (team_id, cluster_id) DO NOTHING
+`
+
+type AssignTeamClusterParams struct {
+	TeamID    int64
+	ClusterID int64
+}
+
+func (q *Queries) AssignTeamCluster(ctx context.Context, arg AssignTeamClusterParams) error {
+	_, err := q.db.ExecContext(ctx, assignTeamCluster, arg.TeamID, arg.ClusterID)
+	return err
+}
+
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (
     slug,
@@ -169,6 +189,83 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, arg GetTeamBySlugParams) (T
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getTeamCluster = `-- name: GetTeamCluster :one
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
+FROM team_clusters
+INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1 AND team_clusters.cluster_id = $2
+`
+
+type GetTeamClusterParams struct {
+	TeamID    int64
+	ClusterID int64
+}
+
+func (q *Queries) GetTeamCluster(ctx context.Context, arg GetTeamClusterParams) (Cluster, error) {
+	row := q.db.QueryRowContext(ctx, getTeamCluster, arg.TeamID, arg.ClusterID)
+	var i Cluster
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Ipv4Address,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.OrganizationID,
+		&i.ProvisioningID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Kubeconfig,
+		&i.ServerType,
+		&i.User,
+	)
+	return i, err
+}
+
+const getTeamClusters = `-- name: GetTeamClusters :many
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
+FROM clusters
+INNER JOIN team_clusters on clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1
+`
+
+func (q *Queries) GetTeamClusters(ctx context.Context, teamID int64) ([]Cluster, error) {
+	rows, err := q.db.QueryContext(ctx, getTeamClusters, teamID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Cluster
+	for rows.Next() {
+		var i Cluster
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Ipv4Address,
+			&i.PublicKey,
+			&i.PrivateKey,
+			&i.OrganizationID,
+			&i.ProvisioningID,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Kubeconfig,
+			&i.ServerType,
+			&i.User,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getTeamMembers = `-- name: GetTeamMembers :many
@@ -353,5 +450,21 @@ type UnassignRepoFromTeamParams struct {
 
 func (q *Queries) UnassignRepoFromTeam(ctx context.Context, arg UnassignRepoFromTeamParams) error {
 	_, err := q.db.ExecContext(ctx, unassignRepoFromTeam, arg.TeamID, arg.GithubRepoID)
+	return err
+}
+
+const unassignTeamCluster = `-- name: UnassignTeamCluster :exec
+DELETE FROM team_clusters
+WHERE team_clusters.team_id = $1
+  AND team_clusters.cluster_id = $2
+`
+
+type UnassignTeamClusterParams struct {
+	TeamID    int64
+	ClusterID int64
+}
+
+func (q *Queries) UnassignTeamCluster(ctx context.Context, arg UnassignTeamClusterParams) error {
+	_, err := q.db.ExecContext(ctx, unassignTeamCluster, arg.TeamID, arg.ClusterID)
 	return err
 }
