@@ -21,7 +21,7 @@ INSERT INTO projects (
     $2,
     $3
 )
-RETURNING id, name, team_id, created_at, updated_at, cluster_id
+RETURNING id, name, team_id, created_at, updated_at, cluster_id, preview_environments_enabled
 `
 
 type CreateProjectParams struct {
@@ -40,6 +40,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ClusterID,
+		&i.PreviewEnvironmentsEnabled,
 	)
 	return i, err
 }
@@ -200,6 +201,26 @@ func (q *Queries) GetProjectEnvironments(ctx context.Context, arg GetProjectEnvi
 	return items, nil
 }
 
+const getProjectPreviewEnvironmentEnabled = `-- name: GetProjectPreviewEnvironmentEnabled :one
+SELECT p.preview_environments_enabled
+FROM projects p
+    INNER JOIN teams t ON t.id = p.team_id
+    INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE p.id = $1 AND tm.user_id = $2
+`
+
+type GetProjectPreviewEnvironmentEnabledParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) GetProjectPreviewEnvironmentEnabled(ctx context.Context, arg GetProjectPreviewEnvironmentEnabledParams) (sql.NullBool, error) {
+	row := q.db.QueryRowContext(ctx, getProjectPreviewEnvironmentEnabled, arg.ID, arg.UserID)
+	var preview_environments_enabled sql.NullBool
+	err := row.Scan(&preview_environments_enabled)
+	return preview_environments_enabled, err
+}
+
 const getUserProjects = `-- name: GetUserProjects :many
 SELECT
     projects.id as id,
@@ -262,4 +283,27 @@ func (q *Queries) GetUserProjects(ctx context.Context, arg GetUserProjectsParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const toggleProjectPreviewEnvironmentEnabled = `-- name: ToggleProjectPreviewEnvironmentEnabled :one
+UPDATE projects p
+SET preview_environments_enabled = NOT p.preview_environments_enabled
+FROM teams t
+         INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE p.team_id = t.id
+  AND p.id = $1
+  AND tm.user_id = $2
+RETURNING p.preview_environments_enabled
+`
+
+type ToggleProjectPreviewEnvironmentEnabledParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) ToggleProjectPreviewEnvironmentEnabled(ctx context.Context, arg ToggleProjectPreviewEnvironmentEnabledParams) (sql.NullBool, error) {
+	row := q.db.QueryRowContext(ctx, toggleProjectPreviewEnvironmentEnabled, arg.ID, arg.UserID)
+	var preview_environments_enabled sql.NullBool
+	err := row.Scan(&preview_environments_enabled)
+	return preview_environments_enabled, err
 }

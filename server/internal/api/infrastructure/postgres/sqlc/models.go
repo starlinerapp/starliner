@@ -342,12 +342,13 @@ type OrganizationMember struct {
 }
 
 type Project struct {
-	ID        int64
-	Name      string
-	TeamID    int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ClusterID sql.NullInt64
+	ID                         int64
+	Name                       string
+	TeamID                     int64
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
+	ClusterID                  sql.NullInt64
+	PreviewEnvironmentsEnabled sql.NullBool
 }
 
 type ProvisioningCredential struct {

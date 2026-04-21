@@ -53,3 +53,7 @@ func NewProjectCluster(p *value.ProjectCluster) ProjectCluster {
 		ClusterName: p.ClusterName,
 	}
 }
+
+type ProjectPreviewEnvironmentEnabled struct {
+	Enabled bool `json:"enabled" binding:"required"`
+}

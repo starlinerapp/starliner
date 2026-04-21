@@ -68,3 +68,20 @@ FROM environments e
          INNER JOIN teams t ON t.id = p.team_id
          INNER JOIN team_members tm ON tm.team_id = t.id
 WHERE e.project_id = $1 AND tm.user_id = $2;
+
+-- name: GetProjectPreviewEnvironmentEnabled :one
+SELECT p.preview_environments_enabled
+FROM projects p
+    INNER JOIN teams t ON t.id = p.team_id
+    INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE p.id = $1 AND tm.user_id = $2;
+
+-- name: ToggleProjectPreviewEnvironmentEnabled :one
+UPDATE projects p
+SET preview_environments_enabled = NOT p.preview_environments_enabled
+FROM teams t
+         INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE p.team_id = t.id
+  AND p.id = $1
+  AND tm.user_id = $2
+RETURNING p.preview_environments_enabled;

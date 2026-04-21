@@ -142,3 +142,52 @@ func (ph *ProjectHandler) GetProjectEnvironments(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response.NewEnvironments(environments))
 }
+
+// GetProjectPreviewEnvironmentEnabled godoc
+// @Summary Get Project Preview Environment Enabled
+// @Tags project
+// @ID getProjectPreviewEnvironmentEnabled
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Project ID"
+// @Success 200 {object} response.ProjectPreviewEnvironmentEnabled
+// @Router /projects/{id}/preview-environment/enabled [get]
+func (ph *ProjectHandler) GetProjectPreviewEnvironmentEnabled(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	enabled, err := ph.projectApplication.GetProjectPreviewEnvironmentEnabled(c.Request.Context(), projectId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.ProjectPreviewEnvironmentEnabled{Enabled: enabled})
+}
+
+// ToggleProjectPreviewEnvironmentEnabled godoc
+// @Summary Toggle Project Preview Environment Enabled
+// @Tags project
+// @ID toggleProjectPreviewEnvironmentEnabled
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Project ID"
+// @Success 200 {object} response.ProjectPreviewEnvironmentEnabled
+// @Router /projects/{id}/preview-environment/enabled [put]
+func (ph *ProjectHandler) ToggleProjectPreviewEnvironmentEnabled(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	projectId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+	}
+
+	enabled, err := ph.projectApplication.ToggleProjectPreviewEnvironmentEnabled(c.Request.Context(), projectId, currentUser.Id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.ProjectPreviewEnvironmentEnabled{Enabled: enabled})
+}

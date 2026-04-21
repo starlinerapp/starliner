@@ -150,3 +150,27 @@ func (pr *ProjectRepository) GetProjectEnvironments(ctx context.Context, project
 
 	return environments, nil
 }
+
+func (pr *ProjectRepository) GetProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error) {
+	row, err := pr.queries.GetProjectPreviewEnvironmentEnabled(ctx, sqlc.GetProjectPreviewEnvironmentEnabledParams{
+		ID:     projectId,
+		UserID: userId,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return row.Bool, nil
+}
+
+func (pr *ProjectRepository) ToggleProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error) {
+	row, err := pr.queries.ToggleProjectPreviewEnvironmentEnabled(ctx, sqlc.ToggleProjectPreviewEnvironmentEnabledParams{
+		ID:     projectId,
+		UserID: userId,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return row.Bool, nil
+}

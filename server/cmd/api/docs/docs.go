@@ -1539,6 +1539,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/projects/{id}/preview-environment/enabled": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Preview Environment Enabled",
+                "operationId": "getProjectPreviewEnvironmentEnabled",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectPreviewEnvironmentEnabled"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Toggle Project Preview Environment Enabled",
+                "operationId": "toggleProjectPreviewEnvironmentEnabled",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectPreviewEnvironmentEnabled"
+                        }
+                    }
+                }
+            }
+        },
         "/teams/{teamId}/members": {
             "get": {
                 "tags": [
@@ -2805,6 +2869,17 @@ const docTemplate = `{
                 },
                 "clusterName": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ProjectPreviewEnvironmentEnabled": {
+            "type": "object",
+            "required": [
+                "enabled"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
                 }
             }
         },
