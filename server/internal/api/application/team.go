@@ -81,7 +81,7 @@ func (ta *TeamApplication) GetUserTeams(ctx context.Context, organizationId int6
 }
 
 func (ta *TeamApplication) GetTeamMembers(ctx context.Context, userId int64, teamId int64) ([]*value.User, error) {
-	err := ta.teamService.ValidateUserInTeam(ctx, teamId, userId)
+	err := ta.teamService.ValidateUserInTeam(ctx, userId, teamId)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (ta *TeamApplication) UnassignRepoFromTeam(ctx context.Context, userId int6
 }
 
 func (ta *TeamApplication) GetTeamRepositories(ctx context.Context, userId int64, teamId int64) ([]*value.TeamRepo, error) {
-	err := ta.teamService.ValidateUserInTeam(ctx, teamId, userId)
+	err := ta.teamService.ValidateUserInTeam(ctx, userId, teamId)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (ta *TeamApplication) GetTeamRepositories(ctx context.Context, userId int64
 }
 
 func (ta *TeamApplication) GetTeamClusters(ctx context.Context, userId int64, teamId int64) ([]*value.TeamCluster, error) {
-	err := ta.teamService.ValidateUserInTeam(ctx, teamId, userId)
+	err := ta.teamService.ValidateUserInTeam(ctx, userId, teamId)
 	if err != nil {
 		return nil, err
 	}
