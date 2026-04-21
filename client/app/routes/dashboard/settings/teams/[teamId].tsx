@@ -392,7 +392,7 @@ export default function TeamDetail() {
                             All repositories are already assigned to this team.
                           </div>
                         ) : (
-                          <div className="divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto">
+                          <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
                             {unassignedRepos.map((repo) => (
                               <div
                                 key={repo.id}
@@ -435,7 +435,7 @@ export default function TeamDetail() {
               ) : !githubApp ? (
                 <div className="flex flex-col gap-4 px-4 py-3">
                   <div className="flex flex-col gap-1">
-                    <p className="text-mauve-11 text-xs">
+                    <p className="text-mauve-11 text-sm">
                       Install the GitHub App to assign repositories to this
                       team.
                     </p>
@@ -496,10 +496,8 @@ export default function TeamDetail() {
                       <div className="flex flex-col gap-2">
                         <h1>Assign Cluster</h1>
                         <p className="text-mauve-11 text-sm">
-                          {!isAllClustersLoading &&
-                          unassignedClusters.length === 0
-                            ? "All clusters are already assigned to this team."
-                            : "Select a cluster to make visible to this team's members."}
+                          Select a cluster to make visible to this team&apos;s
+                          members.
                         </p>
                       </div>
                       {isAllClustersLoading ? (
@@ -508,7 +506,16 @@ export default function TeamDetail() {
                           <Skeleton className="h-8 w-full" />
                           <Skeleton className="h-8 w-full" />
                         </div>
-                      ) : unassignedClusters.length > 0 ? (
+                      ) : allClusters?.length === 0 ? (
+                        <div className="text-mauve-11 text-sm">
+                          No clusters exist yet. Create a cluster first before
+                          assigning it to this team.
+                        </div>
+                      ) : unassignedClusters.length === 0 ? (
+                        <div className="text-mauve-11 text-sm">
+                          All clusters are already assigned to this team.
+                        </div>
+                      ) : (
                         <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
                           {unassignedClusters.map((cluster) => (
                             <div
@@ -519,7 +526,7 @@ export default function TeamDetail() {
                                 <span className="text-mauve-12 text-sm font-medium">
                                   {cluster.name}
                                 </span>
-                                <span className="text-mauve-11 text-xs">
+                                <span className="text-mauve-11 text-sm">
                                   {cluster.serverType}
                                 </span>
                               </div>
@@ -536,7 +543,7 @@ export default function TeamDetail() {
                             </div>
                           ))}
                         </div>
-                      ) : null}
+                      )}
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -559,7 +566,7 @@ export default function TeamDetail() {
                   >
                     <div className="flex flex-col">
                       <span>{cluster.clusterName}</span>
-                      <span className="text-mauve-11 text-xs">
+                      <span className="text-mauve-11 text-sm">
                         {cluster.serverType}
                       </span>
                     </div>

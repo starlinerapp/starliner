@@ -92,14 +92,21 @@ export default function NewProject() {
         />
       ) : null}
       {teamExists && !clusterExists && !isLoading && teamIdInput ? (
-        <WarningBanner
-          text="This team has no clusters assigned. Assign one before creating projects."
-          linkOut={{
-            text: "Manage Team",
-            href: `/${organization.slug}/settings/teams/${teamIdInput}`,
-          }}
-          className="my-2"
-        />
+        organization.isOwner ? (
+          <WarningBanner
+            text="This team has no clusters assigned. Assign one before creating projects."
+            linkOut={{
+              text: "Manage Team",
+              href: `/${organization.slug}/settings/teams/${teamIdInput}`,
+            }}
+            className="my-2"
+          />
+        ) : (
+          <WarningBanner
+            text="This team has no clusters assigned. Contact your admin to assign one before creating projects."
+            className="my-2"
+          />
+        )
       ) : null}
       <div className="text-mauve-11 text-sm">
         <p>
