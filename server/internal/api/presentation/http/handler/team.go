@@ -291,3 +291,92 @@ func (th *TeamHandler) GetTeamRepositories(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.NewTeamRepos(repos))
 }
+
+// GetTeamClusters godoc
+// @Summary Get clusters assigned to a team
+// @Tags team
+// @ID getTeamClusters
+// @Param X-User-ID header string true "User ID"
+// @Param teamId path int true "Team ID"
+// @Success 200 {array} response.TeamCluster
+// @Router /teams/{teamId}/clusters [get]
+func (th *TeamHandler) GetTeamClusters(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	clusters, err := th.teamApplication.GetTeamClusters(c, currentUser.Id, teamId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewTeamClusters(clusters))
+}
+
+// AssignClusterToTeam godoc
+// @Summary Assign a cluster to a team
+// @Tags team
+// @ID assignClusterToTeam
+// @Param X-User-ID header string true "User ID"
+// @Param teamId path int true "Team ID"
+// @Param clusterId path int true "Cluster ID"
+// @Success 201
+// @Router /teams/{teamId}/clusters/{clusterId} [post]
+func (th *TeamHandler) AssignClusterToTeam(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	clusterId, err := strconv.ParseInt(c.Param("clusterId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = th.teamApplication.AssignClusterToTeam(c, currentUser.Id, teamId, clusterId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+// UnassignClusterFromTeam godoc
+// @Summary Unassign a cluster from a team
+// @Tags team
+// @ID unassignClusterFromTeam
+// @Param X-User-ID header string true "User ID"
+// @Param teamId path int true "Team ID"
+// @Param clusterId path int true "Cluster ID"
+// @Success 204
+// @Router /teams/{teamId}/clusters/{clusterId} [delete]
+func (th *TeamHandler) UnassignClusterFromTeam(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	clusterId, err := strconv.ParseInt(c.Param("clusterId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = th.teamApplication.UnassignClusterFromTeam(c, currentUser.Id, teamId, clusterId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}

@@ -74,6 +74,7 @@ export default function TerminalClient({ webSocketUrl }: TerminalProps) {
             background: "#ffffff",
             foreground: "#65636D",
             cursor: "#65636D",
+            selectionBackground: "#3600ff26",
           },
         }}
       />

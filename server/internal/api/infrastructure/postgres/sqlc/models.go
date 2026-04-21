@@ -367,6 +367,13 @@ type Team struct {
 	UpdatedAt      time.Time
 }
 
+type TeamCluster struct {
+	TeamID    int64
+	ClusterID int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type TeamMember struct {
 	TeamID    int64
 	UserID    int64

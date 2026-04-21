@@ -21,6 +21,8 @@ import (
 type DeploymentApplication struct {
 	environmentService    *service.EnvironmentService
 	deploymentService     *service.DeploymentService
+	parserService         *service.ParserService
+	resolverService       *service.ResolverService
 	normalizerService     *coreService.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
@@ -36,6 +38,8 @@ type DeploymentApplication struct {
 func NewDeploymentApplication(
 	environmentService *service.EnvironmentService,
 	deploymentService *service.DeploymentService,
+	parserService *service.ParserService,
+	resolverService *service.ResolverService,
 	normalizerService *coreService.NormalizerService,
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
@@ -50,6 +54,8 @@ func NewDeploymentApplication(
 	return &DeploymentApplication{
 		environmentService:    environmentService,
 		deploymentService:     deploymentService,
+		parserService:         parserService,
+		resolverService:       resolverService,
 		normalizerService:     normalizerService,
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
@@ -287,9 +293,21 @@ func (da *DeploymentApplication) DeployImage(
 
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 
@@ -363,9 +381,21 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 
@@ -869,9 +899,21 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 	}
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 

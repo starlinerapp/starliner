@@ -144,4 +144,42 @@ export const teamRouter = {
         .unassignRepoFromTeam(userId, input.teamId, input.githubRepoId)
         .then((res) => res.data);
     }),
+  getTeamClusters: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .getTeamClusters(userId, input.teamId)
+        .then((res) => res.data);
+    }),
+  assignClusterToTeam: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+        clusterId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .assignClusterToTeam(userId, input.teamId, input.clusterId)
+        .then((res) => res.data);
+    }),
+  unassignClusterFromTeam: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+        clusterId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .unassignClusterFromTeam(userId, input.teamId, input.clusterId)
+        .then((res) => res.data);
+    }),
 };

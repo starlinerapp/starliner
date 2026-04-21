@@ -88,3 +88,29 @@ FROM teams
 INNER JOIN team_repositories ON team_repositories.team_id = teams.id
 WHERE teams.organization_id = $1
     AND team_repositories.github_repo_id = $2;
+
+-- name: GetTeamClusters :many
+SELECT clusters.*
+FROM clusters
+INNER JOIN team_clusters on clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1;
+
+-- name: AssignTeamCluster :exec
+INSERT INTO team_clusters (
+    team_id, cluster_id
+) VALUES (
+     $1,
+     $2
+ )
+ON CONFLICT (team_id, cluster_id) DO NOTHING;
+
+-- name: UnassignTeamCluster :exec
+DELETE FROM team_clusters
+WHERE team_clusters.team_id = $1
+  AND team_clusters.cluster_id = $2;
+
+-- name: GetTeamCluster :one
+SELECT clusters.*
+FROM team_clusters
+INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1 AND team_clusters.cluster_id = $2;

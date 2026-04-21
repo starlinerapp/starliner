@@ -13,6 +13,7 @@ import (
 type ProjectApplication struct {
 	normalizerService     *coreService.NormalizerService
 	organizationService   *service.OrganizationService
+	teamService           *service.TeamService
 	projectRepository     interfaces.ProjectRepository
 	environmentRepository interfaces.EnvironmentRepository
 }
@@ -20,19 +21,21 @@ type ProjectApplication struct {
 func NewProjectApplication(
 	normalizerService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
+	teamService *service.TeamService,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,
 ) *ProjectApplication {
 	return &ProjectApplication{
 		normalizerService:     normalizerService,
 		organizationService:   organizationService,
+		teamService:           teamService,
 		projectRepository:     projectRepository,
 		environmentRepository: environmentRepository,
 	}
 }
 
 func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
-	err := ps.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	err := ps.teamService.ValidateUserAndClusterInTeam(ctx, userId, teamId, clusterId)
 	if err != nil {
 		return nil, err
 	}
