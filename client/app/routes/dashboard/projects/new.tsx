@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useTRPC } from "~/utils/trpc/react";
@@ -41,15 +41,16 @@ export default function NewProject() {
     ),
   );
 
-  React.useEffect(() => {
-    if (teamsData?.[0] && !teamIdInput) {
-      setValue("teamId", String(teamsData[0].id));
-    }
-  }, [teamsData, teamIdInput, setValue]);
+  useEffect(() => {
+    setValue("teamId", teamsData?.[0] ? String(teamsData[0].id) : "");
+  }, [teamsData?.[0]?.id, setValue]);
 
-  React.useEffect(() => {
-    setValue("clusterId", "");
-  }, [teamIdInput, setValue]);
+  useEffect(() => {
+    setValue(
+      "clusterId",
+      clustersData?.[0] ? String(clustersData[0].clusterId) : "",
+    );
+  }, [clustersData?.[0]?.clusterId, setValue]);
 
   const isLoading = isClustersLoading || isTeamsLoading;
 
@@ -77,6 +78,8 @@ export default function NewProject() {
 
   const clusterExists = clustersData && clustersData.length > 0;
   const teamExists = teamsData && teamsData.length > 0;
+  const selectedTeamHasNoClusters =
+    !!teamIdInput && teamExists && !clusterExists && !isLoading;
 
   return (
     <div className="flex flex-col gap-2 px-8 py-4">
@@ -91,7 +94,7 @@ export default function NewProject() {
           className="my-2"
         />
       ) : null}
-      {teamExists && !clusterExists && !isLoading && teamIdInput ? (
+      {selectedTeamHasNoClusters ? (
         organization.isOwner ? (
           <WarningBanner
             text="This team has no clusters assigned. Assign one before creating projects."
@@ -165,7 +168,6 @@ export default function NewProject() {
                 clusterExists ? "" : "text-mauve-11",
               )}
               disabled={!clusterExists}
-              defaultValue=""
             >
               {clusterExists ? (
                 <>

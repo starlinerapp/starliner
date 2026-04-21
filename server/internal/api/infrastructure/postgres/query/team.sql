@@ -109,7 +109,7 @@ DELETE FROM team_clusters
 WHERE team_clusters.team_id = $1
   AND team_clusters.cluster_id = $2;
 
--- name: FindTeamCluster :one
+-- name: GetTeamCluster :one
 SELECT clusters.*
 FROM team_clusters
 INNER JOIN clusters ON clusters.id = team_clusters.cluster_id

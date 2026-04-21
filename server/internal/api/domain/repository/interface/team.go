@@ -23,5 +23,5 @@ type TeamRepository interface {
 	GetTeamClusters(ctx context.Context, teamID int64) ([]*entity.TeamCluster, error)
 	AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error
 	UnassignClusterFromTeam(ctx context.Context, teamID int64, clusterId int64) error
-	FindTeamCluster(ctx context.Context, teamID int64, clusterId int64) (*entity.TeamCluster, error)
+	GetTeamCluster(ctx context.Context, teamID int64, clusterId int64) (*entity.TeamCluster, error)
 }

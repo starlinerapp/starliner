@@ -208,8 +208,8 @@ func (tr *TeamRepository) UnassignClusterFromTeam(ctx context.Context, teamID in
 	return err
 }
 
-func (tr *TeamRepository) FindTeamCluster(ctx context.Context, teamID int64, clusterId int64) (*entity.TeamCluster, error) {
-	cluster, err := tr.queries.FindTeamCluster(ctx, sqlc.FindTeamClusterParams{
+func (tr *TeamRepository) GetTeamCluster(ctx context.Context, teamID int64, clusterId int64) (*entity.TeamCluster, error) {
+	cluster, err := tr.queries.GetTeamCluster(ctx, sqlc.GetTeamClusterParams{
 		TeamID:    teamID,
 		ClusterID: clusterId,
 	})

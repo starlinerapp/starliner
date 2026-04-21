@@ -33,7 +33,7 @@ func (os *TeamService) ValidateUserAndClusterInTeam(ctx context.Context, userId 
 	if err != nil {
 		return err
 	}
-	_, err = os.teamRepository.FindTeamCluster(ctx, teamId, clusterId)
+	_, err = os.teamRepository.GetTeamCluster(ctx, teamId, clusterId)
 	if err != nil {
 		return err
 	}

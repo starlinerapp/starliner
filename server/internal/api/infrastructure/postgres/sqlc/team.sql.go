@@ -151,39 +151,6 @@ func (q *Queries) FindTeamByIdAndUserId(ctx context.Context, arg FindTeamByIdAnd
 	return i, err
 }
 
-const findTeamCluster = `-- name: FindTeamCluster :one
-SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
-FROM team_clusters
-INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
-WHERE team_clusters.team_id = $1 AND team_clusters.cluster_id = $2
-`
-
-type FindTeamClusterParams struct {
-	TeamID    int64
-	ClusterID int64
-}
-
-func (q *Queries) FindTeamCluster(ctx context.Context, arg FindTeamClusterParams) (Cluster, error) {
-	row := q.db.QueryRowContext(ctx, findTeamCluster, arg.TeamID, arg.ClusterID)
-	var i Cluster
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Ipv4Address,
-		&i.PublicKey,
-		&i.PrivateKey,
-		&i.OrganizationID,
-		&i.ProvisioningID,
-		&i.Status,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Kubeconfig,
-		&i.ServerType,
-		&i.User,
-	)
-	return i, err
-}
-
 const getTeamById = `-- name: GetTeamById :one
 SELECT id, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
 `
@@ -220,6 +187,39 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, arg GetTeamBySlugParams) (T
 		&i.OrganizationID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getTeamCluster = `-- name: GetTeamCluster :one
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
+FROM team_clusters
+INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1 AND team_clusters.cluster_id = $2
+`
+
+type GetTeamClusterParams struct {
+	TeamID    int64
+	ClusterID int64
+}
+
+func (q *Queries) GetTeamCluster(ctx context.Context, arg GetTeamClusterParams) (Cluster, error) {
+	row := q.db.QueryRowContext(ctx, getTeamCluster, arg.TeamID, arg.ClusterID)
+	var i Cluster
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Ipv4Address,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.OrganizationID,
+		&i.ProvisioningID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Kubeconfig,
+		&i.ServerType,
+		&i.User,
 	)
 	return i, err
 }
