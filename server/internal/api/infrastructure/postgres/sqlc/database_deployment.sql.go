@@ -61,7 +61,7 @@ func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDataba
 	return i, err
 }
 
-const getEnvironmentDatabaseDeployments = `-- name: GetEnvironmentDatabaseDeployments :many
+const getUserEnvironmentDatabaseDeployments = `-- name: GetUserEnvironmentDatabaseDeployments :many
 SELECT
     d.id AS deployment_id,
     d.name,
@@ -82,12 +82,12 @@ AND team_members.user_id = $2
 ORDER BY d.id DESC
 `
 
-type GetEnvironmentDatabaseDeploymentsParams struct {
+type GetUserEnvironmentDatabaseDeploymentsParams struct {
 	EnvironmentID int64
 	UserID        int64
 }
 
-type GetEnvironmentDatabaseDeploymentsRow struct {
+type GetUserEnvironmentDatabaseDeploymentsRow struct {
 	DeploymentID  int64
 	Name          string
 	Port          string
@@ -98,15 +98,15 @@ type GetEnvironmentDatabaseDeploymentsRow struct {
 	Password      sql.NullString
 }
 
-func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, arg GetEnvironmentDatabaseDeploymentsParams) ([]GetEnvironmentDatabaseDeploymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEnvironmentDatabaseDeployments, arg.EnvironmentID, arg.UserID)
+func (q *Queries) GetUserEnvironmentDatabaseDeployments(ctx context.Context, arg GetUserEnvironmentDatabaseDeploymentsParams) ([]GetUserEnvironmentDatabaseDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserEnvironmentDatabaseDeployments, arg.EnvironmentID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetEnvironmentDatabaseDeploymentsRow
+	var items []GetUserEnvironmentDatabaseDeploymentsRow
 	for rows.Next() {
-		var i GetEnvironmentDatabaseDeploymentsRow
+		var i GetUserEnvironmentDatabaseDeploymentsRow
 		if err := rows.Scan(
 			&i.DeploymentID,
 			&i.Name,

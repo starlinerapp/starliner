@@ -73,7 +73,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 		return nil, err
 	}
 
-	databaseDeployments, err := qtx.GetEnvironmentDatabaseDeployments(ctx, sqlc.GetEnvironmentDatabaseDeploymentsParams{
+	databaseDeployments, err := qtx.GetUserEnvironmentDatabaseDeployments(ctx, sqlc.GetUserEnvironmentDatabaseDeploymentsParams{
 		EnvironmentID: sourceEnvironmentId,
 		UserID:        userId,
 	})
@@ -92,7 +92,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 		}
 	}
 
-	imageDeployments, err := qtx.GetEnvironmentImageDeployments(ctx, sqlc.GetEnvironmentImageDeploymentsParams{
+	imageDeployments, err := qtx.GetUserEnvironmentImageDeployments(ctx, sqlc.GetUserEnvironmentImageDeploymentsParams{
 		EnvironmentID: sourceEnvironmentId,
 		UserID:        userId,
 	})
@@ -144,7 +144,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 		}
 	}
 
-	gitDeployments, err := qtx.GetEnvironmentGitDeployments(ctx, sqlc.GetEnvironmentGitDeploymentsParams{
+	gitDeployments, err := qtx.GetUserEnvironmentGitDeployments(ctx, sqlc.GetUserEnvironmentGitDeploymentsParams{
 		EnvironmentID: sourceEnvironmentId,
 		UserID:        userId,
 	})
@@ -181,7 +181,7 @@ func (er *EnvironmentRepository) DuplicateEnvironment(
 		}
 	}
 
-	ingressRows, err := qtx.GetEnvironmentIngressDeployments(ctx, sqlc.GetEnvironmentIngressDeploymentsParams{
+	ingressRows, err := qtx.GetUserEnvironmentIngressDeployments(ctx, sqlc.GetUserEnvironmentIngressDeploymentsParams{
 		EnvironmentID: sourceEnvironmentId,
 		UserID:        userId,
 	})
@@ -350,8 +350,8 @@ func (er *EnvironmentRepository) GetEnvironmentById(ctx context.Context, environ
 	}, nil
 }
 
-func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.GitDeployment, error) {
-	rows, err := er.queries.GetEnvironmentGitDeployments(ctx, sqlc.GetEnvironmentGitDeploymentsParams{
+func (er *EnvironmentRepository) GetUserEnvironmentGitDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.GitDeployment, error) {
+	rows, err := er.queries.GetUserEnvironmentGitDeployments(ctx, sqlc.GetUserEnvironmentGitDeploymentsParams{
 		EnvironmentID: environmentId,
 		UserID:        userId,
 	})
@@ -404,8 +404,8 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 	return deployments, nil
 }
 
-func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.ImageDeployment, error) {
-	rows, err := er.queries.GetEnvironmentImageDeployments(ctx, sqlc.GetEnvironmentImageDeploymentsParams{
+func (er *EnvironmentRepository) GetUserEnvironmentImageDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.ImageDeployment, error) {
+	rows, err := er.queries.GetUserEnvironmentImageDeployments(ctx, sqlc.GetUserEnvironmentImageDeploymentsParams{
 		EnvironmentID: environmentId,
 		UserID:        userId,
 	})
@@ -444,8 +444,8 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 	return deployments, nil
 }
 
-func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.IngressDeployment, error) {
-	rows, err := er.queries.GetEnvironmentIngressDeployments(ctx, sqlc.GetEnvironmentIngressDeploymentsParams{
+func (er *EnvironmentRepository) GetUserEnvironmentIngressDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.IngressDeployment, error) {
+	rows, err := er.queries.GetUserEnvironmentIngressDeployments(ctx, sqlc.GetUserEnvironmentIngressDeploymentsParams{
 		EnvironmentID: environmentId,
 		UserID:        userId,
 	})
@@ -521,8 +521,56 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Co
 	return out, nil
 }
 
-func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.DatabaseDeployment, error) {
-	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, sqlc.GetEnvironmentDatabaseDeploymentsParams{
+func (er *EnvironmentRepository) GetEnvironmentIngressDeploymentByName(ctx context.Context, environmentId int64, name string) (*entity.IngressDeployment, error) {
+	rows, err := er.queries.GetEnvironmentIngressDeploymentsByName(ctx, sqlc.GetEnvironmentIngressDeploymentsByNameParams{
+		EnvironmentID: environmentId,
+		Name:          name,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rows) == 0 {
+		return nil, nil
+	}
+
+	first := rows[0]
+
+	dep := &entity.IngressDeployment{
+		Id:            first.DeploymentID,
+		EnvironmentId: first.EnvironmentID,
+		Status:        string(first.Status),
+		Name:          first.DeploymentName,
+		Port:          first.Port,
+		IngressHosts:  []*entity.IngressHost{},
+	}
+
+	var host *entity.IngressHost
+	if first.HostID.Valid {
+		host = &entity.IngressHost{
+			Host:  first.Host.String,
+			Paths: []*entity.IngressPath{},
+		}
+		dep.IngressHosts = append(dep.IngressHosts, host)
+	}
+
+	for _, r := range rows {
+		if !r.PathID.Valid || host == nil {
+			continue
+		}
+
+		host.Paths = append(host.Paths, &entity.IngressPath{
+			Path:        r.Path.String,
+			PathType:    entity.PathType(r.PathType.String),
+			ServiceName: r.ServiceName.String,
+		})
+	}
+
+	return dep, nil
+}
+
+func (er *EnvironmentRepository) GetUserEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.DatabaseDeployment, error) {
+	rows, err := er.queries.GetUserEnvironmentDatabaseDeployments(ctx, sqlc.GetUserEnvironmentDatabaseDeploymentsParams{
 		EnvironmentID: environmentId,
 		UserID:        userId,
 	})
