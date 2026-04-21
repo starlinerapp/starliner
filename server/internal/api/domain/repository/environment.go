@@ -343,10 +343,11 @@ func (er *EnvironmentRepository) GetEnvironmentById(ctx context.Context, environ
 	}
 
 	return &entity.Environment{
-		Id:        env.ID,
-		Slug:      env.Slug,
-		Name:      env.Name,
-		Namespace: env.Namespace,
+		Id:              env.ID,
+		Slug:            env.Slug,
+		Name:            env.Name,
+		Namespace:       env.Namespace,
+		ConnectedBranch: env.ConnectedBranch,
 	}, nil
 }
 
@@ -355,6 +356,57 @@ func (er *EnvironmentRepository) GetUserEnvironmentGitDeployments(ctx context.Co
 		EnvironmentID: environmentId,
 		UserID:        userId,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	deployments := make([]*entity.GitDeployment, len(rows))
+	for i, r := range rows {
+		envVars, err := er.queries.GetDeploymentEnvironmentVars(ctx, r.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		variables := make([]*entity.EnvVar, len(envVars))
+		for j, e := range envVars {
+			variables[j] = &entity.EnvVar{
+				Name:  e.Name,
+				Value: e.Value,
+			}
+		}
+
+		args, err := er.queries.GetGitDeploymentArgs(ctx, r.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		deploymentArgs := make([]*entity.Arg, len(args))
+		for j, a := range args {
+			deploymentArgs[j] = &entity.Arg{
+				Name:  a.Name,
+				Value: a.Value,
+			}
+		}
+
+		deployments[i] = &entity.GitDeployment{
+			Id:                    r.DeploymentID,
+			Name:                  r.Name,
+			Port:                  r.Port,
+			Status:                string(r.Status),
+			EnvironmentId:         r.EnvironmentID,
+			GitUrl:                r.Url,
+			ProjectRepositoryPath: r.ProjectPath,
+			DockerfilePath:        r.DockerfilePath,
+			EnvVars:               variables,
+			Args:                  deploymentArgs,
+		}
+	}
+
+	return deployments, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Context, environmentId int64) ([]*entity.GitDeployment, error) {
+	rows, err := er.queries.GetEnvironmentGitDeployments(ctx, environmentId)
 	if err != nil {
 		return nil, err
 	}
@@ -444,11 +496,122 @@ func (er *EnvironmentRepository) GetUserEnvironmentImageDeployments(ctx context.
 	return deployments, nil
 }
 
+func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Context, environmentId int64) ([]*entity.ImageDeployment, error) {
+	rows, err := er.queries.GetEnvironmentImageDeployments(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	deployments := make([]*entity.ImageDeployment, len(rows))
+	for i, d := range rows {
+		envVars, err := er.queries.GetDeploymentEnvironmentVars(ctx, d.DeploymentID)
+		if err != nil {
+			return nil, err
+		}
+
+		variables := make([]*entity.EnvVar, len(envVars))
+		for j, e := range envVars {
+			variables[j] = &entity.EnvVar{
+				Name:  e.Name,
+				Value: e.Value,
+			}
+		}
+
+		deployments[i] = &entity.ImageDeployment{
+			Id:              d.DeploymentID,
+			Status:          string(d.Status),
+			ServiceName:     d.ServiceName,
+			ImageName:       d.ImageName,
+			Tag:             d.Tag,
+			Port:            d.Port,
+			EnvironmentId:   d.EnvironmentID,
+			VolumeSizeMiB:   utils.PtrFromNullInt32(d.VolumeSizeMib),
+			VolumeMountPath: utils.PtrFromNullString(d.MountPath),
+			EnvVars:         variables,
+		}
+	}
+	return deployments, nil
+}
+
 func (er *EnvironmentRepository) GetUserEnvironmentIngressDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.IngressDeployment, error) {
 	rows, err := er.queries.GetUserEnvironmentIngressDeployments(ctx, sqlc.GetUserEnvironmentIngressDeploymentsParams{
 		EnvironmentID: environmentId,
 		UserID:        userId,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	depByID := map[int64]*entity.IngressDeployment{}
+	hostByDep := map[int64]map[int64]*entity.IngressHost{}
+
+	for _, r := range rows {
+		dep, exists := depByID[r.DeploymentID]
+		if !exists {
+			dep = &entity.IngressDeployment{
+				Id:            r.DeploymentID,
+				EnvironmentId: r.EnvironmentID,
+				Status:        string(r.Status),
+				Name:          r.DeploymentName,
+				Port:          r.Port,
+				IngressHosts:  []*entity.IngressHost{},
+			}
+			depByID[r.DeploymentID] = dep
+			hostByDep[r.DeploymentID] = map[int64]*entity.IngressHost{}
+		}
+
+		if !r.HostID.Valid {
+			continue
+		}
+
+		hID := r.HostID.Int64
+		hostMap := hostByDep[r.DeploymentID]
+
+		host, exists := hostMap[hID]
+		if !exists {
+			host = &entity.IngressHost{
+				Host:  r.Host.String,
+				Paths: []*entity.IngressPath{},
+			}
+			hostMap[hID] = host
+			dep.IngressHosts = append(dep.IngressHosts, host)
+		}
+
+		if !r.PathID.Valid {
+			continue
+		}
+
+		serviceName := ""
+		if r.ServiceName.Valid {
+			serviceName = r.ServiceName.String
+		}
+
+		path := ""
+		if r.Path.Valid {
+			path = r.Path.String
+		}
+
+		pathType := ""
+		if r.PathType.Valid {
+			pathType = r.PathType.String
+		}
+
+		host.Paths = append(host.Paths, &entity.IngressPath{
+			Path:        path,
+			PathType:    entity.PathType(pathType),
+			ServiceName: serviceName,
+		})
+	}
+
+	out := make([]*entity.IngressDeployment, 0, len(depByID))
+	for _, dep := range depByID {
+		out = append(out, dep)
+	}
+	return out, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Context, environmentId int64) ([]*entity.IngressDeployment, error) {
+	rows, err := er.queries.GetEnvironmentIngressDeployments(ctx, environmentId)
 	if err != nil {
 		return nil, err
 	}
@@ -574,6 +737,28 @@ func (er *EnvironmentRepository) GetUserEnvironmentDatabaseDeployments(ctx conte
 		EnvironmentID: environmentId,
 		UserID:        userId,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	deployments := make([]*entity.DatabaseDeployment, len(rows))
+	for i, d := range rows {
+		deployments[i] = &entity.DatabaseDeployment{
+			Id:            d.DeploymentID,
+			ServiceName:   d.Name,
+			Status:        string(d.Status),
+			Database:      utils.PtrFromNullString(d.Database),
+			Username:      utils.PtrFromNullString(d.Username),
+			Password:      utils.PtrFromNullString(d.Password),
+			Port:          d.Port,
+			EnvironmentId: d.EnvironmentID,
+		}
+	}
+	return deployments, nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64) ([]*entity.DatabaseDeployment, error) {
+	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, environmentId)
 	if err != nil {
 		return nil, err
 	}
