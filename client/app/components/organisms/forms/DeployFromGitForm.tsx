@@ -19,27 +19,51 @@ export interface DeployFromGitFormInput {
   projectDirectoryPath: string;
   port: number | null;
   envs: { name: string; value: string }[];
+  args: { name: string; value: string }[];
 }
 
 interface DeployFromGitFormProps {
   defaultValues?: DeployFromGitFormInput;
   onSubmit: (data: DeployFromGitFormInput) => Promise<void>;
   resetOnSuccess?: boolean;
+  teamId?: number;
 }
 
 export default function DeployFromGitForm({
   defaultValues,
   onSubmit,
   resetOnSuccess = false,
+  teamId,
 }: DeployFromGitFormProps) {
   const trpc = useTRPC();
   const organization = useOrganizationContext();
 
-  const { data: repositoriesData, isLoading } = useQuery(
+  const { data: allRepositoriesData, isLoading: isReposLoading } = useQuery(
     trpc.github.getRepositories.queryOptions({
       organizationId: organization.id,
     }),
   );
+
+  const { data: teamReposData, isLoading: isTeamReposLoading } = useQuery({
+    ...trpc.team.getTeamRepositories.queryOptions({
+      teamId: teamId!,
+    }),
+    enabled: !!teamId,
+  });
+
+  const repositoriesData = useMemo(() => {
+    if (!allRepositoriesData) return undefined;
+    if (!teamId) {
+      return allRepositoriesData;
+    }
+    if (!teamReposData || teamReposData.length === 0) {
+      return [];
+    }
+    const teamRepoIds = new Set(teamReposData.map((tr) => tr.githubRepoId));
+    return allRepositoriesData.filter((repo) => teamRepoIds.has(repo.id));
+  }, [allRepositoriesData, teamId, teamReposData]);
+
+  const isLoading = isReposLoading || (!!teamId && isTeamReposLoading);
 
   const { register, handleSubmit, watch, reset, control, setValue } =
     useForm<DeployFromGitFormInput>({ defaultValues });
@@ -47,6 +71,11 @@ export default function DeployFromGitForm({
   const { fields, append, replace } = useFieldArray({
     control,
     name: "envs",
+  });
+
+  const { fields: argsFields, append: appendArg } = useFieldArray({
+    control,
+    name: "args",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +101,9 @@ export default function DeployFromGitForm({
     data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
+    data.args = (data.args ?? []).filter(
+      (a) => a.name.trim() !== "" || a.value.trim() !== "",
+    );
 
     try {
       await onSubmit(data);
@@ -84,6 +116,7 @@ export default function DeployFromGitForm({
           projectDirectoryPath: "",
           port: null,
           envs: [],
+          args: [],
         });
 
       setError(null);
@@ -267,6 +300,33 @@ export default function DeployFromGitForm({
               className="py-1"
               type="button"
               onClick={() => append({ name: "", value: "" })}
+            >
+              <Plus className="w-3 stroke-3" /> Add Another
+            </Button>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm">Build Arguments</p>
+            {argsFields.map((field, index) => (
+              <div key={field.id} className="flex gap-2">
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Name*"
+                  {...register(`args.${index}.name`)}
+                />
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Value*"
+                  {...register(`args.${index}.value`)}
+                />
+              </div>
+            ))}
+            <Button
+              intent="text"
+              className="py-1"
+              type="button"
+              onClick={() => appendArg({ name: "", value: "" })}
             >
               <Plus className="w-3 stroke-3" /> Add Another
             </Button>

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+
 	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
@@ -36,12 +37,12 @@ func NewBuildApplication(
 func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
 
-	publishCompleted := func(commitHash, tag *string, logs string, status value.BuildStatus) {
+	publishCompleted := func(commitHash, tag *string, imageName *string, logs string, status value.BuildStatus) {
 		if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
 			BuildId:          build.BuildId,
 			DeploymentId:     build.DeploymentId,
 			ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
-			ImageName:        build.ImageName,
+			ImageName:        imageName,
 			CommitHash:       commitHash,
 			Tag:              commitHash,
 			Logs:             logs,
@@ -54,6 +55,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.AccessToken)
 	if err != nil {
 		publishCompleted(
+			nil,
 			nil,
 			nil,
 			fmt.Sprintf("failed to clone repository: %v", err),
@@ -72,12 +74,12 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	imagePath := path.Join(ba.cfg.ImageRegistryUrl, build.ImageName)
 	tag := imagePath + ":" + commitHash
 
-	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag)
+	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag, build.Args)
 
 	status := value.BuildStatusSuccess
 	if err != nil {
 		status = value.BuildStatusFailed
 	}
 
-	publishCompleted(&commitHash, &tag, logs, status)
+	publishCompleted(&commitHash, &tag, &imagePath, logs, status)
 }

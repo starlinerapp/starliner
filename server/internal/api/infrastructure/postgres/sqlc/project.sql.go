@@ -64,7 +64,7 @@ func (q *Queries) DeleteProject(ctx context.Context, arg DeleteProjectParams) er
 	return err
 }
 
-const getProject = `-- name: GetProject :one
+const getProject = `-- name: GetProject :many
 SELECT
     projects.id as id,
     projects.name as name,
@@ -96,19 +96,35 @@ type GetProjectRow struct {
 	EnvironmentSlug string
 }
 
-func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) (GetProjectRow, error) {
-	row := q.db.QueryRowContext(ctx, getProject, arg.ID, arg.UserID)
-	var i GetProjectRow
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.TeamID,
-		&i.ClusterID,
-		&i.EnvironmentID,
-		&i.EnvironmentName,
-		&i.EnvironmentSlug,
-	)
-	return i, err
+func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetProjectRow, error) {
+	rows, err := q.db.QueryContext(ctx, getProject, arg.ID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetProjectRow
+	for rows.Next() {
+		var i GetProjectRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.TeamID,
+			&i.ClusterID,
+			&i.EnvironmentID,
+			&i.EnvironmentName,
+			&i.EnvironmentSlug,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getProjectCluster = `-- name: GetProjectCluster :one
@@ -139,7 +155,7 @@ func (q *Queries) GetProjectCluster(ctx context.Context, arg GetProjectClusterPa
 }
 
 const getProjectEnvironments = `-- name: GetProjectEnvironments :many
-SELECT e.id, e.name, e.slug, e.project_id, e.created_at, e.updated_at, e.namespace
+SELECT e.id, e.name, e.slug, e.project_id, e.created_at, e.updated_at, e.namespace, e.connected_branch
 FROM environments e
          INNER JOIN projects p ON p.id = e.project_id
          INNER JOIN teams t ON t.id = p.team_id
@@ -169,6 +185,7 @@ func (q *Queries) GetProjectEnvironments(ctx context.Context, arg GetProjectEnvi
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Namespace,
+			&i.ConnectedBranch,
 		); err != nil {
 			return nil, err
 		}

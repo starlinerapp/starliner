@@ -21,6 +21,8 @@ import (
 type DeploymentApplication struct {
 	environmentService    *service.EnvironmentService
 	deploymentService     *service.DeploymentService
+	parserService         *service.ParserService
+	resolverService       *service.ResolverService
 	normalizerService     *coreService.NormalizerService
 	environmentRepository interfaces.EnvironmentRepository
 	deploymentRepository  interfaces.DeploymentRepository
@@ -36,6 +38,8 @@ type DeploymentApplication struct {
 func NewDeploymentApplication(
 	environmentService *service.EnvironmentService,
 	deploymentService *service.DeploymentService,
+	parserService *service.ParserService,
+	resolverService *service.ResolverService,
 	normalizerService *coreService.NormalizerService,
 	environmentRepository interfaces.EnvironmentRepository,
 	deploymentRepository interfaces.DeploymentRepository,
@@ -50,6 +54,8 @@ func NewDeploymentApplication(
 	return &DeploymentApplication{
 		environmentService:    environmentService,
 		deploymentService:     deploymentService,
+		parserService:         parserService,
+		resolverService:       resolverService,
 		normalizerService:     normalizerService,
 		environmentRepository: environmentRepository,
 		deploymentRepository:  deploymentRepository,
@@ -73,6 +79,7 @@ func (da *DeploymentApplication) DeployFromGit(
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
+	args []*value.Arg,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -102,6 +109,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		projectRepositoryPath,
 		dockerfilePath,
 		envs,
+		args,
 	)
 	if err != nil {
 		return err
@@ -127,6 +135,14 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	coreArgs := make([]*coreValue.Arg, len(args))
+	for i, a := range args {
+		coreArgs[i] = &coreValue.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
@@ -135,6 +151,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		AccessToken:    accessToken,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
+		Args:           coreArgs,
 	})
 }
 
@@ -147,6 +164,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
+	args []*value.Arg,
 ) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
@@ -165,6 +183,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		projectRepositoryPath,
 		dockerfilePath,
 		envs,
+		args,
 	)
 	if err != nil {
 		return err
@@ -189,6 +208,14 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return err
 	}
 
+	coreArgs := make([]*coreValue.Arg, len(args))
+	for i, a := range args {
+		coreArgs[i] = &coreValue.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
@@ -197,6 +224,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		GitUrl:         d.GitUrl,
 		RootDirectory:  projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
+		Args:           coreArgs,
 	})
 }
 
@@ -255,6 +283,9 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -262,9 +293,21 @@ func (da *DeploymentApplication) DeployImage(
 
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 
@@ -328,6 +371,9 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -335,9 +381,21 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 
@@ -405,6 +463,9 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -460,6 +521,9 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -567,6 +631,9 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -637,6 +704,9 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -681,6 +751,9 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -717,6 +790,9 @@ func (da *DeploymentApplication) OpenTTY(
 		return err
 	}
 
+	if cluster.Kubeconfig == nil {
+		return fmt.Errorf("cluster kubeconfig is nil")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -796,7 +872,7 @@ func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValu
 
 func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {
 	ctx := context.Background()
-	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.CommitHash, b.Logs)
+	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.CommitHash, b.ImageName, b.Logs)
 	if err != nil {
 		log.Printf("failed to update build status: %v\n", err)
 	}
@@ -823,12 +899,28 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 	}
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
 	for _, e := range envs {
+		res, err := da.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := da.resolverService.Resolve(ctx, deployment.EnvironmentId, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
 		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
 			Name:  e.Name,
-			Value: e.Value,
+			Value: resolvedValue,
 		})
 	}
 
+	if cluster.Kubeconfig == nil {
+		log.Printf("cluster kubeconfig is nil for deployment %d\n", b.DeploymentId)
+		return
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		log.Printf("failed to decrypt kubeconfig: %v\n", err)
@@ -851,7 +943,7 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		DeploymentName:   normalizedDeploymentName,
 		Namespace:        deployment.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
-		ImageName:        fmt.Sprintf("%s/%s", b.ImageRegistryUrl, b.ImageName),
+		ImageName:        *b.ImageName,
 		ImageTag:         *b.Tag,
 		Port:             deploymentPort,
 		EnvVars:          coreEnvs,

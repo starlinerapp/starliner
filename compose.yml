@@ -97,6 +97,12 @@ services:
       GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
       GITHUB_APP_ID: ${GITHUB_APP_ID}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
+      SENDER_MAIL: ${SENDER_MAIL:-no-reply@starliner.dev}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_TLS_ENABLED: ${SMTP_TLS_ENABLED:-false}
     volumes:
       - ./server:/app
     networks:
@@ -364,6 +370,19 @@ services:
     restart: unless-stopped
     volumes:
       - dagger-data:/var/lib/dagger
+    networks:
+      - internal
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    restart: unless-stopped
+    ports:
+      - 8025:8025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
     networks:
       - internal
 

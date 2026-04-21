@@ -9,7 +9,7 @@ export const DialogContent = React.forwardRef<
   <DialogPrimitive.Portal>
     <DialogPrimitive.Overlay className="bg-black-a6 fixed inset-0" />
     <DialogPrimitive.Content
-      className="fixed top-1/2 left-1/2 max-h-[85vh] w-[90vw] max-w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-xl focus:outline-none"
+      className="fixed top-1/2 left-1/2 z-99 max-h-[85vh] w-[90vw] max-w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-xl focus:outline-none"
       {...props}
       ref={forwardedRef}
     >

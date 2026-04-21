@@ -25,7 +25,7 @@ func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplic
 // @Param X-User-ID header string true "User ID"
 // @Product JSON
 // @Param data body request.CreateEnvironment true "Create Environment"
-// @Success 201
+// @Success 201 {object} response.Environment
 // @Router /environments [post]
 func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -35,12 +35,12 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 		return
 	}
 
-	err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID)
+	newEnv, err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID, env.SourceEnvironmentID)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, response.NewEnvironment(newEnv))
 }
 
 // GetEnvironmentDeployments FindAll godoc
@@ -91,4 +91,61 @@ func (eh *EnvironmentHandler) GetEnvironmentBuilds(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, response.NewGitDeploymentBuilds(builds))
+}
+
+// GetEnvironmentConnectedBranch FindAll godoc
+// @Summary Get Environment Connected Branch
+// @Tags environment
+// @ID getEnvironmentConnectedBranch
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Success 200 {object} response.EnvironmentBranch
+// @Router /environments/{id}/branch [get]
+func (eh *EnvironmentHandler) GetEnvironmentConnectedBranch(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	branch, err := eh.environmentApplication.GetEnvironmentBranch(c.Request.Context(), currentUser.Id, environmentId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.JSON(http.StatusOK, response.EnvironmentBranch{Branch: branch})
+}
+
+// UpdateEnvironmentConnectedBranch FindAll godoc
+// @Summary Update Environment Connected Branch
+// @Tags environment
+// @ID updateEnvironmentConnectedBranch
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Product JSON
+// @Param data body request.UpdateEnvironmentConnectBranch true "Update Environment Connected Branch"
+// @Success 200
+// @Router /environments/{id}/branch [put]
+func (eh *EnvironmentHandler) UpdateEnvironmentConnectedBranch(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	var branch request.UpdateEnvironmentConnectBranch
+	if err := c.BindJSON(&branch); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = eh.environmentApplication.UpdateEnvironmentBranch(c.Request.Context(), currentUser.Id, environmentId, branch.Branch)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

@@ -269,6 +269,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 		body.ProjectRepositoryPath,
 		body.DockerfilePath,
 		mapper.MapEnvVarsFromRequest(body.Envs),
+		mapper.MapArgsFromRequest(body.Args),
 	)
 	if err != nil {
 		if errors.Is(err, value.ErrDeploymentNameAlreadyExists) {
@@ -315,6 +316,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		body.ProjectRepositoryPath,
 		body.DockerfilePath,
 		mapper.MapEnvVarsFromRequest(body.Envs),
+		mapper.MapArgsFromRequest(body.Args),
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

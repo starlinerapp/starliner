@@ -549,7 +549,80 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Environment"
+                        }
+                    }
+                }
+            }
+        },
+        "/environments/{id}/branch": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Connected Branch",
+                "operationId": "getEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EnvironmentBranch"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Update Environment Connected Branch",
+                "operationId": "updateEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Environment Connected Branch",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateEnvironmentConnectBranch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -618,6 +691,42 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Deployments"
+                        }
+                    }
+                }
+            }
+        },
+        "/github/all-repositories/{organizationId}": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get All Repositories (owner only, unfiltered)",
+                "operationId": "getAllRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Repository"
+                            }
                         }
                     }
                 }
@@ -974,8 +1083,8 @@ const docTemplate = `{
                 "tags": [
                     "organization"
                 ],
-                "summary": "Create organization invite",
-                "operationId": "createOrganizationInvite",
+                "summary": "Send organization invite via email",
+                "operationId": "sendOrganizationInvite",
                 "parameters": [
                     {
                         "type": "string",
@@ -990,14 +1099,20 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Send Invite",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SendInvite"
+                        }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.OrganizationInvite"
-                        }
+                        "description": "Created"
                     }
                 }
             }
@@ -1533,6 +1648,116 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/teams/{teamId}/repos": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get repositories assigned to a team",
+                "operationId": "getTeamRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.TeamRepo"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Assign a GitHub repository to a team",
+                "operationId": "assignRepoToTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Assign Repo",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AssignRepoToTeam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/repos/{repoId}": {
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Unassign a GitHub repository from a team",
+                "operationId": "unassignRepoFromTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "GitHub Repo ID",
+                        "name": "repoId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1555,6 +1780,36 @@ const docTemplate = `{
             "properties": {
                 "userId": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AssignRepoToTeam": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
+                    "type": "string"
                 }
             }
         },
@@ -1585,17 +1840,20 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "organization_id",
-                "project_id"
+                "organizationId",
+                "projectId"
             ],
             "properties": {
                 "name": {
                     "type": "string"
                 },
-                "organization_id": {
+                "organizationId": {
                     "type": "integer"
                 },
-                "project_id": {
+                "projectId": {
+                    "type": "integer"
+                },
+                "sourceEnvironmentId": {
                     "type": "integer"
                 }
             }
@@ -1688,6 +1946,12 @@ const docTemplate = `{
                 "serviceName"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -1850,6 +2114,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.SendInvite": {
+            "type": "object",
+            "required": [
+                "inviteUrlPrefix",
+                "toEmail"
+            ],
+            "properties": {
+                "inviteUrlPrefix": {
+                    "type": "string"
+                },
+                "toEmail": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateDeployFromGit": {
             "type": "object",
             "required": [
@@ -1860,6 +2139,12 @@ const docTemplate = `{
                 "projectRepositoryPath"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -1876,6 +2161,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "projectRepositoryPath": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateEnvironmentConnectBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
                     "type": "string"
                 }
             }
@@ -1935,6 +2231,21 @@ const docTemplate = `{
             ],
             "properties": {
                 "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -2119,6 +2430,17 @@ const docTemplate = `{
                 }
             }
         },
+        "response.EnvironmentBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GetOrganizationProvisioningCredentialResponse": {
             "type": "object",
             "properties": {
@@ -2130,6 +2452,7 @@ const docTemplate = `{
         "response.GitDeployment": {
             "type": "object",
             "required": [
+                "args",
                 "dockerfilePath",
                 "envVars",
                 "gitUrl",
@@ -2141,6 +2464,12 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
                 "dockerfilePath": {
                     "type": "string"
                 },
@@ -2176,6 +2505,7 @@ const docTemplate = `{
         "response.GitDeploymentBuild": {
             "type": "object",
             "required": [
+                "args",
                 "buildId",
                 "commitHash",
                 "createdAt",
@@ -2188,6 +2518,12 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
                 "buildId": {
                     "type": "integer"
                 },
@@ -2430,7 +2766,8 @@ const docTemplate = `{
                 "createdAt",
                 "environments",
                 "id",
-                "name"
+                "name",
+                "teamId"
             ],
             "properties": {
                 "clusterId": {
@@ -2450,6 +2787,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },
@@ -2568,6 +2908,25 @@ const docTemplate = `{
                 },
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "response.TeamRepo": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName",
+                "teamId"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },

@@ -14,6 +14,8 @@ docs/OrganizationApi.md
 docs/ProjectApi.md
 docs/RequestAcceptInvite.md
 docs/RequestAddTeamMember.md
+docs/RequestArg.md
+docs/RequestAssignRepoToTeam.md
 docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateGithubApp.md
@@ -29,10 +31,13 @@ docs/RequestIngressHost.md
 docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
 docs/RequestRemoveTeamMember.md
+docs/RequestSendInvite.md
 docs/RequestUpdateDeployFromGit.md
+docs/RequestUpdateEnvironmentConnectBranch.md
 docs/RequestUpdateImage.md
 docs/RequestUpdateIngress.md
 docs/RequestUpsertHetznerCredential.md
+docs/ResponseArg.md
 docs/ResponseBuildLogs.md
 docs/ResponseCluster.md
 docs/ResponseClusterStatus.md
@@ -40,6 +45,7 @@ docs/ResponseDatabaseDeployment.md
 docs/ResponseDeployments.md
 docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
+docs/ResponseEnvironmentBranch.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseGitDeployment.md
 docs/ResponseGitDeploymentBuild.md
@@ -57,6 +63,7 @@ docs/ResponseRepository.md
 docs/ResponseRepositoryFile.md
 docs/ResponseRoot.md
 docs/ResponseTeam.md
+docs/ResponseTeamRepo.md
 docs/ResponseUser.md
 docs/RootApi.md
 docs/TeamApi.md

@@ -32,6 +32,11 @@ type EnvVar struct {
 	Value string
 }
 
+type Arg struct {
+	Name  string
+	Value string
+}
+
 type ImageDeployment struct {
 	Id              int64
 	Status          string
@@ -66,6 +71,7 @@ type GitDeployment struct {
 	ProjectRepositoryPath string
 	DockerfilePath        string
 	EnvVars               []*EnvVar
+	Args                  []*Arg
 }
 
 type Deployment struct {

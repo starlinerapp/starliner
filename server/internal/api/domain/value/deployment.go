@@ -2,6 +2,7 @@ package value
 
 import (
 	"errors"
+	coreValue "starliner.app/internal/core/domain/value"
 
 	"starliner.app/internal/api/domain/entity"
 )
@@ -33,6 +34,7 @@ type GitDeployment struct {
 	ProjectRepositoryPath string
 	DockerfilePath        string
 	EnvVars               []*EnvVar
+	Args                  []*Arg
 }
 
 func NewGitDeployment(d *entity.GitDeployment, internalEndpoint string) *GitDeployment {
@@ -46,6 +48,7 @@ func NewGitDeployment(d *entity.GitDeployment, internalEndpoint string) *GitDepl
 		ProjectRepositoryPath: d.ProjectRepositoryPath,
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               mapEnvVars(d.EnvVars),
+		Args:                  mapArgs(d.Args),
 	}
 }
 
@@ -132,6 +135,17 @@ type EnvVar struct {
 	Value string
 }
 
+func ToCoreEnvVars(envVars []*EnvVar) []*coreValue.EnvVar {
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(envVars))
+	for _, e := range envVars {
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		})
+	}
+	return coreEnvs
+}
+
 type ImageDeployment struct {
 	Id               int64
 	ServiceName      string
@@ -169,6 +183,17 @@ func mapEnvVars(envVars []*entity.EnvVar) []*EnvVar {
 		}
 	}
 	return variables
+}
+
+func mapArgs(args []*entity.Arg) []*Arg {
+	result := make([]*Arg, len(args))
+	for i, a := range args {
+		result[i] = &Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+	return result
 }
 
 type DatabaseDeployment struct {

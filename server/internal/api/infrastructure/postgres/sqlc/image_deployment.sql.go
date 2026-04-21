@@ -39,7 +39,7 @@ func (q *Queries) CreateDeploymentEnvVar(ctx context.Context, arg CreateDeployme
 const createDeploymentVolume = `-- name: CreateDeploymentVolume :one
 INSERT INTO deployment_volumes (deployment_id, volume_size_mib, mount_path)
 VALUES ($1, $2, $3)
-RETURNING id, deployment_id, volume_size_mib, created_at, updated_at, mount_path, deleted_at
+RETURNING id, deployment_id, volume_size_mib, mount_path, deleted_at, created_at, updated_at
 `
 
 type CreateDeploymentVolumeParams struct {
@@ -55,10 +55,10 @@ func (q *Queries) CreateDeploymentVolume(ctx context.Context, arg CreateDeployme
 		&i.ID,
 		&i.DeploymentID,
 		&i.VolumeSizeMib,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 		&i.MountPath,
 		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -125,7 +125,28 @@ func (q *Queries) CreateImageDeployment(ctx context.Context, arg CreateImageDepl
 	return i, err
 }
 
-const getEnvironmentImageDeployments = `-- name: GetEnvironmentImageDeployments :many
+const getDeploymentVolume = `-- name: GetDeploymentVolume :one
+SELECT id, deployment_id, volume_size_mib, mount_path, deleted_at, created_at, updated_at
+FROM deployment_volumes
+WHERE deployment_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetDeploymentVolume(ctx context.Context, deploymentID sql.NullInt64) (DeploymentVolume, error) {
+	row := q.db.QueryRowContext(ctx, getDeploymentVolume, deploymentID)
+	var i DeploymentVolume
+	err := row.Scan(
+		&i.ID,
+		&i.DeploymentID,
+		&i.VolumeSizeMib,
+		&i.MountPath,
+		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserEnvironmentImageDeployments = `-- name: GetUserEnvironmentImageDeployments :many
 SELECT
     d.id AS deployment_id,
     d.name AS service_name,
@@ -148,12 +169,12 @@ AND team_members.user_id = $2
 ORDER BY d.id DESC
 `
 
-type GetEnvironmentImageDeploymentsParams struct {
+type GetUserEnvironmentImageDeploymentsParams struct {
 	EnvironmentID int64
 	UserID        int64
 }
 
-type GetEnvironmentImageDeploymentsRow struct {
+type GetUserEnvironmentImageDeploymentsRow struct {
 	DeploymentID  int64
 	ServiceName   string
 	Port          string
@@ -165,15 +186,15 @@ type GetEnvironmentImageDeploymentsRow struct {
 	MountPath     sql.NullString
 }
 
-func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, arg GetEnvironmentImageDeploymentsParams) ([]GetEnvironmentImageDeploymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEnvironmentImageDeployments, arg.EnvironmentID, arg.UserID)
+func (q *Queries) GetUserEnvironmentImageDeployments(ctx context.Context, arg GetUserEnvironmentImageDeploymentsParams) ([]GetUserEnvironmentImageDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserEnvironmentImageDeployments, arg.EnvironmentID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetEnvironmentImageDeploymentsRow
+	var items []GetUserEnvironmentImageDeploymentsRow
 	for rows.Next() {
-		var i GetEnvironmentImageDeploymentsRow
+		var i GetUserEnvironmentImageDeploymentsRow
 		if err := rows.Scan(
 			&i.DeploymentID,
 			&i.ServiceName,

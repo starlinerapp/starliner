@@ -25,6 +25,11 @@ INSERT INTO deployment_volumes (deployment_id, volume_size_mib, mount_path)
 VALUES (@deployment_id, @volume_size_mib, @mount_path)
 RETURNING *;
 
+-- name: GetDeploymentVolume :one
+SELECT *
+FROM deployment_volumes
+WHERE deployment_id = @deployment_id AND deleted_at IS NULL;
+
 -- name: SoftDeleteDeploymentVolume :exec
 UPDATE deployment_volumes
 SET deleted_at = NOW()
@@ -61,7 +66,7 @@ INSERT INTO deployment_environment_vars (deployment_id, name, value)
 VALUES (@deployment_id, @name, @value)
 RETURNING *;
 
--- name: GetEnvironmentImageDeployments :many
+-- name: GetUserEnvironmentImageDeployments :many
 SELECT
     d.id AS deployment_id,
     d.name AS service_name,
