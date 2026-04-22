@@ -332,7 +332,7 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
 
 				for _, p := range h.Paths {
-					target, err := ga.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, env.Id)
+					target, err := ga.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, newEnv.Id)
 					if err != nil {
 						errs = append(errs, err)
 						continue
@@ -363,7 +363,7 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				IngressHosts:     coreHosts,
 				DeploymentId:     d.Id,
 				DeploymentName:   d.ServiceName,
-				Namespace:        env.Namespace,
+				Namespace:        newEnv.Namespace,
 				KubeconfigBase64: kubeconfigBase64,
 			})
 			if err != nil {
@@ -408,7 +408,7 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			err = ga.queue.PublishDeployImage(&coreValue.ImageDeployment{
 				DeploymentId:     d.Id,
 				DeploymentName:   normalizedDeploymentName,
-				Namespace:        env.Namespace,
+				Namespace:        newEnv.Namespace,
 				KubeconfigBase64: kubeconfigBase64,
 				ImageName:        d.ImageName,
 				ImageTag:         d.Tag,
@@ -463,7 +463,7 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 				BuildId:        b.Id,
 				DeploymentId:   d.Id,
-				ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
+				ImageName:      fmt.Sprintf("%s/%s", newEnv.Namespace, normalizedServiceName),
 				GitUrl:         d.GitUrl,
 				BranchName:     event.SourceBranch,
 				AccessToken:    accessToken,
