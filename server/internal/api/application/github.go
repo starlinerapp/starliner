@@ -502,7 +502,10 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			continue
 		}
 		if ghApp != nil {
-			body := buildPreviewEnvironmentComment(commentURLs)
+			body, err := buildPreviewEnvironmentComment(commentURLs)
+			if err != nil {
+				errs = append(errs, err)
+			}
 			if body != "" {
 				err = ga.gitHub.CreatePRComment(
 					ctx,
@@ -675,7 +678,7 @@ func (ga *GitHubApplication) getEnvironmentDeployments(ctx context.Context, envi
 	}, nil
 }
 
-func buildPreviewEnvironmentComment(urls []string) string {
+func buildPreviewEnvironmentComment(urls []string) (string, error) {
 	seen := make(map[string]struct{})
 	unique := make([]string, 0, len(urls))
 
@@ -691,14 +694,17 @@ func buildPreviewEnvironmentComment(urls []string) string {
 	}
 
 	if len(unique) == 0 {
-		return ""
+		return "", nil
 	}
 
 	var sb strings.Builder
 	sb.WriteString("Preview links:\n")
 	for _, u := range unique {
-		sb.WriteString(fmt.Sprintf("- %s\n", u))
+		_, err := fmt.Fprintf(&sb, "- %s\n", u)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	return sb.String()
+	return sb.String(), nil
 }
