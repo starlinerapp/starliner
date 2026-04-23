@@ -17,6 +17,7 @@ import (
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
 	"strconv"
+	"strings"
 )
 
 type GitHubApplication struct {
@@ -272,7 +273,11 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 		return err
 	}
 
-	var errs []error
+	var (
+		errs        []error
+		commentURLs []string
+	)
+
 	for _, env := range productionEnvs {
 		p, err := ga.environmentRepository.GetEnvironmentProject(ctx, env.Id)
 		if err != nil {
@@ -336,6 +341,10 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 		for _, d := range ingressDeployments {
 			coreHosts := make([]coreValue.IngressHost, 0, len(d.IngressHosts))
 			for _, h := range d.IngressHosts {
+				if h.Host != "" {
+					commentURLs = append(commentURLs, "http://"+h.Host)
+				}
+
 				ch := coreValue.IngressHost{
 					Host: h.Host,
 				}
@@ -484,6 +493,28 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			if err != nil {
 				errs = append(errs, err)
 				continue
+			}
+		}
+
+		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, newEnv.Id)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		if ghApp != nil {
+			body := buildPreviewEnvironmentComment(commentURLs)
+			if body != "" {
+				err = ga.gitHub.CreatePRComment(
+					ctx,
+					ghApp.InstallationID,
+					event.RepositoryOwner,
+					event.RepositoryName,
+					event.PrNumber,
+					body,
+				)
+				if err != nil {
+					errs = append(errs, err)
+				}
 			}
 		}
 	}
@@ -642,4 +673,32 @@ func (ga *GitHubApplication) getEnvironmentDeployments(ctx context.Context, envi
 		Ingresses:      value.NewIngressDeployments(ingresses),
 		GitDeployments: gitDeployments,
 	}, nil
+}
+
+func buildPreviewEnvironmentComment(urls []string) string {
+	seen := make(map[string]struct{})
+	unique := make([]string, 0, len(urls))
+
+	for _, u := range urls {
+		if u == "" {
+			continue
+		}
+		if _, ok := seen[u]; ok {
+			continue
+		}
+		seen[u] = struct{}{}
+		unique = append(unique, u)
+	}
+
+	if len(unique) == 0 {
+		return ""
+	}
+
+	var sb strings.Builder
+	sb.WriteString("Preview links:\n")
+	for _, u := range unique {
+		sb.WriteString(fmt.Sprintf("- %s\n", u))
+	}
+
+	return sb.String()
 }

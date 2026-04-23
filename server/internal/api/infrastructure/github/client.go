@@ -185,3 +185,24 @@ func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitE
 		return nil, fmt.Errorf("unsupported event type: %s", eventType)
 	}
 }
+
+func (c *Client) CreatePRComment(
+	ctx context.Context,
+	installationId int64,
+	owner string,
+	repository string,
+	prNumber int,
+	body string,
+) error {
+	gh, err := c.installationClient(installationId)
+	if err != nil {
+		return err
+	}
+
+	comment := &github.IssueComment{
+		Body: github.Ptr(body),
+	}
+
+	_, _, err = gh.Issues.CreateComment(ctx, owner, repository, prNumber, comment)
+	return err
+}

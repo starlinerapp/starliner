@@ -41,4 +41,12 @@ type GitHub interface {
 		path string,
 	) ([]*RepositoryFile, error)
 	ParseGitEvent(eventType string, eventPayload []byte) (GitEvent, error)
+	CreatePRComment(
+		ctx context.Context,
+		installationId int64,
+		owner string,
+		repository string,
+		prNumber int,
+		body string,
+	) error
 }
