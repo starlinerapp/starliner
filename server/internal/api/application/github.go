@@ -235,3 +235,22 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 
 	return errors.Join(errs...)
 }
+
+func (ga *GitHubApplication) GetFileContent(ctx context.Context, userId int64, organizationId int64, owner string, repository string, path string) (string, error) {
+	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	if err != nil {
+		return "", err
+	}
+
+	ghApp, err := ga.githubAppRepository.GetOrganizationGithubApp(ctx, organizationId)
+	if err != nil {
+		return "", err
+	}
+
+	content, err := ga.gitHub.GetFile(ctx, ghApp.InstallationID, owner, repository, path)
+	if err != nil {
+		return "", err
+	}
+
+	return content, nil
+}

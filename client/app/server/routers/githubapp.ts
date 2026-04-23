@@ -1,5 +1,5 @@
 import { protectedProcedure } from "~/server/trpc";
-import { githubAppFactory } from "~/server/api/client";
+import { githubappApiFactory } from "~/server/api/client";
 import z from "zod";
 import axios from "axios";
 
@@ -13,7 +13,7 @@ export const githubAppRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
-      return await githubAppFactory
+      return await githubappApiFactory
         .createGithubApp(userId, {
           installationId: input.installationId,
           organizationId: input.organizationId,
@@ -30,7 +30,7 @@ export const githubAppRouter = {
       const userId = ctx.user?.id;
 
       try {
-        const res = await githubAppFactory.getGithubApp(
+        const res = await githubappApiFactory.getGithubApp(
           userId,
           input.organizationId,
         );

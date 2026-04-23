@@ -41,4 +41,11 @@ type GitHub interface {
 		path string,
 	) ([]*RepositoryFile, error)
 	ParseGitEvent(eventType string, eventPayload []byte) (GitEvent, error)
+	GetFile(
+		ctx context.Context,
+		installationId int64,
+		owner string,
+		repository string,
+		path string,
+	) (string, error)
 }

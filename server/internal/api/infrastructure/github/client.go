@@ -175,3 +175,27 @@ func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitE
 		return nil, fmt.Errorf("unsupported event type: %s", eventType)
 	}
 }
+
+func (c *Client) GetFile(
+	ctx context.Context,
+	installationId int64,
+	owner string,
+	repository string,
+	path string,
+) (string, error) {
+	gh, err := c.installationClient(installationId)
+	if err != nil {
+		return "", err
+	}
+
+	fileContent, _, _, err := gh.Repositories.GetContents(ctx, owner, repository, path, nil)
+	if err != nil {
+		return "", err
+	}
+
+	if fileContent == nil {
+		return "", fmt.Errorf("file not found: %s", path)
+	}
+
+	return fileContent.GetContent()
+}
