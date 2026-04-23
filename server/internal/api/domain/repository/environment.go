@@ -43,6 +43,10 @@ func (er *EnvironmentRepository) CreateEnvironment(ctx context.Context, name str
 	}, nil
 }
 
+func (er *EnvironmentRepository) DeleteEnvironment(ctx context.Context, environmentId int64) error {
+	return er.queries.DeleteEnvironment(ctx, environmentId)
+}
+
 func (er *EnvironmentRepository) DuplicateEnvironment(
 	ctx context.Context,
 	name string,

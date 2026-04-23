@@ -491,7 +491,76 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 }
 
 func (ga *GitHubApplication) deletePreviewEnvironment(ctx context.Context, event *value.PullRequestClosedEvent) error {
-	return nil
+	previewEnv, err := ga.environmentRepository.GetPreviewEnvironment(ctx, event.RepositoryId, event.PrNumber)
+	if err != nil {
+		return err
+	}
+	if previewEnv == nil {
+		return nil
+	}
+
+	deployments, err := ga.getEnvironmentDeployments(ctx, previewEnv.Id)
+	if err != nil {
+		return err
+	}
+
+	type deploymentEntry struct {
+		id          int64
+		serviceName string
+	}
+
+	var allDeployments []deploymentEntry
+	for _, d := range deployments.Ingresses {
+		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
+	}
+	for _, d := range deployments.Images {
+		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
+	}
+	for _, d := range deployments.GitDeployments {
+		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
+	}
+	for _, d := range deployments.Databases {
+		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
+	}
+
+	for _, d := range allDeployments {
+		cluster, err := ga.deploymentRepository.GetDeploymentCluster(ctx, d.id)
+		if err != nil {
+			return err
+		}
+
+		env, err := ga.environmentRepository.GetEnvironmentById(ctx, previewEnv.Id)
+		if err != nil {
+			return err
+		}
+
+		if cluster.Kubeconfig == nil {
+			return fmt.Errorf("cluster kubeconfig is nil")
+		}
+		kubeconfigBase64, err := ga.crypto.Decrypt(*cluster.Kubeconfig)
+		if err != nil {
+			return err
+		}
+
+		normalizedDeploymentName, err := ga.normalizerService.FormatToDNS1123(d.serviceName)
+		if err != nil {
+			return err
+		}
+
+		if err = ga.deploymentRepository.SoftDeleteDeploymentVolume(ctx, d.id); err != nil {
+			return err
+		}
+
+		if err = ga.queue.PublishDeleteDeployment(&coreValue.Deployment{
+			DeploymentId:     d.id,
+			DeploymentName:   normalizedDeploymentName,
+			Namespace:        env.Namespace,
+			KubeconfigBase64: kubeconfigBase64,
+		}); err != nil {
+			log.Printf("error publishing: %v", err)
+		}
+	}
+	return ga.environmentRepository.DeleteEnvironment(ctx, previewEnv.Id)
 }
 
 func (ga *GitHubApplication) getEnvironmentDeployments(ctx context.Context, environmentId int64) (*value.Deployments, error) {

@@ -100,3 +100,7 @@ WHERE e.id = $1;
 UPDATE environments
 SET connected_branch = $1
 WHERE id = $2;
+
+-- name: DeleteEnvironment :exec
+DELETE FROM environments
+WHERE id = $1;

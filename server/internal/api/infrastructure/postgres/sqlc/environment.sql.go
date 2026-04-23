@@ -182,6 +182,16 @@ func (q *Queries) CreatePreviewEnvironment(ctx context.Context, arg CreatePrevie
 	return i, err
 }
 
+const deleteEnvironment = `-- name: DeleteEnvironment :exec
+DELETE FROM environments
+WHERE id = $1
+`
+
+func (q *Queries) DeleteEnvironment(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteEnvironment, id)
+	return err
+}
+
 const getEnvironmentAuthorizedUsers = `-- name: GetEnvironmentAuthorizedUsers :many
 SELECT tm.user_id
 FROM environments

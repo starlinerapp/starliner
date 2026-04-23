@@ -8,6 +8,7 @@ import (
 
 type EnvironmentRepository interface {
 	CreateEnvironment(ctx context.Context, name string, namespace string, slug string, projectId int64) (*entity.Environment, error)
+	DeleteEnvironment(ctx context.Context, environmentId int64) error
 	GetEnvironmentById(ctx context.Context, environmentId int64) (*entity.Environment, error)
 	GetPreviewEnvironment(ctx context.Context, gitHubRepositoryId int64, prNumber int) (*entity.PreviewEnvironment, error)
 	GetEnvironmentProject(ctx context.Context, environmentId int64) (*entity.Project, error)
