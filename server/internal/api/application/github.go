@@ -299,8 +299,18 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			errs = append(errs, err)
 			continue
 		}
-
-		newEnv, err := ga.environmentRepository.DuplicateEnvironment(ctx, previewEnvName, namespace, environmentSlug, p.Id, env.Id, randomPrefix, &event.SourceBranch)
+		newEnv, err := ga.environmentRepository.CreatePreviewEnvironment(
+			ctx,
+			previewEnvName,
+			namespace,
+			environmentSlug,
+			p.Id,
+			env.Id,
+			randomPrefix,
+			&event.SourceBranch,
+			event.RepositoryId,
+			event.PrNumber,
+		)
 		if err != nil {
 			errs = append(errs, err)
 			continue

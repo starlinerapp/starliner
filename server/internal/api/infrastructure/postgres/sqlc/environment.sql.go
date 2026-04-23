@@ -99,6 +99,89 @@ func (q *Queries) CreateEnvironmentWithConnectedBranch(ctx context.Context, arg 
 	return i, err
 }
 
+const createPreviewEnvironment = `-- name: CreatePreviewEnvironment :one
+WITH new_environment AS (
+    INSERT INTO environments (
+        name,
+        slug,
+        namespace,
+        project_id,
+        connected_branch
+    ) VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5
+    ) RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
+),
+new_preview_environments AS (
+    INSERT INTO preview_environments (
+        environment_id,
+        github_repository_id,
+        pr_number
+    )
+   SELECT id, $6, $7 FROM new_environment
+   RETURNING environment_id, github_repository_id, pr_number, created_at, updated_at
+)
+SELECT
+    e.id,
+    e.name,
+    e.slug,
+    e.project_id,
+    e.namespace,
+    e.connected_branch,
+    pe.github_repository_id,
+    pe.pr_number
+FROM new_environment e
+INNER JOIN new_preview_environments pe ON e.id = pe.environment_id
+`
+
+type CreatePreviewEnvironmentParams struct {
+	Name               string
+	Slug               string
+	Namespace          string
+	ProjectID          int64
+	ConnectedBranch    string
+	GithubRepositoryID int64
+	PrNumber           int64
+}
+
+type CreatePreviewEnvironmentRow struct {
+	ID                 int64
+	Name               string
+	Slug               string
+	ProjectID          int64
+	Namespace          string
+	ConnectedBranch    string
+	GithubRepositoryID int64
+	PrNumber           int64
+}
+
+func (q *Queries) CreatePreviewEnvironment(ctx context.Context, arg CreatePreviewEnvironmentParams) (CreatePreviewEnvironmentRow, error) {
+	row := q.db.QueryRowContext(ctx, createPreviewEnvironment,
+		arg.Name,
+		arg.Slug,
+		arg.Namespace,
+		arg.ProjectID,
+		arg.ConnectedBranch,
+		arg.GithubRepositoryID,
+		arg.PrNumber,
+	)
+	var i CreatePreviewEnvironmentRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.ProjectID,
+		&i.Namespace,
+		&i.ConnectedBranch,
+		&i.GithubRepositoryID,
+		&i.PrNumber,
+	)
+	return i, err
+}
+
 const getEnvironmentAuthorizedUsers = `-- name: GetEnvironmentAuthorizedUsers :many
 SELECT tm.user_id
 FROM environments

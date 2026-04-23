@@ -12,6 +12,7 @@ type EnvironmentRepository interface {
 	GetPreviewEnvironment(ctx context.Context, gitHubRepositoryId int64, prNumber int) (*entity.PreviewEnvironment, error)
 	GetEnvironmentProject(ctx context.Context, environmentId int64) (*entity.Project, error)
 	DuplicateEnvironment(ctx context.Context, name string, namespace string, slug string, projectId int64, sourceEnvironmentId int64, uniqueIdentifier string, connectedBranch *string) (*entity.Environment, error)
+	CreatePreviewEnvironment(ctx context.Context, name string, namespace string, slug string, projectId int64, sourceEnvironmentId int64, uniqueIdentifier string, connectedBranch *string, githubRepositoryId int64, prNumber int) (*entity.Environment, error)
 	GetEnvironmentAuthorizedUsers(ctx context.Context, clusterId int64) (users []int64, err error)
 	GetEnvironmentCluster(ctx context.Context, environmentId int64) (*entity.Cluster, error)
 	GetEnvironmentIngressDeploymentByName(ctx context.Context, environmentId int64, name string) (*entity.IngressDeployment, error)
