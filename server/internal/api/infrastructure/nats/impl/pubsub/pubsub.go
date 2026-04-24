@@ -15,8 +15,6 @@ import (
 const DeploymentStatusRequest natscore.Subject = "deployment.status.request"
 const DeploymentStatusResponse natscore.Subject = "deployment.status.response"
 
-// BuildLogs mirrors the subject used by the builder service to stream build
-// output. Keep these two values in sync.
 const BuildLogs natscore.Subject = "build.logs"
 
 type Pubsub struct {
@@ -53,8 +51,6 @@ func (p *Pubsub) SubscribeToBuildLogs(
 	ctx context.Context,
 	buildId int64,
 ) (<-chan *coreValue.BuildLogChunk, func(), error) {
-	// Buffer large enough to absorb bursts without dropping chunks. A build
-	// may momentarily emit dozens of lines in a single buildkit status update.
 	ch := make(chan *coreValue.BuildLogChunk, 256)
 
 	cancelSub, err := p.subscriber.SubscribeContext(
@@ -67,8 +63,6 @@ func (p *Pubsub) SubscribeToBuildLogs(
 				log.Printf("failed to unmarshal build log chunk: %v", err)
 				return
 			}
-			// Drop chunks if the reader has gone away to avoid blocking the
-			// NATS delivery goroutine indefinitely.
 			select {
 			case ch <- &chunk:
 			case <-ctx.Done():

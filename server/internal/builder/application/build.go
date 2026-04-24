@@ -40,10 +40,6 @@ func NewBuildApplication(
 func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
 
-	// publishLogLine streams a single line to live subscribers and never
-	// aborts the build on failure. Used for diagnostic output emitted
-	// outside of buildkit (e.g. pre-clone errors) so end-users see it in
-	// real time instead of only at build completion.
 	publishLogLine := func(line string) {
 		if ba.logPublisher == nil {
 			return
@@ -54,7 +50,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	}
 
 	// Always emit an end marker before BuildCompleted so that any active
-	// log subscribers (API -> SSE) can release their connection promptly.
+	// log subscribers can release their connection.
 	defer func() {
 		if ba.logPublisher == nil {
 			return

@@ -37,9 +37,6 @@ type BuildCompleted struct {
 	Logs             string
 }
 
-// BuildLogChunk is a single chunk of streaming build-log output. End is true on
-// the final message emitted for a build, signaling that no further chunks will
-// arrive on the stream.
 type BuildLogChunk struct {
 	BuildId int64
 	Data    []byte

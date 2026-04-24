@@ -26,9 +26,6 @@ func NewPubsub(conn *nats.Conn) port.LogPublisher {
 }
 
 func (p *Pubsub) PublishLogChunk(buildId int64, chunk []byte) error {
-	// Copy the slice since buildkit may reuse the backing array between
-	// iterations once the Status message returns, and NATS publishing is
-	// asynchronous.
 	data := make([]byte, len(chunk))
 	copy(data, chunk)
 

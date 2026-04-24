@@ -37,11 +37,6 @@ func (s *Subscriber) Subscribe(subject Subject, identifier string, cb func([]byt
 	return fmt.Errorf("subscription to %s lost", uniqueSubject)
 }
 
-// SubscribeContext creates a short-lived subscription that is automatically
-// torn down when ctx is canceled. Unlike Subscribe, it does not block the
-// caller: the returned cancel function should be invoked to release the NATS
-// subscription (defer is typical). The callback runs on NATS's internal
-// delivery goroutine, so it must be non-blocking (e.g. a channel send).
 func (s *Subscriber) SubscribeContext(
 	ctx context.Context,
 	subject Subject,

@@ -102,10 +102,6 @@ func (c *Docker) BuildAndPublish(
 		mu   sync.Mutex
 	)
 
-	// appendLog accumulates the full build log in-memory (for persistence in
-	// the BuildCompleted event) and streams the same chunk to any live
-	// subscribers via NATS. Streaming failures are logged but never abort the
-	// build.
 	appendLog := func(line string) {
 		mu.Lock()
 		logs.WriteString(line)

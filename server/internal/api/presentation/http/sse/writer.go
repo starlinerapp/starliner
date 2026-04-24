@@ -19,10 +19,6 @@ func NewWriter(w http.ResponseWriter) (*Writer, bool) {
 	return &Writer{w: w, flusher: flusher}, true
 }
 
-// Write emits p as one or more SSE events. Input is split on '\n' so that
-// callers can hand the writer multi-line chunks (e.g. a replay of fully
-// persisted build logs) without corrupting event framing, since the client
-// parses one "data: " field per event. Empty lines are skipped.
 func (s *Writer) Write(p []byte) (n int, err error) {
 	remaining := p
 	for len(remaining) > 0 {
