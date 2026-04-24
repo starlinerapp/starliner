@@ -34,7 +34,7 @@ export default function BuildCard({
   const [logs, setLogs] = useState<string[]>([]);
   const [hasReceivedLogs, setHasReceivedLogs] = useState(false);
 
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const logsScrollRef = useRef<HTMLPreElement>(null);
   const hasLoadedInitial = useRef(false);
 
   useEffect(() => {
@@ -60,18 +60,29 @@ export default function BuildCard({
   );
 
   useEffect(() => {
+    const el = logsScrollRef.current;
+    if (!el) {
+      return;
+    }
+    const scrollToBottom = (behavior: ScrollBehavior) => {
+      const top = el.scrollHeight - el.clientHeight;
+      if (top <= 0) {
+        return;
+      }
+      el.scrollTo({ top, left: 0, behavior });
+    };
     if (!hasLoadedInitial.current) {
       if (logs.length > 0) {
         hasLoadedInitial.current = true;
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            logsEndRef.current?.scrollIntoView({ behavior: "instant" });
+            scrollToBottom("auto");
           });
         });
       }
       return;
     }
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom("smooth");
   }, [logs]);
 
   const isBuilding = status === "queued" || status === "building";
@@ -148,13 +159,15 @@ export default function BuildCard({
                     No logs available
                   </pre>
                 ) : (
-                  <pre className="text-mauve-11 max-h-[500px] w-full overflow-y-auto font-mono text-sm break-all whitespace-pre-wrap">
+                  <pre
+                    ref={logsScrollRef}
+                    className="text-mauve-11 max-h-[500px] w-full overflow-y-auto font-mono text-sm break-all whitespace-pre-wrap"
+                  >
                     {logs.map((line, i) => (
                       <span key={i} className="block">
                         {line}
                       </span>
                     ))}
-                    <div ref={logsEndRef} />
                   </pre>
                 )}
               </div>
