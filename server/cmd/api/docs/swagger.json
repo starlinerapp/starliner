@@ -815,6 +815,60 @@
                 }
             }
         },
+        "/github/repositories/{organizationId}/{owner}/{repository}/file": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get File Content",
+                "operationId": "getFileContent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository owner (user or org)",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository name",
+                        "name": "repository",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Path to the file within the repository",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FileContent"
+                        }
+                    }
+                }
+            }
+        },
         "/githubapps": {
             "post": {
                 "tags": [
@@ -2600,6 +2654,14 @@
             ],
             "properties": {
                 "branch": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FileContent": {
+            "type": "object",
+            "properties": {
+                "content": {
                     "type": "string"
                 }
             }

@@ -462,6 +462,11 @@ definitions:
     required:
     - branch
     type: object
+  response.FileContent:
+    properties:
+      content:
+        type: string
+    type: object
   response.GetOrganizationProvisioningCredentialResponse:
     properties:
       credential:
@@ -1379,6 +1384,43 @@ paths:
               $ref: '#/definitions/response.RepositoryFile'
             type: array
       summary: Get Repository Content
+      tags:
+      - github
+  /github/repositories/{organizationId}/{owner}/{repository}/file:
+    get:
+      operationId: getFileContent
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Repository owner (user or org)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repository
+        required: true
+        type: string
+      - description: Path to the file within the repository
+        in: query
+        name: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FileContent'
+      summary: Get File Content
       tags:
       - github
   /githubapps:
