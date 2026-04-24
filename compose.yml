@@ -88,6 +88,7 @@ services:
       BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
       CLUSTER_GRPC_ENDPOINT: ${CLUSTER_GRPC_ENDPOINT:-server-cluster:57400}
+      BUILDER_GRPC_ENDPOINT: ${BUILDER_GRPC_ENDPOINT:-server-builder:57500}
       PROVISIONER_GRPC_ENDPOINT: ${PROVISIONER_GRPC_ENDPOINT:-server-provisioner:57400}
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
       NATS_URL: ${NATS_URL:-http://nats:4222}
@@ -120,9 +121,11 @@ services:
         condition: service_healthy
     ports:
       - "40001:40001"
+      - "57500:57500"
     environment:
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
       NATS_URL: ${NATS_URL:-http://nats:4222}
+      BUILDER_GRPC_ADDR: ${BUILDER_GRPC_ADDR:-0.0.0.0:57500}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}

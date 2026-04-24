@@ -1,9 +1,7 @@
 package pubsub
 
 import (
-	"context"
 	"encoding/json"
-	"log"
 	"strconv"
 
 	"github.com/nats-io/nats.go"
@@ -14,8 +12,6 @@ import (
 
 const DeploymentStatusRequest natscore.Subject = "deployment.status.request"
 const DeploymentStatusResponse natscore.Subject = "deployment.status.response"
-
-const BuildLogs natscore.Subject = "build.logs"
 
 type Pubsub struct {
 	publisher  *natscore.Publisher
@@ -45,37 +41,4 @@ func (p *Pubsub) SubscribeToDeploymentStatusResponse(handler func(health *coreVa
 		}
 		handler(&health)
 	})
-}
-
-func (p *Pubsub) SubscribeToBuildLogs(
-	ctx context.Context,
-	buildId int64,
-) (<-chan *coreValue.BuildLogChunk, func(), error) {
-	ch := make(chan *coreValue.BuildLogChunk, 256)
-
-	cancelSub, err := p.subscriber.SubscribeContext(
-		ctx,
-		BuildLogs,
-		strconv.FormatInt(buildId, 10),
-		func(msg []byte) {
-			var chunk coreValue.BuildLogChunk
-			if err := json.Unmarshal(msg, &chunk); err != nil {
-				log.Printf("failed to unmarshal build log chunk: %v", err)
-				return
-			}
-			select {
-			case ch <- &chunk:
-			case <-ctx.Done():
-			}
-		},
-	)
-	if err != nil {
-		close(ch)
-		return nil, func() {}, err
-	}
-
-	cancel := func() {
-		cancelSub()
-	}
-	return ch, cancel, nil
 }
