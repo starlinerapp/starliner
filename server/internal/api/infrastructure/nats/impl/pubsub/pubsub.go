@@ -2,12 +2,11 @@ package pubsub
 
 import (
 	"encoding/json"
-	"strconv"
-
 	"github.com/nats-io/nats.go"
 	"starliner.app/internal/api/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
 	natscore "starliner.app/internal/core/infrastructure/nats/core"
+	"strconv"
 )
 
 const DeploymentStatusRequest natscore.Subject = "deployment.status.request"

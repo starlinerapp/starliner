@@ -9,8 +9,8 @@ var Module = fx.Module(
 	"application",
 	fx.Provide(
 		NewBuildLogApplication,
-		func(a *BuildLogApplication) port.LogPublisher {
-			return a
+		func(ba *BuildLogApplication) port.LogPublisher {
+			return ba
 		},
 		NewBuildApplication,
 	),

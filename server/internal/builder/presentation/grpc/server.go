@@ -31,7 +31,7 @@ func NewServer(
 func RegisterServer(lc fx.Lifecycle, s *Server) {
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
-			lis, err := net.Listen("tcp", s.cfg.BuilderGrpcAddr)
+			lis, err := net.Listen("tcp", ":57500")
 			if err != nil {
 				return err
 			}
@@ -40,7 +40,7 @@ func RegisterServer(lc fx.Lifecycle, s *Server) {
 					log.Printf("builder gRPC server: %v", err)
 				}
 			}()
-			log.Printf("Build log gRPC listening on %s", s.cfg.BuilderGrpcAddr)
+			log.Printf("Server listening on port 57500")
 			return nil
 		},
 		OnStop: func(_ context.Context) error {
