@@ -30,11 +30,27 @@ func NewRepositoryFiles(fs []*port.RepositoryFile) []*RepositoryFile {
 	return files
 }
 
+type PullRequestOpenedEvent struct {
+	RepositoryOwner string
+	RepositoryId    int64
+	RepositoryName  string
+	RepositoryUrl   string
+	SourceBranch    string
+	TargetBranch    string
+	PrNumber        int
+}
+
+func (e *PullRequestOpenedEvent) EventName() string {
+	return "pull_request.opened"
+}
+
 type PullRequestClosedEvent struct {
 	RepositoryOwner string
+	RepositoryId    int64
 	RepositoryName  string
 	RepositoryUrl   string
 	TargetBranch    string
+	PrNumber        int
 	Merged          bool
 }
 

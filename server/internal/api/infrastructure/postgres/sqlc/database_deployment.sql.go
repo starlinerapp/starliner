@@ -61,6 +61,66 @@ func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDataba
 	return i, err
 }
 
+const getEnvironmentDatabaseDeployments = `-- name: GetEnvironmentDatabaseDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name,
+    d.port,
+    d.status,
+    d.environment_id,
+    db.database,
+    db.username,
+    db.password
+FROM deployments d
+    INNER JOIN database_deployments db ON d.id = db.deployment_id
+    INNER JOIN environments ON d.environment_id = environments.id
+WHERE environment_id = $1
+ORDER BY d.id DESC
+`
+
+type GetEnvironmentDatabaseDeploymentsRow struct {
+	DeploymentID  int64
+	Name          string
+	Port          string
+	Status        DeploymentStatus
+	EnvironmentID int64
+	Database      sql.NullString
+	Username      sql.NullString
+	Password      sql.NullString
+}
+
+func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentDatabaseDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentDatabaseDeployments, environmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEnvironmentDatabaseDeploymentsRow
+	for rows.Next() {
+		var i GetEnvironmentDatabaseDeploymentsRow
+		if err := rows.Scan(
+			&i.DeploymentID,
+			&i.Name,
+			&i.Port,
+			&i.Status,
+			&i.EnvironmentID,
+			&i.Database,
+			&i.Username,
+			&i.Password,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserEnvironmentDatabaseDeployments = `-- name: GetUserEnvironmentDatabaseDeployments :many
 SELECT
     d.id AS deployment_id,

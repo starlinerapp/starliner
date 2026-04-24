@@ -20,4 +20,7 @@ type ProjectRepository interface {
 	DeleteProject(ctx context.Context, projectId int64, userId int64) error
 	GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*entity.ProjectCluster, error)
 	GetProjectEnvironments(ctx context.Context, projectId int64, userId int64) ([]*entity.Environment, error)
+	GetProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error)
+	ToggleProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error)
+	GetProjectProductionEnvironmentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.Environment, error)
 }

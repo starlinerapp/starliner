@@ -66,6 +66,22 @@ WHERE environment_id = @environment_id
   AND team_members.user_id = @user_id
 ORDER BY d.id DESC;
 
+-- name: GetEnvironmentGitDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name,
+    d.port,
+    d.status,
+    d.environment_id,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path
+FROM deployments d
+         INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+         INNER JOIN environments ON d.environment_id = environments.id
+WHERE environment_id = @environment_id
+ORDER BY d.id DESC;
+
 -- name: GetGitDeploymentsByRepositoryUrl :many
 SELECT
     d.id AS deployment_id,

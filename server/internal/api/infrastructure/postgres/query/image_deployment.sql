@@ -87,3 +87,21 @@ INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
 AND team_members.user_id = $2
 ORDER BY d.id DESC;
+
+-- name: GetEnvironmentImageDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name AS service_name,
+    d.port,
+    d.status,
+    d.environment_id,
+    img_d.name AS image_name,
+    img_d.tag,
+    dv.volume_size_mib,
+    dv.mount_path
+FROM deployments d
+         INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id
+         LEFT JOIN deployment_volumes dv ON d.id = dv.deployment_id AND dv.deleted_at IS NULL
+         INNER JOIN environments e ON d.environment_id = e.id
+WHERE environment_id = $1
+ORDER BY d.id DESC;

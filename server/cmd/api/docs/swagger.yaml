@@ -719,6 +719,13 @@ definitions:
     - clusterId
     - clusterName
     type: object
+  response.ProjectPreviewEnvironmentEnabled:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
+    type: object
   response.Repository:
     properties:
       clone_url:
@@ -1848,6 +1855,49 @@ paths:
               $ref: '#/definitions/response.Environment'
             type: array
       summary: Get Project Environments
+      tags:
+      - project
+  /projects/{id}/preview-environment/enabled:
+    get:
+      operationId: getProjectPreviewEnvironmentEnabled
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectPreviewEnvironmentEnabled'
+      summary: Get Project Preview Environment Enabled
+      tags:
+      - project
+    put:
+      operationId: toggleProjectPreviewEnvironmentEnabled
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectPreviewEnvironmentEnabled'
+      summary: Toggle Project Preview Environment Enabled
       tags:
       - project
   /teams/{teamId}/clusters:

@@ -15,7 +15,7 @@ func NewGit() port.Git {
 	return &Git{}
 }
 
-func (g *Git) CloneRepository(repoUrl string, accessToken string) (dir string, commitHash string, err error) {
+func (g *Git) CloneRepository(repoUrl string, branchName string, accessToken string) (dir string, commitHash string, err error) {
 	dir, err = os.MkdirTemp("", "repo-*")
 	if err != nil {
 		return "", "", err
@@ -27,7 +27,7 @@ func (g *Git) CloneRepository(repoUrl string, accessToken string) (dir string, c
 			Username: "x-access-token",
 			Password: accessToken,
 		},
-		ReferenceName: plumbing.NewBranchReferenceName("main"),
+		ReferenceName: plumbing.NewBranchReferenceName(branchName),
 		SingleBranch:  true,
 		Depth:         1, // doesn't download the full commit history
 	})

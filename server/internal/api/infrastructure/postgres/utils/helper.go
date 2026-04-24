@@ -44,12 +44,9 @@ func PtrFromNullInt32(ni sql.NullInt32) *int32 {
 	return nil
 }
 
-func NullInt32FromPtr(i *int32) sql.NullInt32 {
-	if i == nil {
-		return sql.NullInt32{Valid: false}
+func BoolPtrFromNullBool(nb sql.NullBool) *bool {
+	if nb.Valid {
+		return &nb.Bool
 	}
-	return sql.NullInt32{
-		Int32: *i,
-		Valid: true,
-	}
+	return nil
 }
