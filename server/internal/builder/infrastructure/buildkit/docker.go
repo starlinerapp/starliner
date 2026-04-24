@@ -4,27 +4,31 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/session"
 	"github.com/moby/buildkit/session/auth/authprovider"
 	"github.com/tonistiigi/fsutil"
-	"log"
-	"os"
-	"path/filepath"
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
-	"strings"
-	"sync"
 )
 
-type Docker struct{}
+type Docker struct {
+	logPublisher port.LogPublisher
+}
 
-func NewDocker() port.Docker {
-	return &Docker{}
+func NewDocker(logPublisher port.LogPublisher) port.Docker {
+	return &Docker{logPublisher: logPublisher}
 }
 
 func (c *Docker) BuildAndPublish(
 	ctx context.Context,
+	buildId int64,
 	projectDir string,
 	dockerfilePath string,
 	imageTag string,
@@ -98,35 +102,39 @@ func (c *Docker) BuildAndPublish(
 		mu   sync.Mutex
 	)
 
-	appendLog := func(format string, values ...any) {
-		line := fmt.Sprintf(format, values...)
-
+	// appendLog accumulates the full build log in-memory (for persistence in
+	// the BuildCompleted event) and streams the same chunk to any live
+	// subscribers via NATS. Streaming failures are logged but never abort the
+	// build.
+	appendLog := func(line string) {
 		mu.Lock()
-		defer mu.Unlock()
-
 		logs.WriteString(line)
+		mu.Unlock()
+
+		if c.logPublisher != nil {
+			if err := c.logPublisher.PublishLogChunk(buildId, []byte(line)); err != nil {
+				log.Printf("failed to publish log chunk: %v", err)
+			}
+		}
 	}
 
 	go func() {
 		defer close(doneCh)
 
 		for status := range statusCh {
-			for _, log := range status.Logs {
-				line := string(log.Data)
-
-				_, err := fmt.Fprint(os.Stdout, line)
-				if err != nil {
+			for _, l := range status.Logs {
+				line := string(l.Data)
+				if _, err := fmt.Fprint(os.Stdout, line); err != nil {
 					return
 				}
-				appendLog("%s", line)
+				appendLog(line)
 			}
 
 			for _, s := range status.Statuses {
 				if s.Completed != nil {
 					line := fmt.Sprintf("✓ %s\n", s.ID)
 					_, _ = fmt.Fprint(os.Stdout, line)
-
-					appendLog("%s", line)
+					appendLog(line)
 				}
 			}
 		}

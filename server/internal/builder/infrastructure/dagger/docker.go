@@ -19,6 +19,7 @@ func NewDocker() port.Docker {
 
 func (c *Docker) BuildAndPublish(
 	ctx context.Context,
+	_ int64,
 	projectDir string,
 	dockerfilePath string,
 	imageTag string,

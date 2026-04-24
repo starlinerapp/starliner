@@ -1669,6 +1669,59 @@ export const BuildApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Stream build logs
+     * @param {string} xUserID User ID
+     * @param {number} id Build ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamBuildLogs: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("streamBuildLogs", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("streamBuildLogs", "id", id);
+      const localVarPath = `/builds/{id}/logs/stream`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -1715,6 +1768,39 @@ export const BuildApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Stream build logs
+     * @param {string} xUserID User ID
+     * @param {number} id Build ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async streamBuildLogs(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.streamBuildLogs(
+        xUserID,
+        id,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["BuildApi.streamBuildLogs"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -1746,6 +1832,23 @@ export const BuildApiFactory = function (
         .getBuildLogs(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
+    /**
+     *
+     * @summary Stream build logs
+     * @param {string} xUserID User ID
+     * @param {number} id Build ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamBuildLogs(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .streamBuildLogs(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
   };
 };
 
@@ -1772,6 +1875,25 @@ export class BuildApi extends BaseAPI {
   ) {
     return BuildApiFp(this.configuration)
       .getBuildLogs(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Stream build logs
+   * @param {string} xUserID User ID
+   * @param {number} id Build ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof BuildApi
+   */
+  public streamBuildLogs(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return BuildApiFp(this.configuration)
+      .streamBuildLogs(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

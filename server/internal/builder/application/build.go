@@ -14,10 +14,11 @@ import (
 )
 
 type BuildApplication struct {
-	cfg    *conf.Config
-	git    port.Git
-	docker port.Docker
-	queue  port.Queue
+	cfg          *conf.Config
+	git          port.Git
+	docker       port.Docker
+	queue        port.Queue
+	logPublisher port.LogPublisher
 }
 
 func NewBuildApplication(
@@ -25,17 +26,43 @@ func NewBuildApplication(
 	git port.Git,
 	docker port.Docker,
 	queue port.Queue,
+	logPublisher port.LogPublisher,
 ) *BuildApplication {
 	return &BuildApplication{
-		cfg:    cfg,
-		git:    git,
-		docker: docker,
-		queue:  queue,
+		cfg:          cfg,
+		git:          git,
+		docker:       docker,
+		queue:        queue,
+		logPublisher: logPublisher,
 	}
 }
 
 func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
+
+	// publishLogLine streams a single line to live subscribers and never
+	// aborts the build on failure. Used for diagnostic output emitted
+	// outside of buildkit (e.g. pre-clone errors) so end-users see it in
+	// real time instead of only at build completion.
+	publishLogLine := func(line string) {
+		if ba.logPublisher == nil {
+			return
+		}
+		if err := ba.logPublisher.PublishLogChunk(build.BuildId, []byte(line)); err != nil {
+			log.Printf("failed to publish log chunk: %v", err)
+		}
+	}
+
+	// Always emit an end marker before BuildCompleted so that any active
+	// log subscribers (API -> SSE) can release their connection promptly.
+	defer func() {
+		if ba.logPublisher == nil {
+			return
+		}
+		if err := ba.logPublisher.PublishLogEnd(build.BuildId); err != nil {
+			log.Printf("failed to publish log end: %v", err)
+		}
+	}()
 
 	publishCompleted := func(commitHash, tag *string, imageName *string, logs string, status value.BuildStatus) {
 		if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
@@ -54,13 +81,9 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 
 	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.BranchName, build.AccessToken)
 	if err != nil {
-		publishCompleted(
-			nil,
-			nil,
-			nil,
-			fmt.Sprintf("failed to clone repository: %v", err),
-			value.BuildStatusFailed,
-		)
+		msg := fmt.Sprintf("failed to clone repository: %v", err)
+		publishLogLine(msg + "\n")
+		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
 		return
 	}
 
@@ -74,7 +97,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	imagePath := path.Join(ba.cfg.ImageRegistryUrl, build.ImageName)
 	tag := imagePath + ":" + commitHash
 
-	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag, build.Args)
+	logs, err := ba.docker.BuildAndPublish(ctx, build.BuildId, projectDir, build.DockerfilePath, tag, build.Args)
 
 	status := value.BuildStatusSuccess
 	if err != nil {
