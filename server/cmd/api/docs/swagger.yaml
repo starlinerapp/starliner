@@ -886,6 +886,36 @@ paths:
       summary: Get Build Logs
       tags:
       - build
+  /builds/{id}/logs/stream:
+    get:
+      operationId: streamBuildLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
+      summary: Stream build logs
+      tags:
+      - build
   /clusters:
     post:
       operationId: createCluster

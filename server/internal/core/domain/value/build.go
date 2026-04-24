@@ -36,3 +36,9 @@ type BuildCompleted struct {
 	Tag              *string
 	Logs             string
 }
+
+type BuildLogChunk struct {
+	BuildId int64
+	Data    []byte
+	End     bool
+}

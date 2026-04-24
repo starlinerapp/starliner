@@ -10,6 +10,10 @@ type TerminalSize struct {
 	Rows    int
 }
 
+type BuilderClient interface {
+	StreamBuildLogs(ctx context.Context, buildId int64, w io.Writer) error
+}
+
 type ClusterClient interface {
 	StreamLogs(
 		ctx context.Context,

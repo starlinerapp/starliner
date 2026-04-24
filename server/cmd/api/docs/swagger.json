@@ -65,6 +65,50 @@
                 }
             }
         },
+        "/builds/{id}/logs/stream": {
+            "get": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Stream build logs",
+                "operationId": "streamBuildLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Build ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/clusters": {
             "post": {
                 "tags": [

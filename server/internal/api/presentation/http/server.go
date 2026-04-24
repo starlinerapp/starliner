@@ -114,6 +114,7 @@ func NewServer(
 	buildRoutes := engine.Group("/builds")
 	{
 		buildRoutes.GET("/:id/logs", buildHandler.GetBuildLogs)
+		buildRoutes.GET("/:id/logs/stream", buildHandler.StreamBuildLogs)
 	}
 
 	webSocketRoutes := engine.Group("/ws")

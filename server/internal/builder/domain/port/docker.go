@@ -9,6 +9,7 @@ import (
 type Docker interface {
 	BuildAndPublish(
 		ctx context.Context,
+		buildId int64,
 		projectDir,
 		dockerfilePath string,
 		imageTag string,
