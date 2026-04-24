@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react-router";
 import React from "react";
 import {
   isRouteErrorResponse,
@@ -70,6 +71,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
+  }
+
+  if (error && error instanceof Error) {
+    Sentry.captureException(error);
   }
 
   return (
