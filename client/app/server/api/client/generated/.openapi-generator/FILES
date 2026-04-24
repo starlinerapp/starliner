@@ -60,6 +60,7 @@ docs/ResponseOrganizationInvite.md
 docs/ResponseOrganizationProvisioningCredential.md
 docs/ResponseProject.md
 docs/ResponseProjectCluster.md
+docs/ResponseProjectPreviewEnvironmentEnabled.md
 docs/ResponseRepository.md
 docs/ResponseRepositoryFile.md
 docs/ResponseRoot.md

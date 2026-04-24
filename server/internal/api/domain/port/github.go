@@ -48,4 +48,12 @@ type GitHub interface {
 		repository string,
 		path string,
 	) (string, error)
+	CreatePRComment(
+		ctx context.Context,
+		installationId int64,
+		owner string,
+		repository string,
+		prNumber int,
+		body string,
+	) error
 }

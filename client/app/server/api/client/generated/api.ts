@@ -1380,6 +1380,19 @@ export interface ResponseProjectCluster {
 /**
  *
  * @export
+ * @interface ResponseProjectPreviewEnvironmentEnabled
+ */
+export interface ResponseProjectPreviewEnvironmentEnabled {
+  /**
+   *
+   * @type {boolean}
+   * @memberof ResponseProjectPreviewEnvironmentEnabled
+   */
+  enabled: boolean;
+}
+/**
+ *
+ * @export
  * @interface ResponseRepository
  */
 export interface ResponseRepository {
@@ -6765,6 +6778,120 @@ export const ProjectApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Get Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectPreviewEnvironmentEnabled: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists(
+        "getProjectPreviewEnvironmentEnabled",
+        "xUserID",
+        xUserID,
+      );
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getProjectPreviewEnvironmentEnabled", "id", id);
+      const localVarPath = `/projects/{id}/preview-environment/enabled`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Toggle Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    toggleProjectPreviewEnvironmentEnabled: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists(
+        "toggleProjectPreviewEnvironmentEnabled",
+        "xUserID",
+        xUserID,
+      );
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("toggleProjectPreviewEnvironmentEnabled", "id", id);
+      const localVarPath = `/projects/{id}/preview-environment/enabled`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -6950,6 +7077,80 @@ export const ProjectApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Get Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseProjectPreviewEnvironmentEnabled>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getProjectPreviewEnvironmentEnabled(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ProjectApi.getProjectPreviewEnvironmentEnabled"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Toggle Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async toggleProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseProjectPreviewEnvironmentEnabled>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.toggleProjectPreviewEnvironmentEnabled(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap[
+          "ProjectApi.toggleProjectPreviewEnvironmentEnabled"
+        ]?.[localVarOperationServerIndex]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -7047,6 +7248,40 @@ export const ProjectApiFactory = function (
     ): AxiosPromise<Array<ResponseEnvironment>> {
       return localVarFp
         .getProjectEnvironments(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseProjectPreviewEnvironmentEnabled> {
+      return localVarFp
+        .getProjectPreviewEnvironmentEnabled(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Toggle Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    toggleProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseProjectPreviewEnvironmentEnabled> {
+      return localVarFp
+        .toggleProjectPreviewEnvironmentEnabled(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -7151,6 +7386,44 @@ export class ProjectApi extends BaseAPI {
   ) {
     return ProjectApiFp(this.configuration)
       .getProjectEnvironments(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Project Preview Environment Enabled
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public getProjectPreviewEnvironmentEnabled(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .getProjectPreviewEnvironmentEnabled(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Toggle Project Preview Environment Enabled
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public toggleProjectPreviewEnvironmentEnabled(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .toggleProjectPreviewEnvironmentEnabled(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

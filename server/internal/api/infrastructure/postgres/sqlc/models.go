@@ -341,13 +341,22 @@ type OrganizationMember struct {
 	UpdatedAt      time.Time
 }
 
+type PreviewEnvironment struct {
+	EnvironmentID      int64
+	GithubRepositoryID int64
+	PrNumber           int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
 type Project struct {
-	ID        int64
-	Name      string
-	TeamID    int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ClusterID sql.NullInt64
+	ID                         int64
+	Name                       string
+	TeamID                     int64
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
+	ClusterID                  sql.NullInt64
+	PreviewEnvironmentsEnabled sql.NullBool
 }
 
 type ProvisioningCredential struct {

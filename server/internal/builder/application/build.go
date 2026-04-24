@@ -52,7 +52,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		}
 	}
 
-	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.AccessToken)
+	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.BranchName, build.AccessToken)
 	if err != nil {
 		publishCompleted(
 			nil,

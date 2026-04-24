@@ -59,4 +59,28 @@ export const projectRouter = {
         .getProjectCluster(userId, input.id)
         .then((res) => res.data);
     }),
+  getProjectPreviewEnvironmentEnabled: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await projectApiFactory
+        .getProjectPreviewEnvironmentEnabled(userId, input.id)
+        .then((res) => res.data);
+    }),
+  toggleProjectPreviewEnvironmentEnabled: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await projectApiFactory
+        .toggleProjectPreviewEnvironmentEnabled(userId, input.id)
+        .then((res) => res.data);
+    }),
 };

@@ -140,15 +140,25 @@ func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitE
 		if !ok {
 			return nil, fmt.Errorf("unexpected event type: %T", event)
 		}
-		if prEvent.GetAction() != "closed" {
-			return nil, nil
+		if prEvent.GetAction() == "opened" {
+			return &value.PullRequestOpenedEvent{
+				RepositoryOwner: prEvent.GetRepo().GetOwner().GetLogin(),
+				RepositoryId:    prEvent.GetRepo().GetID(),
+				RepositoryName:  prEvent.GetRepo().GetName(),
+				RepositoryUrl:   prEvent.GetRepo().GetCloneURL(),
+				SourceBranch:    prEvent.GetPullRequest().GetHead().GetRef(),
+				TargetBranch:    prEvent.GetPullRequest().GetBase().GetRef(),
+				PrNumber:        prEvent.GetPullRequest().GetNumber(),
+			}, nil
 		}
 
 		return &value.PullRequestClosedEvent{
 			RepositoryOwner: prEvent.GetRepo().GetOwner().GetLogin(),
+			RepositoryId:    prEvent.GetRepo().GetID(),
 			RepositoryName:  prEvent.GetRepo().GetName(),
 			RepositoryUrl:   prEvent.GetRepo().GetCloneURL(),
 			TargetBranch:    prEvent.GetPullRequest().GetBase().GetRef(),
+			PrNumber:        prEvent.GetPullRequest().GetNumber(),
 			Merged:          prEvent.GetPullRequest().GetMerged(),
 		}, nil
 
@@ -174,6 +184,27 @@ func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitE
 	default:
 		return nil, fmt.Errorf("unsupported event type: %s", eventType)
 	}
+}
+
+func (c *Client) CreatePRComment(
+	ctx context.Context,
+	installationId int64,
+	owner string,
+	repository string,
+	prNumber int,
+	body string,
+) error {
+	gh, err := c.installationClient(installationId)
+	if err != nil {
+		return err
+	}
+
+	comment := &github.IssueComment{
+		Body: github.Ptr(body),
+	}
+
+	_, _, err = gh.Issues.CreateComment(ctx, owner, repository, prNumber, comment)
+	return err
 }
 
 func (c *Client) GetFile(

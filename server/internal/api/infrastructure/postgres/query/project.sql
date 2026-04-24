@@ -68,3 +68,32 @@ FROM environments e
          INNER JOIN teams t ON t.id = p.team_id
          INNER JOIN team_members tm ON tm.team_id = t.id
 WHERE e.project_id = $1 AND tm.user_id = $2;
+
+-- name: GetProjectProductionEnvironmentsByRepositoryUrl :many
+SELECT e.*
+FROM environments e
+WHERE e.name = 'Production'
+  AND EXISTS (
+    SELECT 1
+    FROM deployments d
+             JOIN git_deployments g ON g.deployment_id = d.id
+    WHERE d.environment_id = e.id
+      AND g.url = $1
+);
+
+-- name: GetProjectPreviewEnvironmentEnabled :one
+SELECT p.preview_environments_enabled
+FROM projects p
+    INNER JOIN teams t ON t.id = p.team_id
+    INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE p.id = $1 AND tm.user_id = $2;
+
+-- name: ToggleProjectPreviewEnvironmentEnabled :one
+UPDATE projects p
+SET preview_environments_enabled = NOT p.preview_environments_enabled
+FROM teams t
+         INNER JOIN team_members tm ON tm.team_id = t.id
+WHERE p.team_id = t.id
+  AND p.id = $1
+  AND tm.user_id = $2
+RETURNING p.preview_environments_enabled;

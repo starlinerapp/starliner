@@ -150,3 +150,45 @@ func (pr *ProjectRepository) GetProjectEnvironments(ctx context.Context, project
 
 	return environments, nil
 }
+
+func (pr *ProjectRepository) GetProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error) {
+	row, err := pr.queries.GetProjectPreviewEnvironmentEnabled(ctx, sqlc.GetProjectPreviewEnvironmentEnabledParams{
+		ID:     projectId,
+		UserID: userId,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return row.Bool, nil
+}
+
+func (pr *ProjectRepository) ToggleProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error) {
+	row, err := pr.queries.ToggleProjectPreviewEnvironmentEnabled(ctx, sqlc.ToggleProjectPreviewEnvironmentEnabledParams{
+		ID:     projectId,
+		UserID: userId,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return row.Bool, nil
+}
+
+func (pr *ProjectRepository) GetProjectProductionEnvironmentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.Environment, error) {
+	rows, err := pr.queries.GetProjectProductionEnvironmentsByRepositoryUrl(ctx, repositoryUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	environments := make([]*entity.Environment, len(rows))
+	for i, row := range rows {
+		environments[i] = &entity.Environment{
+			Id:        row.ID,
+			Slug:      row.Slug,
+			Name:      row.Name,
+			Namespace: row.Namespace,
+		}
+	}
+	return environments, nil
+}
