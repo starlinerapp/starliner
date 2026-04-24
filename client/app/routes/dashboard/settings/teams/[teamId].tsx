@@ -53,7 +53,7 @@ export default function TeamDetail() {
         )}
       </div>
       <div className="flex flex-col gap-4">
-        <div className="w-full pt-12 xl:w-3/5">
+        <div className="w-full pt-12">
           <TeamMembers teamId={Number(teamId)} />
         </div>
 

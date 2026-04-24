@@ -36,6 +36,7 @@ services:
         condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://dev.starliner.app}
       AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}

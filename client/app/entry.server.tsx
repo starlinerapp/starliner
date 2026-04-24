@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react-router";
 import React from "react";
 import { PassThrough } from "node:stream";
 
@@ -8,16 +9,20 @@ import { isbot } from "isbot";
 import type { RenderToPipeableStreamOptions } from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
 
+export const handleError = Sentry.createSentryHandleError({
+  logErrors: false,
+});
+
 export const streamTimeout = 5_000;
 
-export default function handleRequest(
+async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  routerContext: EntryContext,
   // loadContext: AppLoadContext,
   // If you have middleware enabled:
   // loadContext: unstable_RouterContextProvider
+  routerContext: EntryContext,
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
@@ -47,7 +52,7 @@ export default function handleRequest(
             }),
           );
 
-          pipe(body);
+          pipe(Sentry.getMetaTagTransformer(body));
         },
         onShellError(error: unknown) {
           reject(error);
@@ -69,3 +74,5 @@ export default function handleRequest(
     setTimeout(abort, streamTimeout + 1000);
   });
 }
+
+export default Sentry.wrapSentryHandleRequest(handleRequest);

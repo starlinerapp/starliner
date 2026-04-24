@@ -17,8 +17,8 @@ export default function OrganizationTeams() {
   );
 
   return (
-    <div className="w-full xl:w-3/5">
-      <div className="border-mauve-6 w-full rounded-md border-1 text-sm">
+    <div className="w-full">
+      <div className="border-mauve-6 w-full rounded-md border-1 text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-3 text-xs font-bold uppercase">
           <p>Your Teams</p>
         </div>
