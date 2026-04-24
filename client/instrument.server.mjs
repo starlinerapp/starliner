@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/react-router";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  dsn: process.env.SENTRY_DSN_CLIENT,
   environment: process.env.ENVIRONMENT,
 
   // Adds request headers and IP for users, for more info visit:

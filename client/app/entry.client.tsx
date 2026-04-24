@@ -5,7 +5,7 @@ import { hydrateRoot } from "react-dom/client";
 import { HydratedRouter } from "react-router/dom";
 
 Sentry.init({
-  dsn: window.ENV.SENTRY_DSN,
+  dsn: window.ENV.SENTRY_DSN_CLIENT,
   environment: window.ENV.ENVIRONMENT,
   sendDefaultPii: true,
   integrations: [

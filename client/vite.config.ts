@@ -13,7 +13,7 @@ export default defineConfig((config) => ({
       {
         org: "starliner",
         project: "client",
-        authToken: process.env.SENTRY_AUTH_TOKEN,
+        authToken: process.env.SENTRY_AUTH_TOKEN_CLIENT,
       },
       config,
     ),
