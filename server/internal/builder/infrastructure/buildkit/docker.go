@@ -81,6 +81,7 @@ func (c *Docker) BuildAndPublish(
 
 	frontendAttrs := map[string]string{
 		"filename": filepath.ToSlash(dockerfileRelPath),
+		"platform": "linux/amd64",
 	}
 
 	for _, a := range args {
