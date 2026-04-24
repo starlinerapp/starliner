@@ -111,7 +111,6 @@ services:
 
   server-builder:
     restart: unless-stopped
-    privileged: true
     build:
       context: .
       dockerfile: .docker/server/builder/Dockerfile
