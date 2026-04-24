@@ -81,7 +81,7 @@ export default function General() {
   return (
     <ResizablePanelGroup direction="vertical" className="h-full w-full">
       <ResizablePanel defaultSize={70} className="h-full overflow-auto">
-        <div className="w-full p-4 xl:w-3/5">
+        <div className="w-full p-4">
           <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
             <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
               Details

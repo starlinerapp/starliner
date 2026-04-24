@@ -55,7 +55,7 @@ export default function Teams() {
   }
 
   return (
-    <div className="flex flex-col px-8 py-4">
+    <div className="flex w-full flex-col px-8 py-4">
       <div className="flex min-h-10 w-full items-center justify-between">
         <h1 className="text-xl font-bold">Teams</h1>
         {organization.isOwner && (

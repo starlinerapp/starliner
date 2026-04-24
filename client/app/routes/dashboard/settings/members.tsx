@@ -106,14 +106,14 @@ export default function Members() {
           </Dialog>
         )}
       </div>
-      <div className="w-full pt-[42px] xl:w-3/5">
-        <div className="border-mauve-6 rounded-md border-1 text-sm">
+      <div className="w-full pt-[42px]">
+        <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
           <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
             Organization Members
           </div>
           {isLoading ? (
             <>
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
                   className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
