@@ -130,7 +130,6 @@ func (c *Docker) BuildAndPublish(
 			for _, s := range status.Statuses {
 				if s.Completed != nil {
 					line := fmt.Sprintf("✓ %s\n", s.ID)
-					_, _ = fmt.Fprint(os.Stdout, line)
 					appendLog(line)
 				}
 			}
