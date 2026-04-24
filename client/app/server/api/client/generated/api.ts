@@ -55,6 +55,57 @@ export interface RequestAcceptInvite {
 /**
  *
  * @export
+ * @interface RequestAddTeamMember
+ */
+export interface RequestAddTeamMember {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestAddTeamMember
+   */
+  userId: number;
+}
+/**
+ *
+ * @export
+ * @interface RequestArg
+ */
+export interface RequestArg {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestArg
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestArg
+   */
+  value: string;
+}
+/**
+ *
+ * @export
+ * @interface RequestAssignRepoToTeam
+ */
+export interface RequestAssignRepoToTeam {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestAssignRepoToTeam
+   */
+  githubRepoId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestAssignRepoToTeam
+   */
+  repoName: string;
+}
+/**
+ *
+ * @export
  * @interface RequestCreateCluster
  */
 export interface RequestCreateCluster {
@@ -103,13 +154,19 @@ export interface RequestCreateEnvironment {
    * @type {number}
    * @memberof RequestCreateEnvironment
    */
-  organization_id: number;
+  organizationId: number;
   /**
    *
    * @type {number}
    * @memberof RequestCreateEnvironment
    */
-  project_id: number;
+  projectId: number;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestCreateEnvironment
+   */
+  sourceEnvironmentId?: number;
 }
 /**
  *
@@ -185,7 +242,7 @@ export interface RequestCreateTeam {
    * @type {string}
    * @memberof RequestCreateTeam
    */
-  name: string;
+  slug: string;
 }
 /**
  *
@@ -212,6 +269,12 @@ export interface RequestDeployDatabase {
  * @interface RequestDeployFromGit
  */
 export interface RequestDeployFromGit {
+  /**
+   *
+   * @type {Array<RequestArg>}
+   * @memberof RequestDeployFromGit
+   */
+  args?: Array<RequestArg>;
   /**
    *
    * @type {string}
@@ -297,6 +360,18 @@ export interface RequestDeployImage {
    * @memberof RequestDeployImage
    */
   tag: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployImage
+   */
+  volumeMountPath?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestDeployImage
+   */
+  volumeSizeMiB?: number;
 }
 /**
  *
@@ -405,9 +480,47 @@ export interface RequestJoinTeam {
 /**
  *
  * @export
+ * @interface RequestRemoveTeamMember
+ */
+export interface RequestRemoveTeamMember {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestRemoveTeamMember
+   */
+  userId: number;
+}
+/**
+ *
+ * @export
+ * @interface RequestSendInvite
+ */
+export interface RequestSendInvite {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendInvite
+   */
+  inviteUrlPrefix: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendInvite
+   */
+  toEmail: string;
+}
+/**
+ *
+ * @export
  * @interface RequestUpdateDeployFromGit
  */
 export interface RequestUpdateDeployFromGit {
+  /**
+   *
+   * @type {Array<RequestArg>}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  args?: Array<RequestArg>;
   /**
    *
    * @type {string}
@@ -438,6 +551,19 @@ export interface RequestUpdateDeployFromGit {
    * @memberof RequestUpdateDeployFromGit
    */
   projectRepositoryPath: string;
+}
+/**
+ *
+ * @export
+ * @interface RequestUpdateEnvironmentConnectBranch
+ */
+export interface RequestUpdateEnvironmentConnectBranch {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateEnvironmentConnectBranch
+   */
+  branch: string;
 }
 /**
  *
@@ -511,6 +637,25 @@ export interface RequestUpsertHetznerCredential {
 /**
  *
  * @export
+ * @interface ResponseArg
+ */
+export interface ResponseArg {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseArg
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseArg
+   */
+  value: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseBuildLogs
  */
 export interface ResponseBuildLogs {
@@ -569,6 +714,12 @@ export interface ResponseCluster {
    * @memberof ResponseCluster
    */
   status: ResponseClusterStatus;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
+  user: string;
 }
 
 /**
@@ -719,6 +870,32 @@ export interface ResponseEnvironment {
 /**
  *
  * @export
+ * @interface ResponseEnvironmentBranch
+ */
+export interface ResponseEnvironmentBranch {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseEnvironmentBranch
+   */
+  branch: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseFileContent
+ */
+export interface ResponseFileContent {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseFileContent
+   */
+  content?: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseGetOrganizationProvisioningCredentialResponse
  */
 export interface ResponseGetOrganizationProvisioningCredentialResponse {
@@ -735,6 +912,12 @@ export interface ResponseGetOrganizationProvisioningCredentialResponse {
  * @interface ResponseGitDeployment
  */
 export interface ResponseGitDeployment {
+  /**
+   *
+   * @type {Array<ResponseArg>}
+   * @memberof ResponseGitDeployment
+   */
+  args: Array<ResponseArg>;
   /**
    *
    * @type {string}
@@ -798,10 +981,22 @@ export interface ResponseGitDeployment {
 export interface ResponseGitDeploymentBuild {
   /**
    *
+   * @type {Array<ResponseArg>}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  args: Array<ResponseArg>;
+  /**
+   *
    * @type {number}
    * @memberof ResponseGitDeploymentBuild
    */
   buildId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  commitHash: string;
   /**
    *
    * @type {string}
@@ -838,6 +1033,12 @@ export interface ResponseGitDeploymentBuild {
    * @memberof ResponseGitDeploymentBuild
    */
   projectPath: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeploymentBuild
+   */
+  source: string;
   /**
    *
    * @type {string}
@@ -924,6 +1125,18 @@ export interface ResponseImageDeployment {
    * @memberof ResponseImageDeployment
    */
   tag: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseImageDeployment
+   */
+  volumeMountPath?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseImageDeployment
+   */
+  volumeSizeMiB?: number;
 }
 /**
  *
@@ -1138,6 +1351,12 @@ export interface ResponseProject {
    * @memberof ResponseProject
    */
   name: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseProject
+   */
+  teamId: number;
 }
 /**
  *
@@ -1157,6 +1376,19 @@ export interface ResponseProjectCluster {
    * @memberof ResponseProjectCluster
    */
   clusterName: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseProjectPreviewEnvironmentEnabled
+ */
+export interface ResponseProjectPreviewEnvironmentEnabled {
+  /**
+   *
+   * @type {boolean}
+   * @memberof ResponseProjectPreviewEnvironmentEnabled
+   */
+  enabled: boolean;
 }
 /**
  *
@@ -1289,12 +1521,6 @@ export interface ResponseTeam {
   id: number;
   /**
    *
-   * @type {string}
-   * @memberof ResponseTeam
-   */
-  name: string;
-  /**
-   *
    * @type {number}
    * @memberof ResponseTeam
    */
@@ -1305,6 +1531,62 @@ export interface ResponseTeam {
    * @memberof ResponseTeam
    */
   slug: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseTeamCluster
+ */
+export interface ResponseTeamCluster {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseTeamCluster
+   */
+  clusterId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseTeamCluster
+   */
+  clusterName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseTeamCluster
+   */
+  serverType: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseTeamCluster
+   */
+  teamId: number;
+}
+/**
+ *
+ * @export
+ * @interface ResponseTeamRepo
+ */
+export interface ResponseTeamRepo {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseTeamRepo
+   */
+  githubRepoId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseTeamRepo
+   */
+  repoName: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseTeamRepo
+   */
+  teamId: number;
 }
 /**
  *
@@ -3378,6 +3660,59 @@ export const EnvironmentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Get Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getEnvironmentConnectedBranch: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getEnvironmentConnectedBranch", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getEnvironmentConnectedBranch", "id", id);
+      const localVarPath = `/environments/{id}/branch`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -3429,6 +3764,70 @@ export const EnvironmentApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Update Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateEnvironmentConnectedBranch: async (
+      xUserID: string,
+      id: number,
+      data: RequestUpdateEnvironmentConnectBranch,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("updateEnvironmentConnectedBranch", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("updateEnvironmentConnectedBranch", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("updateEnvironmentConnectedBranch", "data", data);
+      const localVarPath = `/environments/{id}/branch`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -3453,7 +3852,10 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
       data: RequestCreateEnvironment,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseEnvironment>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.createEnvironment(
@@ -3513,6 +3915,43 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Get Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseEnvironmentBranch>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getEnvironmentConnectedBranch(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["EnvironmentApi.getEnvironmentConnectedBranch"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -3538,6 +3977,43 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["EnvironmentApi.getEnvironmentDeployments"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Update Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      data: RequestUpdateEnvironmentConnectBranch,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.updateEnvironmentConnectedBranch(
+          xUserID,
+          id,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["EnvironmentApi.updateEnvironmentConnectedBranch"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -3574,7 +4050,7 @@ export const EnvironmentApiFactory = function (
       xUserID: string,
       data: RequestCreateEnvironment,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseEnvironment> {
       return localVarFp
         .createEnvironment(xUserID, data, options)
         .then((request) => request(axios, basePath));
@@ -3598,6 +4074,23 @@ export const EnvironmentApiFactory = function (
     },
     /**
      *
+     * @summary Get Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseEnvironmentBranch> {
+      return localVarFp
+        .getEnvironmentConnectedBranch(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Environment Deployments
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -3611,6 +4104,25 @@ export const EnvironmentApiFactory = function (
     ): AxiosPromise<ResponseDeployments> {
       return localVarFp
         .getEnvironmentDeployments(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Update Environment Connected Branch
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateEnvironmentConnectedBranch(
+      xUserID: string,
+      id: number,
+      data: RequestUpdateEnvironmentConnectBranch,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .updateEnvironmentConnectedBranch(xUserID, id, data, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -3663,6 +4175,25 @@ export class EnvironmentApi extends BaseAPI {
 
   /**
    *
+   * @summary Get Environment Connected Branch
+   * @param {string} xUserID User ID
+   * @param {number} id Environment ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof EnvironmentApi
+   */
+  public getEnvironmentConnectedBranch(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return EnvironmentApiFp(this.configuration)
+      .getEnvironmentConnectedBranch(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @summary Get Environment Deployments
    * @param {string} xUserID User ID
    * @param {number} id Environment ID
@@ -3679,6 +4210,27 @@ export class EnvironmentApi extends BaseAPI {
       .getEnvironmentDeployments(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
+
+  /**
+   *
+   * @summary Update Environment Connected Branch
+   * @param {string} xUserID User ID
+   * @param {number} id Environment ID
+   * @param {RequestUpdateEnvironmentConnectBranch} data Update Environment Connected Branch
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof EnvironmentApi
+   */
+  public updateEnvironmentConnectedBranch(
+    xUserID: string,
+    id: number,
+    data: RequestUpdateEnvironmentConnectBranch,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return EnvironmentApiFp(this.configuration)
+      .updateEnvironmentConnectedBranch(xUserID, id, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
 }
 
 /**
@@ -3689,6 +4241,132 @@ export const GithubApiAxiosParamCreator = function (
   configuration?: Configuration,
 ) {
   return {
+    /**
+     *
+     * @summary Get All Repositories (owner only, unfiltered)
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllRepositories: async (
+      xUserID: string,
+      organizationId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getAllRepositories", "xUserID", xUserID);
+      // verify required parameter 'organizationId' is not null or undefined
+      assertParamExists("getAllRepositories", "organizationId", organizationId);
+      const localVarPath = `/github/all-repositories/{organizationId}`.replace(
+        `{${"organizationId"}}`,
+        encodeURIComponent(String(organizationId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Get File Content
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {string} path Path to the file within the repository
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getFileContent: async (
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      path: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getFileContent", "xUserID", xUserID);
+      // verify required parameter 'organizationId' is not null or undefined
+      assertParamExists("getFileContent", "organizationId", organizationId);
+      // verify required parameter 'owner' is not null or undefined
+      assertParamExists("getFileContent", "owner", owner);
+      // verify required parameter 'repository' is not null or undefined
+      assertParamExists("getFileContent", "repository", repository);
+      // verify required parameter 'path' is not null or undefined
+      assertParamExists("getFileContent", "path", path);
+      const localVarPath =
+        `/github/repositories/{organizationId}/{owner}/{repository}/file`
+          .replace(
+            `{${"organizationId"}}`,
+            encodeURIComponent(String(organizationId)),
+          )
+          .replace(`{${"owner"}}`, encodeURIComponent(String(owner)))
+          .replace(`{${"repository"}}`, encodeURIComponent(String(repository)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (path !== undefined) {
+        localVarQueryParameter["path"] = path;
+      }
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
     /**
      *
      * @summary Get Repositories
@@ -3829,6 +4507,88 @@ export const GithubApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
+     * @summary Get All Repositories (owner only, unfiltered)
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getAllRepositories(
+      xUserID: string,
+      organizationId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<Array<ResponseRepository>>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getAllRepositories(
+          xUserID,
+          organizationId,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["GithubApi.getAllRepositories"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Get File Content
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {string} path Path to the file within the repository
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getFileContent(
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      path: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseFileContent>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getFileContent(
+        xUserID,
+        organizationId,
+        owner,
+        repository,
+        path,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["GithubApi.getFileContent"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Repositories
      * @param {string} xUserID User ID
      * @param {number} organizationId Organization ID
@@ -3925,6 +4685,53 @@ export const GithubApiFactory = function (
   return {
     /**
      *
+     * @summary Get All Repositories (owner only, unfiltered)
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllRepositories(
+      xUserID: string,
+      organizationId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<ResponseRepository>> {
+      return localVarFp
+        .getAllRepositories(xUserID, organizationId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get File Content
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {string} path Path to the file within the repository
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getFileContent(
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      path: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseFileContent> {
+      return localVarFp
+        .getFileContent(
+          xUserID,
+          organizationId,
+          owner,
+          repository,
+          path,
+          options,
+        )
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Repositories
      * @param {string} xUserID User ID
      * @param {number} organizationId Organization ID
@@ -3980,6 +4787,50 @@ export const GithubApiFactory = function (
  * @extends {BaseAPI}
  */
 export class GithubApi extends BaseAPI {
+  /**
+   *
+   * @summary Get All Repositories (owner only, unfiltered)
+   * @param {string} xUserID User ID
+   * @param {number} organizationId Organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof GithubApi
+   */
+  public getAllRepositories(
+    xUserID: string,
+    organizationId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return GithubApiFp(this.configuration)
+      .getAllRepositories(xUserID, organizationId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get File Content
+   * @param {string} xUserID User ID
+   * @param {number} organizationId Organization ID
+   * @param {string} owner Repository owner (user or org)
+   * @param {string} repository Repository name
+   * @param {string} path Path to the file within the repository
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof GithubApi
+   */
+  public getFileContent(
+    xUserID: string,
+    organizationId: number,
+    owner: string,
+    repository: string,
+    path: string,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return GithubApiFp(this.configuration)
+      .getFileContent(xUserID, organizationId, owner, repository, path, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
   /**
    *
    * @summary Get Repositories
@@ -4451,59 +5302,6 @@ export const OrganizationApiAxiosParamCreator = function (
     },
     /**
      *
-     * @summary Create organization invite
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createOrganizationInvite: async (
-      xUserID: string,
-      id: number,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("createOrganizationInvite", "xUserID", xUserID);
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists("createOrganizationInvite", "id", id);
-      const localVarPath = `/organizations/{id}/invites`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @summary Get Hetzner Provisioning Credential
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -4664,6 +5462,59 @@ export const OrganizationApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Get all organization members
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getOrganizationMembers: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getOrganizationMembers", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getOrganizationMembers", "id", id);
+      const localVarPath = `/organizations/{id}/members`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -4755,6 +5606,70 @@ export const OrganizationApiAxiosParamCreator = function (
         ...headersFromBaseOptions,
         ...options.headers,
       };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Send organization invite via email
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestSendInvite} data Send Invite
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendOrganizationInvite: async (
+      xUserID: string,
+      id: number,
+      data: RequestSendInvite,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("sendOrganizationInvite", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("sendOrganizationInvite", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("sendOrganizationInvite", "data", data);
+      const localVarPath = `/organizations/{id}/invites`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4910,43 +5825,6 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @summary Create organization invite
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async createOrganizationInvite(
-      xUserID: string,
-      id: number,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<ResponseOrganizationInvite>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.createOrganizationInvite(
-          xUserID,
-          id,
-          options,
-        );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["OrganizationApi.createOrganizationInvite"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-    /**
-     *
      * @summary Get Hetzner Provisioning Credential
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -5058,6 +5936,43 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Get all organization members
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getOrganizationMembers(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<Array<ResponseUser>>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getOrganizationMembers(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["OrganizationApi.getOrganizationMembers"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -5113,6 +6028,43 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["OrganizationApi.getUserProjects"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Send organization invite via email
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestSendInvite} data Send Invite
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async sendOrganizationInvite(
+      xUserID: string,
+      id: number,
+      data: RequestSendInvite,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.sendOrganizationInvite(
+          xUserID,
+          id,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["OrganizationApi.sendOrganizationInvite"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -5210,23 +6162,6 @@ export const OrganizationApiFactory = function (
     },
     /**
      *
-     * @summary Create organization invite
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createOrganizationInvite(
-      xUserID: string,
-      id: number,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<ResponseOrganizationInvite> {
-      return localVarFp
-        .createOrganizationInvite(xUserID, id, options)
-        .then((request) => request(axios, basePath));
-    },
-    /**
-     *
      * @summary Get Hetzner Provisioning Credential
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -5278,6 +6213,23 @@ export const OrganizationApiFactory = function (
     },
     /**
      *
+     * @summary Get all organization members
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getOrganizationMembers(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<ResponseUser>> {
+      return localVarFp
+        .getOrganizationMembers(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -5306,6 +6258,25 @@ export const OrganizationApiFactory = function (
     ): AxiosPromise<Array<ResponseProject>> {
       return localVarFp
         .getUserProjects(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Send organization invite via email
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestSendInvite} data Send Invite
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendOrganizationInvite(
+      xUserID: string,
+      id: number,
+      data: RequestSendInvite,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .sendOrganizationInvite(xUserID, id, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -5377,25 +6348,6 @@ export class OrganizationApi extends BaseAPI {
 
   /**
    *
-   * @summary Create organization invite
-   * @param {string} xUserID User ID
-   * @param {number} id Organization ID
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof OrganizationApi
-   */
-  public createOrganizationInvite(
-    xUserID: string,
-    id: number,
-    options?: RawAxiosRequestConfig,
-  ) {
-    return OrganizationApiFp(this.configuration)
-      .createOrganizationInvite(xUserID, id, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
    * @summary Get Hetzner Provisioning Credential
    * @param {string} xUserID User ID
    * @param {number} id Organization ID
@@ -5453,6 +6405,25 @@ export class OrganizationApi extends BaseAPI {
 
   /**
    *
+   * @summary Get all organization members
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof OrganizationApi
+   */
+  public getOrganizationMembers(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return OrganizationApiFp(this.configuration)
+      .getOrganizationMembers(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @summary Get user organizations
    * @param {string} xUserID User ID
    * @param {*} [options] Override http request option.
@@ -5484,6 +6455,27 @@ export class OrganizationApi extends BaseAPI {
   ) {
     return OrganizationApiFp(this.configuration)
       .getUserProjects(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Send organization invite via email
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {RequestSendInvite} data Send Invite
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof OrganizationApi
+   */
+  public sendOrganizationInvite(
+    xUserID: string,
+    id: number,
+    data: RequestSendInvite,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return OrganizationApiFp(this.configuration)
+      .sendOrganizationInvite(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5786,6 +6778,120 @@ export const ProjectApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @summary Get Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectPreviewEnvironmentEnabled: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists(
+        "getProjectPreviewEnvironmentEnabled",
+        "xUserID",
+        xUserID,
+      );
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getProjectPreviewEnvironmentEnabled", "id", id);
+      const localVarPath = `/projects/{id}/preview-environment/enabled`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Toggle Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    toggleProjectPreviewEnvironmentEnabled: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists(
+        "toggleProjectPreviewEnvironmentEnabled",
+        "xUserID",
+        xUserID,
+      );
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("toggleProjectPreviewEnvironmentEnabled", "id", id);
+      const localVarPath = `/projects/{id}/preview-environment/enabled`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -5971,6 +7077,80 @@ export const ProjectApiFp = function (configuration?: Configuration) {
           configuration,
         )(axios, localVarOperationServerBasePath || basePath);
     },
+    /**
+     *
+     * @summary Get Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseProjectPreviewEnvironmentEnabled>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getProjectPreviewEnvironmentEnabled(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ProjectApi.getProjectPreviewEnvironmentEnabled"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Toggle Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async toggleProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseProjectPreviewEnvironmentEnabled>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.toggleProjectPreviewEnvironmentEnabled(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap[
+          "ProjectApi.toggleProjectPreviewEnvironmentEnabled"
+        ]?.[localVarOperationServerIndex]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
   };
 };
 
@@ -6068,6 +7248,40 @@ export const ProjectApiFactory = function (
     ): AxiosPromise<Array<ResponseEnvironment>> {
       return localVarFp
         .getProjectEnvironments(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseProjectPreviewEnvironmentEnabled> {
+      return localVarFp
+        .getProjectPreviewEnvironmentEnabled(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Toggle Project Preview Environment Enabled
+     * @param {string} xUserID User ID
+     * @param {number} id Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    toggleProjectPreviewEnvironmentEnabled(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseProjectPreviewEnvironmentEnabled> {
+      return localVarFp
+        .toggleProjectPreviewEnvironmentEnabled(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -6172,6 +7386,44 @@ export class ProjectApi extends BaseAPI {
   ) {
     return ProjectApiFp(this.configuration)
       .getProjectEnvironments(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Project Preview Environment Enabled
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public getProjectPreviewEnvironmentEnabled(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .getProjectPreviewEnvironmentEnabled(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Toggle Project Preview Environment Enabled
+   * @param {string} xUserID User ID
+   * @param {number} id Project ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ProjectApi
+   */
+  public toggleProjectPreviewEnvironmentEnabled(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ProjectApiFp(this.configuration)
+      .toggleProjectPreviewEnvironmentEnabled(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -6333,87 +7585,28 @@ export const TeamApiAxiosParamCreator = function (
   return {
     /**
      *
-     * @summary Add current user to team
+     * @summary Add organization member to team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
+     * @param {RequestAddTeamMember} data ID of member to add
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     addTeamMember: async (
       xUserID: string,
-      organizationId: number,
       teamId: number,
+      data: RequestAddTeamMember,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("addTeamMember", "xUserID", xUserID);
-      // verify required parameter 'organizationId' is not null or undefined
-      assertParamExists("addTeamMember", "organizationId", organizationId);
       // verify required parameter 'teamId' is not null or undefined
       assertParamExists("addTeamMember", "teamId", teamId);
-      const localVarPath = `/teams/{organizationId}/{teamId}/members`
-        .replace(
-          `{${"organizationId"}}`,
-          encodeURIComponent(String(organizationId)),
-        )
-        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @summary Create team
-     * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
-     * @param {RequestCreateTeam} data Create Team
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createTeam: async (
-      xUserID: string,
-      organizationId: number,
-      data: RequestCreateTeam,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("createTeam", "xUserID", xUserID);
-      // verify required parameter 'organizationId' is not null or undefined
-      assertParamExists("createTeam", "organizationId", organizationId);
       // verify required parameter 'data' is not null or undefined
-      assertParamExists("createTeam", "data", data);
-      const localVarPath = `/teams/{organizationId}`.replace(
-        `{${"organizationId"}}`,
-        encodeURIComponent(String(organizationId)),
+      assertParamExists("addTeamMember", "data", data);
+      const localVarPath = `/teams/{teamId}/members`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6456,31 +7649,315 @@ export const TeamApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Assign a cluster to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} clusterId Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    assignClusterToTeam: async (
+      xUserID: string,
+      teamId: number,
+      clusterId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("assignClusterToTeam", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("assignClusterToTeam", "teamId", teamId);
+      // verify required parameter 'clusterId' is not null or undefined
+      assertParamExists("assignClusterToTeam", "clusterId", clusterId);
+      const localVarPath = `/teams/{teamId}/clusters/{clusterId}`
+        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
+        .replace(`{${"clusterId"}}`, encodeURIComponent(String(clusterId)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Assign a GitHub repository to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {RequestAssignRepoToTeam} data Assign Repo
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    assignRepoToTeam: async (
+      xUserID: string,
+      teamId: number,
+      data: RequestAssignRepoToTeam,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("assignRepoToTeam", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("assignRepoToTeam", "teamId", teamId);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("assignRepoToTeam", "data", data);
+      const localVarPath = `/teams/{teamId}/repos`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Create team
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createTeam: async (
+      xUserID: string,
+      id: number,
+      data: RequestCreateTeam,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("createTeam", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("createTeam", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("createTeam", "data", data);
+      const localVarPath = `/organizations/{id}/teams`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Get clusters assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getTeamClusters: async (
+      xUserID: string,
+      teamId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getTeamClusters", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("getTeamClusters", "teamId", teamId);
+      const localVarPath = `/teams/{teamId}/clusters`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get Team Members
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getTeamMembers: async (
       xUserID: string,
-      organizationId: number,
       teamId: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("getTeamMembers", "xUserID", xUserID);
-      // verify required parameter 'organizationId' is not null or undefined
-      assertParamExists("getTeamMembers", "organizationId", organizationId);
       // verify required parameter 'teamId' is not null or undefined
       assertParamExists("getTeamMembers", "teamId", teamId);
-      const localVarPath = `/teams/{organizationId}/{teamId}/members`
-        .replace(
-          `{${"organizationId"}}`,
-          encodeURIComponent(String(organizationId)),
-        )
-        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
+      const localVarPath = `/teams/{teamId}/members`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Get repositories assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getTeamRepositories: async (
+      xUserID: string,
+      teamId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getTeamRepositories", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("getTeamRepositories", "teamId", teamId);
+      const localVarPath = `/teams/{teamId}/repos`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -6517,22 +7994,22 @@ export const TeamApiAxiosParamCreator = function (
      *
      * @summary Get User Teams
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
+     * @param {number} id Organization ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getUserTeams: async (
       xUserID: string,
-      organizationId: number,
+      id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("getUserTeams", "xUserID", xUserID);
-      // verify required parameter 'organizationId' is not null or undefined
-      assertParamExists("getUserTeams", "organizationId", organizationId);
-      const localVarPath = `/teams/{organizationId}`.replace(
-        `{${"organizationId"}}`,
-        encodeURIComponent(String(organizationId)),
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getUserTeams", "id", id);
+      const localVarPath = `/organizations/{id}/teams`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6570,26 +8047,26 @@ export const TeamApiAxiosParamCreator = function (
      *
      * @summary Join a team by slug
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
+     * @param {number} id Organization ID
      * @param {RequestJoinTeam} data Join Team
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     joinTeam: async (
       xUserID: string,
-      organizationId: number,
+      id: number,
       data: RequestJoinTeam,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("joinTeam", "xUserID", xUserID);
-      // verify required parameter 'organizationId' is not null or undefined
-      assertParamExists("joinTeam", "organizationId", organizationId);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("joinTeam", "id", id);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("joinTeam", "data", data);
-      const localVarPath = `/teams/{organizationId}/join`.replace(
-        `{${"organizationId"}}`,
-        encodeURIComponent(String(organizationId)),
+      const localVarPath = `/organizations/{id}/teams/join`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
       );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6632,31 +8109,148 @@ export const TeamApiAxiosParamCreator = function (
     },
     /**
      *
-     * @summary Remove Team Member
+     * @summary Remove organization member from team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
+     * @param {RequestRemoveTeamMember} data ID of the organization member to remove from the team
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     removeTeamMember: async (
       xUserID: string,
-      organizationId: number,
       teamId: number,
+      data: RequestRemoveTeamMember,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("removeTeamMember", "xUserID", xUserID);
-      // verify required parameter 'organizationId' is not null or undefined
-      assertParamExists("removeTeamMember", "organizationId", organizationId);
       // verify required parameter 'teamId' is not null or undefined
       assertParamExists("removeTeamMember", "teamId", teamId);
-      const localVarPath = `/teams/{organizationId}/{teamId}/members`
-        .replace(
-          `{${"organizationId"}}`,
-          encodeURIComponent(String(organizationId)),
-        )
-        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("removeTeamMember", "data", data);
+      const localVarPath = `/teams/{teamId}/members`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Unassign a cluster from a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} clusterId Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    unassignClusterFromTeam: async (
+      xUserID: string,
+      teamId: number,
+      clusterId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("unassignClusterFromTeam", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("unassignClusterFromTeam", "teamId", teamId);
+      // verify required parameter 'clusterId' is not null or undefined
+      assertParamExists("unassignClusterFromTeam", "clusterId", clusterId);
+      const localVarPath = `/teams/{teamId}/clusters/{clusterId}`
+        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
+        .replace(`{${"clusterId"}}`, encodeURIComponent(String(clusterId)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Unassign a GitHub repository from a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} repoId GitHub Repo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    unassignRepoFromTeam: async (
+      xUserID: string,
+      teamId: number,
+      repoId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("unassignRepoFromTeam", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("unassignRepoFromTeam", "teamId", teamId);
+      // verify required parameter 'repoId' is not null or undefined
+      assertParamExists("unassignRepoFromTeam", "repoId", repoId);
+      const localVarPath = `/teams/{teamId}/repos/{repoId}`
+        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
+        .replace(`{${"repoId"}}`, encodeURIComponent(String(repoId)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -6701,25 +8295,25 @@ export const TeamApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
-     * @summary Add current user to team
+     * @summary Add organization member to team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
+     * @param {RequestAddTeamMember} data ID of member to add
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async addTeamMember(
       xUserID: string,
-      organizationId: number,
       teamId: number,
+      data: RequestAddTeamMember,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.addTeamMember(
         xUserID,
-        organizationId,
         teamId,
+        data,
         options,
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
@@ -6737,16 +8331,90 @@ export const TeamApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Assign a cluster to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} clusterId Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async assignClusterToTeam(
+      xUserID: string,
+      teamId: number,
+      clusterId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.assignClusterToTeam(
+          xUserID,
+          teamId,
+          clusterId,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.assignClusterToTeam"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Assign a GitHub repository to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {RequestAssignRepoToTeam} data Assign Repo
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async assignRepoToTeam(
+      xUserID: string,
+      teamId: number,
+      data: RequestAssignRepoToTeam,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.assignRepoToTeam(
+          xUserID,
+          teamId,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.assignRepoToTeam"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Create team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
-     * @param {RequestCreateTeam} data Create Team
+     * @param {number} id Organization ID
+     * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async createTeam(
       xUserID: string,
-      organizationId: number,
+      id: number,
       data: RequestCreateTeam,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -6754,7 +8422,7 @@ export const TeamApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createTeam(
         xUserID,
-        organizationId,
+        id,
         data,
         options,
       );
@@ -6772,16 +8440,50 @@ export const TeamApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Get clusters assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getTeamClusters(
+      xUserID: string,
+      teamId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<Array<ResponseTeamCluster>>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getTeamClusters(
+        xUserID,
+        teamId,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.getTeamClusters"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Team Members
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getTeamMembers(
       xUserID: string,
-      organizationId: number,
       teamId: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -6792,7 +8494,6 @@ export const TeamApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getTeamMembers(
         xUserID,
-        organizationId,
         teamId,
         options,
       );
@@ -6811,15 +8512,52 @@ export const TeamApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Get repositories assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getTeamRepositories(
+      xUserID: string,
+      teamId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<Array<ResponseTeamRepo>>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getTeamRepositories(
+          xUserID,
+          teamId,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.getTeamRepositories"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get User Teams
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
+     * @param {number} id Organization ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getUserTeams(
       xUserID: string,
-      organizationId: number,
+      id: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (
@@ -6829,7 +8567,7 @@ export const TeamApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getUserTeams(
         xUserID,
-        organizationId,
+        id,
         options,
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
@@ -6849,14 +8587,14 @@ export const TeamApiFp = function (configuration?: Configuration) {
      *
      * @summary Join a team by slug
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
+     * @param {number} id Organization ID
      * @param {RequestJoinTeam} data Join Team
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async joinTeam(
       xUserID: string,
-      organizationId: number,
+      id: number,
       data: RequestJoinTeam,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -6864,7 +8602,7 @@ export const TeamApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.joinTeam(
         xUserID,
-        organizationId,
+        id,
         data,
         options,
       );
@@ -6882,17 +8620,17 @@ export const TeamApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @summary Remove Team Member
+     * @summary Remove organization member from team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
+     * @param {RequestRemoveTeamMember} data ID of the organization member to remove from the team
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async removeTeamMember(
       xUserID: string,
-      organizationId: number,
       teamId: number,
+      data: RequestRemoveTeamMember,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
@@ -6900,13 +8638,87 @@ export const TeamApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.removeTeamMember(
           xUserID,
-          organizationId,
           teamId,
+          data,
           options,
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["TeamApi.removeTeamMember"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Unassign a cluster from a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} clusterId Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async unassignClusterFromTeam(
+      xUserID: string,
+      teamId: number,
+      clusterId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.unassignClusterFromTeam(
+          xUserID,
+          teamId,
+          clusterId,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.unassignClusterFromTeam"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Unassign a GitHub repository from a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} repoId GitHub Repo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async unassignRepoFromTeam(
+      xUserID: string,
+      teamId: number,
+      repoId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.unassignRepoFromTeam(
+          xUserID,
+          teamId,
+          repoId,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.unassignRepoFromTeam"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -6933,114 +8745,222 @@ export const TeamApiFactory = function (
   return {
     /**
      *
-     * @summary Add current user to team
+     * @summary Add organization member to team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
+     * @param {RequestAddTeamMember} data ID of member to add
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     addTeamMember(
       xUserID: string,
-      organizationId: number,
       teamId: number,
+      data: RequestAddTeamMember,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .addTeamMember(xUserID, organizationId, teamId, options)
+        .addTeamMember(xUserID, teamId, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Assign a cluster to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} clusterId Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    assignClusterToTeam(
+      xUserID: string,
+      teamId: number,
+      clusterId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .assignClusterToTeam(xUserID, teamId, clusterId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Assign a GitHub repository to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {RequestAssignRepoToTeam} data Assign Repo
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    assignRepoToTeam(
+      xUserID: string,
+      teamId: number,
+      data: RequestAssignRepoToTeam,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .assignRepoToTeam(xUserID, teamId, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Create team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
-     * @param {RequestCreateTeam} data Create Team
+     * @param {number} id Organization ID
+     * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createTeam(
       xUserID: string,
-      organizationId: number,
+      id: number,
       data: RequestCreateTeam,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<ResponseTeam> {
       return localVarFp
-        .createTeam(xUserID, organizationId, data, options)
+        .createTeam(xUserID, id, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get clusters assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getTeamClusters(
+      xUserID: string,
+      teamId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<ResponseTeamCluster>> {
+      return localVarFp
+        .getTeamClusters(xUserID, teamId, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Get Team Members
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getTeamMembers(
       xUserID: string,
-      organizationId: number,
       teamId: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<Array<ResponseUser>> {
       return localVarFp
-        .getTeamMembers(xUserID, organizationId, teamId, options)
+        .getTeamMembers(xUserID, teamId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get repositories assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getTeamRepositories(
+      xUserID: string,
+      teamId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<ResponseTeamRepo>> {
+      return localVarFp
+        .getTeamRepositories(xUserID, teamId, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Get User Teams
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
+     * @param {number} id Organization ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     getUserTeams(
       xUserID: string,
-      organizationId: number,
+      id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<Array<ResponseTeam>> {
       return localVarFp
-        .getUserTeams(xUserID, organizationId, options)
+        .getUserTeams(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Join a team by slug
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
+     * @param {number} id Organization ID
      * @param {RequestJoinTeam} data Join Team
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     joinTeam(
       xUserID: string,
-      organizationId: number,
+      id: number,
       data: RequestJoinTeam,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .joinTeam(xUserID, organizationId, data, options)
+        .joinTeam(xUserID, id, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
-     * @summary Remove Team Member
+     * @summary Remove organization member from team
      * @param {string} xUserID User ID
-     * @param {number} organizationId Organization ID
      * @param {number} teamId Team ID
+     * @param {RequestRemoveTeamMember} data ID of the organization member to remove from the team
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     removeTeamMember(
       xUserID: string,
-      organizationId: number,
       teamId: number,
+      data: RequestRemoveTeamMember,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .removeTeamMember(xUserID, organizationId, teamId, options)
+        .removeTeamMember(xUserID, teamId, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Unassign a cluster from a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} clusterId Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    unassignClusterFromTeam(
+      xUserID: string,
+      teamId: number,
+      clusterId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .unassignClusterFromTeam(xUserID, teamId, clusterId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Unassign a GitHub repository from a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {number} repoId GitHub Repo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    unassignRepoFromTeam(
+      xUserID: string,
+      teamId: number,
+      repoId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .unassignRepoFromTeam(xUserID, teamId, repoId, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -7055,22 +8975,64 @@ export const TeamApiFactory = function (
 export class TeamApi extends BaseAPI {
   /**
    *
-   * @summary Add current user to team
+   * @summary Add organization member to team
    * @param {string} xUserID User ID
-   * @param {number} organizationId Organization ID
    * @param {number} teamId Team ID
+   * @param {RequestAddTeamMember} data ID of member to add
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof TeamApi
    */
   public addTeamMember(
     xUserID: string,
-    organizationId: number,
     teamId: number,
+    data: RequestAddTeamMember,
     options?: RawAxiosRequestConfig,
   ) {
     return TeamApiFp(this.configuration)
-      .addTeamMember(xUserID, organizationId, teamId, options)
+      .addTeamMember(xUserID, teamId, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Assign a cluster to a team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {number} clusterId Cluster ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public assignClusterToTeam(
+    xUserID: string,
+    teamId: number,
+    clusterId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .assignClusterToTeam(xUserID, teamId, clusterId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Assign a GitHub repository to a team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {RequestAssignRepoToTeam} data Assign Repo
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public assignRepoToTeam(
+    xUserID: string,
+    teamId: number,
+    data: RequestAssignRepoToTeam,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .assignRepoToTeam(xUserID, teamId, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -7078,20 +9040,39 @@ export class TeamApi extends BaseAPI {
    *
    * @summary Create team
    * @param {string} xUserID User ID
-   * @param {number} organizationId Organization ID
-   * @param {RequestCreateTeam} data Create Team
+   * @param {number} id Organization ID
+   * @param {RequestCreateTeam} data Team slug (lowercase, alphanumeric, hyphens only)
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof TeamApi
    */
   public createTeam(
     xUserID: string,
-    organizationId: number,
+    id: number,
     data: RequestCreateTeam,
     options?: RawAxiosRequestConfig,
   ) {
     return TeamApiFp(this.configuration)
-      .createTeam(xUserID, organizationId, data, options)
+      .createTeam(xUserID, id, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get clusters assigned to a team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public getTeamClusters(
+    xUserID: string,
+    teamId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .getTeamClusters(xUserID, teamId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -7099,7 +9080,6 @@ export class TeamApi extends BaseAPI {
    *
    * @summary Get Team Members
    * @param {string} xUserID User ID
-   * @param {number} organizationId Organization ID
    * @param {number} teamId Team ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -7107,12 +9087,30 @@ export class TeamApi extends BaseAPI {
    */
   public getTeamMembers(
     xUserID: string,
-    organizationId: number,
     teamId: number,
     options?: RawAxiosRequestConfig,
   ) {
     return TeamApiFp(this.configuration)
-      .getTeamMembers(xUserID, organizationId, teamId, options)
+      .getTeamMembers(xUserID, teamId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get repositories assigned to a team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public getTeamRepositories(
+    xUserID: string,
+    teamId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .getTeamRepositories(xUserID, teamId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -7120,18 +9118,18 @@ export class TeamApi extends BaseAPI {
    *
    * @summary Get User Teams
    * @param {string} xUserID User ID
-   * @param {number} organizationId Organization ID
+   * @param {number} id Organization ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof TeamApi
    */
   public getUserTeams(
     xUserID: string,
-    organizationId: number,
+    id: number,
     options?: RawAxiosRequestConfig,
   ) {
     return TeamApiFp(this.configuration)
-      .getUserTeams(xUserID, organizationId, options)
+      .getUserTeams(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -7139,7 +9137,7 @@ export class TeamApi extends BaseAPI {
    *
    * @summary Join a team by slug
    * @param {string} xUserID User ID
-   * @param {number} organizationId Organization ID
+   * @param {number} id Organization ID
    * @param {RequestJoinTeam} data Join Team
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -7147,33 +9145,75 @@ export class TeamApi extends BaseAPI {
    */
   public joinTeam(
     xUserID: string,
-    organizationId: number,
+    id: number,
     data: RequestJoinTeam,
     options?: RawAxiosRequestConfig,
   ) {
     return TeamApiFp(this.configuration)
-      .joinTeam(xUserID, organizationId, data, options)
+      .joinTeam(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
   /**
    *
-   * @summary Remove Team Member
+   * @summary Remove organization member from team
    * @param {string} xUserID User ID
-   * @param {number} organizationId Organization ID
    * @param {number} teamId Team ID
+   * @param {RequestRemoveTeamMember} data ID of the organization member to remove from the team
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof TeamApi
    */
   public removeTeamMember(
     xUserID: string,
-    organizationId: number,
     teamId: number,
+    data: RequestRemoveTeamMember,
     options?: RawAxiosRequestConfig,
   ) {
     return TeamApiFp(this.configuration)
-      .removeTeamMember(xUserID, organizationId, teamId, options)
+      .removeTeamMember(xUserID, teamId, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Unassign a cluster from a team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {number} clusterId Cluster ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public unassignClusterFromTeam(
+    xUserID: string,
+    teamId: number,
+    clusterId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .unassignClusterFromTeam(xUserID, teamId, clusterId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Unassign a GitHub repository from a team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {number} repoId GitHub Repo ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public unassignRepoFromTeam(
+    xUserID: string,
+    teamId: number,
+    repoId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .unassignRepoFromTeam(xUserID, teamId, repoId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

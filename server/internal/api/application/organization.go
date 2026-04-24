@@ -3,8 +3,11 @@ package application
 import (
 	"context"
 	"errors"
+	"starliner.app/internal/api/conf"
+	apiPort "starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
+	"starliner.app/internal/api/domain/template"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
@@ -12,7 +15,9 @@ import (
 )
 
 type OrganizationApplication struct {
+	cfg                    *conf.Config
 	crypto                 port.Crypto
+	email                  apiPort.Email
 	organizationRepository interfaces.OrganizationRepository
 	teamRepository         interfaces.TeamRepository
 	normalizationService   *coreService.NormalizerService
@@ -20,14 +25,18 @@ type OrganizationApplication struct {
 }
 
 func NewOrganizationApplication(
+	cfg *conf.Config,
 	crypto port.Crypto,
+	email apiPort.Email,
 	organizationRepository interfaces.OrganizationRepository,
 	teamRepository interfaces.TeamRepository,
 	normalizationService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 ) *OrganizationApplication {
 	return &OrganizationApplication{
+		cfg:                    cfg,
 		crypto:                 crypto,
+		email:                  email,
 		organizationRepository: organizationRepository,
 		teamRepository:         teamRepository,
 		normalizationService:   normalizationService,
@@ -51,12 +60,7 @@ func (oa *OrganizationApplication) CreateOrganization(ctx context.Context, name 
 		return nil, err
 	}
 
-	defaultTeamSlug, err := oa.normalizationService.FormatToDNS1123(name + "-default")
-	if err != nil {
-		return nil, err
-	}
-
-	team, err := oa.teamRepository.CreateTeam(ctx, "Default", defaultTeamSlug, org.Id)
+	team, err := oa.teamRepository.CreateTeam(ctx, org.Slug, org.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -173,20 +177,62 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 		return errors.New("invite has expired")
 	}
 
-	return oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
+	err = oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
+	if err != nil {
+		return err
+	}
+
+	org, err := oa.organizationRepository.GetOrganization(ctx, invite.OrganizationId)
+	if err != nil {
+		return err
+	}
+
+	// TODO: better to store default team explicitly, works as long as you can't change team slugs
+	team, err := oa.teamRepository.GetTeamBySlug(ctx, org.Slug, org.Id)
+	if err != nil {
+		return err
+	}
+
+	return oa.teamRepository.AddTeamMember(ctx, team.Id, userID)
 }
 
-func (oa *OrganizationApplication) CreateInvite(ctx context.Context, userID int64, organizationID int64) (*value.OrganizationInvite, error) {
+func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string, inviteUrlPrefix string) error {
 	err := oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
 	invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, expiresAt)
 	if err != nil {
+		return err
+	}
+
+	body, err := template.RenderInvite(template.InviteData{
+		OrganizationName: invite.OrganizationName,
+		InviteLink:       inviteUrlPrefix + invite.Id,
+	})
+	if err != nil {
+		return err
+	}
+
+	return oa.email.Send(ctx, apiPort.Message{
+		To:      toEmail,
+		Subject: "You've been invited to " + invite.OrganizationName,
+		Body:    body,
+	})
+}
+
+func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, userID int64, organizationID int64) ([]*value.User, error) {
+	err := oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
+	if err != nil {
 		return nil, err
 	}
 
-	return value.NewOrganizationInvite(invite), nil
+	members, err := oa.organizationRepository.GetOrganizationMembers(ctx, organizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewUsers(members), nil
 }

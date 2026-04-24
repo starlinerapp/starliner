@@ -11,24 +11,24 @@ import (
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
-type Client struct {
+type ClusterClient struct {
 	logsServiceClient v2.LogsServiceClient
 	ttyServiceClient  v2.TTYServiceClient
 }
 
-func NewClient(cfg *conf.Config) (port.GrpcClient, error) {
+func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
 	conn, err := grpc.NewClient(cfg.ClusterGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 
-	return &Client{
+	return &ClusterClient{
 		logsServiceClient: v2.NewLogsServiceClient(conn),
 		ttyServiceClient:  v2.NewTTYServiceClient(conn),
 	}, nil
 }
 
-func (c *Client) StreamLogs(
+func (c *ClusterClient) StreamLogs(
 	ctx context.Context,
 	namespace string,
 	releaseName string,
@@ -60,7 +60,7 @@ func (c *Client) StreamLogs(
 	}
 }
 
-func (c *Client) OpenTTY(
+func (c *ClusterClient) OpenTTY(
 	ctx context.Context,
 	namespace string,
 	releaseName string,

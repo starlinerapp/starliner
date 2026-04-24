@@ -2,9 +2,10 @@ package jetstream
 
 import (
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"log"
 	"time"
+
+	"github.com/nats-io/nats.go"
 )
 
 type Subscriber struct {
@@ -17,7 +18,8 @@ func NewSubscriber(js nats.JetStreamContext) *Subscriber {
 
 func (s *Subscriber) Subscribe(subject Subject, identifier string, durable string, cb func([]byte)) error {
 	uniqueSubject := fmt.Sprintf("%s.%s", subject, identifier)
-	sub, err := s.js.Subscribe(uniqueSubject, func(msg *nats.Msg) {
+	queueGroup := fmt.Sprintf("%s-workers", durable)
+	sub, err := s.js.QueueSubscribe(uniqueSubject, queueGroup, func(msg *nats.Msg) {
 		if err := msg.Ack(); err != nil {
 			log.Printf("failed to ack message: %v", err)
 			return

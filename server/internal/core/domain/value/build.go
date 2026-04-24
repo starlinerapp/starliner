@@ -1,13 +1,20 @@
 package value
 
+type Arg struct {
+	Name  string
+	Value string
+}
+
 type TriggerBuild struct {
 	BuildId        int64
 	DeploymentId   int64
 	ImageName      string
 	GitUrl         string
+	BranchName     string
 	AccessToken    string
 	RootDirectory  string
 	DockerfilePath string
+	Args           []*Arg
 }
 
 type BuildStatus string
@@ -24,7 +31,8 @@ type BuildCompleted struct {
 	DeploymentId     int64
 	ImageRegistryUrl string
 	BuildStatus      BuildStatus
-	ImageName        string
-	Tag              string
+	ImageName        *string
+	CommitHash       *string
+	Tag              *string
 	Logs             string
 }

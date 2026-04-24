@@ -10,7 +10,7 @@ import DeployFromGitForm, {
 export default function UpdateGitDeployment() {
   const { deploymentId } = useParams<{ deploymentId: string }>();
 
-  const { environment: currentEnvironment } = useEnvironment();
+  const { environment: currentEnvironment, teamId } = useEnvironment();
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -39,6 +39,7 @@ export default function UpdateGitDeployment() {
         dockerfilePath: data.dockerfilePath,
         projectRepositoryPath: data.projectDirectoryPath,
         envs: data.envs,
+        args: data.args,
       },
       {
         onSuccess: () => {
@@ -62,6 +63,7 @@ export default function UpdateGitDeployment() {
         <DeployFromGitForm
           key={deploymentId}
           onSubmit={onSubmit}
+          teamId={teamId}
           defaultValues={{
             serviceName: gitDeployment?.serviceName ?? "",
             url: gitDeployment?.gitUrl ?? "",
@@ -69,6 +71,7 @@ export default function UpdateGitDeployment() {
             projectDirectoryPath: gitDeployment?.projectRepositoryPath ?? "",
             port: gitDeployment ? Number(gitDeployment?.port) : null,
             envs: gitDeployment?.envVars ?? [],
+            args: gitDeployment?.args ?? [],
           }}
         />
       )}

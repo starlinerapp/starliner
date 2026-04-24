@@ -26,7 +26,7 @@ SET database = @database,
     password = @password
 WHERE deployment_id = @deployment_id;
 
--- name: GetEnvironmentDatabaseDeployments :many
+-- name: GetUserEnvironmentDatabaseDeployments :many
 SELECT
     d.id AS deployment_id,
     d.name,
@@ -44,4 +44,20 @@ INNER JOIN teams ON projects.team_id = teams.id
 INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
 AND team_members.user_id = $2
+ORDER BY d.id DESC;
+
+-- name: GetEnvironmentDatabaseDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name,
+    d.port,
+    d.status,
+    d.environment_id,
+    db.database,
+    db.username,
+    db.password
+FROM deployments d
+    INNER JOIN database_deployments db ON d.id = db.deployment_id
+    INNER JOIN environments ON d.environment_id = environments.id
+WHERE environment_id = $1
 ORDER BY d.id DESC;

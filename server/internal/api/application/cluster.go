@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
@@ -23,6 +24,7 @@ type ClusterApplication struct {
 	organizationService    *service.OrganizationService
 	crypto                 corePort.Crypto
 	queue                  port.Queue
+	grpcProvisionerClient  port.ProvisionerClient
 }
 
 func NewClusterApplication(
@@ -31,6 +33,7 @@ func NewClusterApplication(
 	organizationService *service.OrganizationService,
 	crypto corePort.Crypto,
 	queue port.Queue,
+	grpcProvisionerClient port.ProvisionerClient,
 ) *ClusterApplication {
 	return &ClusterApplication{
 		clusterRepository:      clusterRepository,
@@ -38,6 +41,7 @@ func NewClusterApplication(
 		organizationService:    organizationService,
 		crypto:                 crypto,
 		queue:                  queue,
+		grpcProvisionerClient:  grpcProvisionerClient,
 	}
 }
 
@@ -154,6 +158,45 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 	}
 
 	return nil
+}
+
+func (ca *ClusterApplication) OpenTTY(
+	ctx context.Context,
+	userId int64,
+	clusterId int64,
+	stdin io.Reader,
+	stdout io.Writer,
+	sizes <-chan port.TerminalSize,
+) error {
+	cluster, err := ca.clusterRepository.GetUserCluster(ctx, userId, clusterId)
+	if err != nil {
+		return err
+	}
+
+	if cluster.PrivateKey == nil {
+		return fmt.Errorf("cluster private key is not set")
+	}
+	if cluster.IPv4Address == nil {
+		return fmt.Errorf("cluster ipv4 address is not set")
+	}
+
+	// The private key was first base64 encoded and then encrypted
+	decryptedPrivateKey, err := ca.crypto.Decrypt(*cluster.PrivateKey)
+	if err != nil {
+		return fmt.Errorf("failed to decrypt private key: %v", err)
+	}
+
+	keyBytes, err := base64.StdEncoding.DecodeString(decryptedPrivateKey)
+	if err != nil {
+		return fmt.Errorf("failed to decode private key: %v", err)
+	}
+
+	pemBytes, err := ca.crypto.EncodePrivateKeyToPEM(keyBytes)
+	if err != nil {
+		return fmt.Errorf("failed to encode private key to PEM: %v", err)
+	}
+
+	return ca.grpcProvisionerClient.OpenTTY(ctx, *cluster.IPv4Address, cluster.User, pemBytes, stdin, stdout, sizes)
 }
 
 func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) {

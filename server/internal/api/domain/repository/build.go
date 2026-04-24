@@ -19,8 +19,11 @@ func NewBuildRepository(queries *sqlc.Queries) interfaces.BuildRepository {
 	return &BuildRepository{queries: queries}
 }
 
-func (br *BuildRepository) CreateBuild(ctx context.Context, deploymentId int64) (*entity.Build, error) {
-	b, err := br.queries.CreateBuild(ctx, utils.NullInt64FromPtr(&deploymentId))
+func (br *BuildRepository) CreateBuild(ctx context.Context, deploymentId int64, source string) (*entity.Build, error) {
+	b, err := br.queries.CreateBuild(ctx, sqlc.CreateBuildParams{
+		DeploymentID: utils.NullInt64FromPtr(&deploymentId),
+		Source:       source,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -33,11 +36,13 @@ func (br *BuildRepository) CreateBuild(ctx context.Context, deploymentId int64) 
 	}, nil
 }
 
-func (br *BuildRepository) UpdateBuild(ctx context.Context, id int64, status value.BuildStatus, logs string) error {
+func (br *BuildRepository) UpdateBuild(ctx context.Context, id int64, status value.BuildStatus, commitHash *string, imageName *string, logs string) error {
 	return br.queries.UpdateBuildInformation(ctx, sqlc.UpdateBuildInformationParams{
-		Status: sqlc.BuildStatus(status),
-		Logs:   utils.NullStringFromPtr(&logs),
-		ID:     id,
+		Status:     sqlc.BuildStatus(status),
+		CommitHash: utils.NullStringFromPtr(commitHash),
+		ImageName:  utils.NullStringFromPtr(imageName),
+		Logs:       utils.NullStringFromPtr(&logs),
+		ID:         id,
 	})
 }
 
@@ -47,4 +52,28 @@ func (br *BuildRepository) GetBuildLogs(ctx context.Context, userId int64, build
 		UserID:  userId,
 	})
 	return utils.PtrFromNullString(res), err
+}
+
+func (br *BuildRepository) GetLatestGitDeploymentBuild(ctx context.Context, environmentId int64, serviceName string) (*entity.GitDeploymentBuild, error) {
+	build, err := br.queries.GetLatestGitDeploymentBuild(ctx, sqlc.GetLatestGitDeploymentBuildParams{
+		EnvironmentID: environmentId,
+		Name:          serviceName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.GitDeploymentBuild{
+		BuildId:        build.BuildID,
+		DeploymentId:   build.DeploymentID,
+		DeploymentName: build.DeploymentName,
+		ImageName:      utils.PtrFromNullString(build.ImageName),
+		CommitHash:     utils.PtrFromNullString(build.CommitHash),
+		Source:         build.Source,
+		Status:         entity.BuildStatus(build.Status),
+		GitUrl:         build.Url,
+		ProjectPath:    build.ProjectPath,
+		DockerfilePath: build.DockerfilePath,
+		CreatedAt:      build.CreatedAt,
+	}, nil
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -19,34 +19,60 @@ export interface DeployFromGitFormInput {
   projectDirectoryPath: string;
   port: number | null;
   envs: { name: string; value: string }[];
+  args: { name: string; value: string }[];
 }
 
 interface DeployFromGitFormProps {
   defaultValues?: DeployFromGitFormInput;
   onSubmit: (data: DeployFromGitFormInput) => Promise<void>;
   resetOnSuccess?: boolean;
+  teamId?: number;
 }
 
 export default function DeployFromGitForm({
   defaultValues,
   onSubmit,
   resetOnSuccess = false,
+  teamId,
 }: DeployFromGitFormProps) {
   const trpc = useTRPC();
   const organization = useOrganizationContext();
 
-  const { data: repositoriesData, isLoading } = useQuery(
+  const { data: allRepositoriesData, isLoading: isReposLoading } = useQuery(
     trpc.github.getRepositories.queryOptions({
       organizationId: organization.id,
     }),
   );
 
-  const { register, handleSubmit, watch, reset, control, setValue } =
+  const { data: teamReposData, isLoading: isTeamReposLoading } = useQuery({
+    ...trpc.team.getTeamRepositories.queryOptions({
+      teamId: teamId!,
+    }),
+    enabled: !!teamId,
+  });
+
+  const repositoriesData = useMemo(() => {
+    if (!allRepositoriesData) return undefined;
+    if (!teamId) return allRepositoriesData;
+    if (!teamReposData || teamReposData.length === 0) return [];
+
+    const teamRepoIds = new Set(teamReposData.map((tr) => tr.githubRepoId));
+    return allRepositoriesData.filter((repo) => teamRepoIds.has(repo.id));
+  }, [allRepositoriesData, teamId, teamReposData]);
+
+  const isLoading = isReposLoading || (!!teamId && isTeamReposLoading);
+
+  const { register, handleSubmit, watch, reset, control, setValue, getValues } =
     useForm<DeployFromGitFormInput>({ defaultValues });
 
   const { fields, append, replace } = useFieldArray({
     control,
     name: "envs",
+  });
+
+  const { fields: argsFields, append: appendArg } = useFieldArray({
+    control,
+    name: "args",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +81,9 @@ export default function DeployFromGitForm({
   const [isSelectDockerFileDialogOpen, setIsSelectDockerFileDialogOpen] =
     useState(false);
 
+  const { onChange: onUrlChange, ...urlRegister } = register("url", {
+    required: true,
+  });
   const urlInput = watch("url", "");
   const serviceNameInput = watch("serviceName", "");
   const port = watch("port", null);
@@ -65,15 +94,60 @@ export default function DeployFromGitForm({
     return repositoriesData?.find((repo) => repo.clone_url === urlInput);
   }, [repositoriesData, urlInput]);
 
+  const { data: envExampleContent } = useQuery({
+    ...trpc.github.getRepositoryFileContent.queryOptions({
+      organizationId: organization.id,
+      owner: selectedRepository?.owner ?? "",
+      repo: selectedRepository?.name ?? "",
+      path: projectDirectoryPathInput
+        ? `${projectDirectoryPathInput.replace(/\/$/, "")}/.env.example`
+        : ".env.example",
+    }),
+    enabled: !!selectedRepository && !!projectDirectoryPathInput,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (!envExampleContent) return;
+    if (!isEnvFile(envExampleContent?.content ?? "")) return;
+
+    const parsed = parseEnvFile(envExampleContent?.content ?? "");
+    if (parsed.length === 0) return;
+
+    const currentEnvs = getValues("envs") ?? [];
+
+    const currentByName = new Map(
+      currentEnvs
+        .filter((env) => env.name.trim() !== "")
+        .map((env) => [env.name, env.value]),
+    );
+
+    const merged = parsed.map((env) => ({
+      name: env.name,
+      value: currentByName.get(env.name) ?? env.value ?? "",
+    }));
+
+    const additionalManualEnvs = currentEnvs.filter(
+      (env) =>
+        env.name.trim() !== "" &&
+        !parsed.some((parsedEnv) => parsedEnv.name === env.name),
+    );
+
+    replace([...merged, ...additionalManualEnvs]);
+  }, [envExampleContent, getValues, replace]);
+
   const submit: SubmitHandler<DeployFromGitFormInput> = async (data) => {
     data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
+    );
+    data.args = (data.args ?? []).filter(
+      (a) => a.name.trim() !== "" || a.value.trim() !== "",
     );
 
     try {
       await onSubmit(data);
 
-      if (resetOnSuccess)
+      if (resetOnSuccess) {
         reset({
           url: "",
           serviceName: "",
@@ -81,7 +155,9 @@ export default function DeployFromGitForm({
           projectDirectoryPath: "",
           port: null,
           envs: [],
+          args: [],
         });
+      }
 
       setError(null);
     } catch (e) {
@@ -120,8 +196,9 @@ export default function DeployFromGitForm({
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
         <div className="flex flex-col gap-1">
           <p>Select Git Repository</p>
-          <p className="text-mauve-11 truncate text-sm">
-            Select the repository you want to deploy.
+          <p className="text-mauve-11 text-sm">
+            Your service will automatically be redeployed when you push to the
+            main branch.
           </p>
         </div>
         {error && (
@@ -152,16 +229,22 @@ export default function DeployFromGitForm({
               ) : (
                 <div className="relative w-full">
                   <select
-                    {...register("url", { required: true })}
+                    {...urlRegister}
                     disabled={!!defaultValues?.url}
-                    onChange={() => {
+                    onChange={(e) => {
+                      void onUrlChange(e);
                       setValue("projectDirectoryPath", "");
                       setValue("dockerfilePath", "");
+                      replace([]);
                     }}
-                    className="border-mauve-6 bg-gray-2 disabled:bg-gray-2 hover:bg-gray-3 disabled:text-gray-10 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+                    className={cn(
+                      "border-mauve-6 bg-gray-2 hover:bg-gray-3 disabled:bg-gray-2 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed",
+                      urlInput ? "text-mauve-12" : "text-mauve-11",
+                    )}
                   >
-                    {repositoriesData?.map((repo, i) => (
-                      <option key={i} value={repo.clone_url}>
+                    <option value="">Select repository*</option>
+                    {repositoriesData?.map((repo) => (
+                      <option key={repo.clone_url} value={repo.clone_url}>
                         {repo.name}
                       </option>
                     ))}
@@ -181,8 +264,12 @@ export default function DeployFromGitForm({
                   className={cn(
                     "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm",
                     !projectDirectoryPathInput && "text-mauve-11",
+                    !selectedRepository && "hover:bg-gray-2 cursor-not-allowed",
                   )}
-                  onClick={() => setIsSelectProjectDialogOpen(true)}
+                  onClick={() => {
+                    if (!selectedRepository) return;
+                    setIsSelectProjectDialogOpen(true);
+                  }}
                 >
                   <p>{projectDirectoryPathInput || "Select directory*"}</p>
                 </div>
@@ -199,8 +286,14 @@ export default function DeployFromGitForm({
                   className={cn(
                     "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm",
                     !dockerFilePathInput && "text-mauve-11",
+                    (!selectedRepository || !projectDirectoryPathInput) &&
+                      "hover:bg-gray-2 cursor-not-allowed",
                   )}
-                  onClick={() => setIsSelectDockerFileDialogOpen(true)}
+                  onClick={() => {
+                    if (!selectedRepository || !projectDirectoryPathInput)
+                      return;
+                    setIsSelectDockerFileDialogOpen(true);
+                  }}
                 >
                   <p>{dockerFilePathInput || "Select Dockerfile*"}</p>
                 </div>
@@ -252,6 +345,33 @@ export default function DeployFromGitForm({
               <Plus className="w-3 stroke-3" /> Add Another
             </Button>
           </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm">Build Arguments</p>
+            {argsFields.map((field, index) => (
+              <div key={field.id} className="flex gap-2">
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Name*"
+                  {...register(`args.${index}.name`)}
+                />
+                <input
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm"
+                  type="text"
+                  placeholder="Value*"
+                  {...register(`args.${index}.value`)}
+                />
+              </div>
+            ))}
+            <Button
+              intent="text"
+              className="py-1"
+              type="button"
+              onClick={() => appendArg({ name: "", value: "" })}
+            >
+              <Plus className="w-3 stroke-3" /> Add Another
+            </Button>
+          </div>
         </div>
         <Button
           type="submit"
@@ -271,6 +391,7 @@ export default function DeployFromGitForm({
         onConfirm={(directory) => {
           setValue("projectDirectoryPath", directory);
           setValue("dockerfilePath", "");
+          replace([]);
         }}
       />
       <SelectDockerfileDialog

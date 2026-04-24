@@ -1,8 +1,9 @@
 package response
 
 import (
-	"starliner.app/internal/api/domain/value"
 	"time"
+
+	"starliner.app/internal/api/domain/value"
 )
 
 type Deployments struct {
@@ -17,6 +18,11 @@ type EnvVar struct {
 	Value string `json:"value" binding:"required"`
 }
 
+type Arg struct {
+	Name  string `json:"name" binding:"required"`
+	Value string `json:"value" binding:"required"`
+}
+
 type GitDeployment struct {
 	Id                    int64    `json:"id" binding:"required"`
 	ServiceName           string   `json:"serviceName" binding:"required"`
@@ -27,6 +33,7 @@ type GitDeployment struct {
 	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
 	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
 	EnvVars               []EnvVar `json:"envVars" binding:"required"`
+	Args                  []Arg    `json:"args" binding:"required"`
 }
 
 func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
@@ -40,6 +47,7 @@ func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
 		ProjectRepositoryPath: gitDeployment.ProjectRepositoryPath,
 		DockerfilePath:        gitDeployment.DockerfilePath,
 		EnvVars:               mapEnvVarsFromValue(gitDeployment.EnvVars),
+		Args:                  mapArgsFromValue(gitDeployment.Args),
 	}
 }
 
@@ -52,6 +60,17 @@ func mapEnvVarsFromValue(envVars []*value.EnvVar) []EnvVar {
 		}
 	}
 	return variables
+}
+
+func mapArgsFromValue(args []*value.Arg) []Arg {
+	result := make([]Arg, len(args))
+	for i, a := range args {
+		result[i] = Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+	return result
 }
 
 func NewGitDeployments(gitDeployments []*value.GitDeployment) []GitDeployment {
@@ -126,6 +145,8 @@ type ImageDeployment struct {
 	Tag              string   `json:"tag" binding:"required"`
 	Status           string   `json:"status" binding:"required"`
 	Port             string   `json:"port" binding:"required"`
+	VolumeSizeMiB    *int32   `json:"volumeSizeMiB"`
+	VolumeMountPath  *string  `json:"volumeMountPath"`
 	EnvVars          []EnvVar `json:"envVars" binding:"required"`
 }
 
@@ -138,6 +159,8 @@ func NewImageDeployment(imageDeployment *value.ImageDeployment) ImageDeployment 
 		Tag:              imageDeployment.Tag,
 		Status:           imageDeployment.Status,
 		Port:             imageDeployment.Port,
+		VolumeSizeMiB:    imageDeployment.VolumeSizeMiB,
+		VolumeMountPath:  imageDeployment.VolumeMountPath,
 		EnvVars:          mapEnvVarsFromValue(imageDeployment.EnvVars),
 	}
 }
@@ -195,11 +218,14 @@ type GitDeploymentBuild struct {
 	BuildId        int64     `json:"buildId" binding:"required"`
 	DeploymentId   int64     `json:"deploymentId" binding:"required"`
 	DeploymentName string    `json:"deploymentName" binding:"required"`
+	CommitHash     *string   `json:"commitHash" binding:"required"`
+	Source         string    `json:"source" binding:"required"`
 	Status         string    `json:"status" binding:"required"`
 	GitUrl         string    `json:"gitUrl" binding:"required"`
 	ProjectPath    string    `json:"projectPath" binding:"required"`
 	DockerfilePath string    `json:"dockerfilePath" binding:"required"`
 	CreatedAt      time.Time `json:"createdAt" binding:"required"`
+	Args           []Arg     `json:"args" binding:"required"`
 }
 
 func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
@@ -207,12 +233,26 @@ func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
 		BuildId:        build.BuildId,
 		DeploymentId:   build.DeploymentId,
 		DeploymentName: build.DeploymentName,
+		CommitHash:     build.CommitHash,
+		Source:         build.Source,
 		Status:         string(build.Status),
 		GitUrl:         build.GitUrl,
 		ProjectPath:    build.ProjectPath,
 		DockerfilePath: build.DockerfilePath,
 		CreatedAt:      build.CreatedAt,
+		Args:           mapArgsFromBuildValue(build.Args),
 	}
+}
+
+func mapArgsFromBuildValue(args []*value.Arg) []Arg {
+	result := make([]Arg, len(args))
+	for i, a := range args {
+		result[i] = Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+	return result
 }
 
 func NewGitDeploymentBuilds(builds []*value.GitDeploymentBuild) []GitDeploymentBuild {

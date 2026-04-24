@@ -297,7 +297,7 @@ const file_internal_core_infrastructure_grpc_proto_v1_tty_proto_rawDesc = "" +
 	"\x06stdout\x18\x01 \x01(\fR\x06stdout2P\n" +
 	"\n" +
 	"TTYService\x12B\n" +
-	"\aOpenTTY\x12\x18.proto.v1.OpenTTYRequest\x1a\x19.proto.v1.OpenTTYResponse(\x010\x01B;Z9starliner.app/internal/cluster/presentation/grpc/proto/v1b\x06proto3"
+	"\aOpenTTY\x12\x18.proto.v1.OpenTTYRequest\x1a\x19.proto.v1.OpenTTYResponse(\x010\x01B:Z8starliner.app/internal/core/infrastructure/grpc/proto/v1b\x06proto3"
 
 var (
 	file_internal_core_infrastructure_grpc_proto_v1_tty_proto_rawDescOnce sync.Once

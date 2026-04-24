@@ -84,20 +84,11 @@ SELECT
     gd.project_path,
     gd.dockerfile_path
 FROM deployments d
-INNER JOIN git_deployments gd ON d.id = gd.deployment_id
-INNER JOIN environments ON d.environment_id = environments.id
-INNER JOIN projects ON environments.project_id = projects.id
-INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN team_members ON team_members.team_id = teams.id
+         INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+         INNER JOIN environments ON d.environment_id = environments.id
 WHERE environment_id = $1
-  AND team_members.user_id = $2
 ORDER BY d.id DESC
 `
-
-type GetEnvironmentGitDeploymentsParams struct {
-	EnvironmentID int64
-	UserID        int64
-}
 
 type GetEnvironmentGitDeploymentsRow struct {
 	DeploymentID   int64
@@ -110,8 +101,8 @@ type GetEnvironmentGitDeploymentsRow struct {
 	DockerfilePath string
 }
 
-func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, arg GetEnvironmentGitDeploymentsParams) ([]GetEnvironmentGitDeploymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEnvironmentGitDeployments, arg.EnvironmentID, arg.UserID)
+func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentGitDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentGitDeployments, environmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +110,133 @@ func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, arg GetEnvir
 	var items []GetEnvironmentGitDeploymentsRow
 	for rows.Next() {
 		var i GetEnvironmentGitDeploymentsRow
+		if err := rows.Scan(
+			&i.DeploymentID,
+			&i.Name,
+			&i.Port,
+			&i.Status,
+			&i.EnvironmentID,
+			&i.Url,
+			&i.ProjectPath,
+			&i.DockerfilePath,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGitDeploymentsByRepositoryUrl = `-- name: GetGitDeploymentsByRepositoryUrl :many
+SELECT
+    d.id AS deployment_id,
+    d.name,
+    d.port,
+    d.status,
+    d.environment_id,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path
+FROM deployments d
+INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+WHERE gd.url = $1
+`
+
+type GetGitDeploymentsByRepositoryUrlRow struct {
+	DeploymentID   int64
+	Name           string
+	Port           string
+	Status         DeploymentStatus
+	EnvironmentID  int64
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+}
+
+func (q *Queries) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]GetGitDeploymentsByRepositoryUrlRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGitDeploymentsByRepositoryUrl, repositoryUrl)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGitDeploymentsByRepositoryUrlRow
+	for rows.Next() {
+		var i GetGitDeploymentsByRepositoryUrlRow
+		if err := rows.Scan(
+			&i.DeploymentID,
+			&i.Name,
+			&i.Port,
+			&i.Status,
+			&i.EnvironmentID,
+			&i.Url,
+			&i.ProjectPath,
+			&i.DockerfilePath,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserEnvironmentGitDeployments = `-- name: GetUserEnvironmentGitDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name,
+    d.port,
+    d.status,
+    d.environment_id,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path
+FROM deployments d
+INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+INNER JOIN environments ON d.environment_id = environments.id
+INNER JOIN projects ON environments.project_id = projects.id
+INNER JOIN teams ON projects.team_id = teams.id
+INNER JOIN team_members ON team_members.team_id = teams.id
+WHERE environment_id = $1
+  AND team_members.user_id = $2
+ORDER BY d.id DESC
+`
+
+type GetUserEnvironmentGitDeploymentsParams struct {
+	EnvironmentID int64
+	UserID        int64
+}
+
+type GetUserEnvironmentGitDeploymentsRow struct {
+	DeploymentID   int64
+	Name           string
+	Port           string
+	Status         DeploymentStatus
+	EnvironmentID  int64
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+}
+
+func (q *Queries) GetUserEnvironmentGitDeployments(ctx context.Context, arg GetUserEnvironmentGitDeploymentsParams) ([]GetUserEnvironmentGitDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserEnvironmentGitDeployments, arg.EnvironmentID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserEnvironmentGitDeploymentsRow
+	for rows.Next() {
+		var i GetUserEnvironmentGitDeploymentsRow
 		if err := rows.Scan(
 			&i.DeploymentID,
 			&i.Name,

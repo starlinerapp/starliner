@@ -3,8 +3,10 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"log"
+	"os"
+
+	"github.com/nats-io/nats.go"
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
@@ -33,6 +35,8 @@ func (q *Queue) SubscribeToBuildTriggered(handler func(build *value.TriggerBuild
 		if err := json.Unmarshal(msg, &b); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
 		}
+		hostname, _ := os.Hostname()
+		log.Printf("[builder replica=%s] picked up build job: buildID=%d deploymentID=%d", hostname, b.BuildId, b.DeploymentId)
 		handler(&b)
 	})
 }

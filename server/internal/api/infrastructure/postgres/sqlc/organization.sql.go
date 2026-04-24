@@ -19,7 +19,8 @@ INSERT INTO organization_members (
 ) VALUES (
     $1,
     $2
- )
+)
+ON CONFLICT (organization_id, user_id) DO NOTHING
 `
 
 type AddOrganizationMemberParams struct {
@@ -66,15 +67,19 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 }
 
 const createOrganizationInvite = `-- name: CreateOrganizationInvite :one
-INSERT INTO organization_invites (
-    organization_id,
-    expires_at
+WITH new_invite AS (
+    INSERT INTO organization_invites (
+        organization_id,
+        expires_at
+    ) VALUES (
+        $1,
+        $2
+    )
+    RETURNING id, organization_id, expires_at, created_at
 )
-VALUES (
-    $1,
-    $2
-)
-RETURNING id, organization_id, expires_at, created_at
+SELECT new_invite.id, new_invite.organization_id, new_invite.expires_at, new_invite.created_at, organizations.name AS organization_name
+FROM new_invite
+INNER JOIN organizations ON organizations.id = new_invite.organization_id
 `
 
 type CreateOrganizationInviteParams struct {
@@ -82,14 +87,23 @@ type CreateOrganizationInviteParams struct {
 	ExpiresAt      time.Time
 }
 
-func (q *Queries) CreateOrganizationInvite(ctx context.Context, arg CreateOrganizationInviteParams) (OrganizationInvite, error) {
+type CreateOrganizationInviteRow struct {
+	ID               uuid.UUID
+	OrganizationID   int64
+	ExpiresAt        time.Time
+	CreatedAt        time.Time
+	OrganizationName string
+}
+
+func (q *Queries) CreateOrganizationInvite(ctx context.Context, arg CreateOrganizationInviteParams) (CreateOrganizationInviteRow, error) {
 	row := q.db.QueryRowContext(ctx, createOrganizationInvite, arg.OrganizationID, arg.ExpiresAt)
-	var i OrganizationInvite
+	var i CreateOrganizationInviteRow
 	err := row.Scan(
 		&i.ID,
 		&i.OrganizationID,
 		&i.ExpiresAt,
 		&i.CreatedAt,
+		&i.OrganizationName,
 	)
 	return i, err
 }
@@ -142,6 +156,41 @@ func (q *Queries) GetOrganizationInviteById(ctx context.Context, id uuid.UUID) (
 		&i.OrganizationName,
 	)
 	return i, err
+}
+
+const getOrganizationMembers = `-- name: GetOrganizationMembers :many
+SELECT users.id, users.better_auth_id
+FROM users
+INNER JOIN organization_members ON organization_members.user_id = users.id
+WHERE organization_members.organization_id = $1
+`
+
+type GetOrganizationMembersRow struct {
+	ID           int64
+	BetterAuthID string
+}
+
+func (q *Queries) GetOrganizationMembers(ctx context.Context, organizationID int64) ([]GetOrganizationMembersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrganizationMembers, organizationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrganizationMembersRow
+	for rows.Next() {
+		var i GetOrganizationMembersRow
+		if err := rows.Scan(&i.ID, &i.BetterAuthID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOrganizationProvisioningCredential = `-- name: GetOrganizationProvisioningCredential :one
@@ -231,13 +280,13 @@ INSERT INTO provisioning_credentials (
     provider,
     secret
 ) VALUES (
-  $1,
-  $2,
-  $3
+    $1,
+    $2,
+    $3
 )
 ON CONFLICT (organization_id, provider)
 DO UPDATE SET
-  secret = EXCLUDED.secret
+    secret = EXCLUDED.secret
 `
 
 type UpsertProvisioningCredentialParams struct {

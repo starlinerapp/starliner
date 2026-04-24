@@ -32,15 +32,22 @@ type EnvVar struct {
 	Value string
 }
 
+type Arg struct {
+	Name  string
+	Value string
+}
+
 type ImageDeployment struct {
-	Id            int64
-	Status        string
-	ServiceName   string
-	ImageName     string
-	Tag           string
-	Port          string
-	EnvironmentId int64
-	EnvVars       []*EnvVar
+	Id              int64
+	Status          string
+	ServiceName     string
+	ImageName       string
+	Tag             string
+	Port            string
+	EnvironmentId   int64
+	VolumeSizeMiB   *int32
+	VolumeMountPath *string
+	EnvVars         []*EnvVar
 }
 
 type DatabaseDeployment struct {
@@ -64,6 +71,7 @@ type GitDeployment struct {
 	ProjectRepositoryPath string
 	DockerfilePath        string
 	EnvVars               []*EnvVar
+	Args                  []*Arg
 }
 
 type Deployment struct {
@@ -77,4 +85,9 @@ type Deployment struct {
 type DeploymentWithKubeconfig struct {
 	Deployment Deployment
 	Kubeconfig *string
+}
+
+type IngressHostDeployment struct {
+	Host         string
+	DeploymentId int64
 }

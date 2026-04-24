@@ -2,10 +2,12 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+
 	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
@@ -35,43 +37,49 @@ func NewBuildApplication(
 func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
 
-	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.AccessToken)
-	if err != nil {
-		log.Printf("failed to clone repository: %v", err)
+	publishCompleted := func(commitHash, tag *string, imageName *string, logs string, status value.BuildStatus) {
+		if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
+			BuildId:          build.BuildId,
+			DeploymentId:     build.DeploymentId,
+			ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
+			ImageName:        imageName,
+			CommitHash:       commitHash,
+			Tag:              commitHash,
+			Logs:             logs,
+			BuildStatus:      status,
+		}); err != nil {
+			log.Printf("failed to publish: %v", err)
+		}
 	}
 
-	defer func(path string) {
-		err := os.RemoveAll(path)
-		if err != nil {
-			log.Printf("failed to remove directory: %v\n", err)
+	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.BranchName, build.AccessToken)
+	if err != nil {
+		publishCompleted(
+			nil,
+			nil,
+			nil,
+			fmt.Sprintf("failed to clone repository: %v", err),
+			value.BuildStatusFailed,
+		)
+		return
+	}
+
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			log.Printf("failed to remove directory: %v", err)
 		}
-	}(tmpDir)
+	}()
 
 	projectDir := filepath.Join(tmpDir, build.RootDirectory)
-
-	imagePath := path.Join(
-		ba.cfg.ImageRegistryUrl,
-		build.ImageName,
-	)
+	imagePath := path.Join(ba.cfg.ImageRegistryUrl, build.ImageName)
 	tag := imagePath + ":" + commitHash
 
-	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag)
+	logs, err := ba.docker.BuildAndPublish(ctx, projectDir, build.DockerfilePath, tag, build.Args)
 
-	buildStatus := value.BuildStatusSuccess
+	status := value.BuildStatusSuccess
 	if err != nil {
-		buildStatus = value.BuildStatusFailed
+		status = value.BuildStatusFailed
 	}
 
-	err = ba.queue.PublishBuildCompleted(&value.BuildCompleted{
-		BuildId:          build.BuildId,
-		DeploymentId:     build.DeploymentId,
-		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
-		ImageName:        build.ImageName,
-		Tag:              commitHash,
-		Logs:             logs,
-		BuildStatus:      buildStatus,
-	})
-	if err != nil {
-		log.Printf("failed to publish: %v", err)
-	}
+	publishCompleted(&commitHash, &tag, &imagePath, logs, status)
 }

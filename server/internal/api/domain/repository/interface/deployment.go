@@ -17,6 +17,7 @@ type DeploymentRepository interface {
 		projectRepositoryPath string,
 		dockerfilePath string,
 		envs []*value.EnvVar,
+		args []*value.Arg,
 	) (deployment *entity.GitDeployment, err error)
 
 	UpdateGitDeployment(
@@ -26,6 +27,7 @@ type DeploymentRepository interface {
 		projectRepositoryPath string,
 		dockerfilePath string,
 		envs []*value.EnvVar,
+		args []*value.Arg,
 	) (deployment *entity.GitDeployment, err error)
 
 	CreateImageDeployment(
@@ -34,6 +36,8 @@ type DeploymentRepository interface {
 		imageName string,
 		tag string,
 		port string,
+		volumeSizeMiB *int32,
+		volumeMountPath *string,
 		environmentId int64,
 		envs []*value.EnvVar,
 	) (deployment *entity.ImageDeployment, err error)
@@ -80,11 +84,15 @@ type DeploymentRepository interface {
 
 	GetDeploymentEnvs(ctx context.Context, deploymentId int64) ([]*entity.EnvVar, error)
 
+	GetGitDeploymentArgs(ctx context.Context, deploymentId int64) ([]*entity.Arg, error)
+
 	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
 
 	GetDeploymentWithNamespace(ctx context.Context, deploymentId int64) (*entity.Deployment, error)
 
 	GetDeploymentCluster(ctx context.Context, deploymentId int64) (*entity.Cluster, error)
+
+	SoftDeleteDeploymentVolume(ctx context.Context, deploymentId int64) error
 
 	DeleteDeployment(ctx context.Context, deploymentId int64) error
 
@@ -94,5 +102,7 @@ type DeploymentRepository interface {
 
 	GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error)
 
-	GetIngressHostByName(ctx context.Context, hostName string) (*string, error)
+	GetIngressHostByName(ctx context.Context, hostName string) (*entity.IngressHostDeployment, error)
+
+	GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error)
 }

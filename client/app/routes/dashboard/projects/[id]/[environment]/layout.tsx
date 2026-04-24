@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
 
 export default function ProjectLayout() {
   const { slug, id, environment } = useParams<{
@@ -38,6 +39,7 @@ export default function ProjectLayout() {
       enabled: !!currentEnvironment,
       refetchOnWindowFocus: "always",
       refetchOnMount: "always",
+      refetchInterval: 2000,
     });
 
   const projectEnvironmentKey = useMemo(() => {
@@ -127,9 +129,10 @@ export default function ProjectLayout() {
             <h1 className="text-mauve-12 text-xl font-bold">
               {currentProject?.name}
             </h1>
-            <div className="border-violet-10 flex items-center gap-1.5 rounded-md border-[1px] px-2 text-sm">
-              <h1>{currentEnvironment?.name}</h1>
-            </div>
+            <ManageEnvironments
+              organization={organization}
+              project={currentProject}
+            />
           </div>
         )}
         <LinkNavigationBar items={navigationBarItems} />

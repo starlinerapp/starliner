@@ -6,6 +6,33 @@ definitions:
     required:
     - inviteId
     type: object
+  request.AddTeamMember:
+    properties:
+      userId:
+        type: integer
+    required:
+    - userId
+    type: object
+  request.Arg:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
+    type: object
+  request.AssignRepoToTeam:
+    properties:
+      githubRepoId:
+        type: integer
+      repoName:
+        type: string
+    required:
+    - githubRepoId
+    - repoName
+    type: object
   request.CreateCluster:
     properties:
       name:
@@ -26,14 +53,16 @@ definitions:
     properties:
       name:
         type: string
-      organization_id:
+      organizationId:
         type: integer
-      project_id:
+      projectId:
+        type: integer
+      sourceEnvironmentId:
         type: integer
     required:
     - name
-    - organization_id
-    - project_id
+    - organizationId
+    - projectId
     type: object
   request.CreateGithubApp:
     properties:
@@ -70,10 +99,11 @@ definitions:
     type: object
   request.CreateTeam:
     properties:
-      name:
+      slug:
+        maxLength: 50
         type: string
     required:
-    - name
+    - slug
     type: object
   request.DeployDatabase:
     properties:
@@ -87,6 +117,10 @@ definitions:
     type: object
   request.DeployFromGit:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/request.Arg'
+        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -128,6 +162,10 @@ definitions:
         type: string
       tag:
         type: string
+      volumeMountPath:
+        type: string
+      volumeSizeMiB:
+        type: integer
     required:
     - environmentId
     - envs
@@ -193,8 +231,29 @@ definitions:
     required:
     - slug
     type: object
+  request.RemoveTeamMember:
+    properties:
+      userId:
+        type: integer
+    required:
+    - userId
+    type: object
+  request.SendInvite:
+    properties:
+      inviteUrlPrefix:
+        type: string
+      toEmail:
+        type: string
+    required:
+    - inviteUrlPrefix
+    - toEmail
+    type: object
   request.UpdateDeployFromGit:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/request.Arg'
+        type: array
       dockerfilePath:
         type: string
       environmentId:
@@ -213,6 +272,13 @@ definitions:
     - envs
     - port
     - projectRepositoryPath
+    type: object
+  request.UpdateEnvironmentConnectBranch:
+    properties:
+      branch:
+        type: string
+    required:
+    - branch
     type: object
   request.UpdateImage:
     properties:
@@ -254,6 +320,16 @@ definitions:
     required:
     - apiKey
     type: object
+  response.Arg:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
+    type: object
   response.BuildLogs:
     properties:
       logs:
@@ -282,6 +358,8 @@ definitions:
         - pending
         - running
         - deleted
+      user:
+        type: string
     required:
     - createdAt
     - id
@@ -290,6 +368,7 @@ definitions:
     - organizationId
     - serverType
     - status
+    - user
     type: object
   response.ClusterStatus:
     enum:
@@ -376,6 +455,18 @@ definitions:
     - name
     - slug
     type: object
+  response.EnvironmentBranch:
+    properties:
+      branch:
+        type: string
+    required:
+    - branch
+    type: object
+  response.FileContent:
+    properties:
+      content:
+        type: string
+    type: object
   response.GetOrganizationProvisioningCredentialResponse:
     properties:
       credential:
@@ -383,6 +474,10 @@ definitions:
     type: object
   response.GitDeployment:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/response.Arg'
+        type: array
       dockerfilePath:
         type: string
       envVars:
@@ -404,6 +499,7 @@ definitions:
       status:
         type: string
     required:
+    - args
     - dockerfilePath
     - envVars
     - gitUrl
@@ -416,8 +512,14 @@ definitions:
     type: object
   response.GitDeploymentBuild:
     properties:
+      args:
+        items:
+          $ref: '#/definitions/response.Arg'
+        type: array
       buildId:
         type: integer
+      commitHash:
+        type: string
       createdAt:
         type: string
       deploymentId:
@@ -430,16 +532,21 @@ definitions:
         type: string
       projectPath:
         type: string
+      source:
+        type: string
       status:
         type: string
     required:
+    - args
     - buildId
+    - commitHash
     - createdAt
     - deploymentId
     - deploymentName
     - dockerfilePath
     - gitUrl
     - projectPath
+    - source
     - status
     type: object
   response.GithubApp:
@@ -475,6 +582,10 @@ definitions:
         type: string
       tag:
         type: string
+      volumeMountPath:
+        type: string
+      volumeSizeMiB:
+        type: integer
     required:
     - envVars
     - id
@@ -593,12 +704,15 @@ definitions:
         type: integer
       name:
         type: string
+      teamId:
+        type: integer
     required:
     - clusterId
     - createdAt
     - environments
     - id
     - name
+    - teamId
     type: object
   response.ProjectCluster:
     properties:
@@ -609,6 +723,13 @@ definitions:
     required:
     - clusterId
     - clusterName
+    type: object
+  response.ProjectPreviewEnvironmentEnabled:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
     type: object
   response.Repository:
     properties:
@@ -673,17 +794,43 @@ definitions:
     properties:
       id:
         type: integer
-      name:
-        type: string
       organization_id:
         type: integer
       slug:
         type: string
     required:
     - id
-    - name
     - organization_id
     - slug
+    type: object
+  response.TeamCluster:
+    properties:
+      clusterId:
+        type: integer
+      clusterName:
+        type: string
+      serverType:
+        type: string
+      teamId:
+        type: integer
+    required:
+    - clusterId
+    - clusterName
+    - serverType
+    - teamId
+    type: object
+  response.TeamRepo:
+    properties:
+      githubRepoId:
+        type: integer
+      repoName:
+        type: string
+      teamId:
+        type: integer
+    required:
+    - githubRepoId
+    - repoName
+    - teamId
     type: object
   response.User:
     properties:
@@ -1055,7 +1202,56 @@ paths:
       responses:
         "201":
           description: Created
+          schema:
+            $ref: '#/definitions/response.Environment'
       summary: Create Environment
+      tags:
+      - environment
+  /environments/{id}/branch:
+    get:
+      operationId: getEnvironmentConnectedBranch
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.EnvironmentBranch'
+      summary: Get Environment Connected Branch
+      tags:
+      - environment
+    put:
+      operationId: updateEnvironmentConnectedBranch
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Environment Connected Branch
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateEnvironmentConnectBranch'
+      responses:
+        "200":
+          description: OK
+      summary: Update Environment Connected Branch
       tags:
       - environment
   /environments/{id}/builds:
@@ -1104,6 +1300,30 @@ paths:
       summary: Get Environment Deployments
       tags:
       - environment
+  /github/all-repositories/{organizationId}:
+    get:
+      operationId: getAllRepositories
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Repository'
+            type: array
+      summary: Get All Repositories (owner only, unfiltered)
+      tags:
+      - github
   /github/repositories/{organizationId}:
     get:
       operationId: getRepositories
@@ -1164,6 +1384,43 @@ paths:
               $ref: '#/definitions/response.RepositoryFile'
             type: array
       summary: Get Repository Content
+      tags:
+      - github
+  /github/repositories/{organizationId}/{owner}/{repository}/file:
+    get:
+      operationId: getFileContent
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Repository owner (user or org)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repository
+        required: true
+        type: string
+      - description: Path to the file within the repository
+        in: query
+        name: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FileContent'
+      summary: Get File Content
       tags:
       - github
   /githubapps:
@@ -1336,7 +1593,33 @@ paths:
       - organization
   /organizations/{id}/invites:
     post:
-      operationId: createOrganizationInvite
+      operationId: sendOrganizationInvite
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Send Invite
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SendInvite'
+      responses:
+        "201":
+          description: Created
+      summary: Send organization invite via email
+      tags:
+      - organization
+  /organizations/{id}/members:
+    get:
+      operationId: getOrganizationMembers
       parameters:
       - description: User ID
         in: header
@@ -1349,11 +1632,13 @@ paths:
         required: true
         type: integer
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/response.OrganizationInvite'
-      summary: Create organization invite
+            items:
+              $ref: '#/definitions/response.User'
+            type: array
+      summary: Get all organization members
       tags:
       - organization
   /organizations/{id}/projects:
@@ -1427,6 +1712,83 @@ paths:
       summary: Upsert Hetzner Provisioning Credential
       tags:
       - organization
+  /organizations/{id}/teams:
+    get:
+      operationId: getUserTeams
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Team'
+            type: array
+      summary: Get User Teams
+      tags:
+      - team
+    post:
+      operationId: createTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team slug (lowercase, alphanumeric, hyphens only)
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTeam'
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Team'
+      summary: Create team
+      tags:
+      - team
+  /organizations/{id}/teams/join:
+    post:
+      operationId: joinTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Join Team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.JoinTeam'
+      responses:
+        "201":
+          description: Created
+      summary: Join a team by slug
+      tags:
+      - team
   /projects:
     post:
       operationId: createProject
@@ -1537,71 +1899,58 @@ paths:
       summary: Get Project Environments
       tags:
       - project
-  /teams/{organizationId}:
+  /projects/{id}/preview-environment/enabled:
     get:
-      operationId: getUserTeams
+      operationId: getProjectPreviewEnvironmentEnabled
       parameters:
       - description: User ID
         in: header
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
+      - description: Project ID
         in: path
-        name: organizationId
+        name: id
         required: true
         type: integer
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/response.Team'
-            type: array
-      summary: Get User Teams
+            $ref: '#/definitions/response.ProjectPreviewEnvironmentEnabled'
+      summary: Get Project Preview Environment Enabled
       tags:
-      - team
-    post:
-      operationId: createTeam
+      - project
+    put:
+      operationId: toggleProjectPreviewEnvironmentEnabled
       parameters:
       - description: User ID
         in: header
         name: X-User-ID
         required: true
         type: string
-      - description: Create Team
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.CreateTeam'
-      - description: Organization ID
+      - description: Project ID
         in: path
-        name: organizationId
+        name: id
         required: true
         type: integer
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/response.Team'
-      summary: Create team
+            $ref: '#/definitions/response.ProjectPreviewEnvironmentEnabled'
+      summary: Toggle Project Preview Environment Enabled
       tags:
-      - team
-  /teams/{organizationId}/{teamId}/members:
-    delete:
-      operationId: removeTeamMember
+      - project
+  /teams/{teamId}/clusters:
+    get:
+      operationId: getTeamClusters
       parameters:
       - description: User ID
         in: header
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
@@ -1610,7 +1959,86 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Remove Team Member
+          schema:
+            items:
+              $ref: '#/definitions/response.TeamCluster'
+            type: array
+      summary: Get clusters assigned to a team
+      tags:
+      - team
+  /teams/{teamId}/clusters/{clusterId}:
+    delete:
+      operationId: unassignClusterFromTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Cluster ID
+        in: path
+        name: clusterId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: Unassign a cluster from a team
+      tags:
+      - team
+    post:
+      operationId: assignClusterToTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Cluster ID
+        in: path
+        name: clusterId
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+      summary: Assign a cluster to a team
+      tags:
+      - team
+  /teams/{teamId}/members:
+    delete:
+      operationId: removeTeamMember
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: ID of the organization member to remove from the team
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RemoveTeamMember'
+      responses:
+        "204":
+          description: No Content
+      summary: Remove organization member from team
       tags:
       - team
     get:
@@ -1621,11 +2049,6 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
@@ -1649,46 +2072,95 @@ paths:
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
-        in: path
-        name: organizationId
-        required: true
-        type: integer
       - description: Team ID
         in: path
         name: teamId
         required: true
         type: integer
+      - description: ID of member to add
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddTeamMember'
       responses:
         "201":
           description: Created
-      summary: Add current user to team
+      summary: Add organization member to team
       tags:
       - team
-  /teams/{organizationId}/join:
-    post:
-      operationId: joinTeam
+  /teams/{teamId}/repos:
+    get:
+      operationId: getTeamRepositories
       parameters:
       - description: User ID
         in: header
         name: X-User-ID
         required: true
         type: string
-      - description: Organization ID
+      - description: Team ID
         in: path
-        name: organizationId
+        name: teamId
         required: true
         type: integer
-      - description: Join Team
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.TeamRepo'
+            type: array
+      summary: Get repositories assigned to a team
+      tags:
+      - team
+    post:
+      operationId: assignRepoToTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: Assign Repo
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.JoinTeam'
+          $ref: '#/definitions/request.AssignRepoToTeam'
       responses:
         "201":
           description: Created
-      summary: Join a team by slug
+      summary: Assign a GitHub repository to a team
+      tags:
+      - team
+  /teams/{teamId}/repos/{repoId}:
+    delete:
+      operationId: unassignRepoFromTeam
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: integer
+      - description: GitHub Repo ID
+        in: path
+        name: repoId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: Unassign a GitHub repository from a team
       tags:
       - team
 securityDefinitions:

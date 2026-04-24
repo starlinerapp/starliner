@@ -11,7 +11,7 @@ INSERT INTO clusters (
 RETURNING *;
 
 -- name: GetUserCluster :one
-SELECT c.id, c.name, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
+SELECT c.id, c.name, c.user, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
 FROM clusters c
 LEFT JOIN organizations o ON c.organization_id = o.id
 LEFT JOIN organization_members om ON o.id = om.organization_id
@@ -41,11 +41,9 @@ WHERE clusters.organization_id = $1;
 SELECT
     clusters.*
 FROM clusters
-INNER JOIN organizations ON organizations.id = clusters.organization_id
-INNER JOIN teams ON teams.organization_id = organizations.id
-INNER JOIN projects ON projects.team_id = teams.id
-INNER JOIN environments ON projects.id = environments.project_id
-INNER JOIN deployments ON environments.id = deployments.environment_id
+INNER JOIN projects ON projects.cluster_id = clusters.id
+INNER JOIN environments ON environments.project_id = projects.id
+INNER JOIN deployments ON deployments.environment_id = environments.id
 WHERE deployments.id = @deployment_id;
 
 -- name: UpdateClusterPublicPrivateKeys :exec

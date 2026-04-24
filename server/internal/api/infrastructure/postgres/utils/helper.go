@@ -36,3 +36,17 @@ func NullInt64FromPtr(i *int64) sql.NullInt64 {
 		Valid: true,
 	}
 }
+
+func PtrFromNullInt32(ni sql.NullInt32) *int32 {
+	if ni.Valid {
+		return &ni.Int32
+	}
+	return nil
+}
+
+func BoolPtrFromNullBool(nb sql.NullBool) *bool {
+	if nb.Valid {
+		return &nb.Bool
+	}
+	return nil
+}

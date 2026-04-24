@@ -30,31 +30,71 @@ func (q *Queries) AddTeamMember(ctx context.Context, arg AddTeamMemberParams) er
 	return err
 }
 
-const createTeam = `-- name: CreateTeam :one
-INSERT INTO teams (
-    name,
-    slug,
-    organization_id
+const assignRepoToTeam = `-- name: AssignRepoToTeam :exec
+INSERT INTO team_repositories (
+    team_id,
+    github_repo_id,
+    repo_name
 ) VALUES (
     $1,
     $2,
     $3
 )
-RETURNING id, name, slug, organization_id, created_at, updated_at
+ON CONFLICT (team_id, github_repo_id) DO NOTHING
+`
+
+type AssignRepoToTeamParams struct {
+	TeamID       int64
+	GithubRepoID int64
+	RepoName     string
+}
+
+func (q *Queries) AssignRepoToTeam(ctx context.Context, arg AssignRepoToTeamParams) error {
+	_, err := q.db.ExecContext(ctx, assignRepoToTeam, arg.TeamID, arg.GithubRepoID, arg.RepoName)
+	return err
+}
+
+const assignTeamCluster = `-- name: AssignTeamCluster :exec
+INSERT INTO team_clusters (
+    team_id, cluster_id
+) VALUES (
+     $1,
+     $2
+ )
+ON CONFLICT (team_id, cluster_id) DO NOTHING
+`
+
+type AssignTeamClusterParams struct {
+	TeamID    int64
+	ClusterID int64
+}
+
+func (q *Queries) AssignTeamCluster(ctx context.Context, arg AssignTeamClusterParams) error {
+	_, err := q.db.ExecContext(ctx, assignTeamCluster, arg.TeamID, arg.ClusterID)
+	return err
+}
+
+const createTeam = `-- name: CreateTeam :one
+INSERT INTO teams (
+    slug,
+    organization_id
+) VALUES (
+    $1,
+    $2
+)
+RETURNING id, slug, organization_id, created_at, updated_at
 `
 
 type CreateTeamParams struct {
-	Name           string
 	Slug           string
 	OrganizationID int64
 }
 
 func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, error) {
-	row := q.db.QueryRowContext(ctx, createTeam, arg.Name, arg.Slug, arg.OrganizationID)
+	row := q.db.QueryRowContext(ctx, createTeam, arg.Slug, arg.OrganizationID)
 	var i Team
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
 		&i.Slug,
 		&i.OrganizationID,
 		&i.CreatedAt,
@@ -72,8 +112,64 @@ func (q *Queries) DeleteTeam(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteTeamIfEmpty = `-- name: DeleteTeamIfEmpty :exec
+DELETE FROM teams
+WHERE id = $1
+    AND NOT EXISTS (
+        SELECT 1 FROM team_members WHERE team_members.team_id = $1
+    )
+`
+
+func (q *Queries) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTeamIfEmpty, id)
+	return err
+}
+
+const findTeamByIdAndUserId = `-- name: FindTeamByIdAndUserId :one
+SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+FROM teams
+INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
+WHERE teams.id = $1
+    AND organization_members.user_id = $2
+`
+
+type FindTeamByIdAndUserIdParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) FindTeamByIdAndUserId(ctx context.Context, arg FindTeamByIdAndUserIdParams) (Team, error) {
+	row := q.db.QueryRowContext(ctx, findTeamByIdAndUserId, arg.ID, arg.UserID)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.Slug,
+		&i.OrganizationID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getTeamById = `-- name: GetTeamById :one
+SELECT id, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
+`
+
+func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
+	row := q.db.QueryRowContext(ctx, getTeamById, id)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.Slug,
+		&i.OrganizationID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getTeamBySlug = `-- name: GetTeamBySlug :one
-SELECT id, name, slug, organization_id, created_at, updated_at FROM teams
+SELECT id, slug, organization_id, created_at, updated_at FROM teams
 WHERE slug = $1 AND organization_id = $2
 `
 
@@ -87,13 +183,89 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, arg GetTeamBySlugParams) (T
 	var i Team
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
 		&i.Slug,
 		&i.OrganizationID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getTeamCluster = `-- name: GetTeamCluster :one
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
+FROM team_clusters
+INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1 AND team_clusters.cluster_id = $2
+`
+
+type GetTeamClusterParams struct {
+	TeamID    int64
+	ClusterID int64
+}
+
+func (q *Queries) GetTeamCluster(ctx context.Context, arg GetTeamClusterParams) (Cluster, error) {
+	row := q.db.QueryRowContext(ctx, getTeamCluster, arg.TeamID, arg.ClusterID)
+	var i Cluster
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Ipv4Address,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.OrganizationID,
+		&i.ProvisioningID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Kubeconfig,
+		&i.ServerType,
+		&i.User,
+	)
+	return i, err
+}
+
+const getTeamClusters = `-- name: GetTeamClusters :many
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
+FROM clusters
+INNER JOIN team_clusters on clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1
+`
+
+func (q *Queries) GetTeamClusters(ctx context.Context, teamID int64) ([]Cluster, error) {
+	rows, err := q.db.QueryContext(ctx, getTeamClusters, teamID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Cluster
+	for rows.Next() {
+		var i Cluster
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Ipv4Address,
+			&i.PublicKey,
+			&i.PrivateKey,
+			&i.OrganizationID,
+			&i.ProvisioningID,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Kubeconfig,
+			&i.ServerType,
+			&i.User,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getTeamMembers = `-- name: GetTeamMembers :many
@@ -131,8 +303,84 @@ func (q *Queries) GetTeamMembers(ctx context.Context, teamID int64) ([]GetTeamMe
 	return items, nil
 }
 
+const getTeamRepositories = `-- name: GetTeamRepositories :many
+SELECT github_repo_id, repo_name
+FROM team_repositories
+WHERE team_id = $1
+`
+
+type GetTeamRepositoriesRow struct {
+	GithubRepoID int64
+	RepoName     string
+}
+
+func (q *Queries) GetTeamRepositories(ctx context.Context, teamID int64) ([]GetTeamRepositoriesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTeamRepositories, teamID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTeamRepositoriesRow
+	for rows.Next() {
+		var i GetTeamRepositoriesRow
+		if err := rows.Scan(&i.GithubRepoID, &i.RepoName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTeamsByRepoAndOrg = `-- name: GetTeamsByRepoAndOrg :many
+SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+FROM teams
+INNER JOIN team_repositories ON team_repositories.team_id = teams.id
+WHERE teams.organization_id = $1
+    AND team_repositories.github_repo_id = $2
+`
+
+type GetTeamsByRepoAndOrgParams struct {
+	OrganizationID int64
+	GithubRepoID   int64
+}
+
+func (q *Queries) GetTeamsByRepoAndOrg(ctx context.Context, arg GetTeamsByRepoAndOrgParams) ([]Team, error) {
+	rows, err := q.db.QueryContext(ctx, getTeamsByRepoAndOrg, arg.OrganizationID, arg.GithubRepoID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Team
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.ID,
+			&i.Slug,
+			&i.OrganizationID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserTeams = `-- name: GetUserTeams :many
-SELECT teams.id, teams.name, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
+SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
 INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE teams.organization_id = $1
@@ -155,7 +403,6 @@ func (q *Queries) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]T
 		var i Team
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
 			&i.Slug,
 			&i.OrganizationID,
 			&i.CreatedAt,
@@ -187,5 +434,37 @@ type RemoveTeamMemberParams struct {
 
 func (q *Queries) RemoveTeamMember(ctx context.Context, arg RemoveTeamMemberParams) error {
 	_, err := q.db.ExecContext(ctx, removeTeamMember, arg.TeamID, arg.UserID)
+	return err
+}
+
+const unassignRepoFromTeam = `-- name: UnassignRepoFromTeam :exec
+DELETE FROM team_repositories
+WHERE team_id = $1
+    AND github_repo_id = $2
+`
+
+type UnassignRepoFromTeamParams struct {
+	TeamID       int64
+	GithubRepoID int64
+}
+
+func (q *Queries) UnassignRepoFromTeam(ctx context.Context, arg UnassignRepoFromTeamParams) error {
+	_, err := q.db.ExecContext(ctx, unassignRepoFromTeam, arg.TeamID, arg.GithubRepoID)
+	return err
+}
+
+const unassignTeamCluster = `-- name: UnassignTeamCluster :exec
+DELETE FROM team_clusters
+WHERE team_clusters.team_id = $1
+  AND team_clusters.cluster_id = $2
+`
+
+type UnassignTeamClusterParams struct {
+	TeamID    int64
+	ClusterID int64
+}
+
+func (q *Queries) UnassignTeamCluster(ctx context.Context, arg UnassignTeamClusterParams) error {
+	_, err := q.db.ExecContext(ctx, unassignTeamCluster, arg.TeamID, arg.ClusterID)
 	return err
 }

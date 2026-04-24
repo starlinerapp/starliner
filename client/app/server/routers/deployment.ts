@@ -34,6 +34,14 @@ export const deploymentRouter = {
             }),
           )
           .default([]),
+        args: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -47,6 +55,7 @@ export const deploymentRouter = {
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
           envs: input.envs,
+          args: input.args,
         });
         return res.data;
       } catch (err) {
@@ -78,6 +87,14 @@ export const deploymentRouter = {
             }),
           )
           .default([]),
+        args: z
+          .array(
+            z.object({
+              name: z.string(),
+              value: z.string(),
+            }),
+          )
+          .default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -89,6 +106,7 @@ export const deploymentRouter = {
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
           envs: input.envs,
+          args: input.args,
         })
         .then((res) => res.data);
     }),
@@ -99,6 +117,8 @@ export const deploymentRouter = {
         serviceName: z.string(),
         imageName: z.string(),
         tag: z.string(),
+        volumeSizeMiB: z.number().optional(),
+        volumeMountPath: z.string().optional(),
         port: z.number(),
         envs: z
           .array(
@@ -118,6 +138,8 @@ export const deploymentRouter = {
           serviceName: input.serviceName,
           imageName: input.imageName,
           tag: input.tag,
+          volumeSizeMiB: input.volumeSizeMiB,
+          volumeMountPath: input.volumeMountPath,
           port: input.port,
           envs: input.envs,
         });

@@ -6,6 +6,8 @@ import (
 	"github.com/google/go-github/v84/github"
 	"github.com/palantir/go-githubapp/githubapp"
 	"starliner.app/internal/api/domain/port"
+	"starliner.app/internal/api/domain/value"
+	"strings"
 )
 
 type Client struct {
@@ -124,4 +126,107 @@ func (c *Client) ListRepositoryContents(
 	}
 
 	return result, nil
+}
+
+func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitEvent, error) {
+	switch eventType {
+	case "pull_request":
+		event, err := github.ParseWebHook(eventType, eventPayload)
+		if err != nil {
+			return nil, err
+		}
+
+		prEvent, ok := event.(*github.PullRequestEvent)
+		if !ok {
+			return nil, fmt.Errorf("unexpected event type: %T", event)
+		}
+		if prEvent.GetAction() == "opened" {
+			return &value.PullRequestOpenedEvent{
+				RepositoryOwner: prEvent.GetRepo().GetOwner().GetLogin(),
+				RepositoryId:    prEvent.GetRepo().GetID(),
+				RepositoryName:  prEvent.GetRepo().GetName(),
+				RepositoryUrl:   prEvent.GetRepo().GetCloneURL(),
+				SourceBranch:    prEvent.GetPullRequest().GetHead().GetRef(),
+				TargetBranch:    prEvent.GetPullRequest().GetBase().GetRef(),
+				PrNumber:        prEvent.GetPullRequest().GetNumber(),
+			}, nil
+		}
+
+		return &value.PullRequestClosedEvent{
+			RepositoryOwner: prEvent.GetRepo().GetOwner().GetLogin(),
+			RepositoryId:    prEvent.GetRepo().GetID(),
+			RepositoryName:  prEvent.GetRepo().GetName(),
+			RepositoryUrl:   prEvent.GetRepo().GetCloneURL(),
+			TargetBranch:    prEvent.GetPullRequest().GetBase().GetRef(),
+			PrNumber:        prEvent.GetPullRequest().GetNumber(),
+			Merged:          prEvent.GetPullRequest().GetMerged(),
+		}, nil
+
+	case "push":
+		event, err := github.ParseWebHook(eventType, eventPayload)
+		if err != nil {
+			return nil, err
+		}
+
+		pushEvent, ok := event.(*github.PushEvent)
+		if !ok {
+			return nil, fmt.Errorf("unexpected event type: %T", event)
+		}
+
+		return &value.PushToBranchEvent{
+			RepositoryOwner: pushEvent.GetRepo().GetOwner().GetName(),
+			RepositoryName:  pushEvent.GetRepo().GetName(),
+			RepositoryUrl:   pushEvent.GetRepo().GetCloneURL(),
+			TargetBranch:    strings.TrimPrefix(pushEvent.GetRef(), "refs/heads/"),
+			Ref:             pushEvent.GetRef(),
+		}, nil
+
+	default:
+		return nil, fmt.Errorf("unsupported event type: %s", eventType)
+	}
+}
+
+func (c *Client) CreatePRComment(
+	ctx context.Context,
+	installationId int64,
+	owner string,
+	repository string,
+	prNumber int,
+	body string,
+) error {
+	gh, err := c.installationClient(installationId)
+	if err != nil {
+		return err
+	}
+
+	comment := &github.IssueComment{
+		Body: github.Ptr(body),
+	}
+
+	_, _, err = gh.Issues.CreateComment(ctx, owner, repository, prNumber, comment)
+	return err
+}
+
+func (c *Client) GetFile(
+	ctx context.Context,
+	installationId int64,
+	owner string,
+	repository string,
+	path string,
+) (string, error) {
+	gh, err := c.installationClient(installationId)
+	if err != nil {
+		return "", err
+	}
+
+	fileContent, _, _, err := gh.Repositories.GetContents(ctx, owner, repository, path, nil)
+	if err != nil {
+		return "", err
+	}
+
+	if fileContent == nil {
+		return "", fmt.Errorf("file not found: %s", path)
+	}
+
+	return fileContent.GetContent()
 }

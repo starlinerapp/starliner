@@ -183,29 +183,34 @@ func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
 	})
 }
 
-// CreateInvite godoc
-// @Summary Create organization invite
+// SendEmailInvite godoc
+// @Summary Send organization invite via email
 // @Tags organization
-// @ID createOrganizationInvite
+// @ID sendOrganizationInvite
 // @Product JSON
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Organization ID"
-// @Success 201 {object} response.OrganizationInvite
+// @Param data body request.SendInvite true "Send Invite"
+// @Success 201
 // @Router /organizations/{id}/invites [post]
-func (oh *OrganizationHandler) CreateInvite(c *gin.Context) {
+func (oh *OrganizationHandler) SendEmailInvite(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-
-	invite, err := oh.organizationApplication.CreateInvite(c.Request.Context(), currentUser.Id, organizationId)
+	var body request.SendInvite
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err = oh.organizationApplication.CreateAndSendEmailInvite(c.Request.Context(), currentUser.Id, organizationId, body.ToEmail, body.InviteUrlPrefix)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
-	c.JSON(http.StatusCreated, response.NewOrganizationInvite(invite))
+	c.Status(http.StatusCreated)
 }
 
 // GetInviteDetails godoc
@@ -250,4 +255,29 @@ func (oh *OrganizationHandler) AcceptInvite(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusOK)
+}
+
+// GetOrganizationMembers godoc
+// @Summary Get all organization members
+// @Tags organization
+// @ID getOrganizationMembers
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Success 200 {array} response.User
+// @Router /organizations/{id}/members [get]
+func (oh *OrganizationHandler) GetOrganizationMembers(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	members, err := oh.organizationApplication.GetOrganizationMembers(c.Request.Context(), currentUser.Id, organizationId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewUsers(members))
 }

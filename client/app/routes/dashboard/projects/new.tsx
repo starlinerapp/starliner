@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useTRPC } from "~/utils/trpc/react";
@@ -22,17 +22,35 @@ export default function NewProject() {
 
   const organization = useOrganizationContext();
 
-  const { data: clustersData, isLoading: isClustersLoading } = useQuery(
-    trpc.organization.getOrganizationClusters.queryOptions({
-      id: organization.id,
-    }),
-  );
+  const { register, handleSubmit, watch, setValue } =
+    useForm<NewProjectFormInput>();
+  const nameInput = watch("name", "");
+  const clusterIdInput = watch("clusterId", "");
+  const teamIdInput = watch("teamId", "");
 
   const { data: teamsData, isLoading: isTeamsLoading } = useQuery(
     trpc.team.getUserTeams.queryOptions({
       organizationId: organization.id,
     }),
   );
+
+  const { data: clustersData, isLoading: isClustersLoading } = useQuery(
+    trpc.team.getTeamClusters.queryOptions(
+      { teamId: Number(teamIdInput) },
+      { enabled: !!teamIdInput },
+    ),
+  );
+
+  useEffect(() => {
+    setValue("teamId", teamsData?.[0] ? String(teamsData[0].id) : "");
+  }, [teamsData?.[0]?.id, setValue]);
+
+  useEffect(() => {
+    setValue(
+      "clusterId",
+      clustersData?.[0] ? String(clustersData[0].clusterId) : "",
+    );
+  }, [clustersData?.[0]?.clusterId, setValue]);
 
   const isLoading = isClustersLoading || isTeamsLoading;
 
@@ -49,11 +67,6 @@ export default function NewProject() {
     }),
   );
 
-  const { register, handleSubmit, watch } = useForm<NewProjectFormInput>();
-  const nameInput = watch("name", "");
-  const clusterIdInput = watch("clusterId", "");
-  const teamIdInput = watch("teamId", "");
-
   const onSubmit: SubmitHandler<NewProjectFormInput> = (data) => {
     createProjectMutation.mutate({
       organizationId: organization.id,
@@ -65,6 +78,8 @@ export default function NewProject() {
 
   const clusterExists = clustersData && clustersData.length > 0;
   const teamExists = teamsData && teamsData.length > 0;
+  const selectedTeamHasNoClusters =
+    !!teamIdInput && teamExists && !clusterExists && !isLoading;
 
   return (
     <div className="flex flex-col gap-2 px-8 py-4">
@@ -79,15 +94,22 @@ export default function NewProject() {
           className="my-2"
         />
       ) : null}
-      {!clusterExists && !isLoading ? (
-        <WarningBanner
-          text="You must create a cluster before creating projects."
-          linkOut={{
-            text: "Create Cluster",
-            href: `/${organization.slug}/clusters/new`,
-          }}
-          className="my-2"
-        />
+      {selectedTeamHasNoClusters ? (
+        organization.isOwner ? (
+          <WarningBanner
+            text="This team has no clusters assigned. Assign one before creating projects."
+            linkOut={{
+              text: "Manage Team",
+              href: `/${organization.slug}/settings/teams/${teamIdInput}`,
+            }}
+            className="my-2"
+          />
+        ) : (
+          <WarningBanner
+            text="This team has no clusters assigned. Contact your admin to assign one before creating projects."
+            className="my-2"
+          />
+        )
       ) : null}
       <div className="text-mauve-11 text-sm">
         <p>
@@ -115,7 +137,6 @@ export default function NewProject() {
                 teamExists ? "" : "text-mauve-11",
               )}
               disabled={!teamExists}
-              defaultValue=""
             >
               {teamExists ? (
                 <>
@@ -124,7 +145,7 @@ export default function NewProject() {
                   </option>
                   {teamsData.map((team, i) => (
                     <option key={i} value={team.id}>
-                      {team.name}
+                      {team.slug}
                     </option>
                   ))}
                 </>
@@ -147,14 +168,18 @@ export default function NewProject() {
                 clusterExists ? "" : "text-mauve-11",
               )}
               disabled={!clusterExists}
-              defaultValue=""
             >
               {clusterExists ? (
-                clustersData.map((cluster, i) => (
-                  <option key={i} value={cluster.id}>
-                    {cluster.name}
+                <>
+                  <option value="" disabled>
+                    Cluster*
                   </option>
-                ))
+                  {clustersData.map((cluster, i) => (
+                    <option key={i} value={cluster.clusterId}>
+                      {cluster.clusterName}
+                    </option>
+                  ))}
+                </>
               ) : (
                 <option value="" disabled>
                   Cluster*

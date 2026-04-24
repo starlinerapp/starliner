@@ -13,15 +13,22 @@ import (
 
 const createBuild = `-- name: CreateBuild :one
 INSERT INTO builds (
-    deployment_id
+    deployment_id,
+    source
 ) VALUES (
-    $1
+    $1,
+          $2
 )
-RETURNING id, deployment_id, status, logs, created_at, updated_at
+RETURNING id, deployment_id, status, logs, created_at, updated_at, commit_hash, source, image_name
 `
 
-func (q *Queries) CreateBuild(ctx context.Context, deploymentID sql.NullInt64) (Build, error) {
-	row := q.db.QueryRowContext(ctx, createBuild, deploymentID)
+type CreateBuildParams struct {
+	DeploymentID sql.NullInt64
+	Source       string
+}
+
+func (q *Queries) CreateBuild(ctx context.Context, arg CreateBuildParams) (Build, error) {
+	row := q.db.QueryRowContext(ctx, createBuild, arg.DeploymentID, arg.Source)
 	var i Build
 	err := row.Scan(
 		&i.ID,
@@ -30,6 +37,9 @@ func (q *Queries) CreateBuild(ctx context.Context, deploymentID sql.NullInt64) (
 		&i.Logs,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CommitHash,
+		&i.Source,
+		&i.ImageName,
 	)
 	return i, err
 }
@@ -64,6 +74,9 @@ SELECT
     b.id as build_id,
     d.id as deployment_id,
     d.name as deployment_name,
+    b.image_name as image_name,
+    b.commit_hash,
+    b.source,
     b.status,
     gd.url,
     gd.project_path,
@@ -81,6 +94,9 @@ type GetEnvironmentGitDeploymentBuildsRow struct {
 	BuildID        int64
 	DeploymentID   int64
 	DeploymentName string
+	ImageName      sql.NullString
+	CommitHash     sql.NullString
+	Source         string
 	Status         BuildStatus
 	Url            string
 	ProjectPath    string
@@ -101,6 +117,9 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 			&i.BuildID,
 			&i.DeploymentID,
 			&i.DeploymentName,
+			&i.ImageName,
+			&i.CommitHash,
+			&i.Source,
 			&i.Status,
 			&i.Url,
 			&i.ProjectPath,
@@ -120,21 +139,91 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 	return items, nil
 }
 
+const getLatestGitDeploymentBuild = `-- name: GetLatestGitDeploymentBuild :one
+SELECT DISTINCT ON (d.id)
+    b.id as build_id,
+    d.id as deployment_id,
+    d.name as deployment_name,
+    b.image_name as image_name,
+    b.commit_hash,
+    b.source,
+    b.status,
+    gd.url,
+    gd.project_path,
+    gd.dockerfile_path,
+    b.created_at
+FROM deployments d
+    INNER JOIN git_deployments gd ON gd.deployment_id = d.id
+    INNER JOIN builds b ON d.id = b.deployment_id
+    INNER JOIN environments e ON d.environment_id = e.id
+WHERE d.environment_id = $1
+AND d.name = $2
+ORDER BY d.id, b.created_at DESC
+`
+
+type GetLatestGitDeploymentBuildParams struct {
+	EnvironmentID int64
+	Name          string
+}
+
+type GetLatestGitDeploymentBuildRow struct {
+	BuildID        int64
+	DeploymentID   int64
+	DeploymentName string
+	ImageName      sql.NullString
+	CommitHash     sql.NullString
+	Source         string
+	Status         BuildStatus
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+	CreatedAt      time.Time
+}
+
+func (q *Queries) GetLatestGitDeploymentBuild(ctx context.Context, arg GetLatestGitDeploymentBuildParams) (GetLatestGitDeploymentBuildRow, error) {
+	row := q.db.QueryRowContext(ctx, getLatestGitDeploymentBuild, arg.EnvironmentID, arg.Name)
+	var i GetLatestGitDeploymentBuildRow
+	err := row.Scan(
+		&i.BuildID,
+		&i.DeploymentID,
+		&i.DeploymentName,
+		&i.ImageName,
+		&i.CommitHash,
+		&i.Source,
+		&i.Status,
+		&i.Url,
+		&i.ProjectPath,
+		&i.DockerfilePath,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateBuildInformation = `-- name: UpdateBuildInformation :exec
 UPDATE builds
 SET
     status = $1,
-    logs = $2
-WHERE id = $3
+    commit_hash = $2,
+    image_name = $3,
+    logs = $4
+WHERE id = $5
 `
 
 type UpdateBuildInformationParams struct {
-	Status BuildStatus
-	Logs   sql.NullString
-	ID     int64
+	Status     BuildStatus
+	CommitHash sql.NullString
+	ImageName  sql.NullString
+	Logs       sql.NullString
+	ID         int64
 }
 
 func (q *Queries) UpdateBuildInformation(ctx context.Context, arg UpdateBuildInformationParams) error {
-	_, err := q.db.ExecContext(ctx, updateBuildInformation, arg.Status, arg.Logs, arg.ID)
+	_, err := q.db.ExecContext(ctx, updateBuildInformation,
+		arg.Status,
+		arg.CommitHash,
+		arg.ImageName,
+		arg.Logs,
+		arg.ID,
+	)
 	return err
 }

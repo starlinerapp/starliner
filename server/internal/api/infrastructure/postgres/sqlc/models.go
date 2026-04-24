@@ -190,6 +190,9 @@ type Build struct {
 	Logs         sql.NullString
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	CommitHash   sql.NullString
+	Source       string
+	ImageName    sql.NullString
 }
 
 type Cluster struct {
@@ -205,6 +208,7 @@ type Cluster struct {
 	UpdatedAt      time.Time
 	Kubeconfig     sql.NullString
 	ServerType     string
+	User           string
 }
 
 type DatabaseDeployment struct {
@@ -235,14 +239,25 @@ type DeploymentEnvironmentVar struct {
 	UpdatedAt    time.Time
 }
 
+type DeploymentVolume struct {
+	ID            int64
+	DeploymentID  sql.NullInt64
+	VolumeSizeMib int32
+	MountPath     string
+	DeletedAt     sql.NullTime
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type Environment struct {
-	ID        int64
-	Name      string
-	Slug      string
-	ProjectID int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Namespace string
+	ID              int64
+	Name            string
+	Slug            string
+	ProjectID       int64
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	Namespace       string
+	ConnectedBranch string
 }
 
 type GitDeployment struct {
@@ -252,6 +267,15 @@ type GitDeployment struct {
 	DockerfilePath string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type GitDeploymentArg struct {
+	ID           int64
+	DeploymentID int64
+	Name         string
+	Value        string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type GithubApp struct {
@@ -317,13 +341,22 @@ type OrganizationMember struct {
 	UpdatedAt      time.Time
 }
 
+type PreviewEnvironment struct {
+	EnvironmentID      int64
+	GithubRepositoryID int64
+	PrNumber           int64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
 type Project struct {
-	ID        int64
-	Name      string
-	TeamID    int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ClusterID sql.NullInt64
+	ID                         int64
+	Name                       string
+	TeamID                     int64
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
+	ClusterID                  sql.NullInt64
+	PreviewEnvironmentsEnabled sql.NullBool
 }
 
 type ProvisioningCredential struct {
@@ -337,11 +370,17 @@ type ProvisioningCredential struct {
 
 type Team struct {
 	ID             int64
-	Name           string
 	Slug           string
 	OrganizationID int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type TeamCluster struct {
+	TeamID    int64
+	ClusterID int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type TeamMember struct {
@@ -349,6 +388,14 @@ type TeamMember struct {
 	UserID    int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type TeamRepository struct {
+	TeamID       int64
+	GithubRepoID int64
+	RepoName     string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type User struct {

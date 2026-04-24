@@ -88,6 +88,7 @@ services:
       BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
       CLUSTER_GRPC_ENDPOINT: ${CLUSTER_GRPC_ENDPOINT:-server-cluster:57400}
+      PROVISIONER_GRPC_ENDPOINT: ${PROVISIONER_GRPC_ENDPOINT:-server-provisioner:57400}
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
       NATS_URL: ${NATS_URL:-http://nats:4222}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
@@ -95,6 +96,13 @@ services:
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
       GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
       GITHUB_APP_ID: ${GITHUB_APP_ID}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
+      SENDER_MAIL: ${SENDER_MAIL:-no-reply@starliner.dev}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_TLS_ENABLED: ${SMTP_TLS_ENABLED:-false}
     volumes:
       - ./server:/app
     networks:
@@ -361,6 +369,19 @@ services:
     restart: unless-stopped
     volumes:
       - buildkit-data:/var/lib/buildkit
+    networks:
+      - internal
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    restart: unless-stopped
+    ports:
+      - 8025:8025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
     networks:
       - internal
 

@@ -8,6 +8,14 @@ type Environment struct {
 	Slug string `json:"slug" binding:"required"`
 }
 
+func NewEnvironment(environment *value.Environment) Environment {
+	return Environment{
+		Id:   environment.Id,
+		Name: environment.Name,
+		Slug: environment.Slug,
+	}
+}
+
 func NewEnvironments(environments []*value.Environment) []Environment {
 	result := make([]Environment, len(environments))
 	for i, e := range environments {
@@ -18,4 +26,8 @@ func NewEnvironments(environments []*value.Environment) []Environment {
 		}
 	}
 	return result
+}
+
+type EnvironmentBranch struct {
+	Branch string `json:"branch" binding:"required"`
 }

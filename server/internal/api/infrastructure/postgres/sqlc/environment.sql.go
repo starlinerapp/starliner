@@ -21,7 +21,7 @@ INSERT INTO environments (
     $3,
     $4
 )
-RETURNING id, name, slug, project_id, created_at, updated_at, namespace
+RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 `
 
 type CreateEnvironmentParams struct {
@@ -47,8 +47,149 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Namespace,
+		&i.ConnectedBranch,
 	)
 	return i, err
+}
+
+const createEnvironmentWithConnectedBranch = `-- name: CreateEnvironmentWithConnectedBranch :one
+INSERT INTO environments (
+    name,
+    slug,
+    namespace,
+    project_id,
+    connected_branch
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5
+)
+RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
+`
+
+type CreateEnvironmentWithConnectedBranchParams struct {
+	Name            string
+	Slug            string
+	Namespace       string
+	ProjectID       int64
+	ConnectedBranch string
+}
+
+func (q *Queries) CreateEnvironmentWithConnectedBranch(ctx context.Context, arg CreateEnvironmentWithConnectedBranchParams) (Environment, error) {
+	row := q.db.QueryRowContext(ctx, createEnvironmentWithConnectedBranch,
+		arg.Name,
+		arg.Slug,
+		arg.Namespace,
+		arg.ProjectID,
+		arg.ConnectedBranch,
+	)
+	var i Environment
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.ProjectID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Namespace,
+		&i.ConnectedBranch,
+	)
+	return i, err
+}
+
+const createPreviewEnvironment = `-- name: CreatePreviewEnvironment :one
+WITH new_environment AS (
+    INSERT INTO environments (
+        name,
+        slug,
+        namespace,
+        project_id,
+        connected_branch
+    ) VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5
+    ) RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
+),
+new_preview_environments AS (
+    INSERT INTO preview_environments (
+        environment_id,
+        github_repository_id,
+        pr_number
+    )
+   SELECT id, $6, $7 FROM new_environment
+   RETURNING environment_id, github_repository_id, pr_number, created_at, updated_at
+)
+SELECT
+    e.id,
+    e.name,
+    e.slug,
+    e.project_id,
+    e.namespace,
+    e.connected_branch,
+    pe.github_repository_id,
+    pe.pr_number
+FROM new_environment e
+INNER JOIN new_preview_environments pe ON e.id = pe.environment_id
+`
+
+type CreatePreviewEnvironmentParams struct {
+	Name               string
+	Slug               string
+	Namespace          string
+	ProjectID          int64
+	ConnectedBranch    string
+	GithubRepositoryID int64
+	PrNumber           int64
+}
+
+type CreatePreviewEnvironmentRow struct {
+	ID                 int64
+	Name               string
+	Slug               string
+	ProjectID          int64
+	Namespace          string
+	ConnectedBranch    string
+	GithubRepositoryID int64
+	PrNumber           int64
+}
+
+func (q *Queries) CreatePreviewEnvironment(ctx context.Context, arg CreatePreviewEnvironmentParams) (CreatePreviewEnvironmentRow, error) {
+	row := q.db.QueryRowContext(ctx, createPreviewEnvironment,
+		arg.Name,
+		arg.Slug,
+		arg.Namespace,
+		arg.ProjectID,
+		arg.ConnectedBranch,
+		arg.GithubRepositoryID,
+		arg.PrNumber,
+	)
+	var i CreatePreviewEnvironmentRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.ProjectID,
+		&i.Namespace,
+		&i.ConnectedBranch,
+		&i.GithubRepositoryID,
+		&i.PrNumber,
+	)
+	return i, err
+}
+
+const deleteEnvironment = `-- name: DeleteEnvironment :exec
+DELETE FROM environments
+WHERE id = $1
+`
+
+func (q *Queries) DeleteEnvironment(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteEnvironment, id)
+	return err
 }
 
 const getEnvironmentAuthorizedUsers = `-- name: GetEnvironmentAuthorizedUsers :many
@@ -83,8 +224,21 @@ func (q *Queries) GetEnvironmentAuthorizedUsers(ctx context.Context, id int64) (
 	return items, nil
 }
 
+const getEnvironmentBranch = `-- name: GetEnvironmentBranch :one
+SELECT e.connected_branch
+FROM environments e
+WHERE e.id = $1
+`
+
+func (q *Queries) GetEnvironmentBranch(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentBranch, id)
+	var connected_branch string
+	err := row.Scan(&connected_branch)
+	return connected_branch, err
+}
+
 const getEnvironmentById = `-- name: GetEnvironmentById :one
-SELECT id, name, slug, project_id, created_at, updated_at, namespace
+SELECT id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 FROM environments
 WHERE environments.id = $1
 `
@@ -100,12 +254,13 @@ func (q *Queries) GetEnvironmentById(ctx context.Context, id int64) (Environment
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Namespace,
+		&i.ConnectedBranch,
 	)
 	return i, err
 }
 
 const getEnvironmentCluster = `-- name: GetEnvironmentCluster :one
-SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
 FROM environments
 INNER JOIN projects ON projects.id = environments.project_id
 INNER JOIN clusters ON projects.cluster_id = clusters.id
@@ -128,6 +283,45 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 		&i.UpdatedAt,
 		&i.Kubeconfig,
 		&i.ServerType,
+		&i.User,
 	)
 	return i, err
+}
+
+const getEnvironmentProject = `-- name: GetEnvironmentProject :one
+SELECT p.id, p.name, p.team_id, p.created_at, p.updated_at, p.cluster_id, p.preview_environments_enabled
+FROM projects p
+INNER JOIN environments e on p.id = e.project_id
+WHERE e.id = $1
+`
+
+func (q *Queries) GetEnvironmentProject(ctx context.Context, id int64) (Project, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentProject, id)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.TeamID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ClusterID,
+		&i.PreviewEnvironmentsEnabled,
+	)
+	return i, err
+}
+
+const updateEnvironmentBranch = `-- name: UpdateEnvironmentBranch :exec
+UPDATE environments
+SET connected_branch = $1
+WHERE id = $2
+`
+
+type UpdateEnvironmentBranchParams struct {
+	ConnectedBranch string
+	ID              int64
+}
+
+func (q *Queries) UpdateEnvironmentBranch(ctx context.Context, arg UpdateEnvironmentBranchParams) error {
+	_, err := q.db.ExecContext(ctx, updateEnvironmentBranch, arg.ConnectedBranch, arg.ID)
+	return err
 }

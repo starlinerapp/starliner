@@ -9,6 +9,7 @@ export const environmentRouter = {
         name: z.string(),
         organizationId: z.number(),
         projectId: z.number(),
+        sourceEnvironmentId: z.number().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -16,8 +17,9 @@ export const environmentRouter = {
       return await environmentApiFactory
         .createEnvironment(userId, {
           name: input.name,
-          organization_id: input.organizationId,
-          project_id: input.projectId,
+          organizationId: input.organizationId,
+          projectId: input.projectId,
+          sourceEnvironmentId: input.sourceEnvironmentId,
         })
         .then((res) => res.data);
     }),
@@ -43,6 +45,33 @@ export const environmentRouter = {
       const userId = ctx.user?.id;
       return await environmentApiFactory
         .getEnvironmentBuilds(userId, input.id)
+        .then((res) => res.data);
+    }),
+  getEnvironmentConnectedBranch: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await environmentApiFactory
+        .getEnvironmentConnectedBranch(userId, input.id)
+        .then((res) => res.data);
+    }),
+  updateEnvironmentConnectedBranch: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        branchName: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await environmentApiFactory
+        .updateEnvironmentConnectedBranch(userId, input.id, {
+          branch: input.branchName,
+        })
         .then((res) => res.data);
     }),
 };

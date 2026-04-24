@@ -34,7 +34,7 @@ func (s *Secret) GetDatabaseCredentials(namespace string, releaseName string, ku
 			return fmt.Errorf("failed to create client: %w", err)
 		}
 
-		secretName := releaseName + "-app"
+		secretName := releaseName + "-db-credentials"
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 		defer cancel()

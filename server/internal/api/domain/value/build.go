@@ -11,13 +11,21 @@ const (
 	BuildStatusFailed   BuildStatus = "failure"
 )
 
+type Arg struct {
+	Name  string
+	Value string
+}
+
 type GitDeploymentBuild struct {
 	BuildId        int64
 	DeploymentId   int64
 	DeploymentName string
+	CommitHash     *string
+	Source         string
 	Status         BuildStatus
 	GitUrl         string
 	ProjectPath    string
 	DockerfilePath string
 	CreatedAt      time.Time
+	Args           []*Arg
 }
