@@ -97,6 +97,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 
 	status := value.BuildStatusSuccess
 	if err != nil {
+		log.Printf("failed to build image: %v", err)
 		status = value.BuildStatusFailed
 	}
 
