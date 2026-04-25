@@ -3,6 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import httpProxy from "http-proxy";
 import * as http from "node:http";
+import * as Sentry from "@sentry/react-router";
 import { auth } from "~/utils/auth/server";
 import { fromNodeHeaders } from "better-auth/node";
 import { createRequestHandler } from "@react-router/express";
@@ -63,6 +64,15 @@ const wsProxy = httpProxy.createProxyServer({
 
 wsProxy.on("error", (err, req, socket) => {
   console.error("WebSocket proxy error:", err);
+  Sentry.captureException(err, {
+    tags: {
+      subsystem: "websocket-proxy",
+    },
+    extra: {
+      url: req.url,
+      method: req.method,
+    },
+  });
 
   if ("write" in socket) {
     socket.write("HTTP/1.1 502 Bad Gateway\r\n\r\n");
@@ -75,24 +85,44 @@ server.on("upgrade", async (req, socket, head) => {
     return;
   }
 
-  console.log("Proxying WebSocket request:", req.url);
+  try {
+    console.log("Proxying WebSocket request:", req.url);
 
-  const session = await auth.api.getSession({
-    headers: fromNodeHeaders(req.headers),
-  });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
 
-  if (session?.user.id) {
-    req.headers["X-User-Id"] = session?.user.id ?? "";
+    if (session?.user.id) {
+      req.headers["X-User-Id"] = session?.user.id ?? "";
+    }
+
+    const credentials = Buffer.from(
+      `${SERVER_BASIC_AUTH_USER}:${SERVER_BASIC_AUTH_PASSWORD}`,
+    ).toString("base64");
+
+    req.headers["authorization"] = `Basic ${credentials}`;
+
+    wsProxy.ws(req, socket, head);
+  } catch (error) {
+    console.error("WebSocket upgrade handling failed:", error);
+    Sentry.captureException(error, {
+      tags: {
+        subsystem: "websocket-upgrade",
+      },
+      extra: {
+        url: req.url,
+        method: req.method,
+      },
+    });
+
+    if ("write" in socket) {
+      socket.write("HTTP/1.1 500 Internal Server Error\r\n\r\n");
+      socket.destroy();
+    }
   }
-
-  const credentials = Buffer.from(
-    `${SERVER_BASIC_AUTH_USER}:${SERVER_BASIC_AUTH_PASSWORD}`,
-  ).toString("base64");
-
-  req.headers["authorization"] = `Basic ${credentials}`;
-
-  wsProxy.ws(req, socket, head);
 });
+
+Sentry.setupExpressErrorHandler(app);
 
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
