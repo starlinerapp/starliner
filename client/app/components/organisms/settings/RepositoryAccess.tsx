@@ -192,12 +192,12 @@ export function RepositoryAccess({
             >
               <span className="text-sm">{repo.repoName}</span>
               <button
-                className="text-mauve-11 hover:text-mauve-12 cursor-pointer"
+                className="text-mauve-11 hover:bg-gray-3 cursor-pointer rounded-md p-1"
                 disabled={unassignMutation.isPending}
                 onClick={() => onUnassignRepo(repo.githubRepoId)}
                 title="Revoke repository access"
               >
-                <Cross width={16} height={16} />
+                <Cross width={20} height={20} />
               </button>
             </div>
           ))

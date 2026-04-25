@@ -169,12 +169,12 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                 </span>
               </div>
               <button
-                className="text-mauve-11 hover:text-mauve-12 cursor-pointer"
+                className="text-mauve-11 hover:bg-gray-3 cursor-pointer rounded-md p-1"
                 disabled={unassignClusterMutation.isPending}
                 onClick={() => onUnassignCluster(cluster.clusterId)}
                 title="Revoke cluster access"
               >
-                <Cross width={16} height={16} />
+                <Cross width={20} height={20} />
               </button>
             </div>
           ))
