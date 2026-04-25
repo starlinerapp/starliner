@@ -20,7 +20,7 @@ type IngressHost struct {
 
 type IngressDeployment struct {
 	Id            int64
-	EnvironmentId int64
+	EnvironmentId *int64
 	Status        string
 	Name          string
 	Port          string
@@ -44,7 +44,7 @@ type ImageDeployment struct {
 	ImageName       string
 	Tag             string
 	Port            string
-	EnvironmentId   int64
+	EnvironmentId   *int64
 	VolumeSizeMiB   *int32
 	VolumeMountPath *string
 	EnvVars         []*EnvVar
@@ -58,7 +58,7 @@ type DatabaseDeployment struct {
 	Username      *string
 	Password      *string
 	Port          string
-	EnvironmentId int64
+	EnvironmentId *int64
 }
 
 type GitDeployment struct {
@@ -66,7 +66,7 @@ type GitDeployment struct {
 	Name                  string
 	Status                string
 	Port                  string
-	EnvironmentId         int64
+	EnvironmentId         *int64
 	GitUrl                string
 	ProjectRepositoryPath string
 	DockerfilePath        string
@@ -79,7 +79,7 @@ type Deployment struct {
 	Name          string
 	Port          string
 	Namespace     string
-	EnvironmentId int64
+	EnvironmentId *int64
 }
 
 type DeploymentWithKubeconfig struct {

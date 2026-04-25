@@ -66,3 +66,7 @@ func (gr *GithubAppRepository) GetEnvironmentGithubApp(ctx context.Context, envi
 		CreatedAt:      ghApp.CreatedAt,
 	}, nil
 }
+
+func (gr *GithubAppRepository) DeleteGithubApp(ctx context.Context, installationId int64) error {
+	return gr.queries.DeleteGithubAppByInstallationId(ctx, installationId)
+}

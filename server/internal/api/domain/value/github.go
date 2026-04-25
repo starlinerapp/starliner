@@ -69,3 +69,11 @@ type PushToBranchEvent struct {
 func (e *PushToBranchEvent) EventName() string {
 	return "push"
 }
+
+type GitHubAppInstallationDeletedEvent struct {
+	InstallationId *int64
+}
+
+func (e *GitHubAppInstallationDeletedEvent) EventName() string {
+	return "installation.deleted"
+}

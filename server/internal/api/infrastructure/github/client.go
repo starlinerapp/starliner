@@ -130,6 +130,24 @@ func (c *Client) ListRepositoryContents(
 
 func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitEvent, error) {
 	switch eventType {
+	case "installation":
+		event, err := github.ParseWebHook(eventType, eventPayload)
+		if err != nil {
+			return nil, err
+		}
+
+		installationEvent, ok := event.(*github.InstallationEvent)
+		if !ok {
+			return nil, fmt.Errorf("unexpected event type: %T", event)
+		}
+		switch installationEvent.GetAction() {
+		case "deleted":
+			return &value.GitHubAppInstallationDeletedEvent{
+				InstallationId: installationEvent.Installation.ID,
+			}, nil
+		default:
+			return nil, nil
+		}
 	case "pull_request":
 		event, err := github.ParseWebHook(eventType, eventPayload)
 		if err != nil {

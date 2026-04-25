@@ -225,7 +225,7 @@ type Deployment struct {
 	Name          string
 	Port          string
 	Status        DeploymentStatus
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
