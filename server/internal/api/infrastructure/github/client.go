@@ -140,7 +140,8 @@ func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitE
 		if !ok {
 			return nil, fmt.Errorf("unexpected event type: %T", event)
 		}
-		if prEvent.GetAction() == "opened" {
+		switch prEvent.GetAction() {
+		case "opened", "reopened":
 			return &value.PullRequestOpenedEvent{
 				RepositoryOwner: prEvent.GetRepo().GetOwner().GetLogin(),
 				RepositoryId:    prEvent.GetRepo().GetID(),
@@ -150,17 +151,19 @@ func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitE
 				TargetBranch:    prEvent.GetPullRequest().GetBase().GetRef(),
 				PrNumber:        prEvent.GetPullRequest().GetNumber(),
 			}, nil
+		case "closed":
+			return &value.PullRequestClosedEvent{
+				RepositoryOwner: prEvent.GetRepo().GetOwner().GetLogin(),
+				RepositoryId:    prEvent.GetRepo().GetID(),
+				RepositoryName:  prEvent.GetRepo().GetName(),
+				RepositoryUrl:   prEvent.GetRepo().GetCloneURL(),
+				TargetBranch:    prEvent.GetPullRequest().GetBase().GetRef(),
+				PrNumber:        prEvent.GetPullRequest().GetNumber(),
+				Merged:          prEvent.GetPullRequest().GetMerged(),
+			}, nil
+		default:
+			return nil, nil
 		}
-
-		return &value.PullRequestClosedEvent{
-			RepositoryOwner: prEvent.GetRepo().GetOwner().GetLogin(),
-			RepositoryId:    prEvent.GetRepo().GetID(),
-			RepositoryName:  prEvent.GetRepo().GetName(),
-			RepositoryUrl:   prEvent.GetRepo().GetCloneURL(),
-			TargetBranch:    prEvent.GetPullRequest().GetBase().GetRef(),
-			PrNumber:        prEvent.GetPullRequest().GetNumber(),
-			Merged:          prEvent.GetPullRequest().GetMerged(),
-		}, nil
 
 	case "push":
 		event, err := github.ParseWebHook(eventType, eventPayload)
