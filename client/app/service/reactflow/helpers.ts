@@ -45,8 +45,33 @@ const referencesService = (value: string, serviceName: string, port: string) =>
     (candidate) => value === candidate || value.startsWith(candidate),
   );
 
-const referencesDatabase = (value: string, { rwHost }: DatabaseTarget) =>
-  value === rwHost;
+const isPostgresUrlProtocol = (protocol: string) =>
+  protocol === "postgres:" || protocol === "postgresql:";
+
+/** Host from a postgres[ql] or jdbc:postgres[ql] URL, or undefined if not parseable as one. */
+const hostFromPostgresConnectionString = (value: string): string | undefined => {
+  if (!/^[a-z+.-]+:\/\//i.test(value) && !/^jdbc:/i.test(value)) {
+    return undefined;
+  }
+  const withoutJdbc = value.replace(/^jdbc:/i, "");
+  if (!/^[a-z+.-]+:\/\//i.test(withoutJdbc)) {
+    return undefined;
+  }
+  try {
+    const url = new URL(withoutJdbc);
+    if (!isPostgresUrlProtocol(url.protocol) || !url.hostname) {
+      return undefined;
+    }
+    return url.hostname;
+  } catch {
+    return undefined;
+  }
+};
+
+const referencesDatabase = (value: string, { rwHost }: DatabaseTarget) => {
+  if (value === rwHost) return true;
+  return hostFromPostgresConnectionString(value) === rwHost;
+};
 
 // ─── Target Builders ──────────────────────────────────────────────────────────
 
