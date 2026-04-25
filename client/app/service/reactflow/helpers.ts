@@ -49,7 +49,9 @@ const isPostgresUrlProtocol = (protocol: string) =>
   protocol === "postgres:" || protocol === "postgresql:";
 
 /** Host from a postgres[ql] or jdbc:postgres[ql] URL, or undefined if not parseable as one. */
-const hostFromPostgresConnectionString = (value: string): string | undefined => {
+const hostFromPostgresConnectionString = (
+  value: string,
+): string | undefined => {
   if (!/^[a-z+.-]+:\/\//i.test(value) && !/^jdbc:/i.test(value)) {
     return undefined;
   }
