@@ -6,7 +6,7 @@
     "build": "react-router build && npm run build:server",
     "build:server": "esbuild server.ts --bundle --platform=node --format=esm --outfile=server.mjs --packages=external",
     "dev": "NODE_OPTIONS='--import ./instrument.server.mjs' NODE_ENV=development tsx server.ts",
-    "start": "NODE_ENV=production NODE_OPTIONS='--import ./instrument.server.mjs' react-router-serve ./build/server/index.js",
+    "start": "NODE_ENV=production NODE_OPTIONS='--import ./instrument.server.mjs' node server.mjs",
     "typecheck": "react-router typegen && tsc",
     "fmt": "prettier --write .",
     "lint": "eslint .",
