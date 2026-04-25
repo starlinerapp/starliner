@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react-router";
 import React from "react";
 import {
   isRouteErrorResponse,
@@ -6,12 +7,26 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TRPCReactProvider } from "~/utils/trpc/react";
+
+function envScript(env: { SENTRY_DSN_CLIENT: string; ENVIRONMENT: string }) {
+  return `window.ENV = ${JSON.stringify(env).replace(/</g, "\\u003c")};`;
+}
+
+export function loader() {
+  return {
+    env: {
+      SENTRY_DSN_CLIENT: process.env.SENTRY_DSN_CLIENT ?? "",
+      ENVIRONMENT: process.env.ENVIRONMENT ?? "",
+    } satisfies Window["ENV"],
+  };
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -27,9 +42,15 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { env } = useLoaderData<typeof loader>();
+
   return (
     <html lang="en">
       <head>
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: envScript(env) }}
+        />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
@@ -70,6 +91,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
+  }
+
+  if (error && error instanceof Error) {
+    Sentry.captureException(error);
   }
 
   return (

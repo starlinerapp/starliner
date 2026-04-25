@@ -143,6 +143,78 @@ func (q *Queries) DeleteIngressPathsByDeploymentId(ctx context.Context, deployme
 	return err
 }
 
+const getEnvironmentIngressDeployments = `-- name: GetEnvironmentIngressDeployments :many
+SELECT
+    d.id AS deployment_id,
+    d.name AS deployment_name,
+    d.port,
+    d.status,
+    d.environment_id,
+    ih.id           AS host_id,
+    ih.host         AS host,
+    ip.id           AS path_id,
+    ip.path         AS path,
+    ip.path_type    AS path_type,
+    svc.name        AS service_name
+FROM deployments d
+         INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+         INNER JOIN environments e ON d.environment_id = e.id
+         LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
+         LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
+         LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+WHERE d.environment_id = $1
+ORDER BY d.id DESC
+`
+
+type GetEnvironmentIngressDeploymentsRow struct {
+	DeploymentID   int64
+	DeploymentName string
+	Port           string
+	Status         DeploymentStatus
+	EnvironmentID  int64
+	HostID         sql.NullInt64
+	Host           sql.NullString
+	PathID         sql.NullInt64
+	Path           sql.NullString
+	PathType       sql.NullString
+	ServiceName    sql.NullString
+}
+
+func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentIngressDeploymentsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentIngressDeployments, environmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEnvironmentIngressDeploymentsRow
+	for rows.Next() {
+		var i GetEnvironmentIngressDeploymentsRow
+		if err := rows.Scan(
+			&i.DeploymentID,
+			&i.DeploymentName,
+			&i.Port,
+			&i.Status,
+			&i.EnvironmentID,
+			&i.HostID,
+			&i.Host,
+			&i.PathID,
+			&i.Path,
+			&i.PathType,
+			&i.ServiceName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEnvironmentIngressDeploymentsByName = `-- name: GetEnvironmentIngressDeploymentsByName :many
 SELECT
     d.id AS deployment_id,

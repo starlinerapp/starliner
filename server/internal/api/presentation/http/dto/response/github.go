@@ -29,3 +29,11 @@ func NewRepositoryFiles(files []*value.RepositoryFile) []RepositoryFile {
 	}
 	return res
 }
+
+type FileContent struct {
+	Content string `json:"content"`
+}
+
+func NewFileContent(content string) FileContent {
+	return FileContent{Content: content}
+}

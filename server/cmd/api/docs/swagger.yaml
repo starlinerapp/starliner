@@ -462,6 +462,11 @@ definitions:
     required:
     - branch
     type: object
+  response.FileContent:
+    properties:
+      content:
+        type: string
+    type: object
   response.GetOrganizationProvisioningCredentialResponse:
     properties:
       credential:
@@ -719,6 +724,13 @@ definitions:
     - clusterId
     - clusterName
     type: object
+  response.ProjectPreviewEnvironmentEnabled:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
+    type: object
   response.Repository:
     properties:
       clone_url:
@@ -872,6 +884,36 @@ paths:
           schema:
             $ref: '#/definitions/response.BuildLogs'
       summary: Get Build Logs
+      tags:
+      - build
+  /builds/{id}/logs/stream:
+    get:
+      operationId: streamBuildLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Build ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
+      summary: Stream build logs
       tags:
       - build
   /clusters:
@@ -1374,6 +1416,43 @@ paths:
       summary: Get Repository Content
       tags:
       - github
+  /github/repositories/{organizationId}/{owner}/{repository}/file:
+    get:
+      operationId: getFileContent
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: organizationId
+        required: true
+        type: integer
+      - description: Repository owner (user or org)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repository
+        required: true
+        type: string
+      - description: Path to the file within the repository
+        in: query
+        name: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FileContent'
+      summary: Get File Content
+      tags:
+      - github
   /githubapps:
     post:
       operationId: createGithubApp
@@ -1848,6 +1927,49 @@ paths:
               $ref: '#/definitions/response.Environment'
             type: array
       summary: Get Project Environments
+      tags:
+      - project
+  /projects/{id}/preview-environment/enabled:
+    get:
+      operationId: getProjectPreviewEnvironmentEnabled
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectPreviewEnvironmentEnabled'
+      summary: Get Project Preview Environment Enabled
+      tags:
+      - project
+    put:
+      operationId: toggleProjectPreviewEnvironmentEnabled
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectPreviewEnvironmentEnabled'
+      summary: Toggle Project Preview Environment Enabled
       tags:
       - project
   /teams/{teamId}/clusters:

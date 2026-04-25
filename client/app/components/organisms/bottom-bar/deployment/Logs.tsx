@@ -35,7 +35,7 @@ export default function Logs({ deployment }: LogsProps) {
     ),
   );
 
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const logsScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (deployment) {
@@ -45,18 +45,29 @@ export default function Logs({ deployment }: LogsProps) {
   }, [deployment]);
 
   useEffect(() => {
+    const el = logsScrollRef.current;
+    if (!el) {
+      return;
+    }
+    const scrollToBottom = (behavior: ScrollBehavior) => {
+      const top = el.scrollHeight - el.clientHeight;
+      if (top <= 0) {
+        return;
+      }
+      el.scrollTo({ top, left: 0, behavior });
+    };
     if (!hasLoadedInitial.current) {
       if (logs.length > 0) {
         hasLoadedInitial.current = true;
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            logsEndRef.current?.scrollIntoView({ behavior: "instant" });
+            scrollToBottom("auto");
           });
         });
       }
       return;
     }
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom("smooth");
   }, [logs]);
 
   return (
@@ -66,14 +77,18 @@ export default function Logs({ deployment }: LogsProps) {
           No deployment selected. Select one to view logs.
         </p>
       ) : (
-        <pre className="text-mauve-11 w-full font-mono text-sm break-all whitespace-pre-wrap">
-          {logs.map((line, i) => (
-            <span key={i} className="block">
-              {line}
-            </span>
-          ))}
-          <div ref={logsEndRef} />
-        </pre>
+        <div
+          ref={logsScrollRef}
+          className="h-full min-h-0 w-full overflow-y-auto"
+        >
+          <pre className="text-mauve-11 w-full font-mono text-sm break-all whitespace-pre-wrap">
+            {logs.map((line, i) => (
+              <span key={i} className="block">
+                {line}
+              </span>
+            ))}
+          </pre>
+        </div>
       )}
     </>
   );

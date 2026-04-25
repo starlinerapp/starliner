@@ -1,6 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { githubFactory } from "~/server/api/client";
+import { githubApiFactory } from "~/server/api/client";
 
 export const githubRouter = {
   getRepositories: protectedProcedure
@@ -12,7 +12,7 @@ export const githubRouter = {
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       try {
-        const res = await githubFactory.getRepositories(
+        const res = await githubApiFactory.getRepositories(
           userId,
           input.organizationId,
         );
@@ -32,7 +32,7 @@ export const githubRouter = {
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       try {
-        const res = await githubFactory.getAllRepositories(
+        const res = await githubApiFactory.getAllRepositories(
           userId,
           input.organizationId,
         );
@@ -54,7 +54,7 @@ export const githubRouter = {
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
-      const res = await githubFactory.getRepositoryContents(
+      const res = await githubApiFactory.getRepositoryContents(
         userId,
         input.organizationId,
         input.owner,
@@ -62,5 +62,26 @@ export const githubRouter = {
         input.path,
       );
       return res.data;
+    }),
+  getRepositoryFileContent: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        owner: z.string(),
+        repo: z.string(),
+        path: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await githubApiFactory
+        .getFileContent(
+          userId,
+          input.organizationId,
+          input.owner,
+          input.repo,
+          input.path,
+        )
+        .then((res) => res.data);
     }),
 };

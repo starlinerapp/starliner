@@ -77,6 +77,8 @@ func NewServer(
 		projectRoutes.DELETE("/:id", projectHandler.DeleteProject)
 		projectRoutes.GET("/:id/cluster", projectHandler.GetProjectCluster)
 		projectRoutes.GET("/:id/environments", projectHandler.GetProjectEnvironments)
+		projectRoutes.GET("/:id/preview-environment/enabled", projectHandler.GetProjectPreviewEnvironmentEnabled)
+		projectRoutes.PUT("/:id/preview-environment/enabled", projectHandler.ToggleProjectPreviewEnvironmentEnabled)
 	}
 
 	environmentRoutes := engine.Group("/environments")
@@ -112,6 +114,7 @@ func NewServer(
 	buildRoutes := engine.Group("/builds")
 	{
 		buildRoutes.GET("/:id/logs", buildHandler.GetBuildLogs)
+		buildRoutes.GET("/:id/logs/stream", buildHandler.StreamBuildLogs)
 	}
 
 	webSocketRoutes := engine.Group("/ws")
@@ -138,6 +141,7 @@ func NewServer(
 		githubRoutes.GET("/repositories/:organizationId", githubHandler.GetRepositories)
 		githubRoutes.GET("/all-repositories/:organizationId", githubHandler.GetAllRepositories)
 		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/contents", githubHandler.GetRepositoryContents)
+		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/file", githubHandler.GetFileContent)
 	}
 
 	githubAppRoutes := engine.Group("/githubapps")

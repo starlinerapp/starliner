@@ -10,6 +10,7 @@ type TriggerBuild struct {
 	DeploymentId   int64
 	ImageName      string
 	GitUrl         string
+	BranchName     string
 	AccessToken    string
 	RootDirectory  string
 	DockerfilePath string
@@ -34,4 +35,10 @@ type BuildCompleted struct {
 	CommitHash       *string
 	Tag              *string
 	Logs             string
+}
+
+type BuildLogChunk struct {
+	BuildId int64
+	Data    []byte
+	End     bool
 }

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
+
+message StreamBuildLogRequest {
+  int64 build_id = 1;
+}
+
+message StreamBuildLogResponse {
+  bytes chunk = 1;
+}
+
+service BuildLogService {
+  rpc StreamBuildLogs(StreamBuildLogRequest) returns (stream StreamBuildLogResponse);
+}

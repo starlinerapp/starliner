@@ -74,13 +74,13 @@ export const teamsApiFactory = TeamApiFactory(
   axiosInstance,
 );
 
-export const githubFactory = GithubApiFactory(
+export const githubApiFactory = GithubApiFactory(
   configuration,
   undefined,
   axiosInstance,
 );
 
-export const githubAppFactory = GithubappApiFactory(
+export const githubappApiFactory = GithubappApiFactory(
   configuration,
   undefined,
   axiosInstance,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight } from "~/components/atoms/icons";
 import { formatDistanceToNow } from "date-fns";
@@ -6,7 +6,7 @@ import { Spinner } from "~/components/atoms/spinner/Spinner";
 import { Check, GitMerge, X } from "lucide-react";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useTRPC } from "~/utils/trpc/react";
-import { useQuery } from "@tanstack/react-query";
+import { useSubscription } from "@trpc/tanstack-react-query";
 
 interface LogsCardProps {
   isCollapsed?: boolean;
@@ -30,29 +30,69 @@ export default function BuildCard({
 }: LogsCardProps) {
   const trpc = useTRPC();
 
-  const [isCollapsed, setIsCollapsed] = React.useState(collapsed);
-  const shouldPoll = status === "building" || status === "queued";
+  const [isCollapsed, setIsCollapsed] = useState(collapsed);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [hasReceivedLogs, setHasReceivedLogs] = useState(false);
 
-  const { data: logsData, isLoading } = useQuery(
-    trpc.build.getBuildLogs.queryOptions(
-      {
-        id: buildId,
-      },
+  const logsScrollRef = useRef<HTMLPreElement>(null);
+  const hasLoadedInitial = useRef(false);
+
+  useEffect(() => {
+    if (isCollapsed) {
+      return;
+    }
+    setLogs([]);
+    setHasReceivedLogs(false);
+    hasLoadedInitial.current = false;
+  }, [isCollapsed, buildId]);
+
+  useSubscription(
+    trpc.build.streamBuildLogs.subscriptionOptions(
+      { buildId },
       {
         enabled: !isCollapsed,
-        refetchInterval: shouldPoll ? 1000 : false,
+        onData: (chunk) => {
+          setLogs((prev) => [...prev, chunk]);
+          setHasReceivedLogs(true);
+        },
       },
     ),
   );
+
+  useEffect(() => {
+    const el = logsScrollRef.current;
+    if (!el) {
+      return;
+    }
+    const scrollToBottom = (behavior: ScrollBehavior) => {
+      const top = el.scrollHeight - el.clientHeight;
+      if (top <= 0) {
+        return;
+      }
+      el.scrollTo({ top, left: 0, behavior });
+    };
+    if (!hasLoadedInitial.current) {
+      if (logs.length > 0) {
+        hasLoadedInitial.current = true;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollToBottom("auto");
+          });
+        });
+      }
+      return;
+    }
+    scrollToBottom("smooth");
+  }, [logs]);
+
+  const isBuilding = status === "queued" || status === "building";
 
   return (
     <div className="shadow-xs">
       <div className="border-mauve-6 rounded-t-md border px-4 py-3 text-sm">
         <div className="flex gap-3">
           <div className="flex h-5 w-5 shrink-0 items-center justify-center">
-            {(status === "queued" || status === "building") && (
-              <Spinner className="stroke-violet-10 size-5" />
-            )}
+            {isBuilding && <Spinner className="stroke-violet-10 size-5" />}
             {status === "success" && (
               <div className="bg-grass-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
                 <Check className="w-3.5 stroke-white stroke-2" />
@@ -112,11 +152,22 @@ export default function BuildCard({
               className="overflow-hidden"
             >
               <div className="bg-gray-2 border-t-mauve-6 border-t p-4">
-                {isLoading || !logsData?.logs ? (
+                {!hasReceivedLogs && isBuilding ? (
                   <BuildCardSkeleton />
-                ) : (
+                ) : logs.length === 0 ? (
                   <pre className="text-mauve-11 max-h-[500px] overflow-y-auto whitespace-pre-wrap">
-                    {logsData?.logs || "No logs available"}
+                    No logs available
+                  </pre>
+                ) : (
+                  <pre
+                    ref={logsScrollRef}
+                    className="text-mauve-11 max-h-[500px] w-full overflow-y-auto font-mono text-sm break-all whitespace-pre-wrap"
+                  >
+                    {logs.map((line, i) => (
+                      <span key={i} className="block">
+                        {line}
+                      </span>
+                    ))}
                   </pre>
                 )}
               </div>

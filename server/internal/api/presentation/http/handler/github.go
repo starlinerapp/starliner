@@ -110,3 +110,42 @@ func (gh *GithubHandler) GetRepositoryContents(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.NewRepositoryFiles(repoContent))
 }
+
+// GetFileContent godoc
+// @Summary Get File Content
+// @Tags github
+// @ID getFileContent
+// @Param X-User-ID header string true "User ID"
+// @Param organizationId path int true "Organization ID"
+// @Param owner path string true "Repository owner (user or org)"
+// @Param repository path string true "Repository name"
+// @Param path query string true "Path to the file within the repository"
+// @Product JSON
+// @Success 200 {object} response.FileContent
+// @Router /github/repositories/{organizationId}/{owner}/{repository}/file [get]
+func (gh *GithubHandler) GetFileContent(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("organizationId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	owner := c.Param("owner")
+	repository := c.Param("repository")
+	filePath := c.Query("path")
+
+	content, err := gh.githubApplication.GetFileContent(
+		c.Request.Context(),
+		currentUser.Id,
+		organizationId,
+		owner,
+		repository,
+		filePath,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewFileContent(content))
+}

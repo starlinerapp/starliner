@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -53,19 +53,16 @@ export default function DeployFromGitForm({
 
   const repositoriesData = useMemo(() => {
     if (!allRepositoriesData) return undefined;
-    if (!teamId) {
-      return allRepositoriesData;
-    }
-    if (!teamReposData || teamReposData.length === 0) {
-      return [];
-    }
+    if (!teamId) return allRepositoriesData;
+    if (!teamReposData || teamReposData.length === 0) return [];
+
     const teamRepoIds = new Set(teamReposData.map((tr) => tr.githubRepoId));
     return allRepositoriesData.filter((repo) => teamRepoIds.has(repo.id));
   }, [allRepositoriesData, teamId, teamReposData]);
 
   const isLoading = isReposLoading || (!!teamId && isTeamReposLoading);
 
-  const { register, handleSubmit, watch, reset, control, setValue } =
+  const { register, handleSubmit, watch, reset, control, setValue, getValues } =
     useForm<DeployFromGitFormInput>({ defaultValues });
 
   const { fields, append, replace } = useFieldArray({
@@ -97,6 +94,48 @@ export default function DeployFromGitForm({
     return repositoriesData?.find((repo) => repo.clone_url === urlInput);
   }, [repositoriesData, urlInput]);
 
+  const { data: envExampleContent } = useQuery({
+    ...trpc.github.getRepositoryFileContent.queryOptions({
+      organizationId: organization.id,
+      owner: selectedRepository?.owner ?? "",
+      repo: selectedRepository?.name ?? "",
+      path: projectDirectoryPathInput
+        ? `${projectDirectoryPathInput.replace(/\/$/, "")}/.env.example`
+        : ".env.example",
+    }),
+    enabled: !!selectedRepository && !!projectDirectoryPathInput,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (!envExampleContent) return;
+    if (!isEnvFile(envExampleContent?.content ?? "")) return;
+
+    const parsed = parseEnvFile(envExampleContent?.content ?? "");
+    if (parsed.length === 0) return;
+
+    const currentEnvs = getValues("envs") ?? [];
+
+    const currentByName = new Map(
+      currentEnvs
+        .filter((env) => env.name.trim() !== "")
+        .map((env) => [env.name, env.value]),
+    );
+
+    const merged = parsed.map((env) => ({
+      name: env.name,
+      value: currentByName.get(env.name) ?? env.value ?? "",
+    }));
+
+    const additionalManualEnvs = currentEnvs.filter(
+      (env) =>
+        env.name.trim() !== "" &&
+        !parsed.some((parsedEnv) => parsedEnv.name === env.name),
+    );
+
+    replace([...merged, ...additionalManualEnvs]);
+  }, [envExampleContent, getValues, replace]);
+
   const submit: SubmitHandler<DeployFromGitFormInput> = async (data) => {
     data.envs = (data.envs ?? []).filter(
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
@@ -108,7 +147,7 @@ export default function DeployFromGitForm({
     try {
       await onSubmit(data);
 
-      if (resetOnSuccess)
+      if (resetOnSuccess) {
         reset({
           url: "",
           serviceName: "",
@@ -118,6 +157,7 @@ export default function DeployFromGitForm({
           envs: [],
           args: [],
         });
+      }
 
       setError(null);
     } catch (e) {
@@ -195,6 +235,7 @@ export default function DeployFromGitForm({
                       void onUrlChange(e);
                       setValue("projectDirectoryPath", "");
                       setValue("dockerfilePath", "");
+                      replace([]);
                     }}
                     className={cn(
                       "border-mauve-6 bg-gray-2 hover:bg-gray-3 disabled:bg-gray-2 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed",
@@ -350,6 +391,7 @@ export default function DeployFromGitForm({
         onConfirm={(directory) => {
           setValue("projectDirectoryPath", directory);
           setValue("dockerfilePath", "");
+          replace([]);
         }}
       />
       <SelectDockerfileDialog

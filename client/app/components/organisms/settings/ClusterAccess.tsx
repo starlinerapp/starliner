@@ -76,8 +76,8 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
   const unassignedClusters =
     allClusters?.filter((c) => !assignedClusterIds.has(c.id)) ?? [];
   return (
-    <div className="w-full xl:w-3/5">
-      <div className="border-mauve-6 rounded-md border text-sm">
+    <div className="w-full">
+      <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
           <p>Cluster Access</p>
           <Dialog

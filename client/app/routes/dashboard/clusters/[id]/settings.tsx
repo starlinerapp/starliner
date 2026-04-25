@@ -73,7 +73,7 @@ export default function Settings() {
           className="mt-4"
         />
       )}
-      <div className="w-full pt-4 shadow-xs xl:w-3/5">
+      <div className="w-full pt-4 shadow-xs">
         <div className="border-mauve-6 rounded-md border-1 text-sm">
           <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
             Danger Zone

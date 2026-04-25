@@ -46,6 +46,7 @@ docs/ResponseDeployments.md
 docs/ResponseEnvVar.md
 docs/ResponseEnvironment.md
 docs/ResponseEnvironmentBranch.md
+docs/ResponseFileContent.md
 docs/ResponseGetOrganizationProvisioningCredentialResponse.md
 docs/ResponseGitDeployment.md
 docs/ResponseGitDeploymentBuild.md
@@ -59,6 +60,7 @@ docs/ResponseOrganizationInvite.md
 docs/ResponseOrganizationProvisioningCredential.md
 docs/ResponseProject.md
 docs/ResponseProjectCluster.md
+docs/ResponseProjectPreviewEnvironmentEnabled.md
 docs/ResponseRepository.md
 docs/ResponseRepositoryFile.md
 docs/ResponseRoot.md

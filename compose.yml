@@ -36,6 +36,7 @@ services:
         condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://dev.starliner.app}
       AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
@@ -88,6 +89,7 @@ services:
       BASIC_AUTH_USER: ${BASIC_AUTH_USER:-test}
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-test}
       CLUSTER_GRPC_ENDPOINT: ${CLUSTER_GRPC_ENDPOINT:-server-cluster:57400}
+      BUILDER_GRPC_ENDPOINT: ${BUILDER_GRPC_ENDPOINT:-server-builder:57500}
       PROVISIONER_GRPC_ENDPOINT: ${PROVISIONER_GRPC_ENDPOINT:-server-provisioner:57400}
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
       NATS_URL: ${NATS_URL:-http://nats:4222}
@@ -119,13 +121,13 @@ services:
         condition: service_healthy
     ports:
       - "40001:40001"
+      - "57500:57500"
     environment:
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
       NATS_URL: ${NATS_URL:-http://nats:4222}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
-      _EXPERIMENTAL_DAGGER_RUNNER_HOST: ${_EXPERIMENTAL_DAGGER_RUNNER_HOST:-tcp://dagger:1234}
     volumes:
       - ./server:/app
     networks:
@@ -346,9 +348,7 @@ services:
     networks:
       - internal
 
-  # Fully qualified hostname necessary, so Dagger’s internal DNS can resolve it
-  # See: https://github.com/dagger/dagger/issues/9439#issuecomment-3656217482
-  registry.dev:
+  registry:
     build:
       context: .
       dockerfile: .docker/registry/Dockerfile
@@ -362,14 +362,15 @@ services:
     networks:
       - internal
 
-  dagger:
+  buildkit:
     build:
       context: .
-      dockerfile: .docker/dagger/Dockerfile
+      dockerfile: .docker/buildkit/Dockerfile
     privileged: true
     restart: unless-stopped
     volumes:
-      - dagger-data:/var/lib/dagger
+      - ./.docker/buildkit/buildkitd.toml:/etc/buildkit/buildkitd.toml:ro
+      - buildkit-data:/var/lib/buildkit
     networks:
       - internal
 
@@ -392,7 +393,7 @@ volumes:
   db-data:
   nats-data:
   registry-data:
-  dagger-data:
+  buildkit-data:
 
 networks:
   internal:

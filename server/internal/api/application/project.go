@@ -34,19 +34,19 @@ func NewProjectApplication(
 	}
 }
 
-func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
-	err := ps.teamService.ValidateUserAndClusterInTeam(ctx, userId, teamId, clusterId)
+func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
+	err := pa.teamService.ValidateUserAndClusterInTeam(ctx, userId, teamId, clusterId)
 	if err != nil {
 		return nil, err
 	}
 
 	productionEnvName := "Production"
-	namespace, err := ps.normalizerService.FormatToDNS1123(name + "-" + productionEnvName)
+	namespace, err := pa.normalizerService.FormatToDNS1123(name + "-" + productionEnvName)
 	if err != nil {
 		return nil, err
 	}
 
-	project, err := ps.projectRepository.CreateProjectWithEnvironment(
+	project, err := pa.projectRepository.CreateProjectWithEnvironment(
 		ctx,
 		name,
 		namespace,
@@ -62,29 +62,29 @@ func (ps *ProjectApplication) CreateProject(ctx context.Context, name string, or
 	return value.NewProject(project), nil
 }
 
-func (ps *ProjectApplication) GetProject(ctx context.Context, projectId int64, userId int64) (*value.Project, error) {
-	project, err := ps.projectRepository.GetProject(ctx, projectId, userId)
+func (pa *ProjectApplication) GetProject(ctx context.Context, projectId int64, userId int64) (*value.Project, error) {
+	project, err := pa.projectRepository.GetProject(ctx, projectId, userId)
 	if err != nil {
 		return nil, err
 	}
 	return value.NewProject(project), nil
 }
 
-func (ps *ProjectApplication) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
-	return ps.projectRepository.DeleteProject(ctx, projectId, userId)
+func (pa *ProjectApplication) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
+	return pa.projectRepository.DeleteProject(ctx, projectId, userId)
 }
 
-func (ps *ProjectApplication) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*value.ProjectCluster, error) {
+func (pa *ProjectApplication) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*value.ProjectCluster, error) {
 
-	cluster, err := ps.projectRepository.GetProjectCluster(ctx, projectId, userId)
+	cluster, err := pa.projectRepository.GetProjectCluster(ctx, projectId, userId)
 	if err != nil {
 		return nil, err
 	}
 	return value.NewProjectCluster(cluster), nil
 }
 
-func (ps *ProjectApplication) GetProjectEnvironments(ctx context.Context, projectId int64, userId int64) ([]*value.Environment, error) {
-	environments, err := ps.projectRepository.GetProjectEnvironments(ctx, projectId, userId)
+func (pa *ProjectApplication) GetProjectEnvironments(ctx context.Context, projectId int64, userId int64) ([]*value.Environment, error) {
+	environments, err := pa.projectRepository.GetProjectEnvironments(ctx, projectId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -98,4 +98,20 @@ func (ps *ProjectApplication) GetProjectEnvironments(ctx context.Context, projec
 		}
 	}
 	return valueEnvironments, nil
+}
+
+func (pa *ProjectApplication) GetProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error) {
+	enabled, err := pa.projectRepository.GetProjectPreviewEnvironmentEnabled(ctx, projectId, userId)
+	if err != nil {
+		return false, err
+	}
+	return enabled, nil
+}
+
+func (pa *ProjectApplication) ToggleProjectPreviewEnvironmentEnabled(ctx context.Context, projectId int64, userId int64) (bool, error) {
+	enabled, err := pa.projectRepository.ToggleProjectPreviewEnvironmentEnabled(ctx, projectId, userId)
+	if err != nil {
+		return false, err
+	}
+	return enabled, nil
 }

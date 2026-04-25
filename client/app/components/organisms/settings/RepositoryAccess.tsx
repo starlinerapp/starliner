@@ -91,8 +91,8 @@ export function RepositoryAccess({
     allRepos?.filter((r) => !assignedRepoIds.has(r.id)) ?? [];
 
   return (
-    <div className="w-full xl:w-3/5">
-      <div className="border-mauve-6 rounded-md border text-sm">
+    <div className="w-full">
+      <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
           <p>Repository Access</p>
           {githubApp && (
@@ -190,7 +190,7 @@ export function RepositoryAccess({
               key={repo.githubRepoId}
               className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
             >
-              <span className="font-mono text-xs">{repo.repoName}</span>
+              <span className="text-sm">{repo.repoName}</span>
               <button
                 className="text-mauve-11 hover:text-mauve-12 cursor-pointer"
                 disabled={unassignMutation.isPending}

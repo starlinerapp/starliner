@@ -74,6 +74,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/builds/{id}/logs/stream": {
+            "get": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Stream build logs",
+                "operationId": "streamBuildLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Build ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/clusters": {
             "post": {
                 "tags": [
@@ -824,6 +868,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/github/repositories/{organizationId}/{owner}/{repository}/file": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get File Content",
+                "operationId": "getFileContent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository owner (user or org)",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository name",
+                        "name": "repository",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Path to the file within the repository",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FileContent"
+                        }
+                    }
+                }
+            }
+        },
         "/githubapps": {
             "post": {
                 "tags": [
@@ -1534,6 +1632,70 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/response.Environment"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}/preview-environment/enabled": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Preview Environment Enabled",
+                "operationId": "getProjectPreviewEnvironmentEnabled",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectPreviewEnvironmentEnabled"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Toggle Project Preview Environment Enabled",
+                "operationId": "toggleProjectPreviewEnvironmentEnabled",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectPreviewEnvironmentEnabled"
                         }
                     }
                 }
@@ -2549,6 +2711,14 @@ const docTemplate = `{
                 }
             }
         },
+        "response.FileContent": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
         "response.GetOrganizationProvisioningCredentialResponse": {
             "type": "object",
             "properties": {
@@ -2913,6 +3083,17 @@ const docTemplate = `{
                 },
                 "clusterName": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ProjectPreviewEnvironmentEnabled": {
+            "type": "object",
+            "required": [
+                "enabled"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
                 }
             }
         },

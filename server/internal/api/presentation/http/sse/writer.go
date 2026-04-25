@@ -1,6 +1,7 @@
 package sse
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 )
@@ -19,8 +20,22 @@ func NewWriter(w http.ResponseWriter) (*Writer, bool) {
 }
 
 func (s *Writer) Write(p []byte) (n int, err error) {
-	if _, fmtError := fmt.Fprintf(s.w, "data: %s\n\n", p); fmtError != nil {
-		return 0, fmtError
+	remaining := p
+	for len(remaining) > 0 {
+		var line []byte
+		if i := bytes.IndexByte(remaining, '\n'); i >= 0 {
+			line = remaining[:i]
+			remaining = remaining[i+1:]
+		} else {
+			line = remaining
+			remaining = nil
+		}
+		if len(line) == 0 {
+			continue
+		}
+		if _, fmtError := fmt.Fprintf(s.w, "data: %s\n\n", line); fmtError != nil {
+			return 0, fmtError
+		}
 	}
 	s.flusher.Flush()
 	return len(p), nil
