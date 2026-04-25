@@ -121,9 +121,6 @@ func (c *Docker) BuildAndPublish(
 		for status := range statusCh {
 			for _, l := range status.Logs {
 				line := string(l.Data)
-				if _, err := fmt.Fprint(os.Stdout, line); err != nil {
-					return
-				}
 				appendLog(line)
 			}
 
