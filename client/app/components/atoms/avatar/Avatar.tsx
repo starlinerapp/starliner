@@ -53,6 +53,14 @@ export default function Avatar() {
                 </p>
               </div>
             </div>
+            <a
+              href="https://docs.starliner.dev"
+              rel="noreferrer"
+              target="_blank"
+              className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
+            >
+              <p>Documentation</p>
+            </a>
             <button
               className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
               onClick={handleSignOutClicked}
