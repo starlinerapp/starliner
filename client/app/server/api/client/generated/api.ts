@@ -506,6 +506,44 @@ export interface RequestSendInvite {
 /**
  *
  * @export
+ * @interface RequestSendResetPasswordRequest
+ */
+export interface RequestSendResetPasswordRequest {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendResetPasswordRequest
+   */
+  resetUrl: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendResetPasswordRequest
+   */
+  to: string;
+}
+/**
+ *
+ * @export
+ * @interface RequestSendVerificationEmailRequest
+ */
+export interface RequestSendVerificationEmailRequest {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendVerificationEmailRequest
+   */
+  to: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendVerificationEmailRequest
+   */
+  verificationUrl: string;
+}
+/**
+ *
+ * @export
  * @interface RequestUpdateDeployFromGit
  */
 export interface RequestUpdateDeployFromGit {
@@ -5409,6 +5447,303 @@ export class GithubappApi extends BaseAPI {
   ) {
     return GithubappApiFp(this.configuration)
       .getGithubApp(xUserID, organizationId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * InternalApi - axios parameter creator
+ * @export
+ */
+export const InternalApiAxiosParamCreator = function (
+  configuration?: Configuration,
+) {
+  return {
+    /**
+     *
+     * @summary Send password reset email
+     * @param {string} xUserID User ID
+     * @param {RequestSendResetPasswordRequest} data Password reset
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendResetPassword: async (
+      xUserID: string,
+      data: RequestSendResetPasswordRequest,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("sendResetPassword", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("sendResetPassword", "data", data);
+      const localVarPath = `/internal/send-reset-password`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Send email verification
+     * @param {string} xUserID User ID
+     * @param {RequestSendVerificationEmailRequest} data Verification
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendVerificationEmail: async (
+      xUserID: string,
+      data: RequestSendVerificationEmailRequest,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("sendVerificationEmail", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("sendVerificationEmail", "data", data);
+      const localVarPath = `/internal/send-verification-email`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * InternalApi - functional programming interface
+ * @export
+ */
+export const InternalApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = InternalApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @summary Send password reset email
+     * @param {string} xUserID User ID
+     * @param {RequestSendResetPasswordRequest} data Password reset
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async sendResetPassword(
+      xUserID: string,
+      data: RequestSendResetPasswordRequest,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.sendResetPassword(
+          xUserID,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["InternalApi.sendResetPassword"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Send email verification
+     * @param {string} xUserID User ID
+     * @param {RequestSendVerificationEmailRequest} data Verification
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async sendVerificationEmail(
+      xUserID: string,
+      data: RequestSendVerificationEmailRequest,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.sendVerificationEmail(
+          xUserID,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["InternalApi.sendVerificationEmail"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * InternalApi - factory interface
+ * @export
+ */
+export const InternalApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
+  const localVarFp = InternalApiFp(configuration);
+  return {
+    /**
+     *
+     * @summary Send password reset email
+     * @param {string} xUserID User ID
+     * @param {RequestSendResetPasswordRequest} data Password reset
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendResetPassword(
+      xUserID: string,
+      data: RequestSendResetPasswordRequest,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .sendResetPassword(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Send email verification
+     * @param {string} xUserID User ID
+     * @param {RequestSendVerificationEmailRequest} data Verification
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendVerificationEmail(
+      xUserID: string,
+      data: RequestSendVerificationEmailRequest,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .sendVerificationEmail(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * InternalApi - object-oriented interface
+ * @export
+ * @class InternalApi
+ * @extends {BaseAPI}
+ */
+export class InternalApi extends BaseAPI {
+  /**
+   *
+   * @summary Send password reset email
+   * @param {string} xUserID User ID
+   * @param {RequestSendResetPasswordRequest} data Password reset
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof InternalApi
+   */
+  public sendResetPassword(
+    xUserID: string,
+    data: RequestSendResetPasswordRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return InternalApiFp(this.configuration)
+      .sendResetPassword(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Send email verification
+   * @param {string} xUserID User ID
+   * @param {RequestSendVerificationEmailRequest} data Verification
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof InternalApi
+   */
+  public sendVerificationEmail(
+    xUserID: string,
+    data: RequestSendVerificationEmailRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return InternalApiFp(this.configuration)
+      .sendVerificationEmail(xUserID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

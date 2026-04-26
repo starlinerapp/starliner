@@ -1,13 +1,20 @@
 package port
 
-import "context"
+type InviteData struct {
+	OrganizationName string
+	InviteLink       string
+}
 
-type Message struct {
-	To      string
-	Subject string
-	Body    string
+type ResetData struct {
+	PasswordResetLink string
+}
+
+type VerifyData struct {
+	VerificationLink string
 }
 
 type Email interface {
-	Send(ctx context.Context, message Message) error
+	SendInvite(to string, inviteData InviteData) error
+	SendVerificationEmail(to string, verifyData VerifyData) error
+	SendResetPassword(to string, resetData ResetData) error
 }

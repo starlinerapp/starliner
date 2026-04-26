@@ -1017,6 +1017,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/internal/send-reset-password": {
+            "post": {
+                "tags": [
+                    "internal"
+                ],
+                "summary": "Send password reset email",
+                "operationId": "sendResetPassword",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Password reset",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SendResetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/internal/send-verification-email": {
+            "post": {
+                "tags": [
+                    "internal"
+                ],
+                "summary": "Send email verification",
+                "operationId": "sendVerificationEmail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Verification",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SendVerificationEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/invites/accept": {
             "post": {
                 "tags": [
@@ -2421,6 +2485,36 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "toEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SendResetPasswordRequest": {
+            "type": "object",
+            "required": [
+                "resetUrl",
+                "to"
+            ],
+            "properties": {
+                "resetUrl": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SendVerificationEmailRequest": {
+            "type": "object",
+            "required": [
+                "to",
+                "verificationUrl"
+            ],
+            "properties": {
+                "to": {
+                    "type": "string"
+                },
+                "verificationUrl": {
                     "type": "string"
                 }
             }

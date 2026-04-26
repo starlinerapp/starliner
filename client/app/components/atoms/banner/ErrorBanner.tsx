@@ -11,12 +11,14 @@ interface ErrorBAnnerLinkOutProps {
 interface ErrorBannerProps {
   text: string;
   linkOut?: ErrorBAnnerLinkOutProps;
+  children?: React.ReactNode;
   className?: string;
 }
 
 export default function ErrorBanner({
   text,
   linkOut,
+  children,
   className,
 }: ErrorBannerProps) {
   return (
@@ -31,6 +33,7 @@ export default function ErrorBanner({
       </div>
       <div className="flex items-center gap-2 p-2.5">
         <p className="text-sm font-light">{text}</p>
+        {children}
         {linkOut && (
           <span className="flex items-center gap-1">
             <Link className="text-sm font-light underline" to={linkOut.href}>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <div style="font-family: Arial, sans-serif; max-width: 600px">
+            <img alt="starliner-logo" src="{{.LogoURL}}" height="35px" style="margin-bottom: 20px"/>
+            <h1 style="color: #202020; font-size: 16px;">Reset your password</h1>
+            <p style="color: #202020; font-size: 16px; line-height: 1.2;">
+                Reset your password by clicking the button below.
+            </p>
+            <a href="{{.PasswordResetLink}}" style="display: inline-block; background-color: #6955C4; color: #fff; padding: 8px 16px; text-decoration: none; border-radius: 6px;">
+                Reset Password
+            </a>
+            <p style="color: #202020; font-size: 16px; margin-top: 20px;">
+                Here's the link in case you don't like clicking buttons:
+            </p>
+            <a href="{{.PasswordResetLink}}">{{.PasswordResetLink}}</a>
+            <p style="color: #202020; font-size: 16px; margin-top: 20px;">
+                Best, <br />
+                Starliner
+            </p>
+        </div>
+    </body>
+</html>

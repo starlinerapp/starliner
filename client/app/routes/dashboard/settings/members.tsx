@@ -75,7 +75,7 @@ export default function Members() {
                 >
                   <input
                     type="email"
-                    className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
+                    className="border-mauve-6 text-mauve-12 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
                     placeholder="Email*"
                     {...register("email")}
                   />

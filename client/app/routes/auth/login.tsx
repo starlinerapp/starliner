@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { authClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+
+const VERIFY_EMAIL_ERROR = "Please verify your email address";
 
 interface LoginFormInput {
   email: string;
@@ -18,6 +20,33 @@ export default function Login() {
   const redirectTo = searchParams.get("redirectTo") || "/";
 
   const [error, setError] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
+
+  const handleResendVerification = useCallback(async () => {
+    if (!unverifiedEmail) {
+      return;
+    }
+    setIsResending(true);
+    try {
+      const { error: resendError } = await authClient.sendVerificationEmail({
+        email: unverifiedEmail,
+        callbackURL: redirectTo,
+      });
+      if (resendError) {
+        setError(
+          "message" in resendError && resendError.message
+            ? String(resendError.message)
+            : "Could not send the verification email.",
+        );
+        return;
+      }
+      setError(null);
+      setUnverifiedEmail(null);
+    } finally {
+      setIsResending(false);
+    }
+  }, [unverifiedEmail, redirectTo]);
 
   const onSubmit: SubmitHandler<LoginFormInput> = async (data) => {
     await authClient.signIn.email(
@@ -26,13 +55,16 @@ export default function Login() {
         password: data.password,
       },
       {
-        onRequest: () => {
-          // show loading state
-        },
         onSuccess: () => {
           navigate(redirectTo);
         },
         onError: (ctx) => {
+          if (ctx.error.status === 403) {
+            setError(VERIFY_EMAIL_ERROR);
+            setUnverifiedEmail(data.email);
+            return;
+          }
+          setUnverifiedEmail(null);
           setError(ctx.error.message);
         },
       },
@@ -56,7 +88,22 @@ export default function Login() {
         </NavLink>
       </p>
       <h1 className="text-xl font-medium">Sign in to Starliner</h1>
-      {error && <ErrorBanner text={error} />}
+      {error && (
+        <ErrorBanner text={error}>
+          {unverifiedEmail && (
+            <button
+              className="enabled:hover:text-mauve-12 text-sm underline enabled:cursor-pointer"
+              type="button"
+              disabled={isResending}
+              onClick={() => {
+                void handleResendVerification();
+              }}
+            >
+              {isResending ? "Sending…" : "Resend verification email"}
+            </button>
+          )}
+        </ErrorBanner>
+      )}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm">
@@ -70,9 +117,20 @@ export default function Login() {
           />
         </span>
         <span className="flex flex-col gap-1">
-          <label htmlFor="password" className="text-sm">
-            Password
-          </label>
+          <div className="flex justify-between text-sm">
+            <label htmlFor="password">Password</label>
+            <NavLink
+              to={
+                redirectTo !== "/"
+                  ? `/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`
+                  : "/forgot-password"
+              }
+              className="text-mauve-11 hover:text-mauve-12"
+            >
+              Forgot password?
+            </NavLink>
+          </div>
+
           <input
             className="border-mauve-6 rounded-md border-1 p-2"
             type="password"
