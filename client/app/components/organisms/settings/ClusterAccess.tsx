@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
 
 export function ClusterAccess({ teamId }: { teamId: number }) {
   const trpc = useTRPC();
@@ -108,10 +109,13 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                     <Skeleton className="h-8 w-full" />
                   </div>
                 ) : allClustersSorted.length === 0 ? (
-                  <div className="text-mauve-11 text-sm">
-                    No clusters exist yet. Create a cluster first before
-                    assigning it to this team.
-                  </div>
+                  <WarningBanner
+                    text={"No clusters available to be assigned."}
+                    linkOut={{
+                      text: "Create a cluster",
+                      href: `/${organization.slug}/clusters/new`,
+                    }}
+                  />
                 ) : (
                   <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
                     {allClustersSorted.map((cluster) => {
