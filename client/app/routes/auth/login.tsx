@@ -76,9 +76,16 @@ export default function Login() {
         <span className="flex flex-col gap-1">
           <div className="flex justify-between text-sm">
             <label htmlFor="password">Password</label>
-            <a className="text-mauve-11 hover:text-mauve-12 cursor-pointer">
+            <NavLink
+              to={
+                redirectTo !== "/"
+                  ? `/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`
+                  : "/forgot-password"
+              }
+              className="text-mauve-11 hover:text-mauve-12"
+            >
               Forgot password?
-            </a>
+            </NavLink>
           </div>
 
           <input
