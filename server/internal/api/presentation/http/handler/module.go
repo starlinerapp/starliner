@@ -17,5 +17,6 @@ var Module = fx.Module(
 		NewGithubHandler,
 		NewGithubAppHandler,
 		NewWebhookHandler,
+		NewInternalHandler,
 	),
 )

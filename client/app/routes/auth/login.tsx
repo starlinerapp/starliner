@@ -33,6 +33,10 @@ export default function Login() {
           navigate(redirectTo);
         },
         onError: (ctx) => {
+          if (ctx.error.status === 403) {
+            setError("Please verify your email address");
+            return;
+          }
           setError(ctx.error.message);
         },
       },
@@ -70,9 +74,13 @@ export default function Login() {
           />
         </span>
         <span className="flex flex-col gap-1">
-          <label htmlFor="password" className="text-sm">
-            Password
-          </label>
+          <div className="flex justify-between text-sm">
+            <label htmlFor="password">Password</label>
+            <a className="text-mauve-11 hover:text-mauve-12 cursor-pointer">
+              Forgot password?
+            </a>
+          </div>
+
           <input
             className="border-mauve-6 rounded-md border-1 p-2"
             type="password"

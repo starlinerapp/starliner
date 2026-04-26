@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { internalApiFactory } from "~/server/api/client";
 import { db } from "~/db";
 import * as schema from "~/db/schema";
 
@@ -11,6 +12,15 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      await internalApiFactory.sendVerificationEmail(user.id, {
+        to: user.email,
+        verificationUrl: url,
+      });
+    },
   },
   plugins: [bearer()],
 });

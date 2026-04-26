@@ -10,6 +10,8 @@ import (
 	"starliner.app/internal/api/domain/port"
 )
 
+const starlinerLogoURL = "https://starliner-596451156994-eu-north-1-an.s3.eu-north-1.amazonaws.com/starliner-logo.png"
+
 type Client struct {
 	cfg      *conf.Config
 	renderer *Renderer
@@ -32,7 +34,7 @@ func (c *Client) SendInvite(to string, inviteData port.InviteData) error {
 	html, err := c.renderer.Render("invite.html", renderInviteData{
 		OrganizationName: inviteData.OrganizationName,
 		InviteLink:       inviteData.InviteLink,
-		LogoURL:          "https://starliner-596451156994-eu-north-1-an.s3.eu-north-1.amazonaws.com/starliner-logo.png",
+		LogoURL:          starlinerLogoURL,
 	})
 	if err != nil {
 		return err
@@ -41,6 +43,48 @@ func (c *Client) SendInvite(to string, inviteData port.InviteData) error {
 	return c.send(&message{
 		To:      to,
 		Subject: fmt.Sprintf("Join %s on Starliner", inviteData.OrganizationName),
+		Body:    html,
+	})
+}
+
+type renderVerifyData struct {
+	VerificationLink string
+	LogoURL          string
+}
+
+func (c *Client) SendVerificationEmail(to string, verifyData port.VerifyData) error {
+	html, err := c.renderer.Render("verify.html", renderVerifyData{
+		VerificationLink: verifyData.VerificationLink,
+		LogoURL:          starlinerLogoURL,
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.send(&message{
+		To:      to,
+		Subject: "[Starliner] Verify your email",
+		Body:    html,
+	})
+}
+
+type renderResetData struct {
+	PasswordResetLink string
+	LogoURL           string
+}
+
+func (c *Client) SendResetPassword(to string, resetData port.ResetData) error {
+	html, err := c.renderer.Render("reset.html", renderResetData{
+		PasswordResetLink: resetData.PasswordResetLink,
+		LogoURL:           starlinerLogoURL,
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.send(&message{
+		To:      to,
+		Subject: "[Starliner] Reset your password",
 		Body:    html,
 	})
 }

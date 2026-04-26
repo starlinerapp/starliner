@@ -34,6 +34,7 @@ func NewServer(
 	githubHandler *handler.GithubHandler,
 	githubAppHandler *handler.GithubAppHandler,
 	webhookHandler *handler.WebhookHandler,
+	internalHandler *handler.InternalHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
@@ -149,6 +150,11 @@ func NewServer(
 	{
 		githubAppRoutes.POST("", githubAppHandler.CreateGithubApp)
 		githubAppRoutes.GET("/:organizationId", githubAppHandler.GetGithubApp)
+	}
+
+	internalRoutes := engine.Group("/internal")
+	{
+		internalRoutes.POST("/send-verification-email", internalHandler.SendVerificationEmail)
 	}
 
 	return &Server{engine: engine}
