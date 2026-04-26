@@ -501,7 +501,7 @@ async def create_cluster(token: str, name: str, serverType: str, organizationId:
     Args:
         token: The bearer token from the login tool call.
         name: Name for the cluster.
-        serverType: Either "cx23" or "ccx33".
+        serverType: Either "cx23" or "cpx22".
         organizationId: The organization for which to provision the server.
 
     Returns:

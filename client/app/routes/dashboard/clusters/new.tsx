@@ -89,8 +89,8 @@ export default function NewCluster() {
               defaultValue="cx23"
               {...register("serverType", { required: true })}
             >
-              <option value="cx23">CX23 (2 CPU, 4 GB)</option>
-              <option value="ccx33">CCX33 (8 CPU, 32 GB)</option>
+              <option value="cx23">CX23</option>
+              <option value="cpx22">CPX22</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
               <ChevronDown width={15} className="stroke-mauve-10" />

@@ -15,8 +15,6 @@ services:
       - ./.docker/nginx/ssl/dev.starliner.app.key:/etc/nginx/dev.starliner.app.key:ro
       - ./.docker/nginx/ssl/mcp.dev.starliner.app.crt:/etc/nginx/mcp.dev.starliner.app.crt:ro
       - ./.docker/nginx/ssl/mcp.dev.starliner.app.key:/etc/nginx/mcp.dev.starliner.app.key:ro
-      - ./.docker/nginx/ssl/registry.dev.starliner.app.crt:/etc/nginx/registry.dev.starliner.app.crt:ro
-      - ./.docker/nginx/ssl/registry.dev.starliner.app.key:/etc/nginx/registry.dev.starliner.app.key:ro
     depends_on:
       - client
     ports:
@@ -345,20 +343,6 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
-    networks:
-      - internal
-
-  registry:
-    build:
-      context: .
-      dockerfile: .docker/registry/Dockerfile
-    ports:
-      - "5000:5000"
-    restart: unless-stopped
-    environment:
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
-    volumes:
-      - registry-data:/data
     networks:
       - internal
 

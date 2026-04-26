@@ -11,9 +11,7 @@ import {
   useForm,
   type UseFormRegister,
 } from "react-hook-form";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
 
 interface Path {
   path: string;
@@ -170,14 +168,7 @@ function HostEditor({
 }: HostEditorProps) {
   const trpc = useTRPC();
 
-  const { environment, clusterId } = useEnvironment();
-  const { data: clusterData } = useQuery(
-    trpc.cluster.getCluster.queryOptions(
-      { id: clusterId! },
-      { enabled: !!clusterId },
-    ),
-  );
-
+  const { environment } = useEnvironment();
   const { data: deploymentsData } = useQuery(
     trpc.environment.getEnvironmentDeployments.queryOptions({
       id: environment?.id,
@@ -197,8 +188,6 @@ function HostEditor({
     ...(deploymentsData?.gitDeployments.map((d) => d.serviceName) ?? []),
     ...(deploymentsData?.images.map((d) => d.serviceName) ?? []),
   ];
-
-  const organization = useOrganizationContext();
 
   return (
     <div className="relative">
@@ -222,15 +211,6 @@ function HostEditor({
               placeholder="Host*"
               {...register(`hosts.${hostIndex}.name`)}
             />
-            {clusterData?.ipv4Address ? (
-              <div className="border-mauve-6 text-mauve-11 flex flex-none rounded-md border-1 p-2 text-sm whitespace-nowrap">
-                <p>.{organization.slug}</p>
-                <p>.{clusterData?.ipv4Address}</p>
-                <p>.nip.io</p>
-              </div>
-            ) : (
-              <Skeleton className="h-full w-96" />
-            )}
           </div>
         </div>
 

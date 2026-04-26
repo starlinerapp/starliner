@@ -7,6 +7,7 @@ import (
 var Module = fx.Module(
 	"email",
 	fx.Provide(
+		NewRenderer,
 		NewClient,
 	),
 )
