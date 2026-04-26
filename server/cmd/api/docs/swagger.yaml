@@ -42,7 +42,7 @@ definitions:
       serverType:
         enum:
         - cx23
-        - ccx33
+        - cpx22
         type: string
     required:
     - name

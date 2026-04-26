@@ -131,7 +131,7 @@ export interface RequestCreateCluster {
 
 export const RequestCreateClusterServerTypeEnum = {
   Cx23: "cx23",
-  Ccx33: "ccx33",
+  Cpx22: "cpx22",
 } as const;
 
 export type RequestCreateClusterServerTypeEnum =

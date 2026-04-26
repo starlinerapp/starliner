@@ -14,7 +14,7 @@ type ServerType string
 
 const (
 	ServerTypeCX23  ServerType = "cx23"
-	ServerTypeCCX33 ServerType = "ccx33"
+	ServerTypeCPX22 ServerType = "cpx22"
 )
 
 type Cluster struct {
