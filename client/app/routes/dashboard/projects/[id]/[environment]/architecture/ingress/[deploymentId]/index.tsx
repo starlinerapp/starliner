@@ -6,7 +6,6 @@ import { useParams } from "react-router";
 import DeployIngressForm, {
   type IngressFormInput,
 } from "~/components/organisms/forms/DeployIngressForm";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
 
 export default function UpdateIngressForm() {
   const { deploymentId } = useParams<{
@@ -14,7 +13,7 @@ export default function UpdateIngressForm() {
     deploymentId: string;
   }>();
 
-  const { environment: currentEnvironment, clusterId } = useEnvironment();
+  const { environment: currentEnvironment } = useEnvironment();
 
   const trpc = useTRPC();
   const { data: environmentDeployments, isLoading } = useQuery(
@@ -28,22 +27,12 @@ export default function UpdateIngressForm() {
     trpc.deployment.updateIngress.mutationOptions(),
   );
 
-  const { data: clusterData } = useQuery(
-    trpc.cluster.getCluster.queryOptions(
-      { id: clusterId! },
-      { enabled: !!clusterId },
-    ),
-  );
-
-  const organization = useOrganizationContext();
-
   const onSubmit = async (data: IngressFormInput) => {
     await updateIngressMutation.mutateAsync({
       id: currentEnvironment.id,
       deploymentId: Number(deploymentId),
       ingressHosts: data.hosts.map((h) => ({
-        host:
-          h.name + `.${organization.slug}.${clusterData?.ipv4Address}.nip.io`,
+        host: h.name,
         paths: h.paths.map((p) => ({
           path: p.path,
           pathType: p.pathType as "Prefix" | "Exact",
@@ -65,7 +54,7 @@ export default function UpdateIngressForm() {
           onSubmit={onSubmit}
           defaultValues={{
             hosts: (ingressDeployment?.hosts ?? []).map((h) => ({
-              name: h.host.split(".")[0] ?? "",
+              name: h.host ?? "",
               paths: (h.paths ?? []).map((p) => ({
                 path: p.path ?? "",
                 pathType:

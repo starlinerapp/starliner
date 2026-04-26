@@ -2195,7 +2195,7 @@ const docTemplate = `{
                     "type": "string",
                     "enum": [
                         "cx23",
-                        "ccx33"
+                        "cpx22"
                     ]
                 }
             }
