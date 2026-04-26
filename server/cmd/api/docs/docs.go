@@ -2189,7 +2189,6 @@ const docTemplate = `{
             "required": [
                 "cluster_id",
                 "name",
-                "organization_id",
                 "team_id"
             ],
             "properties": {
@@ -2198,9 +2197,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "organization_id": {
-                    "type": "integer"
                 },
                 "team_id": {
                     "type": "integer"

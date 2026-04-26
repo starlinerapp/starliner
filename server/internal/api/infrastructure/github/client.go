@@ -142,8 +142,12 @@ func (c *Client) ParseGitEvent(eventType string, eventPayload []byte) (port.GitE
 		}
 		switch installationEvent.GetAction() {
 		case "deleted":
+			var installationID *int64
+			if installationEvent.Installation != nil {
+				installationID = installationEvent.Installation.ID
+			}
 			return &value.GitHubAppInstallationDeletedEvent{
-				InstallationId: installationEvent.Installation.ID,
+				InstallationId: installationID,
 			}, nil
 		default:
 			return nil, nil

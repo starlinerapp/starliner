@@ -173,7 +173,10 @@ export default function ProjectSettings() {
               className="w-46"
               intent="danger"
               disabled={
-                isClusterDataLoading || environmentSlug === "production"
+                deleteEnvironmentMutation.isPending ||
+                environmentId == null ||
+                isClusterDataLoading ||
+                environmentSlug === "production"
               }
               size="sm"
               onClick={() => {

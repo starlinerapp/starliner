@@ -301,6 +301,10 @@ func (da *DeploymentApplication) DeployImage(
 			continue
 		}
 
+		if deployment.EnvironmentId == nil {
+			log.Printf("deployment %d has nil environment id", deployment.Id)
+			continue
+		}
 		resolvedValue, err := da.resolverService.Resolve(ctx, *deployment.EnvironmentId, res)
 		if err != nil {
 			log.Printf("failed to resolve env var: %v\n", err)
@@ -389,6 +393,10 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 			continue
 		}
 
+		if deployment.EnvironmentId == nil {
+			log.Printf("deployment %d has nil environment id", deployment.Id)
+			continue
+		}
 		resolvedValue, err := da.resolverService.Resolve(ctx, *deployment.EnvironmentId, res)
 		if err != nil {
 			log.Printf("failed to resolve env var: %v\n", err)
@@ -701,6 +709,9 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 		return err
 	}
 
+	if deployment.EnvironmentId == nil {
+		return fmt.Errorf("deployment %d has nil environment id", deployment.Id)
+	}
 	env, err := da.environmentRepository.GetEnvironmentById(ctx, *deployment.EnvironmentId)
 	if err != nil {
 		return err
@@ -907,6 +918,10 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 			continue
 		}
 
+		if deployment.EnvironmentId == nil {
+			log.Printf("deployment %d has nil environment id\n", b.DeploymentId)
+			continue
+		}
 		resolvedValue, err := da.resolverService.Resolve(ctx, *deployment.EnvironmentId, res)
 		if err != nil {
 			log.Printf("failed to resolve env var: %v\n", err)

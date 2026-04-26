@@ -191,13 +191,19 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 	var errs []error
 
 	for _, deployment := range deployments {
-		env, err := ga.environmentRepository.GetEnvironmentById(ctx, *deployment.EnvironmentId)
+		if deployment.EnvironmentId == nil {
+			errs = append(errs, fmt.Errorf("deployment %d has nil environment id", deployment.Id))
+			continue
+		}
+		environmentID := *deployment.EnvironmentId
+
+		env, err := ga.environmentRepository.GetEnvironmentById(ctx, environmentID)
 		if err != nil {
 			errs = append(errs, err)
 			continue
 		}
 
-		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, *deployment.EnvironmentId)
+		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, environmentID)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -218,7 +224,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, *deployment.EnvironmentId)
+		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentID)
 		if err != nil {
 			errs = append(errs, err)
 			continue

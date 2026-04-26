@@ -223,12 +223,6 @@ export interface RequestCreateProject {
    * @type {number}
    * @memberof RequestCreateProject
    */
-  organization_id: number;
-  /**
-   *
-   * @type {number}
-   * @memberof RequestCreateProject
-   */
   team_id: number;
 }
 /**

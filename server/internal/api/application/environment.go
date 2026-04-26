@@ -417,7 +417,7 @@ func (ea *EnvironmentApplication) DeleteEnvironment(ctx context.Context, userId 
 		return err
 	}
 
-	if env.Slug == "production" {
+	if env.Slug == value.EnvironmentProductionSlug {
 		return fmt.Errorf("cannot delete production environment")
 	}
 

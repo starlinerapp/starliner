@@ -6,7 +6,6 @@ import (
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	coreService "starliner.app/internal/core/domain/service"
-	"strings"
 )
 
 type ProjectApplication struct {
@@ -36,14 +35,13 @@ func NewProjectApplication(
 	}
 }
 
-func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
+func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
 	err := pa.teamService.ValidateUserAndClusterInTeam(ctx, userId, teamId, clusterId)
 	if err != nil {
 		return nil, err
 	}
 
-	productionEnvName := "Production"
-	namespace, err := pa.normalizerService.FormatToDNS1123(name + "-" + productionEnvName)
+	namespace, err := pa.normalizerService.FormatToDNS1123(name + "-" + value.EnvironmentProductionName)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +50,8 @@ func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, or
 		ctx,
 		name,
 		namespace,
-		productionEnvName,
-		strings.ToLower(productionEnvName),
+		value.EnvironmentProductionName,
+		value.EnvironmentProductionSlug,
 		teamId,
 		clusterId,
 	)

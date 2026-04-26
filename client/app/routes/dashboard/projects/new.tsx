@@ -69,7 +69,6 @@ export default function NewProject() {
 
   const onSubmit: SubmitHandler<NewProjectFormInput> = (data) => {
     createProjectMutation.mutate({
-      organizationId: organization.id,
       name: data.name,
       clusterId: Number(data.clusterId),
       teamId: Number(data.teamId),
