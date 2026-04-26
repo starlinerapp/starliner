@@ -8,6 +8,7 @@ import (
 	"net/smtp"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
+	"strings"
 )
 
 const starlinerLogoURL = "https://starliner-596451156994-eu-north-1-an.s3.eu-north-1.amazonaws.com/starliner-logo.png"
@@ -135,9 +136,10 @@ func (c *Client) send(message *message) error {
 		return fmt.Errorf("failed to open data: %w", err)
 	}
 
+	subject := sanitizeHeaderSubject(message.Subject)
 	_, err = fmt.Fprintf(wc,
 		"From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n",
-		c.cfg.SenderMail, recipient.Address, message.Subject,
+		c.cfg.SenderMail, recipient.Address, subject,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to write headers: %w", err)
@@ -152,4 +154,10 @@ func (c *Client) send(message *message) error {
 	}
 
 	return nil
+}
+
+// sanitizeHeaderSubject replaces CR/LF in values interpolated into raw SMTP
+// header lines so they cannot inject additional headers.
+func sanitizeHeaderSubject(s string) string {
+	return strings.NewReplacer("\r", " ", "\n", " ").Replace(s)
 }
