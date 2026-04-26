@@ -125,6 +125,7 @@ SELECT
     clusters.id as id,
     clusters.name as name,
     clusters.organization_id as organization_id,
+    clusters.server_type as server_type,
     clusters.created_at as created_at
 FROM clusters
 WHERE clusters.organization_id = $1
@@ -134,6 +135,7 @@ type GetOrganizationClustersRow struct {
 	ID             int64
 	Name           string
 	OrganizationID int64
+	ServerType     string
 	CreatedAt      time.Time
 }
 
@@ -150,6 +152,7 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 			&i.ID,
 			&i.Name,
 			&i.OrganizationID,
+			&i.ServerType,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

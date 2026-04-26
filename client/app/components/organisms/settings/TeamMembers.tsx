@@ -6,6 +6,7 @@ import React, { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { cn } from "~/utils/cn";
 
 export default function TeamMembers({ teamId }: { teamId: number }) {
   const trpc = useTRPC();
@@ -90,16 +91,16 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
               <Button intent="secondary" className="h-7 w-28 text-xs">
                 Add Member
                 <ChevronDown
-                  className={`h-3 w-3 ${addMemberOpen ? "rotate-180" : ""}`}
+                  className={cn("h-3 w-3", addMemberOpen && "rotate-180")}
                 />
               </Button>
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Content className="border-mauve-6 w-70 space-y-2 rounded-md border bg-white p-2 shadow-md">
+              <Popover.Content className="border-mauve-6 mt-1 w-70 space-y-2 rounded-md border bg-white p-2 shadow-md">
                 <div className="relative">
-                  <MagnifyingGlass className="text-mauve-9 absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
+                  <MagnifyingGlass className="text-mauve-11 absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                   <input
-                    className="border-mauve-6 w-full rounded-md border p-2 pl-8 text-xs"
+                    className="border-mauve-6 placeholder:text-mauve-11 w-full rounded-md border p-2 pl-7 text-xs"
                     type="text"
                     placeholder="Search Members"
                     autoFocus
@@ -121,7 +122,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                     ))
                   ) : (
                     <div className="text-mauve-11 p-4 text-center text-xs">
-                      No members found.
+                      No members found
                     </div>
                   )}
                 </div>

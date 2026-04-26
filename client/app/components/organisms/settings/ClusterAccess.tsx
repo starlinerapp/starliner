@@ -124,7 +124,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                           key={cluster.id}
                           className="flex min-w-0 items-center justify-between gap-3 px-4 py-2"
                         >
-                          <div className="flex min-w-0 flex-1 flex-col gap-1">
+                          <div className="flex min-w-0 flex-1 flex-col">
                             <span
                               className="text-mauve-12 truncate text-sm font-medium"
                               title={cluster.name}
@@ -132,7 +132,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                               {cluster.name}
                             </span>
                             <span
-                              className="text-mauve-11 truncate text-sm"
+                              className="text-mauve-11 truncate text-xs"
                               title={cluster.serverType}
                             >
                               {cluster.serverType}
