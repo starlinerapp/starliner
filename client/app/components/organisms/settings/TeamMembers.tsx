@@ -82,7 +82,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
   }
 
   return (
-    <div className="border-mauve-6 rounded-md border text-sm">
+    <div className="border-mauve-6 w-full rounded-md border-1 text-sm shadow-xs">
       <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
         <p>Members</p>
         {organization.isOwner && (
@@ -151,7 +151,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
         members?.map((member) => (
           <div
             key={member.user_id}
-            className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm shadow-xs last:border-b-0"
+            className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
           >
             <div className="flex flex-col">
               <span>{member.name}</span>

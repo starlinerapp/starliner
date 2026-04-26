@@ -153,7 +153,6 @@ export function RepositoryAccess({
                               <Button
                                 className="h-7 w-24 text-xs"
                                 intent="secondary"
-                                disabled={isMutating}
                                 onClick={() => onUnassignRepo(repo.id)}
                               >
                                 Unassign
@@ -162,7 +161,6 @@ export function RepositoryAccess({
                               <Button
                                 className="h-7 w-24 text-xs"
                                 intent="primary"
-                                disabled={isMutating}
                                 onClick={() => {
                                   onAssignRepo(repo.id, repo.full_name);
                                 }}

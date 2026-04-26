@@ -142,7 +142,6 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                             <Button
                               className="h-7 w-24 text-xs"
                               intent="secondary"
-                              disabled={isMutating}
                               onClick={() => onUnassignCluster(cluster.id)}
                             >
                               Unassign
@@ -151,7 +150,6 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                             <Button
                               className="h-7 w-24 text-xs"
                               intent="primary"
-                              disabled={isMutating}
                               onClick={() => onAssignCluster(cluster.id)}
                             >
                               Assign
