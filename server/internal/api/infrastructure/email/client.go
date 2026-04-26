@@ -1,7 +1,6 @@
 package email
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -12,14 +11,47 @@ import (
 )
 
 type Client struct {
-	cfg *conf.Config
+	cfg      *conf.Config
+	renderer *Renderer
 }
 
-func NewClient(cfg *conf.Config) port.Email {
-	return &Client{cfg: cfg}
+func NewClient(cfg *conf.Config, renderer *Renderer) port.Email {
+	return &Client{
+		cfg:      cfg,
+		renderer: renderer,
+	}
 }
 
-func (c *Client) Send(ctx context.Context, message port.Message) error {
+type renderInviteData struct {
+	OrganizationName string
+	InviteLink       string
+	LogoURL          string
+}
+
+func (c *Client) SendInvite(to string, inviteData port.InviteData) error {
+	html, err := c.renderer.Render("invite.html", renderInviteData{
+		OrganizationName: inviteData.OrganizationName,
+		InviteLink:       inviteData.InviteLink,
+		LogoURL:          "https://starliner-596451156994-eu-north-1-an.s3.eu-north-1.amazonaws.com/starliner-logo.png",
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.send(&message{
+		To:      to,
+		Subject: fmt.Sprintf("Join %s on Starliner", inviteData.OrganizationName),
+		Body:    html,
+	})
+}
+
+type message struct {
+	To      string
+	Subject string
+	Body    string
+}
+
+func (c *Client) send(message *message) error {
 	recipient, err := mail.ParseAddress(message.To)
 	if err != nil {
 		return fmt.Errorf("invalid recipient address: %w", err)

@@ -3,12 +3,10 @@ package application
 import (
 	"context"
 	"errors"
-	"fmt"
 	"starliner.app/internal/api/conf"
 	apiPort "starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
-	"starliner.app/internal/api/domain/template"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
@@ -209,18 +207,9 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context,
 		return err
 	}
 
-	body, err := template.RenderInvite(template.InviteData{
+	return oa.email.SendInvite(toEmail, apiPort.InviteData{
 		OrganizationName: invite.OrganizationName,
 		InviteLink:       inviteUrlPrefix + invite.Id,
-	})
-	if err != nil {
-		return err
-	}
-
-	return oa.email.Send(ctx, apiPort.Message{
-		To:      toEmail,
-		Subject: fmt.Sprintf("Join %s on Starliner", invite.OrganizationName),
-		Body:    body,
 	})
 }
 
