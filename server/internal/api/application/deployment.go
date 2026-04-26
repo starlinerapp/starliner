@@ -699,20 +699,15 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 }
 
 func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymentId int64, userId int64) error {
-	deployment, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
+	if err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId); err != nil {
+		return err
+	}
+	deployment, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
 	if err != nil {
 		return err
 	}
 
 	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, deploymentId)
-	if err != nil {
-		return err
-	}
-
-	if deployment.EnvironmentId == nil {
-		return fmt.Errorf("deployment %d has nil environment id", deployment.Id)
-	}
-	env, err := da.environmentRepository.GetEnvironmentById(ctx, *deployment.EnvironmentId)
 	if err != nil {
 		return err
 	}
@@ -738,7 +733,7 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
 		DeploymentName:   normalizedDeploymentName,
-		Namespace:        env.Namespace,
+		Namespace:        deployment.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {
