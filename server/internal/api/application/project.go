@@ -2,8 +2,6 @@ package application
 
 import (
 	"context"
-	"strings"
-
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -16,6 +14,7 @@ type ProjectApplication struct {
 	teamService           *service.TeamService
 	projectRepository     interfaces.ProjectRepository
 	environmentRepository interfaces.EnvironmentRepository
+	environmentService    *service.EnvironmentService
 }
 
 func NewProjectApplication(
@@ -24,6 +23,7 @@ func NewProjectApplication(
 	teamService *service.TeamService,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,
+	environmentService *service.EnvironmentService,
 ) *ProjectApplication {
 	return &ProjectApplication{
 		normalizerService:     normalizerService,
@@ -31,17 +31,17 @@ func NewProjectApplication(
 		teamService:           teamService,
 		projectRepository:     projectRepository,
 		environmentRepository: environmentRepository,
+		environmentService:    environmentService,
 	}
 }
 
-func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, organizationId int64, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
+func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
 	err := pa.teamService.ValidateUserAndClusterInTeam(ctx, userId, teamId, clusterId)
 	if err != nil {
 		return nil, err
 	}
 
-	productionEnvName := "Production"
-	namespace, err := pa.normalizerService.FormatToDNS1123(name + "-" + productionEnvName)
+	namespace, err := pa.normalizerService.FormatToDNS1123(name + "-" + value.EnvironmentProductionName)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +50,8 @@ func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, or
 		ctx,
 		name,
 		namespace,
-		productionEnvName,
-		strings.ToLower(productionEnvName),
+		value.EnvironmentProductionName,
+		value.EnvironmentProductionSlug,
 		teamId,
 		clusterId,
 	)
@@ -71,11 +71,22 @@ func (pa *ProjectApplication) GetProject(ctx context.Context, projectId int64, u
 }
 
 func (pa *ProjectApplication) DeleteProject(ctx context.Context, projectId int64, userId int64) error {
+	envs, err := pa.projectRepository.GetProjectEnvironments(ctx, projectId, userId)
+	if err != nil {
+		return err
+	}
+	for _, env := range envs {
+		if err := pa.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
+			return err
+		}
+		if err := pa.environmentRepository.DeleteEnvironment(ctx, env.Id); err != nil {
+			return err
+		}
+	}
 	return pa.projectRepository.DeleteProject(ctx, projectId, userId)
 }
 
 func (pa *ProjectApplication) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*value.ProjectCluster, error) {
-
 	cluster, err := pa.projectRepository.GetProjectCluster(ctx, projectId, userId)
 	if err != nil {
 		return nil, err

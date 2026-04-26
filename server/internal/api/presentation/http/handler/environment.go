@@ -43,6 +43,30 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.NewEnvironment(newEnv))
 }
 
+// DeleteEnvironment FindAll godoc
+// @Summary Delete Environment
+// @Tags environment
+// @ID deleteEnvironment
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Environment ID"
+// @Success 200
+// @Router /environments/{id} [delete]
+func (eh *EnvironmentHandler) DeleteEnvironment(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	if err = eh.environmentApplication.DeleteEnvironment(c.Request.Context(), currentUser.Id, environmentId); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.Status(http.StatusOK)
+}
+
 // GetEnvironmentDeployments FindAll godoc
 // @Summary Get Environment Deployments
 // @Tags environment

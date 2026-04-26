@@ -34,7 +34,7 @@ INNER JOIN new_ingress_deployment ingress_d ON d.id = ingress_d.deployment_id
 type CreateIngressDeploymentParams struct {
 	Name          string
 	Port          string
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 }
 
 type CreateIngressDeploymentRow struct {
@@ -42,7 +42,7 @@ type CreateIngressDeploymentRow struct {
 	DeploymentName          string
 	DeploymentPort          string
 	DeploymentStatus        DeploymentStatus
-	DeploymentEnvironmentID int64
+	DeploymentEnvironmentID sql.NullInt64
 }
 
 func (q *Queries) CreateIngressDeployment(ctx context.Context, arg CreateIngressDeploymentParams) (CreateIngressDeploymentRow, error) {
@@ -171,7 +171,7 @@ type GetEnvironmentIngressDeploymentsRow struct {
 	DeploymentName string
 	Port           string
 	Status         DeploymentStatus
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	HostID         sql.NullInt64
 	Host           sql.NullString
 	PathID         sql.NullInt64
@@ -180,7 +180,7 @@ type GetEnvironmentIngressDeploymentsRow struct {
 	ServiceName    sql.NullString
 }
 
-func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentIngressDeploymentsRow, error) {
+func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentIngressDeploymentsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getEnvironmentIngressDeployments, environmentID)
 	if err != nil {
 		return nil, err
@@ -239,7 +239,7 @@ ORDER BY d.id DESC
 `
 
 type GetEnvironmentIngressDeploymentsByNameParams struct {
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	Name          string
 }
 
@@ -248,7 +248,7 @@ type GetEnvironmentIngressDeploymentsByNameRow struct {
 	DeploymentName string
 	Port           string
 	Status         DeploymentStatus
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	HostID         sql.NullInt64
 	Host           sql.NullString
 	PathID         sql.NullInt64
@@ -338,7 +338,7 @@ ORDER BY d.id DESC
 `
 
 type GetUserEnvironmentIngressDeploymentsParams struct {
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	UserID        int64
 }
 
@@ -347,7 +347,7 @@ type GetUserEnvironmentIngressDeploymentsRow struct {
 	DeploymentName string
 	Port           string
 	Status         DeploymentStatus
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	HostID         sql.NullInt64
 	Host           sql.NullString
 	PathID         sql.NullInt64
@@ -418,7 +418,7 @@ type UpdateIngressDeploymentRow struct {
 	DeploymentName          string
 	DeploymentPort          string
 	DeploymentStatus        DeploymentStatus
-	DeploymentEnvironmentID int64
+	DeploymentEnvironmentID sql.NullInt64
 }
 
 func (q *Queries) UpdateIngressDeployment(ctx context.Context, arg UpdateIngressDeploymentParams) (UpdateIngressDeploymentRow, error) {

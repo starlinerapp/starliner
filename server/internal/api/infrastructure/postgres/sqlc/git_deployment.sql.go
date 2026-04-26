@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createGitDeployment = `-- name: CreateGitDeployment :one
@@ -35,7 +36,7 @@ INNER JOIN new_git_deployment gd ON d.id = gd.deployment_id
 type CreateGitDeploymentParams struct {
 	Name           string
 	Port           string
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	Url            string
 	ProjectPath    string
 	DockerfilePath string
@@ -45,7 +46,7 @@ type CreateGitDeploymentRow struct {
 	DeploymentID   int64
 	Name           string
 	Port           string
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	Url            string
 	DockerfilePath string
 	ProjectPath    string
@@ -95,13 +96,13 @@ type GetEnvironmentGitDeploymentsRow struct {
 	Name           string
 	Port           string
 	Status         DeploymentStatus
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	Url            string
 	ProjectPath    string
 	DockerfilePath string
 }
 
-func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentGitDeploymentsRow, error) {
+func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentGitDeploymentsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getEnvironmentGitDeployments, environmentID)
 	if err != nil {
 		return nil, err
@@ -153,7 +154,7 @@ type GetGitDeploymentsByRepositoryUrlRow struct {
 	Name           string
 	Port           string
 	Status         DeploymentStatus
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	Url            string
 	ProjectPath    string
 	DockerfilePath string
@@ -213,7 +214,7 @@ ORDER BY d.id DESC
 `
 
 type GetUserEnvironmentGitDeploymentsParams struct {
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	UserID        int64
 }
 
@@ -222,7 +223,7 @@ type GetUserEnvironmentGitDeploymentsRow struct {
 	Name           string
 	Port           string
 	Status         DeploymentStatus
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 	Url            string
 	ProjectPath    string
 	DockerfilePath string
@@ -302,7 +303,7 @@ type UpdateGitDeploymentRow struct {
 	ProjectPath    string
 	DockerfilePath string
 	Port           string
-	EnvironmentID  int64
+	EnvironmentID  sql.NullInt64
 }
 
 func (q *Queries) UpdateGitDeployment(ctx context.Context, arg UpdateGitDeploymentParams) (UpdateGitDeploymentRow, error) {

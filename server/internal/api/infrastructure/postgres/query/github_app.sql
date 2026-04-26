@@ -20,3 +20,6 @@ INNER JOIN teams t ON t.organization_id = o.id
 INNER JOIN projects p ON p.team_id = t.id
 INNER JOIN environments e ON e.project_id = p.id
 WHERE e.id = $1;
+
+-- name: DeleteGithubAppByInstallationId :exec
+DELETE FROM github_apps WHERE installation_id = $1;

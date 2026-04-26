@@ -7,7 +7,6 @@ export const projectRouter = {
     .input(
       z.object({
         name: z.string(),
-        organizationId: z.number(),
         clusterId: z.number(),
         teamId: z.number(),
       }),
@@ -17,7 +16,6 @@ export const projectRouter = {
       return await projectApiFactory
         .createProject(userId, {
           name: input.name,
-          organization_id: input.organizationId,
           cluster_id: input.clusterId,
           team_id: input.teamId,
         })

@@ -141,11 +141,12 @@ func (tr *TeamRepository) DeleteTeamIfEmpty(ctx context.Context, id int64) error
 	return tr.queries.DeleteTeamIfEmpty(ctx, id)
 }
 
-func (tr *TeamRepository) AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string) error {
+func (tr *TeamRepository) AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string, githubAppID int64) error {
 	return tr.queries.AssignRepoToTeam(ctx, sqlc.AssignRepoToTeamParams{
 		TeamID:       teamID,
 		GithubRepoID: githubRepoID,
 		RepoName:     repoName,
+		GithubAppID:  githubAppID,
 	})
 }
 

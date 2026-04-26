@@ -33,6 +33,7 @@ SELECT
     clusters.id as id,
     clusters.name as name,
     clusters.organization_id as organization_id,
+    clusters.server_type as server_type,
     clusters.created_at as created_at
 FROM clusters
 WHERE clusters.organization_id = $1;

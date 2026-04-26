@@ -23,6 +23,18 @@ export const environmentRouter = {
         })
         .then((res) => res.data);
     }),
+  deleteEnvironment: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await environmentApiFactory
+        .deleteEnvironment(userId, input.id)
+        .then((res) => res.data);
+    }),
   getEnvironmentDeployments: protectedProcedure
     .input(
       z.object({

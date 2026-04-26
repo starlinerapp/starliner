@@ -4,6 +4,11 @@ import (
 	"starliner.app/internal/api/domain/entity"
 )
 
+const (
+	EnvironmentProductionName = "Production"
+	EnvironmentProductionSlug = "production"
+)
+
 type Environment struct {
 	Id   int64
 	Slug string

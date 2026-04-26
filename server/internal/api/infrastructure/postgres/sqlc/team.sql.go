@@ -34,11 +34,13 @@ const assignRepoToTeam = `-- name: AssignRepoToTeam :exec
 INSERT INTO team_repositories (
     team_id,
     github_repo_id,
-    repo_name
+    repo_name,
+    github_app_id
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 ON CONFLICT (team_id, github_repo_id) DO NOTHING
 `
@@ -47,10 +49,16 @@ type AssignRepoToTeamParams struct {
 	TeamID       int64
 	GithubRepoID int64
 	RepoName     string
+	GithubAppID  int64
 }
 
 func (q *Queries) AssignRepoToTeam(ctx context.Context, arg AssignRepoToTeamParams) error {
-	_, err := q.db.ExecContext(ctx, assignRepoToTeam, arg.TeamID, arg.GithubRepoID, arg.RepoName)
+	_, err := q.db.ExecContext(ctx, assignRepoToTeam,
+		arg.TeamID,
+		arg.GithubRepoID,
+		arg.RepoName,
+		arg.GithubAppID,
+	)
 	return err
 }
 

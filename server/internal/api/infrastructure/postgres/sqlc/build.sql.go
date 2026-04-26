@@ -104,7 +104,7 @@ type GetEnvironmentGitDeploymentBuildsRow struct {
 	CreatedAt      time.Time
 }
 
-func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentID int64) ([]GetEnvironmentGitDeploymentBuildsRow, error) {
+func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentGitDeploymentBuildsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getEnvironmentGitDeploymentBuilds, environmentID)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ ORDER BY d.id, b.created_at DESC
 `
 
 type GetLatestGitDeploymentBuildParams struct {
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	Name          string
 }
 

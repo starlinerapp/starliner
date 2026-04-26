@@ -48,7 +48,7 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 	d, err := qtx.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
 		Name:           serviceName,
 		Port:           port,
-		EnvironmentID:  environmentId,
+		EnvironmentID:  utils.NullInt64FromPtr(&environmentId),
 		Url:            gitUrl,
 		ProjectPath:    projectRepositoryPath,
 		DockerfilePath: dockerfilePath,
@@ -99,7 +99,7 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 		Id:                    d.DeploymentID,
 		Name:                  d.Name,
 		Port:                  d.Port,
-		EnvironmentId:         d.EnvironmentID,
+		EnvironmentId:         utils.PtrFromNullInt64(d.EnvironmentID),
 		GitUrl:                d.Url,
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
@@ -188,7 +188,7 @@ func (dr *DeploymentRepository) UpdateGitDeployment(
 		Name:                  d.ServiceName,
 		Status:                string(d.Status),
 		Port:                  d.Port,
-		EnvironmentId:         d.EnvironmentID,
+		EnvironmentId:         utils.PtrFromNullInt64(d.EnvironmentID),
 		GitUrl:                d.Url,
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
@@ -219,7 +219,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 	qtx := dr.queries.WithTx(tx)
 	d, err := qtx.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
 		Port:          port,
-		EnvironmentID: environmentId,
+		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
 		Tag:           tag,
 		ServiceName:   serviceName,
 		ImageName:     imageName,
@@ -276,7 +276,7 @@ func (dr *DeploymentRepository) CreateImageDeployment(
 		Port:            d.Port,
 		VolumeSizeMiB:   resultVolumeSizeMiB,
 		VolumeMountPath: resultVolumeMountPath,
-		EnvironmentId:   d.EnvironmentID,
+		EnvironmentId:   utils.PtrFromNullInt64(d.EnvironmentID),
 		EnvVars:         vars,
 	}, nil
 }
@@ -339,7 +339,7 @@ func (dr *DeploymentRepository) UpdateImageDeployment(
 		ImageName:     d.ImageName,
 		Tag:           d.ImageTag,
 		Port:          d.Port,
-		EnvironmentId: d.EnvironmentID,
+		EnvironmentId: utils.PtrFromNullInt64(d.EnvironmentID),
 		EnvVars:       vars,
 	}, nil
 }
@@ -363,7 +363,7 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	d, err := qtx.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
 		Name:          serviceName,
 		Port:          port,
-		EnvironmentID: environmentId,
+		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
 	})
 	if err != nil {
 		return nil, err
@@ -381,7 +381,7 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 		for _, p := range h.Paths {
 			deployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
 				Name:          p.ServiceName,
-				EnvironmentID: environmentId,
+				EnvironmentID: utils.NullInt64FromPtr(&environmentId),
 			})
 			if err != nil {
 				return nil, err
@@ -406,7 +406,7 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 		Id:            d.DeploymentID,
 		Name:          d.DeploymentName,
 		Port:          d.DeploymentPort,
-		EnvironmentId: d.DeploymentEnvironmentID,
+		EnvironmentId: utils.PtrFromNullInt64(d.DeploymentEnvironmentID),
 	}, nil
 }
 
@@ -454,7 +454,7 @@ func (dr *DeploymentRepository) UpdateIngressDeployment(
 		for _, p := range h.Paths {
 			deployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
 				Name:          p.ServiceName,
-				EnvironmentID: environmentId,
+				EnvironmentID: utils.NullInt64FromPtr(&environmentId),
 			})
 			if err != nil {
 				return nil, err
@@ -479,7 +479,7 @@ func (dr *DeploymentRepository) UpdateIngressDeployment(
 		Id:            d.DeploymentID,
 		Name:          d.DeploymentName,
 		Port:          d.DeploymentPort,
-		EnvironmentId: d.DeploymentEnvironmentID,
+		EnvironmentId: utils.PtrFromNullInt64(d.DeploymentEnvironmentID),
 	}, nil
 }
 
@@ -492,7 +492,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	d, err := dr.queries.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
 		Name:          serviceName,
 		Port:          port,
-		EnvironmentID: environmentId,
+		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
 	})
 	if err != nil {
 		return nil, err
@@ -501,7 +501,7 @@ func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	return &entity.DatabaseDeployment{
 		Id:            d.DeploymentID,
 		ServiceName:   d.Name,
-		EnvironmentId: d.EnvironmentID,
+		EnvironmentId: utils.PtrFromNullInt64(d.EnvironmentID),
 	}, nil
 }
 
@@ -533,7 +533,7 @@ func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId in
 		Id:            res.ID,
 		Name:          res.Name,
 		Port:          res.Port,
-		EnvironmentId: res.EnvironmentID,
+		EnvironmentId: utils.PtrFromNullInt64(res.EnvironmentID),
 	}, nil
 }
 
@@ -547,7 +547,7 @@ func (dr *DeploymentRepository) GetDeploymentWithNamespace(ctx context.Context, 
 		Name:          deployment.Name,
 		Port:          deployment.Port,
 		Namespace:     deployment.Namespace,
-		EnvironmentId: deployment.EnvironmentID,
+		EnvironmentId: utils.PtrFromNullInt64(deployment.EnvironmentID),
 	}, nil
 }
 
@@ -623,7 +623,7 @@ func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Cont
 				Id:            d.ID,
 				Name:          d.Name,
 				Port:          d.Port,
-				EnvironmentId: d.EnvironmentID,
+				EnvironmentId: utils.PtrFromNullInt64(d.EnvironmentID),
 				Namespace:     d.Namespace,
 			},
 			Kubeconfig: utils.PtrFromNullString(d.Kubeconfig),
@@ -642,7 +642,7 @@ func (dr *DeploymentRepository) UpdateDeploymentStatus(ctx context.Context, depl
 func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error) {
 	row, err := dr.queries.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
 		Name:          serviceName,
-		EnvironmentID: environmentId,
+		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
 	})
 
 	if err != nil {
@@ -655,7 +655,7 @@ func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Conte
 		Id:            row.ID,
 		Name:          row.Name,
 		Port:          row.Port,
-		EnvironmentId: row.EnvironmentID,
+		EnvironmentId: utils.PtrFromNullInt64(row.EnvironmentID),
 	}, nil
 }
 
@@ -713,7 +713,7 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 			Name:                  d.Name,
 			Status:                string(d.Status),
 			Port:                  d.Port,
-			EnvironmentId:         d.EnvironmentID,
+			EnvironmentId:         utils.PtrFromNullInt64(d.EnvironmentID),
 			GitUrl:                d.Url,
 			ProjectRepositoryPath: d.ProjectPath,
 			DockerfilePath:        d.DockerfilePath,

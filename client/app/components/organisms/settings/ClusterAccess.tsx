@@ -5,11 +5,11 @@ import {
 } from "~/components/atoms/dialog/Dialog";
 import Button from "~/components/atoms/button/Button";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import { Cross } from "~/components/atoms/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
 
 export function ClusterAccess({ teamId }: { teamId: number }) {
   const trpc = useTRPC();
@@ -73,8 +73,13 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
   const assignedClusterIds = new Set(
     teamClusters?.map((c) => c.clusterId) ?? [],
   );
-  const unassignedClusters =
-    allClusters?.filter((c) => !assignedClusterIds.has(c.id)) ?? [];
+  const allClustersSorted =
+    allClusters
+      ?.slice()
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+      ) ?? [];
+
   return (
     <div className="w-full">
       <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
@@ -85,17 +90,16 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
             onOpenChange={setShowAssignClusterDialog}
           >
             <DialogTrigger asChild>
-              <Button intent="secondary" className="h-7 w-28 text-xs">
-                Assign Cluster
+              <Button intent="secondary" className="h-7 w-32 text-xs">
+                Manage Clusters
               </Button>
             </DialogTrigger>
             <DialogContent>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <h1>Assign Cluster</h1>
+                  <h1>Manage cluster access</h1>
                   <p className="text-mauve-11 text-sm">
-                    Select a cluster to make visible to this team&apos;s
-                    members.
+                    Add or remove clusters to control what this team can see.
                   </p>
                 </div>
                 {isAllClustersLoading ? (
@@ -104,42 +108,57 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                     <Skeleton className="h-8 w-full" />
                     <Skeleton className="h-8 w-full" />
                   </div>
-                ) : allClusters?.length === 0 ? (
-                  <div className="text-mauve-11 text-sm">
-                    No clusters exist yet. Create a cluster first before
-                    assigning it to this team.
-                  </div>
-                ) : unassignedClusters.length === 0 ? (
-                  <div className="text-mauve-11 text-sm">
-                    All clusters are already assigned to this team.
-                  </div>
+                ) : allClustersSorted.length === 0 ? (
+                  <WarningBanner
+                    text={"No clusters available to be assigned."}
+                    linkOut={{
+                      text: "Create a cluster",
+                      href: `/${organization.slug}/clusters/new`,
+                    }}
+                  />
                 ) : (
                   <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
-                    {unassignedClusters.map((cluster) => (
-                      <div
-                        key={cluster.id}
-                        className="flex items-center justify-between px-2 py-2"
-                      >
-                        <div className="flex flex-col">
-                          <span className="text-mauve-12 text-sm font-medium">
-                            {cluster.name}
-                          </span>
-                          <span className="text-mauve-11 text-sm">
-                            {cluster.serverType}
-                          </span>
-                        </div>
-                        <Button
-                          className="h-7 w-20 text-xs"
-                          intent="secondary"
-                          disabled={assignClusterMutation.isPending}
-                          onClick={() => {
-                            onAssignCluster(cluster.id);
-                          }}
+                    {allClustersSorted.map((cluster) => {
+                      const isAssigned = assignedClusterIds.has(cluster.id);
+                      return (
+                        <div
+                          key={cluster.id}
+                          className="flex min-w-0 items-center justify-between gap-3 px-4 py-2"
                         >
-                          Assign
-                        </Button>
-                      </div>
-                    ))}
+                          <div className="flex min-w-0 flex-1 flex-col">
+                            <span
+                              className="text-mauve-12 truncate text-sm font-medium"
+                              title={cluster.name}
+                            >
+                              {cluster.name}
+                            </span>
+                            <span
+                              className="text-mauve-11 truncate text-xs"
+                              title={cluster.serverType}
+                            >
+                              {cluster.serverType}
+                            </span>
+                          </div>
+                          {isAssigned ? (
+                            <Button
+                              className="h-7 w-24 text-xs"
+                              intent="secondary"
+                              onClick={() => onUnassignCluster(cluster.id)}
+                            >
+                              Unassign
+                            </Button>
+                          ) : (
+                            <Button
+                              className="h-7 w-24 text-xs"
+                              intent="primary"
+                              onClick={() => onAssignCluster(cluster.id)}
+                            >
+                              Assign
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -147,7 +166,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
           </Dialog>
         </div>
         {isTeamClustersLoading ? (
-          <div className="flex flex-col gap-2 px-4 py-3">
+          <div className="flex flex-col gap-1 px-4 py-3">
             <Skeleton className="h-5 w-48" />
             <Skeleton className="h-5 w-36" />
           </div>
@@ -160,22 +179,19 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
           teamClusters?.map((cluster) => (
             <div
               key={cluster.clusterId}
-              className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+              className="border-mauve-6 text-mauve-12 min-w-0 border-b px-4 py-3 text-sm last:border-b-0"
             >
-              <div className="flex flex-col">
-                <span>{cluster.clusterName}</span>
-                <span className="text-mauve-11 text-sm">
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate" title={cluster.clusterName}>
+                  {cluster.clusterName}
+                </span>
+                <span
+                  className="text-mauve-11 truncate text-sm"
+                  title={cluster.serverType}
+                >
                   {cluster.serverType}
                 </span>
               </div>
-              <button
-                className="text-mauve-11 hover:text-mauve-12 cursor-pointer"
-                disabled={unassignClusterMutation.isPending}
-                onClick={() => onUnassignCluster(cluster.clusterId)}
-                title="Revoke cluster access"
-              >
-                <Cross width={16} height={16} />
-              </button>
             </div>
           ))
         )}
