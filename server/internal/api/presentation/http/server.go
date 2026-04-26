@@ -84,6 +84,7 @@ func NewServer(
 	environmentRoutes := engine.Group("/environments")
 	{
 		environmentRoutes.POST("", environmentHandler.CreateEnvironment)
+		environmentRoutes.DELETE("/:id", environmentHandler.DeleteEnvironment)
 		environmentRoutes.GET("/:id/deployments", environmentHandler.GetEnvironmentDeployments)
 		environmentRoutes.GET("/:id/builds", environmentHandler.GetEnvironmentBuilds)
 		environmentRoutes.GET("/:id/branch", environmentHandler.GetEnvironmentConnectedBranch)

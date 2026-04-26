@@ -160,7 +160,6 @@ export function RepositoryAccess({
         {isGithubAppLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">
             <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-5 w-36" />
           </div>
         ) : !githubApp ? (
           <div className="flex flex-col gap-4 px-4 py-3">
@@ -177,7 +176,6 @@ export function RepositoryAccess({
         ) : isTeamReposLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">
             <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-5 w-36" />
           </div>
         ) : teamRepos?.length === 0 ? (
           <div className="text-mauve-11 px-4 py-3 text-sm">

@@ -2,18 +2,11 @@ package application
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"strings"
-
-	"starliner.app/internal/api/domain/entity"
-	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
-	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
-	coreValue "starliner.app/internal/core/domain/value"
+	"strings"
 )
 
 type ProjectApplication struct {
@@ -22,9 +15,7 @@ type ProjectApplication struct {
 	teamService           *service.TeamService
 	projectRepository     interfaces.ProjectRepository
 	environmentRepository interfaces.EnvironmentRepository
-	deploymentRepository  interfaces.DeploymentRepository
-	queue                 port.Queue
-	crypto                corePort.Crypto
+	environmentService    *service.EnvironmentService
 }
 
 func NewProjectApplication(
@@ -33,9 +24,7 @@ func NewProjectApplication(
 	teamService *service.TeamService,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,
-	deploymentRepository interfaces.DeploymentRepository,
-	queue port.Queue,
-	crypto corePort.Crypto,
+	environmentService *service.EnvironmentService,
 ) *ProjectApplication {
 	return &ProjectApplication{
 		normalizerService:     normalizerService,
@@ -43,9 +32,7 @@ func NewProjectApplication(
 		teamService:           teamService,
 		projectRepository:     projectRepository,
 		environmentRepository: environmentRepository,
-		deploymentRepository:  deploymentRepository,
-		queue:                 queue,
-		crypto:                crypto,
+		environmentService:    environmentService,
 	}
 }
 
@@ -91,7 +78,7 @@ func (pa *ProjectApplication) DeleteProject(ctx context.Context, projectId int64
 		return err
 	}
 	for _, env := range envs {
-		if err := pa.deleteEnvironmentDeploymentsFromCluster(ctx, env); err != nil {
+		if err := pa.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
 			return err
 		}
 		if err := pa.environmentRepository.DeleteEnvironment(ctx, env.Id); err != nil {
@@ -99,87 +86,6 @@ func (pa *ProjectApplication) DeleteProject(ctx context.Context, projectId int64
 		}
 	}
 	return pa.projectRepository.DeleteProject(ctx, projectId, userId)
-}
-
-func (pa *ProjectApplication) deleteEnvironmentDeploymentsFromCluster(
-	ctx context.Context,
-	env *entity.Environment,
-) error {
-	ingresses, err := pa.environmentRepository.GetEnvironmentIngressDeployments(ctx, env.Id)
-	if err != nil {
-		return err
-	}
-
-	gitDeployments, err := pa.environmentRepository.GetEnvironmentGitDeployments(ctx, env.Id)
-	if err != nil {
-		return err
-	}
-
-	images, err := pa.environmentRepository.GetEnvironmentImageDeployments(ctx, env.Id)
-	if err != nil {
-		return err
-	}
-
-	databases, err := pa.environmentRepository.GetEnvironmentDatabaseDeployments(ctx, env.Id)
-	if err != nil {
-		return err
-	}
-
-	type projectDeploymentDelete struct {
-		id          int64
-		serviceName string
-	}
-	var deletions []projectDeploymentDelete
-
-	for _, d := range ingresses {
-		deletions = append(deletions, projectDeploymentDelete{d.Id, d.Name})
-	}
-
-	for _, d := range gitDeployments {
-		deletions = append(deletions, projectDeploymentDelete{d.Id, d.Name})
-	}
-
-	for _, d := range images {
-		deletions = append(deletions, projectDeploymentDelete{d.Id, d.ServiceName})
-	}
-
-	for _, d := range databases {
-		deletions = append(deletions, projectDeploymentDelete{d.Id, d.ServiceName})
-	}
-
-	for _, d := range deletions {
-		cluster, err := pa.deploymentRepository.GetDeploymentCluster(ctx, d.id)
-		if err != nil {
-			return err
-		}
-
-		if cluster.Kubeconfig == nil {
-			return fmt.Errorf("cluster kubeconfig is nil")
-		}
-		kubeconfigBase64, err := pa.crypto.Decrypt(*cluster.Kubeconfig)
-		if err != nil {
-			return err
-		}
-
-		normalizedDeploymentName, err := pa.normalizerService.FormatToDNS1123(d.serviceName)
-		if err != nil {
-			return err
-		}
-
-		if err = pa.deploymentRepository.SoftDeleteDeploymentVolume(ctx, d.id); err != nil {
-			return err
-		}
-
-		if err = pa.queue.PublishDeleteDeployment(&coreValue.Deployment{
-			DeploymentId:     d.id,
-			DeploymentName:   normalizedDeploymentName,
-			Namespace:        env.Namespace,
-			KubeconfigBase64: kubeconfigBase64,
-		}); err != nil {
-			log.Printf("error publishing: %v", err)
-		}
-	}
-	return nil
 }
 
 func (pa *ProjectApplication) GetProjectCluster(ctx context.Context, projectId int64, userId int64) (*value.ProjectCluster, error) {

@@ -601,6 +601,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/environments/{id}": {
+            "delete": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Delete Environment",
+                "operationId": "deleteEnvironment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/environments/{id}/branch": {
             "get": {
                 "tags": [

@@ -1237,6 +1237,26 @@ paths:
       summary: Create Environment
       tags:
       - environment
+  /environments/{id}:
+    delete:
+      operationId: deleteEnvironment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      summary: Delete Environment
+      tags:
+      - environment
   /environments/{id}/branch:
     get:
       operationId: getEnvironmentConnectedBranch
