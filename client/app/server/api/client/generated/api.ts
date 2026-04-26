@@ -506,6 +506,25 @@ export interface RequestSendInvite {
 /**
  *
  * @export
+ * @interface RequestSendResetPasswordRequest
+ */
+export interface RequestSendResetPasswordRequest {
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendResetPasswordRequest
+   */
+  resetUrl: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestSendResetPasswordRequest
+   */
+  to: string;
+}
+/**
+ *
+ * @export
  * @interface RequestSendVerificationEmailRequest
  */
 export interface RequestSendVerificationEmailRequest {
@@ -5442,6 +5461,63 @@ export const InternalApiAxiosParamCreator = function (
   return {
     /**
      *
+     * @summary Send password reset email
+     * @param {string} xUserID User ID
+     * @param {RequestSendResetPasswordRequest} data Password reset
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendResetPassword: async (
+      xUserID: string,
+      data: RequestSendResetPasswordRequest,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("sendResetPassword", "xUserID", xUserID);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("sendResetPassword", "data", data);
+      const localVarPath = `/internal/send-reset-password`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Send email verification
      * @param {string} xUserID User ID
      * @param {RequestSendVerificationEmailRequest} data Verification
@@ -5509,6 +5585,40 @@ export const InternalApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
+     * @summary Send password reset email
+     * @param {string} xUserID User ID
+     * @param {RequestSendResetPasswordRequest} data Password reset
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async sendResetPassword(
+      xUserID: string,
+      data: RequestSendResetPasswordRequest,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.sendResetPassword(
+          xUserID,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["InternalApi.sendResetPassword"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Send email verification
      * @param {string} xUserID User ID
      * @param {RequestSendVerificationEmailRequest} data Verification
@@ -5557,6 +5667,23 @@ export const InternalApiFactory = function (
   return {
     /**
      *
+     * @summary Send password reset email
+     * @param {string} xUserID User ID
+     * @param {RequestSendResetPasswordRequest} data Password reset
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    sendResetPassword(
+      xUserID: string,
+      data: RequestSendResetPasswordRequest,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .sendResetPassword(xUserID, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Send email verification
      * @param {string} xUserID User ID
      * @param {RequestSendVerificationEmailRequest} data Verification
@@ -5582,6 +5709,25 @@ export const InternalApiFactory = function (
  * @extends {BaseAPI}
  */
 export class InternalApi extends BaseAPI {
+  /**
+   *
+   * @summary Send password reset email
+   * @param {string} xUserID User ID
+   * @param {RequestSendResetPasswordRequest} data Password reset
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof InternalApi
+   */
+  public sendResetPassword(
+    xUserID: string,
+    data: RequestSendResetPasswordRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return InternalApiFp(this.configuration)
+      .sendResetPassword(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
   /**
    *
    * @summary Send email verification

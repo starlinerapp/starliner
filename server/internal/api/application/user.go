@@ -22,6 +22,12 @@ func (us *UserApplication) SendVerificationEmail(ctx context.Context, to string,
 	})
 }
 
+func (us *UserApplication) SendResetPassword(ctx context.Context, to string, passwordResetURL string) error {
+	return us.email.SendResetPassword(to, port.ResetData{
+		PasswordResetLink: passwordResetURL,
+	})
+}
+
 func (us *UserApplication) GetOrCreateUser(ctx context.Context, betterAuthID string) (*value.User, error) {
 	user, err := us.userRepository.GetUserByBetterAuthId(ctx, betterAuthID)
 	if err != nil {

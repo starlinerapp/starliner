@@ -245,6 +245,16 @@ definitions:
     - inviteUrlPrefix
     - toEmail
     type: object
+  request.SendResetPasswordRequest:
+    properties:
+      resetUrl:
+        type: string
+      to:
+        type: string
+    required:
+    - resetUrl
+    - to
+    type: object
   request.SendVerificationEmailRequest:
     properties:
       to:
@@ -1523,6 +1533,27 @@ paths:
       summary: Get GitHub App
       tags:
       - githubapp
+  /internal/send-reset-password:
+    post:
+      operationId: sendResetPassword
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Password reset
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SendResetPasswordRequest'
+      responses:
+        "204":
+          description: No Content
+      summary: Send password reset email
+      tags:
+      - internal
   /internal/send-verification-email:
     post:
       operationId: sendVerificationEmail

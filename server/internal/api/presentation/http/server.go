@@ -155,6 +155,7 @@ func NewServer(
 	internalRoutes := engine.Group("/internal")
 	{
 		internalRoutes.POST("/send-verification-email", internalHandler.SendVerificationEmail)
+		internalRoutes.POST("/send-reset-password", internalHandler.SendResetPassword)
 	}
 
 	return &Server{engine: engine}

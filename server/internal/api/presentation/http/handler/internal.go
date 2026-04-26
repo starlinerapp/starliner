@@ -40,3 +40,29 @@ func (ih *InternalHandler) SendVerificationEmail(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
+
+// SendResetPassword godoc
+// @Summary Send password reset email
+// @Tags internal
+// @ID sendResetPassword
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param data body request.SendResetPasswordRequest true "Password reset"
+// @Success 204
+// @Router /internal/send-reset-password [post]
+func (ih *InternalHandler) SendResetPassword(c *gin.Context) {
+	var body request.SendResetPasswordRequest
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := ih.userApplication.SendResetPassword(
+		c.Request.Context(),
+		body.To,
+		body.PasswordResetLink,
+	); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+	c.Status(http.StatusNoContent)
+}

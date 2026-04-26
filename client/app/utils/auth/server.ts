@@ -13,6 +13,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      await internalApiFactory.sendResetPassword(user.id, {
+        to: user.email,
+        resetUrl: url,
+      });
+    },
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
