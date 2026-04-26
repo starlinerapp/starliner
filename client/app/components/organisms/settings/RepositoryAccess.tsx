@@ -128,9 +128,6 @@ export function RepositoryAccess({
                     <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
                       {allReposSorted.map((repo) => {
                         const isAssigned = assignedRepoIds.has(repo.id);
-                        const isMutating =
-                          assignMutation.isPending ||
-                          unassignMutation.isPending;
                         return (
                           <div
                             key={repo.id}

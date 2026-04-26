@@ -116,9 +116,6 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                   <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
                     {allClustersSorted.map((cluster) => {
                       const isAssigned = assignedClusterIds.has(cluster.id);
-                      const isMutating =
-                        assignClusterMutation.isPending ||
-                        unassignClusterMutation.isPending;
                       return (
                         <div
                           key={cluster.id}
