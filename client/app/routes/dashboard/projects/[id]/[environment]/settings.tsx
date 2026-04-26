@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Button from "~/components/atoms/button/Button";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,12 +15,25 @@ export default function ProjectSettings() {
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { slug, id } = useParams<{
+  const {
+    slug,
+    id,
+    environment: environmentSlug,
+  } = useParams<{
     slug: string;
     id: string;
+    environment: string;
   }>();
 
   const projectId = Number(id);
+
+  const { data: project } = useQuery(
+    trpc.project.getProject.queryOptions({ id: projectId }),
+  );
+  const environmentId = useMemo(
+    () => project?.environments.find((e) => e.slug === environmentSlug)?.id,
+    [project, environmentSlug],
+  );
 
   const deleteProjectMutation = useMutation(
     trpc.project.deleteProject.mutationOptions({
@@ -31,6 +44,19 @@ export default function ProjectSettings() {
           }),
         });
         navigate(`/${slug}/projects/all`);
+      },
+    }),
+  );
+
+  const deleteEnvironmentMutation = useMutation(
+    trpc.environment.deleteEnvironment.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.organization.getUserProjects.queryKey({
+            id: organization.id,
+          }),
+        });
+        navigate(`/${slug}/projects/${id}`);
       },
     }),
   );
@@ -135,12 +161,40 @@ export default function ProjectSettings() {
           <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
             Danger Zone
           </div>
-          <div className="flex items-center justify-between px-4 py-2">
+          <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+            <div>
+              <p className="text-md font-bold">Delete this Environment</p>
+              <p className="text-mauve-11 text-xs">
+                Once you delete an environment, there is no going back. Please
+                be certain.
+              </p>
+            </div>
+            <Button
+              className="w-46"
+              intent="danger"
+              disabled={
+                deleteEnvironmentMutation.isPending ||
+                environmentId == null ||
+                isClusterDataLoading ||
+                environmentSlug === "production"
+              }
+              size="sm"
+              onClick={() => {
+                if (environmentId == null) return;
+                deleteEnvironmentMutation.mutate({
+                  id: environmentId,
+                });
+              }}
+            >
+              Delete this Environment
+            </Button>
+          </div>
+          <div className="border-mauve-6 flex items-center justify-between px-4 py-2">
             <div>
               <p className="text-md font-bold">Delete this Project</p>
               <p className="text-mauve-11 text-xs">
-                Once you delete a project, there is no going back. Please be
-                certain.
+                Deleting the project will delete all environments and
+                deployments associated with it.
               </p>
             </div>
             <Button

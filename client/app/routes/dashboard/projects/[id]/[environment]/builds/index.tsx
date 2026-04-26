@@ -41,7 +41,7 @@ export default function Builds() {
     return (
       <div className="flex flex-col gap-1 p-4">
         <p className="text-mauve-11">
-          There are no builds for this project yet.
+          There are no builds for this environment yet.
         </p>
       </div>
     );

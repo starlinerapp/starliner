@@ -36,7 +36,7 @@ type GetDeploymentWithNamespaceRow struct {
 	Name          string
 	Port          string
 	Status        DeploymentStatus
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	Namespace     string
@@ -74,7 +74,7 @@ type GetDeploymentsWithKubeconfigRow struct {
 	Name          string
 	Port          string
 	Status        DeploymentStatus
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	Kubeconfig    sql.NullString
@@ -123,7 +123,7 @@ WHERE deployments.name = $1
 
 type GetEnvironmentDeploymentByNameParams struct {
 	Name          string
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 }
 
 func (q *Queries) GetEnvironmentDeploymentByName(ctx context.Context, arg GetEnvironmentDeploymentByNameParams) (Deployment, error) {

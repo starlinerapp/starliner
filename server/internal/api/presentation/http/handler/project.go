@@ -37,7 +37,7 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 		return
 	}
 
-	newProject, err := ph.projectApplication.CreateProject(c.Request.Context(), project.Name, project.OrganizationId, project.ClusterId, currentUser.Id, project.TeamId)
+	newProject, err := ph.projectApplication.CreateProject(c.Request.Context(), project.Name, project.ClusterId, currentUser.Id, project.TeamId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

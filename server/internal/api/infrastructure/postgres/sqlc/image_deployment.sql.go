@@ -89,7 +89,7 @@ INNER JOIN new_image_deployment img_d ON d.id = img_d.deployment_id
 type CreateImageDeploymentParams struct {
 	ServiceName   string
 	Port          string
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	ImageName     string
 	Tag           string
 }
@@ -101,7 +101,7 @@ type CreateImageDeploymentRow struct {
 	ImageName     string
 	ImageTag      string
 	Port          string
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 }
 
 func (q *Queries) CreateImageDeployment(ctx context.Context, arg CreateImageDeploymentParams) (CreateImageDeploymentRow, error) {
@@ -170,14 +170,14 @@ type GetEnvironmentImageDeploymentsRow struct {
 	ServiceName   string
 	Port          string
 	Status        DeploymentStatus
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	ImageName     string
 	Tag           string
 	VolumeSizeMib sql.NullInt32
 	MountPath     sql.NullString
 }
 
-func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentImageDeploymentsRow, error) {
+func (q *Queries) GetEnvironmentImageDeployments(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentImageDeploymentsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getEnvironmentImageDeployments, environmentID)
 	if err != nil {
 		return nil, err
@@ -234,7 +234,7 @@ ORDER BY d.id DESC
 `
 
 type GetUserEnvironmentImageDeploymentsParams struct {
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	UserID        int64
 }
 
@@ -243,7 +243,7 @@ type GetUserEnvironmentImageDeploymentsRow struct {
 	ServiceName   string
 	Port          string
 	Status        DeploymentStatus
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	ImageName     string
 	Tag           string
 	VolumeSizeMib sql.NullInt32
@@ -335,7 +335,7 @@ type UpdateImageDeploymentRow struct {
 	ImageName     string
 	ImageTag      string
 	Port          string
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 }
 
 func (q *Queries) UpdateImageDeployment(ctx context.Context, arg UpdateImageDeploymentParams) (UpdateImageDeploymentRow, error) {

@@ -35,14 +35,14 @@ INNER JOIN new_database_deployment db ON d.id = db.deployment_id
 type CreateDatabaseDeploymentParams struct {
 	Name          string
 	Port          string
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 }
 
 type CreateDatabaseDeploymentRow struct {
 	DeploymentID  int64
 	Name          string
 	Port          string
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	Username      sql.NullString
 	Password      sql.NullString
 }
@@ -83,13 +83,13 @@ type GetEnvironmentDatabaseDeploymentsRow struct {
 	Name          string
 	Port          string
 	Status        DeploymentStatus
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	Database      sql.NullString
 	Username      sql.NullString
 	Password      sql.NullString
 }
 
-func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentID int64) ([]GetEnvironmentDatabaseDeploymentsRow, error) {
+func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentDatabaseDeploymentsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getEnvironmentDatabaseDeployments, environmentID)
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ ORDER BY d.id DESC
 `
 
 type GetUserEnvironmentDatabaseDeploymentsParams struct {
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	UserID        int64
 }
 
@@ -152,7 +152,7 @@ type GetUserEnvironmentDatabaseDeploymentsRow struct {
 	Name          string
 	Port          string
 	Status        DeploymentStatus
-	EnvironmentID int64
+	EnvironmentID sql.NullInt64
 	Database      sql.NullString
 	Username      sql.NullString
 	Password      sql.NullString

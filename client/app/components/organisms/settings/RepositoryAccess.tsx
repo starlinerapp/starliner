@@ -6,7 +6,6 @@ import {
 import Button from "~/components/atoms/button/Button";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
-import { Cross } from "~/components/atoms/icons";
 import React, { useState } from "react";
 import { useLocation } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -87,8 +86,12 @@ export function RepositoryAccess({
   }
 
   const assignedRepoIds = new Set(teamRepos?.map((r) => r.githubRepoId) ?? []);
-  const unassignedRepos =
-    allRepos?.filter((r) => !assignedRepoIds.has(r.id)) ?? [];
+  const allReposSorted =
+    allRepos
+      ?.slice()
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+      ) ?? [];
 
   return (
     <div className="w-full">
@@ -98,17 +101,17 @@ export function RepositoryAccess({
           {githubApp && (
             <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
               <DialogTrigger asChild>
-                <Button intent="secondary" className="h-7 w-28 text-xs">
-                  Assign Repo
+                <Button intent="secondary" className="h-7 w-36 text-xs">
+                  Manage Repositories
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
-                    <h1>Assign Repository</h1>
+                    <h1>Manage repository access</h1>
                     <p className="text-mauve-11 text-sm">
-                      Select a repository to make visible to this team&apos;s
-                      members.
+                      Add or remove repositories to control what this team can
+                      see.
                     </p>
                   </div>
                   {isAllReposLoading ? (
@@ -117,39 +120,54 @@ export function RepositoryAccess({
                       <Skeleton className="h-8 w-full" />
                       <Skeleton className="h-8 w-full" />
                     </div>
-                  ) : unassignedRepos.length === 0 ? (
+                  ) : allReposSorted.length === 0 ? (
                     <div className="text-mauve-11 text-sm">
-                      All repositories are already assigned to this team.
+                      No GitHub repositories are available.
                     </div>
                   ) : (
                     <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
-                      {unassignedRepos.map((repo) => (
-                        <div
-                          key={repo.id}
-                          className="flex items-center justify-between px-2 py-2"
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-mauve-12 text-sm font-medium">
-                              {repo.name}
-                            </span>
-                            {repo.description && (
-                              <span className="text-mauve-11 text-xs">
-                                {repo.description}
+                      {allReposSorted.map((repo) => {
+                        const isAssigned = assignedRepoIds.has(repo.id);
+                        return (
+                          <div
+                            key={repo.id}
+                            className="flex min-w-0 items-center justify-between gap-3 px-4 py-2"
+                          >
+                            <div className="flex min-w-0 flex-1 flex-col">
+                              <span className="text-mauve-12 truncate text-sm font-medium">
+                                {repo.owner}/{repo.name}
                               </span>
+                              {repo.description && (
+                                <span
+                                  className="text-mauve-11 truncate text-xs"
+                                  title={repo.description}
+                                >
+                                  {repo.description}
+                                </span>
+                              )}
+                            </div>
+                            {isAssigned ? (
+                              <Button
+                                className="h-7 w-24 text-xs"
+                                intent="secondary"
+                                onClick={() => onUnassignRepo(repo.id)}
+                              >
+                                Unassign
+                              </Button>
+                            ) : (
+                              <Button
+                                className="h-7 w-24 text-xs"
+                                intent="primary"
+                                onClick={() => {
+                                  onAssignRepo(repo.id, repo.full_name);
+                                }}
+                              >
+                                Assign
+                              </Button>
                             )}
                           </div>
-                          <Button
-                            className="h-7 w-20 text-xs"
-                            intent="secondary"
-                            disabled={assignMutation.isPending}
-                            onClick={() => {
-                              onAssignRepo(repo.id, repo.full_name);
-                            }}
-                          >
-                            Assign
-                          </Button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -160,7 +178,6 @@ export function RepositoryAccess({
         {isGithubAppLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">
             <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-5 w-36" />
           </div>
         ) : !githubApp ? (
           <div className="flex flex-col gap-4 px-4 py-3">
@@ -177,7 +194,6 @@ export function RepositoryAccess({
         ) : isTeamReposLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">
             <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-5 w-36" />
           </div>
         ) : teamRepos?.length === 0 ? (
           <div className="text-mauve-11 px-4 py-3 text-sm">
@@ -188,17 +204,11 @@ export function RepositoryAccess({
           teamRepos?.map((repo) => (
             <div
               key={repo.githubRepoId}
-              className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+              className="border-mauve-6 text-mauve-12 min-w-0 border-b px-4 py-3 text-sm last:border-b-0"
             >
-              <span className="text-sm">{repo.repoName}</span>
-              <button
-                className="text-mauve-11 hover:text-mauve-12 cursor-pointer"
-                disabled={unassignMutation.isPending}
-                onClick={() => onUnassignRepo(repo.githubRepoId)}
-                title="Revoke repository access"
-              >
-                <Cross width={16} height={16} />
-              </button>
+              <span className="block truncate" title={repo.repoName}>
+                {repo.repoName}
+              </span>
             </div>
           ))
         )}

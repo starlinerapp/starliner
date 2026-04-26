@@ -127,6 +127,7 @@ func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, o
 			Id:             c.ID,
 			Name:           c.Name,
 			OrganizationId: c.OrganizationID,
+			ServerType:     entity.ServerType(c.ServerType),
 			CreatedAt:      c.CreatedAt,
 		})
 	}

@@ -37,6 +37,15 @@ func (q *Queries) CreateGithubApp(ctx context.Context, arg CreateGithubAppParams
 	return i, err
 }
 
+const deleteGithubAppByInstallationId = `-- name: DeleteGithubAppByInstallationId :exec
+DELETE FROM github_apps WHERE installation_id = $1
+`
+
+func (q *Queries) DeleteGithubAppByInstallationId(ctx context.Context, installationID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteGithubAppByInstallationId, installationID)
+	return err
+}
+
 const getEnvironmentGithubApp = `-- name: GetEnvironmentGithubApp :one
 SELECT ga.id, ga.installation_id, ga.organization_id, ga.created_at, ga.updated_at
 FROM github_apps ga

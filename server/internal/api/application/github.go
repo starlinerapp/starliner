@@ -175,6 +175,8 @@ func (ga *GitHubApplication) HandleGithubWebhook(ctx context.Context, eventType 
 		return ga.deletePreviewEnvironment(ctx, e)
 	case *value.PushToBranchEvent:
 		return ga.triggerBuildsForRepository(ctx, e.RepositoryUrl, e.TargetBranch)
+	case *value.GitHubAppInstallationDeletedEvent:
+		return ga.deleteGitHubApp(ctx, e)
 	default:
 		return nil
 	}
@@ -189,13 +191,19 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 	var errs []error
 
 	for _, deployment := range deployments {
-		env, err := ga.environmentRepository.GetEnvironmentById(ctx, deployment.EnvironmentId)
+		if deployment.EnvironmentId == nil {
+			log.Printf("skipping deployment %d: nil environment id", deployment.Id)
+			continue
+		}
+		environmentID := *deployment.EnvironmentId
+
+		env, err := ga.environmentRepository.GetEnvironmentById(ctx, environmentID)
 		if err != nil {
 			errs = append(errs, err)
 			continue
 		}
 
-		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, deployment.EnvironmentId)
+		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, environmentID)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -216,7 +224,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, deployment.EnvironmentId)
+		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentID)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -595,6 +603,13 @@ func (ga *GitHubApplication) deletePreviewEnvironment(ctx context.Context, event
 		}
 	}
 	return ga.environmentRepository.DeleteEnvironment(ctx, previewEnv.Id)
+}
+
+func (ga *GitHubApplication) deleteGitHubApp(ctx context.Context, event *value.GitHubAppInstallationDeletedEvent) error {
+	if event.InstallationId == nil {
+		return fmt.Errorf("installation id is nil")
+	}
+	return ga.githubAppRepository.DeleteGithubApp(ctx, *event.InstallationId)
 }
 
 func (ga *GitHubApplication) getEnvironmentDeployments(ctx context.Context, environmentId int64) (*value.Deployments, error) {

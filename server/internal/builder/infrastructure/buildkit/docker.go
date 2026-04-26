@@ -143,8 +143,11 @@ func (c *Docker) BuildAndPublish(
 				{
 					Type: client.ExporterImage,
 					Attrs: map[string]string{
-						"name": imageTag,
-						"push": "true",
+						"name":              imageTag,
+						"push":              "true",
+						"oci-mediatypes":    "false",
+						"compression":       "gzip",
+						"force-compression": "true",
 					},
 				},
 			},

@@ -29,6 +29,7 @@ func (gr *GithubAppRepository) CreateGithubApp(ctx context.Context, installation
 	}
 
 	return &entity.GithubApp{
+		ID:             ghApp.ID,
 		InstallationID: ghApp.InstallationID,
 		OrganizationID: ghApp.OrganizationID,
 		CreatedAt:      ghApp.CreatedAt,
@@ -45,6 +46,7 @@ func (gr *GithubAppRepository) GetOrganizationGithubApp(ctx context.Context, org
 	}
 
 	return &entity.GithubApp{
+		ID:             ghApp.ID,
 		InstallationID: ghApp.InstallationID,
 		OrganizationID: ghApp.OrganizationID,
 		CreatedAt:      ghApp.CreatedAt,
@@ -61,8 +63,13 @@ func (gr *GithubAppRepository) GetEnvironmentGithubApp(ctx context.Context, envi
 	}
 
 	return &entity.GithubApp{
+		ID:             ghApp.ID,
 		InstallationID: ghApp.InstallationID,
 		OrganizationID: ghApp.OrganizationID,
 		CreatedAt:      ghApp.CreatedAt,
 	}, nil
+}
+
+func (gr *GithubAppRepository) DeleteGithubApp(ctx context.Context, installationId int64) error {
+	return gr.queries.DeleteGithubAppByInstallationId(ctx, installationId)
 }

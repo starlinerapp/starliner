@@ -223,12 +223,6 @@ export interface RequestCreateProject {
    * @type {number}
    * @memberof RequestCreateProject
    */
-  organization_id: number;
-  /**
-   *
-   * @type {number}
-   * @memberof RequestCreateProject
-   */
   team_id: number;
 }
 /**
@@ -3729,6 +3723,59 @@ export const EnvironmentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Delete Environment
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteEnvironment: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deleteEnvironment", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("deleteEnvironment", "id", id);
+      const localVarPath = `/environments/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get Environment Builds
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -4000,6 +4047,36 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Delete Environment
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteEnvironment(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.deleteEnvironment(xUserID, id, options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["EnvironmentApi.deleteEnvironment"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Environment Builds
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -4179,6 +4256,23 @@ export const EnvironmentApiFactory = function (
     },
     /**
      *
+     * @summary Delete Environment
+     * @param {string} xUserID User ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteEnvironment(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deleteEnvironment(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Environment Builds
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -4273,6 +4367,25 @@ export class EnvironmentApi extends BaseAPI {
   ) {
     return EnvironmentApiFp(this.configuration)
       .createEnvironment(xUserID, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Delete Environment
+   * @param {string} xUserID User ID
+   * @param {number} id Environment ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof EnvironmentApi
+   */
+  public deleteEnvironment(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return EnvironmentApiFp(this.configuration)
+      .deleteEnvironment(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

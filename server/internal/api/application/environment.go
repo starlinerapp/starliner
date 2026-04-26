@@ -407,3 +407,22 @@ func (ea *EnvironmentApplication) UpdateEnvironmentBranch(ctx context.Context, u
 	}
 	return nil
 }
+
+func (ea *EnvironmentApplication) DeleteEnvironment(ctx context.Context, userId int64, environmentId int64) error {
+	if err := ea.environmentService.ValidateUserPermission(ctx, userId, environmentId); err != nil {
+		return err
+	}
+	env, err := ea.environmentRepository.GetEnvironmentById(ctx, environmentId)
+	if err != nil {
+		return err
+	}
+
+	if env.Slug == value.EnvironmentProductionSlug {
+		return fmt.Errorf("cannot delete production environment")
+	}
+
+	if err := ea.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
+		return err
+	}
+	return ea.environmentRepository.DeleteEnvironment(ctx, environmentId)
+}
