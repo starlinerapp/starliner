@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"fmt"
 	"starliner.app/internal/api/conf"
 	apiPort "starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
@@ -218,7 +219,7 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context,
 
 	return oa.email.Send(ctx, apiPort.Message{
 		To:      toEmail,
-		Subject: "You've been invited to " + invite.OrganizationName,
+		Subject: fmt.Sprintf("Join %s on Starliner", invite.OrganizationName),
 		Body:    body,
 	})
 }
