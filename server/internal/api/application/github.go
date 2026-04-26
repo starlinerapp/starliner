@@ -192,7 +192,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 
 	for _, deployment := range deployments {
 		if deployment.EnvironmentId == nil {
-			errs = append(errs, fmt.Errorf("deployment %d has nil environment id", deployment.Id))
+			log.Printf("skipping deployment %d: nil environment id", deployment.Id)
 			continue
 		}
 		environmentID := *deployment.EnvironmentId

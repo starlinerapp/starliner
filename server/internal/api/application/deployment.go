@@ -377,6 +377,10 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		return err
 	}
 
+	if deployment.EnvironmentId == nil {
+		return fmt.Errorf("deployment %d has nil environment id", deployment.Id)
+	}
+
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
@@ -393,10 +397,6 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 			continue
 		}
 
-		if deployment.EnvironmentId == nil {
-			log.Printf("deployment %d has nil environment id", deployment.Id)
-			continue
-		}
 		resolvedValue, err := da.resolverService.Resolve(ctx, *deployment.EnvironmentId, res)
 		if err != nil {
 			log.Printf("failed to resolve env var: %v\n", err)
@@ -904,6 +904,10 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		log.Printf("failed to get deployment: %v\n", err)
 		return
 	}
+	if deployment.EnvironmentId == nil {
+		log.Printf("deployment %d has nil environment id\n", b.DeploymentId)
+		return
+	}
 
 	envs, err := da.deploymentRepository.GetDeploymentEnvs(ctx, b.DeploymentId)
 	if err != nil {
@@ -918,10 +922,6 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 			continue
 		}
 
-		if deployment.EnvironmentId == nil {
-			log.Printf("deployment %d has nil environment id\n", b.DeploymentId)
-			continue
-		}
 		resolvedValue, err := da.resolverService.Resolve(ctx, *deployment.EnvironmentId, res)
 		if err != nil {
 			log.Printf("failed to resolve env var: %v\n", err)
