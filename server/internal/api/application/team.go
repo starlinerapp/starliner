@@ -13,6 +13,7 @@ import (
 type TeamApplication struct {
 	teamRepository       interfaces.TeamRepository
 	clusterRepository    interfaces.ClusterRepository
+	githubAppRepository  interfaces.GithubAppRepository
 	organizationService  *service.OrganizationService
 	normalizationService *coreService.NormalizerService
 	teamService          *service.TeamService
@@ -21,6 +22,7 @@ type TeamApplication struct {
 func NewTeamApplication(
 	teamRepository interfaces.TeamRepository,
 	clusterRepository interfaces.ClusterRepository,
+	githubAppRepository interfaces.GithubAppRepository,
 	organizationService *service.OrganizationService,
 	normalizationService *coreService.NormalizerService,
 	teamService *service.TeamService,
@@ -28,6 +30,7 @@ func NewTeamApplication(
 	return &TeamApplication{
 		teamRepository:       teamRepository,
 		clusterRepository:    clusterRepository,
+		githubAppRepository:  githubAppRepository,
 		organizationService:  organizationService,
 		normalizationService: normalizationService,
 		teamService:          teamService,
@@ -158,7 +161,12 @@ func (ta *TeamApplication) AssignRepoToTeam(ctx context.Context, userId int64, t
 		return err
 	}
 
-	return ta.teamRepository.AssignRepoToTeam(ctx, teamId, githubRepoId, repoName)
+	githubApp, err := ta.githubAppRepository.GetOrganizationGithubApp(ctx, team.OrganizationId)
+	if err != nil {
+		return err
+	}
+
+	return ta.teamRepository.AssignRepoToTeam(ctx, teamId, githubRepoId, repoName, githubApp.ID)
 }
 
 func (ta *TeamApplication) UnassignRepoFromTeam(ctx context.Context, userId int64, teamId int64, githubRepoId int64) error {

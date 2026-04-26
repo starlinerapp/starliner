@@ -64,11 +64,13 @@ WHERE id = $1
 INSERT INTO team_repositories (
     team_id,
     github_repo_id,
-    repo_name
+    repo_name,
+    github_app_id
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 ON CONFLICT (team_id, github_repo_id) DO NOTHING;
 

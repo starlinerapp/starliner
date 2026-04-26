@@ -396,6 +396,7 @@ type TeamRepository struct {
 	RepoName     string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	GithubAppID  int64
 }
 
 type User struct {
