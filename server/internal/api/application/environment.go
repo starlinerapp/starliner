@@ -416,6 +416,11 @@ func (ea *EnvironmentApplication) DeleteEnvironment(ctx context.Context, userId 
 	if err != nil {
 		return err
 	}
+
+	if env.Slug == "production" {
+		return fmt.Errorf("cannot delete production environment")
+	}
+
 	if err := ea.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
 		return err
 	}
