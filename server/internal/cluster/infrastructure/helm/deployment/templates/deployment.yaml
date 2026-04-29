@@ -13,6 +13,8 @@ spec:
         app: {{ .Release.Name }}-selector
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+        - name: {{ .Release.Name }}-regcred
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

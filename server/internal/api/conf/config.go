@@ -31,6 +31,9 @@ type Config struct {
 	SmtpUsername            string `mapstructure:"SMTP_USERNAME"`
 	SmtpPassword            string `mapstructure:"SMTP_PASSWORD"`
 	SmtpTLSEnabled          bool   `mapstructure:"SMTP_TLS_ENABLED"`
+	ImageRegistryUrl        string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
+	ImageRegistryUsername   string `mapstructure:"IMAGE_REGISTRY_USERNAME" validate:"required"`
+	ImageRegistryPassword   string `mapstructure:"IMAGE_REGISTRY_PASSWORD" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
