@@ -3,6 +3,8 @@ image:
   tag:
 port:
 targetPort:
+imagePullSecret:
+  dockerconfigjson:
 env:
   - name:
     value:

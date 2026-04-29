@@ -32,15 +32,18 @@ type EnvVar struct {
 }
 
 type DeployImageArgs struct {
-	Namespace        string
-	ReleaseName      string
-	KubeconfigBase64 string
-	ImageRepository  string
-	ImageTag         string
-	Port             int
-	VolumeSizeMiB    *int32
-	VolumeMountPath  *string
-	EnvVars          []*EnvVar
+	Namespace             string
+	ReleaseName           string
+	KubeconfigBase64      string
+	ImageRegistryUrl      string
+	ImageRegistryUsername string
+	ImageRegistryPassword string
+	ImageName             string
+	ImageTag              string
+	Port                  int
+	VolumeSizeMiB         *int32
+	VolumeMountPath       *string
+	EnvVars               []*EnvVar
 }
 
 type Deploy interface {

@@ -1,6 +1,8 @@
 package helm
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
@@ -39,10 +41,34 @@ func (d *Deploy) DeployImage(
 		})
 	}
 
+	auth := base64.StdEncoding.EncodeToString(
+		[]byte(args.ImageRegistryUsername + ":" + args.ImageRegistryPassword),
+	)
+
+	dockerConfig := map[string]interface{}{
+		"auths": map[string]interface{}{
+			args.ImageRegistryUrl: map[string]interface{}{
+				"username": args.ImageRegistryUsername,
+				"password": args.ImageRegistryPassword,
+				"auth":     auth,
+			},
+		},
+	}
+
+	dockerConfigBytes, err := json.Marshal(dockerConfig)
+	if err != nil {
+		return fmt.Errorf("failed to marshal docker config json: %w", err)
+	}
+
+	encodedDockerConfig := base64.StdEncoding.EncodeToString(dockerConfigBytes)
+
 	values := map[string]interface{}{
 		"image": map[string]interface{}{
-			"repository": args.ImageRepository,
+			"repository": args.ImageName,
 			"tag":        args.ImageTag,
+		},
+		"imagePullSecret": map[string]interface{}{
+			"dockerconfigjson": encodedDockerConfig,
 		},
 		"port":       args.Port,
 		"targetPort": args.Port,

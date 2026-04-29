@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"starliner.app/internal/api/conf"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -19,6 +20,7 @@ import (
 )
 
 type DeploymentApplication struct {
+	config                *conf.Config
 	environmentService    *service.EnvironmentService
 	deploymentService     *service.DeploymentService
 	parserService         *service.ParserService
@@ -36,6 +38,7 @@ type DeploymentApplication struct {
 }
 
 func NewDeploymentApplication(
+	config *conf.Config,
 	environmentService *service.EnvironmentService,
 	deploymentService *service.DeploymentService,
 	parserService *service.ParserService,
@@ -52,6 +55,7 @@ func NewDeploymentApplication(
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
+		config:                config,
 		environmentService:    environmentService,
 		deploymentService:     deploymentService,
 		parserService:         parserService,
@@ -951,14 +955,17 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 	}
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
-		DeploymentId:     b.DeploymentId,
-		DeploymentName:   normalizedDeploymentName,
-		Namespace:        deployment.Namespace,
-		KubeconfigBase64: kubeconfigBase64,
-		ImageName:        *b.ImageName,
-		ImageTag:         *b.Tag,
-		Port:             deploymentPort,
-		EnvVars:          coreEnvs,
+		DeploymentId:          b.DeploymentId,
+		DeploymentName:        normalizedDeploymentName,
+		Namespace:             deployment.Namespace,
+		KubeconfigBase64:      kubeconfigBase64,
+		ImageRegistryUrl:      da.config.ImageRegistryUrl,
+		ImageRegistryUsername: da.config.ImageRegistryUsername,
+		ImageRegistryPassword: da.config.ImageRegistryPassword,
+		ImageName:             *b.ImageName,
+		ImageTag:              *b.Tag,
+		Port:                  deploymentPort,
+		EnvVars:               coreEnvs,
 	})
 	if err != nil {
 		log.Printf("failed to publish: %v\n", err)

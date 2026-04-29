@@ -4,26 +4,36 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/docker/cli/cli/config/configfile"
+	"github.com/docker/cli/cli/config/types"
+	"github.com/moby/buildkit/session/auth/authprovider"
 	"log"
 	"os"
 	"path/filepath"
+	"starliner.app/internal/builder/conf"
 	"strings"
 	"sync"
 
 	"github.com/moby/buildkit/client"
 	"github.com/moby/buildkit/session"
-	"github.com/moby/buildkit/session/auth/authprovider"
 	"github.com/tonistiigi/fsutil"
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
 type Docker struct {
+	config       *conf.Config
 	logPublisher port.LogPublisher
 }
 
-func NewDocker(logPublisher port.LogPublisher) port.Docker {
-	return &Docker{logPublisher: logPublisher}
+func NewDocker(
+	config *conf.Config,
+	logPublisher port.LogPublisher,
+) port.Docker {
+	return &Docker{
+		config:       config,
+		logPublisher: logPublisher,
+	}
 }
 
 func (c *Docker) BuildAndPublish(
@@ -91,8 +101,23 @@ func (c *Docker) BuildAndPublish(
 		frontendAttrs["build-arg:"+a.Name] = a.Value
 	}
 
+	registryUrl := c.config.ImageRegistryUrl
+	username := c.config.ImageRegistryUsername
+	password := c.config.ImageRegistryPassword
+
+	dockerConfig := &configfile.ConfigFile{
+		AuthConfigs: map[string]types.AuthConfig{
+			registryUrl: {
+				Username: username,
+				Password: password,
+			},
+		},
+	}
+
 	attachable := []session.Attachable{
-		authprovider.NewDockerAuthProvider(authprovider.DockerAuthProviderConfig{}),
+		authprovider.NewDockerAuthProvider(authprovider.DockerAuthProviderConfig{
+			AuthConfigProvider: authprovider.LoadAuthConfig(dockerConfig),
+		}),
 	}
 
 	statusCh := make(chan *client.SolveStatus)

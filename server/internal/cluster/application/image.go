@@ -25,15 +25,18 @@ func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
 	}
 
 	args := &port.DeployImageArgs{
-		ReleaseName:      a.DeploymentName,
-		KubeconfigBase64: a.KubeconfigBase64,
-		Namespace:        a.Namespace,
-		ImageRepository:  a.ImageName,
-		ImageTag:         a.ImageTag,
-		Port:             a.Port,
-		VolumeSizeMiB:    a.VolumeSizeMiB,
-		VolumeMountPath:  a.VolumeMountPath,
-		EnvVars:          portEnvs,
+		ReleaseName:           a.DeploymentName,
+		KubeconfigBase64:      a.KubeconfigBase64,
+		Namespace:             a.Namespace,
+		ImageName:             a.ImageName,
+		ImageRegistryUrl:      a.ImageRegistryUrl,
+		ImageRegistryUsername: a.ImageRegistryUsername,
+		ImageRegistryPassword: a.ImageRegistryPassword,
+		ImageTag:              a.ImageTag,
+		Port:                  a.Port,
+		VolumeSizeMiB:         a.VolumeSizeMiB,
+		VolumeMountPath:       a.VolumeMountPath,
+		EnvVars:               portEnvs,
 	}
 
 	err := ia.deploy.DeployImage(args)

@@ -6,16 +6,19 @@ type EnvVar struct {
 }
 
 type ImageDeployment struct {
-	DeploymentId     int64
-	DeploymentName   string
-	Namespace        string
-	KubeconfigBase64 string
-	ImageName        string
-	ImageTag         string
-	Port             int
-	VolumeSizeMiB    *int32
-	VolumeMountPath  *string
-	EnvVars          []*EnvVar
+	DeploymentId          int64
+	DeploymentName        string
+	Namespace             string
+	KubeconfigBase64      string
+	ImageRegistryUrl      string
+	ImageRegistryUsername string
+	ImageRegistryPassword string
+	ImageName             string
+	ImageTag              string
+	Port                  int
+	VolumeSizeMiB         *int32
+	VolumeMountPath       *string
+	EnvVars               []*EnvVar
 }
 
 type DatabaseDeployment struct {
