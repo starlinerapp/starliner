@@ -23,7 +23,11 @@ export async function loader(args: Route.LoaderArgs) {
   });
 
   return {
-    invite,
+    invite: {
+      id: inviteId,
+      organizationSlug: invite.organization_slug,
+      organizationName: invite.organization_name,
+    },
     emailMatches: invite.email === session?.user.email,
   };
 }
@@ -47,7 +51,7 @@ export default function AcceptInvite() {
       { inviteId: invite.id },
       {
         onSuccess: () => {
-          navigate(`/${invite.organization_slug}`);
+          navigate(`/${invite.organizationSlug}`);
         },
         onError: (err) => {
           setError(err.message);
@@ -63,7 +67,7 @@ export default function AcceptInvite() {
 
   return (
     <div className="flex w-125 flex-col gap-4">
-      <h1 className="text-xl font-medium">Join {invite.organization_name}</h1>
+      <h1 className="text-xl font-medium">Join {invite.organizationName}</h1>
       {error && (
         <ErrorBanner text={error}>
           {!emailMatches && (
@@ -78,7 +82,7 @@ export default function AcceptInvite() {
         </ErrorBanner>
       )}
       <p className="text-mauve-11 text-sm">
-        You&#39;ve been invited to join {invite.organization_name}. Click the
+        You&#39;ve been invited to join {invite.organizationName}. Click the
         button below to accept the invite and get started.
       </p>
       <Button
