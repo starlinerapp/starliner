@@ -47,7 +47,7 @@ export default function AcceptInvite() {
       { inviteId: invite.id },
       {
         onSuccess: () => {
-          navigate("/");
+          navigate(`/${invite.organization_slug}`);
         },
         onError: (err) => {
           setError(err.message);
@@ -58,7 +58,7 @@ export default function AcceptInvite() {
 
   async function handleLogout() {
     await authClient.signOut();
-    navigate("/login");
+    navigate("/login?redirect=" + window.location.pathname);
   }
 
   return (

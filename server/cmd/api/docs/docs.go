@@ -3127,7 +3127,8 @@ const docTemplate = `{
                 "expires_at",
                 "id",
                 "organization_id",
-                "organization_name"
+                "organization_name",
+                "organization_slug"
             ],
             "properties": {
                 "created_at": {
@@ -3146,6 +3147,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "organization_name": {
+                    "type": "string"
+                },
+                "organization_slug": {
                     "type": "string"
                 }
             }

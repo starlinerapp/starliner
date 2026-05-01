@@ -40,6 +40,7 @@ type GetOrganizationProvisioningCredentialResponse struct {
 type OrganizationInvite struct {
 	Id               string `json:"id" binding:"required"`
 	OrganizationId   int64  `json:"organization_id" binding:"required"`
+	OrganizationSlug string `json:"organization_slug" binding:"required"`
 	OrganizationName string `json:"organization_name" binding:"required"`
 	Email            string `json:"email" binding:"required"`
 	ExpiresAt        string `json:"expires_at" binding:"required"`

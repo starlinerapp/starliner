@@ -1339,6 +1339,12 @@ export interface ResponseOrganizationInvite {
    * @memberof ResponseOrganizationInvite
    */
   organization_name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseOrganizationInvite
+   */
+  organization_slug: string;
 }
 /**
  *

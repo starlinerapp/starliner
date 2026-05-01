@@ -10,6 +10,7 @@
 | **id**                | **string** |             | [default to undefined] |
 | **organization_id**   | **number** |             | [default to undefined] |
 | **organization_name** | **string** |             | [default to undefined] |
+| **organization_slug** | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -23,6 +24,7 @@ const instance: ResponseOrganizationInvite = {
   id,
   organization_id,
   organization_name,
+  organization_slug,
 };
 ```
 

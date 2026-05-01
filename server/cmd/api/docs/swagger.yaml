@@ -695,6 +695,8 @@ definitions:
         type: integer
       organization_name:
         type: string
+      organization_slug:
+        type: string
     required:
     - created_at
     - email
@@ -702,6 +704,7 @@ definitions:
     - id
     - organization_id
     - organization_name
+    - organization_slug
     type: object
   response.OrganizationProvisioningCredential:
     properties:

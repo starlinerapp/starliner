@@ -164,7 +164,21 @@ func (oa *OrganizationApplication) GetInviteDetails(ctx context.Context, inviteI
 		return nil, err
 	}
 
-	return value.NewOrganizationInvite(invite), nil
+	organizationName := invite.OrganizationName
+	organizationSlug, err := oa.normalizationService.FormatToDNS1123(organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &value.OrganizationInvite{
+		Id:               invite.Id,
+		OrganizationId:   invite.OrganizationId,
+		OrganizationSlug: organizationSlug,
+		OrganizationName: organizationName,
+		Email:            invite.Email,
+		ExpiresAt:        invite.ExpiresAt,
+		CreatedAt:        invite.CreatedAt,
+	}, nil
 }
 
 func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID string, recipientEmail string, userID int64) error {
