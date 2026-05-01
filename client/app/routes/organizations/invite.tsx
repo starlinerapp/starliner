@@ -1,42 +1,41 @@
 import React, { useState } from "react";
 import type { Route } from "./+types/invite";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useLoaderData } from "react-router";
 import { ChevronRight } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { caller } from "~/utils/trpc/server";
 import { getServerSession } from "~/utils/auth/server";
+import { authClient } from "~/utils/auth/client";
 
 export async function loader(args: Route.LoaderArgs) {
-  const c = await caller(args);
-
-  const url = new URL(args.request.url);
-  const inviteId = url.searchParams.get("invite_id");
-  if (inviteId === null) throw new Error("Invalid invite");
+  const inviteId = args.params.inviteId;
+  if (inviteId === null) {
+    throw new Response("Invalid invite", { status: 400 });
+  }
 
   const session = await getServerSession(args.request);
+  const c = await caller(args);
   const invite = await c.organization.getInvite({
     inviteId,
   });
 
-  if (invite.email !== session?.user.email) {
-    throw new Error("Invalid invite");
-  }
+  return {
+    invite,
+    emailMatches: invite.email === session?.user.email,
+  };
 }
 
 export default function AcceptInvite() {
+  const { invite, emailMatches } = useLoaderData<typeof loader>();
+
   const trpc = useTRPC();
   const navigate = useNavigate();
-  const { inviteId } = useParams<{ inviteId: string }>();
-  const [error, setError] = useState<string | null>(null);
 
-  const { data: invite, isLoading } = useQuery(
-    trpc.organization.getInvite.queryOptions({
-      inviteId: inviteId!,
-    }),
+  const [error, setError] = useState<string | null>(
+    emailMatches ? null : "You are not the intended recipient of this invite.",
   );
 
   const acceptInviteMutation = useMutation(
@@ -44,9 +43,8 @@ export default function AcceptInvite() {
   );
 
   function handleAccept() {
-    if (!inviteId) return;
     acceptInviteMutation.mutate(
-      { inviteId },
+      { inviteId: invite.id },
       {
         onSuccess: () => {
           navigate("/");
@@ -58,30 +56,35 @@ export default function AcceptInvite() {
     );
   }
 
+  async function handleLogout() {
+    await authClient.signOut();
+    navigate("/login");
+  }
+
   return (
-    <div className="flex w-[500px] flex-col gap-4">
-      <h1 className="text-xl font-medium">Join Organization</h1>
-      {isLoading ? (
-        <Skeleton className="h-5 w-64" />
-      ) : invite ? (
-        <p className="text-mauve-11 text-sm">
-          You&#39;ve been invited to join{" "}
-          <span className="text-mauve-12 font-medium">
-            {invite.organization_name}
-          </span>
-          . Click the button below to accept the invite and get started.
-        </p>
-      ) : (
-        <p className="text-mauve-11 text-sm">
-          You&#39;ve been invited to join an organization. Click the button
-          below to accept the invite and get started.
-        </p>
+    <div className="flex w-125 flex-col gap-4">
+      <h1 className="text-xl font-medium">Join {invite.organization_name}</h1>
+      {error && (
+        <ErrorBanner text={error}>
+          {!emailMatches && (
+            <button
+              className="cursor-pointer text-sm font-light underline"
+              type="button"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          )}
+        </ErrorBanner>
       )}
-      {error && <ErrorBanner text={error} />}
+      <p className="text-mauve-11 text-sm">
+        You&#39;ve been invited to join {invite.organization_name}. Click the
+        button below to accept the invite and get started.
+      </p>
       <Button
         size="md"
         onClick={handleAccept}
-        disabled={acceptInviteMutation.isPending}
+        disabled={acceptInviteMutation.isPending || !emailMatches}
       >
         {acceptInviteMutation.isPending ? "Joining..." : "Accept Invite"}{" "}
         <ChevronRight className="w-4 stroke-3" />

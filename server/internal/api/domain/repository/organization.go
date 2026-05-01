@@ -227,6 +227,7 @@ func (or *OrganizationRepository) GetOrganizationInviteById(ctx context.Context,
 		Id:               invite.ID.String(),
 		OrganizationId:   invite.OrganizationID,
 		OrganizationName: invite.OrganizationName,
+		Email:            invite.Email,
 		ExpiresAt:        invite.ExpiresAt,
 		CreatedAt:        invite.CreatedAt,
 	}, nil
