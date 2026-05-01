@@ -850,6 +850,10 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 
 	for _, d := range deployments {
 		go func(d *entity.DeploymentWithKubeconfig) {
+			if d.Kubeconfig == nil {
+				log.Printf("deployment status request skipped: kubeconfig is nil for deployment id=%d\n\n", d.Deployment.Id)
+				return
+			}
 			kubeconfigBase64, err := da.crypto.Decrypt(*d.Kubeconfig)
 			if err != nil {
 				log.Printf("failed to decrypt kubeconfig: %v\n", err)
