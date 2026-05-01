@@ -8,6 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
+
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
@@ -16,8 +19,6 @@ import (
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
-	"strconv"
-	"strings"
 )
 
 type GitHubApplication struct {
@@ -350,7 +351,7 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			coreHosts := make([]coreValue.IngressHost, 0, len(d.IngressHosts))
 			for _, h := range d.IngressHosts {
 				if h.Host != "" {
-					commentURLs = append(commentURLs, "http://"+h.Host)
+					commentURLs = append(commentURLs, "https://"+h.Host)
 				}
 
 				ch := coreValue.IngressHost{
