@@ -51,6 +51,12 @@ export interface RequestAcceptInvite {
    * @memberof RequestAcceptInvite
    */
   inviteId: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestAcceptInvite
+   */
+  recipientEmail: string;
 }
 /**
  *
@@ -1303,6 +1309,12 @@ export interface ResponseOrganizationInvite {
    * @memberof ResponseOrganizationInvite
    */
   created_at: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseOrganizationInvite
+   */
+  email: string;
   /**
    *
    * @type {string}

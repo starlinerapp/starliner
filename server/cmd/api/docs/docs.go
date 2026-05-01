@@ -2128,10 +2128,14 @@ const docTemplate = `{
         "request.AcceptInvite": {
             "type": "object",
             "required": [
-                "inviteId"
+                "inviteId",
+                "recipientEmail"
             ],
             "properties": {
                 "inviteId": {
+                    "type": "string"
+                },
+                "recipientEmail": {
                     "type": "string"
                 }
             }
@@ -3119,6 +3123,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "created_at",
+                "email",
                 "expires_at",
                 "id",
                 "organization_id",
@@ -3126,6 +3131,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "created_at": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "expires_at": {

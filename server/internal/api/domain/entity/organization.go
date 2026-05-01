@@ -13,6 +13,7 @@ type OrganizationInvite struct {
 	Id               string
 	OrganizationId   int64
 	OrganizationName string
+	Email            string
 	ExpiresAt        time.Time
 	CreatedAt        time.Time
 }

@@ -63,10 +63,12 @@ WHERE organization_members.organization_id = $1
 WITH new_invite AS (
     INSERT INTO organization_invites (
         organization_id,
+        email,
         expires_at
     ) VALUES (
         $1,
-        $2
+        $2,
+        $3
     )
     RETURNING *
 )

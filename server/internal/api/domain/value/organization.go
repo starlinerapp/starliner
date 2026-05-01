@@ -1,8 +1,9 @@
 package value
 
 import (
-	"starliner.app/internal/api/domain/entity"
 	"time"
+
+	"starliner.app/internal/api/domain/entity"
 )
 
 type Organization struct {
@@ -33,6 +34,7 @@ type OrganizationInvite struct {
 	Id               string
 	OrganizationId   int64
 	OrganizationName string
+	Email            string
 	ExpiresAt        time.Time
 	CreatedAt        time.Time
 }
@@ -42,6 +44,7 @@ func NewOrganizationInvite(oi *entity.OrganizationInvite) *OrganizationInvite {
 		Id:               oi.Id,
 		OrganizationId:   oi.OrganizationId,
 		OrganizationName: oi.OrganizationName,
+		Email:            oi.Email,
 		ExpiresAt:        oi.ExpiresAt,
 		CreatedAt:        oi.CreatedAt,
 	}

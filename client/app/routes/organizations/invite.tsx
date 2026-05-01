@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { Route } from "./+types/invite";
 import { useNavigate, useParams } from "react-router";
 import { ChevronRight } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
@@ -6,6 +7,25 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { caller } from "~/utils/trpc/server";
+import { getServerSession } from "~/utils/auth/server";
+
+export async function loader(args: Route.LoaderArgs) {
+  const c = await caller(args);
+
+  const url = new URL(args.request.url);
+  const inviteId = url.searchParams.get("invite_id");
+  if (inviteId === null) throw new Error("Invalid invite");
+
+  const session = await getServerSession(args.request);
+  const invite = await c.organization.getInvite({
+    inviteId,
+  });
+
+  if (invite.email !== session?.user.email) {
+    throw new Error("Invalid invite");
+  }
+}
 
 export default function AcceptInvite() {
   const trpc = useTRPC();
