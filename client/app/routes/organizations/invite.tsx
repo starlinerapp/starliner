@@ -12,7 +12,7 @@ import { authClient } from "~/utils/auth/client";
 
 export async function loader(args: Route.LoaderArgs) {
   const inviteId = args.params.inviteId;
-  if (inviteId === null) {
+  if (!inviteId) {
     throw new Response("Invalid invite", { status: 400 });
   }
 
@@ -62,7 +62,9 @@ export default function AcceptInvite() {
 
   async function handleLogout() {
     await authClient.signOut();
-    navigate("/login?redirect=" + window.location.pathname);
+    navigate(
+      `/login?redirectTo=${encodeURIComponent(window.location.pathname)}`,
+    );
   }
 
   return (
