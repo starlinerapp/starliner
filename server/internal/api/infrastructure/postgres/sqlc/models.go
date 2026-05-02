@@ -332,6 +332,7 @@ type OrganizationInvite struct {
 	OrganizationID int64
 	ExpiresAt      time.Time
 	CreatedAt      time.Time
+	Email          string
 }
 
 type OrganizationMember struct {

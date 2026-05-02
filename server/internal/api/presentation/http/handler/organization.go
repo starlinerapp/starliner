@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
-	"strconv"
 )
 
 type OrganizationHandler struct {
@@ -249,7 +250,7 @@ func (oh *OrganizationHandler) AcceptInvite(c *gin.Context) {
 		return
 	}
 
-	err := oh.organizationApplication.AcceptInvite(c.Request.Context(), body.InviteId, currentUser.Id)
+	err := oh.organizationApplication.AcceptInvite(c.Request.Context(), body.InviteId, body.RecipientEmail, currentUser.Id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

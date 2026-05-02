@@ -4,12 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
+
 	"github.com/google/uuid"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
-	"time"
 )
 
 type OrganizationRepository struct {
@@ -191,9 +192,10 @@ func (or *OrganizationRepository) RemoveOrganizationMember(ctx context.Context, 
 	return err
 }
 
-func (or *OrganizationRepository) CreateOrganizationInvite(ctx context.Context, organizationID int64, expiresAt time.Time) (*entity.OrganizationInvite, error) {
+func (or *OrganizationRepository) CreateOrganizationInvite(ctx context.Context, organizationID int64, toEmail string, expiresAt time.Time) (*entity.OrganizationInvite, error) {
 	invite, err := or.queries.CreateOrganizationInvite(ctx, sqlc.CreateOrganizationInviteParams{
 		OrganizationID: organizationID,
+		Email:          toEmail,
 		ExpiresAt:      expiresAt,
 	})
 
@@ -205,6 +207,7 @@ func (or *OrganizationRepository) CreateOrganizationInvite(ctx context.Context, 
 		Id:               invite.ID.String(),
 		OrganizationId:   invite.OrganizationID,
 		OrganizationName: invite.OrganizationName,
+		Email:            invite.Email,
 		ExpiresAt:        invite.ExpiresAt,
 		CreatedAt:        invite.CreatedAt,
 	}, nil
@@ -224,6 +227,7 @@ func (or *OrganizationRepository) GetOrganizationInviteById(ctx context.Context,
 		Id:               invite.ID.String(),
 		OrganizationId:   invite.OrganizationID,
 		OrganizationName: invite.OrganizationName,
+		Email:            invite.Email,
 		ExpiresAt:        invite.ExpiresAt,
 		CreatedAt:        invite.CreatedAt,
 	}, nil

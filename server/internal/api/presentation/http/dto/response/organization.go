@@ -40,7 +40,9 @@ type GetOrganizationProvisioningCredentialResponse struct {
 type OrganizationInvite struct {
 	Id               string `json:"id" binding:"required"`
 	OrganizationId   int64  `json:"organization_id" binding:"required"`
+	OrganizationSlug string `json:"organization_slug" binding:"required"`
 	OrganizationName string `json:"organization_name" binding:"required"`
+	Email            string `json:"email" binding:"required"`
 	ExpiresAt        string `json:"expires_at" binding:"required"`
 	CreatedAt        string `json:"created_at" binding:"required"`
 }
@@ -50,6 +52,7 @@ func NewOrganizationInvite(invite *value.OrganizationInvite) OrganizationInvite 
 		Id:               invite.Id,
 		OrganizationId:   invite.OrganizationId,
 		OrganizationName: invite.OrganizationName,
+		Email:            invite.Email,
 		ExpiresAt:        invite.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
 		CreatedAt:        invite.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}

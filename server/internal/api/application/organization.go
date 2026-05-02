@@ -3,6 +3,8 @@ package application
 import (
 	"context"
 	"errors"
+	"time"
+
 	"starliner.app/internal/api/conf"
 	apiPort "starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
@@ -10,7 +12,6 @@ import (
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
-	"time"
 )
 
 type OrganizationApplication struct {
@@ -163,13 +164,31 @@ func (oa *OrganizationApplication) GetInviteDetails(ctx context.Context, inviteI
 		return nil, err
 	}
 
-	return value.NewOrganizationInvite(invite), nil
+	organizationName := invite.OrganizationName
+	organizationSlug, err := oa.normalizationService.FormatToDNS1123(organizationName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &value.OrganizationInvite{
+		Id:               invite.Id,
+		OrganizationId:   invite.OrganizationId,
+		OrganizationSlug: organizationSlug,
+		OrganizationName: organizationName,
+		Email:            invite.Email,
+		ExpiresAt:        invite.ExpiresAt,
+		CreatedAt:        invite.CreatedAt,
+	}, nil
 }
 
-func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID string, userID int64) error {
+func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID string, recipientEmail string, userID int64) error {
 	invite, err := oa.organizationRepository.GetOrganizationInviteById(ctx, inviteID)
 	if err != nil {
 		return err
+	}
+
+	if invite.Email != recipientEmail {
+		return errors.New("invite email does not match")
 	}
 
 	if time.Now().After(invite.ExpiresAt) {
@@ -202,7 +221,7 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context,
 	}
 
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, expiresAt)
+	invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, toEmail, expiresAt)
 	if err != nil {
 		return err
 	}
