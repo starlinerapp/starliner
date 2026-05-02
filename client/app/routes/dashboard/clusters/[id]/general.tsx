@@ -51,7 +51,8 @@ export default function General() {
   const bottomPanelRef = useRef<ImperativePanelHandle>(null);
 
   useEffect(() => {
-    if (clusterData?.status !== "running") return;
+    if (clusterData?.status !== "pending" && clusterData?.status !== "running")
+      return;
 
     const panel = bottomPanelRef.current;
     if (!panel) return;
@@ -165,17 +166,22 @@ export default function General() {
 
       <ResizableHandle />
 
-      {clusterData?.id && clusterData.status === "running" && (
-        <ResizablePanel
-          ref={bottomPanelRef}
-          defaultSize={85}
-          minSize={4}
-          maxSize={85}
-          className="border-mauve-6 border-t-1"
-        >
-          <BottomBar clusterId={clusterData?.id} />
-        </ResizablePanel>
-      )}
+      {clusterData?.id &&
+        (clusterData.status === "pending" ||
+          clusterData.status === "running") && (
+          <ResizablePanel
+            ref={bottomPanelRef}
+            defaultSize={85}
+            minSize={4}
+            maxSize={85}
+            className="border-mauve-6 border-t-1"
+          >
+            <BottomBar
+              clusterId={clusterData.id}
+              status={clusterData.status}
+            />
+          </ResizablePanel>
+        )}
     </ResizablePanelGroup>
   );
 }

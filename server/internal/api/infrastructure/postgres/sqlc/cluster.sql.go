@@ -21,7 +21,7 @@ INSERT INTO clusters (
     $2,
     $3
  )
-RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user"
+RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs
 `
 
 type CreateClusterParams struct {
@@ -47,6 +47,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		&i.Kubeconfig,
 		&i.ServerType,
 		&i.User,
+		&i.Logs,
 	)
 	return i, err
 }
@@ -63,7 +64,7 @@ func (q *Queries) DeleteCluster(ctx context.Context, id int64) error {
 }
 
 const getCluster = `-- name: GetCluster :one
-SELECT id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user"
+SELECT id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs
 FROM clusters
 WHERE id = $1
 `
@@ -85,13 +86,14 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.Kubeconfig,
 		&i.ServerType,
 		&i.User,
+		&i.Logs,
 	)
 	return i, err
 }
 
 const getDeploymentCluster = `-- name: GetDeploymentCluster :one
 SELECT
-    clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
+    clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
 FROM clusters
 INNER JOIN projects ON projects.cluster_id = clusters.id
 INNER JOIN environments ON environments.project_id = projects.id
@@ -116,6 +118,7 @@ func (q *Queries) GetDeploymentCluster(ctx context.Context, deploymentID int64) 
 		&i.Kubeconfig,
 		&i.ServerType,
 		&i.User,
+		&i.Logs,
 	)
 	return i, err
 }
@@ -213,6 +216,28 @@ func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) 
 	return i, err
 }
 
+const getUserClusterProvisioningLogs = `-- name: GetUserClusterProvisioningLogs :one
+SELECT
+    c.logs
+FROM clusters c
+LEFT JOIN organizations o ON c.organization_id = o.id
+LEFT JOIN organization_members om ON o.id = om.organization_id
+WHERE c.id = $1
+AND om.user_id = $2
+`
+
+type GetUserClusterProvisioningLogsParams struct {
+	ClusterID int64
+	UserID    int64
+}
+
+func (q *Queries) GetUserClusterProvisioningLogs(ctx context.Context, arg GetUserClusterProvisioningLogsParams) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, getUserClusterProvisioningLogs, arg.ClusterID, arg.UserID)
+	var logs sql.NullString
+	err := row.Scan(&logs)
+	return logs, err
+}
+
 const updateClusterIPv4Address = `-- name: UpdateClusterIPv4Address :exec
 UPDATE clusters
 SET
@@ -244,6 +269,23 @@ type UpdateClusterKubeconfigParams struct {
 
 func (q *Queries) UpdateClusterKubeconfig(ctx context.Context, arg UpdateClusterKubeconfigParams) error {
 	_, err := q.db.ExecContext(ctx, updateClusterKubeconfig, arg.Kubeconfig, arg.ID)
+	return err
+}
+
+const updateClusterLogs = `-- name: UpdateClusterLogs :exec
+UPDATE clusters
+SET
+    logs = $1
+WHERE id = $2
+`
+
+type UpdateClusterLogsParams struct {
+	Logs sql.NullString
+	ID   int64
+}
+
+func (q *Queries) UpdateClusterLogs(ctx context.Context, arg UpdateClusterLogsParams) error {
+	_, err := q.db.ExecContext(ctx, updateClusterLogs, arg.Logs, arg.ID)
 	return err
 }
 

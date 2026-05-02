@@ -6,6 +6,6 @@ import (
 )
 
 type Provision interface {
-	ProvisionServer(ctx context.Context, provisioningCredential string, name string, serverType value.ServerType, publicKey []byte) (provisioningId string, ip string, err error)
-	DeleteServer(ctx context.Context, provisioningCredential string, provisioningId string) error
+	ProvisionServer(ctx context.Context, clusterId int64, provisioningCredential string, name string, serverType value.ServerType, publicKey []byte) (provisioningId string, ip string, logs string, err error)
+	DeleteServer(ctx context.Context, clusterId int64, provisioningCredential string, provisioningId string) error
 }

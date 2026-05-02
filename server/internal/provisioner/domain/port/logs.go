@@ -1,6 +1,6 @@
 package port
 
 type LogPublisher interface {
-	PublishLogChunk(provisioningId string, chunk []byte) error
-	PublishLogEnd(provisioningId string) error
+	PublishLogChunk(clusterId int64, chunk []byte) error
+	PublishLogEnd(clusterId int64) error
 }

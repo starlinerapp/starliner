@@ -5,7 +5,7 @@ package proto.v1;
 option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
 
 message StreamProvisioningLogRequest {
-  string provisioning_id = 1;
+  int64 cluster_id = 1;
 }
 
 message StreamProvisioningLogResponse {
@@ -13,5 +13,5 @@ message StreamProvisioningLogResponse {
 }
 
 service ProvisioningLogService {
-  rpc StreamingProvisioningLogs(StreamProvisioningLogRequest) returns (stream StreamProvisioningLogResponse);
+  rpc StreamProvisioningLogs(StreamProvisioningLogRequest) returns (stream StreamProvisioningLogResponse);
 }

@@ -20,6 +20,7 @@ type ClusterApplication struct {
 	provision         port.Provision
 	queue             port.Queue
 	crypto            corePort.Crypto
+	logPublisher      port.LogPublisher
 	normalizerService *service.NormalizerService
 }
 
@@ -29,6 +30,7 @@ func NewClusterApplication(
 	provision port.Provision,
 	queue port.Queue,
 	crypto corePort.Crypto,
+	logPublisher port.LogPublisher,
 	normalizerService *service.NormalizerService,
 ) *ClusterApplication {
 	return &ClusterApplication{
@@ -37,11 +39,21 @@ func NewClusterApplication(
 		provision:         provision,
 		queue:             queue,
 		crypto:            crypto,
+		logPublisher:      logPublisher,
 		normalizerService: normalizerService,
 	}
 }
 
 func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) {
+	defer func() {
+		if ca.logPublisher == nil {
+			return
+		}
+		if err := ca.logPublisher.PublishLogEnd(c.Id); err != nil {
+			log.Printf("failed to publish log end: %v", err)
+		}
+	}()
+
 	ctx := context.Background()
 	publicKey, privateKey, err := ca.crypto.GenerateKeyPair()
 	if err != nil {
@@ -57,7 +69,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	}
 
 	projectName := fmt.Sprintf("%s-%s", strings.ToLower(c.OrganizationName), clusterSlug)
-	provisioningId, ip, err := ca.provision.ProvisionServer(ctx, c.ProvisioningCredential, projectName, c.ServerType, publicKey)
+	provisioningId, ip, provisionLogs, err := ca.provision.ProvisionServer(ctx, c.Id, c.ProvisioningCredential, projectName, c.ServerType, publicKey)
 
 	if err != nil {
 		log.Printf("failed to provision server: %v\n", err)
@@ -75,7 +87,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		return
 	}
 
-	kubeconfig, err := ca.install.InstallK3s(provisioningId, ip, privateKey)
+	kubeconfig, installLogs, err := ca.install.InstallK3s(c.Id, ip, privateKey)
 	if err != nil {
 		log.Printf("Failed to install k3s: %v\n", err)
 		return
@@ -90,6 +102,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		PublicKey:        pubKeyStr,
 		PrivateKey:       privKeyStr,
 		KubeconfigBase64: kubeconfigBase64,
+		Logs:             provisionLogs + installLogs,
 	})
 
 	if err != nil {
@@ -98,8 +111,17 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 }
 
 func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
+	defer func() {
+		if ca.logPublisher == nil {
+			return
+		}
+		if err := ca.logPublisher.PublishLogEnd(c.Id); err != nil {
+			log.Printf("failed to publish log end: %v", err)
+		}
+	}()
+
 	ctx := context.Background()
-	err := ca.provision.DeleteServer(ctx, c.ProvisioningCredential, c.ProvisioningId)
+	err := ca.provision.DeleteServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId)
 	if err != nil {
 		log.Printf("failed to delete server: %v\n", err)
 		return

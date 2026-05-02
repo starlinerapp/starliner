@@ -1,7 +1,7 @@
 package value
 
 type ClusterLogChunk struct {
-	ProvisioningId string
-	Data           []byte
-	End            bool
+	ClusterId int64
+	Data      []byte
+	End       bool
 }

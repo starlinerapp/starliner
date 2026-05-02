@@ -14,22 +14,22 @@ import (
 type ClusterLogApplication struct {
 	mu      sync.Mutex
 	seq     uint64
-	buffers map[string]*bytes.Buffer
-	subs    map[string]map[uint64]chan *value.ClusterLogChunk
+	buffers map[int64]*bytes.Buffer
+	subs    map[int64]map[uint64]chan *value.ClusterLogChunk
 }
 
 var _ port.LogPublisher = (*ClusterLogApplication)(nil)
 
 func NewClusterLogApplication() *ClusterLogApplication {
 	return &ClusterLogApplication{
-		buffers: make(map[string]*bytes.Buffer),
-		subs:    make(map[string]map[uint64]chan *value.ClusterLogChunk),
+		buffers: make(map[int64]*bytes.Buffer),
+		subs:    make(map[int64]map[uint64]chan *value.ClusterLogChunk),
 	}
 }
 
-func (a *ClusterLogApplication) StreamProvisioningLogs(ctx context.Context, provisioningId string) (io.ReadCloser, error) {
+func (a *ClusterLogApplication) StreamProvisioningLogs(ctx context.Context, clusterId int64) (io.ReadCloser, error) {
 	pr, pw := io.Pipe()
-	ch, cancel, snapshot := a.subscribeWithSnapshot(provisioningId)
+	ch, cancel, snapshot := a.subscribeWithSnapshot(clusterId)
 	go func() {
 		defer cancel()
 		closePW := func(err error) {
@@ -72,17 +72,17 @@ func (a *ClusterLogApplication) StreamProvisioningLogs(ctx context.Context, prov
 	return pr, nil
 }
 
-func (a *ClusterLogApplication) subscribeWithSnapshot(provisioningId string) (ch <-chan *value.ClusterLogChunk, cancel func(), snapshot []byte) {
+func (a *ClusterLogApplication) subscribeWithSnapshot(clusterId int64) (ch <-chan *value.ClusterLogChunk, cancel func(), snapshot []byte) {
 	const buf = 256
 	typedCh := make(chan *value.ClusterLogChunk, buf)
 	a.mu.Lock()
 	id := a.seq
 	a.seq++
-	if a.subs[provisioningId] == nil {
-		a.subs[provisioningId] = make(map[uint64]chan *value.ClusterLogChunk)
+	if a.subs[clusterId] == nil {
+		a.subs[clusterId] = make(map[uint64]chan *value.ClusterLogChunk)
 	}
-	a.subs[provisioningId][id] = typedCh
-	if b, ok := a.buffers[provisioningId]; ok && b.Len() > 0 {
+	a.subs[clusterId][id] = typedCh
+	if b, ok := a.buffers[clusterId]; ok && b.Len() > 0 {
 		snapshot = make([]byte, b.Len())
 		copy(snapshot, b.Bytes())
 	}
@@ -90,11 +90,11 @@ func (a *ClusterLogApplication) subscribeWithSnapshot(provisioningId string) (ch
 
 	cancel = func() {
 		a.mu.Lock()
-		if m, ok := a.subs[provisioningId]; ok {
+		if m, ok := a.subs[clusterId]; ok {
 			if c, ok := m[id]; ok {
 				delete(m, id)
 				if len(m) == 0 {
-					delete(a.subs, provisioningId)
+					delete(a.subs, clusterId)
 				}
 				close(c)
 			}
@@ -104,17 +104,17 @@ func (a *ClusterLogApplication) subscribeWithSnapshot(provisioningId string) (ch
 	return typedCh, cancel, snapshot
 }
 
-func (a *ClusterLogApplication) PublishLogChunk(provisioningId string, data []byte) error {
+func (a *ClusterLogApplication) PublishLogChunk(clusterId int64, data []byte) error {
 	if len(data) == 0 {
 		return nil
 	}
 	a.mu.Lock()
-	if a.buffers[provisioningId] == nil {
-		a.buffers[provisioningId] = new(bytes.Buffer)
+	if a.buffers[clusterId] == nil {
+		a.buffers[clusterId] = new(bytes.Buffer)
 	}
 
-	_, _ = a.buffers[provisioningId].Write(data)
-	m := a.subs[provisioningId]
+	_, _ = a.buffers[clusterId].Write(data)
+	m := a.subs[clusterId]
 	chs := make([]chan *value.ClusterLogChunk, 0, len(m))
 	for _, c := range m {
 		chs = append(chs, c)
@@ -125,22 +125,22 @@ func (a *ClusterLogApplication) PublishLogChunk(provisioningId string, data []by
 		p := make([]byte, len(data))
 		copy(p, data)
 		chunk := &value.ClusterLogChunk{
-			ProvisioningId: provisioningId,
-			Data:           p,
+			ClusterId: clusterId,
+			Data:      p,
 		}
 		select {
 		case c <- chunk:
 		default:
-			log.Printf("log stream buffer full for provisioning id %s, dropping chunk", provisioningId)
+			log.Printf("log stream buffer full for cluster id %d, dropping chunk", clusterId)
 		}
 	}
 	return nil
 }
 
-func (a *ClusterLogApplication) PublishLogEnd(provisioningId string) error {
+func (a *ClusterLogApplication) PublishLogEnd(clusterId int64) error {
 	a.mu.Lock()
-	delete(a.buffers, provisioningId)
-	m, ok := a.subs[provisioningId]
+	delete(a.buffers, clusterId)
+	m, ok := a.subs[clusterId]
 	if !ok {
 		a.mu.Unlock()
 		return nil
@@ -151,12 +151,12 @@ func (a *ClusterLogApplication) PublishLogEnd(provisioningId string) error {
 	}
 	a.mu.Unlock()
 
-	end := &value.ClusterLogChunk{ProvisioningId: provisioningId, End: true}
+	end := &value.ClusterLogChunk{ClusterId: clusterId, End: true}
 	for _, c := range chs {
 		select {
 		case c <- end:
 		default:
-			log.Printf("log end dropped for provisioning id %s (stream buffer full)", provisioningId)
+			log.Printf("log end dropped for cluster id %d (stream buffer full)", clusterId)
 		}
 	}
 	return nil

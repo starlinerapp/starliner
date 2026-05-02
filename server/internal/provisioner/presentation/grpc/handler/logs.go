@@ -21,8 +21,8 @@ func NewLogsHandler(logsApplication *application.ClusterLogApplication) *LogsHan
 	}
 }
 
-func (lh *LogsHandler) StreamLogs(req *v1.StreamProvisioningLogRequest, stream grpc.ServerStreamingServer[v1.StreamProvisioningLogResponse]) error {
-	rc, err := lh.logsApplication.StreamProvisioningLogs(stream.Context(), req.ProvisioningId)
+func (lh *LogsHandler) StreamProvisioningLogs(req *v1.StreamProvisioningLogRequest, stream grpc.ServerStreamingServer[v1.StreamProvisioningLogResponse]) error {
+	rc, err := lh.logsApplication.StreamProvisioningLogs(stream.Context(), req.ClusterId)
 	if err != nil {
 		return err
 	}
