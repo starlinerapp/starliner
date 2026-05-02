@@ -54,10 +54,25 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		}
 	}()
 
+	var logBuf strings.Builder
+	appendStatus := func(format string, args ...any) {
+		line := fmt.Sprintf(format, args...)
+		logBuf.WriteString(line)
+		if ca.logPublisher == nil {
+			return
+		}
+		if err := ca.logPublisher.PublishLogChunk(c.Id, []byte(line)); err != nil {
+			log.Printf("failed to publish log chunk: %v", err)
+		}
+	}
+
 	ctx := context.Background()
+
 	publicKey, privateKey, err := ca.crypto.GenerateKeyPair()
 	if err != nil {
+		appendStatus("==> ERROR: failed to generate ed25519 keypair: %v\n", err)
 		log.Printf("failed to generate ed25519 keypair: %v\n", err)
+		return
 	}
 
 	pubKeyStr := base64.StdEncoding.EncodeToString(publicKey)
@@ -65,13 +80,18 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 
 	clusterSlug, err := ca.normalizerService.FormatToDNS1123(c.Name)
 	if err != nil {
+		appendStatus("==> ERROR: failed to normalize cluster name: %v\n", err)
 		log.Printf("failed to normalize cluster name: %v\n", err)
+		return
 	}
 
 	projectName := fmt.Sprintf("%s-%s", strings.ToLower(c.OrganizationName), clusterSlug)
-	provisioningId, ip, provisionLogs, err := ca.provision.ProvisionServer(ctx, c.Id, c.ProvisioningCredential, projectName, c.ServerType, publicKey)
 
+	appendStatus("==> Provisioning server %q...\n", projectName)
+	provisioningId, ip, provisionLogs, err := ca.provision.ProvisionServer(ctx, c.Id, c.ProvisioningCredential, projectName, c.ServerType, publicKey)
+	logBuf.WriteString(provisionLogs)
 	if err != nil {
+		appendStatus("==> ERROR: failed to provision server: %v\n", err)
 		log.Printf("failed to provision server: %v\n", err)
 		ca.HandleDeleteCluster(&value.DeleteCluster{
 			Id:                     c.Id,
@@ -80,18 +100,25 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		})
 		return
 	}
+	appendStatus("==> Server provisioned at %s\n", ip)
 
-	err = ca.ssh.WaitForSSH(ip, 30*time.Second)
-	if err != nil {
+	appendStatus("==> Waiting for SSH...\n")
+	if err := ca.ssh.WaitForSSH(ip, 30*time.Second); err != nil {
+		appendStatus("==> ERROR: SSH not available: %v\n", err)
 		log.Printf("SSH not available: %v\n", err)
 		return
 	}
+	appendStatus("==> SSH is ready\n")
 
+	appendStatus("==> Installing K3s...\n")
 	kubeconfig, installLogs, err := ca.install.InstallK3s(c.Id, ip, privateKey)
+	logBuf.WriteString(installLogs)
 	if err != nil {
+		appendStatus("==> ERROR: failed to install k3s: %v\n", err)
 		log.Printf("Failed to install k3s: %v\n", err)
 		return
 	}
+	appendStatus("==> K3s installed\n")
 
 	kubeconfigBase64 := base64.StdEncoding.EncodeToString([]byte(kubeconfig))
 
@@ -102,10 +129,11 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		PublicKey:        pubKeyStr,
 		PrivateKey:       privKeyStr,
 		KubeconfigBase64: kubeconfigBase64,
-		Logs:             provisionLogs + installLogs,
+		Logs:             logBuf.String(),
 	})
 
 	if err != nil {
+		appendStatus("==> ERROR: failed to publish cluster created event: %v\n", err)
 		log.Printf("failed to publish event: %v\n", err)
 	}
 }
@@ -120,16 +148,30 @@ func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
 		}
 	}()
 
+	appendStatus := func(format string, args ...any) {
+		line := fmt.Sprintf(format, args...)
+		if ca.logPublisher == nil {
+			return
+		}
+		if err := ca.logPublisher.PublishLogChunk(c.Id, []byte(line)); err != nil {
+			log.Printf("failed to publish log chunk: %v", err)
+		}
+	}
+
 	ctx := context.Background()
-	err := ca.provision.DeleteServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId)
-	if err != nil {
+
+	appendStatus("==> Deleting server...\n")
+	if err := ca.provision.DeleteServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId); err != nil {
+		appendStatus("==> ERROR: failed to delete server: %v\n", err)
 		log.Printf("failed to delete server: %v\n", err)
 		return
 	}
-	err = ca.queue.PublishClusterDeleted(&value.ClusterDeleted{
+	appendStatus("==> Server deleted\n")
+
+	if err := ca.queue.PublishClusterDeleted(&value.ClusterDeleted{
 		Id: c.Id,
-	})
-	if err != nil {
+	}); err != nil {
+		appendStatus("==> ERROR: failed to publish cluster deleted event: %v\n", err)
 		log.Printf("failed to publish cluster deleted event: %v\n", err)
 	}
 }
