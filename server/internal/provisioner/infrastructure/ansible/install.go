@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	port2 "starliner.app/internal/core/domain/port"
-	"starliner.app/internal/provisioner/domain/port"
 	"strings"
+
+	corePort "starliner.app/internal/core/domain/port"
+	"starliner.app/internal/provisioner/domain/port"
 )
 
 type K3sPlaybookOutput struct {
@@ -22,10 +23,10 @@ type K3sPlaybookOutput struct {
 }
 
 type Install struct {
-	crypto port2.Crypto
+	crypto corePort.Crypto
 }
 
-func NewInstall(crypto port2.Crypto) port.Install {
+func NewInstall(crypto corePort.Crypto) port.Install {
 	return &Install{
 		crypto: crypto,
 	}
