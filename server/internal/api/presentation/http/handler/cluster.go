@@ -3,17 +3,18 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
 	"starliner.app/internal/api/presentation/http/sse"
-	"strconv"
 )
 
 type ClusterHandler struct {
@@ -141,7 +142,7 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 // @ID streamClusterProvisioningLogs
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Cluster ID"
-// @Product JSON
+// @Product text/event-stream
 // @Success 200
 // @Header 200 {string} Content-Type "text/event-stream"
 // @Header 200 {string} Cache-Control "no-cache"
