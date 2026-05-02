@@ -176,10 +176,7 @@ export default function General() {
             maxSize={85}
             className="border-mauve-6 border-t-1"
           >
-            <BottomBar
-              clusterId={clusterData.id}
-              status={clusterData.status}
-            />
+            <BottomBar clusterId={clusterData.id} status={clusterData.status} />
           </ResizablePanel>
         )}
     </ResizablePanelGroup>
