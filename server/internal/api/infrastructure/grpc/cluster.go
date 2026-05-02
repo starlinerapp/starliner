@@ -3,9 +3,10 @@ package grpc
 import (
 	"context"
 	"errors"
+	"io"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"io"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"

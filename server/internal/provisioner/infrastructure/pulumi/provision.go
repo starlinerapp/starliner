@@ -4,17 +4,20 @@ import (
 	"context"
 	"crypto/ed25519"
 	"fmt"
+	"log"
+	"strings"
+	"sync"
+
 	"github.com/google/uuid"
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
+	"github.com/pulumi/pulumi/sdk/v3/go/auto/optrefresh"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"golang.org/x/crypto/ssh"
-	"os"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/provisioner/domain/port"
-	"strings"
 )
 
 type DeployParams struct {
@@ -64,14 +67,41 @@ func DeployFunc(params DeployParams) pulumi.RunFunc {
 }
 
 type Provision struct {
+	logPublisher port.LogPublisher
 }
 
-func NewProvision() port.Provision {
-	return &Provision{}
+func NewProvision(
+	logPublisher port.LogPublisher,
+) port.Provision {
+	return &Provision{
+		logPublisher: logPublisher,
+	}
 }
 
 func (p *Provision) ProvisionServer(ctx context.Context, provisioningCredential string, name string, serverType value.ServerType, publicKey []byte) (provisioningId string, ip string, err error) {
 	stackName := auto.FullyQualifiedStackName("organization", name, uuid.New().String())
+
+	var (
+		logs strings.Builder
+		mu   sync.Mutex
+	)
+	appendLog := func(line string) {
+		mu.Lock()
+		logs.WriteString(line)
+		mu.Unlock()
+
+		if p.logPublisher != nil {
+			if err := p.logPublisher.PublishLogChunk(stackName, []byte(line)); err != nil {
+				log.Printf("failed to publish log chunk: %v", err)
+			}
+		}
+	}
+
+	defer func() {
+		if p.logPublisher != nil {
+			_ = p.logPublisher.PublishLogEnd(stackName)
+		}
+	}()
 
 	s, err := auto.UpsertStackInlineSource(ctx, stackName, name, DeployFunc(DeployParams{
 		ServerName: name,
@@ -96,13 +126,14 @@ func (p *Provision) ProvisionServer(ctx context.Context, provisioningCredential 
 		return stackName, "", err
 	}
 
-	_, err = s.Refresh(ctx)
+	stream := &inlineLogWriter{appendLog: appendLog}
+
+	_, err = s.Refresh(ctx, optrefresh.ProgressStreams(stream))
 	if err != nil {
 		return stackName, "", err
 	}
 
-	stdoutStreamer := optup.ProgressStreams(os.Stdout)
-	res, err := s.Up(ctx, stdoutStreamer)
+	res, err := s.Up(ctx, optup.ProgressStreams(stream))
 	if err != nil {
 		return stackName, "", err
 	}
@@ -118,6 +149,29 @@ func (p *Provision) ProvisionServer(ctx context.Context, provisioningCredential 
 func (p *Provision) DeleteServer(ctx context.Context, provisioningCredential string, provisioningId string) error {
 	parts := strings.Split(provisioningId, "/")
 	projectName := parts[1]
+
+	var (
+		logs strings.Builder
+		mu   sync.Mutex
+	)
+
+	appendLog := func(line string) {
+		mu.Lock()
+		logs.WriteString(line)
+		mu.Unlock()
+
+		if p.logPublisher != nil {
+			if err := p.logPublisher.PublishLogChunk(provisioningId, []byte(line)); err != nil {
+				log.Printf("failed to publish delete provisioning log chunk: %v", err)
+			}
+		}
+	}
+
+	defer func() {
+		if p.logPublisher != nil {
+			_ = p.logPublisher.PublishLogEnd(provisioningId)
+		}
+	}()
 
 	s, err := auto.SelectStackInlineSource(ctx, provisioningId, projectName, DeployFunc(DeployParams{
 		ServerName: projectName,
@@ -141,16 +195,32 @@ func (p *Provision) DeleteServer(ctx context.Context, provisioningCredential str
 		return err
 	}
 
-	_, err = s.Refresh(ctx)
+	stream := &inlineLogWriter{
+		appendLog: appendLog,
+	}
+
+	_, err = s.Refresh(ctx, optrefresh.ProgressStreams(stream))
 	if err != nil {
 		return err
 	}
 
-	stdoutStreamer := optdestroy.ProgressStreams(os.Stdout)
-	_, err = s.Destroy(ctx, stdoutStreamer)
+	_, err = s.Destroy(ctx, optdestroy.ProgressStreams(stream))
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+type inlineLogWriter struct {
+	appendLog func(line string)
+}
+
+func (w *inlineLogWriter) Write(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	}
+
+	w.appendLog(string(p))
+	return len(p), nil
 }

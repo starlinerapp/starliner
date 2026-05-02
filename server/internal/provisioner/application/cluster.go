@@ -5,12 +5,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
+	"strings"
+	"time"
+
 	corePort "starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/provisioner/domain/port"
-	"strings"
-	"time"
 )
 
 type ClusterApplication struct {
@@ -74,7 +75,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		return
 	}
 
-	kubeconfig, err := ca.install.InstallK3s(ip, privateKey)
+	kubeconfig, err := ca.install.InstallK3s(provisioningId, ip, privateKey)
 	if err != nil {
 		log.Printf("Failed to install k3s: %v\n", err)
 		return

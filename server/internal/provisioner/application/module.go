@@ -7,6 +7,7 @@ import (
 var Module = fx.Module(
 	"application",
 	fx.Provide(
+		NewClusterLogApplication,
 		NewClusterApplication,
 		NewTTYApplication,
 	),
