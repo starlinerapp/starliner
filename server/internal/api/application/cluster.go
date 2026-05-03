@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strconv"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
@@ -15,7 +17,6 @@ import (
 	"starliner.app/internal/api/domain/value"
 	corePort "starliner.app/internal/core/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
-	"strconv"
 )
 
 type ClusterApplication struct {
@@ -218,8 +219,8 @@ func (ca *ClusterApplication) StreamProvisioningLogs(
 	logs, err := ca.clusterRepository.GetUserClusterProvisioningLogs(ctx, userId, clusterId)
 	if err != nil {
 		cancelStream()
-		<-errCh
 		_ = pr.Close()
+		<-errCh
 		return err
 	}
 
