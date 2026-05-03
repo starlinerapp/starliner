@@ -111,7 +111,10 @@ export const organizationRouter = {
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await organizationApiFactory
-        .acceptOrganizationInvite(userId, { inviteId: input.inviteId })
+        .acceptOrganizationInvite(userId, {
+          inviteId: input.inviteId,
+          recipientEmail: ctx.user?.email,
+        })
         .then((res) => res.data);
     }),
   getOrganizationMembers: protectedProcedure

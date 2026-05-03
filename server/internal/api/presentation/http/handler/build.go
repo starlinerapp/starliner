@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/response"
 	"starliner.app/internal/api/presentation/http/sse"
-	"strconv"
 )
 
 type BuildHandler struct {
@@ -51,7 +52,7 @@ func (bh *BuildHandler) GetBuildLogs(c *gin.Context) {
 // @ID streamBuildLogs
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Build ID"
-// @Product JSON
+// @Product text/event-stream
 // @Success 200
 // @Header 200 {string} Content-Type "text/event-stream"
 // @Header 200 {string} Cache-Control "no-cache"

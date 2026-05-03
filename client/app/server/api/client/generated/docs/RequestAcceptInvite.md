@@ -2,9 +2,10 @@
 
 ## Properties
 
-| Name         | Type       | Description | Notes                  |
-| ------------ | ---------- | ----------- | ---------------------- |
-| **inviteId** | **string** |             | [default to undefined] |
+| Name               | Type       | Description | Notes                  |
+| ------------------ | ---------- | ----------- | ---------------------- |
+| **inviteId**       | **string** |             | [default to undefined] |
+| **recipientEmail** | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -13,6 +14,7 @@ import { RequestAcceptInvite } from "./api";
 
 const instance: RequestAcceptInvite = {
   inviteId,
+  recipientEmail,
 };
 ```
 

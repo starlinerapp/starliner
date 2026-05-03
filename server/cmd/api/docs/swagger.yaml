@@ -3,8 +3,11 @@ definitions:
     properties:
       inviteId:
         type: string
+      recipientEmail:
+        type: string
     required:
     - inviteId
+    - recipientEmail
     type: object
   request.AddTeamMember:
     properties:
@@ -682,6 +685,8 @@ definitions:
     properties:
       created_at:
         type: string
+      email:
+        type: string
       expires_at:
         type: string
       id:
@@ -690,12 +695,16 @@ definitions:
         type: integer
       organization_name:
         type: string
+      organization_slug:
+        type: string
     required:
     - created_at
+    - email
     - expires_at
     - id
     - organization_id
     - organization_name
+    - organization_slug
     type: object
   response.OrganizationProvisioningCredential:
     properties:
@@ -1017,6 +1026,36 @@ paths:
           schema:
             type: file
       summary: Get Cluster Private Key
+      tags:
+      - cluster
+  /clusters/{id}/provisioning/logs/stream:
+    get:
+      operationId: streamClusterProvisioningLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Cluster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
+      summary: Stream cluster provisioning logs
       tags:
       - cluster
   /deployments/{id}:

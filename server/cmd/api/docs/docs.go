@@ -247,6 +247,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/clusters/{id}/provisioning/logs/stream": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Stream cluster provisioning logs",
+                "operationId": "streamClusterProvisioningLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/deployments/databases": {
             "post": {
                 "tags": [
@@ -2128,10 +2172,14 @@ const docTemplate = `{
         "request.AcceptInvite": {
             "type": "object",
             "required": [
-                "inviteId"
+                "inviteId",
+                "recipientEmail"
             ],
             "properties": {
                 "inviteId": {
+                    "type": "string"
+                },
+                "recipientEmail": {
                     "type": "string"
                 }
             }
@@ -3119,13 +3167,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "created_at",
+                "email",
                 "expires_at",
                 "id",
                 "organization_id",
-                "organization_name"
+                "organization_name",
+                "organization_slug"
             ],
             "properties": {
                 "created_at": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "expires_at": {
@@ -3138,6 +3191,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "organization_name": {
+                    "type": "string"
+                },
+                "organization_slug": {
                     "type": "string"
                 }
             }

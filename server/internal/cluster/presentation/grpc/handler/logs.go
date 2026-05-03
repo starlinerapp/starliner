@@ -2,9 +2,10 @@ package handler
 
 import (
 	"bufio"
-	"google.golang.org/grpc"
 	"io"
 	"log"
+
+	"google.golang.org/grpc"
 	"starliner.app/internal/cluster/application"
 	v1 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
@@ -33,6 +34,7 @@ func (lh *LogsHandler) StreamLogs(req *v1.StreamLogsRequest, stream grpc.ServerS
 	}(rc)
 
 	scanner := bufio.NewScanner(rc)
+	scanner.Buffer(make([]byte, 0, 64*1024), 10*1024*1024)
 	for scanner.Scan() {
 		line := scanner.Bytes()
 		if err := stream.Send(&v1.StreamLogsResponse{Chunk: line}); err != nil {

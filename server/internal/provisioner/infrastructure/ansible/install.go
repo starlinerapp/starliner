@@ -1,40 +1,57 @@
 package ansible
 
 import (
-	"encoding/base64"
-	"encoding/json"
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
-	port2 "starliner.app/internal/core/domain/port"
-	"starliner.app/internal/provisioner/domain/port"
 	"strings"
+	"sync"
+
+	corePort "starliner.app/internal/core/domain/port"
+	"starliner.app/internal/provisioner/domain/port"
 )
 
-type K3sPlaybookOutput struct {
-	Plays []struct {
-		Tasks []struct {
-			Hosts map[string]struct {
-				Content string `json:"content,omitempty"`
-			} `json:"hosts"`
-		} `json:"tasks"`
-	} `json:"plays"`
-}
-
 type Install struct {
-	crypto port2.Crypto
+	crypto       corePort.Crypto
+	logPublisher port.LogPublisher
 }
 
-func NewInstall(crypto port2.Crypto) port.Install {
+func NewInstall(
+	crypto corePort.Crypto,
+	logPublisher port.LogPublisher,
+) port.Install {
 	return &Install{
-		crypto: crypto,
+		crypto:       crypto,
+		logPublisher: logPublisher,
 	}
 }
 
-func (i *Install) InstallK3s(ip string, privateKey []byte) (kubeconfig string, err error) {
+func (i *Install) InstallK3s(clusterId int64, ip string, privateKey []byte) (kubeconfig string, logs string, err error) {
+	var (
+		logBuf strings.Builder
+		mu     sync.Mutex
+	)
+	appendLog := func(line string) {
+		mu.Lock()
+		logBuf.WriteString(line)
+		mu.Unlock()
+
+		if i.logPublisher != nil {
+			if err := i.logPublisher.PublishLogChunk(clusterId, []byte(line)); err != nil {
+				fmt.Printf("failed to publish log chunk: %v", err)
+			}
+		}
+	}
+
+	defer func() {
+		logs = logBuf.String()
+	}()
+
 	tmpPlaybook, err := os.CreateTemp("", "ansible-*.yml")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer func(name string) {
 		err := os.Remove(name)
@@ -45,16 +62,16 @@ func (i *Install) InstallK3s(ip string, privateKey []byte) (kubeconfig string, e
 
 	_, err = tmpPlaybook.Write([]byte(K3sPlaybook))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	err = tmpPlaybook.Close()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	tmpPrivateKey, err := os.CreateTemp("", "private-key-*.pem")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer func(name string) {
 		err := os.Remove(name)
@@ -65,15 +82,29 @@ func (i *Install) InstallK3s(ip string, privateKey []byte) (kubeconfig string, e
 
 	pemBytes, err := i.crypto.EncodePrivateKeyToPEM(privateKey)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	_, err = tmpPrivateKey.Write(pemBytes)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	err = tmpPrivateKey.Close()
 	if err != nil {
-		return "", err
+		return "", "", err
+	}
+
+	tmpKubeconfig, err := os.CreateTemp("", "kubeconfig-*.yaml")
+	if err != nil {
+		return "", "", err
+	}
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			fmt.Printf("Failed to remove temp file: %v\n", err)
+		}
+	}(tmpKubeconfig.Name())
+	if err := tmpKubeconfig.Close(); err != nil {
+		return "", "", err
 	}
 
 	args := []string{
@@ -83,46 +114,68 @@ func (i *Install) InstallK3s(ip string, privateKey []byte) (kubeconfig string, e
 		"--private-key", tmpPrivateKey.Name(),
 		"-e", "ansible_ssh_common_args='-o StrictHostKeyChecking=no'",
 		"-e", fmt.Sprintf("target_host=%s", ip),
+		"-e", fmt.Sprintf("kubeconfig_dest=%s", tmpKubeconfig.Name()),
 	}
 
 	cmd := exec.Command("ansible-playbook", args...)
 	cmd.Env = append(
-		cmd.Env,
-		"ANSIBLE_STDOUT_CALLBACK=json",
+		os.Environ(),
 		"ANSIBLE_DEPRECATION_WARNINGS=False",
+		"ANSIBLE_FORCE_COLOR=0",
+		"PYTHONUNBUFFERED=1",
 	)
 
-	out, err := cmd.CombinedOutput()
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	var ansibleData K3sPlaybookOutput
-	if err := json.Unmarshal(out, &ansibleData); err != nil {
-		return "", err
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return "", "", err
 	}
 
-	var kubeconfigBase64 string
-	for _, play := range ansibleData.Plays {
-		for _, task := range play.Tasks {
-			for _, host := range task.Hosts {
-				if host.Content != "" {
-					kubeconfigBase64 = host.Content
-					break
-				}
-			}
+	if err := cmd.Start(); err != nil {
+		return "", "", err
+	}
+
+	var wg sync.WaitGroup
+
+	readPipe := func(r io.Reader) {
+		defer wg.Done()
+
+		scanner := bufio.NewScanner(r)
+		scanner.Buffer(make([]byte, 0, 64*1024), 10*1024*1024)
+
+		for scanner.Scan() {
+			appendLog(scanner.Text() + "\n")
+		}
+
+		if err := scanner.Err(); err != nil {
+			appendLog(fmt.Sprintf("error reading ansible output: %v\n", err))
 		}
 	}
-	kubeconfigDecoded, err := base64.StdEncoding.DecodeString(kubeconfigBase64)
+
+	wg.Add(2)
+	go readPipe(stdout)
+	go readPipe(stderr)
+
+	wg.Wait()
+
+	if err := cmd.Wait(); err != nil {
+		return "", "", err
+	}
+
+	kubeconfigBytes, err := os.ReadFile(tmpKubeconfig.Name())
 	if err != nil {
-		fmt.Printf("failed to decode kubeconfig: %v\n", err)
+		return "", "", fmt.Errorf("failed to read kubeconfig from %s: %w", tmpKubeconfig.Name(), err)
 	}
 
 	kubeconfig = strings.ReplaceAll(
-		string(kubeconfigDecoded),
+		string(kubeconfigBytes),
 		"https://127.0.0.1:",
 		fmt.Sprintf("https://%s:", ip),
 	)
 
-	return kubeconfig, nil
+	return kubeconfig, "", nil
 }

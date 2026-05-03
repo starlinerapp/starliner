@@ -6,7 +6,32 @@
       args:
         creates: /usr/local/bin/k3s
 
-    - name: Read kubeconfig
-      slurp:
+    - name: Configure Traefik ACME resolver
+      copy:
+        dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          apiVersion: helm.cattle.io/v1
+          kind: HelmChartConfig
+          metadata:
+            name: traefik
+            namespace: kube-system
+          spec:
+            valuesContent: |-
+              additionalArguments:
+                - "--certificatesresolvers.letsencrypt.acme.email=admin@starliner.app"
+                - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
+                - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+                - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+            
+              persistence:
+                enabled: true
+                path: /data
+
+    - name: Fetch kubeconfig to controller
+      fetch:
         src: /etc/rancher/k3s/k3s.yaml
-      register: kubeconfig
+        dest: "{{ kubeconfig_dest }}"
+        flat: true

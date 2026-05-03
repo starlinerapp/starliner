@@ -44,4 +44,10 @@ type ProvisionerClient interface {
 		stdout io.Writer,
 		sizes <-chan TerminalSize,
 	) error
+
+	StreamProvisioningLogs(
+		ctx context.Context,
+		clusterId int64,
+		w io.Writer,
+	) error
 }

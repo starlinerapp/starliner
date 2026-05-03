@@ -360,7 +360,7 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 // @ID streamDeploymentLogs
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Deployment ID"
-// @Product JSON
+// @Product text/event-stream
 // @Success 200
 // @Header 200 {string} Content-Type "text/event-stream"
 // @Header 200 {string} Cache-Control "no-cache"
