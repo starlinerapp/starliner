@@ -33,6 +33,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
 		ProvisioningId: utils.PtrFromNullString(c.ProvisioningID),
 		Kubeconfig:     utils.PtrFromNullString(c.Kubeconfig),
+		Logs:           utils.PtrFromNullString(c.Logs),
 		OrganizationId: c.OrganizationID,
 		ServerType:     entity.ServerType(c.ServerType),
 	}, nil
@@ -142,4 +143,27 @@ func (cr *ClusterRepository) UpdateClusterKubeconfig(
 		Kubeconfig: utils.NullStringFromPtr(kubeconfig),
 		ID:         id,
 	})
+}
+
+func (cr *ClusterRepository) UpdateClusterLogs(
+	ctx context.Context,
+	id int64,
+	logs string,
+) error {
+	return cr.queries.UpdateClusterLogs(ctx, sqlc.UpdateClusterLogsParams{
+		Logs: utils.NullStringFromPtr(&logs),
+		ID:   id,
+	})
+}
+
+func (cr *ClusterRepository) GetUserClusterProvisioningLogs(
+	ctx context.Context,
+	userId int64,
+	clusterId int64,
+) (*string, error) {
+	res, err := cr.queries.GetUserClusterProvisioningLogs(ctx, sqlc.GetUserClusterProvisioningLogsParams{
+		ClusterID: clusterId,
+		UserID:    userId,
+	})
+	return utils.PtrFromNullString(res), err
 }

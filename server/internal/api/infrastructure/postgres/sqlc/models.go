@@ -209,6 +209,7 @@ type Cluster struct {
 	Kubeconfig     sql.NullString
 	ServerType     string
 	User           string
+	Logs           sql.NullString
 }
 
 type DatabaseDeployment struct {

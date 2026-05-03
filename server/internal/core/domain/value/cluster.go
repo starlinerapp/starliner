@@ -28,6 +28,7 @@ type ClusterCreated struct {
 	PublicKey        string
 	PrivateKey       string
 	KubeconfigBase64 string
+	Logs             string
 }
 
 type ClusterDeleted struct {

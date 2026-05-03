@@ -260,7 +260,7 @@ func (q *Queries) GetEnvironmentById(ctx context.Context, id int64) (Environment
 }
 
 const getEnvironmentCluster = `-- name: GetEnvironmentCluster :one
-SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user"
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
 FROM environments
 INNER JOIN projects ON projects.id = environments.project_id
 INNER JOIN clusters ON projects.cluster_id = clusters.id
@@ -284,6 +284,7 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 		&i.Kubeconfig,
 		&i.ServerType,
 		&i.User,
+		&i.Logs,
 	)
 	return i, err
 }

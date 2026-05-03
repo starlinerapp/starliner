@@ -20,6 +20,7 @@ type Server struct {
 
 func NewServer(
 	ttyHandler *handler.TtyHandler,
+	logsHandler *handler.LogsHandler,
 ) *Server {
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(recoveryUnaryInterceptor),
@@ -28,6 +29,7 @@ func NewServer(
 	reflection.Register(server)
 
 	pb.RegisterClusterTTYServiceServer(server, ttyHandler)
+	pb.RegisterProvisioningLogServiceServer(server, logsHandler)
 
 	return &Server{
 		server: server,

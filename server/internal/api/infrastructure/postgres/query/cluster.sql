@@ -77,3 +77,18 @@ UPDATE clusters
 SET
     kubeconfig = $1
 where id = $2;
+
+-- name: UpdateClusterLogs :exec
+UPDATE clusters
+SET
+    logs = $1
+WHERE id = $2;
+
+-- name: GetUserClusterProvisioningLogs :one
+SELECT
+    c.logs
+FROM clusters c
+LEFT JOIN organizations o ON c.organization_id = o.id
+LEFT JOIN organization_members om ON o.id = om.organization_id
+WHERE c.id = @cluster_id
+AND om.user_id = @user_id;

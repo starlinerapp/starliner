@@ -247,6 +247,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/clusters/{id}/provisioning/logs/stream": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Stream cluster provisioning logs",
+                "operationId": "streamClusterProvisioningLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/deployments/databases": {
             "post": {
                 "tags": [

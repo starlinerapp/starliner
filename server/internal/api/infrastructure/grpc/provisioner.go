@@ -13,6 +13,7 @@ import (
 
 type ProvisionerClient struct {
 	clusterTtyServiceClient v2.ClusterTTYServiceClient
+	provisioningLogsClient  v2.ProvisioningLogServiceClient
 }
 
 func NewProvisionerClient(cfg *conf.Config) (port.ProvisionerClient, error) {
@@ -23,7 +24,32 @@ func NewProvisionerClient(cfg *conf.Config) (port.ProvisionerClient, error) {
 
 	return &ProvisionerClient{
 		clusterTtyServiceClient: v2.NewClusterTTYServiceClient(conn),
+		provisioningLogsClient:  v2.NewProvisioningLogServiceClient(conn),
 	}, nil
+}
+
+func (c *ProvisionerClient) StreamProvisioningLogs(ctx context.Context, clusterId int64, w io.Writer) error {
+	stream, err := c.provisioningLogsClient.StreamProvisioningLogs(ctx, &v2.StreamProvisioningLogRequest{
+		ClusterId: clusterId,
+	})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		_, err = w.Write(resp.Chunk)
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func (c *ProvisionerClient) OpenTTY(

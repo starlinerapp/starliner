@@ -59,4 +59,16 @@ type ClusterRepository interface {
 		id int64,
 		kubeconfig *string,
 	) error
+
+	UpdateClusterLogs(
+		ctx context.Context,
+		id int64,
+		logs string,
+	) error
+
+	GetUserClusterProvisioningLogs(
+		ctx context.Context,
+		userId int64,
+		clusterId int64,
+	) (*string, error)
 }

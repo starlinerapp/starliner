@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
+
+message StreamProvisioningLogRequest {
+  int64 cluster_id = 1;
+}
+
+message StreamProvisioningLogResponse {
+  bytes chunk = 1;
+}
+
+service ProvisioningLogService {
+  rpc StreamProvisioningLogs(StreamProvisioningLogRequest) returns (stream StreamProvisioningLogResponse);
+}

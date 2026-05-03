@@ -8,14 +8,15 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strconv"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
-	"starliner.app/internal/api/domain/repository/interface"
+	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
 	corePort "starliner.app/internal/core/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
-	"strconv"
 )
 
 type ClusterApplication struct {
@@ -199,6 +200,49 @@ func (ca *ClusterApplication) OpenTTY(
 	return ca.grpcProvisionerClient.OpenTTY(ctx, *cluster.IPv4Address, cluster.User, pemBytes, stdin, stdout, sizes)
 }
 
+func (ca *ClusterApplication) StreamProvisioningLogs(
+	ctx context.Context,
+	userId int64,
+	clusterId int64,
+	w io.Writer,
+) error {
+	pr, pw := io.Pipe()
+	streamCtx, cancelStream := context.WithCancel(ctx)
+	defer cancelStream()
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- ca.grpcProvisionerClient.StreamProvisioningLogs(streamCtx, clusterId, pw)
+		_ = pw.Close()
+	}()
+
+	logs, err := ca.clusterRepository.GetUserClusterProvisioningLogs(ctx, userId, clusterId)
+	if err != nil {
+		cancelStream()
+		_ = pr.Close()
+		<-errCh
+		return err
+	}
+
+	if logs != nil && *logs != "" {
+		cancelStream()
+		_ = pr.Close()
+		<-errCh
+		_, werr := io.WriteString(w, *logs)
+		return werr
+	}
+
+	_, copyErr := io.Copy(w, pr)
+	grpcErr := <-errCh
+	if copyErr != nil {
+		return copyErr
+	}
+	if grpcErr != nil && !errors.Is(grpcErr, context.Canceled) {
+		return grpcErr
+	}
+	return nil
+}
+
 func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) {
 	ctx := context.Background()
 	err := ca.clusterRepository.UpdateClusterPulumiStackId(ctx, c.Id, &c.ProvisioningId)
@@ -232,6 +276,11 @@ func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) 
 	err = ca.clusterRepository.UpdateClusterStatus(ctx, c.Id, entity.ClusterRunning)
 	if err != nil {
 		fmt.Printf("Failed to update cluster status: %v\n", err)
+	}
+
+	err = ca.clusterRepository.UpdateClusterLogs(ctx, c.Id, c.Logs)
+	if err != nil {
+		log.Printf("failed to persist cluster provisioning logs: %v\n", err)
 	}
 }
 

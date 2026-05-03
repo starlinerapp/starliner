@@ -28,6 +28,7 @@ type Cluster struct {
 	PrivateKey     *string
 	ProvisioningId *string
 	Kubeconfig     *string
+	Logs           *string
 	OrganizationId int64
 	CreatedAt      time.Time
 }
