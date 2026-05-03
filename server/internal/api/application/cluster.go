@@ -226,8 +226,8 @@ func (ca *ClusterApplication) StreamProvisioningLogs(
 
 	if logs != nil && *logs != "" {
 		cancelStream()
-		<-errCh
 		_ = pr.Close()
+		<-errCh
 		_, werr := io.WriteString(w, *logs)
 		return werr
 	}
