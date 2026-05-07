@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 	"time"
+
+	"github.com/getsentry/sentry-go"
 )
 
 func WithRecovery(ctx context.Context, name string, fn func() error) {
@@ -20,11 +22,19 @@ func WithRecovery(ctx context.Context, name string, fn func() error) {
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
+					sentry.WithScope(func(scope *sentry.Scope) {
+						scope.SetTag("worker", name)
+						sentry.CurrentHub().Recover(r)
+					})
 					log.Printf("%s recovered from panic: %v\n", name, r)
 				}
 			}()
 
 			if err := fn(); err != nil {
+				sentry.WithScope(func(scope *sentry.Scope) {
+					scope.SetTag("worker", name)
+					sentry.CaptureException(err)
+				})
 				log.Printf("%s error: %v\n", name, err)
 			}
 		}()

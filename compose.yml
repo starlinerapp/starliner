@@ -42,6 +42,8 @@ services:
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
+      SENTRY_DSN_CLIENT: ${SENTRY_DSN_CLIENT}
+      SENTRY_AUTH_TOKEN_CLIENT: ${SENTRY_AUTH_TOKEN_CLIENT}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
@@ -106,6 +108,8 @@ services:
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
       IMAGE_REGISTRY_USERNAME: ${IMAGE_REGISTRY_USERNAME:-server}
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
+      SENTRY_DSN_API: ${SENTRY_DSN_API}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
     networks:

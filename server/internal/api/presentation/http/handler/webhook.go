@@ -36,7 +36,7 @@ func (wh *WebhookHandler) HandleGithubWebhook(c *gin.Context) {
 
 	err = wh.githubApplication.HandleGithubWebhook(c.Request.Context(), eventType, payload)
 	if err != nil {
-		c.Status(http.StatusInternalServerError)
+		RespondInternalError(c, err)
 		return
 	}
 
