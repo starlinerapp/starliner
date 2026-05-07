@@ -103,12 +103,19 @@ export default function NewCluster() {
           />
           <div className="relative w-52">
             <select
+              {...register("teamId", { required: true })}
+              name="teamId"
               className="border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
-              defaultValue="cx23"
-              {...register("serverType", { required: true })}
+              disabled={!teamsData?.length}
             >
-              <option value="cx23">CX23</option>
-              <option value="cpx22">CPX22</option>
+              <option value="" disabled>
+                Team*
+              </option>
+              {teamsData?.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.slug}
+                </option>
+              ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
               <ChevronDown width={15} className="stroke-mauve-10" />
@@ -116,16 +123,12 @@ export default function NewCluster() {
           </div>
           <div className="relative w-52">
             <select
-              {...register("teamId", { required: true })}
-              name="teamId"
               className="border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
-              disabled={!teamsData?.length}
+              defaultValue="cx23"
+              {...register("serverType", { required: true })}
             >
-              {teamsData?.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.slug}
-                </option>
-              ))}
+              <option value="cx23">CX23</option>
+              <option value="cpx22">CPX22</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
               <ChevronDown width={15} className="stroke-mauve-10" />
