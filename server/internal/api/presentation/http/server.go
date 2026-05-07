@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -38,7 +39,7 @@ func NewServer(
 	internalHandler *handler.InternalHandler,
 ) *Server {
 	engine := gin.New()
-	engine.Use(gin.Logger(), gin.Recovery())
+	engine.Use(gin.Logger(), gin.Recovery(), sentrygin.New(sentrygin.Options{Repanic: true}))
 
 	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
 	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
