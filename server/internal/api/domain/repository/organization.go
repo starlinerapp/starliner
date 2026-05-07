@@ -92,6 +92,7 @@ func (or *OrganizationRepository) GetUserProjects(ctx context.Context, organizat
 				Name:         row.Name,
 				Environments: []*entity.Environment{},
 				TeamId:       row.TeamID,
+				TeamSlug:     row.TeamSlug,
 				CreatedAt:    row.CreatedAt,
 			}
 			projectsMap[proj.Id] = proj

@@ -3216,7 +3216,8 @@
                 "environments",
                 "id",
                 "name",
-                "teamId"
+                "teamId",
+                "teamSlug"
             ],
             "properties": {
                 "clusterId": {
@@ -3239,6 +3240,9 @@
                 },
                 "teamId": {
                     "type": "integer"
+                },
+                "teamSlug": {
+                    "type": "string"
                 }
             }
         },

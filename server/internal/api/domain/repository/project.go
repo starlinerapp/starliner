@@ -92,6 +92,7 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 		Id:           rows[0].ID,
 		Name:         rows[0].Name,
 		TeamId:       rows[0].TeamID,
+		TeamSlug:     rows[0].TeamSlug,
 		ClusterId:    utils.PtrFromNullInt64(rows[0].ClusterID),
 		Environments: make([]*entity.Environment, 0, len(rows)),
 	}

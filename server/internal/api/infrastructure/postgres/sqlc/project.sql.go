@@ -70,6 +70,7 @@ SELECT
     projects.id as id,
     projects.name as name,
     projects.team_id as team_id,
+    teams.slug as team_slug,
     projects.cluster_id as cluster_id,
     environments.id as environment_id,
     environments.name as environment_name,
@@ -91,6 +92,7 @@ type GetProjectRow struct {
 	ID              int64
 	Name            string
 	TeamID          int64
+	TeamSlug        string
 	ClusterID       sql.NullInt64
 	EnvironmentID   int64
 	EnvironmentName string
@@ -110,6 +112,7 @@ func (q *Queries) GetProject(ctx context.Context, arg GetProjectParams) ([]GetPr
 			&i.ID,
 			&i.Name,
 			&i.TeamID,
+			&i.TeamSlug,
 			&i.ClusterID,
 			&i.EnvironmentID,
 			&i.EnvironmentName,
@@ -271,6 +274,7 @@ SELECT
     projects.id as id,
     projects.name as name,
     projects.team_id as team_id,
+    teams.slug as team_slug,
     environments.id as environment_id,
     environments.name as environment_name,
     environments.slug as environment_slug,
@@ -293,6 +297,7 @@ type GetUserProjectsRow struct {
 	ID              int64
 	Name            string
 	TeamID          int64
+	TeamSlug        string
 	EnvironmentID   int64
 	EnvironmentName string
 	EnvironmentSlug string
@@ -312,6 +317,7 @@ func (q *Queries) GetUserProjects(ctx context.Context, arg GetUserProjectsParams
 			&i.ID,
 			&i.Name,
 			&i.TeamID,
+			&i.TeamSlug,
 			&i.EnvironmentID,
 			&i.EnvironmentName,
 			&i.EnvironmentSlug,

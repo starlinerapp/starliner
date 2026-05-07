@@ -7,6 +7,7 @@ type Project struct {
 	Name                  string
 	Environments          []*Environment
 	TeamId                int64
+	TeamSlug              string
 	PrEnvironmentsEnabled *bool
 	ClusterId             *int64
 	CreatedAt             time.Time
