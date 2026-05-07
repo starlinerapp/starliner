@@ -96,10 +96,10 @@ export default function NewProject() {
       {selectedTeamHasNoClusters ? (
         organization.isOwner ? (
           <WarningBanner
-            text="This team has no clusters assigned. Assign one before creating projects."
+            text="This team has no clusters assigned. Create or assign a cluster before creating projects."
             linkOut={{
-              text: "Manage Team",
-              href: `/${organization.slug}/settings/teams/${teamIdInput}`,
+              text: "Create Cluster",
+              href: `/${organization.slug}/clusters/new`,
             }}
             className="my-2"
           />

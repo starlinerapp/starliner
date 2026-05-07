@@ -133,6 +133,12 @@ export interface RequestCreateCluster {
    * @memberof RequestCreateCluster
    */
   serverType: RequestCreateClusterServerTypeEnum;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestCreateCluster
+   */
+  teamId: number;
 }
 
 export const RequestCreateClusterServerTypeEnum = {
