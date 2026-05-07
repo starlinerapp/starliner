@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"starliner.app/internal/api/conf"
@@ -45,6 +46,8 @@ func NewOrganizationApplication(
 }
 
 func (oa *OrganizationApplication) CreateOrganization(ctx context.Context, name string, ownerID int64) (*value.Organization, error) {
+	name = strings.TrimSpace(name)
+
 	organizationSlug, err := oa.normalizationService.FormatToDNS1123(name)
 	if err != nil {
 		return nil, err

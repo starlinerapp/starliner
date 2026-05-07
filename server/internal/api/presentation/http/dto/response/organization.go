@@ -51,6 +51,7 @@ func NewOrganizationInvite(invite *value.OrganizationInvite) OrganizationInvite 
 	return OrganizationInvite{
 		Id:               invite.Id,
 		OrganizationId:   invite.OrganizationId,
+		OrganizationSlug: invite.OrganizationSlug,
 		OrganizationName: invite.OrganizationName,
 		Email:            invite.Email,
 		ExpiresAt:        invite.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
