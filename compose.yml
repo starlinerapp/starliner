@@ -80,7 +80,6 @@ services:
       AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
       SENTRY_DSN_CLIENT: ${SENTRY_DSN_CLIENT}
-      SENTRY_AUTH_TOKEN_CLIENT: ${SENTRY_AUTH_TOKEN_CLIENT}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules

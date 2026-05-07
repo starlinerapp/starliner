@@ -112,6 +112,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 
 	if err != nil {
 		RespondInternalError(c, err)
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -324,6 +325,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 	)
 	if err != nil {
 		RespondInternalError(c, err)
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -354,6 +356,7 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 	)
 	if err != nil {
 		RespondInternalError(c, err)
+		return
 	}
 
 	c.Status(http.StatusOK)

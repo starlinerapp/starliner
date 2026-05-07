@@ -136,6 +136,7 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 	err = ch.clusterApplication.DeleteCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
 		RespondInternalError(c, err)
+		return
 	}
 
 	c.Status(http.StatusOK)
