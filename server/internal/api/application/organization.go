@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"starliner.app/internal/api/conf"
@@ -45,6 +46,8 @@ func NewOrganizationApplication(
 }
 
 func (oa *OrganizationApplication) CreateOrganization(ctx context.Context, name string, ownerID int64) (*value.Organization, error) {
+	name = strings.TrimSpace(name)
+
 	organizationSlug, err := oa.normalizationService.FormatToDNS1123(name)
 	if err != nil {
 		return nil, err
@@ -164,16 +167,14 @@ func (oa *OrganizationApplication) GetInviteDetails(ctx context.Context, inviteI
 		return nil, err
 	}
 
-	org, err := oa.organizationRepository.GetOrganization(ctx, invite.OrganizationId)
-	if err != nil {
-		return nil, err
-	}
+	organizationName := invite.OrganizationName
+	organizationSlug, err := oa.normalizationService.FormatToDNS1123(organizationName)
 
 	return &value.OrganizationInvite{
 		Id:               invite.Id,
 		OrganizationId:   invite.OrganizationId,
-		OrganizationSlug: org.Slug,
-		OrganizationName: org.Name,
+		OrganizationSlug: organizationSlug,
+		OrganizationName: organizationName,
 		Email:            invite.Email,
 		ExpiresAt:        invite.ExpiresAt,
 		CreatedAt:        invite.CreatedAt,
