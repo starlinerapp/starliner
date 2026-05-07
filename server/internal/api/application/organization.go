@@ -169,6 +169,9 @@ func (oa *OrganizationApplication) GetInviteDetails(ctx context.Context, inviteI
 
 	organizationName := invite.OrganizationName
 	organizationSlug, err := oa.normalizationService.FormatToDNS1123(organizationName)
+	if err != nil {
+		return nil, err
+	}
 
 	return &value.OrganizationInvite{
 		Id:               invite.Id,
