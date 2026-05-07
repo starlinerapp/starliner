@@ -35,7 +35,7 @@ func (ih *InternalHandler) SendVerificationEmail(c *gin.Context) {
 		body.To,
 		body.VerificationLink,
 	); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.Status(http.StatusNoContent)
@@ -61,7 +61,7 @@ func (ih *InternalHandler) SendResetPassword(c *gin.Context) {
 		body.To,
 		body.PasswordResetLink,
 	); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.Status(http.StatusNoContent)

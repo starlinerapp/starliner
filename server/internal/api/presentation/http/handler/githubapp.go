@@ -39,7 +39,7 @@ func (gh *GithubAppHandler) CreateGithubApp(c *gin.Context) {
 
 	err := gh.githubAppApplication.CreateGitHubApp(c.Request.Context(), currentUser.Id, githubApp.OrganizationId, githubApp.InstallationId)
 	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.Status(http.StatusCreated)
@@ -64,7 +64,7 @@ func (gh *GithubAppHandler) GetGithubApp(c *gin.Context) {
 
 	ghApp, err := gh.githubAppApplication.GetGithubApp(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	if ghApp == nil {

@@ -40,7 +40,7 @@ func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 
 	newOrg, err := oh.organizationApplication.CreateOrganization(c, org.Name, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, response.NewOrganization(newOrg))
@@ -58,7 +58,7 @@ func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 	organizations, err := oh.organizationApplication.GetUserOrganizations(c.Request.Context(), currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewOrganizations(organizations))
@@ -83,7 +83,7 @@ func (oh *OrganizationHandler) GetUserProjects(c *gin.Context) {
 
 	projects, err := oh.organizationApplication.GetProjectsForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		RespondInternalError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewProjects(projects))
@@ -108,7 +108,7 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 
 	clusters, err := oh.organizationApplication.GetClustersForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		RespondInternalError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewClusters(clusters))
@@ -140,7 +140,7 @@ func (oh *OrganizationHandler) UpsertHetznerCredential(c *gin.Context) {
 
 	err = oh.organizationApplication.UpsertHetznerCredential(c.Request.Context(), currentUser.Id, organizationId, credential.ApiKey)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		RespondInternalError(c, err)
 		return
 	}
 	c.Status(http.StatusOK)
@@ -165,7 +165,7 @@ func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
 
 	credential, err := oh.organizationApplication.GetHetznerCredential(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		RespondInternalError(c, err)
 		return
 	}
 
@@ -208,7 +208,7 @@ func (oh *OrganizationHandler) SendEmailInvite(c *gin.Context) {
 	}
 	err = oh.organizationApplication.CreateAndSendEmailInvite(c.Request.Context(), currentUser.Id, organizationId, body.ToEmail, body.InviteUrlPrefix)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.Status(http.StatusCreated)
@@ -228,7 +228,7 @@ func (oh *OrganizationHandler) GetInviteDetails(c *gin.Context) {
 
 	invite, err := oh.organizationApplication.GetInviteDetails(c.Request.Context(), inviteId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewOrganizationInvite(invite))
@@ -252,7 +252,7 @@ func (oh *OrganizationHandler) AcceptInvite(c *gin.Context) {
 
 	err := oh.organizationApplication.AcceptInvite(c.Request.Context(), body.InviteId, body.RecipientEmail, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 	c.Status(http.StatusOK)
@@ -276,7 +276,7 @@ func (oh *OrganizationHandler) GetOrganizationMembers(c *gin.Context) {
 
 	members, err := oh.organizationApplication.GetOrganizationMembers(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 
