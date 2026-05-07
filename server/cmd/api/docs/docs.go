@@ -2230,7 +2230,8 @@ const docTemplate = `{
             "required": [
                 "name",
                 "organizationId",
-                "serverType"
+                "serverType",
+                "teamId"
             ],
             "properties": {
                 "name": {
@@ -2245,6 +2246,9 @@ const docTemplate = `{
                         "cx23",
                         "cpx22"
                     ]
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },

@@ -2221,7 +2221,8 @@
             "required": [
                 "name",
                 "organizationId",
-                "serverType"
+                "serverType",
+                "teamId"
             ],
             "properties": {
                 "name": {
@@ -2236,6 +2237,9 @@
                         "cx23",
                         "cpx22"
                     ]
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },

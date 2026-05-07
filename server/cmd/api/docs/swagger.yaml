@@ -47,10 +47,13 @@ definitions:
         - cx23
         - cpx22
         type: string
+      teamId:
+        type: integer
     required:
     - name
     - organizationId
     - serverType
+    - teamId
     type: object
   request.CreateEnvironment:
     properties:

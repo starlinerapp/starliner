@@ -12,6 +12,7 @@ export const clusterRouter = {
         name: z.string(),
         serverType: z.string(),
         organizationId: z.number(),
+        teamId: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -21,6 +22,7 @@ export const clusterRouter = {
           name: input.name,
           serverType: input.serverType as RequestCreateClusterServerTypeEnum,
           organizationId: input.organizationId,
+          teamId: input.teamId,
         })
         .then((res) => res.data);
     }),
