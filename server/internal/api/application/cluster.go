@@ -61,15 +61,16 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 
 	// the org owner should be part of every team in the organization
 	if team.OrganizationId != organizationId {
-		return nil, errors.New("cluster and team belong to different organizations")
+		return nil, errors.New("team does not belong to the specified organization")
 	}
 
 	cluster, err := ca.clusterRepository.CreateCluster(ctx, name, serverType, organizationId)
 	if err != nil {
-		fmt.Printf("failed to persist cluster in database: %v", err)
+		return nil, fmt.Errorf("failed to persist cluster in database: %v", err)
 	}
 
 	if err := ca.teamRepository.AssignClusterToTeam(ctx, teamId, cluster.Id); err != nil {
+		_ = ca.clusterRepository.DeleteCluster(ctx, cluster.Id)
 		return nil, err
 	}
 

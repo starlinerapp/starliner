@@ -119,7 +119,7 @@ export default function NewCluster() {
               {...register("teamId", { required: true })}
               name="teamId"
               className="border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
-              disabled={!teamsData}
+              disabled={!teamsData?.length}
             >
               {teamsData?.map((team) => (
                 <option key={team.id} value={team.id}>
