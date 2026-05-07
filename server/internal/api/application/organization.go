@@ -164,8 +164,7 @@ func (oa *OrganizationApplication) GetInviteDetails(ctx context.Context, inviteI
 		return nil, err
 	}
 
-	organizationName := invite.OrganizationName
-	organizationSlug, err := oa.normalizationService.FormatToDNS1123(organizationName)
+	org, err := oa.organizationRepository.GetOrganization(ctx, invite.OrganizationId)
 	if err != nil {
 		return nil, err
 	}
@@ -173,8 +172,8 @@ func (oa *OrganizationApplication) GetInviteDetails(ctx context.Context, inviteI
 	return &value.OrganizationInvite{
 		Id:               invite.Id,
 		OrganizationId:   invite.OrganizationId,
-		OrganizationSlug: organizationSlug,
-		OrganizationName: organizationName,
+		OrganizationSlug: org.Slug,
+		OrganizationName: org.Name,
 		Email:            invite.Email,
 		ExpiresAt:        invite.ExpiresAt,
 		CreatedAt:        invite.CreatedAt,
