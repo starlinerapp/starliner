@@ -73,7 +73,7 @@ export default function Projects() {
                       </div>
                     </div>
 
-                    <div className="justify-between space-y-19 px-4">
+                    <div className="flex h-full flex-col justify-between px-4 pb-4">
                       <p className="text-mauve-11 text-xs">
                         #<span>{project.teamSlug}</span>
                       </p>

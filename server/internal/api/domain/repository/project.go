@@ -60,10 +60,17 @@ func (pr *ProjectRepository) CreateProjectWithEnvironment(
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
+
+	team, err := pr.queries.GetTeamById(ctx, project.TeamID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &entity.Project{
 		Id:        project.ID,
 		Name:      project.Name,
 		TeamId:    project.TeamID,
+		TeamSlug:  team.Slug,
 		ClusterId: utils.PtrFromNullInt64(project.ClusterID),
 		Environments: []*entity.Environment{
 			{
