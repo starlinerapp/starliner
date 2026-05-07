@@ -2,6 +2,7 @@ package sentry
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -19,8 +20,7 @@ func InitSentry(lc fx.Lifecycle, cfg *conf.Config) error {
 		Dsn:         cfg.SentryDSN,
 		Environment: cfg.Environment,
 	}); err != nil {
-		log.Printf("sentry: init failed, continuing without it: %v", err)
-		return nil
+		return fmt.Errorf("sentry init failed: %w", err)
 	}
 	lc.Append(fx.Hook{
 		OnStop: func(context.Context) error {

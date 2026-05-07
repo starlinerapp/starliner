@@ -43,7 +43,6 @@ services:
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
       SENTRY_DSN_CLIENT: ${SENTRY_DSN_CLIENT}
-      SENTRY_AUTH_TOKEN_CLIENT: ${SENTRY_AUTH_TOKEN_CLIENT}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules

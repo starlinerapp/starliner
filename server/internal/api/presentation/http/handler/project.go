@@ -90,6 +90,7 @@ func (ph *ProjectHandler) DeleteProject(c *gin.Context) {
 	err = ph.projectApplication.DeleteProject(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
 		RespondInternalError(c, err)
+		return
 	}
 	c.Status(http.StatusOK)
 }
@@ -114,6 +115,7 @@ func (ph *ProjectHandler) GetProjectCluster(c *gin.Context) {
 	cluster, err := ph.projectApplication.GetProjectCluster(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
 		RespondInternalError(c, err)
+		return
 	}
 	c.JSON(http.StatusOK, response.NewProjectCluster(cluster))
 }
