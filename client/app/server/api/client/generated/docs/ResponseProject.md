@@ -10,6 +10,7 @@
 | **id**           | **number**                                                     |             | [default to undefined] |
 | **name**         | **string**                                                     |             | [default to undefined] |
 | **teamId**       | **number**                                                     |             | [default to undefined] |
+| **teamSlug**     | **string**                                                     |             | [default to undefined] |
 
 ## Example
 
@@ -23,6 +24,7 @@ const instance: ResponseProject = {
   id,
   name,
   teamId,
+  teamSlug,
 };
 ```
 

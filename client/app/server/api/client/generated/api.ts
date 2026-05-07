@@ -1413,6 +1413,12 @@ export interface ResponseProject {
    * @memberof ResponseProject
    */
   teamId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseProject
+   */
+  teamSlug: string;
 }
 /**
  *

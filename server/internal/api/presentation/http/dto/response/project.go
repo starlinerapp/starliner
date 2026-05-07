@@ -12,6 +12,7 @@ type Project struct {
 	Environments []Environment `json:"environments" binding:"required"`
 	ClusterId    *int64        `json:"clusterId" binding:"required"`
 	TeamId       int64         `json:"teamId" binding:"required"`
+	TeamSlug     string        `json:"teamSlug" binding:"required"`
 	CreatedAt    time.Time     `json:"createdAt" binding:"required"`
 }
 
@@ -30,6 +31,7 @@ func NewProject(p *value.Project) Project {
 		Environments: environments,
 		ClusterId:    p.ClusterId,
 		TeamId:       p.TeamId,
+		TeamSlug:     p.TeamSlug,
 		CreatedAt:    p.CreatedAt,
 	}
 }

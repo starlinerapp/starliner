@@ -735,6 +735,8 @@ definitions:
         type: string
       teamId:
         type: integer
+      teamSlug:
+        type: string
     required:
     - clusterId
     - createdAt
@@ -742,6 +744,7 @@ definitions:
     - id
     - name
     - teamId
+    - teamSlug
     type: object
   response.ProjectCluster:
     properties:

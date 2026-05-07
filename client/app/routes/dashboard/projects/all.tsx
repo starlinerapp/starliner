@@ -73,8 +73,11 @@ export default function Projects() {
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-mauve-11 px-4 text-xs">
+                    <div className="flex h-full flex-col justify-between px-4 pb-4">
+                      <p className="text-mauve-11 text-xs">
+                        #<span>{project.teamSlug}</span>
+                      </p>
+                      <p className="text-mauve-11 text-xs">
                         Created{" "}
                         <span>
                           {formatDistanceToNow(new Date(project.createdAt), {

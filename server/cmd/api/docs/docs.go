@@ -3225,7 +3225,8 @@ const docTemplate = `{
                 "environments",
                 "id",
                 "name",
-                "teamId"
+                "teamId",
+                "teamSlug"
             ],
             "properties": {
                 "clusterId": {
@@ -3248,6 +3249,9 @@ const docTemplate = `{
                 },
                 "teamId": {
                     "type": "integer"
+                },
+                "teamSlug": {
+                    "type": "string"
                 }
             }
         },
