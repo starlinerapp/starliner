@@ -2704,6 +2704,7 @@
                 "organizationId",
                 "serverType",
                 "status",
+                "teamSlug",
                 "user"
             ],
             "properties": {
@@ -2736,6 +2737,9 @@
                             "$ref": "#/definitions/response.ClusterStatus"
                         }
                     ]
+                },
+                "teamSlug": {
+                    "type": "string"
                 },
                 "user": {
                     "type": "string"

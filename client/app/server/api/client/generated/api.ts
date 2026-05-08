@@ -763,6 +763,12 @@ export interface ResponseCluster {
    * @type {string}
    * @memberof ResponseCluster
    */
+  teamSlug: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseCluster
+   */
   user: string;
 }
 

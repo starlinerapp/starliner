@@ -11,6 +11,7 @@ import (
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
+	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type OrganizationRepository struct {
@@ -128,6 +129,7 @@ func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, o
 		clusters = append(clusters, &entity.Cluster{
 			Id:             c.ID,
 			Name:           c.Name,
+			TeamSlug:       utils.PtrFromNullString(c.TeamSlug),
 			OrganizationId: c.OrganizationID,
 			ServerType:     entity.ServerType(c.ServerType),
 			CreatedAt:      c.CreatedAt,

@@ -125,18 +125,22 @@ func (q *Queries) GetDeploymentCluster(ctx context.Context, deploymentID int64) 
 
 const getOrganizationClusters = `-- name: GetOrganizationClusters :many
 SELECT
-    clusters.id as id,
-    clusters.name as name,
-    clusters.organization_id as organization_id,
-    clusters.server_type as server_type,
-    clusters.created_at as created_at
+    clusters.id AS id,
+    clusters.name AS name,
+    teams.slug AS team_slug,
+    clusters.organization_id AS organization_id,
+    clusters.server_type AS server_type,
+    clusters.created_at AS created_at
 FROM clusters
+         LEFT JOIN team_clusters ON team_clusters.cluster_id = clusters.id
+         LEFT JOIN teams ON teams.id = team_clusters.team_id
 WHERE clusters.organization_id = $1
 `
 
 type GetOrganizationClustersRow struct {
 	ID             int64
 	Name           string
+	TeamSlug       sql.NullString
 	OrganizationID int64
 	ServerType     string
 	CreatedAt      time.Time
@@ -154,6 +158,7 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.TeamSlug,
 			&i.OrganizationID,
 			&i.ServerType,
 			&i.CreatedAt,

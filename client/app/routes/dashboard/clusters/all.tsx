@@ -74,14 +74,17 @@ export default function Clusters() {
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-mauve-11 px-4 text-xs">
+                    <div className="flex h-full flex-col gap-2 px-4 pb-4">
+                      <p className="text-mauve-11 text-xs">
                         Created{" "}
                         <span>
                           {formatDistanceToNow(new Date(cluster.createdAt), {
                             addSuffix: true,
                           })}
                         </span>
+                      </p>
+                      <p className="text-mauve-11 bg-violet-3 border-mauve-6 w-fit rounded-md border px-2 py-1 text-xs">
+                        #<span>{cluster.teamSlug}</span>
                       </p>
                     </div>
                   </div>

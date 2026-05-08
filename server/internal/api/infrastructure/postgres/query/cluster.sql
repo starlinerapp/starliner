@@ -30,12 +30,15 @@ WHERE id = $1;
 
 -- name: GetOrganizationClusters :many
 SELECT
-    clusters.id as id,
-    clusters.name as name,
-    clusters.organization_id as organization_id,
-    clusters.server_type as server_type,
-    clusters.created_at as created_at
+    clusters.id AS id,
+    clusters.name AS name,
+    teams.slug AS team_slug,
+    clusters.organization_id AS organization_id,
+    clusters.server_type AS server_type,
+    clusters.created_at AS created_at
 FROM clusters
+         LEFT JOIN team_clusters ON team_clusters.cluster_id = clusters.id
+         LEFT JOIN teams ON teams.id = team_clusters.team_id
 WHERE clusters.organization_id = $1;
 
 -- name: GetDeploymentCluster :one
