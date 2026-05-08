@@ -128,6 +128,7 @@ func (or *OrganizationRepository) GetOrganizationClusters(ctx context.Context, o
 		clusters = append(clusters, &entity.Cluster{
 			Id:             c.ID,
 			Name:           c.Name,
+			TeamSlugs:      c.TeamSlugs,
 			OrganizationId: c.OrganizationID,
 			ServerType:     entity.ServerType(c.ServerType),
 			CreatedAt:      c.CreatedAt,

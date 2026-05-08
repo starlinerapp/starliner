@@ -3,11 +3,12 @@ package github
 import (
 	"context"
 	"fmt"
-	"github.com/google/go-github/v84/github"
+	"strings"
+
+	"github.com/google/go-github/v85/github"
 	"github.com/palantir/go-githubapp/githubapp"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
-	"strings"
 )
 
 type Client struct {

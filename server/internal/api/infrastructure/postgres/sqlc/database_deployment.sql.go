@@ -12,24 +12,21 @@ import (
 
 const createDatabaseDeployment = `-- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, environment_id)
-    VALUES ($1, $2, $3)
-    RETURNING id, name, port, status, environment_id, created_at, updated_at
-),
-new_database_deployment AS (
-    INSERT INTO database_deployments (deployment_id)
-    SELECT id FROM new_deployment
-    RETURNING deployment_id, username, password, created_at, updated_at, database
+  INSERT INTO deployments (
+    name, port, environment_id)
+  VALUES (
+    $1, $2, $3)
+RETURNING id, name, port, status, environment_id, created_at, updated_at
+), new_database_deployment AS (
+  INSERT INTO database_deployments (
+    deployment_id)
+  SELECT id
+  FROM new_deployment
+  RETURNING deployment_id, username, password, created_at, updated_at, database
 )
-SELECT
-    d.id AS deployment_id,
-    d.name,
-    d.port,
-    d.environment_id,
-    db.username,
-    db.password
+SELECT d.id AS deployment_id, d.name, d.port, d.environment_id, db.username, db.password
 FROM new_deployment d
-INNER JOIN new_database_deployment db ON d.id = db.deployment_id
+  INNER JOIN new_database_deployment db ON d.id = db.deployment_id
 `
 
 type CreateDatabaseDeploymentParams struct {
@@ -62,18 +59,10 @@ func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDataba
 }
 
 const getEnvironmentDatabaseDeployments = `-- name: GetEnvironmentDatabaseDeployments :many
-SELECT
-    d.id AS deployment_id,
-    d.name,
-    d.port,
-    d.status,
-    d.environment_id,
-    db.database,
-    db.username,
-    db.password
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
 FROM deployments d
-    INNER JOIN database_deployments db ON d.id = db.deployment_id
-    INNER JOIN environments ON d.environment_id = environments.id
+  INNER JOIN database_deployments db ON d.id = db.deployment_id
+  INNER JOIN environments ON d.environment_id = environments.id
 WHERE environment_id = $1
 ORDER BY d.id DESC
 `
@@ -122,23 +111,15 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, environ
 }
 
 const getUserEnvironmentDatabaseDeployments = `-- name: GetUserEnvironmentDatabaseDeployments :many
-SELECT
-    d.id AS deployment_id,
-    d.name,
-    d.port,
-    d.status,
-    d.environment_id,
-    db.database,
-    db.username,
-    db.password
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
 FROM deployments d
-INNER JOIN database_deployments db ON d.id = db.deployment_id
-INNER JOIN environments ON d.environment_id = environments.id
-INNER JOIN projects ON environments.project_id = projects.id
-INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN team_members ON team_members.team_id = teams.id
+  INNER JOIN database_deployments db ON d.id = db.deployment_id
+  INNER JOIN environments ON d.environment_id = environments.id
+  INNER JOIN projects ON environments.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
-AND team_members.user_id = $2
+  AND team_members.user_id = $2
 ORDER BY d.id DESC
 `
 
@@ -191,10 +172,9 @@ func (q *Queries) GetUserEnvironmentDatabaseDeployments(ctx context.Context, arg
 }
 
 const updateDatabaseDeploymentCredentials = `-- name: UpdateDatabaseDeploymentCredentials :exec
-UPDATE database_deployments
-SET database = $1,
-    username = $2,
-    password = $3
+UPDATE
+  database_deployments
+SET DATABASE = $1, username = $2, password = $3
 WHERE deployment_id = $4
 `
 

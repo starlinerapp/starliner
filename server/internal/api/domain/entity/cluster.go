@@ -22,6 +22,7 @@ type Cluster struct {
 	Name           string
 	ServerType     ServerType
 	Status         ClusterStatus
+	TeamSlugs      []string
 	User           string
 	IPv4Address    *string
 	PublicKey      *string

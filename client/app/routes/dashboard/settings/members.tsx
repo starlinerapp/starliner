@@ -38,7 +38,10 @@ export default function Members() {
         inviteUrlPrefix: `${window.location.origin}/organizations/invite/`,
       },
       {
-        onSuccess: () => reset(),
+        onSuccess: () => {
+          reset();
+          setShowAddMemberDialog(false);
+        },
       },
     );
   }
@@ -65,8 +68,8 @@ export default function Members() {
                 <div className="flex flex-col gap-2">
                   <h1>Invite Member</h1>
                   <p className="text-mauve-11 text-sm">
-                    They will receive an email with a link to join your
-                    organization.
+                    Invite members via email. They’ll receive a link to join
+                    your organization.
                   </p>
                 </div>
                 <form
@@ -106,9 +109,9 @@ export default function Members() {
           </Dialog>
         )}
       </div>
-      <div className="w-full pt-[42px]">
-        <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
+      <div className="w-full pt-10.5">
+        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
+          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs font-bold uppercase">
             Organization Members
           </div>
           {isLoading ? (

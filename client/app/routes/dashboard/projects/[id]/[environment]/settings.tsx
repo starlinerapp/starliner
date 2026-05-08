@@ -105,8 +105,8 @@ export default function ProjectSettings() {
   return (
     <>
       <div className="w-full space-y-4 p-4">
-        <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
+        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
+          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
             Project Settings
           </div>
           <div className="border-mauve-6 flex items-center justify-between px-4 py-2">
@@ -119,7 +119,7 @@ export default function ProjectSettings() {
             </div>
 
             {isPreviewEnvEnabledLoading ? (
-              <Skeleton className="h-[25px] w-[42px] rounded-full" />
+              <Skeleton className="h-6.25 w-10.5 rounded-full" />
             ) : (
               <Switch
                 checked={previewEnvEnabled?.enabled ?? false}
@@ -133,8 +133,8 @@ export default function ProjectSettings() {
           </div>
         </div>
 
-        <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
+        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
+          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
             Environment Settings
           </div>
           <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
@@ -148,7 +148,7 @@ export default function ProjectSettings() {
               <Skeleton className="h-9.5 w-1/2" />
             ) : (
               <input
-                className="border-mauve-6 disabled:text-mauve-11 w-1/2 cursor-not-allowed rounded-md border-1 p-2"
+                className="border-mauve-6 disabled:text-mauve-11 w-1/2 cursor-not-allowed rounded-md border p-2"
                 value={clusterData?.clusterName}
                 disabled
               />
@@ -157,8 +157,8 @@ export default function ProjectSettings() {
           <UpdateConnectedBranchForm />
         </div>
 
-        <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
+        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
+          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
             Danger Zone
           </div>
           <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">

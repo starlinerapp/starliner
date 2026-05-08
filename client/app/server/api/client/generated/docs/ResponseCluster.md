@@ -11,6 +11,7 @@
 | **organizationId** | **number**                                            |             | [default to undefined] |
 | **serverType**     | **string**                                            |             | [default to undefined] |
 | **status**         | [**ResponseClusterStatus**](ResponseClusterStatus.md) |             | [default to undefined] |
+| **teamSlugs**      | **Array&lt;string&gt;**                               |             | [default to undefined] |
 | **user**           | **string**                                            |             | [default to undefined] |
 
 ## Example
@@ -26,6 +27,7 @@ const instance: ResponseCluster = {
   organizationId,
   serverType,
   status,
+  teamSlugs,
   user,
 };
 ```

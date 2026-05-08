@@ -74,8 +74,8 @@ export default function Clusters() {
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-mauve-11 px-4 text-xs">
+                    <div className="flex h-full flex-col gap-2 px-4 pb-4">
+                      <p className="text-mauve-11 text-xs">
                         Created{" "}
                         <span>
                           {formatDistanceToNow(new Date(cluster.createdAt), {
@@ -83,6 +83,16 @@ export default function Clusters() {
                           })}
                         </span>
                       </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cluster.teamSlugs.map((teamSlug, i) => (
+                          <p
+                            key={i}
+                            className="text-mauve-11 bg-violet-3 border-mauve-6 w-fit rounded-md border px-2 py-1 text-xs"
+                          >
+                            #<span>{teamSlug}</span>
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </Card>

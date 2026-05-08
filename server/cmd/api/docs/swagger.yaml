@@ -381,6 +381,10 @@ definitions:
         - pending
         - running
         - deleted
+      teamSlugs:
+        items:
+          type: string
+        type: array
       user:
         type: string
     required:
@@ -391,6 +395,7 @@ definitions:
     - organizationId
     - serverType
     - status
+    - teamSlugs
     - user
     type: object
   response.ClusterStatus:

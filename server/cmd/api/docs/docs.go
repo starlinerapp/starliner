@@ -2713,6 +2713,7 @@ const docTemplate = `{
                 "organizationId",
                 "serverType",
                 "status",
+                "teamSlugs",
                 "user"
             ],
             "properties": {
@@ -2745,6 +2746,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ClusterStatus"
                         }
                     ]
+                },
+                "teamSlugs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "user": {
                     "type": "string"

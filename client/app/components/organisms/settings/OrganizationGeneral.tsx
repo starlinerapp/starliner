@@ -63,8 +63,8 @@ export default function OrganizationGeneral() {
 
   return (
     <div className="w-full">
-      <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
+      <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
+        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs font-bold uppercase">
           General
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -87,7 +87,7 @@ export default function OrganizationGeneral() {
             {isHetznerCredentialLoading ? (
               <div className="flex w-1/2 items-center">
                 <Skeleton className="mr-3 h-9.5 w-full" />
-                <Eye className="h-4 w-4 flex-shrink-0" />
+                <Eye className="h-4 w-4 shrink-0" />
               </div>
             ) : (
               <div className="flex w-1/2 items-center">

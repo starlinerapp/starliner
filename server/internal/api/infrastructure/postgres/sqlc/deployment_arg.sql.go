@@ -10,8 +10,10 @@ import (
 )
 
 const createGitDeploymentArg = `-- name: CreateGitDeploymentArg :one
-INSERT INTO git_deployment_args (deployment_id, name, value)
-VALUES ($1, $2, $3)
+INSERT INTO git_deployment_args (
+  deployment_id, name, value)
+VALUES (
+  $1, $2, $3)
 RETURNING id, deployment_id, name, value, created_at, updated_at
 `
 

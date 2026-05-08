@@ -96,7 +96,7 @@ export default function NewCluster() {
       <div className="mt-4">
         <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)}>
           <input
-            className="border-mauve-6 w-80 rounded-md border-1 px-2 py-1 text-sm"
+            className="border-mauve-6 w-80 rounded-md border px-2 py-1 text-sm"
             type="text"
             placeholder="Name*"
             {...register("name")}
@@ -105,7 +105,7 @@ export default function NewCluster() {
             <select
               {...register("teamId", { required: true })}
               name="teamId"
-              className="border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
+              className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
               disabled={!teamsData?.length}
             >
               <option value="" disabled>
@@ -123,7 +123,7 @@ export default function NewCluster() {
           </div>
           <div className="relative w-52">
             <select
-              className="border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
+              className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
               defaultValue="cx23"
               {...register("serverType", { required: true })}
             >

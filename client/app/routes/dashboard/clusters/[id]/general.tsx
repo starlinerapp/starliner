@@ -83,8 +83,8 @@ export default function General() {
     <ResizablePanelGroup direction="vertical" className="h-full w-full">
       <ResizablePanel defaultSize={70} className="h-full overflow-auto">
         <div className="w-full p-4">
-          <div className="border-mauve-6 rounded-md border-1 text-sm shadow-xs">
-            <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs font-bold uppercase">
+          <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
+            <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs font-bold uppercase">
               Details
             </div>
             <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
@@ -174,7 +174,7 @@ export default function General() {
             defaultSize={85}
             minSize={4}
             maxSize={85}
-            className="border-mauve-6 border-t-1"
+            className="border-mauve-6 border-t"
           >
             <BottomBar clusterId={clusterData.id} status={clusterData.status} />
           </ResizablePanel>

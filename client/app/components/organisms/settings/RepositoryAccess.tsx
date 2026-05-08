@@ -11,6 +11,7 @@ import { useLocation } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { GitBranch } from "lucide-react";
 
 export function RepositoryAccess({
   teamId,
@@ -96,12 +97,12 @@ export function RepositoryAccess({
   return (
     <div className="w-full">
       <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
+        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
           <p>Repository Access</p>
-          {githubApp && (
+          {githubApp ? (
             <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
               <DialogTrigger asChild>
-                <Button intent="secondary" className="h-7 w-36 text-xs">
+                <Button intent="secondary" className="w-36 text-xs">
                   Manage Repositories
                 </Button>
               </DialogTrigger>
@@ -125,30 +126,34 @@ export function RepositoryAccess({
                       No GitHub repositories are available.
                     </div>
                   ) : (
-                    <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
+                    <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto">
                       {allReposSorted.map((repo) => {
                         const isAssigned = assignedRepoIds.has(repo.id);
                         return (
                           <div
                             key={repo.id}
-                            className="flex min-w-0 items-center justify-between gap-3 px-4 py-2"
+                            className="bg-mauve-2 border-mauve-6 flex min-w-0 items-center justify-between gap-3 rounded-md border p-3"
                           >
-                            <div className="flex min-w-0 flex-1 flex-col">
-                              <span className="text-mauve-12 truncate text-sm font-medium">
+                            <div className="border-mauve-6 rounded-md border bg-white p-1.5">
+                              <GitBranch className="text-mauve-11 h-7 w-7 stroke-[1.5px]" />
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                              <p className="text-mauve-12 truncate text-sm font-medium">
                                 {repo.owner}/{repo.name}
-                              </span>
+                              </p>
                               {repo.description && (
-                                <span
+                                <p
                                   className="text-mauve-11 truncate text-xs"
                                   title={repo.description}
                                 >
                                   {repo.description}
-                                </span>
+                                </p>
                               )}
                             </div>
                             {isAssigned ? (
                               <Button
-                                className="h-7 w-24 text-xs"
+                                className="w-24"
+                                size="xs"
                                 intent="secondary"
                                 onClick={() => onUnassignRepo(repo.id)}
                               >
@@ -156,8 +161,9 @@ export function RepositoryAccess({
                               </Button>
                             ) : (
                               <Button
-                                className="h-7 w-24 text-xs"
+                                className="w-24"
                                 intent="primary"
+                                size="xs"
                                 onClick={() => {
                                   onAssignRepo(repo.id, repo.full_name);
                                 }}
@@ -173,6 +179,8 @@ export function RepositoryAccess({
                 </div>
               </DialogContent>
             </Dialog>
+          ) : (
+            <Skeleton className="h-8 w-36" />
           )}
         </div>
         {isGithubAppLoading ? (
@@ -196,10 +204,9 @@ export function RepositoryAccess({
             <Skeleton className="h-5 w-48" />
           </div>
         ) : teamRepos?.length === 0 ? (
-          <div className="text-mauve-11 px-4 py-3 text-sm">
-            No repositories assigned. Team members cannot see any repositories
-            until you assign them.
-          </div>
+          <p className="text-mauve-11 px-4 py-3 text-sm">
+            No repositories assigned.
+          </p>
         ) : (
           teamRepos?.map((repo) => (
             <div
