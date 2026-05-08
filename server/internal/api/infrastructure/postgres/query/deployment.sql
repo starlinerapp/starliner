@@ -30,8 +30,6 @@ WHERE
     deployments.name = $1
     AND environment_id = $2;
 
-;
-
 -- name: UpdateDeploymentStatus :exec
 UPDATE
     deployments
