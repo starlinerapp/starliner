@@ -133,6 +133,12 @@ export interface RequestCreateCluster {
    * @memberof RequestCreateCluster
    */
   serverType: RequestCreateClusterServerTypeEnum;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestCreateCluster
+   */
+  teamId: number;
 }
 
 export const RequestCreateClusterServerTypeEnum = {
@@ -752,6 +758,12 @@ export interface ResponseCluster {
    * @memberof ResponseCluster
    */
   status: ResponseClusterStatus;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof ResponseCluster
+   */
+  teamSlugs: Array<string>;
   /**
    *
    * @type {string}
@@ -1407,6 +1419,12 @@ export interface ResponseProject {
    * @memberof ResponseProject
    */
   teamId: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseProject
+   */
+  teamSlug: string;
 }
 /**
  *

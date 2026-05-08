@@ -12,23 +12,21 @@ import (
 
 const createIngressDeployment = `-- name: CreateIngressDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, environment_id)
-    VALUES ($1, $2, $3)
-    RETURNING id, name, port, status, environment_id, created_at, updated_at
-),
-new_ingress_deployment AS (
-    INSERT INTO ingress_deployments (deployment_id)
-    SELECT id FROM new_deployment
-    RETURNING deployment_id, created_at, updated_at
+  INSERT INTO deployments (
+    name, port, environment_id)
+  VALUES (
+    $1, $2, $3)
+RETURNING id, name, port, status, environment_id, created_at, updated_at
+), new_ingress_deployment AS (
+  INSERT INTO ingress_deployments (
+    deployment_id)
+  SELECT id
+  FROM new_deployment
+  RETURNING deployment_id, created_at, updated_at
 )
-SELECT
-    d.id AS deployment_id,
-    d.name AS deployment_name,
-    d.port AS deployment_port,
-    d.status AS deployment_status,
-    d.environment_id AS deployment_environment_id
+SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
 FROM new_deployment d
-INNER JOIN new_ingress_deployment ingress_d ON d.id = ingress_d.deployment_id
+  INNER JOIN new_ingress_deployment ingress_d ON d.id = ingress_d.deployment_id
 `
 
 type CreateIngressDeploymentParams struct {
@@ -59,10 +57,15 @@ func (q *Queries) CreateIngressDeployment(ctx context.Context, arg CreateIngress
 }
 
 const createIngressHost = `-- name: CreateIngressHost :one
-INSERT INTO ingress_hosts (deployment_id, host)
-VALUES ($1, $2)
-ON CONFLICT (deployment_id, host) DO UPDATE SET host = EXCLUDED.host
-RETURNING id, deployment_id, host
+INSERT INTO ingress_hosts (
+  deployment_id, host)
+VALUES (
+  $1, $2)
+ON CONFLICT (
+  deployment_id, host)
+  DO UPDATE SET
+    host = EXCLUDED.host
+  RETURNING id, deployment_id, host
 `
 
 type CreateIngressHostParams struct {
@@ -84,10 +87,15 @@ func (q *Queries) CreateIngressHost(ctx context.Context, arg CreateIngressHostPa
 }
 
 const createIngressPath = `-- name: CreateIngressPath :one
-INSERT INTO ingress_paths (ingress_host_id, deployment_id, path, path_type)
-VALUES ($1, $2, $3, $4)
-ON CONFLICT (ingress_host_id, path, path_type, deployment_id) DO UPDATE SET path = EXCLUDED.path
-RETURNING id, ingress_host_id, deployment_id, path, path_type
+INSERT INTO ingress_paths (
+  ingress_host_id, deployment_id, path, path_type)
+VALUES (
+  $1, $2, $3, $4)
+ON CONFLICT (
+  ingress_host_id, path, path_type, deployment_id)
+  DO UPDATE SET
+    path = EXCLUDED.path
+  RETURNING id, ingress_host_id, deployment_id, path, path_type
 `
 
 type CreateIngressPathParams struct {
@@ -144,24 +152,13 @@ func (q *Queries) DeleteIngressPathsByDeploymentId(ctx context.Context, deployme
 }
 
 const getEnvironmentIngressDeployments = `-- name: GetEnvironmentIngressDeployments :many
-SELECT
-    d.id AS deployment_id,
-    d.name AS deployment_name,
-    d.port,
-    d.status,
-    d.environment_id,
-    ih.id           AS host_id,
-    ih.host         AS host,
-    ip.id           AS path_id,
-    ip.path         AS path,
-    ip.path_type    AS path_type,
-    svc.name        AS service_name
+SELECT d.id AS deployment_id, d.name AS deployment_name, d.port, d.status, d.environment_id, ih.id AS host_id, ih.host AS host, ip.id AS path_id, ip.path AS path, ip.path_type AS path_type, svc.name AS service_name
 FROM deployments d
-         INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
-         INNER JOIN environments e ON d.environment_id = e.id
-         LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
-         LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
-         LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+  INNER JOIN environments e ON d.environment_id = e.id
+  LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
+  LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
+  LEFT JOIN deployments svc ON svc.id = ip.deployment_id
 WHERE d.environment_id = $1
 ORDER BY d.id DESC
 `
@@ -216,25 +213,14 @@ func (q *Queries) GetEnvironmentIngressDeployments(ctx context.Context, environm
 }
 
 const getEnvironmentIngressDeploymentsByName = `-- name: GetEnvironmentIngressDeploymentsByName :many
-SELECT
-    d.id AS deployment_id,
-    d.name AS deployment_name,
-    d.port,
-    d.status,
-    d.environment_id,
-    ih.id           AS host_id,
-    ih.host         AS host,
-    ip.id           AS path_id,
-    ip.path         AS path,
-    ip.path_type    AS path_type,
-    svc.name        AS service_name
+SELECT d.id AS deployment_id, d.name AS deployment_name, d.port, d.status, d.environment_id, ih.id AS host_id, ih.host AS host, ip.id AS path_id, ip.path AS path, ip.path_type AS path_type, svc.name AS service_name
 FROM deployments d
-         INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
-         LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
-         LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
-         LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+  LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
+  LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
+  LEFT JOIN deployments svc ON svc.id = ip.deployment_id
 WHERE d.environment_id = $1
-AND d.name = $2
+  AND d.name = $2
 ORDER BY d.id DESC
 `
 
@@ -311,29 +297,18 @@ func (q *Queries) GetIngressHostByName(ctx context.Context, host string) (GetIng
 }
 
 const getUserEnvironmentIngressDeployments = `-- name: GetUserEnvironmentIngressDeployments :many
-SELECT
-    d.id AS deployment_id,
-    d.name AS deployment_name,
-    d.port,
-    d.status,
-    d.environment_id,
-    ih.id           AS host_id,
-    ih.host         AS host,
-    ip.id           AS path_id,
-    ip.path         AS path,
-    ip.path_type    AS path_type,
-    svc.name        AS service_name
+SELECT d.id AS deployment_id, d.name AS deployment_name, d.port, d.status, d.environment_id, ih.id AS host_id, ih.host AS host, ip.id AS path_id, ip.path AS path, ip.path_type AS path_type, svc.name AS service_name
 FROM deployments d
-INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
-INNER JOIN environments e ON d.environment_id = e.id
-INNER JOIN projects ON e.project_id = projects.id
-INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN team_members ON team_members.team_id = teams.id
-LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
-LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
-LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+  INNER JOIN environments e ON d.environment_id = e.id
+  INNER JOIN projects ON e.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
+  LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
+  LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
+  LEFT JOIN deployments svc ON svc.id = ip.deployment_id
 WHERE d.environment_id = $1
-AND team_members.user_id = $2
+  AND team_members.user_id = $2
 ORDER BY d.id DESC
 `
 
@@ -393,19 +368,15 @@ func (q *Queries) GetUserEnvironmentIngressDeployments(ctx context.Context, arg 
 
 const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
 WITH updated_ingress AS (
-    UPDATE deployments
-       SET port = $1
-       WHERE id = $2
-       RETURNING id, name, port, status, environment_id, created_at, updated_at
+  UPDATE
+    deployments
+  SET port = $1
+  WHERE id = $2
+  RETURNING id, name, port, status, environment_id, created_at, updated_at
 )
-SELECT
-    d.id AS deployment_id,
-    d.name AS deployment_name,
-    d.port AS deployment_port,
-    d.status AS deployment_status,
-    d.environment_id AS deployment_environment_id
+SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
 FROM updated_ingress d
-INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
 `
 
 type UpdateIngressDeploymentParams struct {

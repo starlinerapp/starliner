@@ -11,13 +11,12 @@ import (
 
 const addTeamMember = `-- name: AddTeamMember :exec
 INSERT INTO team_members (
-    team_id,
-    user_id
-) VALUES (
-    $1,
-    $2
-)
-ON CONFLICT (team_id, user_id) DO NOTHING
+  team_id, user_id)
+VALUES (
+  $1, $2)
+ON CONFLICT (
+  team_id, user_id)
+  DO NOTHING
 `
 
 type AddTeamMemberParams struct {
@@ -32,17 +31,12 @@ func (q *Queries) AddTeamMember(ctx context.Context, arg AddTeamMemberParams) er
 
 const assignRepoToTeam = `-- name: AssignRepoToTeam :exec
 INSERT INTO team_repositories (
-    team_id,
-    github_repo_id,
-    repo_name,
-    github_app_id
-) VALUES (
-    $1,
-    $2,
-    $3,
-    $4
-)
-ON CONFLICT (team_id, github_repo_id) DO NOTHING
+  team_id, github_repo_id, repo_name, github_app_id)
+VALUES (
+  $1, $2, $3, $4)
+ON CONFLICT (
+  team_id, github_repo_id)
+  DO NOTHING
 `
 
 type AssignRepoToTeamParams struct {
@@ -64,12 +58,12 @@ func (q *Queries) AssignRepoToTeam(ctx context.Context, arg AssignRepoToTeamPara
 
 const assignTeamCluster = `-- name: AssignTeamCluster :exec
 INSERT INTO team_clusters (
-    team_id, cluster_id
-) VALUES (
-     $1,
-     $2
- )
-ON CONFLICT (team_id, cluster_id) DO NOTHING
+  team_id, cluster_id)
+VALUES (
+  $1, $2)
+ON CONFLICT (
+  team_id, cluster_id)
+  DO NOTHING
 `
 
 type AssignTeamClusterParams struct {
@@ -84,12 +78,9 @@ func (q *Queries) AssignTeamCluster(ctx context.Context, arg AssignTeamClusterPa
 
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (
-    slug,
-    organization_id
-) VALUES (
-    $1,
-    $2
-)
+  slug, organization_id)
+VALUES (
+  $1, $2)
 RETURNING id, slug, organization_id, created_at, updated_at
 `
 
@@ -112,7 +103,8 @@ func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, e
 }
 
 const deleteTeam = `-- name: DeleteTeam :exec
-DELETE FROM teams WHERE id = $1
+DELETE FROM teams
+WHERE id = $1
 `
 
 func (q *Queries) DeleteTeam(ctx context.Context, id int64) error {
@@ -123,9 +115,10 @@ func (q *Queries) DeleteTeam(ctx context.Context, id int64) error {
 const deleteTeamIfEmpty = `-- name: DeleteTeamIfEmpty :exec
 DELETE FROM teams
 WHERE id = $1
-    AND NOT EXISTS (
-        SELECT 1 FROM team_members WHERE team_members.team_id = $1
-    )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM team_members
+    WHERE team_members.team_id = $1)
 `
 
 func (q *Queries) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
@@ -136,9 +129,9 @@ func (q *Queries) DeleteTeamIfEmpty(ctx context.Context, id int64) error {
 const findTeamByIdAndUserId = `-- name: FindTeamByIdAndUserId :one
 SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
-INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
+  INNER JOIN organization_members ON organization_members.organization_id = teams.organization_id
 WHERE teams.id = $1
-    AND organization_members.user_id = $2
+  AND organization_members.user_id = $2
 `
 
 type FindTeamByIdAndUserIdParams struct {
@@ -160,7 +153,9 @@ func (q *Queries) FindTeamByIdAndUserId(ctx context.Context, arg FindTeamByIdAnd
 }
 
 const getTeamById = `-- name: GetTeamById :one
-SELECT id, slug, organization_id, created_at, updated_at FROM teams WHERE teams.id = $1
+SELECT id, slug, organization_id, created_at, updated_at
+FROM teams
+WHERE teams.id = $1
 `
 
 func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
@@ -177,8 +172,10 @@ func (q *Queries) GetTeamById(ctx context.Context, id int64) (Team, error) {
 }
 
 const getTeamBySlug = `-- name: GetTeamBySlug :one
-SELECT id, slug, organization_id, created_at, updated_at FROM teams
-WHERE slug = $1 AND organization_id = $2
+SELECT id, slug, organization_id, created_at, updated_at
+FROM teams
+WHERE slug = $1
+  AND organization_id = $2
 `
 
 type GetTeamBySlugParams struct {
@@ -202,8 +199,9 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, arg GetTeamBySlugParams) (T
 const getTeamCluster = `-- name: GetTeamCluster :one
 SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
 FROM team_clusters
-INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
-WHERE team_clusters.team_id = $1 AND team_clusters.cluster_id = $2
+  INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
+WHERE team_clusters.team_id = $1
+  AND team_clusters.cluster_id = $2
 `
 
 type GetTeamClusterParams struct {
@@ -236,7 +234,7 @@ func (q *Queries) GetTeamCluster(ctx context.Context, arg GetTeamClusterParams) 
 const getTeamClusters = `-- name: GetTeamClusters :many
 SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
 FROM clusters
-INNER JOIN team_clusters on clusters.id = team_clusters.cluster_id
+  INNER JOIN team_clusters ON clusters.id = team_clusters.cluster_id
 WHERE team_clusters.team_id = $1
 `
 
@@ -281,7 +279,7 @@ func (q *Queries) GetTeamClusters(ctx context.Context, teamID int64) ([]Cluster,
 const getTeamMembers = `-- name: GetTeamMembers :many
 SELECT users.id, users.better_auth_id
 FROM team_members
-INNER JOIN users ON team_members.user_id = users.id
+  INNER JOIN users ON team_members.user_id = users.id
 WHERE team_members.team_id = $1
 `
 
@@ -350,9 +348,9 @@ func (q *Queries) GetTeamRepositories(ctx context.Context, teamID int64) ([]GetT
 const getTeamsByRepoAndOrg = `-- name: GetTeamsByRepoAndOrg :many
 SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
-INNER JOIN team_repositories ON team_repositories.team_id = teams.id
+  INNER JOIN team_repositories ON team_repositories.team_id = teams.id
 WHERE teams.organization_id = $1
-    AND team_repositories.github_repo_id = $2
+  AND team_repositories.github_repo_id = $2
 `
 
 type GetTeamsByRepoAndOrgParams struct {
@@ -392,9 +390,9 @@ func (q *Queries) GetTeamsByRepoAndOrg(ctx context.Context, arg GetTeamsByRepoAn
 const getUserTeams = `-- name: GetUserTeams :many
 SELECT teams.id, teams.slug, teams.organization_id, teams.created_at, teams.updated_at
 FROM teams
-INNER JOIN team_members ON team_members.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE teams.organization_id = $1
-    AND team_members.user_id = $2
+  AND team_members.user_id = $2
 `
 
 type GetUserTeamsParams struct {
@@ -434,7 +432,7 @@ func (q *Queries) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]T
 const removeTeamMember = `-- name: RemoveTeamMember :exec
 DELETE FROM team_members
 WHERE team_members.team_id = $1
-    AND team_members.user_id = $2
+  AND team_members.user_id = $2
 `
 
 type RemoveTeamMemberParams struct {
@@ -450,7 +448,7 @@ func (q *Queries) RemoveTeamMember(ctx context.Context, arg RemoveTeamMemberPara
 const unassignRepoFromTeam = `-- name: UnassignRepoFromTeam :exec
 DELETE FROM team_repositories
 WHERE team_id = $1
-    AND github_repo_id = $2
+  AND github_repo_id = $2
 `
 
 type UnassignRepoFromTeamParams struct {

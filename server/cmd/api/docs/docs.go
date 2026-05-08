@@ -2230,7 +2230,8 @@ const docTemplate = `{
             "required": [
                 "name",
                 "organizationId",
-                "serverType"
+                "serverType",
+                "teamId"
             ],
             "properties": {
                 "name": {
@@ -2245,6 +2246,9 @@ const docTemplate = `{
                         "cx23",
                         "cpx22"
                     ]
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },
@@ -2709,6 +2713,7 @@ const docTemplate = `{
                 "organizationId",
                 "serverType",
                 "status",
+                "teamSlugs",
                 "user"
             ],
             "properties": {
@@ -2741,6 +2746,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ClusterStatus"
                         }
                     ]
+                },
+                "teamSlugs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "user": {
                     "type": "string"
@@ -3221,7 +3232,8 @@ const docTemplate = `{
                 "environments",
                 "id",
                 "name",
-                "teamId"
+                "teamId",
+                "teamSlug"
             ],
             "properties": {
                 "clusterId": {
@@ -3244,6 +3256,9 @@ const docTemplate = `{
                 },
                 "teamId": {
                     "type": "integer"
+                },
+                "teamSlug": {
+                    "type": "string"
                 }
             }
         },

@@ -63,7 +63,7 @@ export default function SelectProjectDirectoryDialog({
                 deploy.
               </p>
             </div>
-            <form className="bg-mauve-2 border-mauve-6 flex max-h-[500px] flex-col gap-2 overflow-y-auto rounded-md border-1 p-2">
+            <form className="bg-mauve-2 border-mauve-6 flex max-h-125 flex-col gap-2 overflow-y-auto rounded-md border p-2">
               <fieldset className="text-mauve-12 flex items-center gap-2">
                 <button
                   type="button"

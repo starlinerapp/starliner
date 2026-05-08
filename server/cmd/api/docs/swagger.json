@@ -2221,7 +2221,8 @@
             "required": [
                 "name",
                 "organizationId",
-                "serverType"
+                "serverType",
+                "teamId"
             ],
             "properties": {
                 "name": {
@@ -2236,6 +2237,9 @@
                         "cx23",
                         "cpx22"
                     ]
+                },
+                "teamId": {
+                    "type": "integer"
                 }
             }
         },
@@ -2700,6 +2704,7 @@
                 "organizationId",
                 "serverType",
                 "status",
+                "teamSlugs",
                 "user"
             ],
             "properties": {
@@ -2732,6 +2737,12 @@
                             "$ref": "#/definitions/response.ClusterStatus"
                         }
                     ]
+                },
+                "teamSlugs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "user": {
                     "type": "string"
@@ -3212,7 +3223,8 @@
                 "environments",
                 "id",
                 "name",
-                "teamId"
+                "teamId",
+                "teamSlug"
             ],
             "properties": {
                 "clusterId": {
@@ -3235,6 +3247,9 @@
                 },
                 "teamId": {
                     "type": "integer"
+                },
+                "teamSlug": {
+                    "type": "string"
                 }
             }
         },

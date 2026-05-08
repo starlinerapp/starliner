@@ -47,10 +47,13 @@ definitions:
         - cx23
         - cpx22
         type: string
+      teamId:
+        type: integer
     required:
     - name
     - organizationId
     - serverType
+    - teamId
     type: object
   request.CreateEnvironment:
     properties:
@@ -378,6 +381,10 @@ definitions:
         - pending
         - running
         - deleted
+      teamSlugs:
+        items:
+          type: string
+        type: array
       user:
         type: string
     required:
@@ -388,6 +395,7 @@ definitions:
     - organizationId
     - serverType
     - status
+    - teamSlugs
     - user
     type: object
   response.ClusterStatus:
@@ -732,6 +740,8 @@ definitions:
         type: string
       teamId:
         type: integer
+      teamSlug:
+        type: string
     required:
     - clusterId
     - createdAt
@@ -739,6 +749,7 @@ definitions:
     - id
     - name
     - teamId
+    - teamSlug
     type: object
   response.ProjectCluster:
     properties:

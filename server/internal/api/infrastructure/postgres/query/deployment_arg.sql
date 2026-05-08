@@ -1,6 +1,8 @@
 -- name: CreateGitDeploymentArg :one
-INSERT INTO git_deployment_args (deployment_id, name, value)
-VALUES (@deployment_id, @name, @value)
+INSERT INTO git_deployment_args (
+  deployment_id, name, value)
+VALUES (
+  @deployment_id, @name, @value)
 RETURNING *;
 
 -- name: GetGitDeploymentArgs :many

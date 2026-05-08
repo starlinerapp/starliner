@@ -48,11 +48,11 @@ services:
     networks:
       - internal
 
-  mcp-server:
+  mcp:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: .docker/mcp-server/Dockerfile
+      dockerfile: .docker/mcp/Dockerfile
       target: dev
     environment:
       BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
@@ -60,7 +60,7 @@ services:
       AUTH_BASE_URL: ${AUTH_BASE_URL:-http://client:5173/api/auth}
       API_BASE_URL: ${API_BASE_URL:-http://server-api:9090}
     volumes:
-      - ./mcp-server:/app
+      - ./mcp:/app
     networks:
       - internal
 

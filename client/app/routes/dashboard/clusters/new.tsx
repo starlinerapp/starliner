@@ -1,5 +1,5 @@
 import Button from "~/components/atoms/button/Button";
-import React from "react";
+import React, { useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
@@ -11,6 +11,7 @@ import { ChevronDown } from "~/components/atoms/icons";
 interface NewClusterFormInput {
   name: string;
   serverType: string;
+  teamId: string;
 }
 
 export default function NewCluster() {
@@ -29,6 +30,13 @@ export default function NewCluster() {
 
   const isCredentialValid = !!hetznerCredentialData?.credential?.secret;
 
+  const { data: teamsData } = useQuery(
+    trpc.team.getUserTeams.queryOptions(
+      { organizationId: organization.id },
+      { enabled: organization.isOwner },
+    ),
+  );
+
   const createClusterMutation = useMutation(
     trpc.cluster.createCluster.mutationOptions({
       onSuccess: async (newCluster) => {
@@ -42,14 +50,24 @@ export default function NewCluster() {
     }),
   );
 
-  const { register, handleSubmit, watch } = useForm<NewClusterFormInput>();
+  const { register, handleSubmit, watch, setValue } =
+    useForm<NewClusterFormInput>();
   const nameInput = watch("name", "");
+  const teamIdInput = watch("teamId", "");
+
+  useEffect(() => {
+    if (!teamsData?.length) return;
+    const defaultTeam =
+      teamsData.find((t) => t.slug === organization.slug) ?? teamsData[0];
+    setValue("teamId", String(defaultTeam.id));
+  }, [teamsData, organization.slug, setValue]);
 
   const onSubmit: SubmitHandler<NewClusterFormInput> = (data) => {
     createClusterMutation.mutate({
       organizationId: organization.id,
       name: data.name,
       serverType: data.serverType,
+      teamId: Number(data.teamId),
     });
   };
 
@@ -78,14 +96,34 @@ export default function NewCluster() {
       <div className="mt-4">
         <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)}>
           <input
-            className="border-mauve-6 w-80 rounded-md border-1 px-2 py-1 text-sm"
+            className="border-mauve-6 w-80 rounded-md border px-2 py-1 text-sm"
             type="text"
             placeholder="Name*"
             {...register("name")}
           />
           <div className="relative w-52">
             <select
-              className="border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
+              {...register("teamId", { required: true })}
+              name="teamId"
+              className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
+              disabled={!teamsData?.length}
+            >
+              <option value="" disabled>
+                Team*
+              </option>
+              {teamsData?.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.slug}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+              <ChevronDown width={15} className="stroke-mauve-10" />
+            </div>
+          </div>
+          <div className="relative w-52">
+            <select
+              className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
               defaultValue="cx23"
               {...register("serverType", { required: true })}
             >
@@ -96,7 +134,11 @@ export default function NewCluster() {
               <ChevronDown width={15} className="stroke-mauve-10" />
             </div>
           </div>
-          <Button className="w-32" disabled={!nameInput} type="submit">
+          <Button
+            className="w-32"
+            disabled={!nameInput || !teamIdInput}
+            type="submit"
+          >
             Create Cluster
           </Button>
         </form>

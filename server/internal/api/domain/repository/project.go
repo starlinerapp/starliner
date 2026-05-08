@@ -60,10 +60,17 @@ func (pr *ProjectRepository) CreateProjectWithEnvironment(
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
+
+	team, err := pr.queries.GetTeamById(ctx, project.TeamID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &entity.Project{
 		Id:        project.ID,
 		Name:      project.Name,
 		TeamId:    project.TeamID,
+		TeamSlug:  team.Slug,
 		ClusterId: utils.PtrFromNullInt64(project.ClusterID),
 		Environments: []*entity.Environment{
 			{
@@ -92,6 +99,7 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 		Id:           rows[0].ID,
 		Name:         rows[0].Name,
 		TeamId:       rows[0].TeamID,
+		TeamSlug:     rows[0].TeamSlug,
 		ClusterId:    utils.PtrFromNullInt64(rows[0].ClusterID),
 		Environments: make([]*entity.Environment, 0, len(rows)),
 	}

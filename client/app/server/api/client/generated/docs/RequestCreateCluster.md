@@ -7,6 +7,7 @@
 | **name**           | **string** |             | [default to undefined] |
 | **organizationId** | **number** |             | [default to undefined] |
 | **serverType**     | **string** |             | [default to undefined] |
+| **teamId**         | **number** |             | [default to undefined] |
 
 ## Example
 
@@ -17,6 +18,7 @@ const instance: RequestCreateCluster = {
   name,
   organizationId,
   serverType,
+  teamId,
 };
 ```
 

@@ -245,7 +245,7 @@ export default function DeployFromGitForm({
                     <option value="">Select repository*</option>
                     {repositoriesData?.map((repo) => (
                       <option key={repo.clone_url} value={repo.clone_url}>
-                        {repo.name}
+                        {repo.owner}/{repo.name}
                       </option>
                     ))}
                   </select>

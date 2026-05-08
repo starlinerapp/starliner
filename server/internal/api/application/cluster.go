@@ -22,6 +22,7 @@ import (
 type ClusterApplication struct {
 	clusterRepository      interfaces.ClusterRepository
 	organizationRepository interfaces.OrganizationRepository
+	teamRepository         interfaces.TeamRepository
 	organizationService    *service.OrganizationService
 	crypto                 corePort.Crypto
 	queue                  port.Queue
@@ -31,6 +32,7 @@ type ClusterApplication struct {
 func NewClusterApplication(
 	clusterRepository interfaces.ClusterRepository,
 	organizationRepository interfaces.OrganizationRepository,
+	teamRepository interfaces.TeamRepository,
 	organizationService *service.OrganizationService,
 	crypto corePort.Crypto,
 	queue port.Queue,
@@ -39,6 +41,7 @@ func NewClusterApplication(
 	return &ClusterApplication{
 		clusterRepository:      clusterRepository,
 		organizationRepository: organizationRepository,
+		teamRepository:         teamRepository,
 		organizationService:    organizationService,
 		crypto:                 crypto,
 		queue:                  queue,
@@ -46,15 +49,29 @@ func NewClusterApplication(
 	}
 }
 
-func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, name string, serverType string, organizationId int64) (*value.Cluster, error) {
-	err := ca.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, name string, serverType string, organizationId int64, teamId int64) (*value.Cluster, error) {
+	if err := ca.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId); err != nil {
+		return nil, err
+	}
+
+	team, err := ca.teamRepository.GetTeamById(ctx, teamId)
 	if err != nil {
 		return nil, err
 	}
 
+	// the org owner should be part of every team in the organization
+	if team.OrganizationId != organizationId {
+		return nil, errors.New("team does not belong to the specified organization")
+	}
+
 	cluster, err := ca.clusterRepository.CreateCluster(ctx, name, serverType, organizationId)
 	if err != nil {
-		fmt.Printf("failed to persist cluster in database: %v", err)
+		return nil, fmt.Errorf("failed to persist cluster in database: %v", err)
+	}
+
+	if err := ca.teamRepository.AssignClusterToTeam(ctx, teamId, cluster.Id); err != nil {
+		_ = ca.clusterRepository.DeleteCluster(ctx, cluster.Id)
+		return nil, err
 	}
 
 	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, organizationId, value.HetznerCredential)

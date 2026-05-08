@@ -13,12 +13,9 @@ import (
 
 const createBuild = `-- name: CreateBuild :one
 INSERT INTO builds (
-    deployment_id,
-    source
-) VALUES (
-    $1,
-          $2
-)
+  deployment_id, source)
+VALUES (
+  $1, $2)
 RETURNING id, deployment_id, status, logs, created_at, updated_at, commit_hash, source, image_name
 `
 
@@ -45,16 +42,15 @@ func (q *Queries) CreateBuild(ctx context.Context, arg CreateBuildParams) (Build
 }
 
 const getBuildLogs = `-- name: GetBuildLogs :one
-SELECT
-    b.logs
+SELECT b.logs
 FROM builds b
-INNER JOIN deployments d ON d.id = b.deployment_id
-INNER JOIN environments e ON d.environment_id = e.id
-INNER JOIN projects ON e.project_id = projects.id
-INNER JOIN teams ON teams.id = projects.team_id
-INNER JOIN team_members ON team_members.team_id = teams.id
+  INNER JOIN deployments d ON d.id = b.deployment_id
+  INNER JOIN environments e ON d.environment_id = e.id
+  INNER JOIN projects ON e.project_id = projects.id
+  INNER JOIN teams ON teams.id = projects.team_id
+  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE b.id = $1
-AND team_members.user_id = $2
+  AND team_members.user_id = $2
 `
 
 type GetBuildLogsParams struct {
@@ -70,22 +66,11 @@ func (q *Queries) GetBuildLogs(ctx context.Context, arg GetBuildLogsParams) (sql
 }
 
 const getEnvironmentGitDeploymentBuilds = `-- name: GetEnvironmentGitDeploymentBuilds :many
-SELECT
-    b.id as build_id,
-    d.id as deployment_id,
-    d.name as deployment_name,
-    b.image_name as image_name,
-    b.commit_hash,
-    b.source,
-    b.status,
-    gd.url,
-    gd.project_path,
-    gd.dockerfile_path,
-    b.created_at
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
 FROM deployments d
-INNER JOIN git_deployments gd ON gd.deployment_id = d.id
-INNER JOIN builds b ON d.id = b.deployment_id
-INNER JOIN environments e ON d.environment_id = e.id
+  INNER JOIN git_deployments gd ON gd.deployment_id = d.id
+  INNER JOIN builds b ON d.id = b.deployment_id
+  INNER JOIN environments e ON d.environment_id = e.id
 WHERE environment_id = $1
 ORDER BY b.created_at DESC
 `
@@ -141,23 +126,13 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 
 const getLatestGitDeploymentBuild = `-- name: GetLatestGitDeploymentBuild :one
 SELECT DISTINCT ON (d.id)
-    b.id as build_id,
-    d.id as deployment_id,
-    d.name as deployment_name,
-    b.image_name as image_name,
-    b.commit_hash,
-    b.source,
-    b.status,
-    gd.url,
-    gd.project_path,
-    gd.dockerfile_path,
-    b.created_at
+  b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
 FROM deployments d
-    INNER JOIN git_deployments gd ON gd.deployment_id = d.id
-    INNER JOIN builds b ON d.id = b.deployment_id
-    INNER JOIN environments e ON d.environment_id = e.id
+  INNER JOIN git_deployments gd ON gd.deployment_id = d.id
+  INNER JOIN builds b ON d.id = b.deployment_id
+  INNER JOIN environments e ON d.environment_id = e.id
 WHERE d.environment_id = $1
-AND d.name = $2
+  AND d.name = $2
 ORDER BY d.id, b.created_at DESC
 `
 
@@ -200,12 +175,9 @@ func (q *Queries) GetLatestGitDeploymentBuild(ctx context.Context, arg GetLatest
 }
 
 const updateBuildInformation = `-- name: UpdateBuildInformation :exec
-UPDATE builds
-SET
-    status = $1,
-    commit_hash = $2,
-    image_name = $3,
-    logs = $4
+UPDATE
+  builds
+SET status = $1, commit_hash = $2, image_name = $3, logs = $4
 WHERE id = $5
 `
 

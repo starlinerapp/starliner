@@ -12,25 +12,21 @@ import (
 
 const createGitDeployment = `-- name: CreateGitDeployment :one
 WITH new_deployment AS (
-    INSERT INTO deployments (name, port, environment_id)
-    VALUES ($1, $2, $3)
-    RETURNING id, name, port, status, environment_id, created_at, updated_at
-),
-new_git_deployment AS (
-    INSERT INTO git_deployments (deployment_id, url, project_path, dockerfile_path)
-    SELECT id, $4, $5, $6 FROM new_deployment
-    RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at
+  INSERT INTO deployments (
+    name, port, environment_id)
+  VALUES (
+    $1, $2, $3)
+RETURNING id, name, port, status, environment_id, created_at, updated_at
+), new_git_deployment AS (
+  INSERT INTO git_deployments (
+    deployment_id, url, project_path, dockerfile_path)
+  SELECT id, $4, $5, $6
+  FROM new_deployment
+  RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at
 )
-SELECT
-    d.id AS deployment_id,
-    d.name,
-    d.port,
-    d.environment_id,
-    gd.url,
-    gd.dockerfile_path,
-    gd.project_path
+SELECT d.id AS deployment_id, d.name, d.port, d.environment_id, gd.url, gd.dockerfile_path, gd.project_path
 FROM new_deployment d
-INNER JOIN new_git_deployment gd ON d.id = gd.deployment_id
+  INNER JOIN new_git_deployment gd ON d.id = gd.deployment_id
 `
 
 type CreateGitDeploymentParams struct {
@@ -75,18 +71,10 @@ func (q *Queries) CreateGitDeployment(ctx context.Context, arg CreateGitDeployme
 }
 
 const getEnvironmentGitDeployments = `-- name: GetEnvironmentGitDeployments :many
-SELECT
-    d.id AS deployment_id,
-    d.name,
-    d.port,
-    d.status,
-    d.environment_id,
-    gd.url,
-    gd.project_path,
-    gd.dockerfile_path
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, gd.url, gd.project_path, gd.dockerfile_path
 FROM deployments d
-         INNER JOIN git_deployments gd ON d.id = gd.deployment_id
-         INNER JOIN environments ON d.environment_id = environments.id
+  INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+  INNER JOIN environments ON d.environment_id = environments.id
 WHERE environment_id = $1
 ORDER BY d.id DESC
 `
@@ -135,17 +123,9 @@ func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, environmentI
 }
 
 const getGitDeploymentsByRepositoryUrl = `-- name: GetGitDeploymentsByRepositoryUrl :many
-SELECT
-    d.id AS deployment_id,
-    d.name,
-    d.port,
-    d.status,
-    d.environment_id,
-    gd.url,
-    gd.project_path,
-    gd.dockerfile_path
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, gd.url, gd.project_path, gd.dockerfile_path
 FROM deployments d
-INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+  INNER JOIN git_deployments gd ON d.id = gd.deployment_id
 WHERE gd.url = $1
 `
 
@@ -193,21 +173,13 @@ func (q *Queries) GetGitDeploymentsByRepositoryUrl(ctx context.Context, reposito
 }
 
 const getUserEnvironmentGitDeployments = `-- name: GetUserEnvironmentGitDeployments :many
-SELECT
-    d.id AS deployment_id,
-    d.name,
-    d.port,
-    d.status,
-    d.environment_id,
-    gd.url,
-    gd.project_path,
-    gd.dockerfile_path
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, gd.url, gd.project_path, gd.dockerfile_path
 FROM deployments d
-INNER JOIN git_deployments gd ON d.id = gd.deployment_id
-INNER JOIN environments ON d.environment_id = environments.id
-INNER JOIN projects ON environments.project_id = projects.id
-INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN team_members ON team_members.team_id = teams.id
+  INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+  INNER JOIN environments ON d.environment_id = environments.id
+  INNER JOIN projects ON environments.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
   AND team_members.user_id = $2
 ORDER BY d.id DESC
@@ -263,29 +235,21 @@ func (q *Queries) GetUserEnvironmentGitDeployments(ctx context.Context, arg GetU
 
 const updateGitDeployment = `-- name: UpdateGitDeployment :one
 WITH updated_deployment AS (
-    UPDATE deployments
-        SET port = $1
-        WHERE id = $2
-        RETURNING id, name, port, status, environment_id, created_at, updated_at
-),
-updated_git_deployment AS (
-    UPDATE git_deployments
-        SET project_path = $3,
-            dockerfile_path = $4
-        WHERE deployment_id = $2
-        RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at
+  UPDATE
+    deployments
+  SET port = $1
+  WHERE id = $2
+  RETURNING id, name, port, status, environment_id, created_at, updated_at
+), updated_git_deployment AS (
+  UPDATE
+    git_deployments
+  SET project_path = $3, dockerfile_path = $4
+  WHERE deployment_id = $2
+  RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at
 )
-SELECT
-    d.id AS deployment_id,
-    d.status,
-    d.name AS service_name,
-    git_d.url,
-    git_d.project_path,
-    git_d.dockerfile_path,
-    d.port,
-    d.environment_id
+SELECT d.id AS deployment_id, d.status, d.name AS service_name, git_d.url, git_d.project_path, git_d.dockerfile_path, d.port, d.environment_id
 FROM updated_deployment d
-INNER JOIN updated_git_deployment git_d ON d.id = git_d.deployment_id
+  INNER JOIN updated_git_deployment git_d ON d.id = git_d.deployment_id
 `
 
 type UpdateGitDeploymentParams struct {

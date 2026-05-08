@@ -11,16 +11,9 @@ import (
 
 const createEnvironment = `-- name: CreateEnvironment :one
 INSERT INTO environments (
-    name,
-    slug,
-    namespace,
-    project_id
-) VALUES (
-    $1,
-    $2,
-    $3,
-    $4
-)
+  name, slug, namespace, project_id)
+VALUES (
+  $1, $2, $3, $4)
 RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 `
 
@@ -54,18 +47,9 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 
 const createEnvironmentWithConnectedBranch = `-- name: CreateEnvironmentWithConnectedBranch :one
 INSERT INTO environments (
-    name,
-    slug,
-    namespace,
-    project_id,
-    connected_branch
-) VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5
-)
+  name, slug, namespace, project_id, connected_branch)
+VALUES (
+  $1, $2, $3, $4, $5)
 RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 `
 
@@ -101,40 +85,21 @@ func (q *Queries) CreateEnvironmentWithConnectedBranch(ctx context.Context, arg 
 
 const createPreviewEnvironment = `-- name: CreatePreviewEnvironment :one
 WITH new_environment AS (
-    INSERT INTO environments (
-        name,
-        slug,
-        namespace,
-        project_id,
-        connected_branch
-    ) VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5
-    ) RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
-),
-new_preview_environments AS (
-    INSERT INTO preview_environments (
-        environment_id,
-        github_repository_id,
-        pr_number
-    )
-   SELECT id, $6, $7 FROM new_environment
-   RETURNING environment_id, github_repository_id, pr_number, created_at, updated_at
+  INSERT INTO environments (
+    name, slug, namespace, project_id, connected_branch)
+  VALUES (
+    $1, $2, $3, $4, $5)
+RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
+), new_preview_environments AS (
+  INSERT INTO preview_environments (
+    environment_id, github_repository_id, pr_number)
+  SELECT id, $6, $7
+  FROM new_environment
+  RETURNING environment_id, github_repository_id, pr_number, created_at, updated_at
 )
-SELECT
-    e.id,
-    e.name,
-    e.slug,
-    e.project_id,
-    e.namespace,
-    e.connected_branch,
-    pe.github_repository_id,
-    pe.pr_number
+SELECT e.id, e.name, e.slug, e.project_id, e.namespace, e.connected_branch, pe.github_repository_id, pe.pr_number
 FROM new_environment e
-INNER JOIN new_preview_environments pe ON e.id = pe.environment_id
+  INNER JOIN new_preview_environments pe ON e.id = pe.environment_id
 `
 
 type CreatePreviewEnvironmentParams struct {
@@ -195,9 +160,9 @@ func (q *Queries) DeleteEnvironment(ctx context.Context, id int64) error {
 const getEnvironmentAuthorizedUsers = `-- name: GetEnvironmentAuthorizedUsers :many
 SELECT tm.user_id
 FROM environments
-INNER JOIN projects p ON p.id = environments.project_id
-INNER JOIN teams t ON t.id = p.team_id
-INNER JOIN team_members tm ON tm.team_id = t.id
+  INNER JOIN projects p ON p.id = environments.project_id
+  INNER JOIN teams t ON t.id = p.team_id
+  INNER JOIN team_members tm ON tm.team_id = t.id
 WHERE environments.id = $1
 `
 
@@ -262,8 +227,8 @@ func (q *Queries) GetEnvironmentById(ctx context.Context, id int64) (Environment
 const getEnvironmentCluster = `-- name: GetEnvironmentCluster :one
 SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
 FROM environments
-INNER JOIN projects ON projects.id = environments.project_id
-INNER JOIN clusters ON projects.cluster_id = clusters.id
+  INNER JOIN projects ON projects.id = environments.project_id
+  INNER JOIN clusters ON projects.cluster_id = clusters.id
 WHERE environments.id = $1
 `
 
@@ -292,7 +257,7 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 const getEnvironmentProject = `-- name: GetEnvironmentProject :one
 SELECT p.id, p.name, p.team_id, p.created_at, p.updated_at, p.cluster_id, p.preview_environments_enabled
 FROM projects p
-INNER JOIN environments e on p.id = e.project_id
+  INNER JOIN environments e ON p.id = e.project_id
 WHERE e.id = $1
 `
 
@@ -312,7 +277,8 @@ func (q *Queries) GetEnvironmentProject(ctx context.Context, id int64) (Project,
 }
 
 const updateEnvironmentBranch = `-- name: UpdateEnvironmentBranch :exec
-UPDATE environments
+UPDATE
+  environments
 SET connected_branch = $1
 WHERE id = $2
 `

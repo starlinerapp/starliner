@@ -10,6 +10,7 @@ type Project struct {
 	Name         string
 	Environments []*Environment
 	TeamId       int64
+	TeamSlug     string
 	ClusterId    *int64
 	CreatedAt    time.Time
 }
@@ -28,6 +29,7 @@ func NewProject(p *entity.Project) *Project {
 		Name:         p.Name,
 		Environments: environments,
 		TeamId:       p.TeamId,
+		TeamSlug:     p.TeamSlug,
 		ClusterId:    p.ClusterId,
 		CreatedAt:    p.CreatedAt,
 	}

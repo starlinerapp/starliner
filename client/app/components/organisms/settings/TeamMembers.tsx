@@ -82,13 +82,13 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
   }
 
   return (
-    <div className="border-mauve-6 w-full rounded-md border-1 text-sm shadow-xs">
-      <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
+    <div className="border-mauve-6 w-full rounded-md border text-sm shadow-xs">
+      <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
         <p>Members</p>
         {organization.isOwner && (
           <Popover.Root open={addMemberOpen} onOpenChange={setAddMemberOpen}>
             <Popover.Trigger asChild>
-              <Button intent="secondary" className="h-7 w-28 text-xs">
+              <Button intent="secondary" className="w-30 text-xs">
                 Add Member
                 <ChevronDown
                   className={cn("h-3 w-3", addMemberOpen && "rotate-180")}
@@ -96,7 +96,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
               </Button>
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Content className="border-mauve-6 mt-1 w-70 space-y-2 rounded-md border bg-white p-2 shadow-md">
+              <Popover.Content className="border-mauve-6 mx-2 my-1 w-70 space-y-2 rounded-md border bg-white p-2 shadow-md">
                 <div className="relative">
                   <MagnifyingGlass className="text-mauve-11 absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                   <input
@@ -114,7 +114,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                       <button
                         key={m.user_id}
                         onClick={() => handleAddMember(m.user_id)}
-                        className="hover:bg-gray-3 flex w-full items-center justify-between rounded px-2 py-2 text-left transition-colors"
+                        className="hover:bg-gray-3 flex w-full cursor-pointer items-center justify-between rounded px-2 py-2 text-left transition-colors"
                       >
                         <span className="text-xs">{m.name}</span>
                         <span className="text-mauve-11 text-xs">{m.email}</span>
@@ -160,7 +160,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
             {organization.isOwner &&
               member.user_id !== Number(user?.user_id) && (
                 <Button
-                  className="h-7 w-20 text-xs"
+                  className="w-20 text-xs"
                   intent="secondary"
                   disabled={removeMemberMutation.isPending}
                   onClick={() => handleRemoveMember(member.user_id)}

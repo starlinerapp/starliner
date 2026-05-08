@@ -74,8 +74,8 @@ export default function Settings() {
         />
       )}
       <div className="w-full pt-4 shadow-xs">
-        <div className="border-mauve-6 rounded-md border-1 text-sm">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 border-b px-4 py-3 text-xs uppercase">
+        <div className="border-mauve-6 rounded-md border text-sm">
+          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
             Danger Zone
           </div>
           <div className="flex items-center justify-between px-4 py-2">

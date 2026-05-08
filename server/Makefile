@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: deps deps-cleancache swag proto lint fix security upgrade help
+.PHONY: deps deps-cleancache swag proto format lint fix security upgrade help
 
 GOCMD=go
 
@@ -18,6 +18,10 @@ proto: ## Generate Go code from protobufs
 	protoc \
 		--go_out=. --go_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto") \
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto")
+
+format:
+	gofmt -w .
+	find . -name "*.sql" -exec pg_format -c .pg_format -i {} \;
 
 lint:
 	@golangci-lint run
