@@ -10,6 +10,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import { Servers } from "~/components/atoms/icons";
 
 export function ClusterAccess({ teamId }: { teamId: number }) {
   const trpc = useTRPC();
@@ -117,31 +118,38 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                     }}
                   />
                 ) : (
-                  <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
+                  <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto">
                     {allClustersSorted.map((cluster) => {
                       const isAssigned = assignedClusterIds.has(cluster.id);
                       return (
                         <div
                           key={cluster.id}
-                          className="flex min-w-0 items-center justify-between gap-3 p-3"
+                          className="bg-mauve-2 border-mauve-6 flex min-w-0 items-center justify-between gap-3 rounded-md border p-3"
                         >
-                          <div className="flex min-w-0 flex-1 flex-col gap-1">
-                            <span
+                          <div className="border-mauve-6 rounded-md border bg-white p-1.5">
+                            <Servers className="text-mauve-11 h-7 w-7" />
+                          </div>
+                          <div className="flex min-w-0 flex-1 flex-col">
+                            <p
                               className="text-mauve-12 truncate text-sm font-medium"
                               title={cluster.name}
                             >
                               {cluster.name}
-                            </span>
+                            </p>
                             <span
-                              className="text-mauve-11 truncate text-xs"
+                              className="text-mauve-11 flex items-center gap-1 text-xs"
                               title={cluster.serverType}
                             >
-                              Server Type: {cluster.serverType}
+                              <p>Server Type:</p>
+                              <span className="border-mauve-6 rounded-md border bg-white px-1 py-0.5">
+                                {cluster.serverType}
+                              </span>
                             </span>
                           </div>
                           {isAssigned ? (
                             <Button
-                              className="w-24 text-xs"
+                              className="w-24"
+                              size="xs"
                               intent="secondary"
                               onClick={() => onUnassignCluster(cluster.id)}
                             >
@@ -149,7 +157,8 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                             </Button>
                           ) : (
                             <Button
-                              className="w-24 text-xs"
+                              className="w-24"
+                              size="xs"
                               intent="primary"
                               onClick={() => onAssignCluster(cluster.id)}
                             >
@@ -172,8 +181,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
           </div>
         ) : teamClusters?.length === 0 ? (
           <p className="text-mauve-11 px-4 py-3 text-sm">
-            No clusters assigned. <br /> Team members cannot see any clusters
-            until you assign them.
+            No clusters assigned.
           </p>
         ) : (
           teamClusters?.map((cluster) => (

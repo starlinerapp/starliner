@@ -11,6 +11,7 @@ import { useLocation } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { GitBranch } from "lucide-react";
 
 export function RepositoryAccess({
   teamId,
@@ -125,30 +126,34 @@ export function RepositoryAccess({
                       No GitHub repositories are available.
                     </div>
                   ) : (
-                    <div className="border-mauve-6 divide-mauve-6 max-h-[60vh] divide-y overflow-y-auto rounded-md border">
+                    <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto">
                       {allReposSorted.map((repo) => {
                         const isAssigned = assignedRepoIds.has(repo.id);
                         return (
                           <div
                             key={repo.id}
-                            className="flex min-w-0 items-center justify-between gap-3 p-3"
+                            className="bg-mauve-2 border-mauve-6 flex min-w-0 items-center justify-between gap-3 rounded-md border p-3"
                           >
+                            <div className="border-mauve-6 rounded-md border bg-white p-1.5">
+                              <GitBranch className="text-mauve-11 h-7 w-7 stroke-[1.5px]" />
+                            </div>
                             <div className="flex min-w-0 flex-1 flex-col gap-1">
-                              <span className="text-mauve-12 truncate text-sm font-medium">
+                              <p className="text-mauve-12 truncate text-sm font-medium">
                                 {repo.owner}/{repo.name}
-                              </span>
+                              </p>
                               {repo.description && (
-                                <span
+                                <p
                                   className="text-mauve-11 truncate text-xs"
                                   title={repo.description}
                                 >
                                   {repo.description}
-                                </span>
+                                </p>
                               )}
                             </div>
                             {isAssigned ? (
                               <Button
-                                className="w-24 text-xs"
+                                className="w-24"
+                                size="xs"
                                 intent="secondary"
                                 onClick={() => onUnassignRepo(repo.id)}
                               >
@@ -156,8 +161,9 @@ export function RepositoryAccess({
                               </Button>
                             ) : (
                               <Button
-                                className="w-24 text-xs"
+                                className="w-24"
                                 intent="primary"
+                                size="xs"
                                 onClick={() => {
                                   onAssignRepo(repo.id, repo.full_name);
                                 }}
@@ -199,8 +205,7 @@ export function RepositoryAccess({
           </div>
         ) : teamRepos?.length === 0 ? (
           <p className="text-mauve-11 px-4 py-3 text-sm">
-            No repositories assigned. <br />
-            Team members cannot see any repositories until you assign them.
+            No repositories assigned.
           </p>
         ) : (
           teamRepos?.map((repo) => (
