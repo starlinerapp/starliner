@@ -19,8 +19,14 @@ jobs:
       - name: Install pgFormatter 5.9
         run: |
           sudo apt-get update
-          sudo apt-get install -y cpanminus
-          sudo cpanm --notest SHANCOCK/pgFormatter-5.9.tar.gz
+          sudo apt-get install -y cpanminus make perl
+
+          sudo cpanm \
+            --mirror https://cpan.metacpan.org \
+            --mirror-only \
+            SHANCOCK/pgFormatter-5.9.tar.gz
+
+          pg_format --version
 
       - name: Check SQL formatting
         run: |
