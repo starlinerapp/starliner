@@ -21,7 +21,7 @@ proto: ## Generate Go code from protobufs
 
 format:
 	gofmt -w .
-	find . -name "*.sql" -exec pg_format -i {} \;
+	find . -name "*.sql" -exec pg_format -c .pg_format -i {} \;
 
 lint:
 	@golangci-lint run

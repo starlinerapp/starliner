@@ -1,0 +1,6 @@
+keyword-case = 2
+function-case = 2
+type-case = 2
+spaces = 2
+wrap-after = 100
+comma-break = 1

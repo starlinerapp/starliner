@@ -1,8 +1,8 @@
 -- +goose Up
 ALTER TABLE clusters
-    ADD COLUMN logs text;
+  ADD COLUMN logs TEXT;
 
 -- +goose Down
 ALTER TABLE clusters
-    DROP COLUMN logs;
+  DROP COLUMN logs;
 

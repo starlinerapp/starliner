@@ -1,8 +1,8 @@
 -- +goose Up
 ALTER TABLE clusters
-    ADD COLUMN kubeconfig text;
+  ADD COLUMN kubeconfig TEXT;
 
 -- +goose Down
 ALTER TABLE clusters
-    DROP COLUMN kubeconfig;
+  DROP COLUMN kubeconfig;
 

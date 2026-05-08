@@ -23,7 +23,7 @@ jobs:
 
       - name: Check SQL formatting
         run: |
-          find . -name "*.sql" -exec pg_format -i {} \;
+          find . -name "*.sql" -exec pg_format -c .pg_format -i {} \;
 
           git diff --exit-code
         working-directory: server

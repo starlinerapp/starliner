@@ -1,31 +1,21 @@
 -- +goose Up
 CREATE TABLE deployments (
-    id bigserial PRIMARY KEY,
-    name varchar(255) NOT NULL,
-    port varchar(255) NOT NULL,
-    status varchar(255),
-    environment_id bigint NOT NULL REFERENCES environments (id) ON DELETE RESTRICT,
-    created_at timestamptz NOT NULL DEFAULT NOW(),
-    updated_at timestamptz NOT NULL DEFAULT NOW()
+  id BIGSERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, port VARCHAR(255) NOT NULL, status VARCHAR(255), environment_id BIGINT NOT NULL REFERENCES environments (id) ON DELETE RESTRICT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TRIGGER trigger_deployments_updated_at
-    BEFORE UPDATE ON deployments
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column ();
+  BEFORE UPDATE ON deployments
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column ();
 
 CREATE TABLE database_deployments (
-    deployment_id bigint PRIMARY KEY REFERENCES deployments (id) ON DELETE CASCADE,
-    username varchar(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at timestamptz NOT NULL DEFAULT NOW(),
-    updated_at timestamptz NOT NULL DEFAULT NOW()
+  deployment_id BIGINT PRIMARY KEY REFERENCES deployments (id) ON DELETE CASCADE, username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TRIGGER trigger_database_deployments_updated_at
-    BEFORE UPDATE ON database_deployments
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column ();
+  BEFORE UPDATE ON database_deployments
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column ();
 
 -- +goose Down
 DROP TRIGGER IF EXISTS trigger_database_deployments_updated_at ON database_deployments;

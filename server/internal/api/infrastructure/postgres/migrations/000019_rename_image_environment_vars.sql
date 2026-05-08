@@ -6,17 +6,17 @@ ALTER INDEX image_environment_vars_deployment_id_name RENAME TO deployment_envir
 ALTER TRIGGER trigger_image_environment_vars_updated_at ON deployment_environment_vars RENAME TO trigger_deployment_environment_vars_updated_at;
 
 ALTER TABLE deployment_environment_vars
-    DROP CONSTRAINT image_environment_vars_deployment_id_fkey;
+  DROP CONSTRAINT image_environment_vars_deployment_id_fkey;
 
 ALTER TABLE deployment_environment_vars
-    ADD CONSTRAINT deployment_environment_vars_deployment_id_fkey FOREIGN KEY (deployment_id) REFERENCES deployments (id) ON DELETE CASCADE;
+  ADD CONSTRAINT deployment_environment_vars_deployment_id_fkey FOREIGN KEY (deployment_id) REFERENCES deployments (id) ON DELETE CASCADE;
 
 -- +goose Down
 ALTER TABLE deployment_environment_vars
-    DROP CONSTRAINT deployment_environment_vars_deployment_id_fkey;
+  DROP CONSTRAINT deployment_environment_vars_deployment_id_fkey;
 
 ALTER TABLE deployment_environment_vars
-    ADD CONSTRAINT image_environment_vars_deployment_id_fkey FOREIGN KEY (deployment_id) REFERENCES image_deployments (deployment_id) ON DELETE CASCADE;
+  ADD CONSTRAINT image_environment_vars_deployment_id_fkey FOREIGN KEY (deployment_id) REFERENCES image_deployments (deployment_id) ON DELETE CASCADE;
 
 ALTER TRIGGER trigger_deployment_environment_vars_updated_at ON deployment_environment_vars RENAME TO trigger_image_environment_vars_updated_at;
 
