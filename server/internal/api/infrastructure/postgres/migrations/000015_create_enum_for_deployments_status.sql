@@ -1,14 +1,20 @@
 -- +goose Up
-CREATE TYPE deployment_status AS ENUM ('healthy', 'unhealthy');
+CREATE TYPE deployment_status AS ENUM (
+    'healthy',
+    'unhealthy'
+);
 
-UPDATE deployments
-SET status = 'unhealthy'
-WHERE status IS NULL
-   OR status NOT IN ('healthy', 'unhealthy');
+UPDATE
+    deployments
+SET
+    status = 'unhealthy'
+WHERE
+    status IS NULL
+    OR status NOT IN ('healthy', 'unhealthy');
 
 ALTER TABLE deployments
     ALTER COLUMN status TYPE deployment_status
-        USING status::deployment_status;
+    USING status::deployment_status;
 
 ALTER TABLE deployments
     ALTER COLUMN status SET DEFAULT 'unhealthy',
@@ -21,6 +27,7 @@ ALTER TABLE deployments
 
 ALTER TABLE deployments
     ALTER COLUMN status TYPE VARCHAR(255)
-        USING status::text;
+    USING status::text;
 
 DROP TYPE deployment_status;
+

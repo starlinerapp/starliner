@@ -1,6 +1,6 @@
 -- +goose Up
 ALTER TABLE clusters
-ADD COLUMN "user" TEXT NOT NULL DEFAULT 'root';
+    ADD COLUMN "user" text NOT NULL DEFAULT 'root';
 
 ALTER TABLE clusters
     DROP CONSTRAINT IF EXISTS clusters_name_key;
@@ -17,3 +17,4 @@ ALTER TABLE clusters
 
 ALTER TABLE clusters
     DROP COLUMN IF EXISTS "user";
+

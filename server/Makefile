@@ -19,6 +19,10 @@ proto: ## Generate Go code from protobufs
 		--go_out=. --go_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto") \
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto")
 
+format:
+	gofmt -w .
+	find . -name "*.sql" -exec pg_format -i {} \;
+
 lint:
 	@golangci-lint run
 
