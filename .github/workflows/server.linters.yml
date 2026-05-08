@@ -19,12 +19,16 @@ jobs:
       - name: Install pgFormatter 5.9
         run: |
           sudo apt-get update
-          sudo apt-get install -y cpanminus make perl
+          sudo apt-get install -y perl make
 
-          sudo cpanm \
-            --mirror https://cpan.metacpan.org \
-            --mirror-only \
-            SHANCOCK/pgFormatter-5.9.tar.gz
+          version=5.9
+          curl -fsSL "https://github.com/darold/pgFormatter/archive/refs/tags/v${version}.tar.gz" -o pgformatter.tar.gz
+          tar xzf pgformatter.tar.gz
+
+          cd "pgFormatter-${version}"
+          perl Makefile.PL
+          make
+          sudo make install
 
           pg_format --version
 
