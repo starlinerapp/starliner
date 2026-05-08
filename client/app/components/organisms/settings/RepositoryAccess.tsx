@@ -96,12 +96,12 @@ export function RepositoryAccess({
   return (
     <div className="w-full">
       <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
+        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
           <p>Repository Access</p>
-          {githubApp && (
+          {githubApp ? (
             <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
               <DialogTrigger asChild>
-                <Button intent="secondary" className="h-7 w-36 text-xs">
+                <Button intent="secondary" className="w-36 text-xs">
                   Manage Repositories
                 </Button>
               </DialogTrigger>
@@ -131,9 +131,9 @@ export function RepositoryAccess({
                         return (
                           <div
                             key={repo.id}
-                            className="flex min-w-0 items-center justify-between gap-3 px-4 py-2"
+                            className="flex min-w-0 items-center justify-between gap-3 p-3"
                           >
-                            <div className="flex min-w-0 flex-1 flex-col">
+                            <div className="flex min-w-0 flex-1 flex-col gap-1">
                               <span className="text-mauve-12 truncate text-sm font-medium">
                                 {repo.owner}/{repo.name}
                               </span>
@@ -148,7 +148,7 @@ export function RepositoryAccess({
                             </div>
                             {isAssigned ? (
                               <Button
-                                className="h-7 w-24 text-xs"
+                                className="w-24 text-xs"
                                 intent="secondary"
                                 onClick={() => onUnassignRepo(repo.id)}
                               >
@@ -156,7 +156,7 @@ export function RepositoryAccess({
                               </Button>
                             ) : (
                               <Button
-                                className="h-7 w-24 text-xs"
+                                className="w-24 text-xs"
                                 intent="primary"
                                 onClick={() => {
                                   onAssignRepo(repo.id, repo.full_name);
@@ -173,6 +173,8 @@ export function RepositoryAccess({
                 </div>
               </DialogContent>
             </Dialog>
+          ) : (
+            <Skeleton className="h-8 w-36" />
           )}
         </div>
         {isGithubAppLoading ? (
@@ -196,10 +198,10 @@ export function RepositoryAccess({
             <Skeleton className="h-5 w-48" />
           </div>
         ) : teamRepos?.length === 0 ? (
-          <div className="text-mauve-11 px-4 py-3 text-sm">
-            No repositories assigned. Team members cannot see any repositories
-            until you assign them.
-          </div>
+          <p className="text-mauve-11 px-4 py-3 text-sm">
+            No repositories assigned. <br />
+            Team members cannot see any repositories until you assign them.
+          </p>
         ) : (
           teamRepos?.map((repo) => (
             <div

@@ -83,14 +83,14 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
   return (
     <div className="w-full">
       <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex items-center justify-between border-b px-4 py-2 text-xs font-bold uppercase">
+        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
           <p>Cluster Access</p>
           <Dialog
             open={showAssignClusterDialog}
             onOpenChange={setShowAssignClusterDialog}
           >
             <DialogTrigger asChild>
-              <Button intent="secondary" className="h-7 w-32 text-xs">
+              <Button intent="secondary" className="w-32 text-xs">
                 Manage Clusters
               </Button>
             </DialogTrigger>
@@ -123,9 +123,9 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                       return (
                         <div
                           key={cluster.id}
-                          className="flex min-w-0 items-center justify-between gap-3 px-4 py-2"
+                          className="flex min-w-0 items-center justify-between gap-3 p-3"
                         >
-                          <div className="flex min-w-0 flex-1 flex-col">
+                          <div className="flex min-w-0 flex-1 flex-col gap-1">
                             <span
                               className="text-mauve-12 truncate text-sm font-medium"
                               title={cluster.name}
@@ -136,12 +136,12 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                               className="text-mauve-11 truncate text-xs"
                               title={cluster.serverType}
                             >
-                              {cluster.serverType}
+                              Server Type: {cluster.serverType}
                             </span>
                           </div>
                           {isAssigned ? (
                             <Button
-                              className="h-7 w-24 text-xs"
+                              className="w-24 text-xs"
                               intent="secondary"
                               onClick={() => onUnassignCluster(cluster.id)}
                             >
@@ -149,7 +149,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                             </Button>
                           ) : (
                             <Button
-                              className="h-7 w-24 text-xs"
+                              className="w-24 text-xs"
                               intent="primary"
                               onClick={() => onAssignCluster(cluster.id)}
                             >
@@ -171,10 +171,10 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
             <Skeleton className="h-5 w-36" />
           </div>
         ) : teamClusters?.length === 0 ? (
-          <div className="text-mauve-11 px-4 py-3 text-sm">
-            No clusters assigned. Team members cannot see any clusters until you
-            assign them.
-          </div>
+          <p className="text-mauve-11 px-4 py-3 text-sm">
+            No clusters assigned. <br /> Team members cannot see any clusters
+            until you assign them.
+          </p>
         ) : (
           teamClusters?.map((cluster) => (
             <div
