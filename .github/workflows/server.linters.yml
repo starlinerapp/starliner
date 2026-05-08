@@ -16,10 +16,11 @@ jobs:
         with:
           go-version: "1.26.2"
 
-      - name: Install pgFormatter
+      - name: Install pgFormatter 5.9
         run: |
           sudo apt-get update
-          sudo apt-get install -y pgformatter=5.9-1
+          sudo apt-get install -y cpanminus
+          sudo cpanm --notest SHANCOCK/pgFormatter-5.9.tar.gz
 
       - name: Check SQL formatting
         run: |
