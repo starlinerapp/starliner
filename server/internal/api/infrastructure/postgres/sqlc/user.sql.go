@@ -11,10 +11,9 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO "users" (
-    better_auth_id
-) VALUES (
-    $1
-)
+  better_auth_id)
+VALUES (
+  $1)
 RETURNING id, better_auth_id, created_at, updated_at
 `
 

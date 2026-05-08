@@ -2713,7 +2713,7 @@ const docTemplate = `{
                 "organizationId",
                 "serverType",
                 "status",
-                "teamSlug",
+                "teamSlugs",
                 "user"
             ],
             "properties": {
@@ -2747,8 +2747,11 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "teamSlug": {
-                    "type": "string"
+                "teamSlugs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "user": {
                     "type": "string"

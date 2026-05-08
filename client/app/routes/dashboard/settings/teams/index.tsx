@@ -72,7 +72,7 @@ export default function Teams() {
                   </p>
                 </div>
                 {createTeamMutation.isError && (
-                  <ErrorBanner text="A team with this slug already exists." />
+                  <ErrorBanner text={createTeamMutation.error.message} />
                 )}
                 <form
                   className="flex flex-col gap-3"
@@ -92,6 +92,7 @@ export default function Teams() {
                     <Button
                       intent="secondary"
                       className="w-24"
+                      type="button"
                       onClick={() => {
                         setShowCreateDialog(false);
                         resetCreate();

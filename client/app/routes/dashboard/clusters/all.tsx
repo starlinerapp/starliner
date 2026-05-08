@@ -83,9 +83,16 @@ export default function Clusters() {
                           })}
                         </span>
                       </p>
-                      <p className="text-mauve-11 bg-violet-3 border-mauve-6 w-fit rounded-md border px-2 py-1 text-xs">
-                        #<span>{cluster.teamSlug}</span>
-                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cluster.teamSlugs.map((teamSlug, i) => (
+                          <p
+                            key={i}
+                            className="text-mauve-11 bg-violet-3 border-mauve-6 w-fit rounded-md border px-2 py-1 text-xs"
+                          >
+                            #<span>{teamSlug}</span>
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </Card>

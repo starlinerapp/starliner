@@ -9,18 +9,15 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 const createCluster = `-- name: CreateCluster :one
 INSERT INTO clusters (
-    name,
-    server_type,
-    organization_id
-) VALUES (
-    $1,
-    $2,
-    $3
- )
+  name, server_type, organization_id)
+VALUES (
+  $1, $2, $3)
 RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs
 `
 
@@ -53,8 +50,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 }
 
 const deleteCluster = `-- name: DeleteCluster :exec
-DELETE
-FROM clusters
+DELETE FROM clusters
 WHERE id = $1
 `
 
@@ -92,12 +88,11 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 }
 
 const getDeploymentCluster = `-- name: GetDeploymentCluster :one
-SELECT
-    clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
 FROM clusters
-INNER JOIN projects ON projects.cluster_id = clusters.id
-INNER JOIN environments ON environments.project_id = projects.id
-INNER JOIN deployments ON deployments.environment_id = environments.id
+  INNER JOIN projects ON projects.cluster_id = clusters.id
+  INNER JOIN environments ON environments.project_id = projects.id
+  INNER JOIN deployments ON deployments.environment_id = environments.id
 WHERE deployments.id = $1
 `
 
@@ -124,26 +119,21 @@ func (q *Queries) GetDeploymentCluster(ctx context.Context, deploymentID int64) 
 }
 
 const getOrganizationClusters = `-- name: GetOrganizationClusters :many
-SELECT
-    clusters.id AS id,
-    clusters.name AS name,
-    teams.slug AS team_slug,
-    clusters.organization_id AS organization_id,
-    clusters.server_type AS server_type,
-    clusters.created_at AS created_at
-FROM clusters
-         LEFT JOIN team_clusters ON team_clusters.cluster_id = clusters.id
-         LEFT JOIN teams ON teams.id = team_clusters.team_id
-WHERE clusters.organization_id = $1
+SELECT c.id, c.name, c.organization_id, c.server_type, c.created_at, COALESCE(ARRAY_AGG(t.slug ORDER BY t.slug) FILTER (WHERE t.slug IS NOT NULL), ARRAY[]::TEXT[])::TEXT[] AS team_slugs
+FROM clusters c
+  LEFT JOIN team_clusters tc ON tc.cluster_id = c.id
+  LEFT JOIN teams t ON t.id = tc.team_id
+WHERE c.organization_id = $1
+GROUP BY c.id, c.name, c.organization_id, c.server_type, c.created_at
 `
 
 type GetOrganizationClustersRow struct {
 	ID             int64
 	Name           string
-	TeamSlug       sql.NullString
 	OrganizationID int64
 	ServerType     string
 	CreatedAt      time.Time
+	TeamSlugs      []string
 }
 
 func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID int64) ([]GetOrganizationClustersRow, error) {
@@ -158,10 +148,10 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.TeamSlug,
 			&i.OrganizationID,
 			&i.ServerType,
 			&i.CreatedAt,
+			pq.Array(&i.TeamSlugs),
 		); err != nil {
 			return nil, err
 		}
@@ -179,10 +169,10 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 const getUserCluster = `-- name: GetUserCluster :one
 SELECT c.id, c.name, c.user, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
 FROM clusters c
-LEFT JOIN organizations o ON c.organization_id = o.id
-LEFT JOIN organization_members om ON o.id = om.organization_id
+  LEFT JOIN organizations o ON c.organization_id = o.id
+  LEFT JOIN organization_members om ON o.id = om.organization_id
 WHERE om.user_id = $1
-AND c.id = $2
+  AND c.id = $2
 `
 
 type GetUserClusterParams struct {
@@ -222,13 +212,12 @@ func (q *Queries) GetUserCluster(ctx context.Context, arg GetUserClusterParams) 
 }
 
 const getUserClusterProvisioningLogs = `-- name: GetUserClusterProvisioningLogs :one
-SELECT
-    c.logs
+SELECT c.logs
 FROM clusters c
-LEFT JOIN organizations o ON c.organization_id = o.id
-LEFT JOIN organization_members om ON o.id = om.organization_id
+  LEFT JOIN organizations o ON c.organization_id = o.id
+  LEFT JOIN organization_members om ON o.id = om.organization_id
 WHERE c.id = $1
-AND om.user_id = $2
+  AND om.user_id = $2
 `
 
 type GetUserClusterProvisioningLogsParams struct {
@@ -244,9 +233,9 @@ func (q *Queries) GetUserClusterProvisioningLogs(ctx context.Context, arg GetUse
 }
 
 const updateClusterIPv4Address = `-- name: UpdateClusterIPv4Address :exec
-UPDATE clusters
-SET
-    ipv4_address = $1
+UPDATE
+  clusters
+SET ipv4_address = $1
 WHERE id = $2
 `
 
@@ -261,10 +250,10 @@ func (q *Queries) UpdateClusterIPv4Address(ctx context.Context, arg UpdateCluste
 }
 
 const updateClusterKubeconfig = `-- name: UpdateClusterKubeconfig :exec
-UPDATE clusters
-SET
-    kubeconfig = $1
-where id = $2
+UPDATE
+  clusters
+SET kubeconfig = $1
+WHERE id = $2
 `
 
 type UpdateClusterKubeconfigParams struct {
@@ -278,9 +267,9 @@ func (q *Queries) UpdateClusterKubeconfig(ctx context.Context, arg UpdateCluster
 }
 
 const updateClusterLogs = `-- name: UpdateClusterLogs :exec
-UPDATE clusters
-SET
-    logs = $1
+UPDATE
+  clusters
+SET logs = $1
 WHERE id = $2
 `
 
@@ -295,9 +284,9 @@ func (q *Queries) UpdateClusterLogs(ctx context.Context, arg UpdateClusterLogsPa
 }
 
 const updateClusterProvisioningId = `-- name: UpdateClusterProvisioningId :exec
-UPDATE clusters
-SET
-    provisioning_id = $1
+UPDATE
+  clusters
+SET provisioning_id = $1
 WHERE id = $2
 `
 
@@ -312,10 +301,9 @@ func (q *Queries) UpdateClusterProvisioningId(ctx context.Context, arg UpdateClu
 }
 
 const updateClusterPublicPrivateKeys = `-- name: UpdateClusterPublicPrivateKeys :exec
-UPDATE clusters
-SET
-    public_key = $1,
-    private_key = $2
+UPDATE
+  clusters
+SET public_key = $1, private_key = $2
 WHERE id = $3
 `
 
@@ -331,9 +319,9 @@ func (q *Queries) UpdateClusterPublicPrivateKeys(ctx context.Context, arg Update
 }
 
 const updateClusterStatus = `-- name: UpdateClusterStatus :exec
-UPDATE clusters
-SET
-    status = $1
+UPDATE
+  clusters
+SET status = $1
 WHERE id = $2
 `
 

@@ -760,10 +760,10 @@ export interface ResponseCluster {
   status: ResponseClusterStatus;
   /**
    *
-   * @type {string}
+   * @type {Array<string>}
    * @memberof ResponseCluster
    */
-  teamSlug: string;
+  teamSlugs: Array<string>;
   /**
    *
    * @type {string}

@@ -2704,7 +2704,7 @@
                 "organizationId",
                 "serverType",
                 "status",
-                "teamSlug",
+                "teamSlugs",
                 "user"
             ],
             "properties": {
@@ -2738,8 +2738,11 @@
                         }
                     ]
                 },
-                "teamSlug": {
-                    "type": "string"
+                "teamSlugs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "user": {
                     "type": "string"

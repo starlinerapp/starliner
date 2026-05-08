@@ -23,11 +23,12 @@ DELETE FROM clusters
 WHERE id = $1;
 
 -- name: GetOrganizationClusters :many
-SELECT clusters.id AS id, clusters.name AS name, teams.slug AS team_slug, clusters.organization_id AS organization_id, clusters.server_type AS server_type, clusters.created_at AS created_at
-FROM clusters
-  LEFT JOIN team_clusters ON team_clusters.cluster_id = clusters.id
-  LEFT JOIN teams ON teams.id = team_clusters.team_id
-WHERE clusters.organization_id = $1;
+SELECT c.id, c.name, c.organization_id, c.server_type, c.created_at, COALESCE(ARRAY_AGG(t.slug ORDER BY t.slug) FILTER (WHERE t.slug IS NOT NULL), ARRAY[]::TEXT[])::TEXT[] AS team_slugs
+FROM clusters c
+  LEFT JOIN team_clusters tc ON tc.cluster_id = c.id
+  LEFT JOIN teams t ON t.id = tc.team_id
+WHERE c.organization_id = $1
+GROUP BY c.id, c.name, c.organization_id, c.server_type, c.created_at;
 
 -- name: GetDeploymentCluster :one
 SELECT clusters.*

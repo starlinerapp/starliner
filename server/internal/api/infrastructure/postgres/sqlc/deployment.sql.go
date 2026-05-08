@@ -12,9 +12,8 @@ import (
 )
 
 const deleteDeployment = `-- name: DeleteDeployment :exec
-DELETE
-FROM deployments
-where id = $1
+DELETE FROM deployments
+WHERE id = $1
 `
 
 func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
@@ -23,11 +22,9 @@ func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
 }
 
 const getDeploymentWithNamespace = `-- name: GetDeploymentWithNamespace :one
-SELECT
-    deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at,
-    environments.namespace
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, environments.namespace
 FROM deployments
-INNER JOIN environments ON deployments.environment_id = environments.id
+  INNER JOIN environments ON deployments.environment_id = environments.id
 WHERE deployments.id = $1
 `
 
@@ -59,14 +56,11 @@ func (q *Queries) GetDeploymentWithNamespace(ctx context.Context, id int64) (Get
 }
 
 const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
-SELECT
-    deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at,
-    c.kubeconfig,
-    environments.namespace
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig, environments.namespace
 FROM deployments
-INNER JOIN environments ON deployments.environment_id = environments.id
-INNER JOIN projects ON environments.project_id = projects.id
-INNER JOIN clusters c on c.id = projects.cluster_id
+  INNER JOIN environments ON deployments.environment_id = environments.id
+  INNER JOIN projects ON environments.project_id = projects.id
+  INNER JOIN clusters c ON c.id = projects.cluster_id
 `
 
 type GetDeploymentsWithKubeconfigRow struct {
@@ -118,7 +112,7 @@ const getEnvironmentDeploymentByName = `-- name: GetEnvironmentDeploymentByName 
 SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
 FROM deployments
 WHERE deployments.name = $1
-    AND environment_id = $2
+  AND environment_id = $2
 `
 
 type GetEnvironmentDeploymentByNameParams struct {
@@ -143,13 +137,13 @@ func (q *Queries) GetEnvironmentDeploymentByName(ctx context.Context, arg GetEnv
 
 const getUserDeployment = `-- name: GetUserDeployment :one
 SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
-FROM  deployments
-INNER JOIN environments ON deployments.environment_id = environments.id
-INNER JOIN projects ON environments.project_id = projects.id
-INNER JOIN teams ON projects.team_id = teams.id
-INNER JOIN team_members ON team_members.team_id = teams.id
+FROM deployments
+  INNER JOIN environments ON deployments.environment_id = environments.id
+  INNER JOIN projects ON environments.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE deployments.id = $1
-    AND team_members.user_id = $2
+  AND team_members.user_id = $2
 `
 
 type GetUserDeploymentParams struct {
@@ -173,7 +167,8 @@ func (q *Queries) GetUserDeployment(ctx context.Context, arg GetUserDeploymentPa
 }
 
 const updateDeploymentStatus = `-- name: UpdateDeploymentStatus :exec
-UPDATE deployments
+UPDATE
+  deployments
 SET status = $1::deployment_status
 WHERE id = $2
 `

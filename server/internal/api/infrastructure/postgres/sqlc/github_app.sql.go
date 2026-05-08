@@ -11,11 +11,9 @@ import (
 
 const createGithubApp = `-- name: CreateGithubApp :one
 INSERT INTO github_apps (
-     installation_id, organization_id
-) VALUES (
-    $1,
-    $2
-)
+  installation_id, organization_id)
+VALUES (
+  $1, $2)
 RETURNING id, installation_id, organization_id, created_at, updated_at
 `
 
@@ -38,7 +36,8 @@ func (q *Queries) CreateGithubApp(ctx context.Context, arg CreateGithubAppParams
 }
 
 const deleteGithubAppByInstallationId = `-- name: DeleteGithubAppByInstallationId :exec
-DELETE FROM github_apps WHERE installation_id = $1
+DELETE FROM github_apps
+WHERE installation_id = $1
 `
 
 func (q *Queries) DeleteGithubAppByInstallationId(ctx context.Context, installationID int64) error {
@@ -49,10 +48,10 @@ func (q *Queries) DeleteGithubAppByInstallationId(ctx context.Context, installat
 const getEnvironmentGithubApp = `-- name: GetEnvironmentGithubApp :one
 SELECT ga.id, ga.installation_id, ga.organization_id, ga.created_at, ga.updated_at
 FROM github_apps ga
-INNER JOIN organizations o ON o.id = ga.organization_id
-INNER JOIN teams t ON t.organization_id = o.id
-INNER JOIN projects p ON p.team_id = t.id
-INNER JOIN environments e ON e.project_id = p.id
+  INNER JOIN organizations o ON o.id = ga.organization_id
+  INNER JOIN teams t ON t.organization_id = o.id
+  INNER JOIN projects p ON p.team_id = t.id
+  INNER JOIN environments e ON e.project_id = p.id
 WHERE e.id = $1
 `
 

@@ -11,14 +11,11 @@ import (
 )
 
 const getPreviewEnvironment = `-- name: GetPreviewEnvironment :one
-SELECT
-    environments.id, environments.name, environments.slug, environments.project_id, environments.created_at, environments.updated_at, environments.namespace, environments.connected_branch,
-    preview_environments.github_repository_id,
-    preview_environments.pr_number
+SELECT environments.id, environments.name, environments.slug, environments.project_id, environments.created_at, environments.updated_at, environments.namespace, environments.connected_branch, preview_environments.github_repository_id, preview_environments.pr_number
 FROM environments
-INNER JOIN preview_environments ON preview_environments.environment_id = environments.id
+  INNER JOIN preview_environments ON preview_environments.environment_id = environments.id
 WHERE preview_environments.github_repository_id = $1
-AND preview_environments.pr_number = $2
+  AND preview_environments.pr_number = $2
 `
 
 type GetPreviewEnvironmentParams struct {
