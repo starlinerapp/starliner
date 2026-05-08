@@ -16,6 +16,18 @@ jobs:
         with:
           go-version: "1.26.2"
 
+      - name: Install pgFormatter
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pgformatter
+
+      - name: Check SQL formatting
+        run: |
+          find . -name "*.sql" -exec pg_format -i {} \;
+
+          git diff --exit-code
+        working-directory: server
+
       - name: Install Arch-Go
         run: go install -v github.com/arch-go/arch-go/v2@latest
         working-directory: server

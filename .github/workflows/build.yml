@@ -33,10 +33,10 @@ jobs:
           context: .
           file: .docker/client/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/client:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/client:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
 
-  build-mcp-server:
+  build-mcp:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
@@ -52,13 +52,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push mcp-server image
+      - name: Build and push mcp image
         uses: useblacksmith/build-push-action@v2
         with:
           context: .
-          file: .docker/mcp-server/Dockerfile
+          file: .docker/mcp/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/mcp-server:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/mcp:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
 
   build-server-api:
@@ -83,7 +83,7 @@ jobs:
           context: .
           file: .docker/server/api/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-api:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/server-api:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
 
   build-server-builder:
@@ -108,7 +108,7 @@ jobs:
           context: .
           file: .docker/server/builder/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-builder:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/server-builder:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
 
   build-server-cluster:
@@ -133,7 +133,7 @@ jobs:
           context: .
           file: .docker/server/cluster/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-cluster:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/server-cluster:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
 
   build-server-provisioner:
@@ -158,14 +158,14 @@ jobs:
           context: .
           file: .docker/server/provisioner/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/server-provisioner:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository }}/server-provisioner:${{ env.IMAGE_TAG }}
           platforms: linux/amd64
 
   trigger-deployment:
     needs:
       - build-client
       - build-server-api
-      - build-mcp-server
+      - build-mcp
       - build-server-builder
       - build-server-cluster
       - build-server-provisioner
