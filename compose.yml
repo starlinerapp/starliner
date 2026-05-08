@@ -364,15 +364,29 @@ services:
       - internal
 
   mailpit:
-    image: axllent/mailpit
-    container_name: mailpit
+    build:
+      context: .
+      dockerfile: .docker/mailpit/Dockerfile
     restart: unless-stopped
     ports:
-      - 8025:8025
+      - "8025:8025"
     environment:
       MP_MAX_MESSAGES: 5000
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - internal
+
+  frps:
+    build:
+      context: .
+      dockerfile: .docker/frps/Dockerfile
+    command: [ "-c", "/etc/frp/frps.toml" ]
+    restart: unless-stopped
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./.docker/frps/frps.toml:/etc/frp/frps.toml:ro
     networks:
       - internal
 

@@ -1,0 +1,1 @@
+FROM fatedier/frps:v0.68.1

@@ -1,0 +1,8 @@
+bindPort = 7000
+
+auth.method = "token"
+auth.token = "dev-token"
+
+allowPorts = [
+    { start = 16443, end = 16443 }
+]

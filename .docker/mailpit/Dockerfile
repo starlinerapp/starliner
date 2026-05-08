@@ -1,0 +1,1 @@
+FROM axllent/mailpit:latest
