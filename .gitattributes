@@ -3,3 +3,5 @@ client/app/components/atoms/icons/** linguist-generated=true
 
 server/pkg/db/sqlc/** linguist-generated=true
 server/cmd/api/docs/** linguist-generated=true
+
+cli/internal/infrastructure/auth/generated/** linguist-generated=true
