@@ -31,7 +31,8 @@ upgrade:
 build:
 	$(GOCMD) build -o build/starliner ./cmd/main.go
 
-openapi-generate:
+openapi-generate-auth:
 	mkdir -p internal/infrastructure/auth/generated/client
 	curl -s $(OPENAPI_URL) > $(OPENAPI_SPEC)
-	openapi-generator-cli generate --skip-validate-spec -i $(OPENAPI_SPEC) -g go -o internal/infrastructure/auth/generated/client
+	openapi-generator-cli generate --skip-validate-spec -i $(OPENAPI_SPEC) -g go -o internal/infrastructure/auth/generated/client --global-property=apiTests=false,modelTests=false --additional-properties=withGoMod=false,isGoSubmodule=true,packageName=authClient,useDefaultValuesForRequiredVars=false
+	find internal/infrastructure/auth/generated/client -name "model_*.go" -exec sed -i '' 's|= "Generated at runtime"|= time.Time{}|g' {} +

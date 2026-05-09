@@ -60,8 +60,6 @@ docs/Verification.md
 docs/VerifyEmailGet200Response.md
 docs/VerifyPasswordRequest.md
 git_push.sh
-go.mod
-go.sum
 model__account_info_get_200_response.go
 model__account_info_get_200_response_user.go
 model__delete_user_callback_get_200_response.go

@@ -1,9 +1,10 @@
 package conf
 
 import (
+	"reflect"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
-	"reflect"
 )
 
 type Config struct {
