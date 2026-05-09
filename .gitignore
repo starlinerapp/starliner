@@ -1,5 +1,7 @@
 .idea
 
+scripts/*
+
 .docker/nginx/ssl/dev.starliner.app.crt
 .docker/nginx/ssl/dev.starliner.app.key
 .docker/nginx/ssl/mcp.dev.starliner.app.crt

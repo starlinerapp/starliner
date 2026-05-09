@@ -1,0 +1,54 @@
+package handler
+
+import "github.com/spf13/cobra"
+
+type DemoHandler struct{}
+
+func NewDemoHandler() *DemoHandler {
+	return &DemoHandler{}
+}
+
+func (dh *DemoHandler) NewDemoCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "demo",
+		Short: "Manage the local Starliner demo",
+		Long:  "Manage the Starliner demo environment on your local machine.",
+	}
+
+	cmd.AddCommand(
+		dh.newDemoUpCmd(),
+		dh.newDemoDownCmd(),
+	)
+
+	return cmd
+}
+
+func (dh *DemoHandler) newDemoUpCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "up",
+		Short:   "Start the local Starliner demo",
+		Long:    "Start the Starliner demo environment on your local machine.",
+		Example: "starliner demo up",
+		Args:    cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
+	}
+
+	return cmd
+}
+
+func (dh *DemoHandler) newDemoDownCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "down",
+		Short:   "Stop the local Starliner demo",
+		Long:    "Stop the Starliner demo environment on your local machine.",
+		Example: "starliner demo down",
+		Args:    cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
+	}
+
+	return cmd
+}

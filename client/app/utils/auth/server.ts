@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { bearer } from "better-auth/plugins";
+import { bearer, openAPI } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { internalApiFactory } from "~/server/api/client";
 import { db } from "~/db";
@@ -29,7 +29,10 @@ export const auth = betterAuth({
       });
     },
   },
-  plugins: [bearer()],
+  plugins: [
+    bearer(),
+    ...(process.env.NODE_ENV !== "production" ? [openAPI()] : []),
+  ],
 });
 
 export const getServerSession = async (request: Request) => {
