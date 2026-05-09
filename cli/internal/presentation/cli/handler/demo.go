@@ -1,11 +1,18 @@
 package handler
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+	"starliner.app/cli/internal/application"
+)
 
-type DemoHandler struct{}
+type DemoHandler struct {
+	demoApplication *application.DemoApplication
+}
 
-func NewDemoHandler() *DemoHandler {
-	return &DemoHandler{}
+func NewDemoHandler(demoApplication *application.DemoApplication) *DemoHandler {
+	return &DemoHandler{
+		demoApplication: demoApplication,
+	}
 }
 
 func (dh *DemoHandler) NewDemoCmd() *cobra.Command {
@@ -30,7 +37,10 @@ func (dh *DemoHandler) newDemoUpCmd() *cobra.Command {
 		Long:    "Start the Starliner demo environment on your local machine.",
 		Example: "starliner demo up",
 		Args:    cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if err := dh.demoApplication.Run(); err != nil {
+				return err
+			}
 			return nil
 		},
 	}

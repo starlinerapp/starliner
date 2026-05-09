@@ -6,5 +6,6 @@ var Module = fx.Module(
 	"application",
 	fx.Provide(
 		NewAuthApplication,
+		NewDemoApplication,
 	),
 )
