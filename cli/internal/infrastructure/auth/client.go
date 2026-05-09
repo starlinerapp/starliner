@@ -83,5 +83,10 @@ func deleteToken() error {
 		return err
 	}
 
-	return os.Remove(filepath.Join(dir, "starliner", "credentials"))
+	err = os.Remove(filepath.Join(dir, "starliner", "credentials"))
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	return nil
 }

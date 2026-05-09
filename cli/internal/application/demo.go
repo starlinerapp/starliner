@@ -53,7 +53,7 @@ func (da *DemoApplication) startK3d() error {
 		"k3d",
 		"cluster",
 		"create",
-		"local",
+		"starliner-demo",
 	)
 
 	cmd.Stdout = os.Stdout
