@@ -4,6 +4,9 @@ SHELL := /bin/bash
 
 GOCMD=go
 
+OPENAPI_URL=http://localhost:5173/api/auth/open-api/generate-schema
+OPENAPI_SPEC=internal/infrastructure/auth/generated/openapi.json
+
 deps: ## Install dependencies
 	$(GOCMD) get -u -t -v ./...
 	$(GOCMD) mod tidy
@@ -27,3 +30,8 @@ upgrade:
 
 build:
 	$(GOCMD) build -o build/starliner ./cmd/main.go
+
+openapi-generate:
+	mkdir -p internal/infrastructure/auth/generated/client
+	curl -s $(OPENAPI_URL) > $(OPENAPI_SPEC)
+	openapi-generator-cli generate --skip-validate-spec -i $(OPENAPI_SPEC) -g go -o internal/infrastructure/auth/generated/client

@@ -1,0 +1,2907 @@
+openapi: 3.1.1
+info:
+  description: API Reference for your Better Auth Instance
+  title: Better Auth
+  version: 1.1.0
+servers:
+- url: https://dev.starliner.app/api/auth
+security:
+- apiKeyCookie: []
+  bearerAuth: []
+tags:
+- description: Default endpoints that are included with Better Auth by default. These
+    endpoints are not part of any plugin.
+  name: Default
+paths:
+  /sign-in/social:
+    post:
+      description: Sign in with a social provider
+      operationId: socialSignIn
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/socialSignIn_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_200_response"
+          description: Success - Returns either session details or redirect URL
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /callback/{id}:
+    get:
+      parameters: []
+      responses:
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+    post:
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: {}
+              type: object
+      responses:
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /get-session:
+    get:
+      description: Get the current session
+      operationId: getSession
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getSession_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+    post:
+      description: Get the current session
+      operationId: getSession
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: {}
+              type: object
+      responses:
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /sign-out:
+    post:
+      description: Sign out the current user
+      operationId: signOut
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: {}
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/signOut_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /sign-up/email:
+    post:
+      description: Sign up a user using email and password
+      operationId: signUpWithEmailAndPassword
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/signUpWithEmailAndPassword_request"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/signUpWithEmailAndPassword_200_response"
+          description: Successfully created user
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Unprocessable Entity. User already exists or failed to create
+            user.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /sign-in/email:
+    post:
+      description: Sign in with email and password
+      operationId: signInEmail
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/signInEmail_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/signInEmail_200_response"
+          description: Success - Returns either session details or redirect URL
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /reset-password:
+    post:
+      description: Reset the password for a user
+      operationId: resetPassword
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/resetPassword_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resetPassword_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /verify-password:
+    post:
+      description: Verify the current user's password
+      operationId: verifyPassword
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/verifyPassword_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resetPassword_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /verify-email:
+    get:
+      description: Verify the email of the user
+      parameters:
+      - description: The token to verify the email
+        explode: true
+        in: query
+        name: token
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: The URL to redirect to after email verification
+        explode: true
+        in: query
+        name: callbackURL
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_verify_email_get_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /send-verification-email:
+    post:
+      description: Send a verification email to the user
+      operationId: sendVerificationEmail
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/sendVerificationEmail_request"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/sendVerificationEmail_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/sendVerificationEmail_400_response"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /change-email:
+    post:
+      operationId: changeEmail
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/changeEmail_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/changeEmail_200_response"
+          description: Email change request processed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /change-password:
+    post:
+      description: Change the password of the user
+      operationId: changePassword
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/changePassword_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/changePassword_200_response"
+          description: Password successfully changed
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /update-session:
+    post:
+      description: Update the current session
+      operationId: updateSession
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: {}
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/updateSession_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /update-user:
+    post:
+      description: Update the current user
+      operationId: updateUser
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/updateUser_request"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/updateUser_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /delete-user:
+    post:
+      description: Delete the user
+      operationId: deleteUser
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/deleteUser_request"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/deleteUser_200_response"
+          description: User deletion processed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /request-password-reset:
+    post:
+      description: Send a password reset email to the user
+      operationId: requestPasswordReset
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/requestPasswordReset_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/requestPasswordReset_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /reset-password/{token}:
+    get:
+      description: Redirects the user to the callback URL with the token
+      operationId: resetPasswordCallback
+      parameters:
+      - description: The token to reset the password
+        explode: false
+        in: path
+        name: token
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The URL to redirect the user to reset their password
+        explode: true
+        in: query
+        name: callbackURL
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resetPasswordCallback_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /list-sessions:
+    get:
+      description: List all active sessions for the user
+      operationId: listUserSessions
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Session"
+                type: array
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /revoke-session:
+    post:
+      description: Revoke a single session
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/_revoke_session_post_request"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_revoke_session_post_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /revoke-sessions:
+    post:
+      description: Revoke all sessions for the user
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: {}
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_revoke_sessions_post_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /revoke-other-sessions:
+    post:
+      description: Revoke all other sessions for the user except the current one
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties: {}
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_revoke_other_sessions_post_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /link-social:
+    post:
+      description: Link a social account to the user
+      operationId: linkSocialAccount
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/linkSocialAccount_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/linkSocialAccount_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /list-accounts:
+    get:
+      description: List all accounts linked to the user
+      operationId: listUserAccounts
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/listUserAccounts_200_response_inner"
+                type: array
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /delete-user/callback:
+    get:
+      description: Callback to complete user deletion with verification token
+      parameters:
+      - explode: true
+        in: query
+        name: token
+        required: false
+        schema:
+          description: The token to verify the deletion request
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: callbackURL
+        required: false
+        schema:
+          description: The URL to redirect to after deletion
+          nullable: true
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_delete_user_callback_get_200_response"
+          description: User successfully deleted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /unlink-account:
+    post:
+      description: Unlink an account
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/_unlink_account_post_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resetPassword_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /refresh-token:
+    post:
+      description: Refresh the access token using a refresh token
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/_refresh_token_post_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_refresh_token_post_200_response"
+          description: Access token refreshed successfully
+        "400":
+          description: Invalid refresh token or provider configuration
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /get-access-token:
+    post:
+      description: "Get a valid access token, doing a refresh if needed"
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/_refresh_token_post_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_get_access_token_post_200_response"
+          description: A Valid access token
+        "400":
+          description: Invalid refresh token or provider configuration
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /account-info:
+    get:
+      description: Get the account info provided by the provider
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_account_info_get_200_response"
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /ok:
+    get:
+      description: Check if the API is working
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/_ok_get_200_response"
+          description: API is working
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+  /error:
+    get:
+      description: Displays an error page
+      parameters: []
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                description: The HTML content of the error page
+                type: string
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: "Bad Request. Usually due to missing parameters, or invalid\
+            \ parameters."
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_400_response"
+          description: Unauthorized. Due to missing or invalid authentication.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Forbidden. You do not have permission to access this resource
+            or to perform this action.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Not Found. The requested resource was not found.
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Too Many Requests. You have exceeded the rate limit. Try again
+            later.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/socialSignIn_403_response"
+          description: Internal Server Error. This is a problem with the server that
+            you cannot fix.
+      security:
+      - bearerAuth: []
+      tags:
+      - Default
+components:
+  schemas:
+    User:
+      example:
+        emailVerified: false
+        image: image
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        name: name
+        id: id
+        email: email
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          default: false
+          readOnly: true
+          type: boolean
+        image:
+          type: string
+        createdAt:
+          default: Generated at runtime
+          format: date-time
+          type: string
+        updatedAt:
+          default: Generated at runtime
+          format: date-time
+          type: string
+      required:
+      - createdAt
+      - email
+      - name
+      - updatedAt
+    Session:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        ipAddress: ipAddress
+        userAgent: userAgent
+        id: id
+        userId: userId
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        token: token
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        expiresAt:
+          format: date-time
+          type: string
+        token:
+          type: string
+        createdAt:
+          default: Generated at runtime
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+        userId:
+          type: string
+      required:
+      - createdAt
+      - expiresAt
+      - token
+      - updatedAt
+      - userId
+    Account:
+      properties:
+        id:
+          type: string
+        accountId:
+          type: string
+        providerId:
+          type: string
+        userId:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        idToken:
+          type: string
+        accessTokenExpiresAt:
+          format: date-time
+          type: string
+        refreshTokenExpiresAt:
+          format: date-time
+          type: string
+        scope:
+          type: string
+        password:
+          type: string
+        createdAt:
+          default: Generated at runtime
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+      - accountId
+      - createdAt
+      - providerId
+      - updatedAt
+      - userId
+    Verification:
+      properties:
+        id:
+          type: string
+        identifier:
+          type: string
+        value:
+          type: string
+        expiresAt:
+          format: date-time
+          type: string
+        createdAt:
+          default: Generated at runtime
+          format: date-time
+          type: string
+        updatedAt:
+          default: Generated at runtime
+          format: date-time
+          type: string
+      required:
+      - createdAt
+      - expiresAt
+      - identifier
+      - updatedAt
+      - value
+    socialSignIn_request_idToken_user_name:
+      properties:
+        firstName:
+          nullable: true
+          type: string
+        lastName:
+          nullable: true
+          type: string
+    socialSignIn_request_idToken_user:
+      description: The user object from the provider. Only available for some providers
+        like Apple.
+      properties:
+        name:
+          $ref: "#/components/schemas/socialSignIn_request_idToken_user_name"
+        email:
+          nullable: true
+          type: string
+    socialSignIn_request_idToken:
+      properties:
+        token:
+          description: ID token from the provider
+          type: string
+        nonce:
+          description: Nonce used to generate the token
+          nullable: true
+          type: string
+        accessToken:
+          description: Access token from the provider
+          nullable: true
+          type: string
+        refreshToken:
+          description: Refresh token from the provider
+          nullable: true
+          type: string
+        expiresAt:
+          description: Expiry date of the token
+          nullable: true
+          type: number
+        user:
+          $ref: "#/components/schemas/socialSignIn_request_idToken_user"
+      required:
+      - token
+    socialSignIn_request:
+      properties:
+        callbackURL:
+          description: Callback URL to redirect to after the user has signed in
+          nullable: true
+          type: string
+        newUserCallbackURL:
+          nullable: true
+          type: string
+        errorCallbackURL:
+          description: Callback URL to redirect to if an error happens
+          nullable: true
+          type: string
+        provider:
+          type: string
+        disableRedirect:
+          description: Disable automatic redirection to the provider. Useful for handling
+            the redirection yourself
+          nullable: true
+          type: boolean
+        idToken:
+          $ref: "#/components/schemas/socialSignIn_request_idToken"
+        scopes:
+          description: Array of scopes to request from the provider. This will override
+            the default scopes passed.
+          items: {}
+          nullable: true
+          type: array
+        requestSignUp:
+          description: Explicitly request sign-up. Useful when disableImplicitSignUp
+            is true for this provider
+          nullable: true
+          type: boolean
+        loginHint:
+          description: The login hint to use for the authorization code request
+          nullable: true
+          type: string
+        additionalData:
+          nullable: true
+          type: string
+      required:
+      - provider
+    socialSignIn_200_response:
+      description: Session response when idToken is provided
+      example:
+        redirect: true
+        user:
+          emailVerified: false
+          image: image
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        url: url
+        token: token
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        url:
+          type: string
+        redirect:
+          enum:
+          - false
+          type: boolean
+      required:
+      - redirect
+      - token
+      - user
+    socialSignIn_400_response:
+      example:
+        message: message
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    socialSignIn_403_response:
+      example:
+        message: message
+      properties:
+        message:
+          type: string
+    getSession_200_response:
+      example:
+        session:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          ipAddress: ipAddress
+          userAgent: userAgent
+          id: id
+          userId: userId
+          expiresAt: 2000-01-23T04:56:07.000+00:00
+          token: token
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        user:
+          emailVerified: false
+          image: image
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        session:
+          $ref: "#/components/schemas/Session"
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+      - session
+      - user
+      nullable: true
+    signOut_200_response:
+      example:
+        success: true
+      properties:
+        success:
+          type: boolean
+    signUpWithEmailAndPassword_request:
+      properties:
+        name:
+          description: The name of the user
+          type: string
+        email:
+          description: The email of the user
+          type: string
+        password:
+          description: The password of the user
+          type: string
+        image:
+          description: The profile image URL of the user
+          type: string
+        callbackURL:
+          description: The URL to use for email verification callback
+          type: string
+        rememberMe:
+          description: "If this is false, the session will not be remembered. Default\
+            \ is `true`."
+          type: boolean
+      required:
+      - email
+      - name
+      - password
+    signUpWithEmailAndPassword_200_response_user:
+      example:
+        image: https://openapi-generator.tech
+        emailVerified: true
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        name: name
+        id: id
+        email: email
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          description: The unique identifier of the user
+          type: string
+        email:
+          description: The email address of the user
+          format: email
+          type: string
+        name:
+          description: The name of the user
+          type: string
+        image:
+          description: The profile image URL of the user
+          format: uri
+          type: string
+          nullable: true
+        emailVerified:
+          description: Whether the email has been verified
+          type: boolean
+        createdAt:
+          description: When the user was created
+          format: date-time
+          type: string
+        updatedAt:
+          description: When the user was last updated
+          format: date-time
+          type: string
+      required:
+      - createdAt
+      - email
+      - emailVerified
+      - id
+      - name
+      - updatedAt
+    signUpWithEmailAndPassword_200_response:
+      example:
+        user:
+          image: https://openapi-generator.tech
+          emailVerified: true
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        token: token
+      properties:
+        token:
+          description: Authentication token for the session
+          type: string
+          nullable: true
+        user:
+          $ref: "#/components/schemas/signUpWithEmailAndPassword_200_response_user"
+      required:
+      - user
+    signInEmail_request:
+      properties:
+        email:
+          description: Email of the user
+          type: string
+        password:
+          description: Password of the user
+          type: string
+        callbackURL:
+          description: Callback URL to use as a redirect for email verification
+          nullable: true
+          type: string
+        rememberMe:
+          default: true
+          description: "If this is false, the session will not be remembered. Default\
+            \ is `true`."
+          nullable: true
+          type: boolean
+      required:
+      - email
+      - password
+    signInEmail_200_response:
+      description: Session response when idToken is provided
+      example:
+        redirect: true
+        user:
+          emailVerified: false
+          image: image
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        url: url
+        token: token
+      properties:
+        redirect:
+          enum:
+          - false
+          type: boolean
+        token:
+          description: Session token
+          type: string
+        url:
+          type: string
+          nullable: true
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+      - redirect
+      - token
+      - user
+    resetPassword_request:
+      properties:
+        newPassword:
+          description: The new password to set
+          type: string
+        token:
+          description: The token to reset the password
+          nullable: true
+          type: string
+      required:
+      - newPassword
+    resetPassword_200_response:
+      example:
+        status: true
+      properties:
+        status:
+          type: boolean
+    verifyPassword_request:
+      properties:
+        password:
+          description: The password to verify
+          type: string
+      required:
+      - password
+    _verify_email_get_200_response:
+      example:
+        user:
+          emailVerified: false
+          image: image
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        status: true
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        status:
+          description: Indicates if the email was verified successfully
+          type: boolean
+      required:
+      - status
+      - user
+    sendVerificationEmail_request:
+      properties:
+        email:
+          description: The email to send the verification email to
+          example: user@example.com
+          type: string
+        callbackURL:
+          description: The URL to use for email verification callback
+          example: https://example.com/callback
+          type: string
+          nullable: true
+      required:
+      - email
+    sendVerificationEmail_200_response:
+      example:
+        status: true
+      properties:
+        status:
+          description: Indicates if the email was sent successfully
+          example: true
+          type: boolean
+    sendVerificationEmail_400_response:
+      example:
+        message: Verification email isn't enabled
+      properties:
+        message:
+          description: Error message
+          example: Verification email isn't enabled
+          type: string
+    changeEmail_request:
+      properties:
+        newEmail:
+          description: The new email address to set must be a valid email address
+          type: string
+        callbackURL:
+          description: The URL to redirect to after email verification
+          nullable: true
+          type: string
+      required:
+      - newEmail
+    changeEmail_200_response:
+      example:
+        message: Email updated
+        user:
+          emailVerified: false
+          image: image
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        status: true
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        status:
+          description: Indicates if the request was successful
+          type: boolean
+        message:
+          description: Status message of the email change process
+          enum:
+          - Email updated
+          - Verification email sent
+          type: string
+          nullable: true
+      required:
+      - status
+    changePassword_request:
+      properties:
+        newPassword:
+          description: The new password to set
+          type: string
+        currentPassword:
+          description: The current password is required
+          type: string
+        revokeOtherSessions:
+          description: Must be a boolean value
+          nullable: true
+          type: boolean
+      required:
+      - currentPassword
+      - newPassword
+    changePassword_200_response:
+      example:
+        user:
+          image: https://openapi-generator.tech
+          emailVerified: true
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        token: token
+      properties:
+        token:
+          description: New session token if other sessions were revoked
+          type: string
+          nullable: true
+        user:
+          $ref: "#/components/schemas/signUpWithEmailAndPassword_200_response_user"
+      required:
+      - user
+    updateSession_200_response:
+      example:
+        session:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          ipAddress: ipAddress
+          userAgent: userAgent
+          id: id
+          userId: userId
+          expiresAt: 2000-01-23T04:56:07.000+00:00
+          token: token
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        session:
+          $ref: "#/components/schemas/Session"
+    updateUser_request:
+      properties:
+        name:
+          description: The name of the user
+          type: string
+        image:
+          description: The image of the user
+          type: string
+          nullable: true
+    updateUser_200_response:
+      example:
+        user:
+          emailVerified: false
+          image: image
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          name: name
+          id: id
+          email: email
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+    deleteUser_request:
+      properties:
+        callbackURL:
+          description: The callback URL to redirect to after the user is deleted
+          type: string
+        password:
+          description: The user's password. Required if session is not fresh
+          type: string
+        token:
+          description: The deletion verification token
+          type: string
+    deleteUser_200_response:
+      example:
+        success: true
+        message: User deleted
+      properties:
+        success:
+          description: Indicates if the operation was successful
+          type: boolean
+        message:
+          description: Status message of the deletion process
+          enum:
+          - User deleted
+          - Verification email sent
+          type: string
+      required:
+      - message
+      - success
+    requestPasswordReset_request:
+      properties:
+        email:
+          description: The email address of the user to send a password reset email
+            to
+          type: string
+        redirectTo:
+          description: "The URL to redirect the user to reset their password. If the\
+            \ token isn't valid or expired, it'll be redirected with a query parameter\
+            \ `?error=INVALID_TOKEN`. If the token is valid, it'll be redirected with\
+            \ a query parameter `?token=VALID_TOKEN"
+          nullable: true
+          type: string
+      required:
+      - email
+    requestPasswordReset_200_response:
+      example:
+        message: message
+        status: true
+      properties:
+        status:
+          type: boolean
+        message:
+          type: string
+    resetPasswordCallback_200_response:
+      example:
+        token: token
+      properties:
+        token:
+          type: string
+    _revoke_session_post_request:
+      properties:
+        token:
+          description: The token to revoke
+          type: string
+      required:
+      - token
+    _revoke_session_post_200_response:
+      example:
+        status: true
+      properties:
+        status:
+          description: Indicates if the session was revoked successfully
+          type: boolean
+      required:
+      - status
+    _revoke_sessions_post_200_response:
+      example:
+        status: true
+      properties:
+        status:
+          description: Indicates if all sessions were revoked successfully
+          type: boolean
+      required:
+      - status
+    _revoke_other_sessions_post_200_response:
+      example:
+        status: true
+      properties:
+        status:
+          description: Indicates if all other sessions were revoked successfully
+          type: boolean
+      required:
+      - status
+    linkSocialAccount_request_idToken:
+      properties:
+        token:
+          type: string
+        nonce:
+          nullable: true
+          type: string
+        accessToken:
+          nullable: true
+          type: string
+        refreshToken:
+          nullable: true
+          type: string
+        scopes:
+          items: {}
+          nullable: true
+          type: array
+      required:
+      - token
+    linkSocialAccount_request:
+      properties:
+        callbackURL:
+          description: The URL to redirect to after the user has signed in
+          nullable: true
+          type: string
+        provider:
+          type: string
+        idToken:
+          $ref: "#/components/schemas/linkSocialAccount_request_idToken"
+        requestSignUp:
+          nullable: true
+          type: boolean
+        scopes:
+          description: Additional scopes to request from the provider
+          items: {}
+          nullable: true
+          type: array
+        errorCallbackURL:
+          description: The URL to redirect to if there is an error during the link
+            process
+          nullable: true
+          type: string
+        disableRedirect:
+          description: Disable automatic redirection to the provider. Useful for handling
+            the redirection yourself
+          nullable: true
+          type: boolean
+        additionalData:
+          nullable: true
+          type: string
+      required:
+      - provider
+    linkSocialAccount_200_response:
+      example:
+        redirect: true
+        url: url
+        status: true
+      properties:
+        url:
+          description: The authorization URL to redirect the user to
+          type: string
+        redirect:
+          description: Indicates if the user should be redirected to the authorization
+            URL
+          type: boolean
+        status:
+          type: boolean
+      required:
+      - redirect
+    listUserAccounts_200_response_inner:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        accountId: accountId
+        providerId: providerId
+        id: id
+        scopes:
+        - scopes
+        - scopes
+        userId: userId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          type: string
+        providerId:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        accountId:
+          type: string
+        userId:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+      required:
+      - accountId
+      - createdAt
+      - id
+      - providerId
+      - scopes
+      - updatedAt
+      - userId
+    _delete_user_callback_get_200_response:
+      example:
+        success: true
+        message: User deleted
+      properties:
+        success:
+          description: Indicates if the deletion was successful
+          type: boolean
+        message:
+          description: Confirmation message
+          enum:
+          - User deleted
+          type: string
+      required:
+      - message
+      - success
+    _unlink_account_post_request:
+      properties:
+        providerId:
+          type: string
+        accountId:
+          nullable: true
+          type: string
+      required:
+      - providerId
+    _refresh_token_post_request:
+      properties:
+        providerId:
+          description: The provider ID for the OAuth provider
+          type: string
+        accountId:
+          description: The account ID associated with the refresh token
+          nullable: true
+          type: string
+        userId:
+          description: The user ID associated with the account
+          nullable: true
+          type: string
+      required:
+      - providerId
+    _refresh_token_post_200_response:
+      example:
+        refreshTokenExpiresAt: 2000-01-23T04:56:07.000+00:00
+        accessTokenExpiresAt: 2000-01-23T04:56:07.000+00:00
+        idToken: idToken
+        tokenType: tokenType
+        accessToken: accessToken
+        refreshToken: refreshToken
+      properties:
+        tokenType:
+          type: string
+        idToken:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        accessTokenExpiresAt:
+          format: date-time
+          type: string
+        refreshTokenExpiresAt:
+          format: date-time
+          type: string
+    _get_access_token_post_200_response:
+      example:
+        accessTokenExpiresAt: 2000-01-23T04:56:07.000+00:00
+        idToken: idToken
+        tokenType: tokenType
+        accessToken: accessToken
+      properties:
+        tokenType:
+          type: string
+        idToken:
+          type: string
+        accessToken:
+          type: string
+        accessTokenExpiresAt:
+          format: date-time
+          type: string
+    _account_info_get_200_response_user:
+      example:
+        image: image
+        emailVerified: true
+        name: name
+        id: id
+        email: email
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        image:
+          type: string
+        emailVerified:
+          type: boolean
+      required:
+      - emailVerified
+      - id
+    _account_info_get_200_response:
+      additionalProperties: {}
+      example:
+        data:
+          key: ""
+        user:
+          image: image
+          emailVerified: true
+          name: name
+          id: id
+          email: email
+      properties:
+        user:
+          $ref: "#/components/schemas/_account_info_get_200_response_user"
+        data:
+          additionalProperties: {}
+          properties: {}
+      required:
+      - data
+      - user
+    _ok_get_200_response:
+      example:
+        ok: true
+      properties:
+        ok:
+          description: Indicates if the API is working
+          type: boolean
+      required:
+      - ok
+  securitySchemes:
+    apiKeyCookie:
+      description: API Key authentication via cookie
+      in: cookie
+      name: apiKeyCookie
+      type: apiKey
+    bearerAuth:
+      description: Bearer token authentication
+      scheme: bearer
+      type: http
