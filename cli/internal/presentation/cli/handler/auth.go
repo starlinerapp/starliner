@@ -44,32 +44,48 @@ func (ah *AuthHandler) newAuthLoginCmd() *cobra.Command {
 		Example: "starliner auth login",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			reader := bufio.NewReader(os.Stdin)
+			in := cmd.InOrStdin()
+			out := cmd.OutOrStdout()
 
-			fmt.Print("Email: ")
+			reader := bufio.NewReader(in)
+
+			if _, err := fmt.Fprint(out, "Email: "); err != nil {
+				return err
+			}
 			email, err := reader.ReadString('\n')
 			if err != nil {
 				return err
 			}
 
-			fmt.Print("Password: ")
-			passwordBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
+			if _, err := fmt.Fprint(out, "Password: "); err != nil {
+				return err
+			}
+
+			stdinFile, ok := in.(*os.File)
+			if !ok {
+				return fmt.Errorf("password input requires a terminal")
+			}
+
+			passwordBytes, err := term.ReadPassword(int(stdinFile.Fd()))
 			if err != nil {
 				return err
 			}
 
-			fmt.Println()
+			if _, err := fmt.Fprintln(out); err != nil {
+				return err
+			}
 
-			err = ah.authApplication.Login(
+			if err := ah.authApplication.Login(
 				cmd.Context(),
 				strings.TrimSpace(email),
 				string(passwordBytes),
-			)
-			if err != nil {
+			); err != nil {
 				return err
 			}
 
-			fmt.Println("Successfully logged in.")
+			if _, err := fmt.Fprintln(out, "Successfully logged in."); err != nil {
+				return err
+			}
 			return nil
 		},
 	}
