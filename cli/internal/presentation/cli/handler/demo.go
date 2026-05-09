@@ -56,6 +56,9 @@ func (dh *DemoHandler) newDemoDownCmd() *cobra.Command {
 		Example: "starliner demo down",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := dh.demoApplication.Stop(); err != nil {
+				return err
+			}
 			return nil
 		},
 	}

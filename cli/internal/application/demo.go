@@ -25,6 +25,14 @@ func (da *DemoApplication) Run() error {
 	return nil
 }
 
+func (da *DemoApplication) Stop() error {
+	if err := da.stopK3d(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (da *DemoApplication) installK3d() error {
 	fmt.Println("Installing k3d...")
 	cmd := exec.Command(
@@ -54,6 +62,7 @@ func (da *DemoApplication) startK3d() error {
 		"cluster",
 		"create",
 		"starliner-demo",
+		"--api-port=16444",
 	)
 
 	cmd.Stdout = os.Stdout
@@ -65,6 +74,28 @@ func (da *DemoApplication) startK3d() error {
 	}
 
 	fmt.Println("k3d cluster started successfully")
+
+	return nil
+}
+
+func (da *DemoApplication) stopK3d() error {
+	fmt.Println("Stopping k3d cluster...")
+	cmd := exec.Command(
+		"k3d",
+		"cluster",
+		"delete",
+		"starliner-demo",
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to delete k3d cluster: %w", err)
+	}
+
+	fmt.Println("k3d cluster deleted successfully")
 
 	return nil
 }
