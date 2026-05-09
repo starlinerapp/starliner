@@ -2,6 +2,7 @@ package main
 
 import (
 	"go.uber.org/fx"
+	"starliner.app/cli/internal/application"
 	"starliner.app/cli/internal/conf"
 	"starliner.app/cli/internal/infrastructure/auth"
 	"starliner.app/cli/internal/presentation/cli"
@@ -12,6 +13,7 @@ func main() {
 		fx.NopLogger,
 		conf.Module,
 		auth.Module,
+		application.Module,
 		cli.Module,
 	).Run()
 }
