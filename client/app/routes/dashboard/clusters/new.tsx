@@ -9,6 +9,11 @@ import WarningBanner from "~/components/atoms/banner/WarningBanner";
 import { ChevronDown, Cross, Hetzner, K8S } from "~/components/atoms/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "~/utils/cn";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "~/components/atoms/dialog/Dialog";
 
 interface NewClusterFormInput {
   name: string;
@@ -23,7 +28,9 @@ export default function NewCluster() {
 
   const organization = useOrganizationContext();
 
-  const [isHetznerOpen, setIsHetznerOpen] = useState(false);
+  const [showLocalDemoInstructionsDialog, setshowLocalDemoInstructionsDialog] =
+    useState(false);
+  const [showHetznerForm, setShowHetznerForm] = useState(false);
 
   const { data: hetznerCredentialData, isLoading: isCredentialLoading } =
     useQuery(
@@ -92,171 +99,226 @@ export default function NewCluster() {
             </p>
           </div>
 
-          <div className="border-mauve-6 hover:bg-gray-2 flex h-32 w-96 cursor-pointer flex-col justify-between rounded-md border p-3 shadow-xs transition-colors">
-            <span className="flex items-start justify-between">
-              <K8S className="h-10 w-10" />
+          <Dialog
+            open={showLocalDemoInstructionsDialog}
+            onOpenChange={setshowLocalDemoInstructionsDialog}
+          >
+            <DialogTrigger asChild>
+              <div className="border-mauve-6 hover:bg-gray-2 flex h-32 w-96 cursor-pointer flex-col justify-between rounded-md border p-3 shadow-xs transition-colors">
+                <span className="flex items-start justify-between">
+                  <K8S className="h-10 w-10" />
 
-              <p className="bg-violet-10 border-violet-6 rounded-md px-2 py-1 text-xs text-white">
-                3 min to setup
-              </p>
-            </span>
+                  <p className="bg-violet-10 border-violet-6 rounded-md px-2 py-1 text-xs text-white">
+                    3 min to setup
+                  </p>
+                </span>
 
-            <p className="font-bold">Local machine (demo)</p>
-          </div>
+                <p className="font-bold">Local machine (demo)</p>
+              </div>
+            </DialogTrigger>
+            <DialogContent>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-6">
+                  <h1>Install Starliner on your local machine</h1>
+                  <div className="flex flex-col gap-2">
+                    <div className="border-mauve-6 flex flex-col gap-2 rounded-md border p-3 text-sm">
+                      <p className="text-mauve-12 font-bold">
+                        1. Download/Update Starliner CLI
+                      </p>
+                      <p className="text-mauve-11">
+                        Download and install the Starliner CLI (or update to the
+                        latest version)
+                      </p>
+                    </div>
+                    <div className="border-mauve-6 flex flex-col gap-2 rounded-md border p-3 text-sm">
+                      <p className="text-mauve-12 font-bold">
+                        2. Install your cluster
+                      </p>
+                      <p className="text-mauve-11">
+                        Run the following command from your terminal and follow
+                        the instructions
+                      </p>
+                      <pre className="bg-gray-3 p-3 py-4">
+                        $ starliner demo up
+                      </pre>
+                    </div>
+                    <div className="border-mauve-6 flex flex-col gap-2 rounded-md border p-3 text-sm">
+                      <p className="text-mauve-12 font-bold">
+                        3. Deploy your first environment!
+                      </p>
+                      <p className="text-mauve-11">
+                        Once the installation has completed, get back to
+                        Starliner Dashboard and deploy your first services to
+                        your local cluster.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Button intent="secondary" className="w-24 self-end">
+                  Close
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="text-mauve-12 flex flex-col gap-4 text-sm">
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-bold">Or choose your hosting mode</p>
+            <p className="text-sm font-bold">Or deploy to the public cloud</p>
 
             <p className="text-mauve-11 text-sm">
               Manage your infrastructure across different providers.
             </p>
           </div>
 
-          <div
-            onClick={() => setIsHetznerOpen((open) => !open)}
-            className="border-mauve-6 hover:bg-gray-2 relative flex h-32 w-96 cursor-pointer flex-col rounded-md border p-3 shadow-xs transition-colors"
-          >
-            <Hetzner className="h-10 w-10" />
-            <div className="absolute top-1/2 right-3 -translate-y-1/2">
-              <ChevronDown
-                className={cn("h-5 w-5", isHetznerOpen && "rotate-180")}
-              />
+          <div className="flex flex-col gap-2">
+            <div
+              onClick={() => setShowHetznerForm((open) => !open)}
+              className="border-mauve-6 hover:bg-gray-2 relative flex h-32 w-96 cursor-pointer flex-col rounded-md border p-3 shadow-xs transition-colors"
+            >
+              <Hetzner className="h-10 w-10" />
+              <div className="absolute top-1/2 right-3 -translate-y-1/2">
+                <ChevronDown
+                  className={cn("h-5 w-5", showHetznerForm && "rotate-180")}
+                />
+              </div>
+              <p className="mt-auto font-bold">Hetzner Cloud</p>
             </div>
-            <p className="mt-auto font-bold">Hetzner Cloud</p>
-          </div>
 
-          <AnimatePresence initial={false}>
-            {isHetznerOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.1, ease: "easeOut" }}
-                className="overflow-hidden"
-              >
-                <div className="border-mauve-6 bg-mauve-2 flex flex-col gap-6 rounded-md border p-4 shadow-xs">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-start justify-between">
-                      <span className="flex items-center gap-4">
-                        <Hetzner className="h-8 w-8" />
+            <AnimatePresence initial={false}>
+              {showHetznerForm && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.1, ease: "easeOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="border-mauve-6 bg-mauve-2 flex flex-col gap-6 rounded-md border p-4 shadow-xs">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start justify-between">
+                        <span className="flex items-center gap-4">
+                          <Hetzner className="h-8 w-8" />
 
-                        <p className="font-bold">Hetzner Cloud</p>
-                      </span>
+                          <p className="font-bold">Hetzner Cloud</p>
+                        </span>
 
-                      <span
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsHetznerOpen(false);
-                        }}
-                        className="hover:bg-gray-3 cursor-pointer rounded-md p-1"
-                      >
-                        <Cross className="stroke-mauve-11 h-5 w-5" />
-                      </span>
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowHetznerForm(false);
+                          }}
+                          className="hover:bg-gray-3 cursor-pointer rounded-md p-1"
+                        >
+                          <Cross className="stroke-mauve-11 h-5 w-5" />
+                        </span>
+                      </div>
+
+                      {isCredentialLoading ? null : isCredentialValid ? null : (
+                        <WarningBanner
+                          text="You must enter your Hetzner API Key to create a cluster."
+                          linkOut={{
+                            text: "Organization Settings",
+                            href: `/${organization.slug}/settings/organization`,
+                          }}
+                          className="my-2"
+                        />
+                      )}
                     </div>
 
-                    {isCredentialLoading ? null : isCredentialValid ? null : (
-                      <WarningBanner
-                        text="You must enter your Hetzner API Key to create a cluster."
-                        linkOut={{
-                          text: "Organization Settings",
-                          href: `/${organization.slug}/settings/organization`,
-                        }}
-                        className="my-2"
-                      />
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <form
-                      className="flex flex-col gap-4"
-                      onSubmit={handleSubmit(onSubmit)}
-                    >
-                      <div className="flex items-end gap-2">
-                        <div className="flex flex-col gap-1">
-                          <label htmlFor="name">Cluster Name*</label>
-
-                          <input
-                            id="name"
-                            className="border-mauve-6 h-10 w-80 rounded-md border bg-white px-2 py-1 text-sm"
-                            type="text"
-                            placeholder="Name*"
-                            {...register("name")}
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          <label htmlFor="teamId">Team*</label>
-
-                          <div className="relative h-10 w-52">
-                            <select
-                              id="teamId"
-                              {...register("teamId", { required: true })}
-                              className="border-mauve-6 h-full w-full appearance-none rounded-md border bg-white px-2 py-1 pr-8 text-sm"
-                              disabled={!teamsData?.length}
-                            >
-                              <option value="" disabled>
-                                Team*
-                              </option>
-
-                              {teamsData?.map((team) => (
-                                <option key={team.id} value={team.id}>
-                                  {team.slug}
-                                </option>
-                              ))}
-                            </select>
-
-                            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-                              <ChevronDown
-                                width={15}
-                                className="stroke-mauve-10"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-end gap-2">
-                        <div className="flex flex-col gap-1">
-                          <label htmlFor="serverType">Server Type*</label>
-
-                          <div className="relative h-10 w-52">
-                            <select
-                              id="serverType"
-                              className="border-mauve-6 h-full w-full appearance-none rounded-md border bg-white px-2 py-1 pr-8 text-sm"
-                              defaultValue="cx23"
-                              {...register("serverType", {
-                                required: true,
-                              })}
-                            >
-                              <option value="cx23">CX23</option>
-                              <option value="cpx22">CPX22</option>
-                            </select>
-
-                            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-                              <ChevronDown
-                                width={15}
-                                className="stroke-mauve-10"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <Button
-                        className="h-10 w-32"
-                        disabled={!nameInput || !teamIdInput}
-                        type="submit"
+                    <div className="flex flex-col gap-4">
+                      <h1 className="border-mauve-6 border-b pb-2 text-base">
+                        Create a New Cluster
+                      </h1>
+                      <form
+                        className="flex flex-col gap-4"
+                        onSubmit={handleSubmit(onSubmit)}
                       >
-                        Create Cluster
-                      </Button>
-                    </form>
+                        <div className="flex items-end gap-2">
+                          <div className="flex flex-col gap-1">
+                            <label htmlFor="name">Cluster Name*</label>
+
+                            <input
+                              id="name"
+                              className="border-mauve-6 h-10 w-80 rounded-md border bg-white px-2 py-1 text-sm"
+                              type="text"
+                              placeholder="Name*"
+                              {...register("name")}
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label htmlFor="teamId">Team*</label>
+
+                            <div className="relative h-10 w-52">
+                              <select
+                                id="teamId"
+                                {...register("teamId", { required: true })}
+                                className="border-mauve-6 h-full w-full cursor-pointer appearance-none rounded-md border bg-white px-2 py-1 pr-8 text-sm"
+                                disabled={!teamsData?.length}
+                              >
+                                <option value="" disabled>
+                                  Team*
+                                </option>
+
+                                {teamsData?.map((team) => (
+                                  <option key={team.id} value={team.id}>
+                                    {team.slug}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                                <ChevronDown
+                                  width={15}
+                                  className="stroke-mauve-10"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-end gap-2">
+                          <div className="flex flex-col gap-1">
+                            <label htmlFor="serverType">Server Type*</label>
+
+                            <div className="relative h-10 w-52">
+                              <select
+                                id="serverType"
+                                className="border-mauve-6 h-full w-full cursor-pointer appearance-none rounded-md border bg-white px-2 py-1 pr-8 text-sm"
+                                defaultValue="cx23"
+                                {...register("serverType", {
+                                  required: true,
+                                })}
+                              >
+                                <option value="cx23">CX23</option>
+                                <option value="cpx22">CPX22</option>
+                              </select>
+
+                              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                                <ChevronDown
+                                  width={15}
+                                  className="stroke-mauve-10"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Button
+                          className="mt-4 h-10 w-32"
+                          disabled={!nameInput || !teamIdInput}
+                          type="submit"
+                        >
+                          Create Cluster
+                        </Button>
+                      </form>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
