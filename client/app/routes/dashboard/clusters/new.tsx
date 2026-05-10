@@ -213,7 +213,12 @@ export default function NewCluster() {
                           <Cross className="stroke-mauve-11 h-5 w-5" />
                         </span>
                       </div>
+                    </div>
 
+                    <div className="flex flex-col gap-4">
+                      <h1 className="border-mauve-6 border-b pb-2 text-[15px]">
+                        Create a New Cluster
+                      </h1>
                       {isCredentialLoading ? null : isCredentialValid ? null : (
                         <WarningBanner
                           text="You must enter your Hetzner API Key to create a cluster."
@@ -224,12 +229,6 @@ export default function NewCluster() {
                           className="my-2"
                         />
                       )}
-                    </div>
-
-                    <div className="flex flex-col gap-4">
-                      <h1 className="border-mauve-6 border-b pb-2 text-[15px]">
-                        Create a New Cluster
-                      </h1>
                       <form
                         className="flex flex-col gap-4"
                         onSubmit={handleSubmit(onSubmit)}
