@@ -1,6 +1,10 @@
 package application
 
-import "starliner.app/cli/internal/domain/port"
+import (
+	"fmt"
+
+	"starliner.app/cli/internal/domain/port"
+)
 
 type DemoApplication struct {
 	k3dClient port.K3dClient
@@ -24,6 +28,13 @@ func (da *DemoApplication) Run() error {
 	if err := da.wgClient.Install(); err != nil {
 		return err
 	}
+	keyPair, err := da.wgClient.GenerateKeyPair()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("public key: %s\n", keyPair.PublicKey)
+	fmt.Printf("private key: %s\n", keyPair.PrivateKey)
 
 	if err := da.k3dClient.Start(); err != nil {
 		return err

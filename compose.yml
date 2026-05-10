@@ -144,14 +144,20 @@ services:
       context: .
       dockerfile: .docker/server/cluster/Dockerfile
       target: dev
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
     ports:
       - "40002:40002"
       - "57400:57400"
+      - "51820:51820/udp"
     environment:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
     volumes:
       - ./server:/app
+      - .docker/server/cluster/config/wg0.conf:/etc/wireguard/wg0.conf
     networks:
       - internal
 

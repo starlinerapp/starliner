@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"starliner.app/cli/internal/domain/port"
 )
 
@@ -29,6 +30,18 @@ func (c *Client) Install() error {
 	default:
 		panic("unsupported platform")
 	}
+}
+
+func (c *Client) GenerateKeyPair() (keyPair *port.KeyPair, err error) {
+	privateKey, err := wgtypes.GeneratePrivateKey()
+	if err != nil {
+		return nil, err
+	}
+
+	return &port.KeyPair{
+		PublicKey:  privateKey.PublicKey().String(),
+		PrivateKey: privateKey.String(),
+	}, nil
 }
 
 func installOnMacOS() error {
