@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"starliner.app/cli/internal/conf"
+	"starliner.app/cli/internal/domain/port"
 	openapi "starliner.app/cli/internal/infrastructure/auth/generated/client"
 )
 
@@ -15,7 +16,7 @@ type Client struct {
 	conf          *conf.Config
 }
 
-func NewClient() *Client {
+func NewClient() port.AuthClient {
 	apiAuthClient := openapi.NewAPIClient(
 		openapi.NewConfiguration())
 	return &Client{

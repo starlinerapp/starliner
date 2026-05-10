@@ -1,24 +1,25 @@
 package application
 
-import (
-	"fmt"
-	"os"
-	"os/exec"
-)
+import "starliner.app/cli/internal/domain/port"
 
 type DemoApplication struct {
+	k3dClient port.K3dClient
 }
 
-func NewDemoApplication() *DemoApplication {
-	return &DemoApplication{}
+func NewDemoApplication(
+	k3dClient port.K3dClient,
+) *DemoApplication {
+	return &DemoApplication{
+		k3dClient: k3dClient,
+	}
 }
 
 func (da *DemoApplication) Run() error {
-	if err := da.installK3d(); err != nil {
+	if err := da.k3dClient.Install(); err != nil {
 		return err
 	}
 
-	if err := da.startK3d(); err != nil {
+	if err := da.k3dClient.Start(); err != nil {
 		return err
 	}
 
@@ -26,76 +27,9 @@ func (da *DemoApplication) Run() error {
 }
 
 func (da *DemoApplication) Stop() error {
-	if err := da.stopK3d(); err != nil {
+	if err := da.k3dClient.Stop(); err != nil {
 		return err
 	}
-
-	return nil
-}
-
-func (da *DemoApplication) installK3d() error {
-	fmt.Println("Installing k3d...")
-	cmd := exec.Command(
-		"bash",
-		"-c",
-		"wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash",
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to install k3d: %w", err)
-	}
-
-	fmt.Println("k3d installed successfully")
-
-	return nil
-}
-
-func (da *DemoApplication) startK3d() error {
-	fmt.Println("Starting k3d cluster...")
-
-	cmd := exec.Command(
-		"k3d",
-		"cluster",
-		"create",
-		"starliner-demo",
-		"--api-port=16444",
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to start k3d cluster: %w", err)
-	}
-
-	fmt.Println("k3d cluster started successfully")
-
-	return nil
-}
-
-func (da *DemoApplication) stopK3d() error {
-	fmt.Println("Stopping k3d cluster...")
-	cmd := exec.Command(
-		"k3d",
-		"cluster",
-		"delete",
-		"starliner-demo",
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to delete k3d cluster: %w", err)
-	}
-
-	fmt.Println("k3d cluster deleted successfully")
 
 	return nil
 }

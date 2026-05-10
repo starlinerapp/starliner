@@ -4,6 +4,8 @@ ENV PATH=/go/bin:$PATH
 
 WORKDIR /app
 
+RUN apk add wireguard-tools iptables
+
 RUN go install github.com/air-verse/air@latest
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
@@ -35,6 +37,8 @@ RUN go build -o cluster ./cmd/cluster/main.go
 FROM golang:1.26-alpine AS runner
 
 WORKDIR /app
+
+RUN apk add wireguard-tools iptables
 
 COPY --from=builder /app/cluster ./cluster
 COPY ../../../server/.env .env

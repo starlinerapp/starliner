@@ -2,7 +2,6 @@ package auth
 
 import (
 	"go.uber.org/fx"
-	"starliner.app/cli/internal/domain/port"
 )
 
 var Module = fx.Module(
@@ -10,7 +9,6 @@ var Module = fx.Module(
 	fx.Provide(
 		fx.Annotate(
 			NewClient,
-			fx.As(new(port.AuthClient)),
 		),
 	),
 )

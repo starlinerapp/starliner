@@ -379,19 +379,6 @@ services:
     networks:
       - internal
 
-  frps:
-    build:
-      context: .
-      dockerfile: .docker/frps/Dockerfile
-    command: [ "-c", "/etc/frp/frps.toml" ]
-    restart: unless-stopped
-    ports:
-      - "7000:7000"
-    volumes:
-      - ./.docker/frps/frps.toml:/etc/frp/frps.toml:ro
-    networks:
-      - internal
-
 volumes:
   node-modules-client:
   auth-db-data:
