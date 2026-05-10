@@ -8,7 +8,6 @@ import (
 )
 
 type Config struct {
-	AuthBaseUrl string `mapstructure:"AUTH_BASE_URL" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {

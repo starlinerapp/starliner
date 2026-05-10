@@ -6,14 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"starliner.app/cli/internal/conf"
 	"starliner.app/cli/internal/domain/port"
 	openapi "starliner.app/cli/internal/infrastructure/auth/generated/client"
 )
 
 type Client struct {
 	apiAuthClient *openapi.APIClient
-	conf          *conf.Config
 }
 
 func NewClient() port.AuthClient {

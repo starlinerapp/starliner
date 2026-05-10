@@ -1,0 +1,44 @@
+openapi: 3.0.1
+info:
+  contact: {}
+  title: Starliner CLI API
+  version: "1.0"
+servers:
+- url: /
+paths:
+  /:
+    get:
+      operationId: getRoot
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/response.Root"
+          description: OK
+      summary: Get root
+      tags:
+      - root
+components:
+  schemas:
+    response.Root:
+      example:
+        message: message
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      type: object
+  securitySchemes:
+    BasicAuth:
+      scheme: basic
+      type: http
+x-original-swagger-version: "2.0"

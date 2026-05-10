@@ -36,3 +36,7 @@ openapi-generate-auth:
 	curl -s $(OPENAPI_URL) > $(OPENAPI_SPEC)
 	openapi-generator-cli generate --skip-validate-spec -i $(OPENAPI_SPEC) -g go -o internal/infrastructure/auth/generated/client --global-property=apiTests=false,modelTests=false --additional-properties=withGoMod=false,isGoSubmodule=true,packageName=authClient,useDefaultValuesForRequiredVars=false
 	find internal/infrastructure/auth/generated/client -name "model_*.go" -exec sed -i '' 's|= "Generated at runtime"|= time.Time{}|g' {} +
+
+openapi-generate-api:
+	mkdir -p internal/infrastructure/api/generated/client
+		openapi-generator-cli generate --skip-validate-spec -i '../server/cmd/api/cli/docs/cli_swagger.yaml' -g go -o internal/infrastructure/api/generated/client --additional-properties=withGoMod=false,isGoSubmodule=true,packageName=apiClient
