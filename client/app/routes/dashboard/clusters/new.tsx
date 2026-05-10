@@ -227,7 +227,7 @@ export default function NewCluster() {
                     </div>
 
                     <div className="flex flex-col gap-4">
-                      <h1 className="border-mauve-6 border-b pb-2 text-base">
+                      <h1 className="border-mauve-6 border-b pb-2 text-[15px]">
                         Create a New Cluster
                       </h1>
                       <form
