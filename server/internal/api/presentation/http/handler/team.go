@@ -23,6 +23,7 @@ func NewTeamHandler(teamApplication *application.TeamApplication) *TeamHandler {
 
 // CreateTeam FindAll godoc
 // @Summary Create team
+// @State core
 // @Tags team
 // @ID createTeam
 // @Product JSON
@@ -54,6 +55,7 @@ func (th *TeamHandler) CreateTeam(c *gin.Context) {
 
 // GetUserTeams FindAll godoc
 // @Summary Get User Teams
+// @State core
 // @Tags team
 // @ID getUserTeams
 // @Product JSON
@@ -79,6 +81,7 @@ func (th *TeamHandler) GetUserTeams(c *gin.Context) {
 
 // GetTeamMembers FindAll godoc
 // @Summary Get Team Members
+// @State core
 // @Tags team
 // @ID getTeamMembers
 // @Product JSON
@@ -105,6 +108,7 @@ func (th *TeamHandler) GetTeamMembers(c *gin.Context) {
 
 // JoinTeam FindAll godoc
 // @Summary Join a team by slug
+// @State core
 // @Tags team
 // @ID joinTeam
 // @Param X-User-ID header string true "User ID"
@@ -137,6 +141,7 @@ func (th *TeamHandler) JoinTeam(c *gin.Context) {
 
 // AddTeamMember FindAll godoc
 // @Summary Add organization member to team
+// @State core
 // @Tags team
 // @ID addTeamMember
 // @Param X-User-ID header string true "User ID"
@@ -170,6 +175,7 @@ func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 
 // RemoveTeamMember FindAll godoc
 // @Summary Remove organization member from team
+// @State core
 // @Tags team
 // @ID removeTeamMember
 // @Product JSON
@@ -204,6 +210,7 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 
 // AssignRepoToTeam godoc
 // @Summary Assign a GitHub repository to a team
+// @State core
 // @Tags team
 // @ID assignRepoToTeam
 // @Param X-User-ID header string true "User ID"
@@ -237,6 +244,7 @@ func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
 
 // UnassignRepoFromTeam godoc
 // @Summary Unassign a GitHub repository from a team
+// @State core
 // @Tags team
 // @ID unassignRepoFromTeam
 // @Param X-User-ID header string true "User ID"
@@ -269,6 +277,7 @@ func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
 
 // GetTeamRepositories godoc
 // @Summary Get repositories assigned to a team
+// @State core
 // @Tags team
 // @ID getTeamRepositories
 // @Param X-User-ID header string true "User ID"
@@ -294,6 +303,7 @@ func (th *TeamHandler) GetTeamRepositories(c *gin.Context) {
 
 // GetTeamClusters godoc
 // @Summary Get clusters assigned to a team
+// @State core
 // @Tags team
 // @ID getTeamClusters
 // @Param X-User-ID header string true "User ID"
@@ -319,6 +329,7 @@ func (th *TeamHandler) GetTeamClusters(c *gin.Context) {
 
 // AssignClusterToTeam godoc
 // @Summary Assign a cluster to a team
+// @State core
 // @Tags team
 // @ID assignClusterToTeam
 // @Param X-User-ID header string true "User ID"
@@ -351,6 +362,7 @@ func (th *TeamHandler) AssignClusterToTeam(c *gin.Context) {
 
 // UnassignClusterFromTeam godoc
 // @Summary Unassign a cluster from a team
+// @State core
 // @Tags team
 // @ID unassignClusterFromTeam
 // @Param X-User-ID header string true "User ID"

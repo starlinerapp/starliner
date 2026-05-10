@@ -23,6 +23,7 @@ func NewOrganizationHandler(organizationApplication *application.OrganizationApp
 
 // CreateOrganization FindAll godoc
 // @Summary Create organization
+// @State core
 // @Tags organization
 // @ID createOrganization
 // @Product JSON
@@ -48,6 +49,7 @@ func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 
 // GetUserOrganizations FindAll godoc
 // @Summary Get user organizations
+// @State core
 // @Tags organization
 // @ID getUserOrganizations
 // @Product JSON
@@ -66,6 +68,7 @@ func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
 
 // GetUserProjects FindAll godoc
 // @Summary Get Organization Projects
+// @State core
 // @Tags organization
 // @ID getUserProjects
 // @Product JSON
@@ -91,6 +94,7 @@ func (oh *OrganizationHandler) GetUserProjects(c *gin.Context) {
 
 // GetOrganizationClusters FindAll godoc
 // @Summary Get Organization Clusters
+// @State core
 // @Tags organization
 // @ID getOrganizationClusters
 // @Product JSON
@@ -116,6 +120,7 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 
 // UpsertHetznerCredential FindAll godoc
 // @Summary Upsert Hetzner Provisioning Credential
+// @State core
 // @Tags organization
 // @ID upsertHetznerCredential
 // @Product JSON
@@ -148,6 +153,7 @@ func (oh *OrganizationHandler) UpsertHetznerCredential(c *gin.Context) {
 
 // GetHetznerCredential FindAll godoc
 // @Summary Get Hetzner Provisioning Credential
+// @State core
 // @Tags organization
 // @ID getHetznerCredential
 // @Product JSON
@@ -186,6 +192,7 @@ func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
 
 // SendEmailInvite godoc
 // @Summary Send organization invite via email
+// @State core
 // @Tags organization
 // @ID sendOrganizationInvite
 // @Product JSON
@@ -216,6 +223,7 @@ func (oh *OrganizationHandler) SendEmailInvite(c *gin.Context) {
 
 // GetInviteDetails godoc
 // @Summary Get organization invite details
+// @State core
 // @Tags organization
 // @ID getOrganizationInviteDetails
 // @Product JSON
@@ -236,6 +244,7 @@ func (oh *OrganizationHandler) GetInviteDetails(c *gin.Context) {
 
 // AcceptInvite godoc
 // @Summary Accept organization invite
+// @State core
 // @Tags organization
 // @ID acceptOrganizationInvite
 // @Param X-User-ID header string true "User ID"
@@ -260,6 +269,7 @@ func (oh *OrganizationHandler) AcceptInvite(c *gin.Context) {
 
 // GetOrganizationMembers godoc
 // @Summary Get all organization members
+// @State core
 // @Tags organization
 // @ID getOrganizationMembers
 // @Param X-User-ID header string true "User ID"

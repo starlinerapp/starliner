@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/presentation/http/dto/request"
 )
@@ -17,6 +18,7 @@ func NewInternalHandler(userApplication *application.UserApplication) *InternalH
 
 // SendVerificationEmail godoc
 // @Summary Send email verification
+// @State core
 // @Tags internal
 // @ID sendVerificationEmail
 // @Product JSON
@@ -43,6 +45,7 @@ func (ih *InternalHandler) SendVerificationEmail(c *gin.Context) {
 
 // SendResetPassword godoc
 // @Summary Send password reset email
+// @State core
 // @Tags internal
 // @ID sendResetPassword
 // @Product JSON

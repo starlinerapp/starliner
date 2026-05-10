@@ -23,6 +23,7 @@ func NewBuildHandler(buildApplication *application.BuildApplication) *BuildHandl
 
 // GetBuildLogs FindAll godoc
 // @Summary Get Build Logs
+// @State core
 // @Tags build
 // @ID getBuildLogs
 // @Param X-User-ID header string true "User ID"
@@ -48,6 +49,7 @@ func (bh *BuildHandler) GetBuildLogs(c *gin.Context) {
 
 // StreamBuildLogs FindAll godoc
 // @Summary Stream build logs
+// @State core
 // @Tags build
 // @ID streamBuildLogs
 // @Param X-User-ID header string true "User ID"

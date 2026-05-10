@@ -1668,23 +1668,6 @@ paths:
       summary: Accept organization invite
       tags:
       - organization
-  /me:
-    get:
-      operationId: getUser
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.User'
-      summary: Get current user
-      tags:
-      - user
   /organizations:
     get:
       operationId: getUserOrganizations

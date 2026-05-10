@@ -22,6 +22,7 @@ func NewGithubHandler(githubApplication *application.GitHubApplication) *GithubH
 
 // GetRepositories FindAll godoc
 // @Summary Get Repositories
+// @State core
 // @Tags github
 // @ID getRepositories
 // @Param X-User-ID header string true "User ID"
@@ -48,6 +49,7 @@ func (gh *GithubHandler) GetRepositories(c *gin.Context) {
 
 // GetAllRepositories godoc
 // @Summary Get All Repositories (owner only, unfiltered)
+// @State core
 // @Tags github
 // @ID getAllRepositories
 // @Param X-User-ID header string true "User ID"
@@ -74,6 +76,7 @@ func (gh *GithubHandler) GetAllRepositories(c *gin.Context) {
 
 // GetRepositoryContents FindAll godoc
 // @Summary Get Repository Content
+// @State core
 // @Tags github
 // @ID getRepositoryContents
 // @Param X-User-ID header string true "User ID"
@@ -113,6 +116,7 @@ func (gh *GithubHandler) GetRepositoryContents(c *gin.Context) {
 
 // GetFileContent godoc
 // @Summary Get File Content
+// @State core
 // @Tags github
 // @ID getFileContent
 // @Param X-User-ID header string true "User ID"
