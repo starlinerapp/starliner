@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /certs/dev.starliner.app.crt
+      keyFile: /certs/dev.starliner.app.key

@@ -103,7 +103,9 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	appendStatus("==> Server provisioned at %s\n", ip)
 
 	appendStatus("==> Waiting for SSH...\n")
-	if err := ca.ssh.WaitForSSH(ip, 30*time.Second); err != nil {
+
+	pemBytes, err := ca.crypto.EncodePrivateKeyToPEM(privateKey)
+	if err := ca.ssh.WaitForSSH(ip, "root", pemBytes, 30*time.Second); err != nil {
 		appendStatus("==> ERROR: SSH not available: %v\n", err)
 		log.Printf("SSH not available: %v\n", err)
 		return
