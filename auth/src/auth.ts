@@ -3,12 +3,13 @@ import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "~/db";
 import * as schema from "~/db/schema";
+import { serverEnv } from "~/env.server";
+
+const clientOrigin = new URL(serverEnv.CLIENT_BASE_URL).origin;
+const authOrigin = new URL(serverEnv.AUTH_PUBLIC_URL).origin;
 
 export const auth = betterAuth({
-  trustedOrigins: [
-    "https://dev.starliner.app",
-    "https://auth.dev.starliner.app",
-  ],
+  trustedOrigins: [clientOrigin, authOrigin],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
@@ -32,7 +33,7 @@ export const auth = betterAuth({
     cookiePrefix: "starliner",
     crossSubDomainCookies: {
       enabled: true,
-      domain: "dev.starliner.app",
+      domain: new URL(serverEnv.CLIENT_BASE_URL).hostname,
     },
     defaultCookieAttributes: {
       sameSite: "none",

@@ -3,7 +3,7 @@ import Button from "~/components/atoms/button/Button";
 import React from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { authClient } from "~/utils/auth/client";
+import { useAuthClient } from "~/utils/auth/client";
 import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 
@@ -12,6 +12,7 @@ interface NewOrganizationFormInput {
 }
 
 export default function NewOrganization() {
+  const authClient = useAuthClient();
   const trpc = useTRPC();
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<NewOrganizationFormInput>();

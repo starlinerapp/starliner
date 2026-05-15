@@ -40,7 +40,8 @@ services:
     environment:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-awVYP4Nisp2GBy87phEel7ZHGNXx4Hfl}
       AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
-      CLIENT_BASE_URL: ${CLIENT_BASE_URL:-http://client:5173}
+      CLIENT_BASE_URL: ${CLIENT_BASE_URL:-https://dev.starliner.app}
+      AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
     depends_on:
       auth-db:
         condition: service_healthy
@@ -70,6 +71,7 @@ services:
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
       AUTH_URL: ${AUTH_URL:-http://auth:3000}
+      AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
     volumes:
       - ./client:/app

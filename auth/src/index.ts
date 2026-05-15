@@ -42,7 +42,7 @@ app.route("/internal", app);
 app.use(
   "/api/auth/*",
   cors({
-    origin: ["https://dev.starliner.app"],
+    origin: serverEnv.CLIENT_BASE_URL,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["POST", "GET", "OPTIONS"],
     exposeHeaders: ["Content-Length"],

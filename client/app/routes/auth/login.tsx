@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { authClient } from "~/utils/auth/client";
+import { useAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 const VERIFY_EMAIL_ERROR = "Please verify your email address";
@@ -14,6 +14,7 @@ interface LoginFormInput {
 }
 
 export default function Login() {
+  const authClient = useAuthClient();
   const { register, handleSubmit } = useForm<LoginFormInput>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -46,7 +47,7 @@ export default function Login() {
     } finally {
       setIsResending(false);
     }
-  }, [unverifiedEmail, redirectTo]);
+  }, [authClient, unverifiedEmail, redirectTo]);
 
   const onSubmit: SubmitHandler<LoginFormInput> = async (data) => {
     await authClient.signIn.email(

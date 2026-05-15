@@ -13,6 +13,7 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthClientProvider } from "~/utils/auth/client";
 import { TRPCReactProvider } from "~/utils/trpc/react";
 
 function envScript(env: { SENTRY_DSN_CLIENT: string; ENVIRONMENT: string }) {
@@ -24,6 +25,7 @@ export function loader() {
     env: {
       SENTRY_DSN_CLIENT: process.env.SENTRY_DSN_CLIENT ?? "",
       ENVIRONMENT: process.env.ENVIRONMENT ?? "",
+      AUTH_PUBLIC_URL: process.env.AUTH_PUBLIC_URL ?? "",
     } satisfies Window["ENV"],
   };
 }
@@ -57,7 +59,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <AuthClientProvider authPublicOrigin={env.AUTH_PUBLIC_URL}>
+          {children}
+        </AuthClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

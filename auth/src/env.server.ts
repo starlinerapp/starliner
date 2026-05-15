@@ -4,6 +4,7 @@ const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string(),
   AUTH_DATABASE_URL: z.string(),
   CLIENT_BASE_URL: z.string(),
+  AUTH_PUBLIC_URL: z.string(),
 });
 
 function createServerEnv() {
