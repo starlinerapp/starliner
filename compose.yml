@@ -32,15 +32,34 @@ services:
     networks:
       - internal
 
+  auth:
+    build:
+      context: .
+      dockerfile: .docker/auth/Dockerfile
+      target: development-dependencies-env
+    command: ["npm", "run", "dev"]
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./auth:/app
+      - node-modules-auth:/app/node_modules
+    networks:
+      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.auth.rule=Host(`auth.dev.starliner.app`)
+      - traefik.http.routers.auth.entrypoints=websecure
+      - traefik.http.routers.auth.tls=true
+      - traefik.http.services.auth.loadbalancer.server.port=3000
+
   client:
     restart: unless-stopped
     build:
       context: .
       dockerfile: .docker/client/Dockerfile
       target: development-dependencies-env
-    depends_on:
-      auth-db:
-        condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
@@ -384,6 +403,7 @@ services:
 
 volumes:
   node-modules-client:
+  node-modules-auth:
   auth-db-data:
   db-data:
   nats-data:
