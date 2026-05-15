@@ -5,8 +5,10 @@ import { db } from "~/db";
 import * as schema from "~/db/schema";
 
 export const auth = betterAuth({
-  baseURL: "https://auth.dev.starliner.app/api/auth",
-  trustedOrigins: ["https://dev.starliner.app"],
+  trustedOrigins: [
+    "https://dev.starliner.app",
+    "https://auth.dev.starliner.app",
+  ],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
@@ -19,6 +21,24 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {},
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
+  advanced: {
+    cookiePrefix: "starliner",
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: "dev.starliner.app",
+    },
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      httpOnly: true,
+    },
   },
   plugins: [bearer()],
 });
