@@ -1,5 +1,5 @@
 import { createAuthClient } from "better-auth/react";
 
-export const authClient = createAuthClient();
-
-export const { signIn, signUp, useSession } = createAuthClient();
+export const authClient = createAuthClient({
+  baseURL: "https://auth.dev.starliner.app/api/auth",
+});

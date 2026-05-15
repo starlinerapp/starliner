@@ -1,36 +1,26 @@
 {
   "name": "auth",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.ts",
-  "directories": {
-    "test": "test"
-  },
+  "type": "module",
   "scripts": {
-    "test": "npm run build:ts && tsc -p test/tsconfig.json && c8 node --test -r ts-node/register \"test/**/*.ts\"",
-    "start": "npm run build:ts && fastify start -l info dist/app.js",
-    "build:ts": "tsc",
-    "watch:ts": "tsc -w",
-    "dev": "npm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch:ts\" \"npm:dev:start\"",
-    "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "drizzle:generate": "npx drizzle-kit generate",
+    "drizzle:migrate": "npx drizzle-kit migrate"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@fastify/autoload": "^6.3.1",
-    "@fastify/sensible": "^6.0.4",
-    "fastify": "^5.8.5",
-    "fastify-cli": "^7.4.1",
-    "fastify-plugin": "^5.1.0"
+    "@hono/node-server": "^1.19.14",
+    "better-auth": "^1.6.11",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.18",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
-    "@types/node": "^24.12.4",
-    "c8": "^10.1.2",
-    "concurrently": "^9.0.0",
-    "fastify-tsconfig": "^3.0.0",
-    "ts-node": "^10.4.0",
+    "@types/node": "^20.11.17",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
     "tsx": "^4.22.0",
-    "typescript": "~5.9.2"
+    "typescript": "^5.8.3"
   }
 }

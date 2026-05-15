@@ -1,23 +1,37 @@
-FROM node:22-alpine AS development-dependencies-env
+FROM node:22-alpine AS development
 WORKDIR /app
 
-COPY auth/package*.json ./
+COPY ../../auth/package*.json ./
 RUN npm ci
 
-COPY auth ./
+COPY ../../auth /app
+CMD ["npm", "run", "dev"]
 
 FROM node:22-alpine AS build
+
 WORKDIR /app
 
-COPY --from=development-dependencies-env /app ./
+COPY ../../auth/package.json /app/package.json
+COPY ../../auth/package-lock.json /app/package-lock.json
+RUN npm ci
+
+COPY ../../auth /app
+
 RUN npm run build
 
-FROM node:22-alpine AS production
+FROM node:22-alpine
+
 WORKDIR /app
 
-COPY auth/package*.json ./
+ENV NODE_ENV=production
+ENV PORT=3000
+
+COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app/package-lock.json /app/package-lock.json
 RUN npm ci --omit=dev
 
-COPY --from=build /app/dist ./dist
+COPY --from=build /app/build/server /app/build/server
+COPY --from=build /app/build/client /app/build/client
 
-CMD ["npm", "run", "start"]
+EXPOSE 3000
+CMD ["node", "dist/index.js"]

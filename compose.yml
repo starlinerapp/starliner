@@ -36,8 +36,11 @@ services:
     build:
       context: .
       dockerfile: .docker/auth/Dockerfile
-      target: development-dependencies-env
-    command: ["npm", "run", "dev"]
+      target: development
+    environment:
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-awVYP4Nisp2GBy87phEel7ZHGNXx4Hfl}
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
+      CLIENT_BASE_URL: ${CLIENT_BASE_URL:-http://client:5173}
     depends_on:
       auth-db:
         condition: service_healthy
@@ -63,12 +66,10 @@ services:
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://dev.starliner.app}
-      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      AUTH_URL: ${AUTH_URL:-http://auth:3000}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
     volumes:
       - ./client:/app

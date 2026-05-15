@@ -1,6 +1,4 @@
-import { db } from "~/db";
-import { user } from "~/db/schema";
-import { inArray } from "drizzle-orm";
+import { fetchAuthUsersByIds } from "~/server/services/authUsers.server";
 
 export async function enrichMembersWithAuthDetails<
   T extends { better_auth_id: string },
@@ -8,12 +6,7 @@ export async function enrichMembersWithAuthDetails<
   const betterAuthIds = members.map((m) => m.better_auth_id);
   if (betterAuthIds.length === 0) return [];
 
-  const authUsers = await db
-    .select({ id: user.id, name: user.name, email: user.email })
-    .from(user)
-    .where(inArray(user.id, betterAuthIds));
-
-  const authUserMap = new Map(authUsers.map((u) => [u.id, u]));
+  const authUserMap = await fetchAuthUsersByIds(betterAuthIds);
 
   return members.map((m) => ({
     ...m,

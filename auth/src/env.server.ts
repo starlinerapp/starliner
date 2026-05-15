@@ -1,10 +1,9 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  AUTH_URL: z.string(),
-  SERVER_BASE_URL: z.string(),
-  SERVER_BASIC_AUTH_USER: z.string(),
-  SERVER_BASIC_AUTH_PASSWORD: z.string(),
+  BETTER_AUTH_SECRET: z.string(),
+  AUTH_DATABASE_URL: z.string(),
+  CLIENT_BASE_URL: z.string(),
 });
 
 function createServerEnv() {

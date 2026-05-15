@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
-// @ts-expect-error .ts extension required by custom node server
-import { serverEnv } from "../env.server.ts";
+import { serverEnv } from "~/env.server";
 
 export const db = drizzle(serverEnv.AUTH_DATABASE_URL);
