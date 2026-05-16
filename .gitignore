@@ -1,11 +1,6 @@
 .idea
 
-.docker/traefik/certs/dev.starliner.app.crt
-.docker/traefik/certs/dev.starliner.app.key
-.docker/traefik/certs/mcp.dev.starliner.app.crt
-.docker/traefik/certs/mcp.dev.starliner.app.key
-.docker/traefik/certs/registry.dev.starliner.app.crt
-.docker/traefik/certs/registry.dev.starliner.app.key
+.docker/traefik/certs/*
 
 .docker/seaweedfs/*
 
