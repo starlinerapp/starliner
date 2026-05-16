@@ -1,3 +1,5 @@
+auth/src/infrastructure/api/client/generated/** linguist-generated=true
+
 client/app/server/api/client/generated/** linguist-generated=true
 client/app/components/atoms/icons/** linguist-generated=true
 
