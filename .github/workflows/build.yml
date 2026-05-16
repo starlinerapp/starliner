@@ -10,6 +10,32 @@ env:
   IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && 'develop' || 'latest' }}
   ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && 'staging' || 'production' }}
 jobs:
+  build-auth:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@v1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push auth image
+        uses: useblacksmith/build-push-action@v2
+        with:
+          context: .
+          file: .docker/auth/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/auth:${{ env.IMAGE_TAG }}
+          platforms: linux/amd64
+
   build-client:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
@@ -163,6 +189,7 @@ jobs:
 
   trigger-deployment:
     needs:
+      - build-auth
       - build-client
       - build-server-api
       - build-mcp

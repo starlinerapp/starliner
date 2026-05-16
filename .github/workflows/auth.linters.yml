@@ -1,0 +1,38 @@
+name: Auth Linters
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  client-lint:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.11.1'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: auth
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: auth
+
+      - name: Run format check
+        run: npx prettier --check "src/**/*.{ts,tsx}"
+        working-directory: auth
+
+      - name: Run type check
+        run: npm run typecheck
+        working-directory: auth
+
+      - name: Run vulnerability check
+        run: npm audit
+        working-directory: auth
