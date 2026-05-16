@@ -26,11 +26,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-COPY --from=build /app/package.json /app/package.json
-COPY --from=build /app/package-lock.json /app/package-lock.json
-RUN npm ci --omit=dev
+COPY --from=build /app/package.json /app/package-lock.json ./
+RUN npm ci
 
-COPY --from=build /app/dist /app/dist
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=build /app/drizzle ./drizzle
 
 RUN chown -R node:node /app
 USER node
