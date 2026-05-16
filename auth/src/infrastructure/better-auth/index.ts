@@ -42,6 +42,11 @@ export function createBetterAuth(
         await emailApplication.sendVerificationEmail(user.email, url);
       },
     },
+    rateLimit: {
+      customRules: {
+        "/get-session": false,
+      },
+    },
     session: {
       cookieCache: {
         enabled: true,
