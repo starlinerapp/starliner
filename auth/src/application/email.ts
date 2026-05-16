@@ -1,4 +1,4 @@
-import type { ApiService } from "~/domain/port/api";
+import type { ApiService } from "../domain/port/api";
 
 export class EmailApplication {
   constructor(private readonly api: ApiService) {}

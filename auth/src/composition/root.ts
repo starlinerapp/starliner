@@ -1,10 +1,10 @@
-import { EmailApplication } from "~/application/email";
-import { UserApplication } from "~/application/user";
-import { db } from "~/infrastructure/db";
-import { createAuthApiService } from "~/infrastructure/api/client";
-import { createBetterAuth } from "~/infrastructure/better-auth";
-import { DrizzleUserRepository } from "~/infrastructure/repository/user";
-import { createApp } from "~/presentation/http/app";
+import { DrizzleUserRepository } from "../infrastructure/repository/user";
+import { db } from "../infrastructure/db";
+import { UserApplication } from "../application/user";
+import { createAuthApiService } from "../infrastructure/api/client";
+import { EmailApplication } from "../application/email";
+import { createBetterAuth } from "../infrastructure/better-auth";
+import { createApp } from "../presentation/http/app";
 
 export function bootstrap() {
   const userRepository = new DrizzleUserRepository(db);

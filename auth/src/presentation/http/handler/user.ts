@@ -1,7 +1,10 @@
 import type { OpenAPIHono, RouteHandler } from "@hono/zod-openapi";
-import { UserApplication, UserLookupError } from "~/application/user";
 import { bulkUserLookupRoute } from "../routes/user";
-import { toBulkUserLookupResponse } from "~/presentation/http/mapper/user";
+import {
+  type UserApplication,
+  UserLookupError,
+} from "../../../application/user";
+import { toBulkUserLookupResponse } from "../mapper/user";
 
 export class UserHandler {
   constructor(private readonly userApplication: UserApplication) {}

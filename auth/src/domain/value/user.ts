@@ -1,4 +1,4 @@
-import type { User } from "~/domain/entity/user";
+import type { User } from "../entity/user";
 
 export type UserProfile = {
   id: string;

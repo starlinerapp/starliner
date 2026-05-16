@@ -1,5 +1,5 @@
-import { toUserProfiles, type UserProfile } from "~/domain/value/user";
-import type { UserRepository } from "~/domain/repository/interface/user";
+import type { UserRepository } from "../domain/repository/interface/user";
+import { toUserProfiles, type UserProfile } from "../domain/value/user";
 
 export const MAX_BULK_USER_LOOKUP = 200;
 
