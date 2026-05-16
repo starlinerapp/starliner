@@ -20,4 +20,6 @@ WORKDIR /app
 COPY ../../client/package.json ../../client/package-lock.json ./
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
+COPY --from=build-env /app/server.mjs /app/server.mjs
+COPY --from=build-env /app/instrument.server.mjs /app/instrument.server.mjs
 CMD ["npm", "run", "start"]
