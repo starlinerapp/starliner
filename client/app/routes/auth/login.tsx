@@ -32,7 +32,7 @@ export default function Login() {
     try {
       const { error: resendError } = await authClient.sendVerificationEmail({
         email: unverifiedEmail,
-        callbackURL: redirectTo,
+        callbackURL: new URL(redirectTo, window.location.origin).href,
       });
       if (resendError) {
         setError(

@@ -16,7 +16,13 @@ export function createBetterAuth(
   const clientOrigin = new URL(serverEnv.CLIENT_BASE_URL).origin;
   const authOrigin = new URL(serverEnv.AUTH_PUBLIC_URL).origin;
 
+  const authBaseUrl = new URL(
+    "/api/auth",
+    serverEnv.AUTH_PUBLIC_URL,
+  ).toString();
+
   return betterAuth({
+    baseURL: authBaseUrl,
     trustedOrigins: [clientOrigin, authOrigin],
     database: drizzleAdapter(db, {
       provider: "pg",
@@ -31,6 +37,7 @@ export function createBetterAuth(
       },
     },
     emailVerification: {
+      autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) => {
         await emailApplication.sendVerificationEmail(user.email, url);
       },

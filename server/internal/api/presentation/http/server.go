@@ -48,6 +48,13 @@ func NewServer(
 		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)
 	}
 
+	authEmailRoutes := engine.Group("/auth")
+	authEmailRoutes.Use(auth.WithBasicAuth())
+	{
+		authEmailRoutes.POST("/send-verification-email", internalHandler.SendVerificationEmail)
+		authEmailRoutes.POST("/send-reset-password", internalHandler.SendResetPassword)
+	}
+
 	engine.Use(auth.WithBasicAuth(), user.WithUser())
 	engine.GET("/", rootHandler.GetRoot)
 	engine.GET("/me", userHandler.GetUser)
@@ -153,12 +160,6 @@ func NewServer(
 	{
 		githubAppRoutes.POST("", githubAppHandler.CreateGithubApp)
 		githubAppRoutes.GET("/:organizationId", githubAppHandler.GetGithubApp)
-	}
-
-	internalRoutes := engine.Group("/auth")
-	{
-		internalRoutes.POST("/send-verification-email", internalHandler.SendVerificationEmail)
-		internalRoutes.POST("/send-reset-password", internalHandler.SendResetPassword)
 	}
 
 	return &Server{engine: engine}

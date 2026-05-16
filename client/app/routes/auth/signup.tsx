@@ -22,11 +22,14 @@ export default function SignUp() {
   const [error, setError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SignUpFormInput> = async (data) => {
+    const callbackURL = new URL(redirectTo, window.location.origin).href;
+
     await authClient.signUp.email(
       {
         email: data.email,
         password: data.password,
         name: data.username,
+        callbackURL,
       },
       {
         onRequest: () => {
