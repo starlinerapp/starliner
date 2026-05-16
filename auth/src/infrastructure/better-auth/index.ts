@@ -5,7 +5,7 @@ import type { EmailApplication } from "src/application/email";
 import type { db } from "../db";
 import type { AuthService } from "../../domain/port/auth";
 import { serverEnv } from "../../env.server";
-import { schema } from "better-auth/client/plugins";
+import { account, session, user, verification } from "../db/schema";
 
 type Db = typeof db;
 
@@ -26,7 +26,7 @@ export function createBetterAuth(
     trustedOrigins: [clientOrigin, authOrigin],
     database: drizzleAdapter(db, {
       provider: "pg",
-      schema,
+      schema: { user, session, account, verification },
     }),
     emailAndPassword: {
       enabled: true,

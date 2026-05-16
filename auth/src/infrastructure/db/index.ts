@@ -1,6 +1,8 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { serverEnv } from "../../env.server";
-import { schema } from "better-auth/client/plugins";
+import { account, session, user, verification } from "./schema";
 
-export const db = drizzle(serverEnv.AUTH_DATABASE_URL, { schema });
+export const db = drizzle(serverEnv.AUTH_DATABASE_URL, {
+  schema: { user, session, account, verification },
+});
