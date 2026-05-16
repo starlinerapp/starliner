@@ -1,7 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
-import { organizationApiFactory } from "~/server/api/client";
+import { organizationApiFactory } from "~/server/api/clients/server";
+import { enrichMembersWithAuthDetails } from "~/server/services/users";
 import { z } from "zod";
-import { enrichMembersWithAuthDetails } from "~/server/services/organization";
 
 export const organizationRouter = {
   createOrganization: protectedProcedure

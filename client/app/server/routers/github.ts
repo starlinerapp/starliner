@@ -1,6 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { githubApiFactory } from "~/server/api/client";
+import { githubApiFactory } from "~/server/api/clients/server";
 
 export const githubRouter = {
   getRepositories: protectedProcedure

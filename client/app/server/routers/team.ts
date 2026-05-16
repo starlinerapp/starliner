@@ -1,7 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { teamsApiFactory } from "~/server/api/client";
-import { fetchAuthUsersByIds } from "~/server/services/authUsers.server";
+import { teamsApiFactory } from "~/server/api/clients/server";
+import { enrichMembersWithAuthDetails } from "~/server/services/users";
 
 export const teamRouter = {
   createTeam: protectedProcedure
@@ -43,16 +43,7 @@ export const teamRouter = {
         .getTeamMembers(userId, input.teamId)
         .then((res) => res.data);
 
-      const betterAuthIds = members.map((m) => m.better_auth_id);
-      if (betterAuthIds.length === 0) return [];
-
-      const authUserMap = await fetchAuthUsersByIds(betterAuthIds);
-
-      return members.map((m) => ({
-        ...m,
-        name: authUserMap.get(m.better_auth_id)?.name ?? "",
-        email: authUserMap.get(m.better_auth_id)?.email ?? "",
-      }));
+      return await enrichMembersWithAuthDetails(members);
     }),
   joinTeam: protectedProcedure
     .input(

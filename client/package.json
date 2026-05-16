@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons && npm run fmt",
-    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/client/generated && prettier app/server/api/client/generated --write"
+    "openapi:generate:server": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/clients/server/generated && prettier app/server/api/clients/server/generated --write",
+    "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated && rm /tmp/auth-openapi.json && prettier app/server/api/clients/auth/generated --write"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

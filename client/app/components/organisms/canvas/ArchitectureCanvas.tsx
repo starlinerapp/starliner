@@ -22,7 +22,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
-import type { ResponseEnvironment } from "~/server/api/client/generated";
+import type { ResponseEnvironment } from "../../../server/api/clients/server/generated";
 import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";

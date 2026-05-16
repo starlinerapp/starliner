@@ -1,6 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { environmentApiFactory } from "~/server/api/client";
+import { environmentApiFactory } from "~/server/api/clients/server";
 
 export const environmentRouter = {
   createEnvironment: protectedProcedure

@@ -11,10 +11,10 @@ import {
   TeamApiFactory,
   GithubappApiFactory,
   GithubApiFactory,
-} from "~/server/api/client/generated";
+} from "./generated";
 
 import { serverEnv } from "~/env.server";
-import { axiosInstance } from "~/server/api/client/axios.server";
+import { axiosInstance } from "./axios.server";
 
 const configuration = new Configuration({
   basePath: `http://${serverEnv.SERVER_BASE_URL}`,
