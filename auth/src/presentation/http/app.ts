@@ -20,8 +20,6 @@ export function createApp({ userApplication, auth }: AppDependencies) {
   internal.post("/users", userHandler.bulkLookup);
   app.route("/internal", internal);
 
-  app.post("/users", userHandler.bulkLookup);
-
   app.use(
     "/api/auth/*",
     cors({
