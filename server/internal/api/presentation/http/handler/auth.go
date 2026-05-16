@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/presentation/http/dto/request"
 )
@@ -17,13 +18,13 @@ func NewInternalHandler(userApplication *application.UserApplication) *InternalH
 
 // SendVerificationEmail godoc
 // @Summary Send email verification
-// @Tags internal
+// @State auth
+// @Tags auth
 // @ID sendVerificationEmail
 // @Product JSON
-// @Param X-User-ID header string true "User ID"
 // @Param data body request.SendVerificationEmailRequest true "Verification"
 // @Success 204
-// @Router /internal/send-verification-email [post]
+// @Router /auth/send-verification-email [post]
 func (ih *InternalHandler) SendVerificationEmail(c *gin.Context) {
 	var body request.SendVerificationEmailRequest
 	if err := c.BindJSON(&body); err != nil {
@@ -43,13 +44,13 @@ func (ih *InternalHandler) SendVerificationEmail(c *gin.Context) {
 
 // SendResetPassword godoc
 // @Summary Send password reset email
-// @Tags internal
+// @State auth
+// @Tags auth
 // @ID sendResetPassword
 // @Product JSON
-// @Param X-User-ID header string true "User ID"
 // @Param data body request.SendResetPasswordRequest true "Password reset"
 // @Success 204
-// @Router /internal/send-reset-password [post]
+// @Router /auth/send-reset-password [post]
 func (ih *InternalHandler) SendResetPassword(c *gin.Context) {
 	var body request.SendResetPasswordRequest
 	if err := c.BindJSON(&body); err != nil {

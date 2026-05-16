@@ -5,11 +5,16 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "fmt": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
     "drizzle:generate": "npx drizzle-kit generate",
-    "drizzle:migrate": "npx drizzle-kit migrate"
+    "drizzle:migrate": "npx drizzle-kit migrate",
+    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/auth/docs/auth_auth_swagger.yaml' -g typescript-axios -o src/infrastructure/api/client/generated && prettier src/infrastructure/api/client/generated --write"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
+    "axios": "^1.16.1",
     "better-auth": "^1.6.11",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
@@ -20,6 +25,7 @@
     "@types/node": "^20.11.17",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
+    "prettier": "^3.8.3",
     "tsx": "^4.22.0",
     "typescript": "^5.8.3"
   }

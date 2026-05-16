@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
-	"strconv"
 )
 
 type ProjectHandler struct {
@@ -22,6 +23,7 @@ func NewProjectHandler(projectApplication *application.ProjectApplication) *Proj
 
 // CreateProject FindAll godoc
 // @Summary Create Project
+// @State core
 // @Tags project
 // @ID createProject
 // @Product JSON
@@ -47,6 +49,7 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 
 // GetProject FindAll godoc
 // @Summary Get Project
+// @State core
 // @Tags project
 // @ID getProject
 // @Product JSON
@@ -72,6 +75,7 @@ func (ph *ProjectHandler) GetProject(c *gin.Context) {
 
 // DeleteProject FindAll godoc
 // @Summary Delete Project
+// @State core
 // @Tags project
 // @ID deleteProject
 // @Product JSON
@@ -96,6 +100,7 @@ func (ph *ProjectHandler) DeleteProject(c *gin.Context) {
 
 // GetProjectCluster FindAll godoc
 // @Summary Get Project Cluster
+// @State core
 // @Tags project
 // @ID getProjectCluster
 // @Product JSON
@@ -120,6 +125,7 @@ func (ph *ProjectHandler) GetProjectCluster(c *gin.Context) {
 
 // GetProjectEnvironments godoc
 // @Summary Get Project Environments
+// @State core
 // @Tags project
 // @ID getProjectEnvironments
 // @Product JSON
@@ -145,6 +151,7 @@ func (ph *ProjectHandler) GetProjectEnvironments(c *gin.Context) {
 
 // GetProjectPreviewEnvironmentEnabled godoc
 // @Summary Get Project Preview Environment Enabled
+// @State core
 // @Tags project
 // @ID getProjectPreviewEnvironmentEnabled
 // @Product JSON
@@ -170,6 +177,7 @@ func (ph *ProjectHandler) GetProjectPreviewEnvironmentEnabled(c *gin.Context) {
 
 // ToggleProjectPreviewEnvironmentEnabled godoc
 // @Summary Toggle Project Preview Environment Enabled
+// @State core
 // @Tags project
 // @ID toggleProjectPreviewEnvironmentEnabled
 // @Product JSON

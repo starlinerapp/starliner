@@ -1,0 +1,13 @@
+.gitignore
+.npmignore
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/AuthApi.md
+docs/RequestSendResetPasswordRequest.md
+docs/RequestSendVerificationEmailRequest.md
+docs/ResponseRoot.md
+docs/RootApi.md
+git_push.sh
+index.ts

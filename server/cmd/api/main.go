@@ -21,9 +21,6 @@ import (
 	"starliner.app/internal/core/infrastructure/s3"
 )
 
-// @title Starliner API
-// @version 1.0
-// @securityDefinitions.basic BasicAuth
 func main() {
 	fx.New(
 		conf.Module,

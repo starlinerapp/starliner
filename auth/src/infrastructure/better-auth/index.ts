@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import type { EmailApplication } from "~/application/email";
 import type { AuthService } from "~/domain/port/auth";
 import { serverEnv } from "~/env.server";
 import type { db } from "~/infrastructure/db";
@@ -8,7 +9,10 @@ import * as schema from "~/infrastructure/db/schema";
 
 type Db = typeof db;
 
-export function createBetterAuth(db: Db): AuthService {
+export function createBetterAuth(
+  db: Db,
+  emailApplication: EmailApplication,
+): AuthService {
   const clientOrigin = new URL(serverEnv.CLIENT_BASE_URL).origin;
   const authOrigin = new URL(serverEnv.AUTH_PUBLIC_URL).origin;
 
@@ -22,10 +26,14 @@ export function createBetterAuth(db: Db): AuthService {
       enabled: true,
       requireEmailVerification: true,
       revokeSessionsOnPasswordReset: true,
-      sendResetPassword: async () => {},
+      sendResetPassword: async ({ user, url }) => {
+        await emailApplication.sendResetPassword(user.email, url);
+      },
     },
     emailVerification: {
-      sendVerificationEmail: async () => {},
+      sendVerificationEmail: async ({ user, url }) => {
+        await emailApplication.sendVerificationEmail(user.email, url);
+      },
     },
     session: {
       cookieCache: {

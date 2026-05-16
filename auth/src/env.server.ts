@@ -5,6 +5,9 @@ const envSchema = z.object({
   AUTH_DATABASE_URL: z.string(),
   CLIENT_BASE_URL: z.string(),
   AUTH_PUBLIC_URL: z.string(),
+  SERVER_BASE_URL: z.string(),
+  SERVER_BASIC_AUTH_USER: z.string(),
+  SERVER_BASIC_AUTH_PASSWORD: z.string(),
 });
 
 function createServerEnv() {

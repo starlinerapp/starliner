@@ -10,7 +10,8 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
-	_ "starliner.app/cmd/api/docs"
+	_ "starliner.app/cmd/api/auth/docs"
+	_ "starliner.app/cmd/api/core/docs"
 	"starliner.app/internal/api/presentation/http/handler"
 	"starliner.app/internal/api/presentation/http/middleware"
 )
@@ -39,7 +40,8 @@ func NewServer(
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
 
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
+	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
 
 	webhookRoutes := engine.Group("/webhooks")
 	{
@@ -153,7 +155,7 @@ func NewServer(
 		githubAppRoutes.GET("/:organizationId", githubAppHandler.GetGithubApp)
 	}
 
-	internalRoutes := engine.Group("/internal")
+	internalRoutes := engine.Group("/auth")
 	{
 		internalRoutes.POST("/send-verification-email", internalHandler.SendVerificationEmail)
 		internalRoutes.POST("/send-reset-password", internalHandler.SendResetPassword)

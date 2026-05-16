@@ -251,26 +251,6 @@ definitions:
     - inviteUrlPrefix
     - toEmail
     type: object
-  request.SendResetPasswordRequest:
-    properties:
-      resetUrl:
-        type: string
-      to:
-        type: string
-    required:
-    - resetUrl
-    - to
-    type: object
-  request.SendVerificationEmailRequest:
-    properties:
-      to:
-        type: string
-      verificationUrl:
-        type: string
-    required:
-    - to
-    - verificationUrl
-    type: object
   request.UpdateDeployFromGit:
     properties:
       args:
@@ -881,7 +861,7 @@ definitions:
     type: object
 info:
   contact: {}
-  title: Starliner API
+  title: Starliner Core API
   version: "1.0"
 paths:
   /:
@@ -1583,48 +1563,6 @@ paths:
       summary: Get GitHub App
       tags:
       - githubapp
-  /internal/send-reset-password:
-    post:
-      operationId: sendResetPassword
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Password reset
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.SendResetPasswordRequest'
-      responses:
-        "204":
-          description: No Content
-      summary: Send password reset email
-      tags:
-      - internal
-  /internal/send-verification-email:
-    post:
-      operationId: sendVerificationEmail
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Verification
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.SendVerificationEmailRequest'
-      responses:
-        "204":
-          description: No Content
-      summary: Send email verification
-      tags:
-      - internal
   /invites/{inviteId}:
     get:
       operationId: getOrganizationInviteDetails
