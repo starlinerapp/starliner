@@ -1,6 +1,7 @@
 auth/src/infrastructure/api/client/generated/** linguist-generated=true
 
-client/app/server/api/client/generated/** linguist-generated=true
+client/app/server/api/clients/auth/generated/** linguist-generated=true
+client/app/server/api/clients/server/generated/** linguist-generated=true
 client/app/components/atoms/icons/** linguist-generated=true
 
 server/pkg/db/sqlc/** linguist-generated=true
