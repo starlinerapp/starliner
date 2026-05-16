@@ -54,6 +54,7 @@ export async function getSessionFromHeaders(headers: Headers) {
   });
 
   if (result.error) {
+    console.error("getSessionFromHeaders failed:", result.error);
     return null;
   }
 

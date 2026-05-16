@@ -1,5 +1,4 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
 import * as Popover from "@radix-ui/react-popover";
 import { useNavigate } from "react-router";
 import { getAuthClient } from "~/utils/auth/client";
@@ -19,12 +18,9 @@ function AvatarIcon({ name }: AvatarIconProps) {
 export default function Avatar() {
   const authClient = getAuthClient();
   const navigate = useNavigate();
-  const { data: session } = useQuery({
-    queryFn: () => authClient.getSession(),
-    queryKey: ["session"],
-  });
+  const { data: session } = authClient.useSession();
 
-  const username = session?.data?.user.name ?? "";
+  const username = session?.user.name ?? "";
 
   async function handleSignOutClicked() {
     await authClient.signOut();
@@ -47,11 +43,9 @@ export default function Avatar() {
               <AvatarIcon name={username} />
               <div className="flex flex-col">
                 <p className="text-gray-12 text-xs font-bold">
-                  {session?.data?.user.name}
+                  {session?.user.name}
                 </p>
-                <p className="text-gray-11 text-xs">
-                  {session?.data?.user.email}
-                </p>
+                <p className="text-gray-11 text-xs">{session?.user.email}</p>
               </div>
             </div>
             <a

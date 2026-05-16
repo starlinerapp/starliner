@@ -17,6 +17,10 @@ export function getAuthClient(): AuthClient {
 
     authClient = createAuthClient({
       baseURL: `${url.replace(/\/$/, "")}/api/auth`,
+      sessionOptions: {
+        // refresh before cookie cache expires (5m)
+        refetchInterval: 4 * 60,
+      },
     });
   }
   return authClient;
