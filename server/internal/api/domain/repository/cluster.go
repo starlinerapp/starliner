@@ -2,10 +2,11 @@ package repository
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/infrastructure/postgres/mapper"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
-	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type ClusterRepository struct {
@@ -28,12 +29,12 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 		Id:             c.ID,
 		Name:           c.Name,
 		Status:         entity.ClusterStatus(c.Status),
-		IPv4Address:    utils.PtrFromNullString(c.Ipv4Address),
-		PublicKey:      utils.PtrFromNullString(c.PublicKey),
-		PrivateKey:     utils.PtrFromNullString(c.PrivateKey),
-		ProvisioningId: utils.PtrFromNullString(c.ProvisioningID),
-		Kubeconfig:     utils.PtrFromNullString(c.Kubeconfig),
-		Logs:           utils.PtrFromNullString(c.Logs),
+		IPv4Address:    mapper.ToPtrFromNullString(c.Ipv4Address),
+		PublicKey:      mapper.ToPtrFromNullString(c.PublicKey),
+		PrivateKey:     mapper.ToPtrFromNullString(c.PrivateKey),
+		ProvisioningId: mapper.ToPtrFromNullString(c.ProvisioningID),
+		Kubeconfig:     mapper.ToPtrFromNullString(c.Kubeconfig),
+		Logs:           mapper.ToPtrFromNullString(c.Logs),
 		OrganizationId: c.OrganizationID,
 		ServerType:     entity.ServerType(c.ServerType),
 	}, nil
@@ -53,10 +54,10 @@ func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, c
 		Name:           cluster.Name,
 		Status:         entity.ClusterStatus(cluster.Status),
 		User:           cluster.User,
-		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
-		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
-		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
-		ProvisioningId: utils.PtrFromNullString(cluster.ProvisioningID),
+		IPv4Address:    mapper.ToPtrFromNullString(cluster.Ipv4Address),
+		PublicKey:      mapper.ToPtrFromNullString(cluster.PublicKey),
+		PrivateKey:     mapper.ToPtrFromNullString(cluster.PrivateKey),
+		ProvisioningId: mapper.ToPtrFromNullString(cluster.ProvisioningID),
 		OrganizationId: cluster.OrganizationID,
 		ServerType:     entity.ServerType(cluster.ServerType),
 	}, nil
@@ -88,8 +89,8 @@ func (cr *ClusterRepository) CreateCluster(
 
 func (cr *ClusterRepository) UpdateClusterPublicPrivateKey(ctx context.Context, id int64, publicKey *string, privateKey *string) error {
 	return cr.queries.UpdateClusterPublicPrivateKeys(ctx, sqlc.UpdateClusterPublicPrivateKeysParams{
-		PublicKey:  utils.NullStringFromPtr(publicKey),
-		PrivateKey: utils.NullStringFromPtr(privateKey),
+		PublicKey:  mapper.ToNullStringFromPtr(publicKey),
+		PrivateKey: mapper.ToNullStringFromPtr(privateKey),
 		ID:         id,
 	})
 }
@@ -100,7 +101,7 @@ func (cr *ClusterRepository) UpdateClusterIPv4Address(
 	ipv4Address *string,
 ) error {
 	return cr.queries.UpdateClusterIPv4Address(ctx, sqlc.UpdateClusterIPv4AddressParams{
-		Ipv4Address: utils.NullStringFromPtr(ipv4Address),
+		Ipv4Address: mapper.ToNullStringFromPtr(ipv4Address),
 		ID:          id,
 	})
 }
@@ -111,7 +112,7 @@ func (cr *ClusterRepository) UpdateClusterPulumiStackId(
 	pulumiStackId *string,
 ) error {
 	return cr.queries.UpdateClusterProvisioningId(ctx, sqlc.UpdateClusterProvisioningIdParams{
-		ProvisioningID: utils.NullStringFromPtr(pulumiStackId),
+		ProvisioningID: mapper.ToNullStringFromPtr(pulumiStackId),
 		ID:             id,
 	})
 }
@@ -140,7 +141,7 @@ func (cr *ClusterRepository) UpdateClusterKubeconfig(
 	kubeconfig *string,
 ) error {
 	return cr.queries.UpdateClusterKubeconfig(ctx, sqlc.UpdateClusterKubeconfigParams{
-		Kubeconfig: utils.NullStringFromPtr(kubeconfig),
+		Kubeconfig: mapper.ToNullStringFromPtr(kubeconfig),
 		ID:         id,
 	})
 }
@@ -151,7 +152,7 @@ func (cr *ClusterRepository) UpdateClusterLogs(
 	logs string,
 ) error {
 	return cr.queries.UpdateClusterLogs(ctx, sqlc.UpdateClusterLogsParams{
-		Logs: utils.NullStringFromPtr(&logs),
+		Logs: mapper.ToNullStringFromPtr(&logs),
 		ID:   id,
 	})
 }
@@ -165,5 +166,5 @@ func (cr *ClusterRepository) GetUserClusterProvisioningLogs(
 		ClusterID: clusterId,
 		UserID:    userId,
 	})
-	return utils.PtrFromNullString(res), err
+	return mapper.ToPtrFromNullString(res), err
 }

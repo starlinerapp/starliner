@@ -3,7 +3,7 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
-import { authClient } from "~/utils/auth/client";
+import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 interface ResetFormInput {
@@ -15,6 +15,7 @@ const INVALID_TOKEN_ERROR =
   "This reset link is invalid or has expired. Request a new one from the sign-in page.";
 
 export default function ResetPassword() {
+  const authClient = getAuthClient();
   const { register, handleSubmit } = useForm<ResetFormInput>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();

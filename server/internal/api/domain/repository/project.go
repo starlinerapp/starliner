@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/infrastructure/postgres/mapper"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
-	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type ProjectRepository struct {
@@ -41,7 +42,7 @@ func (pr *ProjectRepository) CreateProjectWithEnvironment(
 	project, err := qtx.CreateProject(ctx, sqlc.CreateProjectParams{
 		Name:      projectName,
 		TeamID:    teamId,
-		ClusterID: utils.NullInt64FromPtr(&clusterId),
+		ClusterID: mapper.ToNullInt64FromPtr(&clusterId),
 	})
 	if err != nil {
 		return nil, err
@@ -71,7 +72,7 @@ func (pr *ProjectRepository) CreateProjectWithEnvironment(
 		Name:      project.Name,
 		TeamId:    project.TeamID,
 		TeamSlug:  team.Slug,
-		ClusterId: utils.PtrFromNullInt64(project.ClusterID),
+		ClusterId: mapper.ToPtrFromNullInt64(project.ClusterID),
 		Environments: []*entity.Environment{
 			{
 				Id:   env.ID,
@@ -100,7 +101,7 @@ func (pr *ProjectRepository) GetProject(ctx context.Context, projectId int64, us
 		Name:         rows[0].Name,
 		TeamId:       rows[0].TeamID,
 		TeamSlug:     rows[0].TeamSlug,
-		ClusterId:    utils.PtrFromNullInt64(rows[0].ClusterID),
+		ClusterId:    mapper.ToPtrFromNullInt64(rows[0].ClusterID),
 		Environments: make([]*entity.Environment, 0, len(rows)),
 	}
 

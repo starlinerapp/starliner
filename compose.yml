@@ -1,27 +1,65 @@
 name: starliner
 
 services:
-  nginx:
-    restart: unless-stopped
+  traefik:
     build:
       context: .
-      dockerfile: .docker/nginx/Dockerfile
-    healthcheck:
-      test: "curl -f http://localhost:80 || exit 1"
-      interval: 5s
-    volumes:
-      - ./.docker/nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./.docker/nginx/ssl/dev.starliner.app.crt:/etc/nginx/dev.starliner.app.crt:ro
-      - ./.docker/nginx/ssl/dev.starliner.app.key:/etc/nginx/dev.starliner.app.key:ro
-      - ./.docker/nginx/ssl/mcp.dev.starliner.app.crt:/etc/nginx/mcp.dev.starliner.app.crt:ro
-      - ./.docker/nginx/ssl/mcp.dev.starliner.app.key:/etc/nginx/mcp.dev.starliner.app.key:ro
-    depends_on:
-      - client
+      dockerfile: .docker/traefik/Dockerfile
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=internal"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0s"
+      - "--entrypoints.websecure.transport.respondingTimeouts.writeTimeout=0s"
+      - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=600s"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro
+      - ./.docker/traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./.docker/traefik/certs:/certs:ro
+    depends_on:
+      - client
+      - server-api
     networks:
       - internal
+
+  auth:
+    build:
+      context: .
+      dockerfile: .docker/auth/Dockerfile
+      target: development
+    environment:
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-awVYP4Nisp2GBy87phEel7ZHGNXx4Hfl}
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
+      CLIENT_BASE_URL: ${CLIENT_BASE_URL:-https://dev.starliner.app}
+      SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
+      SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
+      SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./auth:/app
+      - node-modules-auth:/app/node_modules
+    networks:
+      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.auth.rule=Host(`auth.dev.starliner.app`)
+      - traefik.http.routers.auth.entrypoints=websecure
+      - traefik.http.routers.auth.tls=true
+      - traefik.http.services.auth.loadbalancer.server.port=3000
 
   client:
     restart: unless-stopped
@@ -29,40 +67,26 @@ services:
       context: .
       dockerfile: .docker/client/Dockerfile
       target: development-dependencies-env
-    depends_on:
-      auth-db:
-        condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-HI2YJBqHK0Zz0ibFf564RgKPCFlsBfO9}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://dev.starliner.app}
-      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgres://postgres:postgres@auth-db:5432/auth_db}
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
+      AUTH_URL: ${AUTH_URL:-http://auth:3000}
+      AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
     networks:
       - internal
-
-  mcp:
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: .docker/mcp/Dockerfile
-      target: dev
-    environment:
-      BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
-      BASIC_AUTH_PASS: ${SERVER_BASIC_AUTH_PASSWORD:-test}
-      AUTH_BASE_URL: ${AUTH_BASE_URL:-http://client:5173/api/auth}
-      API_BASE_URL: ${API_BASE_URL:-http://server-api:9090}
-    volumes:
-      - ./mcp:/app
-    networks:
-      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.client.rule=Host(`dev.starliner.app`)
+      - traefik.http.routers.client.entrypoints=websecure
+      - traefik.http.routers.client.tls=true
+      - traefik.http.services.client.loadbalancer.server.port=5173
 
   server-api:
     restart: unless-stopped
@@ -110,6 +134,13 @@ services:
       - ./server:/app
     networks:
       - internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && PathPrefix(`/webhooks/`)
+      - traefik.http.routers.webhooks.entrypoints=websecure
+      - traefik.http.routers.webhooks.tls=true
+      - traefik.http.routers.webhooks.priority=100
+      - traefik.http.services.webhooks.loadbalancer.server.port=9090
 
   server-builder:
     restart: unless-stopped
@@ -378,6 +409,7 @@ services:
 
 volumes:
   node-modules-client:
+  node-modules-auth:
   auth-db-data:
   db-data:
   nats-data:

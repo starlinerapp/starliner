@@ -11,8 +11,11 @@ deps: ## Install dependencies
 deps-cleancache: ## Clear cache in Go module
 	$(GOCMD) clean -modcache
 
-swag: ## Generate swagger docs
-	swag init -g ./cmd/api/main.go -o ./cmd/api/docs
+swag-auth: ## Generate swagger docs for auth api
+	swag init --state auth --instanceName auth -g ./cmd/api/auth/main.go -o ./cmd/api/auth/docs --parseInternal
+
+swag-core: ## Generate swagger docs for core api
+	swag init --state core --instanceName core -g ./cmd/api/core/main.go -o ./cmd/api/core/docs --parseInternal
 
 proto: ## Generate Go code from protobufs
 	protoc \

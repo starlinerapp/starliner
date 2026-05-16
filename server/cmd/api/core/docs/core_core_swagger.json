@@ -1,0 +1,3354 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Starliner Core API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "tags": [
+                    "root"
+                ],
+                "summary": "Get root",
+                "operationId": "getRoot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Root"
+                        }
+                    }
+                }
+            }
+        },
+        "/builds/{id}/logs": {
+            "get": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Get Build Logs",
+                "operationId": "getBuildLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Build ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BuildLogs"
+                        }
+                    }
+                }
+            }
+        },
+        "/builds/{id}/logs/stream": {
+            "get": {
+                "tags": [
+                    "build"
+                ],
+                "summary": "Stream build logs",
+                "operationId": "streamBuildLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Build ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters": {
+            "post": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Create Cluster",
+                "operationId": "createCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Cluster",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCluster"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Cluster"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{id}": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get Cluster",
+                "operationId": "getCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Cluster"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Delete Cluster",
+                "operationId": "deleteCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/private-key": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get Cluster Private Key",
+                "operationId": "getClusterPrivateKey",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{id}/provisioning/logs/stream": {
+            "get": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Stream cluster provisioning logs",
+                "operationId": "streamClusterProvisioningLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/deployments/databases": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy database",
+                "operationId": "deployDatabase",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Database",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployDatabase"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/git": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy from Git Repository",
+                "operationId": "deployFromGitRepository",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy from Git",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployFromGit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/git/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update Deploy from Git",
+                "operationId": "updateDeployFromGitRepository",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Deploy from Git",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDeployFromGit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/images": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy image",
+                "operationId": "deployImage",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Image",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/images/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update image deployment",
+                "operationId": "updateImageDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Image",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/ingresses": {
+            "post": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Deploy ingress",
+                "operationId": "deployIngress",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Deploy Ingress",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeployIngress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/ingresses/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update ingress deployment",
+                "operationId": "updateIngressDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Ingress",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateIngress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/{id}": {
+            "delete": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Delete deployment",
+                "operationId": "deleteDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/deployments/{id}/logs": {
+            "get": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Stream deployment logs",
+                "operationId": "streamDeploymentLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/environments": {
+            "post": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Create Environment",
+                "operationId": "createEnvironment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Environment",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateEnvironment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Environment"
+                        }
+                    }
+                }
+            }
+        },
+        "/environments/{id}": {
+            "delete": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Delete Environment",
+                "operationId": "deleteEnvironment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/environments/{id}/branch": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Connected Branch",
+                "operationId": "getEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EnvironmentBranch"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Update Environment Connected Branch",
+                "operationId": "updateEnvironmentConnectedBranch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Environment Connected Branch",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateEnvironmentConnectBranch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/environments/{id}/builds": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Builds",
+                "operationId": "getEnvironmentBuilds",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.GitDeploymentBuild"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/environments/{id}/deployments": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Get Environment Deployments",
+                "operationId": "getEnvironmentDeployments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Deployments"
+                        }
+                    }
+                }
+            }
+        },
+        "/github/all-repositories/{organizationId}": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get All Repositories (owner only, unfiltered)",
+                "operationId": "getAllRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Repository"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/github/repositories/{organizationId}": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get Repositories",
+                "operationId": "getRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Repository"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/github/repositories/{organizationId}/{owner}/{repository}/contents": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get Repository Content",
+                "operationId": "getRepositoryContents",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository owner (user or org)",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository name",
+                        "name": "repository",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Path within the repository (e.g., src or src/main.go)",
+                        "name": "path",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.RepositoryFile"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/github/repositories/{organizationId}/{owner}/{repository}/file": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get File Content",
+                "operationId": "getFileContent",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository owner (user or org)",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository name",
+                        "name": "repository",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Path to the file within the repository",
+                        "name": "path",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FileContent"
+                        }
+                    }
+                }
+            }
+        },
+        "/githubapps": {
+            "post": {
+                "tags": [
+                    "githubapp"
+                ],
+                "summary": "Create GitHub App",
+                "operationId": "createGithubApp",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create GitHub App",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateGithubApp"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/githubapps/{organizationId}": {
+            "get": {
+                "tags": [
+                    "githubapp"
+                ],
+                "summary": "Get GitHub App",
+                "operationId": "getGithubApp",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GithubApp"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/accept": {
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Accept organization invite",
+                "operationId": "acceptOrganizationInvite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Accept Invite",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AcceptInvite"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/invites/{inviteId}": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get organization invite details",
+                "operationId": "getOrganizationInviteDetails",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Invite ID",
+                        "name": "inviteId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrganizationInvite"
+                        }
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get current user",
+                "operationId": "getUser",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get user organizations",
+                "operationId": "getUserOrganizations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Organization"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Create organization",
+                "operationId": "createOrganization",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Organization",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrganization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Organization"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/clusters": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get Organization Clusters",
+                "operationId": "getOrganizationClusters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Cluster"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/invites": {
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Send organization invite via email",
+                "operationId": "sendOrganizationInvite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Send Invite",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SendInvite"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/members": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get all organization members",
+                "operationId": "getOrganizationMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/projects": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get Organization Projects",
+                "operationId": "getUserProjects",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Project"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/settings/credential/hetzner": {
+            "get": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Get Hetzner Provisioning Credential",
+                "operationId": "getHetznerCredential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetOrganizationProvisioningCredentialResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Upsert Hetzner Provisioning Credential",
+                "operationId": "upsertHetznerCredential",
+                "parameters": [
+                    {
+                        "description": "Upsert Hetzner Credential",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpsertHetznerCredential"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/teams": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get User Teams",
+                "operationId": "getUserTeams",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Team"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Create team",
+                "operationId": "createTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Team slug (lowercase, alphanumeric, hyphens only)",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateTeam"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Team"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/teams/join": {
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Join a team by slug",
+                "operationId": "joinTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Join Team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.JoinTeam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/projects": {
+            "post": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Create Project",
+                "operationId": "createProject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Project",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Project"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project",
+                "operationId": "getProject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Project"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Delete Project",
+                "operationId": "deleteProject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/projects/{id}/cluster": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Cluster",
+                "operationId": "getProjectCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectCluster"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}/environments": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Environments",
+                "operationId": "getProjectEnvironments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Environment"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}/preview-environment/enabled": {
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Get Project Preview Environment Enabled",
+                "operationId": "getProjectPreviewEnvironmentEnabled",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectPreviewEnvironmentEnabled"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Toggle Project Preview Environment Enabled",
+                "operationId": "toggleProjectPreviewEnvironmentEnabled",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectPreviewEnvironmentEnabled"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/clusters": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get clusters assigned to a team",
+                "operationId": "getTeamClusters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.TeamCluster"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/clusters/{clusterId}": {
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Assign a cluster to a team",
+                "operationId": "assignClusterToTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "clusterId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Unassign a cluster from a team",
+                "operationId": "unassignClusterFromTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "clusterId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/members": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get Team Members",
+                "operationId": "getTeamMembers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.User"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Add organization member to team",
+                "operationId": "addTeamMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ID of member to add",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddTeamMember"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Remove organization member from team",
+                "operationId": "removeTeamMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ID of the organization member to remove from the team",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RemoveTeamMember"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/repos": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Get repositories assigned to a team",
+                "operationId": "getTeamRepositories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.TeamRepo"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Assign a GitHub repository to a team",
+                "operationId": "assignRepoToTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Assign Repo",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AssignRepoToTeam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}/repos/{repoId}": {
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Unassign a GitHub repository from a team",
+                "operationId": "unassignRepoFromTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "GitHub Repo ID",
+                        "name": "repoId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "request.AcceptInvite": {
+            "type": "object",
+            "required": [
+                "inviteId",
+                "recipientEmail"
+            ],
+            "properties": {
+                "inviteId": {
+                    "type": "string"
+                },
+                "recipientEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AddTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AssignRepoToTeam": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateCluster": {
+            "type": "object",
+            "required": [
+                "name",
+                "organizationId",
+                "serverType",
+                "teamId"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "organizationId": {
+                    "type": "integer"
+                },
+                "serverType": {
+                    "type": "string",
+                    "enum": [
+                        "cx23",
+                        "cpx22"
+                    ]
+                },
+                "teamId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateEnvironment": {
+            "type": "object",
+            "required": [
+                "name",
+                "organizationId",
+                "projectId"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "organizationId": {
+                    "type": "integer"
+                },
+                "projectId": {
+                    "type": "integer"
+                },
+                "sourceEnvironmentId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateGithubApp": {
+            "type": "object",
+            "required": [
+                "installationId",
+                "organizationId"
+            ],
+            "properties": {
+                "installationId": {
+                    "type": "integer"
+                },
+                "organizationId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateOrganization": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateProject": {
+            "type": "object",
+            "required": [
+                "cluster_id",
+                "name",
+                "team_id"
+            ],
+            "properties": {
+                "cluster_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateTeam": {
+            "type": "object",
+            "required": [
+                "slug"
+            ],
+            "properties": {
+                "slug": {
+                    "type": "string",
+                    "maxLength": 50
+                }
+            }
+        },
+        "request.DeployDatabase": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "serviceName"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeployFromGit": {
+            "type": "object",
+            "required": [
+                "dockerfilePath",
+                "environmentId",
+                "envs",
+                "gitUrl",
+                "port",
+                "projectRepositoryPath",
+                "serviceName"
+            ],
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeployImage": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "envs",
+                "imageName",
+                "port",
+                "serviceName",
+                "tag"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.DeployIngress": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "ingressHosts"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "ingressHosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressHost"
+                    }
+                }
+            }
+        },
+        "request.EnvVar": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.IngressHost": {
+            "type": "object",
+            "required": [
+                "host",
+                "paths"
+            ],
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressPath"
+                    }
+                }
+            }
+        },
+        "request.IngressPath": {
+            "type": "object",
+            "required": [
+                "path",
+                "pathType",
+                "serviceName"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "pathType": {
+                    "type": "string",
+                    "enum": [
+                        "Prefix",
+                        "Exact"
+                    ]
+                },
+                "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.JoinTeam": {
+            "type": "object",
+            "required": [
+                "slug"
+            ],
+            "properties": {
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.RemoveTeamMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.SendInvite": {
+            "type": "object",
+            "required": [
+                "inviteUrlPrefix",
+                "toEmail"
+            ],
+            "properties": {
+                "inviteUrlPrefix": {
+                    "type": "string"
+                },
+                "toEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateDeployFromGit": {
+            "type": "object",
+            "required": [
+                "dockerfilePath",
+                "environmentId",
+                "envs",
+                "port",
+                "projectRepositoryPath"
+            ],
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.Arg"
+                    }
+                },
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateEnvironmentConnectBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateImage": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "envs",
+                "imageName",
+                "port",
+                "tag"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "envs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.EnvVar"
+                    }
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateIngress": {
+            "type": "object",
+            "required": [
+                "environmentId",
+                "ingressHosts"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
+                },
+                "ingressHosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.IngressHost"
+                    }
+                }
+            }
+        },
+        "request.UpsertHetznerCredential": {
+            "type": "object",
+            "required": [
+                "apiKey"
+            ],
+            "properties": {
+                "apiKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Arg": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.BuildLogs": {
+            "type": "object",
+            "required": [
+                "logs"
+            ],
+            "properties": {
+                "logs": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Cluster": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "id",
+                "ipv4Address",
+                "name",
+                "organizationId",
+                "serverType",
+                "status",
+                "teamSlugs",
+                "user"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ipv4Address": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organizationId": {
+                    "type": "integer"
+                },
+                "serverType": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "running",
+                        "deleted"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.ClusterStatus"
+                        }
+                    ]
+                },
+                "teamSlugs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ClusterStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "running",
+                "deleted"
+            ],
+            "x-enum-varnames": [
+                "ClusterStatusPending",
+                "ClusterStatusRunning",
+                "ClusterStatusDeleted"
+            ]
+        },
+        "response.DatabaseDeployment": {
+            "type": "object",
+            "required": [
+                "database",
+                "id",
+                "internalEndpoint",
+                "password",
+                "port",
+                "serviceName",
+                "status",
+                "username"
+            ],
+            "properties": {
+                "database": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "internalEndpoint": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Deployments": {
+            "type": "object",
+            "required": [
+                "databases",
+                "gitDeployments",
+                "images",
+                "ingresses"
+            ],
+            "properties": {
+                "databases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DatabaseDeployment"
+                    }
+                },
+                "gitDeployments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.GitDeployment"
+                    }
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ImageDeployment"
+                    }
+                },
+                "ingresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressDeployment"
+                    }
+                }
+            }
+        },
+        "response.EnvVar": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Environment": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.EnvironmentBranch": {
+            "type": "object",
+            "required": [
+                "branch"
+            ],
+            "properties": {
+                "branch": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FileContent": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GetOrganizationProvisioningCredentialResponse": {
+            "type": "object",
+            "properties": {
+                "credential": {
+                    "$ref": "#/definitions/response.OrganizationProvisioningCredential"
+                }
+            }
+        },
+        "response.GitDeployment": {
+            "type": "object",
+            "required": [
+                "args",
+                "dockerfilePath",
+                "envVars",
+                "gitUrl",
+                "id",
+                "internalEndpoint",
+                "port",
+                "projectRepositoryPath",
+                "serviceName",
+                "status"
+            ],
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "internalEndpoint": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "projectRepositoryPath": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GitDeploymentBuild": {
+            "type": "object",
+            "required": [
+                "args",
+                "buildId",
+                "commitHash",
+                "createdAt",
+                "deploymentId",
+                "deploymentName",
+                "dockerfilePath",
+                "gitUrl",
+                "projectPath",
+                "source",
+                "status"
+            ],
+            "properties": {
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Arg"
+                    }
+                },
+                "buildId": {
+                    "type": "integer"
+                },
+                "commitHash": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deploymentId": {
+                    "type": "integer"
+                },
+                "deploymentName": {
+                    "type": "string"
+                },
+                "dockerfilePath": {
+                    "type": "string"
+                },
+                "gitUrl": {
+                    "type": "string"
+                },
+                "projectPath": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GithubApp": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "installation_id",
+                "organization_id"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "installation_id": {
+                    "type": "integer"
+                },
+                "organization_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ImageDeployment": {
+            "type": "object",
+            "required": [
+                "envVars",
+                "id",
+                "imageName",
+                "internalEndpoint",
+                "port",
+                "serviceName",
+                "status",
+                "tag"
+            ],
+            "properties": {
+                "envVars": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.EnvVar"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageName": {
+                    "type": "string"
+                },
+                "internalEndpoint": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                },
+                "volumeMountPath": {
+                    "type": "string"
+                },
+                "volumeSizeMiB": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.IngressDeployment": {
+            "type": "object",
+            "required": [
+                "hosts",
+                "id",
+                "port",
+                "serviceName",
+                "status"
+            ],
+            "properties": {
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressHost"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.IngressHost": {
+            "type": "object",
+            "required": [
+                "host",
+                "paths"
+            ],
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.IngressPath"
+                    }
+                }
+            }
+        },
+        "response.IngressPath": {
+            "type": "object",
+            "required": [
+                "path",
+                "pathType",
+                "serviceName"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "pathType": {
+                    "type": "string",
+                    "enum": [
+                        "Prefix",
+                        "Exact"
+                    ]
+                },
+                "serviceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Organization": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "owner_id",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OrganizationInvite": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "email",
+                "expires_at",
+                "id",
+                "organization_id",
+                "organization_name",
+                "organization_slug"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "organization_name": {
+                    "type": "string"
+                },
+                "organization_slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OrganizationProvisioningCredential": {
+            "type": "object",
+            "required": [
+                "provider",
+                "secret"
+            ],
+            "properties": {
+                "provider": {
+                    "type": "string"
+                },
+                "secret": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Project": {
+            "type": "object",
+            "required": [
+                "clusterId",
+                "createdAt",
+                "environments",
+                "id",
+                "name",
+                "teamId",
+                "teamSlug"
+            ],
+            "properties": {
+                "clusterId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "environments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Environment"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "integer"
+                },
+                "teamSlug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProjectCluster": {
+            "type": "object",
+            "required": [
+                "clusterId",
+                "clusterName"
+            ],
+            "properties": {
+                "clusterId": {
+                    "type": "integer"
+                },
+                "clusterName": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProjectPreviewEnvironmentEnabled": {
+            "type": "object",
+            "required": [
+                "enabled"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.Repository": {
+            "type": "object",
+            "required": [
+                "clone_url",
+                "created_at",
+                "full_name",
+                "id",
+                "name",
+                "owner",
+                "pushed_at",
+                "updated_at"
+            ],
+            "properties": {
+                "clone_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "pushed_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.RepositoryFile": {
+            "type": "object",
+            "required": [
+                "name",
+                "path",
+                "sha",
+                "size",
+                "type",
+                "url"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "sha": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Root": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Team": {
+            "type": "object",
+            "required": [
+                "id",
+                "organization_id",
+                "slug"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.TeamCluster": {
+            "type": "object",
+            "required": [
+                "clusterId",
+                "clusterName",
+                "serverType",
+                "teamId"
+            ],
+            "properties": {
+                "clusterId": {
+                    "type": "integer"
+                },
+                "clusterName": {
+                    "type": "string"
+                },
+                "serverType": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.TeamRepo": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName",
+                "teamId"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
+                    "type": "string"
+                },
+                "teamId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "required": [
+                "better_auth_id",
+                "user_id"
+            ],
+            "properties": {
+                "better_auth_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        }
+    }
+}

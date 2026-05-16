@@ -14,6 +14,7 @@ func NewUserHandler() *UserHandler {
 
 // GetUser FindAll godoc
 // @Summary Get current user
+// @State core
 // @Tags user
 // @ID getUser
 // @Product JSON

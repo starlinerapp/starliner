@@ -1,0 +1,43 @@
+{
+  "name": "auth",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc",
+    "fmt": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
+    "drizzle:generate": "npx drizzle-kit generate",
+    "drizzle:migrate": "npx drizzle-kit migrate",
+    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/auth/docs/auth_auth_swagger.yaml' -g typescript-axios -o src/infrastructure/api/client/generated && prettier src/infrastructure/api/client/generated --write"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.14",
+    "@hono/swagger-ui": "^0.6.1",
+    "@hono/zod-openapi": "^1.4.0",
+    "axios": "^1.16.1",
+    "better-auth": "^1.6.11",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.18",
+    "pg": "^8.20.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@openapitools/openapi-generator-cli": "^2.32.0",
+    "@types/node": "^20.11.17",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^10.4.0",
+    "jiti": "^2.7.0",
+    "prettier": "^3.8.3",
+    "tsx": "^4.22.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.59.3"
+  },
+  "overrides": {
+    "esbuild": "^0.27.3"
+  }
+}

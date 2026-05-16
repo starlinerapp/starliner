@@ -1,6 +1,6 @@
 import type { Route } from "./+types/private-key";
 import { getServerSession } from "~/utils/auth/server";
-import { clusterApiFactory } from "~/server/api/client";
+import { clusterApiFactory } from "../../../../../server/api/clients/server";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const { id } = params;

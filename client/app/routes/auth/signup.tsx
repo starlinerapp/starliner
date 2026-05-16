@@ -3,7 +3,7 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
-import { authClient } from "~/utils/auth/client";
+import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 interface SignUpFormInput {
@@ -13,6 +13,7 @@ interface SignUpFormInput {
 }
 
 export default function SignUp() {
+  const authClient = getAuthClient();
   const { register, handleSubmit } = useForm<SignUpFormInput>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -21,11 +22,14 @@ export default function SignUp() {
   const [error, setError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SignUpFormInput> = async (data) => {
+    const callbackURL = new URL(redirectTo, window.location.origin).href;
+
     await authClient.signUp.email(
       {
         email: data.email,
         password: data.password,
         name: data.username,
+        callbackURL,
       },
       {
         onRequest: () => {

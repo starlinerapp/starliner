@@ -4,7 +4,7 @@ import type {
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
-} from "~/server/api/client/generated";
+} from "../../../../server/api/clients/server/generated";
 import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
 import Logs from "~/components/organisms/bottom-bar/deployment/Logs";
 import TerminalClient from "~/components/atoms/terminal/Terminal.client";

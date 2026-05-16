@@ -3,7 +3,7 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { NavLink, useSearchParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
-import { authClient } from "~/utils/auth/client";
+import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 interface ForgotFormInput {
@@ -11,6 +11,7 @@ interface ForgotFormInput {
 }
 
 export default function ForgotPassword() {
+  const authClient = getAuthClient();
   const { register, handleSubmit } = useForm<ForgotFormInput>();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";

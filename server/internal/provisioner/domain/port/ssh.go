@@ -12,7 +12,12 @@ type TerminalSize struct {
 }
 
 type SSH interface {
-	WaitForSSH(ip string, timeout time.Duration) error
+	WaitForSSH(
+		ip string,
+		user string,
+		privateKey []byte,
+		timeout time.Duration,
+	) error
 	OpenTTY(
 		ctx context.Context,
 		user string,

@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/infrastructure/postgres/mapper"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
-	"starliner.app/internal/api/infrastructure/postgres/utils"
 )
 
 type EnvironmentRepository struct {
@@ -163,11 +164,11 @@ func (er *EnvironmentRepository) GetEnvironmentCluster(ctx context.Context, envi
 		Id:             cluster.ID,
 		Name:           cluster.Name,
 		Status:         entity.ClusterStatus(cluster.Status),
-		IPv4Address:    utils.PtrFromNullString(cluster.Ipv4Address),
-		PublicKey:      utils.PtrFromNullString(cluster.PublicKey),
-		PrivateKey:     utils.PtrFromNullString(cluster.PrivateKey),
-		ProvisioningId: utils.PtrFromNullString(cluster.ProvisioningID),
-		Kubeconfig:     utils.PtrFromNullString(cluster.Kubeconfig),
+		IPv4Address:    mapper.ToPtrFromNullString(cluster.Ipv4Address),
+		PublicKey:      mapper.ToPtrFromNullString(cluster.PublicKey),
+		PrivateKey:     mapper.ToPtrFromNullString(cluster.PrivateKey),
+		ProvisioningId: mapper.ToPtrFromNullString(cluster.ProvisioningID),
+		Kubeconfig:     mapper.ToPtrFromNullString(cluster.Kubeconfig),
 		OrganizationId: cluster.OrganizationID,
 	}, nil
 }
@@ -189,7 +190,7 @@ func (er *EnvironmentRepository) GetEnvironmentById(ctx context.Context, environ
 
 func (er *EnvironmentRepository) GetUserEnvironmentGitDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.GitDeployment, error) {
 	rows, err := er.queries.GetUserEnvironmentGitDeployments(ctx, sqlc.GetUserEnvironmentGitDeploymentsParams{
-		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
+		EnvironmentID: mapper.ToNullInt64FromPtr(&environmentId),
 		UserID:        userId,
 	})
 	if err != nil {
@@ -229,7 +230,7 @@ func (er *EnvironmentRepository) GetUserEnvironmentGitDeployments(ctx context.Co
 			Name:                  r.Name,
 			Port:                  r.Port,
 			Status:                string(r.Status),
-			EnvironmentId:         utils.PtrFromNullInt64(r.EnvironmentID),
+			EnvironmentId:         mapper.ToPtrFromNullInt64(r.EnvironmentID),
 			GitUrl:                r.Url,
 			ProjectRepositoryPath: r.ProjectPath,
 			DockerfilePath:        r.DockerfilePath,
@@ -242,7 +243,7 @@ func (er *EnvironmentRepository) GetUserEnvironmentGitDeployments(ctx context.Co
 }
 
 func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Context, environmentId int64) ([]*entity.GitDeployment, error) {
-	rows, err := er.queries.GetEnvironmentGitDeployments(ctx, utils.NullInt64FromPtr(&environmentId))
+	rows, err := er.queries.GetEnvironmentGitDeployments(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +281,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 			Name:                  r.Name,
 			Port:                  r.Port,
 			Status:                string(r.Status),
-			EnvironmentId:         utils.PtrFromNullInt64(r.EnvironmentID),
+			EnvironmentId:         mapper.ToPtrFromNullInt64(r.EnvironmentID),
 			GitUrl:                r.Url,
 			ProjectRepositoryPath: r.ProjectPath,
 			DockerfilePath:        r.DockerfilePath,
@@ -294,7 +295,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 
 func (er *EnvironmentRepository) GetUserEnvironmentImageDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.ImageDeployment, error) {
 	rows, err := er.queries.GetUserEnvironmentImageDeployments(ctx, sqlc.GetUserEnvironmentImageDeploymentsParams{
-		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
+		EnvironmentID: mapper.ToNullInt64FromPtr(&environmentId),
 		UserID:        userId,
 	})
 	if err != nil {
@@ -323,9 +324,9 @@ func (er *EnvironmentRepository) GetUserEnvironmentImageDeployments(ctx context.
 			ImageName:       d.ImageName,
 			Tag:             d.Tag,
 			Port:            d.Port,
-			EnvironmentId:   utils.PtrFromNullInt64(d.EnvironmentID),
-			VolumeSizeMiB:   utils.PtrFromNullInt32(d.VolumeSizeMib),
-			VolumeMountPath: utils.PtrFromNullString(d.MountPath),
+			EnvironmentId:   mapper.ToPtrFromNullInt64(d.EnvironmentID),
+			VolumeSizeMiB:   mapper.ToPtrFromNullInt32(d.VolumeSizeMib),
+			VolumeMountPath: mapper.ToPtrFromNullString(d.MountPath),
 			EnvVars:         variables,
 		}
 	}
@@ -333,7 +334,7 @@ func (er *EnvironmentRepository) GetUserEnvironmentImageDeployments(ctx context.
 }
 
 func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Context, environmentId int64) ([]*entity.ImageDeployment, error) {
-	rows, err := er.queries.GetEnvironmentImageDeployments(ctx, utils.NullInt64FromPtr(&environmentId))
+	rows, err := er.queries.GetEnvironmentImageDeployments(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 	if err != nil {
 		return nil, err
 	}
@@ -360,9 +361,9 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 			ImageName:       d.ImageName,
 			Tag:             d.Tag,
 			Port:            d.Port,
-			EnvironmentId:   utils.PtrFromNullInt64(d.EnvironmentID),
-			VolumeSizeMiB:   utils.PtrFromNullInt32(d.VolumeSizeMib),
-			VolumeMountPath: utils.PtrFromNullString(d.MountPath),
+			EnvironmentId:   mapper.ToPtrFromNullInt64(d.EnvironmentID),
+			VolumeSizeMiB:   mapper.ToPtrFromNullInt32(d.VolumeSizeMib),
+			VolumeMountPath: mapper.ToPtrFromNullString(d.MountPath),
 			EnvVars:         variables,
 		}
 	}
@@ -371,7 +372,7 @@ func (er *EnvironmentRepository) GetEnvironmentImageDeployments(ctx context.Cont
 
 func (er *EnvironmentRepository) GetUserEnvironmentIngressDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.IngressDeployment, error) {
 	rows, err := er.queries.GetUserEnvironmentIngressDeployments(ctx, sqlc.GetUserEnvironmentIngressDeploymentsParams{
-		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
+		EnvironmentID: mapper.ToNullInt64FromPtr(&environmentId),
 		UserID:        userId,
 	})
 	if err != nil {
@@ -386,7 +387,7 @@ func (er *EnvironmentRepository) GetUserEnvironmentIngressDeployments(ctx contex
 		if !exists {
 			dep = &entity.IngressDeployment{
 				Id:            r.DeploymentID,
-				EnvironmentId: utils.PtrFromNullInt64(r.EnvironmentID),
+				EnvironmentId: mapper.ToPtrFromNullInt64(r.EnvironmentID),
 				Status:        string(r.Status),
 				Name:          r.DeploymentName,
 				Port:          r.Port,
@@ -447,7 +448,7 @@ func (er *EnvironmentRepository) GetUserEnvironmentIngressDeployments(ctx contex
 }
 
 func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Context, environmentId int64) ([]*entity.IngressDeployment, error) {
-	rows, err := er.queries.GetEnvironmentIngressDeployments(ctx, utils.NullInt64FromPtr(&environmentId))
+	rows, err := er.queries.GetEnvironmentIngressDeployments(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 	if err != nil {
 		return nil, err
 	}
@@ -460,7 +461,7 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Co
 		if !exists {
 			dep = &entity.IngressDeployment{
 				Id:            r.DeploymentID,
-				EnvironmentId: utils.PtrFromNullInt64(r.EnvironmentID),
+				EnvironmentId: mapper.ToPtrFromNullInt64(r.EnvironmentID),
 				Status:        string(r.Status),
 				Name:          r.DeploymentName,
 				Port:          r.Port,
@@ -522,7 +523,7 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeployments(ctx context.Co
 
 func (er *EnvironmentRepository) GetEnvironmentIngressDeploymentByName(ctx context.Context, environmentId int64, name string) (*entity.IngressDeployment, error) {
 	rows, err := er.queries.GetEnvironmentIngressDeploymentsByName(ctx, sqlc.GetEnvironmentIngressDeploymentsByNameParams{
-		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
+		EnvironmentID: mapper.ToNullInt64FromPtr(&environmentId),
 		Name:          name,
 	})
 	if err != nil {
@@ -537,7 +538,7 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeploymentByName(ctx conte
 
 	dep := &entity.IngressDeployment{
 		Id:            first.DeploymentID,
-		EnvironmentId: utils.PtrFromNullInt64(first.EnvironmentID),
+		EnvironmentId: mapper.ToPtrFromNullInt64(first.EnvironmentID),
 		Status:        string(first.Status),
 		Name:          first.DeploymentName,
 		Port:          first.Port,
@@ -570,7 +571,7 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeploymentByName(ctx conte
 
 func (er *EnvironmentRepository) GetUserEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64, userId int64) ([]*entity.DatabaseDeployment, error) {
 	rows, err := er.queries.GetUserEnvironmentDatabaseDeployments(ctx, sqlc.GetUserEnvironmentDatabaseDeploymentsParams{
-		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
+		EnvironmentID: mapper.ToNullInt64FromPtr(&environmentId),
 		UserID:        userId,
 	})
 	if err != nil {
@@ -583,18 +584,18 @@ func (er *EnvironmentRepository) GetUserEnvironmentDatabaseDeployments(ctx conte
 			Id:            d.DeploymentID,
 			ServiceName:   d.Name,
 			Status:        string(d.Status),
-			Database:      utils.PtrFromNullString(d.Database),
-			Username:      utils.PtrFromNullString(d.Username),
-			Password:      utils.PtrFromNullString(d.Password),
+			Database:      mapper.ToPtrFromNullString(d.Database),
+			Username:      mapper.ToPtrFromNullString(d.Username),
+			Password:      mapper.ToPtrFromNullString(d.Password),
 			Port:          d.Port,
-			EnvironmentId: utils.PtrFromNullInt64(d.EnvironmentID),
+			EnvironmentId: mapper.ToPtrFromNullInt64(d.EnvironmentID),
 		}
 	}
 	return deployments, nil
 }
 
 func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.Context, environmentId int64) ([]*entity.DatabaseDeployment, error) {
-	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, utils.NullInt64FromPtr(&environmentId))
+	rows, err := er.queries.GetEnvironmentDatabaseDeployments(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 	if err != nil {
 		return nil, err
 	}
@@ -605,11 +606,11 @@ func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.C
 			Id:            d.DeploymentID,
 			ServiceName:   d.Name,
 			Status:        string(d.Status),
-			Database:      utils.PtrFromNullString(d.Database),
-			Username:      utils.PtrFromNullString(d.Username),
-			Password:      utils.PtrFromNullString(d.Password),
+			Database:      mapper.ToPtrFromNullString(d.Database),
+			Username:      mapper.ToPtrFromNullString(d.Username),
+			Password:      mapper.ToPtrFromNullString(d.Password),
 			Port:          d.Port,
-			EnvironmentId: utils.PtrFromNullInt64(d.EnvironmentID),
+			EnvironmentId: mapper.ToPtrFromNullInt64(d.EnvironmentID),
 		}
 	}
 	return deployments, nil
@@ -618,7 +619,7 @@ func (er *EnvironmentRepository) GetEnvironmentDatabaseDeployments(ctx context.C
 func (er *EnvironmentRepository) GetEnvironmentDeploymentByName(ctx context.Context, name string, environmentId int64) (*entity.Deployment, error) {
 	d, err := er.queries.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
 		Name:          name,
-		EnvironmentID: utils.NullInt64FromPtr(&environmentId),
+		EnvironmentID: mapper.ToNullInt64FromPtr(&environmentId),
 	})
 
 	if err != nil {
@@ -629,12 +630,12 @@ func (er *EnvironmentRepository) GetEnvironmentDeploymentByName(ctx context.Cont
 		Id:            d.ID,
 		Name:          d.Name,
 		Port:          d.Port,
-		EnvironmentId: utils.PtrFromNullInt64(d.EnvironmentID),
+		EnvironmentId: mapper.ToPtrFromNullInt64(d.EnvironmentID),
 	}, nil
 }
 
 func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error) {
-	rows, err := er.queries.GetEnvironmentGitDeploymentBuilds(ctx, utils.NullInt64FromPtr(&environmentId))
+	rows, err := er.queries.GetEnvironmentGitDeploymentBuilds(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 	if err != nil {
 		return nil, err
 	}
@@ -658,7 +659,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 			BuildId:        row.BuildID,
 			DeploymentId:   row.DeploymentID,
 			DeploymentName: row.DeploymentName,
-			CommitHash:     utils.PtrFromNullString(row.CommitHash),
+			CommitHash:     mapper.ToPtrFromNullString(row.CommitHash),
 			Source:         row.Source,
 			Status:         entity.BuildStatus(row.Status),
 			GitUrl:         row.Url,
@@ -720,8 +721,8 @@ func (er *EnvironmentRepository) GetEnvironmentProject(ctx context.Context, envi
 		Id:                    project.ID,
 		Name:                  project.Name,
 		TeamId:                project.TeamID,
-		PrEnvironmentsEnabled: utils.BoolPtrFromNullBool(project.PreviewEnvironmentsEnabled),
-		ClusterId:             utils.PtrFromNullInt64(project.ClusterID),
+		PrEnvironmentsEnabled: mapper.ToBoolPtrFromNullBool(project.PreviewEnvironmentsEnabled),
+		ClusterId:             mapper.ToPtrFromNullInt64(project.ClusterID),
 		CreatedAt:             project.CreatedAt,
 	}, nil
 }
@@ -733,7 +734,7 @@ func (er *EnvironmentRepository) copyDeployments(
 	newEnvID int64,
 	uniqueIdentifier string,
 ) error {
-	databaseDeployments, err := qtx.GetEnvironmentDatabaseDeployments(ctx, utils.NullInt64FromPtr(&sourceEnvironmentId))
+	databaseDeployments, err := qtx.GetEnvironmentDatabaseDeployments(ctx, mapper.ToNullInt64FromPtr(&sourceEnvironmentId))
 	if err != nil {
 		return err
 	}
@@ -741,13 +742,13 @@ func (er *EnvironmentRepository) copyDeployments(
 		if _, err := qtx.CreateDatabaseDeployment(ctx, sqlc.CreateDatabaseDeploymentParams{
 			Name:          d.Name,
 			Port:          d.Port,
-			EnvironmentID: utils.NullInt64FromPtr(&newEnvID),
+			EnvironmentID: mapper.ToNullInt64FromPtr(&newEnvID),
 		}); err != nil {
 			return err
 		}
 	}
 
-	imageDeployments, err := qtx.GetEnvironmentImageDeployments(ctx, utils.NullInt64FromPtr(&sourceEnvironmentId))
+	imageDeployments, err := qtx.GetEnvironmentImageDeployments(ctx, mapper.ToNullInt64FromPtr(&sourceEnvironmentId))
 	if err != nil {
 		return err
 	}
@@ -755,7 +756,7 @@ func (er *EnvironmentRepository) copyDeployments(
 		imageDeployment, err := qtx.CreateImageDeployment(ctx, sqlc.CreateImageDeploymentParams{
 			ServiceName:   d.ServiceName,
 			Port:          d.Port,
-			EnvironmentID: utils.NullInt64FromPtr(&newEnvID),
+			EnvironmentID: mapper.ToNullInt64FromPtr(&newEnvID),
 			ImageName:     d.ImageName,
 			Tag:           d.Tag,
 		})
@@ -765,14 +766,14 @@ func (er *EnvironmentRepository) copyDeployments(
 		if err := er.copyEnvVars(ctx, qtx, d.DeploymentID, imageDeployment.DeploymentID); err != nil {
 			return err
 		}
-		volume, err := qtx.GetDeploymentVolume(ctx, utils.NullInt64FromPtr(&d.DeploymentID))
+		volume, err := qtx.GetDeploymentVolume(ctx, mapper.ToNullInt64FromPtr(&d.DeploymentID))
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
 				return err
 			}
 		} else {
 			if _, err = qtx.CreateDeploymentVolume(ctx, sqlc.CreateDeploymentVolumeParams{
-				DeploymentID:  utils.NullInt64FromPtr(&imageDeployment.DeploymentID),
+				DeploymentID:  mapper.ToNullInt64FromPtr(&imageDeployment.DeploymentID),
 				VolumeSizeMib: volume.VolumeSizeMib,
 				MountPath:     volume.MountPath,
 			}); err != nil {
@@ -781,7 +782,7 @@ func (er *EnvironmentRepository) copyDeployments(
 		}
 	}
 
-	gitDeployments, err := qtx.GetEnvironmentGitDeployments(ctx, utils.NullInt64FromPtr(&sourceEnvironmentId))
+	gitDeployments, err := qtx.GetEnvironmentGitDeployments(ctx, mapper.ToNullInt64FromPtr(&sourceEnvironmentId))
 	if err != nil {
 		return err
 	}
@@ -789,7 +790,7 @@ func (er *EnvironmentRepository) copyDeployments(
 		newDeployment, err := qtx.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
 			Name:           d.Name,
 			Port:           d.Port,
-			EnvironmentID:  utils.NullInt64FromPtr(&newEnvID),
+			EnvironmentID:  mapper.ToNullInt64FromPtr(&newEnvID),
 			Url:            d.Url,
 			ProjectPath:    d.ProjectPath,
 			DockerfilePath: d.DockerfilePath,
@@ -834,7 +835,7 @@ func (er *EnvironmentRepository) copyIngressDeployments(
 	newEnvID int64,
 	uniqueIdentifier string,
 ) error {
-	ingressRows, err := qtx.GetEnvironmentIngressDeployments(ctx, utils.NullInt64FromPtr(&sourceEnvironmentId))
+	ingressRows, err := qtx.GetEnvironmentIngressDeployments(ctx, mapper.ToNullInt64FromPtr(&sourceEnvironmentId))
 	if err != nil {
 		return err
 	}
@@ -847,7 +848,7 @@ func (er *EnvironmentRepository) copyIngressDeployments(
 		if !exists {
 			dep = &entity.IngressDeployment{
 				Id:            r.DeploymentID,
-				EnvironmentId: utils.PtrFromNullInt64(r.EnvironmentID),
+				EnvironmentId: mapper.ToPtrFromNullInt64(r.EnvironmentID),
 				Status:        string(r.Status),
 				Name:          r.DeploymentName,
 				Port:          r.Port,
@@ -898,7 +899,7 @@ func (er *EnvironmentRepository) copyIngressDeployments(
 		createdIngress, err := qtx.CreateIngressDeployment(ctx, sqlc.CreateIngressDeploymentParams{
 			Name:          i.Name,
 			Port:          i.Port,
-			EnvironmentID: utils.NullInt64FromPtr(&newEnvID),
+			EnvironmentID: mapper.ToNullInt64FromPtr(&newEnvID),
 		})
 		if err != nil {
 			return err
@@ -914,7 +915,7 @@ func (er *EnvironmentRepository) copyIngressDeployments(
 			for _, p := range h.Paths {
 				targetDeployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
 					Name:          p.ServiceName,
-					EnvironmentID: utils.NullInt64FromPtr(&newEnvID),
+					EnvironmentID: mapper.ToNullInt64FromPtr(&newEnvID),
 				})
 				if err != nil {
 					return err

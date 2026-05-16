@@ -9,7 +9,7 @@ import { Outlet, useOutletContext, useParams } from "react-router";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
-import type { ResponseEnvironment } from "~/server/api/client/generated";
+import type { ResponseEnvironment } from "../../../../../../server/api/clients/server/generated";
 import { ReactFlowProvider } from "@xyflow/react";
 import BottomBar from "~/components/organisms/bottom-bar/deployment/BottomBar";
 import type { ImperativePanelHandle } from "react-resizable-panels";

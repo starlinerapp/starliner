@@ -1,9 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { teamsApiFactory } from "~/server/api/client";
-import { db } from "~/db";
-import { user } from "~/db/schema";
-import { inArray } from "drizzle-orm";
+import { teamsApiFactory } from "~/server/api/clients/server";
+import { enrichMembersWithAuthDetails } from "~/server/services/users";
 
 export const teamRouter = {
   createTeam: protectedProcedure
@@ -45,21 +43,7 @@ export const teamRouter = {
         .getTeamMembers(userId, input.teamId)
         .then((res) => res.data);
 
-      const betterAuthIds = members.map((m) => m.better_auth_id);
-      if (betterAuthIds.length === 0) return [];
-
-      const authUsers = await db
-        .select({ id: user.id, name: user.name, email: user.email })
-        .from(user)
-        .where(inArray(user.id, betterAuthIds));
-
-      const authUserMap = new Map(authUsers.map((u) => [u.id, u]));
-
-      return members.map((m) => ({
-        ...m,
-        name: authUserMap.get(m.better_auth_id)?.name ?? "",
-        email: authUserMap.get(m.better_auth_id)?.email ?? "",
-      }));
+      return await enrichMembersWithAuthDetails(members);
     }),
   joinTeam: protectedProcedure
     .input(

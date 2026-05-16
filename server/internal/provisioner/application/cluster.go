@@ -103,7 +103,20 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	appendStatus("==> Server provisioned at %s\n", ip)
 
 	appendStatus("==> Waiting for SSH...\n")
-	if err := ca.ssh.WaitForSSH(ip, 30*time.Second); err != nil {
+
+	pemBytes, err := ca.crypto.EncodePrivateKeyToPEM(privateKey)
+	if err != nil {
+		appendStatus("==> ERROR: failed to encode private key to PEM: %v\n", err)
+		log.Printf("failed to encode private key to PEM: %v\n", err)
+		ca.HandleDeleteCluster(&value.DeleteCluster{
+			Id:                     c.Id,
+			ProvisioningId:         provisioningId,
+			ProvisioningCredential: c.ProvisioningCredential,
+		})
+		return
+	}
+
+	if err := ca.ssh.WaitForSSH(ip, "root", pemBytes, 30*time.Second); err != nil {
 		appendStatus("==> ERROR: SSH not available: %v\n", err)
 		log.Printf("SSH not available: %v\n", err)
 		return

@@ -124,8 +124,6 @@ export default [
   ]),
 
   ...prefix("api", [
-    route("auth/*", "routes/api/auth.ts"),
-
     // tRPC routes
     route("trpc/*", "routes/api/trpc.ts"),
   ]),
