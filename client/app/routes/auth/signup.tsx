@@ -3,7 +3,7 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
-import { useAuthClient } from "~/utils/auth/client";
+import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
 interface SignUpFormInput {
@@ -13,7 +13,7 @@ interface SignUpFormInput {
 }
 
 export default function SignUp() {
-  const authClient = useAuthClient();
+  const authClient = getAuthClient();
   const { register, handleSubmit } = useForm<SignUpFormInput>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
