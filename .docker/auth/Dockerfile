@@ -30,8 +30,10 @@ COPY --from=build /app/package.json /app/package.json
 COPY --from=build /app/package-lock.json /app/package-lock.json
 RUN npm ci --omit=dev
 
-COPY --from=build /app/build/server /app/build/server
-COPY --from=build /app/build/client /app/build/client
+COPY --from=build /app/dist /app/dist
+
+RUN chown -R node:node /app
+USER node
 
 EXPOSE 3000
 CMD ["node", "dist/index.js"]

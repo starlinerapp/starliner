@@ -108,6 +108,11 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to encode private key to PEM: %v\n", err)
 		log.Printf("failed to encode private key to PEM: %v\n", err)
+		ca.HandleDeleteCluster(&value.DeleteCluster{
+			Id:                     c.Id,
+			ProvisioningId:         provisioningId,
+			ProvisioningCredential: c.ProvisioningCredential,
+		})
 		return
 	}
 
