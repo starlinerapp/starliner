@@ -7,7 +7,10 @@ export class EmailApplication {
     await this.api.sendResetPasswordEmail(resetUrl, to);
   }
 
-  async sendVerificationEmail(to: string, verificationUrl: string): Promise<void> {
+  async sendVerificationEmail(
+    to: string,
+    verificationUrl: string,
+  ): Promise<void> {
     await this.api.sendVerificationEmail(verificationUrl, to);
   }
 }

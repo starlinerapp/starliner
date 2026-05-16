@@ -1,8 +1,5 @@
 import type { Context } from "hono";
-import {
-  UserApplication,
-  UserLookupError,
-} from "~/application/user";
+import { UserApplication, UserLookupError } from "~/application/user";
 import { parseBulkUserLookupRequest } from "~/presentation/http/dto/request/user";
 import { newBulkUserLookupResponse } from "~/presentation/http/dto/response/user";
 
