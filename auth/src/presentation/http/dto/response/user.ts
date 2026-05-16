@@ -14,4 +14,6 @@ export const BulkUserLookupResponseSchema = z
   })
   .openapi("BulkUserLookupResponse");
 
-export type BulkUserLookupResponse = z.infer<typeof BulkUserLookupResponseSchema>;
+export type BulkUserLookupResponse = z.infer<
+  typeof BulkUserLookupResponseSchema
+>;
