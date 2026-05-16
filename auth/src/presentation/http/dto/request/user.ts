@@ -1,18 +1,11 @@
-export type BulkUserLookupRequest = {
-  ids: string[];
-};
+import { z } from "@hono/zod-openapi";
 
-export function parseBulkUserLookupRequest(
-  body: unknown,
-): BulkUserLookupRequest | null {
-  if (typeof body !== "object" || body === null) {
-    return null;
-  }
+export const BulkUserLookupRequestSchema = z
+  .object({
+    ids: z
+      .array(z.string())
+      .openapi({ example: ["user_abc123", "user_def456"] }),
+  })
+  .openapi("BulkUserLookupRequest");
 
-  const rawIds = (body as { ids?: unknown }).ids;
-  const ids = Array.isArray(rawIds)
-    ? rawIds.filter((id): id is string => typeof id === "string")
-    : [];
-
-  return { ids };
-}
+export type BulkUserLookupRequest = z.infer<typeof BulkUserLookupRequestSchema>;

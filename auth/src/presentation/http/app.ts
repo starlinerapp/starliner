@@ -1,4 +1,5 @@
-import { Hono } from "hono";
+import { swaggerUI } from "@hono/swagger-ui";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import type { UserApplication } from "~/application/user";
 import type { AuthService } from "~/domain/port/auth";
@@ -12,13 +13,27 @@ type AppDependencies = {
 };
 
 export function createApp({ userApplication, auth }: AppDependencies) {
-  const app = new Hono();
-  const userHandler = new UserHandler(userApplication);
-  const authHandler = new AuthHandler(auth);
+  const app = new OpenAPIHono({
+    defaultHook: (result, c) => {
+      if (!result.success) {
+        return c.json({ error: "invalid json" }, 400);
+      }
+    },
+  });
 
-  const internal = new Hono();
-  internal.post("/users", userHandler.bulkLookup);
-  app.route("/internal", internal);
+  UserHandler.register(app, userApplication);
+
+  app.doc("/docs", {
+    openapi: "3.0.0",
+    info: {
+      title: "Starliner Auth API",
+      version: "1.0.0",
+    },
+  });
+
+  app.get("/ui", swaggerUI({ url: "/docs" }));
+
+  const authHandler = new AuthHandler(auth);
 
   app.use(
     "/api/auth/*",

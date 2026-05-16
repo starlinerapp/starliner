@@ -9,8 +9,9 @@ export async function fetchAuthUsersByIds(
     return new Map();
   }
 
-  const res = await fetch(`${serverEnv.AUTH_URL}/internal/users`, {
+  const res = await fetch(`${serverEnv.AUTH_URL}/users`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ids }),
   });
 
