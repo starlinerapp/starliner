@@ -1,35 +1,36 @@
 import React from "react";
 import { cn } from "~/utils/cn";
-import { ExclamationTriangle, LinkOut } from "~/components/atoms/icons";
+import { LinkOut } from "~/components/atoms/icons";
 import { Link } from "react-router";
+import { CheckCircle } from "lucide-react";
 
-interface ErrorBannerLinkOutProps {
+interface SuccessBannerLinkOutProps {
   text: string;
   href: string;
 }
 
-interface ErrorBannerProps {
+interface SuccessBannerProps {
   text: string;
-  linkOut?: ErrorBannerLinkOutProps;
+  linkOut?: SuccessBannerLinkOutProps;
   children?: React.ReactNode;
   className?: string;
 }
 
-export default function ErrorBanner({
+export default function SuccessBanner({
   text,
   linkOut,
   children,
   className,
-}: ErrorBannerProps) {
+}: SuccessBannerProps) {
   return (
     <div
       className={cn(
-        "border-red-6 bg-red-3 flex w-full rounded-md border-1",
+        "border-grass-6 bg-grass-3 flex w-full rounded-md border",
         className,
       )}
     >
-      <div className="bg-red-9 flex w-11 items-center justify-center rounded-l-sm">
-        <ExclamationTriangle width={18} strokeWidth={2} />
+      <div className="bg-grass-9 flex w-11 items-center justify-center rounded-l-sm">
+        <CheckCircle width={18} strokeWidth={2} />
       </div>
       <div className="flex items-center gap-2 p-2.5">
         <p className="text-sm font-light">{text}</p>

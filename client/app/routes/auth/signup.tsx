@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import { NavLink, useSearchParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
 import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import SuccessBanner from "~/components/atoms/banner/SuccessBanner";
 
 interface SignUpFormInput {
   email: string;
@@ -14,12 +15,12 @@ interface SignUpFormInput {
 
 export default function SignUp() {
   const authClient = getAuthClient();
-  const { register, handleSubmit } = useForm<SignUpFormInput>();
-  const navigate = useNavigate();
+  const { register, handleSubmit, reset } = useForm<SignUpFormInput>();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
 
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SignUpFormInput> = async (data) => {
     const callbackURL = new URL(redirectTo, window.location.origin).href;
@@ -36,7 +37,10 @@ export default function SignUp() {
           // show loading state
         },
         onSuccess: () => {
-          navigate(redirectTo);
+          reset();
+          setSuccess(
+            "We sent you a verification email. Please verify your account before signing in.",
+          );
         },
         onError: (ctx) => {
           setError(ctx.error.message);
@@ -51,7 +55,7 @@ export default function SignUp() {
       : "/login";
 
   return (
-    <div className="flex w-[500px] flex-col gap-4">
+    <div className="flex w-125 flex-col gap-4">
       <p className="flex items-center justify-end gap-2 py-0.5 text-sm font-light">
         Already have an account?
         <NavLink
@@ -63,13 +67,14 @@ export default function SignUp() {
       </p>
       <h1 className="text-xl font-medium">Sign up for Starliner</h1>
       {error && <ErrorBanner text={error} />}
+      {success && <SuccessBanner text={success} />}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm">
             Email
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2"
+            className="border-mauve-6 rounded-md border p-2"
             type="text"
             placeholder="Email"
             {...register("email")}
@@ -80,7 +85,7 @@ export default function SignUp() {
             Password
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2"
+            className="border-mauve-6 rounded-md border p-2"
             type="password"
             placeholder="Password"
             {...register("password")}
@@ -91,7 +96,7 @@ export default function SignUp() {
             Username
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2"
+            className="border-mauve-6 rounded-md border p-2"
             type="text"
             placeholder="Username"
             {...register("username")}
