@@ -8,6 +8,8 @@ const envSchema = z.object({
   SERVER_BASE_URL: z.string(),
   SERVER_BASIC_AUTH_USER: z.string(),
   SERVER_BASIC_AUTH_PASSWORD: z.string(),
+  GITHUB_CLIENT_ID: z.string(),
+  GITHUB_CLIENT_SECRET: z.string(),
 });
 
 function createServerEnv() {
