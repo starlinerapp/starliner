@@ -11,7 +11,6 @@ import { useLocation } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import { GitBranch } from "lucide-react";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
 
 export function RepositoryAccess({
@@ -128,17 +127,28 @@ export function RepositoryAccess({
                     }
                   />
                 ) : (
-                  <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto">
+                  <div className="bg-mauve-2 border-mauve-6 flex max-h-[60vh] flex-col gap-1 overflow-y-auto rounded-md border">
                     {allReposSorted.map((repo) => {
-                      const isAssigned = assignedRepoIds.has(repo.id);
                       return (
                         <div
                           key={repo.id}
-                          className="bg-mauve-2 border-mauve-6 flex min-w-0 items-center justify-between gap-3 rounded-md border p-3"
+                          className="flex min-w-0 items-center justify-between gap-4 p-3"
                         >
-                          <div className="border-mauve-6 rounded-md border bg-white p-1.5">
-                            <GitBranch className="text-mauve-11 h-7 w-7 stroke-[1.5px]" />
-                          </div>
+                          <input
+                            type="checkbox"
+                            checked={assignedRepoIds.has(repo.id)}
+                            onChange={(event) => {
+                              if (event.target.checked) {
+                                onAssignRepo(
+                                  repo.id,
+                                  `${repo.owner}/${repo.name}`,
+                                );
+                              } else {
+                                onUnassignRepo(repo.id);
+                              }
+                            }}
+                            className="border-mauve-6 h-4.5 w-4.5 shrink-0 rounded"
+                          />
                           <div className="flex min-w-0 flex-1 flex-col gap-1">
                             <p className="text-mauve-12 truncate text-sm font-medium">
                               {repo.owner}/{repo.name}
@@ -152,32 +162,21 @@ export function RepositoryAccess({
                               </p>
                             )}
                           </div>
-                          {isAssigned ? (
-                            <Button
-                              className="w-24"
-                              size="xs"
-                              intent="secondary"
-                              onClick={() => onUnassignRepo(repo.id)}
-                            >
-                              Unassign
-                            </Button>
-                          ) : (
-                            <Button
-                              className="w-24"
-                              intent="primary"
-                              size="xs"
-                              onClick={() => {
-                                onAssignRepo(repo.id, repo.full_name);
-                              }}
-                            >
-                              Assign
-                            </Button>
-                          )}
                         </div>
                       );
                     })}
                   </div>
                 )}
+                <div className="flex w-full justify-end gap-2">
+                  <Button
+                    intent="secondary"
+                    className="w-24"
+                    onClick={() => setShowAssignDialog(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button className="w-24">Apply</Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
