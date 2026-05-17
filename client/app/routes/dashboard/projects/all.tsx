@@ -46,7 +46,7 @@ export default function Projects() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,350px))] justify-start gap-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] justify-start gap-4">
           {projectsData?.map((project, i) => (
             <Link to={`/${slug}/projects/${project.id}`} key={i}>
               <motion.div initial="rest" animate="rest" whileHover="hover">
@@ -91,6 +91,10 @@ export default function Projects() {
               </motion.div>
             </Link>
           ))}
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
         </div>
       )}
     </div>

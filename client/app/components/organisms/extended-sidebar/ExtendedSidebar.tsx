@@ -107,12 +107,11 @@ export default function ExtendedSidebar({
         defaultSize={15}
         minSize={10}
         maxSize={20}
-        className="bg-violet-1 border-mauve-6 h-screen border-r-1 py-3"
+        className="bg-violet-1 border-mauve-6 h-screen border-r"
       >
-        <div className="text-violet-12 px-4 pb-2 text-sm font-bold">
+        <div className="text-violet-12 border-mauve-6 flex h-10 items-center border-b px-4 text-sm font-bold">
           {title}
         </div>
-        <hr className="border-gray-4 border-t" />
         {isLoading ? (
           <>
             <div className="p-4">
