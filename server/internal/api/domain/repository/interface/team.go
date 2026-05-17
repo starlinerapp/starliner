@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"starliner.app/internal/api/domain/entity"
+	"starliner.app/internal/api/domain/value"
 )
 
 type TeamRepository interface {
@@ -17,8 +18,7 @@ type TeamRepository interface {
 	RemoveTeamMember(ctx context.Context, teamID int64, userID int64) error
 	GetTeamById(ctx context.Context, id int64) (*entity.Team, error)
 	FindTeamByIdAndUserId(ctx context.Context, teamID int64, userID int64) (*entity.Team, error)
-	AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string, githubAppID int64) error
-	UnassignRepoFromTeam(ctx context.Context, teamID int64, githubRepoID int64) error
+	SetTeamRepositories(ctx context.Context, teamID int64, repos []*value.TeamRepo, githubAppID int64) error
 	GetTeamRepositories(ctx context.Context, teamID int64) ([]*entity.TeamRepository, error)
 	GetTeamClusters(ctx context.Context, teamID int64) ([]*entity.TeamCluster, error)
 	AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error

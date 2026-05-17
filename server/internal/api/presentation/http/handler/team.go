@@ -9,6 +9,7 @@ import (
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
+	"starliner.app/internal/api/presentation/http/mapper"
 )
 
 type TeamHandler struct {
@@ -208,17 +209,17 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// AssignRepoToTeam godoc
-// @Summary Assign a GitHub repository to a team
+// SetTeamRepositories godoc
+// @Summary Set repositories assigned to a team
 // @State core
 // @Tags team
-// @ID assignRepoToTeam
+// @ID setTeamRepositories
 // @Param X-User-ID header string true "User ID"
 // @Param teamId path int true "Team ID"
-// @Param data body request.AssignRepoToTeam true "Assign Repo"
-// @Success 201
-// @Router /teams/{teamId}/repos [post]
-func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
+// @Param data body request.SetTeamRepositories true "Team Repositories"
+// @Success 204
+// @Router /teams/{teamId}/repos [put]
+func (th *TeamHandler) SetTeamRepositories(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
@@ -227,46 +228,15 @@ func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
 		return
 	}
 
-	var body request.AssignRepoToTeam
+	var body request.SetTeamRepositories
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = th.teamApplication.AssignRepoToTeam(c, currentUser.Id, teamId, body.GithubRepoId, body.RepoName)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
+	repos := mapper.MapTeamReposFromRequest(teamId, body.Repositories)
 
-	c.Status(http.StatusCreated)
-}
-
-// UnassignRepoFromTeam godoc
-// @Summary Unassign a GitHub repository from a team
-// @State core
-// @Tags team
-// @ID unassignRepoFromTeam
-// @Param X-User-ID header string true "User ID"
-// @Param teamId path int true "Team ID"
-// @Param repoId path int true "GitHub Repo ID"
-// @Success 204
-// @Router /teams/{teamId}/repos/{repoId} [delete]
-func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
-	currentUser := c.MustGet("user").(*value.User)
-
-	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-	repoId, err := strconv.ParseInt(c.Param("repoId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	err = th.teamApplication.UnassignRepoFromTeam(c, currentUser.Id, teamId, repoId)
+	err = th.teamApplication.SetTeamRepositories(c, currentUser.Id, teamId, repos)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

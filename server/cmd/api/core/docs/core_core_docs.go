@@ -2028,12 +2028,12 @@ const docTemplatecoreCore = `{
                     }
                 }
             },
-            "post": {
+            "put": {
                 "tags": [
                     "team"
                 ],
-                "summary": "Assign a GitHub repository to a team",
-                "operationId": "assignRepoToTeam",
+                "summary": "Set repositories assigned to a team",
+                "operationId": "setTeamRepositories",
                 "parameters": [
                     {
                         "type": "string",
@@ -2050,50 +2050,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
-                        "description": "Assign Repo",
+                        "description": "Team Repositories",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AssignRepoToTeam"
+                            "$ref": "#/definitions/request.SetTeamRepositories"
                         }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    }
-                }
-            }
-        },
-        "/teams/{teamId}/repos/{repoId}": {
-            "delete": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Unassign a GitHub repository from a team",
-                "operationId": "unassignRepoFromTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID",
-                        "name": "teamId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "GitHub Repo ID",
-                        "name": "repoId",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -2142,21 +2105,6 @@ const docTemplatecoreCore = `{
                     "type": "string"
                 },
                 "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.AssignRepoToTeam": {
-            "type": "object",
-            "required": [
-                "githubRepoId",
-                "repoName"
-            ],
-            "properties": {
-                "githubRepoId": {
-                    "type": "integer"
-                },
-                "repoName": {
                     "type": "string"
                 }
             }
@@ -2473,6 +2421,32 @@ const docTemplatecoreCore = `{
                     "type": "string"
                 },
                 "toEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SetTeamRepositories": {
+            "type": "object",
+            "properties": {
+                "repositories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.TeamRepoAssignment"
+                    }
+                }
+            }
+        },
+        "request.TeamRepoAssignment": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
                     "type": "string"
                 }
             }

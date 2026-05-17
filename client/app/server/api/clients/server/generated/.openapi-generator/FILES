@@ -15,7 +15,6 @@ docs/ProjectApi.md
 docs/RequestAcceptInvite.md
 docs/RequestAddTeamMember.md
 docs/RequestArg.md
-docs/RequestAssignRepoToTeam.md
 docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateGithubApp.md
@@ -32,6 +31,8 @@ docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
 docs/RequestRemoveTeamMember.md
 docs/RequestSendInvite.md
+docs/RequestSetTeamRepositories.md
+docs/RequestTeamRepoAssignment.md
 docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateEnvironmentConnectBranch.md
 docs/RequestUpdateImage.md

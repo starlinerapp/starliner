@@ -71,10 +71,9 @@ ON CONFLICT (
   team_id, github_repo_id)
   DO NOTHING;
 
--- name: UnassignRepoFromTeam :exec
+-- name: DeleteAllTeamRepositories :exec
 DELETE FROM team_repositories
-WHERE team_id = $1
-  AND github_repo_id = $2;
+WHERE team_id = $1;
 
 -- name: GetTeamRepositories :many
 SELECT github_repo_id, repo_name

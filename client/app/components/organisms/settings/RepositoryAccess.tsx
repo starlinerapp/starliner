@@ -6,7 +6,7 @@ import {
 import Button from "~/components/atoms/button/Button";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
@@ -22,6 +22,10 @@ export function RepositoryAccess({
 }) {
   const location = useLocation();
   const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [pendingAssignedRepoIds, setPendingAssignedRepoIds] = useState<
+    Set<number>
+  >(new Set());
+
   const trpc = useTRPC();
   const organization = useOrganizationContext();
   const queryClient = useQueryClient();
@@ -45,61 +49,86 @@ export function RepositoryAccess({
     enabled: organization.isOwner && !!githubApp,
   });
 
-  const assignMutation = useMutation(
-    trpc.team.assignRepoToTeam.mutationOptions(),
+  const setTeamRepositoriesMutation = useMutation(
+    trpc.team.setTeamRepositories.mutationOptions(),
   );
 
-  const unassignMutation = useMutation(
-    trpc.team.unassignRepoFromTeam.mutationOptions(),
-  );
-
-  function onAssignRepo(repoId: number, repoName: string) {
-    assignMutation.mutate(
-      {
-        teamId,
-        githubRepoId: repoId,
-        repoName,
-      },
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: trpc.team.getTeamRepositories.queryKey(),
-          });
-        },
-      },
-    );
-  }
-
-  function onUnassignRepo(repoId: number) {
-    unassignMutation.mutate(
-      {
-        teamId,
-        githubRepoId: repoId,
-      },
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: trpc.team.getTeamRepositories.queryKey(),
-          });
-        },
-      },
-    );
-  }
-
-  const assignedRepoIds = new Set(teamRepos?.map((r) => r.githubRepoId) ?? []);
   const allReposSorted =
-    allRepos
-      ?.slice()
-      .sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-      ) ?? [];
+    allRepos?.slice().sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, {
+        sensitivity: "base",
+      }),
+    ) ?? [];
+
+  function getAssignedRepoIds() {
+    return new Set(teamRepos?.map((r) => r.githubRepoId) ?? []);
+  }
+
+  useEffect(() => {
+    if (showAssignDialog) {
+      setPendingAssignedRepoIds(getAssignedRepoIds());
+    }
+  }, [showAssignDialog, teamRepos]);
+
+  function toggleRepo(repoId: number, checked: boolean) {
+    setPendingAssignedRepoIds((prev) => {
+      const next = new Set(prev);
+
+      if (checked) {
+        next.add(repoId);
+      } else {
+        next.delete(repoId);
+      }
+
+      return next;
+    });
+  }
+
+  function onApply() {
+    const repositories = allReposSorted
+      .filter((repo) => pendingAssignedRepoIds.has(repo.id))
+      .map((repo) => ({
+        githubRepoId: repo.id,
+        repoName: `${repo.owner}/${repo.name}`,
+      }));
+
+    setTeamRepositoriesMutation.mutate(
+      {
+        teamId,
+        repositories,
+      },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: trpc.team.getTeamRepositories.queryKey(),
+          });
+
+          setShowAssignDialog(false);
+        },
+      },
+    );
+  }
+
+  function onCancel() {
+    setPendingAssignedRepoIds(getAssignedRepoIds());
+    setShowAssignDialog(false);
+  }
 
   return (
     <div className="w-full">
       <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
-          <p>Repository Access</p>
-          <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+          <p>Repositories</p>
+          <Dialog
+            open={showAssignDialog}
+            onOpenChange={(open) => {
+              setShowAssignDialog(open);
+
+              if (!open) {
+                setPendingAssignedRepoIds(getAssignedRepoIds());
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button intent="secondary" className="w-36 text-xs">
                 Manage Repositories
@@ -116,66 +145,63 @@ export function RepositoryAccess({
                 </div>
                 {isAllReposLoading ? (
                   <div className="flex flex-col gap-2">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
                   </div>
                 ) : allReposSorted.length === 0 ? (
-                  <WarningBanner
-                    text={
-                      "Install the GitHub App to assign repositories to this team."
-                    }
-                  />
+                  <WarningBanner text="Install the GitHub App to assign repositories to this team." />
                 ) : (
-                  <div className="bg-mauve-2 border-mauve-6 flex max-h-[60vh] flex-col gap-1 overflow-y-auto rounded-md border">
-                    {allReposSorted.map((repo) => {
-                      return (
-                        <div
-                          key={repo.id}
-                          className="flex min-w-0 items-center justify-between gap-4 p-3"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={assignedRepoIds.has(repo.id)}
-                            onChange={(event) => {
-                              if (event.target.checked) {
-                                onAssignRepo(
-                                  repo.id,
-                                  `${repo.owner}/${repo.name}`,
-                                );
-                              } else {
-                                onUnassignRepo(repo.id);
-                              }
-                            }}
-                            className="border-mauve-6 h-4.5 w-4.5 shrink-0 rounded"
-                          />
-                          <div className="flex min-w-0 flex-1 flex-col gap-1">
-                            <p className="text-mauve-12 truncate text-sm font-medium">
-                              {repo.owner}/{repo.name}
+                  <div className="bg-mauve-2 border-mauve-6 flex max-h-[60vh] flex-col overflow-y-auto rounded-md border">
+                    {allReposSorted.map((repo) => (
+                      <label
+                        key={repo.id}
+                        className="flex min-w-0 cursor-pointer items-center gap-3 p-3"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={pendingAssignedRepoIds.has(repo.id)}
+                          onChange={(event) => {
+                            toggleRepo(repo.id, event.target.checked);
+                          }}
+                          className="border-mauve-6 h-4.5 w-4.5 shrink-0 rounded"
+                        />
+                        <div className="flex min-w-0 flex-1 flex-col gap-1">
+                          <p className="text-mauve-12 truncate text-sm font-medium">
+                            {repo.owner}/{repo.name}
+                          </p>
+                          {repo.description && (
+                            <p
+                              className="text-mauve-11 truncate text-xs"
+                              title={repo.description}
+                            >
+                              {repo.description}
                             </p>
-                            {repo.description && (
-                              <p
-                                className="text-mauve-11 truncate text-xs"
-                                title={repo.description}
-                              >
-                                {repo.description}
-                              </p>
-                            )}
-                          </div>
+                          )}
                         </div>
-                      );
-                    })}
+                      </label>
+                    ))}
                   </div>
                 )}
                 <div className="flex w-full justify-end gap-2">
                   <Button
                     intent="secondary"
                     className="w-24"
-                    onClick={() => setShowAssignDialog(false)}
+                    onClick={onCancel}
+                    disabled={setTeamRepositoriesMutation.isPending}
                   >
                     Cancel
                   </Button>
-                  <Button className="w-24">Apply</Button>
+                  <Button
+                    className="w-24"
+                    onClick={onApply}
+                    disabled={
+                      setTeamRepositoriesMutation.isPending ||
+                      allReposSorted.length === 0
+                    }
+                  >
+                    Apply
+                  </Button>
                 </div>
               </div>
             </DialogContent>

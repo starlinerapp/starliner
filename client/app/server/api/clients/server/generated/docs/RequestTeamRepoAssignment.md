@@ -1,4 +1,4 @@
-# RequestAssignRepoToTeam
+# RequestTeamRepoAssignment
 
 ## Properties
 
@@ -10,9 +10,9 @@
 ## Example
 
 ```typescript
-import { RequestAssignRepoToTeam } from "./api";
+import { RequestTeamRepoAssignment } from "./api";
 
-const instance: RequestAssignRepoToTeam = {
+const instance: RequestTeamRepoAssignment = {
   githubRepoId,
   repoName,
 };

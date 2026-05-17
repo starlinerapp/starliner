@@ -102,6 +102,16 @@ func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, e
 	return i, err
 }
 
+const deleteAllTeamRepositories = `-- name: DeleteAllTeamRepositories :exec
+DELETE FROM team_repositories
+WHERE team_id = $1
+`
+
+func (q *Queries) DeleteAllTeamRepositories(ctx context.Context, teamID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAllTeamRepositories, teamID)
+	return err
+}
+
 const deleteTeam = `-- name: DeleteTeam :exec
 DELETE FROM teams
 WHERE id = $1
@@ -442,22 +452,6 @@ type RemoveTeamMemberParams struct {
 
 func (q *Queries) RemoveTeamMember(ctx context.Context, arg RemoveTeamMemberParams) error {
 	_, err := q.db.ExecContext(ctx, removeTeamMember, arg.TeamID, arg.UserID)
-	return err
-}
-
-const unassignRepoFromTeam = `-- name: UnassignRepoFromTeam :exec
-DELETE FROM team_repositories
-WHERE team_id = $1
-  AND github_repo_id = $2
-`
-
-type UnassignRepoFromTeamParams struct {
-	TeamID       int64
-	GithubRepoID int64
-}
-
-func (q *Queries) UnassignRepoFromTeam(ctx context.Context, arg UnassignRepoFromTeamParams) error {
-	_, err := q.db.ExecContext(ctx, unassignRepoFromTeam, arg.TeamID, arg.GithubRepoID)
 	return err
 }
 

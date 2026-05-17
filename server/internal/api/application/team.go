@@ -150,7 +150,12 @@ func (ta *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, t
 	return ta.teamRepository.DeleteTeamIfEmpty(ctx, teamId)
 }
 
-func (ta *TeamApplication) AssignRepoToTeam(ctx context.Context, userId int64, teamId int64, githubRepoId int64, repoName string) error {
+func (ta *TeamApplication) SetTeamRepositories(
+	ctx context.Context,
+	userId int64,
+	teamId int64,
+	repos []*value.TeamRepo,
+) error {
 	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
 	if err != nil {
 		return err
@@ -166,21 +171,7 @@ func (ta *TeamApplication) AssignRepoToTeam(ctx context.Context, userId int64, t
 		return err
 	}
 
-	return ta.teamRepository.AssignRepoToTeam(ctx, teamId, githubRepoId, repoName, githubApp.ID)
-}
-
-func (ta *TeamApplication) UnassignRepoFromTeam(ctx context.Context, userId int64, teamId int64, githubRepoId int64) error {
-	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
-	if err != nil {
-		return err
-	}
-
-	err = ta.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, userId)
-	if err != nil {
-		return err
-	}
-
-	return ta.teamRepository.UnassignRepoFromTeam(ctx, teamId, githubRepoId)
+	return ta.teamRepository.SetTeamRepositories(ctx, teamId, repos, githubApp.ID)
 }
 
 func (ta *TeamApplication) GetTeamRepositories(ctx context.Context, userId int64, teamId int64) ([]*value.TeamRepo, error) {
