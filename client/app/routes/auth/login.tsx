@@ -5,6 +5,7 @@ import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import SignInWithGitHub from "../../components/atoms/github/SignInWithGitHub";
 
 const VERIFY_EMAIL_ERROR = "Please verify your email address";
 
@@ -78,7 +79,7 @@ export default function Login() {
       : "/signup";
 
   return (
-    <div className="flex w-[500px] flex-col gap-4">
+    <div className="flex w-125 flex-col gap-4">
       <p className="flex items-center justify-end gap-1.5 py-0.5 text-sm font-light">
         Don&#39;t have an account?
         <NavLink
@@ -105,6 +106,10 @@ export default function Login() {
           )}
         </ErrorBanner>
       )}
+      <div className="flex flex-col gap-2">
+        <SignInWithGitHub />
+      </div>
+      <hr className="border-mauve-6" />
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm">

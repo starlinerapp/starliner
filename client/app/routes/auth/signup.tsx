@@ -51,7 +51,7 @@ export default function SignUp() {
       : "/login";
 
   return (
-    <div className="flex w-[500px] flex-col gap-4">
+    <div className="flex w-125 flex-col gap-4">
       <p className="flex items-center justify-end gap-2 py-0.5 text-sm font-light">
         Already have an account?
         <NavLink

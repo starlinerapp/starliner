@@ -45,6 +45,8 @@ services:
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
       AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
     depends_on:
       auth-db:
         condition: service_healthy
