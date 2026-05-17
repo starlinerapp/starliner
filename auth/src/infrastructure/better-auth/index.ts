@@ -42,6 +42,12 @@ export function createBetterAuth(
         await emailApplication.sendVerificationEmail(user.email, url);
       },
     },
+    socialProviders: {
+      github: {
+        clientId: serverEnv.GITHUB_CLIENT_ID,
+        clientSecret: serverEnv.GITHUB_CLIENT_SECRET,
+      },
+    },
     rateLimit: {
       customRules: {
         "/get-session": false,
