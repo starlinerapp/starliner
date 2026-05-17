@@ -19,7 +19,7 @@ export default function SignInWithGitHub() {
   }
 
   return (
-    <div
+    <button
       onClick={handleButtonClicked}
       className="border-mauve-6 hover:bg-gray-3 text-mauve-12 flex w-full cursor-pointer justify-center rounded-md border bg-white px-4 py-2 text-sm"
     >
@@ -27,6 +27,6 @@ export default function SignInWithGitHub() {
         <GithubLogo className="h-5 w-5 invert" />
         <p>Sign in with GitHub</p>
       </span>
-    </div>
+    </button>
   );
 }

@@ -126,6 +126,7 @@ export default function Login() {
           <div className="flex justify-between text-sm">
             <label htmlFor="password">Password</label>
             <NavLink
+              tabIndex={-1}
               to={
                 redirectTo !== "/"
                   ? `/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`
