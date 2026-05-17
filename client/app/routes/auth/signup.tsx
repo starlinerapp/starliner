@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
+import {
+  ArrowRight,
+  ChevronRight,
+  Eye,
+  EyeSlash,
+} from "~/components/atoms/icons";
 import { NavLink, useSearchParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
 import { getAuthClient } from "~/utils/auth/client";
@@ -19,6 +24,7 @@ export default function SignUp() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -70,6 +76,17 @@ export default function SignUp() {
       {success && <SuccessBanner text={success} />}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
+          <label htmlFor="username" className="text-sm">
+            Full Name
+          </label>
+          <input
+            className="border-mauve-6 rounded-md border p-2"
+            type="text"
+            placeholder="Full Name*"
+            {...register("username")}
+          />
+        </span>
+        <span className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm">
             Email
           </label>
@@ -84,23 +101,26 @@ export default function SignUp() {
           <label htmlFor="password" className="text-sm">
             Password
           </label>
-          <input
-            className="border-mauve-6 rounded-md border p-2"
-            type="password"
-            placeholder="Password"
-            {...register("password")}
-          />
-        </span>
-        <span className="flex flex-col gap-1">
-          <label htmlFor="username" className="text-sm">
-            Username
-          </label>
-          <input
-            className="border-mauve-6 rounded-md border p-2"
-            type="text"
-            placeholder="Username"
-            {...register("username")}
-          />
+          <div className="relative">
+            <input
+              className="border-mauve-6 w-full rounded-md border p-2"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              {...register("password")}
+            />
+
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              type="button"
+              className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeSlash className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </span>
         <Button className="mt-2" type="submit" size="md">
           Create account <ChevronRight className="w-4 stroke-3" />
