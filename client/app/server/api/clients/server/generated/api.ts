@@ -499,6 +499,19 @@ export interface RequestSendInvite {
 /**
  *
  * @export
+ * @interface RequestSetTeamClusters
+ */
+export interface RequestSetTeamClusters {
+  /**
+   *
+   * @type {Array<RequestTeamClusterAssignment>}
+   * @memberof RequestSetTeamClusters
+   */
+  clusters?: Array<RequestTeamClusterAssignment>;
+}
+/**
+ *
+ * @export
  * @interface RequestSetTeamRepositories
  */
 export interface RequestSetTeamRepositories {
@@ -508,6 +521,19 @@ export interface RequestSetTeamRepositories {
    * @memberof RequestSetTeamRepositories
    */
   repositories?: Array<RequestTeamRepoAssignment>;
+}
+/**
+ *
+ * @export
+ * @interface RequestTeamClusterAssignment
+ */
+export interface RequestTeamClusterAssignment {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestTeamClusterAssignment
+   */
+  clusterId: number;
 }
 /**
  *
@@ -8081,62 +8107,6 @@ export const TeamApiAxiosParamCreator = function (
     },
     /**
      *
-     * @summary Assign a cluster to a team
-     * @param {string} xUserID User ID
-     * @param {number} teamId Team ID
-     * @param {number} clusterId Cluster ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    assignClusterToTeam: async (
-      xUserID: string,
-      teamId: number,
-      clusterId: number,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("assignClusterToTeam", "xUserID", xUserID);
-      // verify required parameter 'teamId' is not null or undefined
-      assertParamExists("assignClusterToTeam", "teamId", teamId);
-      // verify required parameter 'clusterId' is not null or undefined
-      assertParamExists("assignClusterToTeam", "clusterId", clusterId);
-      const localVarPath = `/teams/{teamId}/clusters/{clusterId}`
-        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
-        .replace(`{${"clusterId"}}`, encodeURIComponent(String(clusterId)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @summary Create team
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -8541,6 +8511,70 @@ export const TeamApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Set clusters assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {RequestSetTeamClusters} data Team Clusters
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    setTeamClusters: async (
+      xUserID: string,
+      teamId: number,
+      data: RequestSetTeamClusters,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("setTeamClusters", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("setTeamClusters", "teamId", teamId);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("setTeamClusters", "data", data);
+      const localVarPath = `/teams/{teamId}/clusters`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Set repositories assigned to a team
      * @param {string} xUserID User ID
      * @param {number} teamId Team ID
@@ -8603,62 +8637,6 @@ export const TeamApiAxiosParamCreator = function (
         options: localVarRequestOptions,
       };
     },
-    /**
-     *
-     * @summary Unassign a cluster from a team
-     * @param {string} xUserID User ID
-     * @param {number} teamId Team ID
-     * @param {number} clusterId Cluster ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    unassignClusterFromTeam: async (
-      xUserID: string,
-      teamId: number,
-      clusterId: number,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("unassignClusterFromTeam", "xUserID", xUserID);
-      // verify required parameter 'teamId' is not null or undefined
-      assertParamExists("unassignClusterFromTeam", "teamId", teamId);
-      // verify required parameter 'clusterId' is not null or undefined
-      assertParamExists("unassignClusterFromTeam", "clusterId", clusterId);
-      const localVarPath = `/teams/{teamId}/clusters/{clusterId}`
-        .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
-        .replace(`{${"clusterId"}}`, encodeURIComponent(String(clusterId)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "DELETE",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
   };
 };
 
@@ -8695,43 +8673,6 @@ export const TeamApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["TeamApi.addTeamMember"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-    /**
-     *
-     * @summary Assign a cluster to a team
-     * @param {string} xUserID User ID
-     * @param {number} teamId Team ID
-     * @param {number} clusterId Cluster ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async assignClusterToTeam(
-      xUserID: string,
-      teamId: number,
-      clusterId: number,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.assignClusterToTeam(
-          xUserID,
-          teamId,
-          clusterId,
-          options,
-        );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["TeamApi.assignClusterToTeam"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -8996,6 +8937,42 @@ export const TeamApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Set clusters assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {RequestSetTeamClusters} data Team Clusters
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async setTeamClusters(
+      xUserID: string,
+      teamId: number,
+      data: RequestSetTeamClusters,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.setTeamClusters(
+        xUserID,
+        teamId,
+        data,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.setTeamClusters"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Set repositories assigned to a team
      * @param {string} xUserID User ID
      * @param {number} teamId Team ID
@@ -9021,43 +8998,6 @@ export const TeamApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["TeamApi.setTeamRepositories"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-    /**
-     *
-     * @summary Unassign a cluster from a team
-     * @param {string} xUserID User ID
-     * @param {number} teamId Team ID
-     * @param {number} clusterId Cluster ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async unassignClusterFromTeam(
-      xUserID: string,
-      teamId: number,
-      clusterId: number,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.unassignClusterFromTeam(
-          xUserID,
-          teamId,
-          clusterId,
-          options,
-        );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["TeamApi.unassignClusterFromTeam"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -9099,25 +9039,6 @@ export const TeamApiFactory = function (
     ): AxiosPromise<void> {
       return localVarFp
         .addTeamMember(xUserID, teamId, data, options)
-        .then((request) => request(axios, basePath));
-    },
-    /**
-     *
-     * @summary Assign a cluster to a team
-     * @param {string} xUserID User ID
-     * @param {number} teamId Team ID
-     * @param {number} clusterId Cluster ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    assignClusterToTeam(
-      xUserID: string,
-      teamId: number,
-      clusterId: number,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
-      return localVarFp
-        .assignClusterToTeam(xUserID, teamId, clusterId, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -9247,6 +9168,25 @@ export const TeamApiFactory = function (
     },
     /**
      *
+     * @summary Set clusters assigned to a team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {RequestSetTeamClusters} data Team Clusters
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    setTeamClusters(
+      xUserID: string,
+      teamId: number,
+      data: RequestSetTeamClusters,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .setTeamClusters(xUserID, teamId, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Set repositories assigned to a team
      * @param {string} xUserID User ID
      * @param {number} teamId Team ID
@@ -9262,25 +9202,6 @@ export const TeamApiFactory = function (
     ): AxiosPromise<void> {
       return localVarFp
         .setTeamRepositories(xUserID, teamId, data, options)
-        .then((request) => request(axios, basePath));
-    },
-    /**
-     *
-     * @summary Unassign a cluster from a team
-     * @param {string} xUserID User ID
-     * @param {number} teamId Team ID
-     * @param {number} clusterId Cluster ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    unassignClusterFromTeam(
-      xUserID: string,
-      teamId: number,
-      clusterId: number,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
-      return localVarFp
-        .unassignClusterFromTeam(xUserID, teamId, clusterId, options)
         .then((request) => request(axios, basePath));
     },
   };
@@ -9311,27 +9232,6 @@ export class TeamApi extends BaseAPI {
   ) {
     return TeamApiFp(this.configuration)
       .addTeamMember(xUserID, teamId, data, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @summary Assign a cluster to a team
-   * @param {string} xUserID User ID
-   * @param {number} teamId Team ID
-   * @param {number} clusterId Cluster ID
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof TeamApi
-   */
-  public assignClusterToTeam(
-    xUserID: string,
-    teamId: number,
-    clusterId: number,
-    options?: RawAxiosRequestConfig,
-  ) {
-    return TeamApiFp(this.configuration)
-      .assignClusterToTeam(xUserID, teamId, clusterId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -9476,6 +9376,27 @@ export class TeamApi extends BaseAPI {
 
   /**
    *
+   * @summary Set clusters assigned to a team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {RequestSetTeamClusters} data Team Clusters
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public setTeamClusters(
+    xUserID: string,
+    teamId: number,
+    data: RequestSetTeamClusters,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .setTeamClusters(xUserID, teamId, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @summary Set repositories assigned to a team
    * @param {string} xUserID User ID
    * @param {number} teamId Team ID
@@ -9492,27 +9413,6 @@ export class TeamApi extends BaseAPI {
   ) {
     return TeamApiFp(this.configuration)
       .setTeamRepositories(xUserID, teamId, data, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @summary Unassign a cluster from a team
-   * @param {string} xUserID User ID
-   * @param {number} teamId Team ID
-   * @param {number} clusterId Cluster ID
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof TeamApi
-   */
-  public unassignClusterFromTeam(
-    xUserID: string,
-    teamId: number,
-    clusterId: number,
-    options?: RawAxiosRequestConfig,
-  ) {
-    return TeamApiFp(this.configuration)
-      .unassignClusterFromTeam(xUserID, teamId, clusterId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

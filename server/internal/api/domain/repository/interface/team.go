@@ -21,7 +21,7 @@ type TeamRepository interface {
 	SetTeamRepositories(ctx context.Context, teamID int64, repos []*value.TeamRepo, githubAppID int64) error
 	GetTeamRepositories(ctx context.Context, teamID int64) ([]*entity.TeamRepository, error)
 	GetTeamClusters(ctx context.Context, teamID int64) ([]*entity.TeamCluster, error)
+	SetTeamClusters(ctx context.Context, teamID int64, clusters []*value.TeamCluster) error
 	AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error
-	UnassignClusterFromTeam(ctx context.Context, teamID int64, clusterId int64) error
 	GetTeamCluster(ctx context.Context, teamID int64, clusterId int64) (*entity.TeamCluster, error)
 }

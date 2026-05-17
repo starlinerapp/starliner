@@ -297,50 +297,17 @@ func (th *TeamHandler) GetTeamClusters(c *gin.Context) {
 	c.JSON(http.StatusOK, response.NewTeamClusters(clusters))
 }
 
-// AssignClusterToTeam godoc
-// @Summary Assign a cluster to a team
+// SetTeamClusters godoc
+// @Summary Set clusters assigned to a team
 // @State core
 // @Tags team
-// @ID assignClusterToTeam
+// @ID setTeamClusters
 // @Param X-User-ID header string true "User ID"
 // @Param teamId path int true "Team ID"
-// @Param clusterId path int true "Cluster ID"
-// @Success 201
-// @Router /teams/{teamId}/clusters/{clusterId} [post]
-func (th *TeamHandler) AssignClusterToTeam(c *gin.Context) {
-	currentUser := c.MustGet("user").(*value.User)
-
-	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-	clusterId, err := strconv.ParseInt(c.Param("clusterId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	err = th.teamApplication.AssignClusterToTeam(c, currentUser.Id, teamId, clusterId)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
-
-	c.Status(http.StatusCreated)
-}
-
-// UnassignClusterFromTeam godoc
-// @Summary Unassign a cluster from a team
-// @State core
-// @Tags team
-// @ID unassignClusterFromTeam
-// @Param X-User-ID header string true "User ID"
-// @Param teamId path int true "Team ID"
-// @Param clusterId path int true "Cluster ID"
+// @Param data body request.SetTeamClusters true "Team Clusters"
 // @Success 204
-// @Router /teams/{teamId}/clusters/{clusterId} [delete]
-func (th *TeamHandler) UnassignClusterFromTeam(c *gin.Context) {
+// @Router /teams/{teamId}/clusters [put]
+func (th *TeamHandler) SetTeamClusters(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
@@ -348,13 +315,16 @@ func (th *TeamHandler) UnassignClusterFromTeam(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	clusterId, err := strconv.ParseInt(c.Param("clusterId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+
+	var body request.SetTeamClusters
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = th.teamApplication.UnassignClusterFromTeam(c, currentUser.Id, teamId, clusterId)
+	clusters := mapper.MapTeamClustersFromRequest(teamId, body.Clusters)
+
+	err = th.teamApplication.SetTeamClusters(c, currentUser.Id, teamId, clusters)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

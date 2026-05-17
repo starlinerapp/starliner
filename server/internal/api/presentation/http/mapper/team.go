@@ -19,3 +19,17 @@ func MapTeamReposFromRequest(
 	}
 	return result
 }
+
+func MapTeamClustersFromRequest(
+	teamID int64,
+	clusters []request.TeamClusterAssignment,
+) []*value.TeamCluster {
+	result := make([]*value.TeamCluster, len(clusters))
+	for i, cluster := range clusters {
+		result[i] = &value.TeamCluster{
+			TeamId:    teamID,
+			ClusterId: cluster.ClusterId,
+		}
+	}
+	return result
+}

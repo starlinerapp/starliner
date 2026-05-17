@@ -213,16 +213,37 @@ func (tr *TeamRepository) GetTeamClusters(ctx context.Context, teamID int64) ([]
 	return clusters, nil
 }
 
-func (tr *TeamRepository) AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error {
-	err := tr.queries.AssignTeamCluster(ctx, sqlc.AssignTeamClusterParams{
-		TeamID:    teamID,
-		ClusterID: clusterId,
-	})
-	return err
+func (tr *TeamRepository) SetTeamClusters(
+	ctx context.Context,
+	teamID int64,
+	clusters []*value.TeamCluster,
+) error {
+	tx, err := tr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	qtx := tr.queries.WithTx(tx)
+
+	if err := qtx.DeleteAllTeamClusters(ctx, teamID); err != nil {
+		return err
+	}
+
+	for _, cluster := range clusters {
+		if err := qtx.AssignTeamCluster(ctx, sqlc.AssignTeamClusterParams{
+			TeamID:    teamID,
+			ClusterID: cluster.ClusterId,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
-func (tr *TeamRepository) UnassignClusterFromTeam(ctx context.Context, teamID int64, clusterId int64) error {
-	err := tr.queries.UnassignTeamCluster(ctx, sqlc.UnassignTeamClusterParams{
+func (tr *TeamRepository) AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error {
+	err := tr.queries.AssignTeamCluster(ctx, sqlc.AssignTeamClusterParams{
 		TeamID:    teamID,
 		ClusterID: clusterId,
 	})

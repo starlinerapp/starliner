@@ -130,30 +130,23 @@ export const teamRouter = {
         .getTeamClusters(userId, input.teamId)
         .then((res) => res.data);
     }),
-  assignClusterToTeam: protectedProcedure
+  setTeamClusters: protectedProcedure
     .input(
       z.object({
         teamId: z.number(),
-        clusterId: z.number(),
+        clusters: z.array(
+          z.object({
+            clusterId: z.number(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await teamsApiFactory
-        .assignClusterToTeam(userId, input.teamId, input.clusterId)
-        .then((res) => res.data);
-    }),
-  unassignClusterFromTeam: protectedProcedure
-    .input(
-      z.object({
-        teamId: z.number(),
-        clusterId: z.number(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user?.id;
-      return await teamsApiFactory
-        .unassignClusterFromTeam(userId, input.teamId, input.clusterId)
+        .setTeamClusters(userId, input.teamId, {
+          clusters: input.clusters,
+        })
         .then((res) => res.data);
     }),
 };

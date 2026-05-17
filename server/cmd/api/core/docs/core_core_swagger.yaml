@@ -241,12 +241,26 @@ definitions:
     - inviteUrlPrefix
     - toEmail
     type: object
+  request.SetTeamClusters:
+    properties:
+      clusters:
+        items:
+          $ref: '#/definitions/request.TeamClusterAssignment'
+        type: array
+    type: object
   request.SetTeamRepositories:
     properties:
       repositories:
         items:
           $ref: '#/definitions/request.TeamRepoAssignment'
         type: array
+    type: object
+  request.TeamClusterAssignment:
+    properties:
+      clusterId:
+        type: integer
+    required:
+    - clusterId
     type: object
   request.TeamRepoAssignment:
     properties:
@@ -2083,9 +2097,8 @@ paths:
       summary: Get clusters assigned to a team
       tags:
       - team
-  /teams/{teamId}/clusters/{clusterId}:
-    delete:
-      operationId: unassignClusterFromTeam
+    put:
+      operationId: setTeamClusters
       parameters:
       - description: User ID
         in: header
@@ -2097,39 +2110,16 @@ paths:
         name: teamId
         required: true
         type: integer
-      - description: Cluster ID
-        in: path
-        name: clusterId
+      - description: Team Clusters
+        in: body
+        name: data
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/request.SetTeamClusters'
       responses:
         "204":
           description: No Content
-      summary: Unassign a cluster from a team
-      tags:
-      - team
-    post:
-      operationId: assignClusterToTeam
-      parameters:
-      - description: User ID
-        in: header
-        name: X-User-ID
-        required: true
-        type: string
-      - description: Team ID
-        in: path
-        name: teamId
-        required: true
-        type: integer
-      - description: Cluster ID
-        in: path
-        name: clusterId
-        required: true
-        type: integer
-      responses:
-        "201":
-          description: Created
-      summary: Assign a cluster to a team
+      summary: Set clusters assigned to a team
       tags:
       - team
   /teams/{teamId}/members:

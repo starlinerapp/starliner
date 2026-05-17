@@ -31,7 +31,9 @@ docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
 docs/RequestRemoveTeamMember.md
 docs/RequestSendInvite.md
+docs/RequestSetTeamClusters.md
 docs/RequestSetTeamRepositories.md
+docs/RequestTeamClusterAssignment.md
 docs/RequestTeamRepoAssignment.md
 docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateEnvironmentConnectBranch.md

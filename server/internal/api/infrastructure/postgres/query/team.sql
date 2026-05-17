@@ -102,10 +102,9 @@ ON CONFLICT (
   team_id, cluster_id)
   DO NOTHING;
 
--- name: UnassignTeamCluster :exec
+-- name: DeleteAllTeamClusters :exec
 DELETE FROM team_clusters
-WHERE team_clusters.team_id = $1
-  AND team_clusters.cluster_id = $2;
+WHERE team_id = $1;
 
 -- name: GetTeamCluster :one
 SELECT clusters.*

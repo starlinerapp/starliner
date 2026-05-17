@@ -1809,50 +1809,13 @@ const docTemplatecoreCore = `{
                         }
                     }
                 }
-            }
-        },
-        "/teams/{teamId}/clusters/{clusterId}": {
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Assign a cluster to a team",
-                "operationId": "assignClusterToTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID",
-                        "name": "teamId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Cluster ID",
-                        "name": "clusterId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    }
-                }
             },
-            "delete": {
+            "put": {
                 "tags": [
                     "team"
                 ],
-                "summary": "Unassign a cluster from a team",
-                "operationId": "unassignClusterFromTeam",
+                "summary": "Set clusters assigned to a team",
+                "operationId": "setTeamClusters",
                 "parameters": [
                     {
                         "type": "string",
@@ -1869,11 +1832,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Cluster ID",
-                        "name": "clusterId",
-                        "in": "path",
-                        "required": true
+                        "description": "Team Clusters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SetTeamClusters"
+                        }
                     }
                 ],
                 "responses": {
@@ -2425,6 +2390,17 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "request.SetTeamClusters": {
+            "type": "object",
+            "properties": {
+                "clusters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.TeamClusterAssignment"
+                    }
+                }
+            }
+        },
         "request.SetTeamRepositories": {
             "type": "object",
             "properties": {
@@ -2433,6 +2409,17 @@ const docTemplatecoreCore = `{
                     "items": {
                         "$ref": "#/definitions/request.TeamRepoAssignment"
                     }
+                }
+            }
+        },
+        "request.TeamClusterAssignment": {
+            "type": "object",
+            "required": [
+                "clusterId"
+            ],
+            "properties": {
+                "clusterId": {
+                    "type": "integer"
                 }
             }
         },
