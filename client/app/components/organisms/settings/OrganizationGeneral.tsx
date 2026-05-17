@@ -85,22 +85,23 @@ export default function OrganizationGeneral() {
               </p>
             </div>
             {isHetznerCredentialLoading ? (
-              <div className="flex w-1/2 items-center">
-                <Skeleton className="mr-3 h-9.5 w-full" />
-                <Eye className="h-4 w-4 shrink-0" />
+              <div className="relative w-1/2">
+                <Skeleton className="h-9.5 w-full rounded-md" />
+                <Eye className="text-mauve-11 absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
               </div>
             ) : (
-              <div className="flex w-1/2 items-center">
+              <div className="relative w-1/2">
                 <input
-                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border p-2 text-sm"
+                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border p-2 pr-10 text-sm"
                   type={show ? "text" : "password"}
                   placeholder="API Key*"
                   {...register("apiKey")}
                 />
+
                 <button
                   onClick={() => setShow(!show)}
                   type="button"
-                  className="pl-3"
+                  className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2"
                 >
                   {show ? (
                     <EyeSlash className="h-4 w-4" />

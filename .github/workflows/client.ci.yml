@@ -1,11 +1,11 @@
-name: Client Linters
+name: Client Lint And Test
 
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  client-lint:
+  client-lint-and-test:
     runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
@@ -35,4 +35,8 @@ jobs:
 
       - name: Run vulnerability check
         run: npm audit
+        working-directory: client
+
+      - name: Run tests
+        run: npm run test:run
         working-directory: client

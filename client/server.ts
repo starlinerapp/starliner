@@ -6,6 +6,7 @@ import * as http from "node:http";
 import * as Sentry from "@sentry/react-router";
 import { getSessionFromNodeHeaders } from "~/utils/auth/server";
 import { createRequestHandler } from "@react-router/express";
+import type { ServerBuild } from "react-router";
 
 const BUILD_PATH = "./build/server/index.js";
 const DEVELOPMENT = process.env.NODE_ENV === "development";
@@ -27,15 +28,23 @@ if (DEVELOPMENT) {
       server: { middlewareMode: true, hmr: { server } },
     }),
   );
+
+  const expressRequestHandler = createRequestHandler({
+    build: () =>
+      viteDevServer.ssrLoadModule(
+        "virtual:react-router/server-build",
+      ) as Promise<ServerBuild>,
+  });
+
   app.use(viteDevServer.middlewares);
+
   app.use(async (req, res, next) => {
     if (req.url?.startsWith("/ws")) {
       return next();
     }
 
     try {
-      const source = await viteDevServer.ssrLoadModule("./server/app.ts");
-      return await source.app(req, res, next);
+      return expressRequestHandler(req, res, next);
     } catch (error) {
       if (typeof error === "object" && error instanceof Error) {
         viteDevServer.ssrFixStacktrace(error);
@@ -45,14 +54,18 @@ if (DEVELOPMENT) {
   });
 } else {
   console.log("Starting production server");
+
+  const expressRequestHandler = createRequestHandler({
+    build: await import(BUILD_PATH),
+  });
+
   app.use(
     "/assets",
     express.static("build/client/assets", { immutable: true, maxAge: "1y" }),
   );
   app.use(morgan("tiny"));
   app.use(express.static("build/client", { maxAge: "1h" }));
-
-  app.use(createRequestHandler({ build: await import(BUILD_PATH) }));
+  app.use(expressRequestHandler);
 }
 
 const wsProxy = httpProxy.createProxyServer({
