@@ -26,4 +26,12 @@ export default defineConfig((config) => ({
   optimizeDeps: {
     exclude: ["@sentry/react-router"],
   },
+
+  test: {
+    environment: "jsdom",
+    sequence: {
+      hooks: "parallel",
+    },
+    setupFiles: "test/setup.ts",
+  },
 }));
