@@ -1323,6 +1323,31 @@ export interface ResponseOrganizationInvite {
 /**
  *
  * @export
+ * @interface ResponseOrganizationMember
+ */
+export interface ResponseOrganizationMember {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseOrganizationMember
+   */
+  better_auth_id: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseOrganizationMember
+   */
+  id: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof ResponseOrganizationMember
+   */
+  is_owner: boolean;
+}
+/**
+ *
+ * @export
  * @interface ResponseOrganizationProvisioningCredential
  */
 export interface ResponseOrganizationProvisioningCredential {
@@ -6344,7 +6369,7 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       (
         axios?: AxiosInstance,
         basePath?: string,
-      ) => AxiosPromise<Array<ResponseUser>>
+      ) => AxiosPromise<Array<ResponseOrganizationMember>>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.getOrganizationMembers(
@@ -6617,7 +6642,7 @@ export const OrganizationApiFactory = function (
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<Array<ResponseUser>> {
+    ): AxiosPromise<Array<ResponseOrganizationMember>> {
       return localVarFp
         .getOrganizationMembers(xUserID, id, options)
         .then((request) => request(axios, basePath));

@@ -82,7 +82,7 @@ export default function Projects() {
                           })}
                         </span>
                       </p>
-                      <p className="text-mauve-11 bg-violet-3 border-mauve-6 w-fit rounded-md border px-2 py-1 text-xs">
+                      <p className="text-violet-11 bg-violet-3 w-fit rounded-md px-2 py-1 text-xs">
                         #<span>{project.teamSlug}</span>
                       </p>
                     </div>

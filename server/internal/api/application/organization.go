@@ -235,8 +235,13 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context,
 	})
 }
 
-func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, userID int64, organizationID int64) ([]*value.User, error) {
+func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, userID int64, organizationID int64) ([]*value.OrganizationMember, error) {
 	err := oa.organizationService.ValidateUserInOrg(ctx, organizationID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	org, err := oa.organizationRepository.GetOrganization(ctx, organizationID)
 	if err != nil {
 		return nil, err
 	}
@@ -246,5 +251,14 @@ func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, u
 		return nil, err
 	}
 
-	return value.NewUsers(members), nil
+	orgMembers := make([]*value.OrganizationMember, len(members))
+	for i, m := range members {
+		orgMembers[i] = &value.OrganizationMember{
+			Id:           m.Id,
+			BetterAuthId: m.BetterAuthId,
+			IsOwner:      m.Id == org.OwnerId,
+		}
+	}
+
+	return orgMembers, nil
 }

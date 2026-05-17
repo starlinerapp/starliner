@@ -31,6 +31,12 @@ export default function Members() {
     trpc.organization.sendInvite.mutationOptions(),
   );
 
+  const { register, handleSubmit, reset, watch } = useForm<FormInput>({
+    defaultValues: { email: "" },
+  });
+
+  const emailInput = watch("email", "");
+
   function onInviteMember(data: FormInput) {
     sendInviteMutation.mutate(
       {
@@ -46,11 +52,6 @@ export default function Members() {
       },
     );
   }
-
-  const { register, handleSubmit, reset, watch } = useForm<FormInput>({
-    defaultValues: { email: "" },
-  });
-  const emailInput = watch("email", "");
 
   return (
     <div className="flex flex-col px-8 py-4">
@@ -111,40 +112,81 @@ export default function Members() {
         )}
       </div>
       <div className="w-full pt-10.5">
-        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs font-bold uppercase">
-            Organization Members
-          </div>
-          {isLoading ? (
-            <>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
-                >
-                  <Skeleton className="h-5 w-24" />
-                  <Skeleton className="h-5 w-36" />
-                </div>
-              ))}
-            </>
-          ) : members?.length === 0 ? (
-            <div className="text-mauve-11 px-4 py-3 text-sm">
-              No members yet.
-            </div>
-          ) : (
-            members?.map((member) => (
-              <div key={member.user_id} className="flex items-center gap-3 p-3">
-                <AvatarIcon
-                  name={member.name}
-                  profilePicture={member.avatarUrl}
-                />
-                <div className="border-mauve-6 text-mauve-12 flex flex-col border-b text-sm last:border-b-0">
-                  <span>{member.name}</span>
-                  <span className="text-mauve-11">{member.email}</span>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="border-mauve-6 overflow-hidden rounded-md border text-sm shadow-xs">
+          <table className="w-full border-collapse">
+            <thead className="h-14">
+              <tr className="border-mauve-6 bg-gray-2 border-b">
+                <th className="text-mauve-12 w-1/2 px-4 py-3 text-left text-xs font-bold uppercase">
+                  Member
+                </th>
+                <th className="text-mauve-12 w-1/2 px-4 py-3 text-left text-xs font-bold uppercase">
+                  Role
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {isLoading ? (
+                Array.from({ length: 2 }).map((_, i) => (
+                  <tr
+                    key={i}
+                    className="border-mauve-6 border-b last:border-b-0"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+
+                        <div className="flex flex-col gap-1">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-4 w-36" />
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <Skeleton className="h-4 w-16" />
+                    </td>
+                  </tr>
+                ))
+              ) : members?.length === 0 ? (
+                <tr>
+                  <td colSpan={2} className="text-mauve-11 px-4 py-3 text-sm">
+                    No members yet.
+                  </td>
+                </tr>
+              ) : (
+                members?.map((member) => (
+                  <tr
+                    key={member.id}
+                    className="border-mauve-6 border-b last:border-b-0"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <AvatarIcon
+                          name={member.name}
+                          profilePicture={member.avatarUrl}
+                        />
+
+                        <div className="flex flex-col">
+                          <span className="text-mauve-12 font-medium">
+                            {member.name}
+                          </span>
+
+                          <span className="text-mauve-11 text-sm">
+                            {member.email}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="text-mauve-11 px-4 py-3">
+                      {member.is_owner ? "Owner" : "Member"}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

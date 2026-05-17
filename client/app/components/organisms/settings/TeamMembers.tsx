@@ -45,7 +45,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
     const memberIds = new Set(members.map((m) => m.user_id));
     return orgMembers.filter(
       (m) =>
-        !memberIds.has(m.user_id) &&
+        !memberIds.has(m.id) &&
         (m.name.toLowerCase().includes(search.toLowerCase()) ||
           m.email.toLowerCase().includes(search.toLowerCase())),
     );
@@ -113,8 +113,8 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                   {filteredOrgMembers.length > 0 ? (
                     filteredOrgMembers.map((m) => (
                       <button
-                        key={m.user_id}
-                        onClick={() => handleAddMember(m.user_id)}
+                        key={m.id}
+                        onClick={() => handleAddMember(m.id)}
                         className="hover:bg-gray-3 flex w-full cursor-pointer items-center justify-between rounded px-2 py-2 text-left transition-colors"
                       >
                         <span className="text-xs">{m.name}</span>

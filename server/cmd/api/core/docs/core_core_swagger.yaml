@@ -694,6 +694,19 @@ definitions:
     - organization_name
     - organization_slug
     type: object
+  response.OrganizationMember:
+    properties:
+      better_auth_id:
+        type: string
+      id:
+        type: integer
+      is_owner:
+        type: boolean
+    required:
+    - better_auth_id
+    - id
+    - is_owner
+    type: object
   response.OrganizationProvisioningCredential:
     properties:
       provider:
@@ -1733,7 +1746,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/response.User'
+              $ref: '#/definitions/response.OrganizationMember'
             type: array
       summary: Get all organization members
       tags:

@@ -1318,7 +1318,7 @@ const docTemplatecoreCore = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.User"
+                                "$ref": "#/definitions/response.OrganizationMember"
                             }
                         }
                     }
@@ -3112,6 +3112,25 @@ const docTemplatecoreCore = `{
                 },
                 "organization_slug": {
                     "type": "string"
+                }
+            }
+        },
+        "response.OrganizationMember": {
+            "type": "object",
+            "required": [
+                "better_auth_id",
+                "id",
+                "is_owner"
+            ],
+            "properties": {
+                "better_auth_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_owner": {
+                    "type": "boolean"
                 }
             }
         },
