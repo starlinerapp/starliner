@@ -146,6 +146,7 @@ export default function Login() {
 
           <div className="relative">
             <input
+              id="password"
               className="border-mauve-6 w-full rounded-md border p-2"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -155,6 +156,7 @@ export default function Login() {
             <button
               onClick={() => setShowPassword(!showPassword)}
               type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
               className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
             >
               {showPassword ? (

@@ -80,6 +80,7 @@ export default function SignUp() {
             Full Name
           </label>
           <input
+            id="username"
             className="border-mauve-6 rounded-md border p-2"
             type="text"
             placeholder="Full Name*"
@@ -91,8 +92,9 @@ export default function SignUp() {
             Email
           </label>
           <input
+            id="email"
             className="border-mauve-6 rounded-md border p-2"
-            type="text"
+            type="email"
             placeholder="Email"
             {...register("email")}
           />
@@ -103,6 +105,7 @@ export default function SignUp() {
           </label>
           <div className="relative">
             <input
+              id="password"
               className="border-mauve-6 w-full rounded-md border p-2"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -112,6 +115,7 @@ export default function SignUp() {
             <button
               onClick={() => setShowPassword(!showPassword)}
               type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
               className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
             >
               {showPassword ? (
