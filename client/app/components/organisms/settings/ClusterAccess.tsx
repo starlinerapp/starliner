@@ -181,7 +181,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                                         {cluster.name}
                                       </p>
                                       <span
-                                        className="text-mauve-11 flex items-center gap-1 text-xs"
+                                        className="text-mauve-11 flex items-center gap-1 text-sm"
                                         title={cluster.serverType}
                                       >
                                         <span className="border-mauve-6 rounded-md border bg-white px-1 py-0.5">
