@@ -10,6 +10,7 @@ import {
   DialogTrigger,
   DialogContent,
 } from "~/components/atoms/dialog/Dialog";
+import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
 
 interface FormInput {
   email: string;
@@ -132,12 +133,15 @@ export default function Members() {
             </div>
           ) : (
             members?.map((member) => (
-              <div
-                key={member.user_id}
-                className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
-              >
-                <span>{member.name}</span>
-                <span className="text-mauve-11">{member.email}</span>
+              <div key={member.user_id} className="flex items-center gap-3 p-3">
+                <AvatarIcon
+                  name={member.name}
+                  profilePicture={member.avatarUrl}
+                />
+                <div className="border-mauve-6 text-mauve-12 flex flex-col border-b text-sm last:border-b-0">
+                  <span>{member.name}</span>
+                  <span className="text-mauve-11">{member.email}</span>
+                </div>
               </div>
             ))
           )}

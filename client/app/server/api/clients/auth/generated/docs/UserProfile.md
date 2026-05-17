@@ -7,6 +7,7 @@
 | **id**    | **string** |             | [default to undefined] |
 | **name**  | **string** |             | [default to undefined] |
 | **email** | **string** |             | [default to undefined] |
+| **image** | **string** |             | [default to undefined] |
 
 ## Example
 
@@ -17,6 +18,7 @@ const instance: UserProfile = {
   id,
   name,
   email,
+  image,
 };
 ```
 

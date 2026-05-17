@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
+import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
 
 export default function TeamMembers({ teamId }: { teamId: number }) {
   const trpc = useTRPC();
@@ -153,9 +154,15 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
             key={member.user_id}
             className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
           >
-            <div className="flex flex-col">
-              <span>{member.name}</span>
-              <span className="text-mauve-11">{member.email}</span>
+            <div className="flex items-center gap-3">
+              <AvatarIcon
+                name={member.name}
+                profilePicture={member.avatarUrl}
+              />
+              <div className="flex flex-col">
+                <span>{member.name}</span>
+                <span className="text-mauve-11">{member.email}</span>
+              </div>
             </div>
             {organization.isOwner &&
               member.user_id !== Number(user?.user_id) && (

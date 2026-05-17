@@ -4,6 +4,7 @@ export type UserProfile = {
   id: string;
   name: string;
   email: string;
+  image: string | null;
 };
 
 export function toUserProfile(user: User): UserProfile {
@@ -11,6 +12,7 @@ export function toUserProfile(user: User): UserProfile {
     id: user.id,
     name: user.name,
     email: user.email,
+    image: user.image,
   };
 }
 

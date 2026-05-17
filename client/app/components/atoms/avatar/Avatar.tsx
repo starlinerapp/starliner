@@ -9,7 +9,7 @@ interface AvatarIconProps {
   profilePicture: string | undefined | null;
 }
 
-function AvatarIcon({ name, profilePicture }: AvatarIconProps) {
+export function AvatarIcon({ name, profilePicture }: AvatarIconProps) {
   return (
     <>
       {profilePicture ? (
