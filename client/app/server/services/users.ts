@@ -9,6 +9,7 @@ export async function enrichMembersWithAuthDetails<
     T & {
       name: string;
       email: string;
+      avatarUrl?: string;
     }
   >
 > {
@@ -29,6 +30,7 @@ export async function enrichMembersWithAuthDetails<
       ...m,
       name: authUserMap.get(m.better_auth_id)?.name ?? "",
       email: authUserMap.get(m.better_auth_id)?.email ?? "",
+      avatarUrl: authUserMap.get(m.better_auth_id)?.image ?? "",
     }));
   } catch (error) {
     console.error("failed to fetch users from auth service:", error);
@@ -37,6 +39,7 @@ export async function enrichMembersWithAuthDetails<
       ...m,
       name: "",
       email: "",
+      avatarUrl: "",
     }));
   }
 }

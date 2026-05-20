@@ -1318,7 +1318,7 @@ const docTemplatecoreCore = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.User"
+                                "$ref": "#/definitions/response.OrganizationMember"
                             }
                         }
                     }
@@ -1809,50 +1809,13 @@ const docTemplatecoreCore = `{
                         }
                     }
                 }
-            }
-        },
-        "/teams/{teamId}/clusters/{clusterId}": {
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Assign a cluster to a team",
-                "operationId": "assignClusterToTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID",
-                        "name": "teamId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Cluster ID",
-                        "name": "clusterId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    }
-                }
             },
-            "delete": {
+            "put": {
                 "tags": [
                     "team"
                 ],
-                "summary": "Unassign a cluster from a team",
-                "operationId": "unassignClusterFromTeam",
+                "summary": "Set clusters assigned to a team",
+                "operationId": "setTeamClusters",
                 "parameters": [
                     {
                         "type": "string",
@@ -1869,11 +1832,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Cluster ID",
-                        "name": "clusterId",
-                        "in": "path",
-                        "required": true
+                        "description": "Team Clusters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SetTeamClusters"
+                        }
                     }
                 ],
                 "responses": {
@@ -2028,12 +1993,12 @@ const docTemplatecoreCore = `{
                     }
                 }
             },
-            "post": {
+            "put": {
                 "tags": [
                     "team"
                 ],
-                "summary": "Assign a GitHub repository to a team",
-                "operationId": "assignRepoToTeam",
+                "summary": "Set repositories assigned to a team",
+                "operationId": "setTeamRepositories",
                 "parameters": [
                     {
                         "type": "string",
@@ -2050,50 +2015,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
-                        "description": "Assign Repo",
+                        "description": "Team Repositories",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AssignRepoToTeam"
+                            "$ref": "#/definitions/request.SetTeamRepositories"
                         }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    }
-                }
-            }
-        },
-        "/teams/{teamId}/repos/{repoId}": {
-            "delete": {
-                "tags": [
-                    "team"
-                ],
-                "summary": "Unassign a GitHub repository from a team",
-                "operationId": "unassignRepoFromTeam",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "X-User-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID",
-                        "name": "teamId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "GitHub Repo ID",
-                        "name": "repoId",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -2142,21 +2070,6 @@ const docTemplatecoreCore = `{
                     "type": "string"
                 },
                 "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.AssignRepoToTeam": {
-            "type": "object",
-            "required": [
-                "githubRepoId",
-                "repoName"
-            ],
-            "properties": {
-                "githubRepoId": {
-                    "type": "integer"
-                },
-                "repoName": {
                     "type": "string"
                 }
             }
@@ -2473,6 +2386,54 @@ const docTemplatecoreCore = `{
                     "type": "string"
                 },
                 "toEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SetTeamClusters": {
+            "type": "object",
+            "properties": {
+                "clusters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.TeamClusterAssignment"
+                    }
+                }
+            }
+        },
+        "request.SetTeamRepositories": {
+            "type": "object",
+            "properties": {
+                "repositories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.TeamRepoAssignment"
+                    }
+                }
+            }
+        },
+        "request.TeamClusterAssignment": {
+            "type": "object",
+            "required": [
+                "clusterId"
+            ],
+            "properties": {
+                "clusterId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.TeamRepoAssignment": {
+            "type": "object",
+            "required": [
+                "githubRepoId",
+                "repoName"
+            ],
+            "properties": {
+                "githubRepoId": {
+                    "type": "integer"
+                },
+                "repoName": {
                     "type": "string"
                 }
             }
@@ -3112,6 +3073,25 @@ const docTemplatecoreCore = `{
                 },
                 "organization_slug": {
                     "type": "string"
+                }
+            }
+        },
+        "response.OrganizationMember": {
+            "type": "object",
+            "required": [
+                "better_auth_id",
+                "id",
+                "is_owner"
+            ],
+            "properties": {
+                "better_auth_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_owner": {
+                    "type": "boolean"
                 }
             }
         },

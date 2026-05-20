@@ -47,7 +47,7 @@ export default function Clusters() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,350px))] justify-start gap-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] justify-start gap-4">
           {clustersData?.map((cluster, i) => (
             <Link to={`/${slug}/clusters/${cluster.id}`} key={i}>
               <motion.div initial="rest" animate="rest" whileHover="hover">
@@ -87,7 +87,7 @@ export default function Clusters() {
                         {cluster.teamSlugs.map((teamSlug, i) => (
                           <p
                             key={i}
-                            className="text-mauve-11 bg-violet-3 border-mauve-6 w-fit rounded-md border px-2 py-1 text-xs"
+                            className="text-violet-11 bg-violet-3 w-fit rounded-md px-2 py-1 text-xs"
                           >
                             #<span>{teamSlug}</span>
                           </p>
@@ -99,6 +99,10 @@ export default function Clusters() {
               </motion.div>
             </Link>
           ))}
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
         </div>
       )}
     </div>

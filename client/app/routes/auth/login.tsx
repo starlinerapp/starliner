@@ -1,6 +1,11 @@
 import React, { useCallback, useState } from "react";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
+import {
+  ArrowRight,
+  ChevronRight,
+  Eye,
+  EyeSlash,
+} from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { getAuthClient } from "~/utils/auth/client";
@@ -23,6 +28,7 @@ export default function Login() {
 
   const [error, setError] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
   const handleResendVerification = useCallback(async () => {
@@ -138,12 +144,28 @@ export default function Login() {
             </NavLink>
           </div>
 
-          <input
-            className="border-mauve-6 rounded-md border-1 p-2"
-            type="password"
-            placeholder="Password"
-            {...register("password")}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              className="border-mauve-6 w-full rounded-md border p-2"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              {...register("password")}
+            />
+
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeSlash className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </span>
         <Button className="mt-2" size="md" type="submit">
           Sign in <ChevronRight className="w-4 stroke-3" />

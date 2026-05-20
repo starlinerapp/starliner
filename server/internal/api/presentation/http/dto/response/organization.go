@@ -58,3 +58,25 @@ func NewOrganizationInvite(invite *value.OrganizationInvite) OrganizationInvite 
 		CreatedAt:        invite.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}
 }
+
+type OrganizationMember struct {
+	Id           int64  `json:"id" binding:"required"`
+	BetterAuthId string `json:"better_auth_id" binding:"required"`
+	IsOwner      bool   `json:"is_owner" binding:"required"`
+}
+
+func NewOrganizationMember(member *value.OrganizationMember) OrganizationMember {
+	return OrganizationMember{
+		Id:           member.Id,
+		BetterAuthId: member.BetterAuthId,
+		IsOwner:      member.IsOwner,
+	}
+}
+
+func NewOrganizationMembers(members []*value.OrganizationMember) []OrganizationMember {
+	res := make([]OrganizationMember, len(members))
+	for i, member := range members {
+		res[i] = NewOrganizationMember(member)
+	}
+	return res
+}

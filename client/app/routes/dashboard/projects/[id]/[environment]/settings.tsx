@@ -170,7 +170,7 @@ export default function ProjectSettings() {
               </p>
             </div>
             <Button
-              className="w-46"
+              className="w-48"
               intent="danger"
               disabled={
                 deleteEnvironmentMutation.isPending ||
@@ -198,7 +198,7 @@ export default function ProjectSettings() {
               </p>
             </div>
             <Button
-              className="w-36"
+              className="w-38"
               intent="danger"
               disabled={isClusterDataLoading}
               size="sm"

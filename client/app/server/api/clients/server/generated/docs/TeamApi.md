@@ -2,20 +2,18 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                                  | HTTP request                                    | Description                              |
-| ------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------- |
-| [**addTeamMember**](#addteammember)                     | **POST** /teams/{teamId}/members                | Add organization member to team          |
-| [**assignClusterToTeam**](#assignclustertoteam)         | **POST** /teams/{teamId}/clusters/{clusterId}   | Assign a cluster to a team               |
-| [**assignRepoToTeam**](#assignrepototeam)               | **POST** /teams/{teamId}/repos                  | Assign a GitHub repository to a team     |
-| [**createTeam**](#createteam)                           | **POST** /organizations/{id}/teams              | Create team                              |
-| [**getTeamClusters**](#getteamclusters)                 | **GET** /teams/{teamId}/clusters                | Get clusters assigned to a team          |
-| [**getTeamMembers**](#getteammembers)                   | **GET** /teams/{teamId}/members                 | Get Team Members                         |
-| [**getTeamRepositories**](#getteamrepositories)         | **GET** /teams/{teamId}/repos                   | Get repositories assigned to a team      |
-| [**getUserTeams**](#getuserteams)                       | **GET** /organizations/{id}/teams               | Get User Teams                           |
-| [**joinTeam**](#jointeam)                               | **POST** /organizations/{id}/teams/join         | Join a team by slug                      |
-| [**removeTeamMember**](#removeteammember)               | **DELETE** /teams/{teamId}/members              | Remove organization member from team     |
-| [**unassignClusterFromTeam**](#unassignclusterfromteam) | **DELETE** /teams/{teamId}/clusters/{clusterId} | Unassign a cluster from a team           |
-| [**unassignRepoFromTeam**](#unassignrepofromteam)       | **DELETE** /teams/{teamId}/repos/{repoId}       | Unassign a GitHub repository from a team |
+| Method                                          | HTTP request                            | Description                          |
+| ----------------------------------------------- | --------------------------------------- | ------------------------------------ |
+| [**addTeamMember**](#addteammember)             | **POST** /teams/{teamId}/members        | Add organization member to team      |
+| [**createTeam**](#createteam)                   | **POST** /organizations/{id}/teams      | Create team                          |
+| [**getTeamClusters**](#getteamclusters)         | **GET** /teams/{teamId}/clusters        | Get clusters assigned to a team      |
+| [**getTeamMembers**](#getteammembers)           | **GET** /teams/{teamId}/members         | Get Team Members                     |
+| [**getTeamRepositories**](#getteamrepositories) | **GET** /teams/{teamId}/repos           | Get repositories assigned to a team  |
+| [**getUserTeams**](#getuserteams)               | **GET** /organizations/{id}/teams       | Get User Teams                       |
+| [**joinTeam**](#jointeam)                       | **POST** /organizations/{id}/teams/join | Join a team by slug                  |
+| [**removeTeamMember**](#removeteammember)       | **DELETE** /teams/{teamId}/members      | Remove organization member from team |
+| [**setTeamClusters**](#setteamclusters)         | **PUT** /teams/{teamId}/clusters        | Set clusters assigned to a team      |
+| [**setTeamRepositories**](#setteamrepositories) | **PUT** /teams/{teamId}/repos           | Set repositories assigned to a team  |
 
 # **addTeamMember**
 
@@ -43,110 +41,6 @@ const { status, data } = await apiInstance.addTeamMember(xUserID, teamId, data);
 | **data**    | **RequestAddTeamMember** | ID of member to add |                       |
 | **xUserID** | [**string**]             | User ID             | defaults to undefined |
 | **teamId**  | [**number**]             | Team ID             | defaults to undefined |
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: Not defined
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **201**     | Created     | -                |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **assignClusterToTeam**
-
-> assignClusterToTeam()
-
-### Example
-
-```typescript
-import { TeamApi, Configuration } from "./api";
-
-const configuration = new Configuration();
-const apiInstance = new TeamApi(configuration);
-
-let xUserID: string; //User ID (default to undefined)
-let teamId: number; //Team ID (default to undefined)
-let clusterId: number; //Cluster ID (default to undefined)
-
-const { status, data } = await apiInstance.assignClusterToTeam(
-  xUserID,
-  teamId,
-  clusterId,
-);
-```
-
-### Parameters
-
-| Name          | Type         | Description | Notes                 |
-| ------------- | ------------ | ----------- | --------------------- |
-| **xUserID**   | [**string**] | User ID     | defaults to undefined |
-| **teamId**    | [**number**] | Team ID     | defaults to undefined |
-| **clusterId** | [**number**] | Cluster ID  | defaults to undefined |
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: Not defined
-
-### HTTP response details
-
-| Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **201**     | Created     | -                |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **assignRepoToTeam**
-
-> assignRepoToTeam(data)
-
-### Example
-
-```typescript
-import { TeamApi, Configuration, RequestAssignRepoToTeam } from "./api";
-
-const configuration = new Configuration();
-const apiInstance = new TeamApi(configuration);
-
-let xUserID: string; //User ID (default to undefined)
-let teamId: number; //Team ID (default to undefined)
-let data: RequestAssignRepoToTeam; //Assign Repo
-
-const { status, data } = await apiInstance.assignRepoToTeam(
-  xUserID,
-  teamId,
-  data,
-);
-```
-
-### Parameters
-
-| Name        | Type                        | Description | Notes                 |
-| ----------- | --------------------------- | ----------- | --------------------- |
-| **data**    | **RequestAssignRepoToTeam** | Assign Repo |                       |
-| **xUserID** | [**string**]                | User ID     | defaults to undefined |
-| **teamId**  | [**number**]                | Team ID     | defaults to undefined |
 
 ### Return type
 
@@ -501,36 +395,36 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **unassignClusterFromTeam**
+# **setTeamClusters**
 
-> unassignClusterFromTeam()
+> setTeamClusters(data)
 
 ### Example
 
 ```typescript
-import { TeamApi, Configuration } from "./api";
+import { TeamApi, Configuration, RequestSetTeamClusters } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new TeamApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
 let teamId: number; //Team ID (default to undefined)
-let clusterId: number; //Cluster ID (default to undefined)
+let data: RequestSetTeamClusters; //Team Clusters
 
-const { status, data } = await apiInstance.unassignClusterFromTeam(
+const { status, data } = await apiInstance.setTeamClusters(
   xUserID,
   teamId,
-  clusterId,
+  data,
 );
 ```
 
 ### Parameters
 
-| Name          | Type         | Description | Notes                 |
-| ------------- | ------------ | ----------- | --------------------- |
-| **xUserID**   | [**string**] | User ID     | defaults to undefined |
-| **teamId**    | [**number**] | Team ID     | defaults to undefined |
-| **clusterId** | [**number**] | Cluster ID  | defaults to undefined |
+| Name        | Type                       | Description   | Notes                 |
+| ----------- | -------------------------- | ------------- | --------------------- |
+| **data**    | **RequestSetTeamClusters** | Team Clusters |                       |
+| **xUserID** | [**string**]               | User ID       | defaults to undefined |
+| **teamId**  | [**number**]               | Team ID       | defaults to undefined |
 
 ### Return type
 
@@ -553,36 +447,36 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **unassignRepoFromTeam**
+# **setTeamRepositories**
 
-> unassignRepoFromTeam()
+> setTeamRepositories(data)
 
 ### Example
 
 ```typescript
-import { TeamApi, Configuration } from "./api";
+import { TeamApi, Configuration, RequestSetTeamRepositories } from "./api";
 
 const configuration = new Configuration();
 const apiInstance = new TeamApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
 let teamId: number; //Team ID (default to undefined)
-let repoId: number; //GitHub Repo ID (default to undefined)
+let data: RequestSetTeamRepositories; //Team Repositories
 
-const { status, data } = await apiInstance.unassignRepoFromTeam(
+const { status, data } = await apiInstance.setTeamRepositories(
   xUserID,
   teamId,
-  repoId,
+  data,
 );
 ```
 
 ### Parameters
 
-| Name        | Type         | Description    | Notes                 |
-| ----------- | ------------ | -------------- | --------------------- |
-| **xUserID** | [**string**] | User ID        | defaults to undefined |
-| **teamId**  | [**number**] | Team ID        | defaults to undefined |
-| **repoId**  | [**number**] | GitHub Repo ID | defaults to undefined |
+| Name        | Type                           | Description       | Notes                 |
+| ----------- | ------------------------------ | ----------------- | --------------------- |
+| **data**    | **RequestSetTeamRepositories** | Team Repositories |                       |
+| **xUserID** | [**string**]                   | User ID           | defaults to undefined |
+| **teamId**  | [**number**]                   | Team ID           | defaults to undefined |
 
 ### Return type
 

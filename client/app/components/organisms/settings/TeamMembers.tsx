@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
+import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
 
 export default function TeamMembers({ teamId }: { teamId: number }) {
   const trpc = useTRPC();
@@ -44,7 +45,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
     const memberIds = new Set(members.map((m) => m.user_id));
     return orgMembers.filter(
       (m) =>
-        !memberIds.has(m.user_id) &&
+        !memberIds.has(m.id) &&
         (m.name.toLowerCase().includes(search.toLowerCase()) ||
           m.email.toLowerCase().includes(search.toLowerCase())),
     );
@@ -112,8 +113,8 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                   {filteredOrgMembers.length > 0 ? (
                     filteredOrgMembers.map((m) => (
                       <button
-                        key={m.user_id}
-                        onClick={() => handleAddMember(m.user_id)}
+                        key={m.id}
+                        onClick={() => handleAddMember(m.id)}
                         className="hover:bg-gray-3 flex w-full cursor-pointer items-center justify-between rounded px-2 py-2 text-left transition-colors"
                       >
                         <span className="text-xs">{m.name}</span>
@@ -133,14 +134,17 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
       </div>
       {isLoading ? (
         <>
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: 1 }).map((_, i) => (
             <div
               key={i}
-              className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-2 text-sm last:border-b-0"
+              className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
             >
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-5 w-36" />
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4.5 w-28" />
+                  <Skeleton className="h-4.5 w-44" />
+                </div>
               </div>
             </div>
           ))}
@@ -153,9 +157,15 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
             key={member.user_id}
             className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
           >
-            <div className="flex flex-col">
-              <span>{member.name}</span>
-              <span className="text-mauve-11">{member.email}</span>
+            <div className="flex items-center gap-3">
+              <AvatarIcon
+                name={member.name}
+                profilePicture={member.avatarUrl}
+              />
+              <div className="flex flex-col">
+                <span>{member.name}</span>
+                <span className="text-mauve-11">{member.email}</span>
+              </div>
             </div>
             {organization.isOwner &&
               member.user_id !== Number(user?.user_id) && (

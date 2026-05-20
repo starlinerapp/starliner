@@ -141,11 +141,9 @@ func NewServer(
 		teamRoutes.POST("/:teamId/members", teamHandler.AddTeamMember)
 		teamRoutes.DELETE("/:teamId/members", teamHandler.RemoveTeamMember)
 		teamRoutes.GET("/:teamId/repos", teamHandler.GetTeamRepositories)
-		teamRoutes.POST("/:teamId/repos", teamHandler.AssignRepoToTeam)
-		teamRoutes.DELETE("/:teamId/repos/:repoId", teamHandler.UnassignRepoFromTeam)
+		teamRoutes.PUT("/:teamId/repos", teamHandler.SetTeamRepositories)
 		teamRoutes.GET("/:teamId/clusters", teamHandler.GetTeamClusters)
-		teamRoutes.POST("/:teamId/clusters/:clusterId", teamHandler.AssignClusterToTeam)
-		teamRoutes.DELETE("/:teamId/clusters/:clusterId", teamHandler.UnassignClusterFromTeam)
+		teamRoutes.PUT("/:teamId/clusters", teamHandler.SetTeamClusters)
 	}
 
 	githubRoutes := engine.Group("/github")

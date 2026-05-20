@@ -257,7 +257,7 @@ No authorization required
 
 # **getOrganizationMembers**
 
-> Array<ResponseUser> getOrganizationMembers()
+> Array<ResponseOrganizationMember> getOrganizationMembers()
 
 ### Example
 
@@ -282,7 +282,7 @@ const { status, data } = await apiInstance.getOrganizationMembers(xUserID, id);
 
 ### Return type
 
-**Array<ResponseUser>**
+**Array<ResponseOrganizationMember>**
 
 ### Authorization
 

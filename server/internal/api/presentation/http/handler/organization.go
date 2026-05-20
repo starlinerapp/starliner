@@ -274,7 +274,7 @@ func (oh *OrganizationHandler) AcceptInvite(c *gin.Context) {
 // @ID getOrganizationMembers
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Organization ID"
-// @Success 200 {array} response.User
+// @Success 200 {array} response.OrganizationMember
 // @Router /organizations/{id}/members [get]
 func (oh *OrganizationHandler) GetOrganizationMembers(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -290,5 +290,5 @@ func (oh *OrganizationHandler) GetOrganizationMembers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.NewUsers(members))
+	c.JSON(http.StatusOK, response.NewOrganizationMembers(members))
 }

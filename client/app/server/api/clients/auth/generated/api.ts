@@ -102,6 +102,12 @@ export interface UserProfile {
    * @memberof UserProfile
    */
   email: string;
+  /**
+   *
+   * @type {string}
+   * @memberof UserProfile
+   */
+  image: string | null;
 }
 
 /**

@@ -15,7 +15,6 @@ docs/ProjectApi.md
 docs/RequestAcceptInvite.md
 docs/RequestAddTeamMember.md
 docs/RequestArg.md
-docs/RequestAssignRepoToTeam.md
 docs/RequestCreateCluster.md
 docs/RequestCreateEnvironment.md
 docs/RequestCreateGithubApp.md
@@ -32,6 +31,10 @@ docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
 docs/RequestRemoveTeamMember.md
 docs/RequestSendInvite.md
+docs/RequestSetTeamClusters.md
+docs/RequestSetTeamRepositories.md
+docs/RequestTeamClusterAssignment.md
+docs/RequestTeamRepoAssignment.md
 docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateEnvironmentConnectBranch.md
 docs/RequestUpdateImage.md
@@ -57,6 +60,7 @@ docs/ResponseIngressHost.md
 docs/ResponseIngressPath.md
 docs/ResponseOrganization.md
 docs/ResponseOrganizationInvite.md
+docs/ResponseOrganizationMember.md
 docs/ResponseOrganizationProvisioningCredential.md
 docs/ResponseProject.md
 docs/ResponseProjectCluster.md

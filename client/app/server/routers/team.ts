@@ -98,34 +98,24 @@ export const teamRouter = {
         .getTeamRepositories(userId, input.teamId)
         .then((res) => res.data);
     }),
-  assignRepoToTeam: protectedProcedure
+  setTeamRepositories: protectedProcedure
     .input(
       z.object({
         teamId: z.number(),
-        githubRepoId: z.number(),
-        repoName: z.string(),
+        repositories: z.array(
+          z.object({
+            githubRepoId: z.number(),
+            repoName: z.string(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await teamsApiFactory
-        .assignRepoToTeam(userId, input.teamId, {
-          githubRepoId: input.githubRepoId,
-          repoName: input.repoName,
+        .setTeamRepositories(userId, input.teamId, {
+          repositories: input.repositories,
         })
-        .then((res) => res.data);
-    }),
-  unassignRepoFromTeam: protectedProcedure
-    .input(
-      z.object({
-        teamId: z.number(),
-        githubRepoId: z.number(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user?.id;
-      return await teamsApiFactory
-        .unassignRepoFromTeam(userId, input.teamId, input.githubRepoId)
         .then((res) => res.data);
     }),
   getTeamClusters: protectedProcedure
@@ -140,30 +130,23 @@ export const teamRouter = {
         .getTeamClusters(userId, input.teamId)
         .then((res) => res.data);
     }),
-  assignClusterToTeam: protectedProcedure
+  setTeamClusters: protectedProcedure
     .input(
       z.object({
         teamId: z.number(),
-        clusterId: z.number(),
+        clusters: z.array(
+          z.object({
+            clusterId: z.number(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await teamsApiFactory
-        .assignClusterToTeam(userId, input.teamId, input.clusterId)
-        .then((res) => res.data);
-    }),
-  unassignClusterFromTeam: protectedProcedure
-    .input(
-      z.object({
-        teamId: z.number(),
-        clusterId: z.number(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user?.id;
-      return await teamsApiFactory
-        .unassignClusterFromTeam(userId, input.teamId, input.clusterId)
+        .setTeamClusters(userId, input.teamId, {
+          clusters: input.clusters,
+        })
         .then((res) => res.data);
     }),
 };
