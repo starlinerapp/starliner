@@ -21,7 +21,7 @@ export function AvatarIcon({ name, profilePicture }: AvatarIconProps) {
           />
         </div>
       ) : (
-        <div className="bg-violet-9 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-sm text-white">
+        <div className="bg-violet-9 flex h-8 w-8 items-center justify-center rounded-full text-sm text-white">
           {name.substring(0, 2).toUpperCase()}
         </div>
       )}
@@ -45,7 +45,7 @@ export default function Avatar() {
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="data-[state=open]:bg-gray-4 data-[state=open]:border-gray-4 hover:bg-gray-4 hover:border-gray-4 flex h-full w-full items-center justify-center rounded-md border-1 border-white">
+      <Popover.Trigger className="data-[state=open]:bg-gray-4 data-[state=open]:border-gray-4 hover:bg-gray-4 hover:border-gray-4 flex h-full w-full cursor-pointer items-center justify-center rounded-md border-1 border-white">
         {isSessionPending ? (
           <Skeleton className="h-8 w-8 rounded-full" />
         ) : (
@@ -77,7 +77,7 @@ export default function Avatar() {
               <p>Documentation</p>
             </a>
             <button
-              className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
+              className="hover:bg-gray-3 flex cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-xs"
               onClick={handleSignOutClicked}
             >
               <p>Sign Out</p>
