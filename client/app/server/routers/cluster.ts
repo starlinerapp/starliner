@@ -1,7 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { clusterApiFactory } from "~/server/api/client";
-import type { RequestCreateClusterServerTypeEnum } from "~/server/api/client/generated";
+import { clusterApiFactory } from "~/server/api/clients/server";
+import type { RequestCreateClusterServerTypeEnum } from "~/server/api/clients/server/generated";
 import type { AxiosResponse } from "axios";
 import { Readable } from "stream";
 

@@ -14,7 +14,7 @@ import { useNavigate, useParams } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import type { ResponseProject } from "~/server/api/client/generated";
+import type { ResponseProject } from "../../../server/api/clients/server/generated";
 import { cn } from "~/utils/cn";
 
 interface NewEnvironmentFormInput {

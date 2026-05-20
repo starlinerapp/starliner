@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import {
+  ArrowRight,
+  ChevronRight,
+  Eye,
+  EyeSlash,
+} from "~/components/atoms/icons";
+import { NavLink, useSearchParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
-import { authClient } from "~/utils/auth/client";
+import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import SuccessBanner from "~/components/atoms/banner/SuccessBanner";
 
 interface SignUpFormInput {
   email: string;
@@ -13,26 +19,34 @@ interface SignUpFormInput {
 }
 
 export default function SignUp() {
-  const { register, handleSubmit } = useForm<SignUpFormInput>();
-  const navigate = useNavigate();
+  const authClient = getAuthClient();
+  const { register, handleSubmit, reset } = useForm<SignUpFormInput>();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SignUpFormInput> = async (data) => {
+    const callbackURL = new URL(redirectTo, window.location.origin).href;
+
     await authClient.signUp.email(
       {
         email: data.email,
         password: data.password,
         name: data.username,
+        callbackURL,
       },
       {
         onRequest: () => {
           // show loading state
         },
         onSuccess: () => {
-          navigate(redirectTo);
+          reset();
+          setSuccess(
+            "We sent you a verification email. Please verify your account before signing in.",
+          );
         },
         onError: (ctx) => {
           setError(ctx.error.message);
@@ -47,7 +61,7 @@ export default function SignUp() {
       : "/login";
 
   return (
-    <div className="flex w-[500px] flex-col gap-4">
+    <div className="flex w-125 flex-col gap-4">
       <p className="flex items-center justify-end gap-2 py-0.5 text-sm font-light">
         Already have an account?
         <NavLink
@@ -59,14 +73,28 @@ export default function SignUp() {
       </p>
       <h1 className="text-xl font-medium">Sign up for Starliner</h1>
       {error && <ErrorBanner text={error} />}
+      {success && <SuccessBanner text={success} />}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
+        <span className="flex flex-col gap-1">
+          <label htmlFor="username" className="text-sm">
+            Full Name
+          </label>
+          <input
+            id="username"
+            className="border-mauve-6 rounded-md border p-2"
+            type="text"
+            placeholder="Full Name*"
+            {...register("username")}
+          />
+        </span>
         <span className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm">
             Email
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2"
-            type="text"
+            id="email"
+            className="border-mauve-6 rounded-md border p-2"
+            type="email"
             placeholder="Email"
             {...register("email")}
           />
@@ -75,23 +103,28 @@ export default function SignUp() {
           <label htmlFor="password" className="text-sm">
             Password
           </label>
-          <input
-            className="border-mauve-6 rounded-md border-1 p-2"
-            type="password"
-            placeholder="Password"
-            {...register("password")}
-          />
-        </span>
-        <span className="flex flex-col gap-1">
-          <label htmlFor="username" className="text-sm">
-            Username
-          </label>
-          <input
-            className="border-mauve-6 rounded-md border-1 p-2"
-            type="text"
-            placeholder="Username"
-            {...register("username")}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              className="border-mauve-6 w-full rounded-md border p-2"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              {...register("password")}
+            />
+
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeSlash className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </span>
         <Button className="mt-2" type="submit" size="md">
           Create account <ChevronRight className="w-4 stroke-3" />

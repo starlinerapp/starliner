@@ -31,6 +31,7 @@ func NewDeploymentHandler(
 
 // DeployImage FindAll godoc
 // @Summary Deploy image
+// @State core
 // @Tags deployment
 // @ID deployImage
 // @Param X-User-ID header string true "User ID"
@@ -74,6 +75,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 
 // UpdateImageDeployment FindAll godoc
 // @Summary Update image deployment
+// @State core
 // @Tags deployment
 // @ID updateImageDeployment
 // @Param X-User-ID header string true "User ID"
@@ -116,6 +118,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 
 // DeployDatabase FindAll godoc
 // @Summary Deploy database
+// @State core
 // @Tags deployment
 // @ID deployDatabase
 // @Param X-User-ID header string true "User ID"
@@ -152,6 +155,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 
 // DeployIngress FindAll godoc
 // @Summary Deploy ingress
+// @State core
 // @Tags deployment
 // @ID deployIngress
 // @Param X-User-ID header string true "User ID"
@@ -194,6 +198,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 
 // UpdateIngressDeployment FindAll godoc
 // @Summary Update ingress deployment
+// @State core
 // @Tags deployment
 // @ID updateIngressDeployment
 // @Param X-User-ID header string true "User ID"
@@ -243,6 +248,7 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 
 // DeployFromGitRepository FindAll godoc
 // @Summary Deploy from Git Repository
+// @State core
 // @Tags deployment
 // @ID deployFromGitRepository
 // @Param X-User-ID header string true "User ID"
@@ -285,6 +291,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 
 // UpdateDeployFromGitRepository FindAll godoc
 // @Summary Update Deploy from Git
+// @State core
 // @Tags deployment
 // @ID updateDeployFromGitRepository
 // @Param X-User-ID header string true "User ID"
@@ -327,6 +334,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 
 // DeleteDeployment FindAll godoc
 // @Summary Delete deployment
+// @State core
 // @Tags deployment
 // @ID deleteDeployment
 // @Param X-User-ID header string true "User ID"
@@ -356,6 +364,7 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 
 // StreamDeploymentLogs FindAll godoc
 // @Summary Stream deployment logs
+// @State core
 // @Tags deployment
 // @ID streamDeploymentLogs
 // @Param X-User-ID header string true "User ID"

@@ -31,6 +31,7 @@ func NewClusterHandler(clusterApplication *application.ClusterApplication, organ
 
 // CreateCluster FindAll godoc
 // @Summary Create Cluster
+// @State core
 // @Tags cluster
 // @ID createCluster
 // @Param X-User-ID header string true "User ID"
@@ -55,6 +56,7 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 
 // GetCluster FindAll godoc
 // @Summary Get Cluster
+// @State core
 // @Tags cluster
 // @ID getCluster
 // @Param X-User-ID header string true "User ID"
@@ -84,6 +86,7 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 
 // GetClusterPrivateKey FindAll godoc
 // @Summary Get Cluster Private Key
+// @State core
 // @Tags cluster
 // @ID getClusterPrivateKey
 // @Param X-User-ID header string true "User ID"
@@ -113,6 +116,7 @@ func (ch *ClusterHandler) GetClusterPrivateKey(c *gin.Context) {
 
 // DeleteCluster FindAll godoc
 // @Summary Delete Cluster
+// @State core
 // @Tags cluster
 // @ID deleteCluster
 // @Param X-User-ID header string true "User ID"
@@ -138,6 +142,7 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 
 // StreamProvisioningLogs FindAll godoc
 // @Summary Stream cluster provisioning logs
+// @State core
 // @Tags cluster
 // @ID streamClusterProvisioningLogs
 // @Param X-User-ID header string true "User ID"

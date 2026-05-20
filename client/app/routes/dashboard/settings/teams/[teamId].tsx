@@ -47,7 +47,7 @@ export default function TeamDetail() {
           )}
         </nav>
         {isLoading ? (
-          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-7 w-36" />
         ) : (
           <h1 className="text-xl font-bold">#{team?.slug}</h1>
         )}

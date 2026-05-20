@@ -2,12 +2,16 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
 )
 
 type TeamRepository struct {
+	db      *sql.DB
 	queries *sqlc.Queries
 }
 
@@ -141,20 +145,36 @@ func (tr *TeamRepository) DeleteTeamIfEmpty(ctx context.Context, id int64) error
 	return tr.queries.DeleteTeamIfEmpty(ctx, id)
 }
 
-func (tr *TeamRepository) AssignRepoToTeam(ctx context.Context, teamID int64, githubRepoID int64, repoName string, githubAppID int64) error {
-	return tr.queries.AssignRepoToTeam(ctx, sqlc.AssignRepoToTeamParams{
-		TeamID:       teamID,
-		GithubRepoID: githubRepoID,
-		RepoName:     repoName,
-		GithubAppID:  githubAppID,
-	})
-}
+func (tr *TeamRepository) SetTeamRepositories(
+	ctx context.Context,
+	teamID int64,
+	repos []*value.TeamRepo,
+	githubAppID int64,
+) error {
+	tx, err := tr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
 
-func (tr *TeamRepository) UnassignRepoFromTeam(ctx context.Context, teamID int64, githubRepoID int64) error {
-	return tr.queries.UnassignRepoFromTeam(ctx, sqlc.UnassignRepoFromTeamParams{
-		TeamID:       teamID,
-		GithubRepoID: githubRepoID,
-	})
+	qtx := tr.queries.WithTx(tx)
+
+	if err := qtx.DeleteAllTeamRepositories(ctx, teamID); err != nil {
+		return err
+	}
+
+	for _, repo := range repos {
+		if err := qtx.AssignRepoToTeam(ctx, sqlc.AssignRepoToTeamParams{
+			TeamID:       teamID,
+			GithubRepoID: repo.GithubRepoId,
+			RepoName:     repo.RepoName,
+			GithubAppID:  githubAppID,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (tr *TeamRepository) GetTeamRepositories(ctx context.Context, teamID int64) ([]*entity.TeamRepository, error) {
@@ -193,16 +213,37 @@ func (tr *TeamRepository) GetTeamClusters(ctx context.Context, teamID int64) ([]
 	return clusters, nil
 }
 
-func (tr *TeamRepository) AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error {
-	err := tr.queries.AssignTeamCluster(ctx, sqlc.AssignTeamClusterParams{
-		TeamID:    teamID,
-		ClusterID: clusterId,
-	})
-	return err
+func (tr *TeamRepository) SetTeamClusters(
+	ctx context.Context,
+	teamID int64,
+	clusters []*value.TeamCluster,
+) error {
+	tx, err := tr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	qtx := tr.queries.WithTx(tx)
+
+	if err := qtx.DeleteAllTeamClusters(ctx, teamID); err != nil {
+		return err
+	}
+
+	for _, cluster := range clusters {
+		if err := qtx.AssignTeamCluster(ctx, sqlc.AssignTeamClusterParams{
+			TeamID:    teamID,
+			ClusterID: cluster.ClusterId,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
-func (tr *TeamRepository) UnassignClusterFromTeam(ctx context.Context, teamID int64, clusterId int64) error {
-	err := tr.queries.UnassignTeamCluster(ctx, sqlc.UnassignTeamClusterParams{
+func (tr *TeamRepository) AssignClusterToTeam(ctx context.Context, teamID int64, clusterId int64) error {
+	err := tr.queries.AssignTeamCluster(ctx, sqlc.AssignTeamClusterParams{
 		TeamID:    teamID,
 		ClusterID: clusterId,
 	})
@@ -227,6 +268,9 @@ func (tr *TeamRepository) GetTeamCluster(ctx context.Context, teamID int64, clus
 
 var _ interfaces.TeamRepository = (*TeamRepository)(nil)
 
-func NewTeamRepository(queries *sqlc.Queries) interfaces.TeamRepository {
-	return &TeamRepository{queries: queries}
+func NewTeamRepository(db *sql.DB, queries *sqlc.Queries) interfaces.TeamRepository {
+	return &TeamRepository{
+		db:      db,
+		queries: queries,
+	}
 }

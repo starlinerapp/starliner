@@ -10,7 +10,8 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
-	_ "starliner.app/cmd/api/docs"
+	_ "starliner.app/cmd/api/auth/docs"
+	_ "starliner.app/cmd/api/core/docs"
 	"starliner.app/internal/api/presentation/http/handler"
 	"starliner.app/internal/api/presentation/http/middleware"
 )
@@ -39,11 +40,19 @@ func NewServer(
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
 
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
+	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
 
 	webhookRoutes := engine.Group("/webhooks")
 	{
 		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)
+	}
+
+	authEmailRoutes := engine.Group("/auth")
+	authEmailRoutes.Use(auth.WithBasicAuth())
+	{
+		authEmailRoutes.POST("/send-verification-email", internalHandler.SendVerificationEmail)
+		authEmailRoutes.POST("/send-reset-password", internalHandler.SendResetPassword)
 	}
 
 	engine.Use(auth.WithBasicAuth(), user.WithUser())
@@ -132,11 +141,9 @@ func NewServer(
 		teamRoutes.POST("/:teamId/members", teamHandler.AddTeamMember)
 		teamRoutes.DELETE("/:teamId/members", teamHandler.RemoveTeamMember)
 		teamRoutes.GET("/:teamId/repos", teamHandler.GetTeamRepositories)
-		teamRoutes.POST("/:teamId/repos", teamHandler.AssignRepoToTeam)
-		teamRoutes.DELETE("/:teamId/repos/:repoId", teamHandler.UnassignRepoFromTeam)
+		teamRoutes.PUT("/:teamId/repos", teamHandler.SetTeamRepositories)
 		teamRoutes.GET("/:teamId/clusters", teamHandler.GetTeamClusters)
-		teamRoutes.POST("/:teamId/clusters/:clusterId", teamHandler.AssignClusterToTeam)
-		teamRoutes.DELETE("/:teamId/clusters/:clusterId", teamHandler.UnassignClusterFromTeam)
+		teamRoutes.PUT("/:teamId/clusters", teamHandler.SetTeamClusters)
 	}
 
 	githubRoutes := engine.Group("/github")
@@ -151,12 +158,6 @@ func NewServer(
 	{
 		githubAppRoutes.POST("", githubAppHandler.CreateGithubApp)
 		githubAppRoutes.GET("/:organizationId", githubAppHandler.GetGithubApp)
-	}
-
-	internalRoutes := engine.Group("/internal")
-	{
-		internalRoutes.POST("/send-verification-email", internalHandler.SendVerificationEmail)
-		internalRoutes.POST("/send-reset-password", internalHandler.SendResetPassword)
 	}
 
 	return &Server{engine: engine}

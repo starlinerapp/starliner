@@ -4,7 +4,7 @@ import type {
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
-} from "~/server/api/client/generated";
+} from "../../../../server/api/clients/server/generated";
 import { useTRPC } from "~/utils/trpc/react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 

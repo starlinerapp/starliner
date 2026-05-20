@@ -9,6 +9,7 @@ import (
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
+	"starliner.app/internal/api/presentation/http/mapper"
 )
 
 type TeamHandler struct {
@@ -23,6 +24,7 @@ func NewTeamHandler(teamApplication *application.TeamApplication) *TeamHandler {
 
 // CreateTeam FindAll godoc
 // @Summary Create team
+// @State core
 // @Tags team
 // @ID createTeam
 // @Product JSON
@@ -54,6 +56,7 @@ func (th *TeamHandler) CreateTeam(c *gin.Context) {
 
 // GetUserTeams FindAll godoc
 // @Summary Get User Teams
+// @State core
 // @Tags team
 // @ID getUserTeams
 // @Product JSON
@@ -79,6 +82,7 @@ func (th *TeamHandler) GetUserTeams(c *gin.Context) {
 
 // GetTeamMembers FindAll godoc
 // @Summary Get Team Members
+// @State core
 // @Tags team
 // @ID getTeamMembers
 // @Product JSON
@@ -105,6 +109,7 @@ func (th *TeamHandler) GetTeamMembers(c *gin.Context) {
 
 // JoinTeam FindAll godoc
 // @Summary Join a team by slug
+// @State core
 // @Tags team
 // @ID joinTeam
 // @Param X-User-ID header string true "User ID"
@@ -137,6 +142,7 @@ func (th *TeamHandler) JoinTeam(c *gin.Context) {
 
 // AddTeamMember FindAll godoc
 // @Summary Add organization member to team
+// @State core
 // @Tags team
 // @ID addTeamMember
 // @Param X-User-ID header string true "User ID"
@@ -170,6 +176,7 @@ func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 
 // RemoveTeamMember FindAll godoc
 // @Summary Remove organization member from team
+// @State core
 // @Tags team
 // @ID removeTeamMember
 // @Product JSON
@@ -202,16 +209,17 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// AssignRepoToTeam godoc
-// @Summary Assign a GitHub repository to a team
+// SetTeamRepositories godoc
+// @Summary Set repositories assigned to a team
+// @State core
 // @Tags team
-// @ID assignRepoToTeam
+// @ID setTeamRepositories
 // @Param X-User-ID header string true "User ID"
 // @Param teamId path int true "Team ID"
-// @Param data body request.AssignRepoToTeam true "Assign Repo"
-// @Success 201
-// @Router /teams/{teamId}/repos [post]
-func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
+// @Param data body request.SetTeamRepositories true "Team Repositories"
+// @Success 204
+// @Router /teams/{teamId}/repos [put]
+func (th *TeamHandler) SetTeamRepositories(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
@@ -220,45 +228,15 @@ func (th *TeamHandler) AssignRepoToTeam(c *gin.Context) {
 		return
 	}
 
-	var body request.AssignRepoToTeam
+	var body request.SetTeamRepositories
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = th.teamApplication.AssignRepoToTeam(c, currentUser.Id, teamId, body.GithubRepoId, body.RepoName)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
+	repos := mapper.MapTeamReposFromRequest(teamId, body.Repositories)
 
-	c.Status(http.StatusCreated)
-}
-
-// UnassignRepoFromTeam godoc
-// @Summary Unassign a GitHub repository from a team
-// @Tags team
-// @ID unassignRepoFromTeam
-// @Param X-User-ID header string true "User ID"
-// @Param teamId path int true "Team ID"
-// @Param repoId path int true "GitHub Repo ID"
-// @Success 204
-// @Router /teams/{teamId}/repos/{repoId} [delete]
-func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
-	currentUser := c.MustGet("user").(*value.User)
-
-	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-	repoId, err := strconv.ParseInt(c.Param("repoId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	err = th.teamApplication.UnassignRepoFromTeam(c, currentUser.Id, teamId, repoId)
+	err = th.teamApplication.SetTeamRepositories(c, currentUser.Id, teamId, repos)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -269,6 +247,7 @@ func (th *TeamHandler) UnassignRepoFromTeam(c *gin.Context) {
 
 // GetTeamRepositories godoc
 // @Summary Get repositories assigned to a team
+// @State core
 // @Tags team
 // @ID getTeamRepositories
 // @Param X-User-ID header string true "User ID"
@@ -294,6 +273,7 @@ func (th *TeamHandler) GetTeamRepositories(c *gin.Context) {
 
 // GetTeamClusters godoc
 // @Summary Get clusters assigned to a team
+// @State core
 // @Tags team
 // @ID getTeamClusters
 // @Param X-User-ID header string true "User ID"
@@ -317,48 +297,17 @@ func (th *TeamHandler) GetTeamClusters(c *gin.Context) {
 	c.JSON(http.StatusOK, response.NewTeamClusters(clusters))
 }
 
-// AssignClusterToTeam godoc
-// @Summary Assign a cluster to a team
+// SetTeamClusters godoc
+// @Summary Set clusters assigned to a team
+// @State core
 // @Tags team
-// @ID assignClusterToTeam
+// @ID setTeamClusters
 // @Param X-User-ID header string true "User ID"
 // @Param teamId path int true "Team ID"
-// @Param clusterId path int true "Cluster ID"
-// @Success 201
-// @Router /teams/{teamId}/clusters/{clusterId} [post]
-func (th *TeamHandler) AssignClusterToTeam(c *gin.Context) {
-	currentUser := c.MustGet("user").(*value.User)
-
-	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-	clusterId, err := strconv.ParseInt(c.Param("clusterId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	err = th.teamApplication.AssignClusterToTeam(c, currentUser.Id, teamId, clusterId)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
-
-	c.Status(http.StatusCreated)
-}
-
-// UnassignClusterFromTeam godoc
-// @Summary Unassign a cluster from a team
-// @Tags team
-// @ID unassignClusterFromTeam
-// @Param X-User-ID header string true "User ID"
-// @Param teamId path int true "Team ID"
-// @Param clusterId path int true "Cluster ID"
+// @Param data body request.SetTeamClusters true "Team Clusters"
 // @Success 204
-// @Router /teams/{teamId}/clusters/{clusterId} [delete]
-func (th *TeamHandler) UnassignClusterFromTeam(c *gin.Context) {
+// @Router /teams/{teamId}/clusters [put]
+func (th *TeamHandler) SetTeamClusters(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 
 	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
@@ -366,13 +315,16 @@ func (th *TeamHandler) UnassignClusterFromTeam(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	clusterId, err := strconv.ParseInt(c.Param("clusterId"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+
+	var body request.SetTeamClusters
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = th.teamApplication.UnassignClusterFromTeam(c, currentUser.Id, teamId, clusterId)
+	clusters := mapper.MapTeamClustersFromRequest(teamId, body.Clusters)
+
+	err = th.teamApplication.SetTeamClusters(c, currentUser.Id, teamId, clusters)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return

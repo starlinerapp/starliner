@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
-	"strconv"
 )
 
 type EnvironmentHandler struct {
@@ -20,6 +21,7 @@ func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplic
 
 // CreateEnvironment FindAll godoc
 // @Summary Create Environment
+// @State core
 // @Tags environment
 // @ID createEnvironment
 // @Param X-User-ID header string true "User ID"
@@ -45,6 +47,7 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 
 // DeleteEnvironment FindAll godoc
 // @Summary Delete Environment
+// @State core
 // @Tags environment
 // @ID deleteEnvironment
 // @Product JSON
@@ -69,6 +72,7 @@ func (eh *EnvironmentHandler) DeleteEnvironment(c *gin.Context) {
 
 // GetEnvironmentDeployments FindAll godoc
 // @Summary Get Environment Deployments
+// @State core
 // @Tags environment
 // @ID getEnvironmentDeployments
 // @Product JSON
@@ -94,6 +98,7 @@ func (eh *EnvironmentHandler) GetEnvironmentDeployments(c *gin.Context) {
 
 // GetEnvironmentBuilds FindAll godoc
 // @Summary Get Environment Builds
+// @State core
 // @Tags environment
 // @ID getEnvironmentBuilds
 // @Product JSON
@@ -119,6 +124,7 @@ func (eh *EnvironmentHandler) GetEnvironmentBuilds(c *gin.Context) {
 
 // GetEnvironmentConnectedBranch FindAll godoc
 // @Summary Get Environment Connected Branch
+// @State core
 // @Tags environment
 // @ID getEnvironmentConnectedBranch
 // @Product JSON
@@ -144,6 +150,7 @@ func (eh *EnvironmentHandler) GetEnvironmentConnectedBranch(c *gin.Context) {
 
 // UpdateEnvironmentConnectedBranch FindAll godoc
 // @Summary Update Environment Connected Branch
+// @State core
 // @Tags environment
 // @ID updateEnvironmentConnectedBranch
 // @Param X-User-ID header string true "User ID"

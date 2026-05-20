@@ -39,3 +39,9 @@ type OrganizationInvite struct {
 	ExpiresAt        time.Time
 	CreatedAt        time.Time
 }
+
+type OrganizationMember struct {
+	Id           int64
+	BetterAuthId string
+	IsOwner      bool
+}

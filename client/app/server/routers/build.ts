@@ -1,6 +1,6 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { buildApiFactory } from "~/server/api/client";
+import { buildApiFactory } from "~/server/api/clients/server";
 import type { AxiosResponse } from "axios";
 import { Readable } from "stream";
 

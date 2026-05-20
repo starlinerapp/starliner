@@ -150,7 +150,12 @@ func (ta *TeamApplication) RemoveTeamMember(ctx context.Context, userId int64, t
 	return ta.teamRepository.DeleteTeamIfEmpty(ctx, teamId)
 }
 
-func (ta *TeamApplication) AssignRepoToTeam(ctx context.Context, userId int64, teamId int64, githubRepoId int64, repoName string) error {
+func (ta *TeamApplication) SetTeamRepositories(
+	ctx context.Context,
+	userId int64,
+	teamId int64,
+	repos []*value.TeamRepo,
+) error {
 	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
 	if err != nil {
 		return err
@@ -166,21 +171,7 @@ func (ta *TeamApplication) AssignRepoToTeam(ctx context.Context, userId int64, t
 		return err
 	}
 
-	return ta.teamRepository.AssignRepoToTeam(ctx, teamId, githubRepoId, repoName, githubApp.ID)
-}
-
-func (ta *TeamApplication) UnassignRepoFromTeam(ctx context.Context, userId int64, teamId int64, githubRepoId int64) error {
-	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
-	if err != nil {
-		return err
-	}
-
-	err = ta.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, userId)
-	if err != nil {
-		return err
-	}
-
-	return ta.teamRepository.UnassignRepoFromTeam(ctx, teamId, githubRepoId)
+	return ta.teamRepository.SetTeamRepositories(ctx, teamId, repos, githubApp.ID)
 }
 
 func (ta *TeamApplication) GetTeamRepositories(ctx context.Context, userId int64, teamId int64) ([]*value.TeamRepo, error) {
@@ -208,50 +199,32 @@ func (ta *TeamApplication) GetTeamClusters(ctx context.Context, userId int64, te
 	return value.NewTeamClusters(clusters), nil
 }
 
-func (ta *TeamApplication) AssignClusterToTeam(ctx context.Context, userId int64, teamId int64, clusterId int64) error {
-	// TODO: reduce amount of queries
-	cluster, err := ta.clusterRepository.GetCluster(ctx, clusterId)
-	if err != nil {
-		return err
-	}
-
+func (ta *TeamApplication) SetTeamClusters(
+	ctx context.Context,
+	userId int64,
+	teamId int64,
+	clusters []*value.TeamCluster,
+) error {
 	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
 	if err != nil {
 		return err
 	}
 
-	if cluster.OrganizationId != team.OrganizationId {
-		return errors.New("cluster and team belong to different organizations")
-	}
-
-	err = ta.organizationService.ValidateUserOrgOwner(ctx, cluster.OrganizationId, userId)
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, team.OrganizationId, userId)
 	if err != nil {
 		return err
 	}
 
-	return ta.teamRepository.AssignClusterToTeam(ctx, teamId, clusterId)
-}
+	for _, cluster := range clusters {
+		c, err := ta.clusterRepository.GetCluster(ctx, cluster.ClusterId)
+		if err != nil {
+			return err
+		}
 
-func (ta *TeamApplication) UnassignClusterFromTeam(ctx context.Context, userId int64, teamId int64, clusterId int64) error {
-	// TODO: reduce amount of queries
-	cluster, err := ta.clusterRepository.GetCluster(ctx, clusterId)
-	if err != nil {
-		return err
+		if c.OrganizationId != team.OrganizationId {
+			return errors.New("cluster and team belong to different organizations")
+		}
 	}
 
-	team, err := ta.teamRepository.GetTeamById(ctx, teamId)
-	if err != nil {
-		return err
-	}
-
-	if cluster.OrganizationId != team.OrganizationId {
-		return errors.New("cluster and team belong to different organizations")
-	}
-
-	err = ta.organizationService.ValidateUserOrgOwner(ctx, cluster.OrganizationId, userId)
-	if err != nil {
-		return err
-	}
-
-	return ta.teamRepository.UnassignClusterFromTeam(ctx, teamId, clusterId)
+	return ta.teamRepository.SetTeamClusters(ctx, teamId, clusters)
 }

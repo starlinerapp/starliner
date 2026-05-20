@@ -3,11 +3,12 @@ package ssh
 import (
 	"context"
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"io"
 	"net"
-	"starliner.app/internal/provisioner/domain/port"
 	"time"
+
+	"golang.org/x/crypto/ssh"
+	"starliner.app/internal/provisioner/domain/port"
 )
 
 type SSH struct{}
@@ -16,20 +17,51 @@ func NewSSH() port.SSH {
 	return &SSH{}
 }
 
-func (s *SSH) WaitForSSH(ip string, timeout time.Duration) error {
+func (s *SSH) WaitForSSH(
+	ip string,
+	user string,
+	privateKey []byte,
+	timeout time.Duration,
+) error {
+	signer, err := ssh.ParsePrivateKey(privateKey)
+	if err != nil {
+		return fmt.Errorf("failed to parse private key: %w", err)
+	}
+
+	config := &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(signer),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         5 * time.Second,
+	}
+
 	deadline := time.Now().Add(timeout)
 
-	for {
-		conn, err := net.DialTimeout("tcp", net.JoinHostPort(ip, "22"), 5*time.Second)
+	var lastErr error
+
+	for time.Now().Before(deadline) {
+		client, err := ssh.Dial(
+			"tcp",
+			net.JoinHostPort(ip, "22"),
+			config,
+		)
 		if err == nil {
-			_ = conn.Close()
+			_ = client.Close()
 			return nil
 		}
-		if time.Now().After(deadline) {
-			return fmt.Errorf("timeout waiting for ssh on %s", ip)
-		}
+
+		lastErr = err
+
 		time.Sleep(5 * time.Second)
 	}
+
+	return fmt.Errorf(
+		"timeout waiting for ssh on %s: %w",
+		ip,
+		lastErr,
+	)
 }
 
 func (s *SSH) OpenTTY(

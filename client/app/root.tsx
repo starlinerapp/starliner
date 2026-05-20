@@ -24,6 +24,7 @@ export function loader() {
     env: {
       SENTRY_DSN_CLIENT: process.env.SENTRY_DSN_CLIENT ?? "",
       ENVIRONMENT: process.env.ENVIRONMENT ?? "",
+      AUTH_PUBLIC_URL: process.env.AUTH_PUBLIC_URL ?? "",
     } satisfies Window["ENV"],
   };
 }

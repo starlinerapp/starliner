@@ -1,9 +1,7 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
-import { teamsApiFactory } from "~/server/api/client";
-import { db } from "~/db";
-import { user } from "~/db/schema";
-import { inArray } from "drizzle-orm";
+import { teamsApiFactory } from "~/server/api/clients/server";
+import { enrichMembersWithAuthDetails } from "~/server/services/users";
 
 export const teamRouter = {
   createTeam: protectedProcedure
@@ -45,21 +43,7 @@ export const teamRouter = {
         .getTeamMembers(userId, input.teamId)
         .then((res) => res.data);
 
-      const betterAuthIds = members.map((m) => m.better_auth_id);
-      if (betterAuthIds.length === 0) return [];
-
-      const authUsers = await db
-        .select({ id: user.id, name: user.name, email: user.email })
-        .from(user)
-        .where(inArray(user.id, betterAuthIds));
-
-      const authUserMap = new Map(authUsers.map((u) => [u.id, u]));
-
-      return members.map((m) => ({
-        ...m,
-        name: authUserMap.get(m.better_auth_id)?.name ?? "",
-        email: authUserMap.get(m.better_auth_id)?.email ?? "",
-      }));
+      return await enrichMembersWithAuthDetails(members);
     }),
   joinTeam: protectedProcedure
     .input(
@@ -114,34 +98,24 @@ export const teamRouter = {
         .getTeamRepositories(userId, input.teamId)
         .then((res) => res.data);
     }),
-  assignRepoToTeam: protectedProcedure
+  setTeamRepositories: protectedProcedure
     .input(
       z.object({
         teamId: z.number(),
-        githubRepoId: z.number(),
-        repoName: z.string(),
+        repositories: z.array(
+          z.object({
+            githubRepoId: z.number(),
+            repoName: z.string(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await teamsApiFactory
-        .assignRepoToTeam(userId, input.teamId, {
-          githubRepoId: input.githubRepoId,
-          repoName: input.repoName,
+        .setTeamRepositories(userId, input.teamId, {
+          repositories: input.repositories,
         })
-        .then((res) => res.data);
-    }),
-  unassignRepoFromTeam: protectedProcedure
-    .input(
-      z.object({
-        teamId: z.number(),
-        githubRepoId: z.number(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user?.id;
-      return await teamsApiFactory
-        .unassignRepoFromTeam(userId, input.teamId, input.githubRepoId)
         .then((res) => res.data);
     }),
   getTeamClusters: protectedProcedure
@@ -156,30 +130,23 @@ export const teamRouter = {
         .getTeamClusters(userId, input.teamId)
         .then((res) => res.data);
     }),
-  assignClusterToTeam: protectedProcedure
+  setTeamClusters: protectedProcedure
     .input(
       z.object({
         teamId: z.number(),
-        clusterId: z.number(),
+        clusters: z.array(
+          z.object({
+            clusterId: z.number(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await teamsApiFactory
-        .assignClusterToTeam(userId, input.teamId, input.clusterId)
-        .then((res) => res.data);
-    }),
-  unassignClusterFromTeam: protectedProcedure
-    .input(
-      z.object({
-        teamId: z.number(),
-        clusterId: z.number(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user?.id;
-      return await teamsApiFactory
-        .unassignClusterFromTeam(userId, input.teamId, input.clusterId)
+        .setTeamClusters(userId, input.teamId, {
+          clusters: input.clusters,
+        })
         .then((res) => res.data);
     }),
 };

@@ -1,0 +1,13 @@
+.gitignore
+.npmignore
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/BulkUserLookupRequest.md
+docs/BulkUserLookupResponse.md
+docs/ErrorResponse.md
+docs/UserProfile.md
+docs/UsersApi.md
+git_push.sh
+index.ts

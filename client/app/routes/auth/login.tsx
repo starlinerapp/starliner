@@ -1,10 +1,16 @@
 import React, { useCallback, useState } from "react";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
+import {
+  ArrowRight,
+  ChevronRight,
+  Eye,
+  EyeSlash,
+} from "~/components/atoms/icons";
 import Button from "~/components/atoms/button/Button";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { authClient } from "~/utils/auth/client";
+import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import SignInWithGitHub from "../../components/atoms/github/SignInWithGitHub";
 
 const VERIFY_EMAIL_ERROR = "Please verify your email address";
 
@@ -14,6 +20,7 @@ interface LoginFormInput {
 }
 
 export default function Login() {
+  const authClient = getAuthClient();
   const { register, handleSubmit } = useForm<LoginFormInput>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -21,6 +28,7 @@ export default function Login() {
 
   const [error, setError] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
   const handleResendVerification = useCallback(async () => {
@@ -31,7 +39,7 @@ export default function Login() {
     try {
       const { error: resendError } = await authClient.sendVerificationEmail({
         email: unverifiedEmail,
-        callbackURL: redirectTo,
+        callbackURL: new URL(redirectTo, window.location.origin).href,
       });
       if (resendError) {
         setError(
@@ -46,7 +54,7 @@ export default function Login() {
     } finally {
       setIsResending(false);
     }
-  }, [unverifiedEmail, redirectTo]);
+  }, [authClient, unverifiedEmail, redirectTo]);
 
   const onSubmit: SubmitHandler<LoginFormInput> = async (data) => {
     await authClient.signIn.email(
@@ -77,7 +85,7 @@ export default function Login() {
       : "/signup";
 
   return (
-    <div className="flex w-[500px] flex-col gap-4">
+    <div className="flex w-125 flex-col gap-4">
       <p className="flex items-center justify-end gap-1.5 py-0.5 text-sm font-light">
         Don&#39;t have an account?
         <NavLink
@@ -104,6 +112,10 @@ export default function Login() {
           )}
         </ErrorBanner>
       )}
+      <div className="flex flex-col gap-2">
+        <SignInWithGitHub />
+      </div>
+      <hr className="border-mauve-6" />
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm">
@@ -120,6 +132,7 @@ export default function Login() {
           <div className="flex justify-between text-sm">
             <label htmlFor="password">Password</label>
             <NavLink
+              tabIndex={-1}
               to={
                 redirectTo !== "/"
                   ? `/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`
@@ -131,12 +144,28 @@ export default function Login() {
             </NavLink>
           </div>
 
-          <input
-            className="border-mauve-6 rounded-md border-1 p-2"
-            type="password"
-            placeholder="Password"
-            {...register("password")}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              className="border-mauve-6 w-full rounded-md border p-2"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              {...register("password")}
+            />
+
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeSlash className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </span>
         <Button className="mt-2" size="md" type="submit">
           Sign in <ChevronRight className="w-4 stroke-3" />

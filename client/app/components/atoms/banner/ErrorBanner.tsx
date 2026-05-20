@@ -3,14 +3,14 @@ import { cn } from "~/utils/cn";
 import { ExclamationTriangle, LinkOut } from "~/components/atoms/icons";
 import { Link } from "react-router";
 
-interface ErrorBAnnerLinkOutProps {
+interface ErrorBannerLinkOutProps {
   text: string;
   href: string;
 }
 
 interface ErrorBannerProps {
   text: string;
-  linkOut?: ErrorBAnnerLinkOutProps;
+  linkOut?: ErrorBannerLinkOutProps;
   children?: React.ReactNode;
   className?: string;
 }

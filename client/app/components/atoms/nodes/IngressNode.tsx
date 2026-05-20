@@ -5,7 +5,7 @@ import React from "react";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import * as Popover from "@radix-ui/react-popover";
-import type { ResponseIngressHost } from "~/server/api/client/generated";
+import type { ResponseIngressHost } from "../../../server/api/clients/server/generated";
 import { cn } from "~/utils/cn";
 import { useLocation, useMatch, useNavigate } from "react-router";
 

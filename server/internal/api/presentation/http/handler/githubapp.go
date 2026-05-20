@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
-	"strconv"
 )
 
 type GithubAppHandler struct {
@@ -22,6 +23,7 @@ func NewGithubAppHandler(githubAppApplication *application.GitHubAppApplication)
 
 // CreateGithubApp FindAll godoc
 // @Summary Create GitHub App
+// @State core
 // @Tags githubapp
 // @ID createGithubApp
 // @Param X-User-ID header string true "User ID"
@@ -47,6 +49,7 @@ func (gh *GithubAppHandler) CreateGithubApp(c *gin.Context) {
 
 // GetGithubApp FindAll godoc
 // @Summary Get GitHub App
+// @State core
 // @Tags githubapp
 // @ID getGithubApp
 // @Param X-User-ID header string true "User ID"

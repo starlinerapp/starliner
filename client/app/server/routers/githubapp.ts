@@ -1,5 +1,5 @@
 import { protectedProcedure } from "~/server/trpc";
-import { githubappApiFactory } from "~/server/api/client";
+import { githubappApiFactory } from "~/server/api/clients/server";
 import z from "zod";
 import axios from "axios";
 

@@ -10,7 +10,6 @@ type ButtonProps = PropsWithChildren<ButtonHTMLAttributes<HTMLButtonElement>>;
 const buttonVariants = cva(
   [
     "flex",
-    "w-full",
     "cursor-pointer",
     "items-center",
     "justify-center",

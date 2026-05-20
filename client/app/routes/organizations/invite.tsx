@@ -8,7 +8,7 @@ import { useTRPC } from "~/utils/trpc/react";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { caller } from "~/utils/trpc/server";
 import { getServerSession } from "~/utils/auth/server";
-import { authClient } from "~/utils/auth/client";
+import { getAuthClient } from "~/utils/auth/client";
 
 export async function loader(args: Route.LoaderArgs) {
   const inviteId = args.params.inviteId;
@@ -33,6 +33,7 @@ export async function loader(args: Route.LoaderArgs) {
 }
 
 export default function AcceptInvite() {
+  const authClient = getAuthClient();
   const { invite, emailMatches } = useLoaderData<typeof loader>();
 
   const trpc = useTRPC();
