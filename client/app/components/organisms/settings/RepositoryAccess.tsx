@@ -123,7 +123,6 @@ export function RepositoryAccess({
             open={showAssignDialog}
             onOpenChange={(open) => {
               setShowAssignDialog(open);
-
               if (!open) {
                 setPendingAssignedRepoIds(getAssignedRepoIds());
               }
