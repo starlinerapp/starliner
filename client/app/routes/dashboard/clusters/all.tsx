@@ -71,7 +71,7 @@ export default function Clusters() {
 
             <Button
               className="flex w-36 items-center gap-1"
-              onClick={() => navigate(`/${slug}/projects/new`)}
+              onClick={() => navigate(`/${slug}/clusters/new`)}
             >
               <PlusIcon className="h-4 w-4" />
               Create Cluster

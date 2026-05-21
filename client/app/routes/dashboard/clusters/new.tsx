@@ -74,7 +74,9 @@ export default function NewCluster() {
 
   return (
     <>
-      <Breadcrumbs crumbs={[{ label: "New Cluster" }]} />
+      <Breadcrumbs
+        crumbs={[{ label: "All Clusters" }, { label: "New Cluster" }]}
+      />
       <div className="flex flex-col gap-2 p-4">
         <h1 className="text-xl font-bold">New Cluster</h1>
         {isCredentialLoading ? null : isCredentialValid ? null : (
