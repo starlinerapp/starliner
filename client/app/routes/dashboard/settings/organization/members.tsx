@@ -70,6 +70,17 @@ export default function Members() {
                 <th className="text-mauve-12 w-1/2 px-4 py-3 text-left text-xs font-bold uppercase">
                   Role
                 </th>
+                {organization.isOwner && (
+                  <th className="w-[20%] px-4">
+                    <Button
+                      className="w-28 text-xs"
+                      intent="secondary"
+                      onClick={() => setShowAddMemberDialog(true)}
+                    >
+                      Add Member
+                    </Button>
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -93,11 +104,15 @@ export default function Members() {
                     <td className="px-4 py-3">
                       <Skeleton className="h-4 w-16" />
                     </td>
+                    {organization.isOwner && <td />}
                   </tr>
                 ))
               ) : members?.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="text-mauve-11 px-4 py-3 text-sm">
+                  <td
+                    colSpan={organization.isOwner ? 3 : 2}
+                    className="text-mauve-11 px-4 py-3 text-sm"
+                  >
                     No members yet.
                   </td>
                 </tr>
@@ -128,6 +143,7 @@ export default function Members() {
                     <td className="text-mauve-11 px-4 py-3">
                       {member.is_owner ? "Owner" : "Member"}
                     </td>
+                    {organization.isOwner && <td />}
                   </tr>
                 ))
               )}

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import { Link, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
@@ -18,6 +18,7 @@ export default function OrganizationTeams() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { slug } = useParams();
+  const navigate = useNavigate();
   const organization = useOrganizationContext();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
@@ -102,7 +103,8 @@ export default function OrganizationTeams() {
                       </span>
                     </div>
                   </td>
-                  {organization.isOwner && <td />}
+                  <td className="px-4 py-3" />
+                  {organization.isOwner && <td className="px-4 py-3" />}
                 </tr>
               ))
             ) : teamsData?.length === 0 ? (
@@ -118,13 +120,13 @@ export default function OrganizationTeams() {
               teamsData?.map((team) => (
                 <tr
                   key={team.id}
-                  className="border-mauve-6 hover:bg-gray-2 border-b last:border-b-0"
+                  className="border-mauve-6 hover:bg-gray-2 cursor-pointer border-b last:border-b-0"
+                  onClick={() =>
+                    navigate(`/${slug}/settings/organization/teams/${team.id}`)
+                  }
                 >
                   <td className="px-4 py-3">
-                    <Link
-                      to={`/${slug}/settings/organization/teams/${team.id}`}
-                      className="flex items-center gap-3"
-                    >
+                    <div className="flex items-center gap-3">
                       <div className="bg-violet-9 flex h-9 w-9 items-center justify-center rounded-md text-base text-white">
                         {team.slug.substring(0, 1)?.toUpperCase()}
                       </div>
@@ -135,7 +137,7 @@ export default function OrganizationTeams() {
                           {(members?.length ?? 0) === 1 ? "Member" : "Members"}
                         </p>
                       </div>
-                    </Link>
+                    </div>
                   </td>
                   <td className="px-4 py-3" />
                   {organization.isOwner && <td />}

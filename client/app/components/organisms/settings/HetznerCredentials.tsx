@@ -98,6 +98,7 @@ export default function HetznerCredentials() {
               <button
                 onClick={() => setShow(!show)}
                 type="button"
+                aria-label={show ? "Hide API token" : "Show API token"}
                 className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2"
               >
                 {show ? (
