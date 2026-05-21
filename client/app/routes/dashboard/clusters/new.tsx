@@ -78,8 +78,8 @@ export default function NewCluster() {
         <WarningBanner
           text="You must enter your Hetzner API Key to create a cluster."
           linkOut={{
-            text: "Organization Settings",
-            href: `/${organization.slug}/settings/organization`,
+            text: "API Keys",
+            href: `/${organization.slug}/settings/cluster`,
           }}
           className="my-2"
         />

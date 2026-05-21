@@ -51,7 +51,7 @@ export default function OrganizationTeams() {
           teamsData?.map((team) => (
             <Link
               key={team.id}
-              to={`/${slug}/settings/teams/${team.id}`}
+              to={`/${slug}/settings/organization/teams/${team.id}`}
               className="border-mauve-6 text-mauve-12 hover:bg-gray-2 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
             >
               <div className="flex items-center gap-3">

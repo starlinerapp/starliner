@@ -34,7 +34,7 @@ export default function TeamDetail() {
       <div className="flex flex-col gap-1">
         <nav className="text-mauve-11 flex items-center gap-1 pb-4 text-sm">
           <button
-            onClick={() => navigate("../", { relative: "path" })}
+            onClick={() => navigate("../../", { relative: "path" })}
             className="hover:text-mauve-12 cursor-pointer hover:underline"
           >
             Teams
@@ -69,3 +69,4 @@ export default function TeamDetail() {
     </div>
   );
 }
+

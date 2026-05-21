@@ -126,7 +126,7 @@ export default function ExtendedSidebar({
         ) : (
           sections.map((section, i) =>
             isGroup(section) ? (
-              <div key={section.id} className="p-2">
+              <div key={section.id} className="px-2 pt-2">
                 <CollapsibleGroup group={section} />
               </div>
             ) : (

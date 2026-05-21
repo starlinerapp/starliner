@@ -88,7 +88,7 @@ export default function NewProject() {
           text="You must join or create a team before creating projects."
           linkOut={{
             text: "Manage Teams",
-            href: `/${organization.slug}/settings/organization`,
+            href: `/${organization.slug}/settings/organization/teams`,
           }}
           className="my-2"
         />

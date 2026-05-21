@@ -70,7 +70,7 @@ export default function Members() {
                 <div className="flex flex-col gap-2">
                   <h1>Invite Member</h1>
                   <p className="text-mauve-11 text-sm">
-                    Invite members via email. They’ll receive a link to join
+                    Invite members via email. They'll receive a link to join
                     your organization.
                   </p>
                 </div>
@@ -192,3 +192,4 @@ export default function Members() {
     </div>
   );
 }
+
