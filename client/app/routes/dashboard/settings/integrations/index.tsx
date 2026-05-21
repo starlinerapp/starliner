@@ -64,7 +64,7 @@ export default function GitHubIntegration() {
                       ></div>
                       <p
                         className={cn(
-                          "text-mauve-11 text-xs",
+                          "text-mauve-11 text-sm",
                           githubApp && "text-violet-11",
                         )}
                       >

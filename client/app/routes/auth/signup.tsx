@@ -81,7 +81,7 @@ export default function SignUp() {
           </label>
           <input
             id="username"
-            className="border-mauve-6 rounded-md border p-2"
+            className="border-mauve-6 rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="text"
             placeholder="Full Name*"
             {...register("username")}
@@ -93,7 +93,7 @@ export default function SignUp() {
           </label>
           <input
             id="email"
-            className="border-mauve-6 rounded-md border p-2"
+            className="border-mauve-6 rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="email"
             placeholder="Email"
             {...register("email")}
@@ -106,7 +106,7 @@ export default function SignUp() {
           <div className="relative">
             <input
               id="password"
-              className="border-mauve-6 w-full rounded-md border p-2"
+              className="border-mauve-6 w-full rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               {...register("password")}
