@@ -2,7 +2,7 @@ import React from "react";
 import HetznerCredentials from "~/components/organisms/settings/HetznerCredentials";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 
-export default function ClusterSettings() {
+export default function ClusterApiKeysSettings() {
   return (
     <>
       <Breadcrumbs

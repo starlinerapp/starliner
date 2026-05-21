@@ -113,7 +113,10 @@ export default [
           ]),
         ]),
         ...prefix("cluster", [
-          index("routes/dashboard/settings/cluster/index.tsx"),
+          route("api-keys", "routes/dashboard/settings/cluster/apiKeys.tsx"),
+        ]),
+        ...prefix("integrations", [
+          index("routes/dashboard/settings/integrations/index.tsx"),
         ]),
       ]),
     ]),
