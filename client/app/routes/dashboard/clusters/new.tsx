@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
 import { ChevronDown } from "~/components/atoms/icons";
+import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 
 interface NewClusterFormInput {
   name: string;
@@ -72,77 +73,80 @@ export default function NewCluster() {
   };
 
   return (
-    <div className="flex flex-col gap-2 px-8 py-4">
-      <h1 className="text-xl font-bold">New Cluster</h1>
-      {isCredentialLoading ? null : isCredentialValid ? null : (
-        <WarningBanner
-          text="You must enter your Hetzner API Key to create a cluster."
-          linkOut={{
-            text: "API Keys",
-            href: `/${organization.slug}/settings/cluster`,
-          }}
-          className="my-2"
-        />
-      )}
-      <div className="text-mauve-11 text-sm">
-        <p>
-          A cluster is an isolated environment with its own compute resources,
-          running independently.
-        </p>
-        <p className="italic">
-          Required fields are marked with an asterisk (*).
-        </p>
-      </div>
-      <div className="mt-4">
-        <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)}>
-          <input
-            className="border-mauve-6 w-80 rounded-md border px-2 py-1 text-sm"
-            type="text"
-            placeholder="Name*"
-            {...register("name")}
+    <>
+      <Breadcrumbs crumbs={[{ label: "New Cluster" }]} />
+      <div className="flex flex-col gap-2 p-4">
+        <h1 className="text-xl font-bold">New Cluster</h1>
+        {isCredentialLoading ? null : isCredentialValid ? null : (
+          <WarningBanner
+            text="You must enter your Hetzner API Key to create a cluster."
+            linkOut={{
+              text: "API Keys",
+              href: `/${organization.slug}/settings/cluster`,
+            }}
+            className="my-2"
           />
-          <div className="relative w-52">
-            <select
-              {...register("teamId", { required: true })}
-              name="teamId"
-              className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
-              disabled={!teamsData?.length}
-            >
-              <option value="" disabled>
-                Team*
-              </option>
-              {teamsData?.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.slug}
+        )}
+        <div className="text-mauve-11 text-sm">
+          <p>
+            A cluster is an isolated environment with its own compute resources,
+            running independently.
+          </p>
+          <p className="italic">
+            Required fields are marked with an asterisk (*).
+          </p>
+        </div>
+        <div className="mt-4">
+          <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)}>
+            <input
+              className="border-mauve-6 w-80 rounded-md border px-2 py-1 text-sm"
+              type="text"
+              placeholder="Name*"
+              {...register("name")}
+            />
+            <div className="relative w-52">
+              <select
+                {...register("teamId", { required: true })}
+                name="teamId"
+                className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
+                disabled={!teamsData?.length}
+              >
+                <option value="" disabled>
+                  Team*
                 </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-              <ChevronDown width={15} className="stroke-mauve-10" />
+                {teamsData?.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.slug}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                <ChevronDown width={15} className="stroke-mauve-10" />
+              </div>
             </div>
-          </div>
-          <div className="relative w-52">
-            <select
-              className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
-              defaultValue="cx23"
-              {...register("serverType", { required: true })}
+            <div className="relative w-52">
+              <select
+                className="border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm"
+                defaultValue="cx23"
+                {...register("serverType", { required: true })}
+              >
+                <option value="cx23">CX23</option>
+                <option value="cpx22">CPX22</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                <ChevronDown width={15} className="stroke-mauve-10" />
+              </div>
+            </div>
+            <Button
+              className="w-32"
+              disabled={!nameInput || !teamIdInput}
+              type="submit"
             >
-              <option value="cx23">CX23</option>
-              <option value="cpx22">CPX22</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-              <ChevronDown width={15} className="stroke-mauve-10" />
-            </div>
-          </div>
-          <Button
-            className="w-32"
-            disabled={!nameInput || !teamIdInput}
-            type="submit"
-          >
-            Create Cluster
-          </Button>
-        </form>
+              Create Cluster
+            </Button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

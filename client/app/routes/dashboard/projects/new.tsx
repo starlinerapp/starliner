@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import { ChevronDown } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 
 interface NewProjectFormInput {
   name: string;
@@ -81,123 +82,128 @@ export default function NewProject() {
     !!teamIdInput && teamExists && !clusterExists && !isLoading;
 
   return (
-    <div className="flex flex-col gap-2 px-8 py-4">
-      <h1 className="text-xl font-bold">New Project</h1>
-      {!teamExists && !isLoading ? (
-        <WarningBanner
-          text="You must join or create a team before creating projects."
-          linkOut={{
-            text: "Manage Teams",
-            href: `/${organization.slug}/settings/organization/teams`,
-          }}
-          className="my-2"
-        />
-      ) : null}
-      {selectedTeamHasNoClusters ? (
-        organization.isOwner ? (
+    <>
+      <Breadcrumbs
+        crumbs={[{ label: "All Projects" }, { label: "New Project" }]}
+      />
+      <div className="flex flex-col gap-2 p-4">
+        <h1 className="text-xl font-bold">New Project</h1>
+        {!teamExists && !isLoading ? (
           <WarningBanner
-            text="This team has no clusters assigned. Create or assign a cluster before creating projects."
+            text="You must join or create a team before creating projects."
             linkOut={{
-              text: "Create Cluster",
-              href: `/${organization.slug}/clusters/new`,
+              text: "Manage Teams",
+              href: `/${organization.slug}/settings/organization/teams`,
             }}
             className="my-2"
           />
-        ) : (
-          <WarningBanner
-            text="This team has no clusters assigned. Contact your admin to assign one before creating projects."
-            className="my-2"
-          />
-        )
-      ) : null}
-      <div className="text-mauve-11 text-sm">
-        <p>
-          Use projects to isolate products that share nothing at all. Both data
-          and setup is separate between projects.
-        </p>
-        <p className="italic">
-          Required fields are marked with an asterisk (*).
-        </p>
-      </div>
-      <div className="mt-4">
-        <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)}>
-          <input
-            className="border-mauve-6 placeholder:text-mauve-11 w-80 rounded-md border-1 px-2 py-1 text-sm"
-            type="text"
-            placeholder="Name*"
-            {...register("name")}
-          />
-          <div className="relative w-52">
-            <select
-              {...register("teamId", { required: true })}
-              name="teamId"
-              className={cn(
-                "border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm",
-                teamExists ? "" : "text-mauve-11",
-              )}
-              disabled={!teamExists}
-            >
-              {teamExists ? (
-                <>
+        ) : null}
+        {selectedTeamHasNoClusters ? (
+          organization.isOwner ? (
+            <WarningBanner
+              text="This team has no clusters assigned. Create or assign a cluster before creating projects."
+              linkOut={{
+                text: "Create Cluster",
+                href: `/${organization.slug}/clusters/new`,
+              }}
+              className="my-2"
+            />
+          ) : (
+            <WarningBanner
+              text="This team has no clusters assigned. Contact your admin to assign one before creating projects."
+              className="my-2"
+            />
+          )
+        ) : null}
+        <div className="text-mauve-11 text-sm">
+          <p>
+            Use projects to isolate products that share nothing at all. Both
+            data and setup is separate between projects.
+          </p>
+          <p className="italic">
+            Required fields are marked with an asterisk (*).
+          </p>
+        </div>
+        <div className="mt-4">
+          <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)}>
+            <input
+              className="border-mauve-6 placeholder:text-mauve-11 w-80 rounded-md border-1 px-2 py-1 text-sm"
+              type="text"
+              placeholder="Name*"
+              {...register("name")}
+            />
+            <div className="relative w-52">
+              <select
+                {...register("teamId", { required: true })}
+                name="teamId"
+                className={cn(
+                  "border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm",
+                  teamExists ? "" : "text-mauve-11",
+                )}
+                disabled={!teamExists}
+              >
+                {teamExists ? (
+                  <>
+                    <option value="" disabled>
+                      Team*
+                    </option>
+                    {teamsData.map((team, i) => (
+                      <option key={i} value={team.id}>
+                        {team.slug}
+                      </option>
+                    ))}
+                  </>
+                ) : (
                   <option value="" disabled>
                     Team*
                   </option>
-                  {teamsData.map((team, i) => (
-                    <option key={i} value={team.id}>
-                      {team.slug}
-                    </option>
-                  ))}
-                </>
-              ) : (
-                <option value="" disabled>
-                  Team*
-                </option>
-              )}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-              <ChevronDown width={15} className="stroke-mauve-10" />
+                )}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                <ChevronDown width={15} className="stroke-mauve-10" />
+              </div>
             </div>
-          </div>
-          <div className="relative w-52">
-            <select
-              {...register("clusterId", { required: true })}
-              name="clusterId"
-              className={cn(
-                "border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm",
-                clusterExists ? "" : "text-mauve-11",
-              )}
-              disabled={!clusterExists}
-            >
-              {clusterExists ? (
-                <>
+            <div className="relative w-52">
+              <select
+                {...register("clusterId", { required: true })}
+                name="clusterId"
+                className={cn(
+                  "border-mauve-6 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm",
+                  clusterExists ? "" : "text-mauve-11",
+                )}
+                disabled={!clusterExists}
+              >
+                {clusterExists ? (
+                  <>
+                    <option value="" disabled>
+                      Cluster*
+                    </option>
+                    {clustersData.map((cluster, i) => (
+                      <option key={i} value={cluster.clusterId}>
+                        {cluster.clusterName}
+                      </option>
+                    ))}
+                  </>
+                ) : (
                   <option value="" disabled>
                     Cluster*
                   </option>
-                  {clustersData.map((cluster, i) => (
-                    <option key={i} value={cluster.clusterId}>
-                      {cluster.clusterName}
-                    </option>
-                  ))}
-                </>
-              ) : (
-                <option value="" disabled>
-                  Cluster*
-                </option>
-              )}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-              <ChevronDown width={15} className="stroke-mauve-10" />
+                )}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                <ChevronDown width={15} className="stroke-mauve-10" />
+              </div>
             </div>
-          </div>
-          <Button
-            className="w-32"
-            disabled={!nameInput || !clusterIdInput || !teamIdInput}
-            type="submit"
-          >
-            Create Project
-          </Button>
-        </form>
+            <Button
+              className="w-32"
+              disabled={!nameInput || !clusterIdInput || !teamIdInput}
+              type="submit"
+            >
+              Create Project
+            </Button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

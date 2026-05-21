@@ -35,6 +35,7 @@ export default function TeamDetail() {
       <Breadcrumbs
         crumbs={[
           { label: "Settings" },
+          { label: "Organization" },
           {
             label: (
               <p

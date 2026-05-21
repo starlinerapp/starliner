@@ -40,7 +40,7 @@ export default function OrganizationTeams() {
     }),
   );
 
-  const { data: members, isLoading: isMembersLoading } = useQuery(
+  const { data: members } = useQuery(
     trpc.organization.getOrganizationMembers.queryOptions({
       id: organization.id,
     }),
@@ -96,11 +96,11 @@ export default function OrganizationTeams() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Skeleton className="h-9 w-9 rounded-md" />
-                      <Skeleton className="h-4 w-24" />
+                      <span className="flex flex-col gap-1">
+                        <Skeleton className="h-3.5 w-24" />
+                        <Skeleton className="h-3.5 w-20" />
+                      </span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="h-4 w-20" />
                   </td>
                   {organization.isOwner && <td />}
                 </tr>
