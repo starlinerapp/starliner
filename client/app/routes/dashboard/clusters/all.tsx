@@ -64,7 +64,7 @@ export default function Clusters() {
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="border-mauve-6 bg-gray-3 w-full rounded-md border py-2 pr-2 pl-9 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="border-mauve-6 bg-gray-2 placeholder:text-mauve-11 w-full rounded-md border py-2 pr-2 pl-9 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                 placeholder="Search for clusters"
               />
             </div>

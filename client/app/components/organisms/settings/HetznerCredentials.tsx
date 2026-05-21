@@ -90,7 +90,7 @@ export default function HetznerCredentials() {
           ) : (
             <div className="relative w-1/2">
               <input
-                className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border p-2 pr-10 text-sm"
+                className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border p-2 pr-10 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                 type={show ? "text" : "password"}
                 placeholder="API Key*"
                 {...register("apiKey")}

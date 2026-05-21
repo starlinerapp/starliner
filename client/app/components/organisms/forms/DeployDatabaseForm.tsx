@@ -73,7 +73,7 @@ export default function DeployDatabaseForm({
         <p className="text-sm">Service Name</p>
         <div className="flex gap-2">
           <input
-            className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm disabled:hover:cursor-not-allowed"
+            className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
             type="text"
             placeholder="Name*"
             disabled={!!defaultValues?.serviceName}

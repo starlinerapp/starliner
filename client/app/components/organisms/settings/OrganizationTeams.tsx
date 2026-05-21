@@ -165,7 +165,7 @@ export default function OrganizationTeams() {
                 onSubmit={handleCreateSubmit(onCreateTeam)}
               >
                 <input
-                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm"
+                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                   placeholder="Team Slug*"
                   maxLength={50}
                   {...registerCreate("name")}

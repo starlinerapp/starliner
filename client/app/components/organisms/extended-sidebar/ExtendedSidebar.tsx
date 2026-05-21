@@ -128,12 +128,11 @@ export default function ExtendedSidebar({
             const isLast = i === sections.length - 1;
 
             return (
-              <div
-                key={isGroup(section) ? section.id : i}
-                className={!isLast ? "border-mauve-4 border-b" : ""}
-              >
+              <div key={isGroup(section) ? section.id : i}>
                 {isGroup(section) ? (
-                  <div className="p-2">
+                  <div
+                    className={cn("p-2", !isLast && "border-mauve-4 border-b")}
+                  >
                     <CollapsibleGroup group={section} />
                   </div>
                 ) : (
