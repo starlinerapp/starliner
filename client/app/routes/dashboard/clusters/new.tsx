@@ -75,7 +75,19 @@ export default function NewCluster() {
   return (
     <>
       <Breadcrumbs
-        crumbs={[{ label: "All Clusters" }, { label: "New Cluster" }]}
+        crumbs={[
+          {
+            label: (
+              <p
+                className="cursor-pointer hover:underline"
+                onClick={() => navigate("../all", { relative: "path" })}
+              >
+                All Clusters
+              </p>
+            ),
+          },
+          { label: "New Cluster" },
+        ]}
       />
       <div className="flex flex-col gap-2 p-4">
         <h1 className="text-xl font-bold">New Cluster</h1>

@@ -84,7 +84,19 @@ export default function NewProject() {
   return (
     <>
       <Breadcrumbs
-        crumbs={[{ label: "All Projects" }, { label: "New Project" }]}
+        crumbs={[
+          {
+            label: (
+              <p
+                className="cursor-pointer hover:underline"
+                onClick={() => navigate("../all", { relative: "path" })}
+              >
+                All Projects
+              </p>
+            ),
+          },
+          { label: "New Project" },
+        ]}
       />
       <div className="flex flex-col gap-2 p-4">
         <h1 className="text-xl font-bold">New Project</h1>
