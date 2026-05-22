@@ -115,10 +115,18 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                       <button
                         key={m.id}
                         onClick={() => handleAddMember(m.id)}
-                        className="hover:bg-gray-3 flex w-full cursor-pointer items-center justify-between rounded px-2 py-2 text-left transition-colors"
+                        className="hover:bg-gray-3 flex w-full cursor-pointer items-center gap-3 rounded px-2 py-2 text-left transition-colors"
                       >
-                        <span className="text-xs">{m.name}</span>
-                        <span className="text-mauve-11 text-xs">{m.email}</span>
+                        <AvatarIcon
+                          name={m.name}
+                          profilePicture={m.avatarUrl}
+                        />
+                        <span>
+                          <p className="text-bold text-mauve-12 text-xs">
+                            {m.name}
+                          </p>
+                          <p className="text-mauve-11 text-xs">{m.email}</p>
+                        </span>
                       </button>
                     ))
                   ) : (
@@ -170,7 +178,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
             {organization.isOwner &&
               member.user_id !== Number(user?.user_id) && (
                 <Button
-                  className="w-20 text-xs"
+                  className="text-mauve-12 w-20 text-xs"
                   intent="secondary"
                   disabled={removeMemberMutation.isPending}
                   onClick={() => handleRemoveMember(member.user_id)}
