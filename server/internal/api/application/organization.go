@@ -198,23 +198,7 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 		return errors.New("invite has expired")
 	}
 
-	err = oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
-	if err != nil {
-		return err
-	}
-
-	org, err := oa.organizationRepository.GetOrganization(ctx, invite.OrganizationId)
-	if err != nil {
-		return err
-	}
-
-	// TODO: better to store default team explicitly, works as long as you can't change team slugs
-	team, err := oa.teamRepository.GetTeamBySlug(ctx, org.Slug, org.Id)
-	if err != nil {
-		return err
-	}
-
-	return oa.teamRepository.AddTeamMember(ctx, team.Id, userID)
+	return oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
 }
 
 func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string, inviteUrlPrefix string) error {
@@ -261,4 +245,27 @@ func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, u
 	}
 
 	return orgMembers, nil
+}
+
+func (oa *OrganizationApplication) RemoveOrganizationMember(ctx context.Context, callerID int64, organizationID int64, userID int64) error {
+	err := oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, callerID)
+	if err != nil {
+		return err
+	}
+
+	org, err := oa.organizationRepository.GetOrganization(ctx, organizationID)
+	if err != nil {
+		return err
+	}
+
+	if org.OwnerId == userID {
+		return errors.New("organization owner cannot be removed")
+	}
+
+	err = oa.teamRepository.RemoveUserFromOrganizationTeams(ctx, organizationID, userID)
+	if err != nil {
+		return err
+	}
+
+	return oa.organizationRepository.RemoveOrganizationMember(ctx, organizationID, userID)
 }

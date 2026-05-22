@@ -1323,6 +1323,43 @@ const docTemplatecoreCore = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Remove member from organization",
+                "operationId": "removeOrganizationMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ID of the member to remove from the organization",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RemoveOrganizationMember"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
             }
         },
         "/organizations/{id}/projects": {
@@ -2391,6 +2428,17 @@ const docTemplatecoreCore = `{
             "properties": {
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "request.RemoveOrganizationMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
                 }
             }
         },

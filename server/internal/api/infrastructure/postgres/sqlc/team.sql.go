@@ -464,3 +464,22 @@ func (q *Queries) RemoveTeamMember(ctx context.Context, arg RemoveTeamMemberPara
 	_, err := q.db.ExecContext(ctx, removeTeamMember, arg.TeamID, arg.UserID)
 	return err
 }
+
+const removeUserFromOrganizationTeams = `-- name: RemoveUserFromOrganizationTeams :exec
+DELETE FROM team_members
+WHERE team_members.user_id = $2
+  AND team_members.team_id IN (
+    SELECT teams.id
+    FROM teams
+    WHERE teams.organization_id = $1)
+`
+
+type RemoveUserFromOrganizationTeamsParams struct {
+	OrganizationID int64
+	UserID         int64
+}
+
+func (q *Queries) RemoveUserFromOrganizationTeams(ctx context.Context, arg RemoveUserFromOrganizationTeamsParams) error {
+	_, err := q.db.ExecContext(ctx, removeUserFromOrganizationTeams, arg.OrganizationID, arg.UserID)
+	return err
+}

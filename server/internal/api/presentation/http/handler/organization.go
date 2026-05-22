@@ -292,3 +292,37 @@ func (oh *OrganizationHandler) GetOrganizationMembers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.NewOrganizationMembers(members))
 }
+
+// RemoveOrganizationMember godoc
+// @Summary Remove member from organization
+// @State core
+// @Tags organization
+// @ID removeOrganizationMember
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Param data body request.RemoveOrganizationMember true "ID of the member to remove from the organization"
+// @Success 204
+// @Router /organizations/{id}/members [delete]
+func (oh *OrganizationHandler) RemoveOrganizationMember(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	var body request.RemoveOrganizationMember
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = oh.organizationApplication.RemoveOrganizationMember(c.Request.Context(), currentUser.Id, organizationId, body.UserID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}

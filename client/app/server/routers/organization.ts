@@ -131,4 +131,19 @@ export const organizationRouter = {
 
       return await enrichMembersWithAuthDetails(members);
     }),
+  removeOrganizationMember: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        userId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const callerId = ctx.user?.id;
+      return await organizationApiFactory
+        .removeOrganizationMember(callerId, input.organizationId, {
+          userId: input.userId,
+        })
+        .then((res) => res.data);
+    }),
 };
