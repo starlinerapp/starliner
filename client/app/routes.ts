@@ -133,6 +133,10 @@ export default [
 
   layout("routes/organizations/layout.tsx", [
     route("/organizations/new", "routes/organizations/new.tsx"),
+    route(
+      "/organizations/:slug/githubapp",
+      "routes/organizations/githubapp.tsx",
+    ),
     route("/organizations/invite/:inviteId", "routes/organizations/invite.tsx"),
   ]),
 

@@ -52,7 +52,7 @@ export default function GitHubIntegration() {
                   {isLoading ? (
                     <div className="flex items-center gap-1.5">
                       <Skeleton className="h-2 w-2 rounded-full" />
-                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-5 w-20" />
                     </div>
                   ) : (
                     <div className="flex items-center gap-1.5">
