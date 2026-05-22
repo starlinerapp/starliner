@@ -24,8 +24,7 @@ export default function NewOrganization() {
     createOrganizationMutation.mutate(
       { name: data.name },
       {
-        onSuccess: (org) =>
-          navigate(`/organizations/${org.slug}/githubapp`),
+        onSuccess: (org) => navigate(`/organizations/${org.slug}/githubapp`),
       },
     );
   };
