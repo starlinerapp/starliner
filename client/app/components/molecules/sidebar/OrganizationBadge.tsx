@@ -76,7 +76,7 @@ export default function OrganizationBadge() {
               </div>
             </div>
             <Link
-              to={`/${currentOrganization?.slug}/settings/organization`}
+              to={`/${currentOrganization?.slug}/settings/organization/members`}
               className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
               onClick={() => setOpen(false)}
             >

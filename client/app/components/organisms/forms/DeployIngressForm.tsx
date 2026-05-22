@@ -206,7 +206,7 @@ function HostEditor({
           <div className="border-mauve-6 absolute -left-0.5 h-6 w-6 rounded-bl-md border-b-2 border-l-2" />
           <div className="flex w-full items-center gap-1">
             <input
-              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 min-w-52 flex-1 rounded-md border-1 p-2 text-sm"
+              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 min-w-52 flex-1 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               type="text"
               placeholder="Host*"
               {...register(`hosts.${hostIndex}.name`)}
@@ -232,7 +232,7 @@ function HostEditor({
               <div className="flex w-full gap-1">
                 <div className="relative min-w-24">
                   <select
-                    className="border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm"
+                    className="border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 px-2 py-1 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                     defaultValue={path.pathType ?? ""}
                     {...register(
                       `hosts.${hostIndex}.paths.${pathIndex}.pathType`,
@@ -254,7 +254,7 @@ function HostEditor({
                 </div>
 
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-24 rounded-md border p-2 text-sm"
+                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-24 rounded-md border p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                   type="text"
                   placeholder="Path*"
                   {...register(`hosts.${hostIndex}.paths.${pathIndex}.path`)}
@@ -266,7 +266,7 @@ function HostEditor({
 
                 <div className="relative min-w-48">
                   <select
-                    className="border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 p-2 text-sm"
+                    className="border-mauve-6 bg-gray-2 h-full w-full appearance-none rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                     defaultValue={path.service ?? ""}
                     {...register(
                       `hosts.${hostIndex}.paths.${pathIndex}.service`,

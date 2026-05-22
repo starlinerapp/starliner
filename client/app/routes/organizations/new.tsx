@@ -24,7 +24,7 @@ export default function NewOrganization() {
     createOrganizationMutation.mutate(
       { name: data.name },
       {
-        onSuccess: (org) => navigate(`/${org.slug}`),
+        onSuccess: (org) => navigate(`/organizations/${org.slug}/githubapp`),
       },
     );
   };
@@ -35,7 +35,7 @@ export default function NewOrganization() {
   }
 
   return (
-    <div className="flex w-[500px] flex-col gap-4">
+    <div className="flex w-125 flex-col gap-4">
       <button
         className="hover:bg-gray-4 flex cursor-pointer items-center gap-0.5 self-end rounded-md px-2 py-0.5 text-sm font-light"
         onClick={handleSignOutClicked}
@@ -54,7 +54,7 @@ export default function NewOrganization() {
             Organization Name
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2"
+            className="border-mauve-6 rounded-md border-1 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="text"
             placeholder="e.g. My Company"
             {...register("name")}

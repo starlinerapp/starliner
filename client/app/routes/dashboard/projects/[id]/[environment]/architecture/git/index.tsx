@@ -6,9 +6,8 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
-import { useLoaderData, useLocation } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
 
 export function loader() {
   return {
@@ -17,9 +16,6 @@ export function loader() {
 }
 
 export default function Git() {
-  const { githubAppName } = useLoaderData<typeof loader>();
-  const location = useLocation();
-
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -112,25 +108,20 @@ export default function Git() {
 
   return (
     <>
-      {githubApp ? (
+      {!githubApp ? (
+        <WarningBanner
+          text="Install GitHub App to deploy from Git."
+          linkOut={{
+            text: "Settings",
+            href: `/${organization.slug}/settings/integrations`,
+          }}
+        />
+      ) : (
         <DeployFromGitForm
           onSubmit={onSubmit}
           resetOnSuccess={true}
           teamId={teamId}
         />
-      ) : (
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <p>Install GitHub App</p>
-            <p className="text-mauve-11 truncate text-sm">
-              Install the GitHub App to get started.
-            </p>
-          </div>
-          <InstallGitHubApp
-            githubAppName={githubAppName}
-            redirectTo={location.pathname}
-          />
-        </div>
       )}
     </>
   );

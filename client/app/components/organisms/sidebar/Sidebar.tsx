@@ -18,7 +18,7 @@ interface SidebarProps {
 export default function Sidebar({ sidebarItems, children }: SidebarProps) {
   return (
     <div className="flex">
-      <div className="border-mauve-6 flex h-screen w-18 flex-col justify-between border-r-1 pt-4">
+      <div className="border-mauve-6 flex h-screen w-18 flex-col justify-between border-r pt-4">
         <div className="flex flex-col gap-3 self-center">
           <OrganizationBadge />
           {sidebarItems.map((item) => (

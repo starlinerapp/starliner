@@ -130,19 +130,36 @@ export default function Layout() {
           title: "Organization",
           children: [
             {
-              id: "organization-general",
-              title: "General",
-              href: `/${slug}/settings/organization`,
-            },
-            {
               id: "organization-members",
               title: "Members",
-              href: `/${slug}/settings/members`,
+              href: `/${slug}/settings/organization/members`,
             },
             {
               id: "organization-teams",
               title: "Teams",
-              href: `/${slug}/settings/teams`,
+              href: `/${slug}/settings/organization/teams`,
+            },
+          ],
+        },
+        {
+          id: "cluster-group",
+          title: "Cluster",
+          children: [
+            {
+              id: "api-keys",
+              title: "API Keys",
+              href: `/${slug}/settings/cluster/api-keys`,
+            },
+          ],
+        },
+        {
+          id: "integrations-group",
+          title: "Integrations",
+          children: [
+            {
+              id: "integrations",
+              title: "Integrations",
+              href: `/${slug}/settings/integrations`,
             },
           ],
         },
