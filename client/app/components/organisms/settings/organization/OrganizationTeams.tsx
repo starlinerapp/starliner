@@ -41,12 +41,6 @@ export default function OrganizationTeams() {
     }),
   );
 
-  const { data: members } = useQuery(
-    trpc.organization.getOrganizationMembers.queryOptions({
-      id: organization.id,
-    }),
-  );
-
   function onCreateTeam(data: CreateTeamFormInput) {
     createTeamMutation.mutate(
       {
@@ -132,10 +126,6 @@ export default function OrganizationTeams() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-violet-11">#{team.slug}</span>
-                        <p className="text-mauve-11 text-sm">
-                          {members?.length ?? 0}{" "}
-                          {(members?.length ?? 0) === 1 ? "Member" : "Members"}
-                        </p>
                       </div>
                     </div>
                   </td>
