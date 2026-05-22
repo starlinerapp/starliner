@@ -69,6 +69,20 @@ func (ta *TeamApplication) CreateTeam(ctx context.Context, slug string, organiza
 	return value.NewTeam(team), nil
 }
 
+func (ta *TeamApplication) DeleteTeam(ctx context.Context, userId int64, teamId int64) error {
+	t, err := ta.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, t.OrganizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	return ta.teamRepository.DeleteTeam(ctx, teamId)
+}
+
 func (ta *TeamApplication) GetUserTeams(ctx context.Context, organizationId int64, userId int64) ([]*value.Team, error) {
 	err := ta.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {

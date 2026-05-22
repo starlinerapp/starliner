@@ -54,6 +54,32 @@ func (th *TeamHandler) CreateTeam(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.NewTeam(newTeam))
 }
 
+// DeleteTeam FindAll godoc
+// @Summary Delete Team
+// @State core
+// @Tags team
+// @ID deleteTeam
+// @Product JSON
+// @Param X-User-ID header string true "User ID"
+// @Param teamId path int true "Team ID"
+// @Success 200
+// @Router /teams/{teamId} [delete]
+func (th *TeamHandler) DeleteTeam(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	teamId, err := strconv.ParseInt(c.Param("teamId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = th.teamApplication.DeleteTeam(c, currentUser.Id, teamId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+	}
+
+	c.Status(http.StatusOK)
+}
+
 // GetUserTeams FindAll godoc
 // @Summary Get User Teams
 // @State core

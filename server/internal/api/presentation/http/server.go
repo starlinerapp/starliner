@@ -137,6 +137,7 @@ func NewServer(
 
 	teamRoutes := engine.Group("/teams")
 	{
+		teamRoutes.DELETE("/:teamId", teamHandler.DeleteTeam)
 		teamRoutes.GET("/:teamId/members", teamHandler.GetTeamMembers)
 		teamRoutes.POST("/:teamId/members", teamHandler.AddTeamMember)
 		teamRoutes.DELETE("/:teamId/members", teamHandler.RemoveTeamMember)

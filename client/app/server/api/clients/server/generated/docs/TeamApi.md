@@ -6,6 +6,7 @@ All URIs are relative to _http://localhost_
 | ----------------------------------------------- | --------------------------------------- | ------------------------------------ |
 | [**addTeamMember**](#addteammember)             | **POST** /teams/{teamId}/members        | Add organization member to team      |
 | [**createTeam**](#createteam)                   | **POST** /organizations/{id}/teams      | Create team                          |
+| [**deleteTeam**](#deleteteam)                   | **DELETE** /teams/{teamId}              | Delete Team                          |
 | [**getTeamClusters**](#getteamclusters)         | **GET** /teams/{teamId}/clusters        | Get clusters assigned to a team      |
 | [**getTeamMembers**](#getteammembers)           | **GET** /teams/{teamId}/members         | Get Team Members                     |
 | [**getTeamRepositories**](#getteamrepositories) | **GET** /teams/{teamId}/repos           | Get repositories assigned to a team  |
@@ -108,6 +109,52 @@ No authorization required
 | Status code | Description | Response headers |
 | ----------- | ----------- | ---------------- |
 | **201**     | Created     | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteTeam**
+
+> deleteTeam()
+
+### Example
+
+```typescript
+import { TeamApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new TeamApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let teamId: number; //Team ID (default to undefined)
+
+const { status, data } = await apiInstance.deleteTeam(xUserID, teamId);
+```
+
+### Parameters
+
+| Name        | Type         | Description | Notes                 |
+| ----------- | ------------ | ----------- | --------------------- |
+| **xUserID** | [**string**] | User ID     | defaults to undefined |
+| **teamId**  | [**number**] | Team ID     | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

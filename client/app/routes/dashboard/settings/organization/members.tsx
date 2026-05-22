@@ -77,7 +77,7 @@ export default function Members() {
                       intent="secondary"
                       onClick={() => setShowAddMemberDialog(true)}
                     >
-                      Add Member
+                      Invite Member
                     </Button>
                   </th>
                 )}

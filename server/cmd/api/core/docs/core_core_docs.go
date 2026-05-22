@@ -1775,6 +1775,36 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "/teams/{teamId}": {
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Delete Team",
+                "operationId": "deleteTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/teams/{teamId}/clusters": {
             "get": {
                 "tags": [
