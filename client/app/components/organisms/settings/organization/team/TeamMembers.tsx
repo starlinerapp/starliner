@@ -116,43 +116,50 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                 </Button>
               </Popover.Trigger>
               <Popover.Portal>
-                <Popover.Content className="border-mauve-6 mx-2 my-1 w-70 space-y-2 rounded-md border bg-white p-2 shadow-md">
-                  <div className="relative">
-                    <MagnifyingGlass className="text-mauve-11 absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
-                    <input
-                      className="border-mauve-6 placeholder:text-mauve-11 w-full rounded-md border p-2 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
-                      type="text"
-                      placeholder="Search Members"
-                      autoFocus
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
+                <Popover.Content className="border-mauve-6 mx-2 my-1 w-70 rounded-md border bg-white shadow-md">
+                  <div className="space-y-2 p-2">
+                    <div className="relative">
+                      <MagnifyingGlass className="text-mauve-11 absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
+                      <input
+                        className="border-mauve-6 placeholder:text-mauve-11 w-full rounded-md border p-2 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                        type="text"
+                        placeholder="Search Members"
+                        autoFocus
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                    </div>
+                    <div className="divide-gray-4 flex max-h-60 flex-col divide-y overflow-y-auto">
+                      {filteredOrgMembers.length > 0 ? (
+                        filteredOrgMembers.map((m) => (
+                          <button
+                            key={m.id}
+                            onClick={() => handleAddMember(m.id)}
+                            className="hover:bg-gray-3 flex w-full cursor-pointer items-center gap-3 rounded p-2 text-left transition-colors"
+                          >
+                            <AvatarIcon
+                              name={m.name}
+                              profilePicture={m.avatarUrl}
+                            />
+                            <span>
+                              <p className="text-bold text-mauve-12 text-xs">
+                                {m.name}
+                              </p>
+                              <p className="text-mauve-11 text-xs">{m.email}</p>
+                            </span>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="text-mauve-11 flex h-12 items-center justify-center text-xs">
+                          <p>No members found</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="divide-gray-4 flex max-h-60 flex-col divide-y overflow-y-auto">
-                    {filteredOrgMembers.length > 0 ? (
-                      filteredOrgMembers.map((m) => (
-                        <button
-                          key={m.id}
-                          onClick={() => handleAddMember(m.id)}
-                          className="hover:bg-gray-3 flex w-full cursor-pointer items-center gap-3 rounded px-2 py-2 text-left transition-colors"
-                        >
-                          <AvatarIcon
-                            name={m.name}
-                            profilePicture={m.avatarUrl}
-                          />
-                          <span>
-                            <p className="text-bold text-mauve-12 text-xs">
-                              {m.name}
-                            </p>
-                            <p className="text-mauve-11 text-xs">{m.email}</p>
-                          </span>
-                        </button>
-                      ))
-                    ) : (
-                      <div className="text-mauve-11 p-4 text-center text-xs">
-                        No members found
-                      </div>
-                    )}
+                  <div className="border-mauve-6 bg-mauve-2 border-t p-2 text-xs">
+                    <Button intent="primary" className="text-xs">
+                      Invite Member
+                    </Button>
                   </div>
                 </Popover.Content>
               </Popover.Portal>
