@@ -10,6 +10,10 @@ export default function ConfigureGitHubApp({
   githubAppName,
   redirectTo,
 }: ConfigureGitHubAppProps) {
+  if (!githubAppName) {
+    return null;
+  }
+
   const installUrl = new URL(
     `https://github.com/apps/${githubAppName}/installations/new`,
   );
