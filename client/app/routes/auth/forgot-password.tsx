@@ -72,7 +72,7 @@ export default function ForgotPassword() {
               Email
             </label>
             <input
-              className="border-mauve-6 rounded-md border-1 p-2"
+              className="border-mauve-6 rounded-md border-1 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               type="email"
               id="email"
               autoComplete="email"

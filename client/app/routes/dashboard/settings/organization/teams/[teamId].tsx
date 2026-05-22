@@ -7,6 +7,7 @@ import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import TeamMembers from "~/components/organisms/settings/TeamMembers";
 import { RepositoryAccess } from "~/components/organisms/settings/RepositoryAccess";
 import { ClusterAccess } from "~/components/organisms/settings/ClusterAccess";
+import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 
 export function loader() {
   return {
@@ -30,42 +31,51 @@ export default function TeamDetail() {
   const team = teams?.find((t) => t.id === Number(teamId));
 
   return (
-    <div className="flex flex-col px-8 py-3">
-      <div className="flex flex-col gap-1">
-        <nav className="text-mauve-11 flex items-center gap-1 pb-4 text-sm">
-          <button
-            onClick={() => navigate("../", { relative: "path" })}
-            className="hover:text-mauve-12 cursor-pointer hover:underline"
-          >
-            Teams
-          </button>
-          <span>&gt;</span>
-          {isLoading ? (
-            <Skeleton className="h-4 w-16" />
-          ) : (
-            <span className="text-mauve-12">#{team?.slug}</span>
-          )}
-        </nav>
+    <>
+      <Breadcrumbs
+        crumbs={[
+          { label: "Settings" },
+          { label: "Organization" },
+          {
+            label: (
+              <p
+                className="cursor-pointer hover:underline"
+                onClick={() => navigate("../", { relative: "path" })}
+              >
+                Teams
+              </p>
+            ),
+          },
+          {
+            label: isLoading ? (
+              <Skeleton className="h-4 w-16" />
+            ) : (
+              <p>#{team?.slug}</p>
+            ),
+          },
+        ]}
+      />
+      <div className="flex flex-col gap-4 px-4 py-3">
         {isLoading ? (
           <Skeleton className="h-7 w-36" />
         ) : (
           <h1 className="text-xl font-bold">#{team?.slug}</h1>
         )}
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="w-full pt-12">
-          <TeamMembers teamId={Number(teamId)} />
+        <div className="flex flex-col gap-4">
+          <div className="w-full">
+            <TeamMembers teamId={Number(teamId)} />
+          </div>
+
+          {organization.isOwner && (
+            <RepositoryAccess
+              teamId={Number(teamId)}
+              githubAppName={githubAppName}
+            />
+          )}
+
+          {organization.isOwner && <ClusterAccess teamId={Number(teamId)} />}
         </div>
-
-        {organization.isOwner && (
-          <RepositoryAccess
-            teamId={Number(teamId)}
-            githubAppName={githubAppName}
-          />
-        )}
-
-        {organization.isOwner && <ClusterAccess teamId={Number(teamId)} />}
       </div>
-    </div>
+    </>
   );
 }

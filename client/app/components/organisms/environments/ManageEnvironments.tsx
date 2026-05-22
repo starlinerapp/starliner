@@ -148,7 +148,7 @@ export default function ManageEnvironments({
               <input
                 type="text"
                 placeholder="Environment Name*"
-                className="border-mauve-6 rounded-md border-1 p-2 text-sm focus:outline-none"
+                className="border-mauve-6 rounded-md border p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] focus:outline-none"
                 {...register("environmentName", {
                   required: true,
                   validate: (v) => v.trim().length > 0,

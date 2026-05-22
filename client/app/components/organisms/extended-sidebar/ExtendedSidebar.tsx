@@ -60,7 +60,7 @@ function CollapsibleGroup({ group }: { group: SidebarGroup }) {
   const isChildActive = group.children.some((child) =>
     location.pathname.startsWith(child.href),
   );
-  const [isOpen, setIsOpen] = useState(isChildActive);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className="flex flex-col gap-0.5">
@@ -124,19 +124,27 @@ export default function ExtendedSidebar({
             </div>
           </>
         ) : (
-          sections.map((section, i) =>
-            isGroup(section) ? (
-              <div key={section.id} className="p-2">
-                <CollapsibleGroup group={section} />
+          sections.map((section, i) => {
+            const isLast = i === sections.length - 1;
+
+            return (
+              <div key={isGroup(section) ? section.id : i}>
+                {isGroup(section) ? (
+                  <div
+                    className={cn("p-2", !isLast && "border-mauve-4 border-b")}
+                  >
+                    <CollapsibleGroup group={section} />
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-0.5 p-2">
+                    {section.map((item) => (
+                      <SidebarLink key={item.href} item={item} />
+                    ))}
+                  </div>
+                )}
               </div>
-            ) : (
-              <div key={i} className="flex flex-col gap-0.5 p-2">
-                {section.map((item) => (
-                  <SidebarLink key={item.href} item={item} />
-                ))}
-              </div>
-            ),
-          )
+            );
+          })
         )}
       </ResizablePanel>
       <ResizableHandle />

@@ -122,7 +122,7 @@ export default function Login() {
             Email
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2"
+            className="border-mauve-6 rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="text"
             placeholder="Email"
             {...register("email")}
@@ -147,7 +147,7 @@ export default function Login() {
           <div className="relative">
             <input
               id="password"
-              className="border-mauve-6 w-full rounded-md border p-2"
+              className="border-mauve-6 w-full rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               {...register("password")}

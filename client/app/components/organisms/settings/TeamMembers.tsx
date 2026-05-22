@@ -101,7 +101,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                 <div className="relative">
                   <MagnifyingGlass className="text-mauve-11 absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                   <input
-                    className="border-mauve-6 placeholder:text-mauve-11 w-full rounded-md border p-2 pl-7 text-xs"
+                    className="border-mauve-6 placeholder:text-mauve-11 w-full rounded-md border p-2 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                     type="text"
                     placeholder="Search Members"
                     autoFocus

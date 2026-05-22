@@ -99,11 +99,24 @@ export default [
 
       ...prefix("settings", [
         index("routes/dashboard/settings/index.tsx"),
-        route("organization", "routes/dashboard/settings/organization.tsx"),
-        route("members", "routes/dashboard/settings/members.tsx"),
-        ...prefix("teams", [
-          index("routes/dashboard/settings/teams/index.tsx"),
-          route(":teamId", "routes/dashboard/settings/teams/[teamId].tsx"),
+        ...prefix("organization", [
+          route(
+            "members",
+            "routes/dashboard/settings/organization/members.tsx",
+          ),
+          ...prefix("teams", [
+            index("routes/dashboard/settings/organization/teams/index.tsx"),
+            route(
+              ":teamId",
+              "routes/dashboard/settings/organization/teams/[teamId].tsx",
+            ),
+          ]),
+        ]),
+        ...prefix("cluster", [
+          route("api-keys", "routes/dashboard/settings/cluster/apiKeys.tsx"),
+        ]),
+        ...prefix("integrations", [
+          index("routes/dashboard/settings/integrations/index.tsx"),
         ]),
       ]),
     ]),
@@ -120,6 +133,10 @@ export default [
 
   layout("routes/organizations/layout.tsx", [
     route("/organizations/new", "routes/organizations/new.tsx"),
+    route(
+      "/organizations/:slug/githubapp",
+      "routes/organizations/githubapp.tsx",
+    ),
     route("/organizations/invite/:inviteId", "routes/organizations/invite.tsx"),
   ]),
 

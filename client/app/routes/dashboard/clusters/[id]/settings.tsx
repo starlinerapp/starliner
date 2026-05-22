@@ -67,8 +67,8 @@ export default function Settings() {
         <WarningBanner
           text="You must enter your Hetzner API Key to delete the cluster."
           linkOut={{
-            text: "Organization Settings",
-            href: `/${organization.slug}/settings/organization`,
+            text: "API Keys",
+            href: `/${organization.slug}/settings/cluster/api-keys`,
           }}
           className="mt-4"
         />

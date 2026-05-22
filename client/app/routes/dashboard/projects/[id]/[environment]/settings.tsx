@@ -148,7 +148,7 @@ export default function ProjectSettings() {
               <Skeleton className="h-9.5 w-1/2" />
             ) : (
               <input
-                className="border-mauve-6 disabled:text-mauve-11 w-1/2 cursor-not-allowed rounded-md border p-2"
+                className="border-mauve-6 disabled:text-mauve-11 w-1/2 cursor-not-allowed rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                 value={clusterData?.clusterName}
                 disabled
               />
