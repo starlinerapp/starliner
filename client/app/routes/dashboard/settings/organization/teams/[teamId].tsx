@@ -72,9 +72,7 @@ export default function TeamDetail() {
             githubAppName={githubAppName}
           />
           <ClusterAccess teamId={Number(teamId)} />
-          {organization.isOwner && (
-            <TeamDangerZone teamId={Number(teamId)} />
-          )}
+          {organization.isOwner && <TeamDangerZone teamId={Number(teamId)} />}
         </div>
       </div>
     </>

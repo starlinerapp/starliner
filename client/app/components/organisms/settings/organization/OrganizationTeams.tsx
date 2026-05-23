@@ -48,12 +48,15 @@ export default function OrganizationTeams() {
         name: sanitizeSlug(data.name),
       },
       {
-        onSuccess: async () => {
+        onSuccess: async (team) => {
           resetCreate();
           setShowCreateDialog(false);
           await queryClient.invalidateQueries({
-            queryKey: trpc.team.getUserTeams.queryKey(),
+            queryKey: trpc.team.getUserTeams.queryKey({
+              organizationId: organization.id,
+            }),
           });
+          navigate(`/${slug}/settings/organization/teams/${team.id}`);
         },
       },
     );
