@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
 
 interface TeamDangerZoneProps {
   teamId: number;
@@ -90,6 +91,7 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <h1>Delete Team</h1>
+              <WarningBanner text="Deleting the team will delete all projects that belong to the team, including the deployments." />
               <p className="text-mauve-11 text-sm">
                 Are you sure you want to delete this team? This action cannot be
                 undone.
