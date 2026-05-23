@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -215,6 +216,10 @@ func (oh *OrganizationHandler) SendEmailInvite(c *gin.Context) {
 	}
 	err = oh.organizationApplication.CreateAndSendEmailInvites(c.Request.Context(), currentUser.Id, organizationId, body.ToEmails, body.InviteUrlPrefix, body.TeamID)
 	if err != nil {
+		if errors.Is(err, value.ErrSendInviteEmail) {
+			c.AbortWithStatusJSON(http.StatusBadGateway, gin.H{"error": "Couldn't send the invitation. Check the email addresses and try again."})
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}

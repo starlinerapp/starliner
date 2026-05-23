@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -261,7 +262,7 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvites(ctx context.Context
 			InviteLink:       inviteUrlPrefix + invite.Id,
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("%w to %s: %w", value.ErrSendInviteEmail, toEmail, err)
 		}
 	}
 

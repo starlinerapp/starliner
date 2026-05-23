@@ -161,6 +161,9 @@ export default function AddMemberDialog({
           reset();
           onOpenChange(false);
         },
+        onError: () => {
+          inputRef.current?.focus();
+        },
       },
     );
   }
@@ -183,12 +186,16 @@ export default function AddMemberDialog({
             <h1>Invite Member</h1>
             <p className="text-mauve-11 text-sm">
               Invite members via email. They&apos;ll each receive a link to join
-              your organization.
+              your organization. The invitation is valid for 7 days.
             </p>
           </div>
           {(validationError || sendInviteMutation.isError) && (
             <ErrorBanner
-              text={validationError ?? sendInviteMutation.error?.message ?? ""}
+              text={
+                validationError ??
+                sendInviteMutation.error?.message ??
+                "Couldn't send the invitation. Check the email addresses and try again."
+              }
             />
           )}
           <form
@@ -200,7 +207,8 @@ export default function AddMemberDialog({
               onClick={() => inputRef.current?.focus()}
             >
               {recognized.map((email) => {
-                const valid = isValidEmail(email);
+                const valid =
+                  isValidEmail(email) && !sendInviteMutation.isError;
 
                 return (
                   <span
@@ -211,7 +219,13 @@ export default function AddMemberDialog({
                         ? "border-mauve-6 text-mauve-12 bg-white"
                         : "border-red-6 bg-red-3 text-red-11",
                     )}
-                    title={valid ? email : `${email} (invalid email)`}
+                    title={
+                      valid
+                        ? email
+                        : sendInviteMutation.isError
+                          ? `${email} (check this address)`
+                          : `${email} (invalid email)`
+                    }
                   >
                     <span className="truncate">{email}</span>
                     <button
@@ -270,7 +284,7 @@ export default function AddMemberDialog({
                   sendInviteMutation.isPending
                 }
               >
-                Invite
+                {sendInviteMutation.isError ? "Retry" : "Invite"}
               </Button>
             </div>
           </form>
