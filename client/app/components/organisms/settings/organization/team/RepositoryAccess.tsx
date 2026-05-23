@@ -119,21 +119,22 @@ export function RepositoryAccess({
       <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
           <p>Repositories</p>
-          <Dialog
-            open={showAssignDialog}
-            onOpenChange={(open) => {
-              setShowAssignDialog(open);
-              if (!open) {
-                setPendingAssignedRepoIds(getAssignedRepoIds());
-              }
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button intent="secondary" className="w-36 text-xs">
-                Manage Repositories
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+          {organization.isOwner && (
+            <Dialog
+              open={showAssignDialog}
+              onOpenChange={(open) => {
+                setShowAssignDialog(open);
+                if (!open) {
+                  setPendingAssignedRepoIds(getAssignedRepoIds());
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button intent="secondary" className="w-36 text-xs">
+                  Manage Repositories
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
                   <h1>Manage repository access</h1>
@@ -203,8 +204,9 @@ export function RepositoryAccess({
                   </Button>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         {isGithubAppLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">
@@ -217,10 +219,12 @@ export function RepositoryAccess({
                 Install the GitHub App to assign repositories to this team.
               </p>
             </div>
-            <InstallGitHubApp
-              githubAppName={githubAppName}
-              redirectTo={location.pathname}
-            />
+            {organization.isOwner && (
+              <InstallGitHubApp
+                githubAppName={githubAppName}
+                redirectTo={location.pathname}
+              />
+            )}
           </div>
         ) : isTeamReposLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">

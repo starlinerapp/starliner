@@ -67,15 +67,13 @@ export default function TeamDetail() {
             <TeamMembers teamId={Number(teamId)} />
           </div>
 
+          <RepositoryAccess
+            teamId={Number(teamId)}
+            githubAppName={githubAppName}
+          />
+          <ClusterAccess teamId={Number(teamId)} />
           {organization.isOwner && (
-            <>
-              <RepositoryAccess
-                teamId={Number(teamId)}
-                githubAppName={githubAppName}
-              />
-              <ClusterAccess teamId={Number(teamId)} />
-              <TeamDangerZone teamId={Number(teamId)} />
-            </>
+            <TeamDangerZone teamId={Number(teamId)} />
           )}
         </div>
       </div>
