@@ -480,6 +480,19 @@ export interface RequestRemoveTeamMember {
 /**
  *
  * @export
+ * @interface RequestRemoveOrganizationMember
+ */
+export interface RequestRemoveOrganizationMember {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestRemoveOrganizationMember
+   */
+  userId: number;
+}
+/**
+ *
+ * @export
  * @interface RequestSendInvite
  */
 export interface RequestSendInvite {
@@ -491,10 +504,16 @@ export interface RequestSendInvite {
   inviteUrlPrefix: string;
   /**
    *
-   * @type {string}
+   * @type {Array<string>}
    * @memberof RequestSendInvite
    */
-  toEmail: string;
+  toEmails: Array<string>;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestSendInvite
+   */
+  teamId?: number;
 }
 /**
  *
@@ -5973,6 +5992,70 @@ export const OrganizationApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Remove member from organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    removeOrganizationMember: async (
+      xUserID: string,
+      id: number,
+      data: RequestRemoveOrganizationMember,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("removeOrganizationMember", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("removeOrganizationMember", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("removeOrganizationMember", "data", data);
+      const localVarPath = `/organizations/{id}/members`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -6431,6 +6514,43 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Remove member from organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async removeOrganizationMember(
+      xUserID: string,
+      id: number,
+      data: RequestRemoveOrganizationMember,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.removeOrganizationMember(
+          xUserID,
+          id,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["OrganizationApi.removeOrganizationMember"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -6688,6 +6808,25 @@ export const OrganizationApiFactory = function (
     },
     /**
      *
+     * @summary Remove member from organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    removeOrganizationMember(
+      xUserID: string,
+      id: number,
+      data: RequestRemoveOrganizationMember,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .removeOrganizationMember(xUserID, id, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -6877,6 +7016,27 @@ export class OrganizationApi extends BaseAPI {
   ) {
     return OrganizationApiFp(this.configuration)
       .getOrganizationMembers(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Remove member from organization
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof OrganizationApi
+   */
+  public removeOrganizationMember(
+    xUserID: string,
+    id: number,
+    data: RequestRemoveOrganizationMember,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return OrganizationApiFp(this.configuration)
+      .removeOrganizationMember(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -8171,6 +8331,59 @@ export const TeamApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Delete Team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteTeam: async (
+      xUserID: string,
+      teamId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deleteTeam", "xUserID", xUserID);
+      // verify required parameter 'teamId' is not null or undefined
+      assertParamExists("deleteTeam", "teamId", teamId);
+      const localVarPath = `/teams/{teamId}`.replace(
+        `{${"teamId"}}`,
+        encodeURIComponent(String(teamId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get clusters assigned to a team
      * @param {string} xUserID User ID
      * @param {number} teamId Team ID
@@ -8720,6 +8933,38 @@ export const TeamApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Delete Team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteTeam(
+      xUserID: string,
+      teamId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteTeam(
+        xUserID,
+        teamId,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["TeamApi.deleteTeam"]?.[localVarOperationServerIndex]
+          ?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get clusters assigned to a team
      * @param {string} xUserID User ID
      * @param {number} teamId Team ID
@@ -9062,6 +9307,23 @@ export const TeamApiFactory = function (
     },
     /**
      *
+     * @summary Delete Team
+     * @param {string} xUserID User ID
+     * @param {number} teamId Team ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteTeam(
+      xUserID: string,
+      teamId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deleteTeam(xUserID, teamId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get clusters assigned to a team
      * @param {string} xUserID User ID
      * @param {number} teamId Team ID
@@ -9253,6 +9515,25 @@ export class TeamApi extends BaseAPI {
   ) {
     return TeamApiFp(this.configuration)
       .createTeam(xUserID, id, data, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Delete Team
+   * @param {string} xUserID User ID
+   * @param {number} teamId Team ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof TeamApi
+   */
+  public deleteTeam(
+    xUserID: string,
+    teamId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return TeamApiFp(this.configuration)
+      .deleteTeam(xUserID, teamId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

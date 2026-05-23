@@ -19,6 +19,18 @@ export const teamRouter = {
         })
         .then((res) => res.data);
     }),
+  deleteTeam: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await teamsApiFactory
+        .deleteTeam(userId, input.teamId)
+        .then((res) => res.data);
+    }),
   getUserTeams: protectedProcedure
     .input(
       z.object({

@@ -58,6 +58,16 @@ func (q *Queries) DeleteProject(ctx context.Context, arg DeleteProjectParams) er
 	return err
 }
 
+const deleteProjectsByTeamId = `-- name: DeleteProjectsByTeamId :exec
+DELETE FROM projects
+WHERE team_id = $1
+`
+
+func (q *Queries) DeleteProjectsByTeamId(ctx context.Context, teamID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteProjectsByTeamId, teamID)
+	return err
+}
+
 const getProject = `-- name: GetProject :many
 SELECT projects.id AS id, projects.name AS name, projects.team_id AS team_id, teams.slug AS team_slug, projects.cluster_id AS cluster_id, environments.id AS environment_id, environments.name AS environment_name, environments.slug AS environment_slug
 FROM projects
@@ -190,6 +200,44 @@ func (q *Queries) GetProjectEnvironments(ctx context.Context, arg GetProjectEnvi
 	return items, nil
 }
 
+const getProjectEnvironmentsByProjectId = `-- name: GetProjectEnvironmentsByProjectId :many
+SELECT e.id, e.name, e.slug, e.project_id, e.created_at, e.updated_at, e.namespace, e.connected_branch
+FROM environments e
+WHERE e.project_id = $1
+`
+
+func (q *Queries) GetProjectEnvironmentsByProjectId(ctx context.Context, projectID int64) ([]Environment, error) {
+	rows, err := q.db.QueryContext(ctx, getProjectEnvironmentsByProjectId, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Environment
+	for rows.Next() {
+		var i Environment
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Slug,
+			&i.ProjectID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Namespace,
+			&i.ConnectedBranch,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProjectPreviewEnvironmentEnabled = `-- name: GetProjectPreviewEnvironmentEnabled :one
 SELECT p.preview_environments_enabled
 FROM projects p
@@ -245,6 +293,35 @@ func (q *Queries) GetProjectProductionEnvironmentsByRepositoryUrl(ctx context.Co
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTeamProjectIds = `-- name: GetTeamProjectIds :many
+SELECT p.id
+FROM projects p
+WHERE p.team_id = $1
+`
+
+func (q *Queries) GetTeamProjectIds(ctx context.Context, teamID int64) ([]int64, error) {
+	rows, err := q.db.QueryContext(ctx, getTeamProjectIds, teamID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

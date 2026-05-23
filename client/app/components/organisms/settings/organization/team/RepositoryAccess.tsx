@@ -119,92 +119,94 @@ export function RepositoryAccess({
       <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
         <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
           <p>Repositories</p>
-          <Dialog
-            open={showAssignDialog}
-            onOpenChange={(open) => {
-              setShowAssignDialog(open);
-              if (!open) {
-                setPendingAssignedRepoIds(getAssignedRepoIds());
-              }
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button intent="secondary" className="w-36 text-xs">
-                Manage Repositories
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                  <h1>Manage repository access</h1>
-                  <p className="text-mauve-11 text-sm">
-                    Add or remove repositories to control what this team can
-                    see.
-                  </p>
-                </div>
-                {isAllReposLoading ? (
+          {organization.isOwner && (
+            <Dialog
+              open={showAssignDialog}
+              onOpenChange={(open) => {
+                setShowAssignDialog(open);
+                if (!open) {
+                  setPendingAssignedRepoIds(getAssignedRepoIds());
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button intent="secondary" className="w-36 text-xs">
+                  Manage Repositories
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
+                    <h1>Manage repository access</h1>
+                    <p className="text-mauve-11 text-sm">
+                      Add or remove repositories to control what this team can
+                      see.
+                    </p>
                   </div>
-                ) : allReposSorted.length === 0 ? (
-                  <WarningBanner text="Install the GitHub App to assign repositories to this team." />
-                ) : (
-                  <div className="bg-mauve-2 border-mauve-6 flex max-h-[60vh] flex-col overflow-y-auto rounded-md border">
-                    {allReposSorted.map((repo) => (
-                      <label
-                        key={repo.id}
-                        className="flex min-w-0 cursor-pointer items-center gap-3 p-3"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={pendingAssignedRepoIds.has(repo.id)}
-                          onChange={(event) => {
-                            toggleRepo(repo.id, event.target.checked);
-                          }}
-                          className="border-mauve-6 h-4.5 w-4.5 shrink-0 rounded"
-                        />
-                        <div className="flex min-w-0 flex-1 flex-col gap-1">
-                          <p className="text-mauve-12 truncate text-sm font-medium">
-                            {repo.owner}/{repo.name}
-                          </p>
-                          {repo.description && (
-                            <p
-                              className="text-mauve-11 truncate text-xs"
-                              title={repo.description}
-                            >
-                              {repo.description}
+                  {isAllReposLoading ? (
+                    <div className="flex flex-col gap-2">
+                      <Skeleton className="h-12 w-full" />
+                      <Skeleton className="h-12 w-full" />
+                      <Skeleton className="h-12 w-full" />
+                    </div>
+                  ) : allReposSorted.length === 0 ? (
+                    <WarningBanner text="Install the GitHub App to assign repositories to this team." />
+                  ) : (
+                    <div className="bg-mauve-2 border-mauve-6 flex max-h-[60vh] flex-col overflow-y-auto rounded-md border">
+                      {allReposSorted.map((repo) => (
+                        <label
+                          key={repo.id}
+                          className="flex min-w-0 cursor-pointer items-center gap-3 p-3"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={pendingAssignedRepoIds.has(repo.id)}
+                            onChange={(event) => {
+                              toggleRepo(repo.id, event.target.checked);
+                            }}
+                            className="border-mauve-6 h-4.5 w-4.5 shrink-0 rounded"
+                          />
+                          <div className="flex min-w-0 flex-1 flex-col gap-1">
+                            <p className="text-mauve-12 truncate text-sm font-medium">
+                              {repo.owner}/{repo.name}
                             </p>
-                          )}
-                        </div>
-                      </label>
-                    ))}
+                            {repo.description && (
+                              <p
+                                className="text-mauve-11 truncate text-xs"
+                                title={repo.description}
+                              >
+                                {repo.description}
+                              </p>
+                            )}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex w-full justify-end gap-2">
+                    <Button
+                      intent="secondary"
+                      className="w-24"
+                      onClick={onCancel}
+                      disabled={setTeamRepositoriesMutation.isPending}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="w-24"
+                      onClick={onApply}
+                      disabled={
+                        setTeamRepositoriesMutation.isPending ||
+                        allReposSorted.length === 0
+                      }
+                    >
+                      Apply
+                    </Button>
                   </div>
-                )}
-                <div className="flex w-full justify-end gap-2">
-                  <Button
-                    intent="secondary"
-                    className="w-24"
-                    onClick={onCancel}
-                    disabled={setTeamRepositoriesMutation.isPending}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    className="w-24"
-                    onClick={onApply}
-                    disabled={
-                      setTeamRepositoriesMutation.isPending ||
-                      allReposSorted.length === 0
-                    }
-                  >
-                    Apply
-                  </Button>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         {isGithubAppLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">
@@ -217,10 +219,12 @@ export function RepositoryAccess({
                 Install the GitHub App to assign repositories to this team.
               </p>
             </div>
-            <InstallGitHubApp
-              githubAppName={githubAppName}
-              redirectTo={location.pathname}
-            />
+            {organization.isOwner && (
+              <InstallGitHubApp
+                githubAppName={githubAppName}
+                redirectTo={location.pathname}
+              />
+            )}
           </div>
         ) : isTeamReposLoading ? (
           <div className="flex flex-col gap-2 px-4 py-3">

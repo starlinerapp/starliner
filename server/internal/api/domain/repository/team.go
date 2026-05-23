@@ -125,6 +125,13 @@ func (tr *TeamRepository) RemoveTeamMember(ctx context.Context, teamID int64, us
 	return err
 }
 
+func (tr *TeamRepository) RemoveUserFromOrganizationTeams(ctx context.Context, organizationID int64, userID int64) error {
+	return tr.queries.RemoveUserFromOrganizationTeams(ctx, sqlc.RemoveUserFromOrganizationTeamsParams{
+		OrganizationID: organizationID,
+		UserID:         userID,
+	})
+}
+
 func (tr *TeamRepository) FindTeamByIdAndUserId(ctx context.Context, teamID int64, userID int64) (*entity.Team, error) {
 	t, err := tr.queries.FindTeamByIdAndUserId(ctx, sqlc.FindTeamByIdAndUserIdParams{
 		ID:     teamID,

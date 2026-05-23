@@ -1,5 +1,5 @@
 import React from "react";
-import HetznerCredentials from "~/components/organisms/settings/HetznerCredentials";
+import HetznerCredentials from "~/components/organisms/settings/cluster/HetznerCredentials";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 
 export default function ClusterApiKeysSettings() {

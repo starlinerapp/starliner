@@ -10,6 +10,7 @@ import (
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/api/infrastructure/postgres/mapper"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
 )
 
@@ -194,11 +195,12 @@ func (or *OrganizationRepository) RemoveOrganizationMember(ctx context.Context, 
 	return err
 }
 
-func (or *OrganizationRepository) CreateOrganizationInvite(ctx context.Context, organizationID int64, toEmail string, expiresAt time.Time) (*entity.OrganizationInvite, error) {
+func (or *OrganizationRepository) CreateOrganizationInvite(ctx context.Context, organizationID int64, toEmail string, expiresAt time.Time, teamID *int64) (*entity.OrganizationInvite, error) {
 	invite, err := or.queries.CreateOrganizationInvite(ctx, sqlc.CreateOrganizationInviteParams{
 		OrganizationID: organizationID,
 		Email:          toEmail,
 		ExpiresAt:      expiresAt,
+		TeamID:         mapper.ToNullInt64FromPtr(teamID),
 	})
 
 	if err != nil {
@@ -210,6 +212,7 @@ func (or *OrganizationRepository) CreateOrganizationInvite(ctx context.Context, 
 		OrganizationId:   invite.OrganizationID,
 		OrganizationName: invite.OrganizationName,
 		Email:            invite.Email,
+		TeamId:           mapper.ToPtrFromNullInt64(invite.TeamID),
 		ExpiresAt:        invite.ExpiresAt,
 		CreatedAt:        invite.CreatedAt,
 	}, nil
@@ -230,6 +233,7 @@ func (or *OrganizationRepository) GetOrganizationInviteById(ctx context.Context,
 		OrganizationId:   invite.OrganizationID,
 		OrganizationName: invite.OrganizationName,
 		Email:            invite.Email,
+		TeamId:           mapper.ToPtrFromNullInt64(invite.TeamID),
 		ExpiresAt:        invite.ExpiresAt,
 		CreatedAt:        invite.CreatedAt,
 	}, nil

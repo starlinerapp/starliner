@@ -72,6 +72,7 @@ func NewServer(
 		organizationRoutes.GET("/:id/teams", teamHandler.GetUserTeams)
 		organizationRoutes.POST("/:id/teams/join", teamHandler.JoinTeam)
 		organizationRoutes.GET("/:id/members", organizationHandler.GetOrganizationMembers)
+		organizationRoutes.DELETE("/:id/members", organizationHandler.RemoveOrganizationMember)
 	}
 
 	inviteRoutes := engine.Group("/invites")
@@ -137,6 +138,7 @@ func NewServer(
 
 	teamRoutes := engine.Group("/teams")
 	{
+		teamRoutes.DELETE("/:teamId", teamHandler.DeleteTeam)
 		teamRoutes.GET("/:teamId/members", teamHandler.GetTeamMembers)
 		teamRoutes.POST("/:teamId/members", teamHandler.AddTeamMember)
 		teamRoutes.DELETE("/:teamId/members", teamHandler.RemoveTeamMember)

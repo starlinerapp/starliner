@@ -201,3 +201,30 @@ func (pr *ProjectRepository) GetProjectProductionEnvironmentsByRepositoryUrl(ctx
 	}
 	return environments, nil
 }
+
+func (pr *ProjectRepository) GetTeamProjectIds(ctx context.Context, teamId int64) ([]int64, error) {
+	return pr.queries.GetTeamProjectIds(ctx, teamId)
+}
+
+func (pr *ProjectRepository) GetProjectEnvironmentsByProjectId(ctx context.Context, projectId int64) ([]*entity.Environment, error) {
+	rows, err := pr.queries.GetProjectEnvironmentsByProjectId(ctx, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	environments := make([]*entity.Environment, len(rows))
+	for i, row := range rows {
+		environments[i] = &entity.Environment{
+			Id:        row.ID,
+			Slug:      row.Slug,
+			Name:      row.Name,
+			Namespace: row.Namespace,
+		}
+	}
+
+	return environments, nil
+}
+
+func (pr *ProjectRepository) DeleteProjectsByTeamId(ctx context.Context, teamId int64) error {
+	return pr.queries.DeleteProjectsByTeamId(ctx, teamId)
+}

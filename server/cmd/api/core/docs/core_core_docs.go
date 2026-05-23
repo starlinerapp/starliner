@@ -1323,6 +1323,43 @@ const docTemplatecoreCore = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "organization"
+                ],
+                "summary": "Remove member from organization",
+                "operationId": "removeOrganizationMember",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ID of the member to remove from the organization",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RemoveOrganizationMember"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
             }
         },
         "/organizations/{id}/projects": {
@@ -1771,6 +1808,36 @@ const docTemplatecoreCore = `{
                         "schema": {
                             "$ref": "#/definitions/response.ProjectPreviewEnvironmentEnabled"
                         }
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}": {
+            "delete": {
+                "tags": [
+                    "team"
+                ],
+                "summary": "Delete Team",
+                "operationId": "deleteTeam",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -2364,6 +2431,17 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "request.RemoveOrganizationMember": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.RemoveTeamMember": {
             "type": "object",
             "required": [
@@ -2379,14 +2457,21 @@ const docTemplatecoreCore = `{
             "type": "object",
             "required": [
                 "inviteUrlPrefix",
-                "toEmail"
+                "toEmails"
             ],
             "properties": {
                 "inviteUrlPrefix": {
                     "type": "string"
                 },
-                "toEmail": {
-                    "type": "string"
+                "teamId": {
+                    "type": "integer"
+                },
+                "toEmails": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

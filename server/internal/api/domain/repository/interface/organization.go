@@ -22,7 +22,7 @@ type OrganizationRepository interface {
 	) (*value.ProvisioningCredential, error)
 	AddOrganizationMember(ctx context.Context, organizationID int64, userID int64) error
 	RemoveOrganizationMember(ctx context.Context, organizationID int64, userID int64) error
-	CreateOrganizationInvite(ctx context.Context, organizationID int64, toEmail string, expiresAt time.Time) (*entity.OrganizationInvite, error)
+	CreateOrganizationInvite(ctx context.Context, organizationID int64, toEmail string, expiresAt time.Time, teamID *int64) (*entity.OrganizationInvite, error)
 	GetOrganizationInviteById(ctx context.Context, inviteId string) (*entity.OrganizationInvite, error)
 	GetOrganizationMembers(ctx context.Context, organizationID int64) ([]*entity.User, error)
 }
