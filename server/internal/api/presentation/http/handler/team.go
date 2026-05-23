@@ -75,6 +75,7 @@ func (th *TeamHandler) DeleteTeam(c *gin.Context) {
 	err = th.teamApplication.DeleteTeam(c, currentUser.Id, teamId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)

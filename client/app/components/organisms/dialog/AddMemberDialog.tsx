@@ -153,7 +153,7 @@ export default function AddMemberDialog({
       {
         organizationId: organizationId,
         toEmails,
-        inviteUrlPrefix: `${window.location.origin}/organizations/invite/`,
+        inviteUrlPrefix: "/organizations/invite/",
         ...(teamId != null ? { teamId } : {}),
       },
       {

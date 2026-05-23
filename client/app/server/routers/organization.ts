@@ -80,17 +80,23 @@ export const organizationRouter = {
       z.object({
         organizationId: z.number(),
         toEmails: z.array(z.email()).min(1),
-        inviteUrlPrefix: z.url(),
+        inviteUrlPrefix: z.string().startsWith("/"),
         teamId: z.number().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const clientBaseUrl = process.env.CLIENT_BASE_URL;
+
+      if (!clientBaseUrl) {
+        throw new Error("Environment variable 'CLIENT_BASE_URL' is not set");
+      }
+
       try {
         return await organizationApiFactory
           .sendOrganizationInvite(userId, input.organizationId, {
             toEmails: input.toEmails,
-            inviteUrlPrefix: input.inviteUrlPrefix,
+            inviteUrlPrefix: clientBaseUrl + input.inviteUrlPrefix,
             teamId: input.teamId,
           })
           .then((res) => res.data);
