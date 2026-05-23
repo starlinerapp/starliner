@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import TeamMembers from "../../../../../components/organisms/settings/organization/team/TeamMembers";
+import TeamMembers from "~/components/organisms/settings/organization/team/TeamMembers";
 import { RepositoryAccess } from "~/components/organisms/settings/organization/team/RepositoryAccess";
 import { ClusterAccess } from "~/components/organisms/settings/organization/team/ClusterAccess";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
