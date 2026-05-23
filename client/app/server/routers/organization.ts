@@ -77,7 +77,7 @@ export const organizationRouter = {
     .input(
       z.object({
         organizationId: z.number(),
-        toEmail: z.string(),
+        toEmails: z.array(z.string().min(1)).min(1),
         inviteUrlPrefix: z.string().url(),
         teamId: z.number().optional(),
       }),
@@ -86,7 +86,7 @@ export const organizationRouter = {
       const userId = ctx.user?.id;
       return await organizationApiFactory
         .sendOrganizationInvite(userId, input.organizationId, {
-          toEmail: input.toEmail,
+          toEmails: input.toEmails,
           inviteUrlPrefix: input.inviteUrlPrefix,
           teamId: input.teamId,
         })

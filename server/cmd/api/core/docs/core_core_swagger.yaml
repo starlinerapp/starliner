@@ -244,11 +244,14 @@ definitions:
         type: string
       teamId:
         type: integer
-      toEmail:
-        type: string
+      toEmails:
+        items:
+          type: string
+        minItems: 1
+        type: array
     required:
     - inviteUrlPrefix
-    - toEmail
+    - toEmails
     type: object
   request.SetTeamClusters:
     properties:

@@ -210,7 +210,29 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 	return nil
 }
 
-func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string, inviteUrlPrefix string, teamID *int64) error {
+func normalizeInviteEmails(toEmails []string) []string {
+	seen := make(map[string]struct{})
+	result := make([]string, 0, len(toEmails))
+
+	for _, email := range toEmails {
+		email = strings.TrimSpace(email)
+		if email == "" {
+			continue
+		}
+
+		key := strings.ToLower(email)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+
+		seen[key] = struct{}{}
+		result = append(result, email)
+	}
+
+	return result
+}
+
+func (oa *OrganizationApplication) CreateAndSendEmailInvites(ctx context.Context, userID int64, organizationID int64, toEmails []string, inviteUrlPrefix string, teamID *int64) error {
 	err := oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, userID)
 	if err != nil {
 		return err
@@ -227,16 +249,23 @@ func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context,
 		}
 	}
 
-	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, toEmail, expiresAt, teamID)
-	if err != nil {
-		return err
+	for _, toEmail := range normalizeInviteEmails(toEmails) {
+		expiresAt := time.Now().Add(7 * 24 * time.Hour)
+		invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, toEmail, expiresAt, teamID)
+		if err != nil {
+			return err
+		}
+
+		err = oa.email.SendInvite(toEmail, apiPort.InviteData{
+			OrganizationName: invite.OrganizationName,
+			InviteLink:       inviteUrlPrefix + invite.Id,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
-	return oa.email.SendInvite(toEmail, apiPort.InviteData{
-		OrganizationName: invite.OrganizationName,
-		InviteLink:       inviteUrlPrefix + invite.Id,
-	})
+	return nil
 }
 
 func (oa *OrganizationApplication) GetOrganizationMembers(ctx context.Context, userID int64, organizationID int64) ([]*value.OrganizationMember, error) {

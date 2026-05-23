@@ -2457,7 +2457,7 @@ const docTemplatecoreCore = `{
             "type": "object",
             "required": [
                 "inviteUrlPrefix",
-                "toEmail"
+                "toEmails"
             ],
             "properties": {
                 "inviteUrlPrefix": {
@@ -2466,8 +2466,12 @@ const docTemplatecoreCore = `{
                 "teamId": {
                     "type": "integer"
                 },
-                "toEmail": {
-                    "type": "string"
+                "toEmails": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

@@ -504,10 +504,10 @@ export interface RequestSendInvite {
   inviteUrlPrefix: string;
   /**
    *
-   * @type {string}
+   * @type {Array<string>}
    * @memberof RequestSendInvite
    */
-  toEmail: string;
+  toEmails: Array<string>;
   /**
    *
    * @type {number}
