@@ -77,8 +77,8 @@ export const organizationRouter = {
     .input(
       z.object({
         organizationId: z.number(),
-        toEmails: z.array(z.string().min(1)).min(1),
-        inviteUrlPrefix: z.string().url(),
+        toEmails: z.array(z.email()).min(1),
+        inviteUrlPrefix: z.url(),
         teamId: z.number().optional(),
       }),
     )

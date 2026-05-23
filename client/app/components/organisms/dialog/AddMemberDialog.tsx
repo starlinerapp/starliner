@@ -6,6 +6,12 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { Cross } from "~/components/atoms/icons";
+import { cn } from "~/utils/cn";
+import {
+  formatInvalidEmailsError,
+  getInvalidEmails,
+  isValidEmail,
+} from "~/utils/email";
 
 interface FormInput {
   emails: string;
@@ -90,7 +96,9 @@ export default function AddMemberDialog({
 
   const emailsInput = watch("emails", "");
   const { recognized, current } = getRecognizedAndCurrent(emailsInput);
-  const allEmails = parseInviteEmails(emailsInput);
+  const invalidRecognizedEmails = getInvalidEmails(recognized);
+  const hasInvalidEmails = invalidRecognizedEmails.length > 0;
+  const hasEmailsToInvite = recognized.length > 0 || current.trim().length > 0;
 
   const sendInviteMutation = useMutation(
     trpc.organization.sendInvite.mutationOptions(),
@@ -131,6 +139,12 @@ export default function AddMemberDialog({
 
     if (toEmails.length === 0) {
       setValidationError("Enter at least one email address.");
+      return;
+    }
+
+    const invalidEmails = getInvalidEmails(toEmails);
+    if (invalidEmails.length > 0) {
+      setValidationError(formatInvalidEmailsError(invalidEmails));
       return;
     }
 
@@ -185,26 +199,38 @@ export default function AddMemberDialog({
               className="border-mauve-6 bg-gray-2 flex h-10 items-center gap-1.5 overflow-x-auto rounded-md border px-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               onClick={() => inputRef.current?.focus()}
             >
-              {recognized.map((email) => (
-                <span
-                  key={email}
-                  className="border-mauve-6 text-mauve-12 inline-flex h-6 max-w-48 shrink-0 items-center gap-1 rounded-md border bg-white px-2 text-xs font-medium shadow-sm"
-                  title={email}
-                >
-                  <span className="truncate">{email}</span>
-                  <button
-                    type="button"
-                    className="text-violet-11 shrink-0 rounded hover:bg-black/5"
-                    aria-label={`Remove ${email}`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      removeRecognizedEmail(email);
-                    }}
+              {recognized.map((email) => {
+                const valid = isValidEmail(email);
+
+                return (
+                  <span
+                    key={email}
+                    className={cn(
+                      "inline-flex h-6 max-w-48 shrink-0 items-center gap-1 rounded-md border px-2 text-xs font-medium shadow-sm",
+                      valid
+                        ? "border-mauve-6 text-mauve-12 bg-white"
+                        : "border-red-6 bg-red-3 text-red-11",
+                    )}
+                    title={valid ? email : `${email} (invalid email)`}
                   >
-                    <Cross className="h-3.5 w-3.5 stroke-2" />
-                  </button>
-                </span>
-              ))}
+                    <span className="truncate">{email}</span>
+                    <button
+                      type="button"
+                      className={cn(
+                        "shrink-0 rounded hover:bg-black/5",
+                        valid ? "text-violet-11" : "text-red-11",
+                      )}
+                      aria-label={`Remove ${email}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removeRecognizedEmail(email);
+                      }}
+                    >
+                      <Cross className="h-3.5 w-3.5 stroke-2" />
+                    </button>
+                  </span>
+                );
+              })}
               <input
                 ref={inputRef}
                 type="text"
@@ -239,7 +265,9 @@ export default function AddMemberDialog({
                 className="h-10 w-24"
                 type="submit"
                 disabled={
-                  allEmails.length === 0 || sendInviteMutation.isPending
+                  !hasEmailsToInvite ||
+                  hasInvalidEmails ||
+                  sendInviteMutation.isPending
                 }
               >
                 Invite
