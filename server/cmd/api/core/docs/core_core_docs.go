@@ -2463,6 +2463,9 @@ const docTemplatecoreCore = `{
                 "inviteUrlPrefix": {
                     "type": "string"
                 },
+                "teamId": {
+                    "type": "integer"
+                },
                 "toEmail": {
                     "type": "string"
                 }

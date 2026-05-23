@@ -198,17 +198,37 @@ func (oa *OrganizationApplication) AcceptInvite(ctx context.Context, inviteID st
 		return errors.New("invite has expired")
 	}
 
-	return oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
+	err = oa.organizationRepository.AddOrganizationMember(ctx, invite.OrganizationId, userID)
+	if err != nil {
+		return err
+	}
+
+	if invite.TeamId != nil {
+		return oa.teamRepository.AddTeamMember(ctx, *invite.TeamId, userID)
+	}
+
+	return nil
 }
 
-func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string, inviteUrlPrefix string) error {
+func (oa *OrganizationApplication) CreateAndSendEmailInvite(ctx context.Context, userID int64, organizationID int64, toEmail string, inviteUrlPrefix string, teamID *int64) error {
 	err := oa.organizationService.ValidateUserOrgOwner(ctx, organizationID, userID)
 	if err != nil {
 		return err
 	}
 
+	if teamID != nil {
+		team, err := oa.teamRepository.GetTeamById(ctx, *teamID)
+		if err != nil {
+			return err
+		}
+
+		if team.OrganizationId != organizationID {
+			return errors.New("team does not belong to organization")
+		}
+	}
+
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, toEmail, expiresAt)
+	invite, err := oa.organizationRepository.CreateOrganizationInvite(ctx, organizationID, toEmail, expiresAt, teamID)
 	if err != nil {
 		return err
 	}

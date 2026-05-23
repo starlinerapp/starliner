@@ -10,6 +10,7 @@ import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
 import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
+import AddMemberDialog from "~/components/organisms/dialog/AddMemberDialog";
 
 interface MemberToRemove {
   userId: number;
@@ -23,6 +24,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
 
   const [search, setSearch] = useState("");
   const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [showInviteMemberDialog, setShowInviteMemberDialog] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<MemberToRemove | null>(
     null,
   );
@@ -157,7 +159,15 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                     </div>
                   </div>
                   <div className="border-mauve-6 bg-mauve-2 border-t p-2 text-xs">
-                    <Button intent="primary" className="text-xs">
+                    <Button
+                      type="button"
+                      intent="primary"
+                      className="text-xs"
+                      onClick={() => {
+                        setAddMemberOpen(false);
+                        setShowInviteMemberDialog(true);
+                      }}
+                    >
                       Invite Member
                     </Button>
                   </div>
@@ -221,6 +231,15 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
           ))
         )}
       </div>
+
+      {organization.isOwner && (
+        <AddMemberDialog
+          organizationId={organization.id}
+          teamId={teamId}
+          open={showInviteMemberDialog}
+          onOpenChange={setShowInviteMemberDialog}
+        />
+      )}
 
       <Dialog
         open={memberToRemove != null}

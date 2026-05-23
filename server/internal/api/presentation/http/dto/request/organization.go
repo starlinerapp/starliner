@@ -16,6 +16,7 @@ type AcceptInvite struct {
 type SendInvite struct {
 	ToEmail         string `json:"toEmail" binding:"required,email"`
 	InviteUrlPrefix string `json:"inviteUrlPrefix" binding:"required,url"`
+	TeamID          *int64 `json:"teamId"`
 }
 
 type RemoveOrganizationMember struct {

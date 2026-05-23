@@ -11,12 +11,14 @@ interface FormInput {
 
 interface AddMemberDialogProps {
   organizationId: number;
+  teamId?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export default function AddMemberDialog({
   organizationId,
+  teamId,
   open,
   onOpenChange,
 }: AddMemberDialogProps) {
@@ -38,6 +40,7 @@ export default function AddMemberDialog({
         organizationId: organizationId,
         toEmail: data.email,
         inviteUrlPrefix: `${window.location.origin}/organizations/invite/`,
+        ...(teamId != null ? { teamId } : {}),
       },
       {
         onSuccess: () => {

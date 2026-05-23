@@ -79,6 +79,7 @@ export const organizationRouter = {
         organizationId: z.number(),
         toEmail: z.string(),
         inviteUrlPrefix: z.string().url(),
+        teamId: z.number().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -87,6 +88,7 @@ export const organizationRouter = {
         .sendOrganizationInvite(userId, input.organizationId, {
           toEmail: input.toEmail,
           inviteUrlPrefix: input.inviteUrlPrefix,
+          teamId: input.teamId,
         })
         .then((res) => res.data);
     }),

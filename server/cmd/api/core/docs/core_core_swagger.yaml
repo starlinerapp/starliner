@@ -242,6 +242,8 @@ definitions:
     properties:
       inviteUrlPrefix:
         type: string
+      teamId:
+        type: integer
       toEmail:
         type: string
     required:

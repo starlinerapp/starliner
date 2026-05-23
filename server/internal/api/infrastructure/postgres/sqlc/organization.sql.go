@@ -7,6 +7,7 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -63,11 +64,11 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 const createOrganizationInvite = `-- name: CreateOrganizationInvite :one
 WITH new_invite AS (
   INSERT INTO organization_invites (
-    organization_id, email, expires_at)
+    organization_id, email, expires_at, team_id)
   VALUES (
-    $1, $2, $3)
-RETURNING id, organization_id, expires_at, created_at, email)
-SELECT new_invite.id, new_invite.organization_id, new_invite.expires_at, new_invite.created_at, new_invite.email, organizations.name AS organization_name
+    $1, $2, $3, $4)
+RETURNING id, organization_id, expires_at, created_at, email, team_id)
+SELECT new_invite.id, new_invite.organization_id, new_invite.expires_at, new_invite.created_at, new_invite.email, new_invite.team_id, organizations.name AS organization_name
 FROM new_invite
   INNER JOIN organizations ON organizations.id = new_invite.organization_id
 `
@@ -76,6 +77,7 @@ type CreateOrganizationInviteParams struct {
 	OrganizationID int64
 	Email          string
 	ExpiresAt      time.Time
+	TeamID         sql.NullInt64
 }
 
 type CreateOrganizationInviteRow struct {
@@ -84,11 +86,17 @@ type CreateOrganizationInviteRow struct {
 	ExpiresAt        time.Time
 	CreatedAt        time.Time
 	Email            string
+	TeamID           sql.NullInt64
 	OrganizationName string
 }
 
 func (q *Queries) CreateOrganizationInvite(ctx context.Context, arg CreateOrganizationInviteParams) (CreateOrganizationInviteRow, error) {
-	row := q.db.QueryRowContext(ctx, createOrganizationInvite, arg.OrganizationID, arg.Email, arg.ExpiresAt)
+	row := q.db.QueryRowContext(ctx, createOrganizationInvite,
+		arg.OrganizationID,
+		arg.Email,
+		arg.ExpiresAt,
+		arg.TeamID,
+	)
 	var i CreateOrganizationInviteRow
 	err := row.Scan(
 		&i.ID,
@@ -96,6 +104,7 @@ func (q *Queries) CreateOrganizationInvite(ctx context.Context, arg CreateOrgani
 		&i.ExpiresAt,
 		&i.CreatedAt,
 		&i.Email,
+		&i.TeamID,
 		&i.OrganizationName,
 	)
 	return i, err
@@ -122,7 +131,7 @@ func (q *Queries) GetOrganization(ctx context.Context, id int64) (Organization, 
 }
 
 const getOrganizationInviteById = `-- name: GetOrganizationInviteById :one
-SELECT organization_invites.id, organization_invites.organization_id, organization_invites.expires_at, organization_invites.created_at, organization_invites.email, organizations.name AS organization_name
+SELECT organization_invites.id, organization_invites.organization_id, organization_invites.expires_at, organization_invites.created_at, organization_invites.email, organization_invites.team_id, organizations.name AS organization_name
 FROM organization_invites
   INNER JOIN organizations ON organizations.id = organization_invites.organization_id
 WHERE organization_invites.id = $1
@@ -134,6 +143,7 @@ type GetOrganizationInviteByIdRow struct {
 	ExpiresAt        time.Time
 	CreatedAt        time.Time
 	Email            string
+	TeamID           sql.NullInt64
 	OrganizationName string
 }
 
@@ -146,6 +156,7 @@ func (q *Queries) GetOrganizationInviteById(ctx context.Context, id uuid.UUID) (
 		&i.ExpiresAt,
 		&i.CreatedAt,
 		&i.Email,
+		&i.TeamID,
 		&i.OrganizationName,
 	)
 	return i, err

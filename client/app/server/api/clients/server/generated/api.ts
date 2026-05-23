@@ -508,6 +508,12 @@ export interface RequestSendInvite {
    * @memberof RequestSendInvite
    */
   toEmail: string;
+  /**
+   *
+   * @type {number}
+   * @memberof RequestSendInvite
+   */
+  teamId?: number;
 }
 /**
  *
