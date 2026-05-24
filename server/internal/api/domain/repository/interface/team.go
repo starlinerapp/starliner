@@ -16,6 +16,7 @@ type TeamRepository interface {
 	GetTeamMembers(ctx context.Context, teamID int64) ([]*entity.User, error)
 	AddTeamMember(ctx context.Context, teamID int64, userID int64) error
 	RemoveTeamMember(ctx context.Context, teamID int64, userID int64) error
+	RemoveUserFromOrganizationTeams(ctx context.Context, organizationID int64, userID int64) error
 	GetTeamById(ctx context.Context, id int64) (*entity.Team, error)
 	FindTeamByIdAndUserId(ctx context.Context, teamID int64, userID int64) (*entity.Team, error)
 	SetTeamRepositories(ctx context.Context, teamID int64, repos []*value.TeamRepo, githubAppID int64) error

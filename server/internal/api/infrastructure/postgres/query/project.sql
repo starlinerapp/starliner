@@ -79,3 +79,17 @@ WHERE p.team_id = t.id
   AND tm.user_id = $2
 RETURNING p.preview_environments_enabled;
 
+-- name: GetTeamProjectIds :many
+SELECT p.id
+FROM projects p
+WHERE p.team_id = $1;
+
+-- name: GetProjectEnvironmentsByProjectId :many
+SELECT e.*
+FROM environments e
+WHERE e.project_id = $1;
+
+-- name: DeleteProjectsByTeamId :exec
+DELETE FROM projects
+WHERE team_id = $1;
+

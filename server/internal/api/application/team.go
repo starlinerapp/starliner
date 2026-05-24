@@ -11,29 +11,38 @@ import (
 )
 
 type TeamApplication struct {
-	teamRepository       interfaces.TeamRepository
-	clusterRepository    interfaces.ClusterRepository
-	githubAppRepository  interfaces.GithubAppRepository
-	organizationService  *service.OrganizationService
-	normalizationService *coreService.NormalizerService
-	teamService          *service.TeamService
+	teamRepository        interfaces.TeamRepository
+	clusterRepository     interfaces.ClusterRepository
+	githubAppRepository   interfaces.GithubAppRepository
+	projectRepository     interfaces.ProjectRepository
+	environmentRepository interfaces.EnvironmentRepository
+	environmentService    *service.EnvironmentService
+	organizationService   *service.OrganizationService
+	normalizationService  *coreService.NormalizerService
+	teamService           *service.TeamService
 }
 
 func NewTeamApplication(
 	teamRepository interfaces.TeamRepository,
 	clusterRepository interfaces.ClusterRepository,
 	githubAppRepository interfaces.GithubAppRepository,
+	projectRepository interfaces.ProjectRepository,
+	environmentRepository interfaces.EnvironmentRepository,
+	environmentService *service.EnvironmentService,
 	organizationService *service.OrganizationService,
 	normalizationService *coreService.NormalizerService,
 	teamService *service.TeamService,
 ) *TeamApplication {
 	return &TeamApplication{
-		teamRepository:       teamRepository,
-		clusterRepository:    clusterRepository,
-		githubAppRepository:  githubAppRepository,
-		organizationService:  organizationService,
-		normalizationService: normalizationService,
-		teamService:          teamService,
+		teamRepository:        teamRepository,
+		clusterRepository:     clusterRepository,
+		githubAppRepository:   githubAppRepository,
+		projectRepository:     projectRepository,
+		environmentRepository: environmentRepository,
+		environmentService:    environmentService,
+		organizationService:   organizationService,
+		normalizationService:  normalizationService,
+		teamService:           teamService,
 	}
 }
 
@@ -67,6 +76,48 @@ func (ta *TeamApplication) CreateTeam(ctx context.Context, slug string, organiza
 	}
 
 	return value.NewTeam(team), nil
+}
+
+func (ta *TeamApplication) DeleteTeam(ctx context.Context, userId int64, teamId int64) error {
+	t, err := ta.teamRepository.GetTeamById(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	err = ta.organizationService.ValidateUserOrgOwner(ctx, t.OrganizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	if err := ta.tearDownTeamProjects(ctx, teamId); err != nil {
+		return err
+	}
+
+	return ta.teamRepository.DeleteTeam(ctx, teamId)
+}
+
+func (ta *TeamApplication) tearDownTeamProjects(ctx context.Context, teamId int64) error {
+	projectIds, err := ta.projectRepository.GetTeamProjectIds(ctx, teamId)
+	if err != nil {
+		return err
+	}
+
+	for _, projectId := range projectIds {
+		envs, err := ta.projectRepository.GetProjectEnvironmentsByProjectId(ctx, projectId)
+		if err != nil {
+			return err
+		}
+		for _, env := range envs {
+			if err := ta.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
+				return err
+			}
+			if err := ta.environmentRepository.DeleteEnvironment(ctx, env.Id); err != nil {
+				return err
+			}
+		}
+	}
+
+	return ta.projectRepository.DeleteProjectsByTeamId(ctx, teamId)
 }
 
 func (ta *TeamApplication) GetUserTeams(ctx context.Context, organizationId int64, userId int64) ([]*value.Team, error) {

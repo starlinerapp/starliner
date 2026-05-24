@@ -1,6 +1,6 @@
 import React from "react";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
-import OrganizationTeams from "~/components/organisms/settings/OrganizationTeams";
+import OrganizationTeams from "~/components/organisms/settings/organization/OrganizationTeams";
 
 export default function Teams() {
   return (

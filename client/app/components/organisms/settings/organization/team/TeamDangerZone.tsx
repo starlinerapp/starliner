@@ -1,0 +1,127 @@
+import React, { useState } from "react";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import { useTRPC } from "~/utils/trpc/react";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
+
+interface TeamDangerZoneProps {
+  teamId: number;
+}
+
+export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const organization = useOrganizationContext();
+
+  const deleteTeamMutation = useMutation(
+    trpc.team.deleteTeam.mutationOptions({
+      onSuccess: async () => {
+        setShowDeleteDialog(false);
+        await queryClient.invalidateQueries({
+          queryKey: trpc.team.getUserTeams.queryKey({
+            organizationId: organization.id,
+          }),
+        });
+        navigate("../", { relative: "path" });
+      },
+    }),
+  );
+
+  function handleDeleteTeam() {
+    deleteTeamMutation.reset();
+    setShowDeleteDialog(true);
+  }
+
+  function confirmDeleteTeam() {
+    deleteTeamMutation.mutate({ teamId });
+  }
+
+  return (
+    <>
+      <div className="border-mauve-6 overflow-hidden rounded-md border text-sm shadow-xs">
+        <table className="w-full table-fixed border-collapse">
+          <thead className="h-14">
+            <tr className="border-mauve-6 bg-gray-2 border-b">
+              <th className="text-mauve-12 w-[40%] px-4 py-3 text-left text-xs font-bold uppercase">
+                Danger Zone
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="flex justify-between px-4 py-2">
+                <span>
+                  <p className="text-md font-bold">Delete this Team</p>
+                  <p className="text-mauve-11 text-xs">
+                    Once you delete a team, there is no going back. Please be
+                    certain.
+                  </p>
+                </span>
+                <Button
+                  className="w-36"
+                  intent="danger"
+                  size="sm"
+                  disabled={deleteTeamMutation.isPending}
+                  onClick={handleDeleteTeam}
+                >
+                  Delete this Team
+                </Button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <Dialog
+        open={showDeleteDialog}
+        onOpenChange={(open) => {
+          setShowDeleteDialog(open);
+          if (!open) {
+            deleteTeamMutation.reset();
+          }
+        }}
+      >
+        <DialogContent>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <h1>Delete Team</h1>
+              <WarningBanner text="Deleting the team will delete all projects that belong to the team, including the deployments." />
+              <p className="text-mauve-11 text-sm">
+                Are you sure you want to delete this team? This action cannot be
+                undone.
+              </p>
+            </div>
+            {deleteTeamMutation.isError && (
+              <ErrorBanner text={deleteTeamMutation.error.message} />
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                intent="secondary"
+                className="w-24"
+                disabled={deleteTeamMutation.isPending}
+                onClick={() => setShowDeleteDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="w-24"
+                intent="primary"
+                disabled={deleteTeamMutation.isPending}
+                onClick={confirmDeleteTeam}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

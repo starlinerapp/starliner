@@ -42,6 +42,14 @@ DELETE FROM team_members
 WHERE team_members.team_id = $1
   AND team_members.user_id = $2;
 
+-- name: RemoveUserFromOrganizationTeams :exec
+DELETE FROM team_members
+WHERE team_members.user_id = $2
+  AND team_members.team_id IN (
+    SELECT teams.id
+    FROM teams
+    WHERE teams.organization_id = $1);
+
 -- name: GetTeamById :one
 SELECT *
 FROM teams

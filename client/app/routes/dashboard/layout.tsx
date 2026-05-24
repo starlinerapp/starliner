@@ -141,28 +141,32 @@ export default function Layout() {
             },
           ],
         },
-        {
-          id: "cluster-group",
-          title: "Cluster",
-          children: [
-            {
-              id: "api-keys",
-              title: "API Keys",
-              href: `/${slug}/settings/cluster/api-keys`,
-            },
-          ],
-        },
-        {
-          id: "integrations-group",
-          title: "Integrations",
-          children: [
-            {
-              id: "integrations",
-              title: "Integrations",
-              href: `/${slug}/settings/integrations`,
-            },
-          ],
-        },
+        ...(isOwner
+          ? [
+              {
+                id: "cluster-group",
+                title: "Cluster",
+                children: [
+                  {
+                    id: "api-keys",
+                    title: "API Keys",
+                    href: `/${slug}/settings/cluster/api-keys`,
+                  },
+                ],
+              },
+              {
+                id: "integrations-group",
+                title: "Integrations",
+                children: [
+                  {
+                    id: "integrations",
+                    title: "Integrations",
+                    href: `/${slug}/settings/integrations`,
+                  },
+                ],
+              },
+            ]
+          : []),
       ],
     },
   ];

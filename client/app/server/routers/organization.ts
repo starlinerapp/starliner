@@ -1,6 +1,8 @@
 import { protectedProcedure } from "~/server/trpc";
 import { organizationApiFactory } from "~/server/api/clients/server";
 import { enrichMembersWithAuthDetails } from "~/server/services/users";
+import { TRPCError } from "@trpc/server";
+import { isAxiosError } from "axios";
 import { z } from "zod";
 
 export const organizationRouter = {
@@ -77,18 +79,39 @@ export const organizationRouter = {
     .input(
       z.object({
         organizationId: z.number(),
-        toEmail: z.string(),
-        inviteUrlPrefix: z.string().url(),
+        toEmails: z.array(z.email()).min(1),
+        inviteUrlPrefix: z.string().startsWith("/"),
+        teamId: z.number().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
-      return await organizationApiFactory
-        .sendOrganizationInvite(userId, input.organizationId, {
-          toEmail: input.toEmail,
-          inviteUrlPrefix: input.inviteUrlPrefix,
-        })
-        .then((res) => res.data);
+      const clientBaseUrl = process.env.CLIENT_BASE_URL;
+
+      if (!clientBaseUrl) {
+        throw new Error("Environment variable 'CLIENT_BASE_URL' is not set");
+      }
+
+      try {
+        return await organizationApiFactory
+          .sendOrganizationInvite(userId, input.organizationId, {
+            toEmails: input.toEmails,
+            inviteUrlPrefix: clientBaseUrl + input.inviteUrlPrefix,
+            teamId: input.teamId,
+          })
+          .then((res) => res.data);
+      } catch (err) {
+        if (isAxiosError(err) && err.response?.data?.error) {
+          throw new TRPCError({
+            code:
+              err.response.status === 400
+                ? "BAD_REQUEST"
+                : "INTERNAL_SERVER_ERROR",
+            message: String(err.response.data.error),
+          });
+        }
+        throw err;
+      }
     }),
   getInvite: protectedProcedure
     .input(
@@ -130,5 +153,20 @@ export const organizationRouter = {
         .then((res) => res.data);
 
       return await enrichMembersWithAuthDetails(members);
+    }),
+  removeOrganizationMember: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        userId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const callerId = ctx.user?.id;
+      return await organizationApiFactory
+        .removeOrganizationMember(callerId, input.organizationId, {
+          userId: input.userId,
+        })
+        .then((res) => res.data);
     }),
 };

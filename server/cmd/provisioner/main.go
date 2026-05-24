@@ -4,6 +4,7 @@ import (
 	"go.uber.org/fx"
 	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
+	"starliner.app/internal/core/infrastructure/redis"
 	"starliner.app/internal/provisioner/application"
 	"starliner.app/internal/provisioner/conf"
 	"starliner.app/internal/provisioner/infrastructure/ansible"
@@ -19,6 +20,7 @@ func main() {
 		conf.Module,
 		crypto.Module,
 		ssh.Module,
+		redis.Module,
 		queue.Module,
 		pulumi.Module,
 		ansible.Module,

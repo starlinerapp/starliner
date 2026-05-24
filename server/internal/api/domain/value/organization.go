@@ -1,10 +1,13 @@
 package value
 
 import (
+	"errors"
 	"time"
 
 	"starliner.app/internal/api/domain/entity"
 )
+
+var ErrSendInviteEmail = errors.New("failed to send invite email")
 
 type Organization struct {
 	Id      int64

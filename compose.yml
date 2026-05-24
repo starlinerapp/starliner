@@ -72,6 +72,7 @@ services:
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
+      CLIENT_BASE_URL: ${CLIENT_BASE_URL:-https://dev.starliner.app}
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
       SERVER_BASIC_AUTH_PASSWORD: ${SERVER_BASIC_AUTH_PASSWORD:-test}
@@ -202,6 +203,11 @@ services:
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
       PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
       PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - ./server:/app
     networks:
@@ -396,16 +402,32 @@ services:
     networks:
       - internal
 
+  redis:
+    build:
+      context: .
+      dockerfile: .docker/redis/Dockerfile
+    command: "redis-server --requirepass ${REDIS_PASSWORD:-password}"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - redis-data:/data
+    networks:
+      - internal
+
   mailpit:
-    image: axllent/mailpit
-    container_name: mailpit
+    image: axllent/mailpit:latest
     restart: unless-stopped
     ports:
-      - 8025:8025
+      - "8025:8025"
     environment:
       MP_MAX_MESSAGES: 5000
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_ENABLE_CHAOS: "true"
     networks:
       - internal
 
@@ -414,6 +436,7 @@ volumes:
   node-modules-auth:
   auth-db-data:
   db-data:
+  redis-data:
   nats-data:
   registry-data:
   buildkit-data:

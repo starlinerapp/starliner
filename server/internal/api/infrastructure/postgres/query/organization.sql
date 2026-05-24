@@ -49,16 +49,16 @@ WHERE organization_members.organization_id = $1
 -- name: CreateOrganizationInvite :one
 WITH new_invite AS (
   INSERT INTO organization_invites (
-    organization_id, email, expires_at)
+    organization_id, email, expires_at, team_id)
   VALUES (
-    $1, $2, $3)
+    $1, $2, $3, $4)
 RETURNING *)
-SELECT new_invite.*, organizations.name AS organization_name
+SELECT new_invite.id, new_invite.organization_id, new_invite.expires_at, new_invite.created_at, new_invite.email, new_invite.team_id, organizations.name AS organization_name
 FROM new_invite
   INNER JOIN organizations ON organizations.id = new_invite.organization_id;
 
 -- name: GetOrganizationInviteById :one
-SELECT organization_invites.*, organizations.name AS organization_name
+SELECT organization_invites.id, organization_invites.organization_id, organization_invites.expires_at, organization_invites.created_at, organization_invites.email, organization_invites.team_id, organizations.name AS organization_name
 FROM organization_invites
   INNER JOIN organizations ON organizations.id = organization_invites.organization_id
 WHERE organization_invites.id = $1;

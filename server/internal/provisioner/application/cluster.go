@@ -45,28 +45,20 @@ func NewClusterApplication(
 }
 
 func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) {
-	defer func() {
-		if ca.logPublisher == nil {
-			return
-		}
-		if err := ca.logPublisher.PublishLogEnd(c.Id); err != nil {
-			log.Printf("failed to publish log end: %v", err)
-		}
-	}()
+	ctx := context.Background()
 
 	var logBuf strings.Builder
+
 	appendStatus := func(format string, args ...any) {
 		line := fmt.Sprintf(format, args...)
 		logBuf.WriteString(line)
 		if ca.logPublisher == nil {
 			return
 		}
-		if err := ca.logPublisher.PublishLogChunk(c.Id, []byte(line)); err != nil {
+		if err := ca.logPublisher.PublishLogChunk(ctx, c.Id, []byte(line)); err != nil {
 			log.Printf("failed to publish log chunk: %v", err)
 		}
 	}
-
-	ctx := context.Background()
 
 	publicKey, privateKey, err := ca.crypto.GenerateKeyPair()
 	if err != nil {
@@ -152,26 +144,17 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 }
 
 func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
-	defer func() {
-		if ca.logPublisher == nil {
-			return
-		}
-		if err := ca.logPublisher.PublishLogEnd(c.Id); err != nil {
-			log.Printf("failed to publish log end: %v", err)
-		}
-	}()
+	ctx := context.Background()
 
 	appendStatus := func(format string, args ...any) {
 		line := fmt.Sprintf(format, args...)
 		if ca.logPublisher == nil {
 			return
 		}
-		if err := ca.logPublisher.PublishLogChunk(c.Id, []byte(line)); err != nil {
+		if err := ca.logPublisher.PublishLogChunk(ctx, c.Id, []byte(line)); err != nil {
 			log.Printf("failed to publish log chunk: %v", err)
 		}
 	}
-
-	ctx := context.Background()
 
 	appendStatus("==> Deleting server...\n")
 	if err := ca.provision.DeleteServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId); err != nil {

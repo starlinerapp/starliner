@@ -91,7 +91,7 @@ func (p *Provision) ProvisionServer(ctx context.Context, clusterId int64, provis
 		mu.Unlock()
 
 		if p.logPublisher != nil {
-			if err := p.logPublisher.PublishLogChunk(clusterId, []byte(line)); err != nil {
+			if err := p.logPublisher.PublishLogChunk(ctx, clusterId, []byte(line)); err != nil {
 				log.Printf("failed to publish log chunk: %v", err)
 			}
 		}
@@ -159,7 +159,7 @@ func (p *Provision) DeleteServer(ctx context.Context, clusterId int64, provision
 		mu.Unlock()
 
 		if p.logPublisher != nil {
-			if err := p.logPublisher.PublishLogChunk(clusterId, []byte(line)); err != nil {
+			if err := p.logPublisher.PublishLogChunk(ctx, clusterId, []byte(line)); err != nil {
 				log.Printf("failed to publish delete provisioning log chunk: %v", err)
 			}
 		}
