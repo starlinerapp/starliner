@@ -13,3 +13,8 @@ type NatsConfig interface {
 type CryptoConfig interface {
 	GetEncryptionKeyBase64() string
 }
+
+type RedisConfig interface {
+	GetRedisAddr() string
+	GetRedisPassword() string
+}
