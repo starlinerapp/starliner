@@ -325,7 +325,7 @@ func (oh *OrganizationHandler) RemoveOrganizationMember(c *gin.Context) {
 
 	err = oh.organizationApplication.RemoveOrganizationMember(c.Request.Context(), currentUser.Id, organizationId, body.UserID)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		RespondInternalError(c, err)
 		return
 	}
 
