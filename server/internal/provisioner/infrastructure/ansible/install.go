@@ -2,6 +2,7 @@ package ansible
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -29,6 +30,8 @@ func NewInstall(
 }
 
 func (i *Install) InstallK3s(clusterId int64, ip string, privateKey []byte) (kubeconfig string, logs string, err error) {
+	ctx := context.Background()
+
 	var (
 		logBuf strings.Builder
 		mu     sync.Mutex
@@ -39,7 +42,7 @@ func (i *Install) InstallK3s(clusterId int64, ip string, privateKey []byte) (kub
 		mu.Unlock()
 
 		if i.logPublisher != nil {
-			if err := i.logPublisher.PublishLogChunk(clusterId, []byte(line)); err != nil {
+			if err := i.logPublisher.PublishLogChunk(ctx, clusterId, []byte(line)); err != nil {
 				fmt.Printf("failed to publish log chunk: %v", err)
 			}
 		}
