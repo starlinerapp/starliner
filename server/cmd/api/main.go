@@ -43,6 +43,6 @@ func main() {
 		healthpubsub.Module,
 		clusterpubsub.Module,
 		scheduler.Module,
-		sentry.Module,
+		sentry.Module("api"),
 	).Run()
 }

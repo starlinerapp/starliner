@@ -23,6 +23,6 @@ func main() {
 		docker.Module,
 		application.Module,
 		builderqueue.Module,
-		sentry.Module,
+		sentry.Module("builder"),
 	).Run()
 }

@@ -11,7 +11,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func InitSentry(lc fx.Lifecycle, sentryCfg conf.SentryConfig, envConfig conf.EnvironmentConfig) error {
+func InitSentry(lc fx.Lifecycle, sentryCfg conf.SentryConfig, envConfig conf.EnvironmentConfig, service string) error {
 	if sentryCfg.GetSentryDSN() == "" {
 		log.Println("sentry: DSN not set, skipping init")
 		return nil
@@ -22,6 +22,9 @@ func InitSentry(lc fx.Lifecycle, sentryCfg conf.SentryConfig, envConfig conf.Env
 	}); err != nil {
 		return fmt.Errorf("sentry init failed: %w", err)
 	}
+	sentry.ConfigureScope(func(scope *sentry.Scope) {
+		scope.SetTag("service", service)
+	})
 	lc.Append(fx.Hook{
 		OnStop: func(context.Context) error {
 			sentry.Flush(2 * time.Second)
@@ -31,7 +34,11 @@ func InitSentry(lc fx.Lifecycle, sentryCfg conf.SentryConfig, envConfig conf.Env
 	return nil
 }
 
-var Module = fx.Module(
-	"sentry",
-	fx.Invoke(InitSentry),
-)
+func Module(service string) fx.Option {
+	return fx.Module(
+		"sentry",
+		fx.Invoke(func(lc fx.Lifecycle, sentryCfg conf.SentryConfig, envConfig conf.EnvironmentConfig) error {
+			return InitSentry(lc, sentryCfg, envConfig, service)
+		}),
+	)
+}

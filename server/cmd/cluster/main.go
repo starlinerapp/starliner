@@ -31,6 +31,6 @@ func main() {
 		clusterqueue.Module,
 		sub.Module,
 		grpc.Module,
-		sentry.Module,
+		sentry.Module("cluster"),
 	).Run()
 }

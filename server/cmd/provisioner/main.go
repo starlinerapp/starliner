@@ -29,6 +29,6 @@ func main() {
 		application.Module,
 		provisionerqueue.Module,
 		grpc.Module,
-		sentry.Module,
+		sentry.Module("provisioner"),
 	).Run()
 }

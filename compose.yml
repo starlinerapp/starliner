@@ -134,7 +134,7 @@ services:
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
       IMAGE_REGISTRY_USERNAME: ${IMAGE_REGISTRY_USERNAME:-server}
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
-      SENTRY_DSN_API: ${SENTRY_DSN_API}
+      SENTRY_DSN_BACKEND: ${SENTRY_DSN_BACKEND}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
