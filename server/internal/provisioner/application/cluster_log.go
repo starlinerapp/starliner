@@ -27,7 +27,9 @@ func (a *ClusterLogApplication) StreamProvisioningLogs(ctx context.Context, clus
 	pr, pw := io.Pipe()
 
 	go func() {
-		defer pw.Close()
+		defer func(pw *io.PipeWriter) {
+			_ = pw.Close()
+		}(pw)
 
 		lastId := "0"
 
