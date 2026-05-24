@@ -49,7 +49,7 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 	}
 	newCluster, err := ch.clusterApplication.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.ServerType, cluster.OrganizationID, cluster.TeamID)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewCluster(newCluster))
@@ -75,7 +75,7 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 
 	cluster, err := ch.clusterApplication.GetUserCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	if cluster == nil {
@@ -104,7 +104,7 @@ func (ch *ClusterHandler) GetClusterPrivateKey(c *gin.Context) {
 	}
 	file, err := ch.clusterApplication.GetClusterPrivateKey(c.Request.Context(), clusterId, currentUser.Id)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -135,7 +135,7 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 
 	err = ch.clusterApplication.DeleteCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 

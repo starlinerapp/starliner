@@ -48,7 +48,7 @@ func (th *TeamHandler) CreateTeam(c *gin.Context) {
 
 	newTeam, err := th.teamApplication.CreateTeam(c, team.Slug, organizationId, currentUser.Id)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusCreated, response.NewTeam(newTeam))
@@ -74,7 +74,7 @@ func (th *TeamHandler) DeleteTeam(c *gin.Context) {
 
 	err = th.teamApplication.DeleteTeam(c, currentUser.Id, teamId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -101,7 +101,7 @@ func (th *TeamHandler) GetUserTeams(c *gin.Context) {
 
 	teams, err := th.teamApplication.GetUserTeams(c, organizationId, currentUser.Id)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewTeams(teams))
@@ -127,7 +127,7 @@ func (th *TeamHandler) GetTeamMembers(c *gin.Context) {
 
 	teamMembers, err := th.teamApplication.GetTeamMembers(c, currentUser.Id, teamId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -160,7 +160,7 @@ func (th *TeamHandler) JoinTeam(c *gin.Context) {
 
 	err = th.teamApplication.JoinTeam(c, organizationId, currentUser.Id, body.Slug)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -194,7 +194,7 @@ func (th *TeamHandler) AddTeamMember(c *gin.Context) {
 
 	err = th.teamApplication.AddTeamMember(c, body.UserID, teamId, currentUser.Id)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -229,7 +229,7 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 
 	err = th.teamApplication.RemoveTeamMember(c, body.UserID, teamId, currentUser.Id)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -264,7 +264,7 @@ func (th *TeamHandler) SetTeamRepositories(c *gin.Context) {
 
 	err = th.teamApplication.SetTeamRepositories(c, currentUser.Id, teamId, repos)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -290,7 +290,7 @@ func (th *TeamHandler) GetTeamRepositories(c *gin.Context) {
 
 	repos, err := th.teamApplication.GetTeamRepositories(c, currentUser.Id, teamId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -316,7 +316,7 @@ func (th *TeamHandler) GetTeamClusters(c *gin.Context) {
 
 	clusters, err := th.teamApplication.GetTeamClusters(c, currentUser.Id, teamId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -352,7 +352,7 @@ func (th *TeamHandler) SetTeamClusters(c *gin.Context) {
 
 	err = th.teamApplication.SetTeamClusters(c, currentUser.Id, teamId, clusters)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 

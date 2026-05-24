@@ -40,7 +40,7 @@ func (bh *BuildHandler) GetBuildLogs(c *gin.Context) {
 
 	logs, err := bh.buildApplication.GetBuildLogs(c.Request.Context(), currentUser.Id, buildId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 

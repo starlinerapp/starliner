@@ -39,7 +39,7 @@ func (eh *EnvironmentHandler) CreateEnvironment(c *gin.Context) {
 
 	newEnv, err := eh.environmentApplication.CreateEnvironment(c.Request.Context(), env.Name, currentUser.Id, env.OrganizationID, env.ProjectID, env.SourceEnvironmentID)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusCreated, response.NewEnvironment(newEnv))
@@ -64,7 +64,7 @@ func (eh *EnvironmentHandler) DeleteEnvironment(c *gin.Context) {
 	}
 
 	if err = eh.environmentApplication.DeleteEnvironment(c.Request.Context(), currentUser.Id, environmentId); err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.Status(http.StatusOK)
@@ -90,7 +90,7 @@ func (eh *EnvironmentHandler) GetEnvironmentDeployments(c *gin.Context) {
 
 	deployments, err := eh.environmentApplication.GetEnvironmentDeployments(c.Request.Context(), environmentId, currentUser.Id)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewDeployments(deployments))
@@ -116,7 +116,7 @@ func (eh *EnvironmentHandler) GetEnvironmentBuilds(c *gin.Context) {
 
 	builds, err := eh.environmentApplication.GetEnvironmentGitDeploymentBuilds(c.Request.Context(), currentUser.Id, environmentId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, response.NewGitDeploymentBuilds(builds))
@@ -142,7 +142,7 @@ func (eh *EnvironmentHandler) GetEnvironmentConnectedBranch(c *gin.Context) {
 
 	branch, err := eh.environmentApplication.GetEnvironmentBranch(c.Request.Context(), currentUser.Id, environmentId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, response.EnvironmentBranch{Branch: branch})
@@ -174,7 +174,7 @@ func (eh *EnvironmentHandler) UpdateEnvironmentConnectedBranch(c *gin.Context) {
 
 	err = eh.environmentApplication.UpdateEnvironmentBranch(c.Request.Context(), currentUser.Id, environmentId, branch.Branch)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 

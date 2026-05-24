@@ -67,7 +67,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -111,7 +111,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 	)
 
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -148,7 +148,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -189,7 +189,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 			return
 		}
 
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -237,7 +237,7 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 			return
 		}
 
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -280,7 +280,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -324,7 +324,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		mapper.MapArgsFromRequest(body.Args),
 	)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -355,7 +355,7 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 		currentUser.Id,
 	)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 

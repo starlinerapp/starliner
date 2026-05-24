@@ -4,21 +4,21 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"starliner.app/internal/core/conf"
 	"time"
 
 	"github.com/getsentry/sentry-go"
 	"go.uber.org/fx"
-	"starliner.app/internal/api/conf"
 )
 
-func InitSentry(lc fx.Lifecycle, cfg *conf.Config) error {
-	if cfg.SentryDSN == "" {
+func InitSentry(lc fx.Lifecycle, sentryCfg conf.SentryConfig, envConfig conf.EnvironmentConfig) error {
+	if sentryCfg.GetSentryDSN() == "" {
 		log.Println("sentry: DSN not set, skipping init")
 		return nil
 	}
 	if err := sentry.Init(sentry.ClientOptions{
-		Dsn:         cfg.SentryDSN,
-		Environment: cfg.Environment,
+		Dsn:         sentryCfg.GetSentryDSN(),
+		Environment: envConfig.GetEnvironment(),
 	}); err != nil {
 		return fmt.Errorf("sentry init failed: %w", err)
 	}

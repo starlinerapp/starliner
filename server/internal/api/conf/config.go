@@ -87,3 +87,11 @@ func (c *Config) GetNatsUrl() string {
 func (c *Config) GetEncryptionKeyBase64() string {
 	return c.EncryptionKeyBase64
 }
+
+func (c *Config) GetSentryDSN() string {
+	return c.SentryDSN
+}
+
+func (c *Config) GetEnvironment() string {
+	return c.Environment
+}

@@ -41,7 +41,7 @@ func (gh *GithubAppHandler) CreateGithubApp(c *gin.Context) {
 
 	err := gh.githubAppApplication.CreateGitHubApp(c.Request.Context(), currentUser.Id, githubApp.OrganizationId, githubApp.InstallationId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	c.Status(http.StatusCreated)
@@ -67,7 +67,7 @@ func (gh *GithubAppHandler) GetGithubApp(c *gin.Context) {
 
 	ghApp, err := gh.githubAppApplication.GetGithubApp(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
-		RespondInternalError(c, err)
+		_ = c.Error(err)
 		return
 	}
 	if ghApp == nil {

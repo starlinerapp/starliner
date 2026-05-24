@@ -1,10 +1,9 @@
 package conf
 
 import (
-	"reflect"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
+	"reflect"
 )
 
 type Config struct {
@@ -13,6 +12,8 @@ type Config struct {
 	AWSAccessKeyId      string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
 	AWSSecretAccessKey  string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
+	SentryDSN           string `mapstructure:"SENTRY_DSN_API"`
+	Environment         string `mapstructure:"ENVIRONMENT"`
 	RedisAddr           string `mapstructure:"REDIS_ADDR" validate:"required"`
 	RedisPassword       string `mapstructure:"REDIS_PASSWORD" validate:"required"`
 }
@@ -73,4 +74,12 @@ func (c *Config) GetRedisAddr() string {
 
 func (c *Config) GetRedisPassword() string {
 	return c.RedisPassword
+}
+
+func (c *Config) GetSentryDSN() string {
+	return c.SentryDSN
+}
+
+func (c *Config) GetEnvironment() string {
+	return c.Environment
 }

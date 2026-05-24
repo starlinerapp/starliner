@@ -39,7 +39,7 @@ func NewServer(
 	internalHandler *handler.InternalHandler,
 ) *Server {
 	engine := gin.New()
-	engine.Use(gin.Logger(), gin.Recovery(), sentrygin.New(sentrygin.Options{Repanic: true}))
+	engine.Use(gin.Logger(), gin.Recovery(), sentrygin.New(sentrygin.Options{Repanic: true}), middleware.WithErrorReporting())
 
 	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
 	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
