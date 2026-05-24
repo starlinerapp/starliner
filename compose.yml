@@ -205,6 +205,9 @@ services:
       PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - ./server:/app
     networks:
@@ -405,6 +408,11 @@ services:
       dockerfile: .docker/redis/Dockerfile
     command: "redis-server --requirepass ${REDIS_PASSWORD:-password}"
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     volumes:
       - redis-data:/data
     networks:
