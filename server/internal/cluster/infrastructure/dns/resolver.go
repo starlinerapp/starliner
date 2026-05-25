@@ -1,16 +1,24 @@
-package application
+package dns
 
 import (
 	"context"
 	"fmt"
 	"net"
 	"time"
+
+	"starliner.app/internal/cluster/domain/port"
 )
 
-const dnsPollInterval = 5 * time.Second
+const pollInterval = 5 * time.Second
 
-func waitForDNS(ctx context.Context, host string, expectedIP string) error {
-	ticker := time.NewTicker(dnsPollInterval)
+type Resolver struct{}
+
+func NewResolver() port.DNS {
+	return &Resolver{}
+}
+
+func (r *Resolver) WaitForHost(ctx context.Context, host string, expectedIP string) error {
+	ticker := time.NewTicker(pollInterval)
 	defer ticker.Stop()
 
 	for {
@@ -31,7 +39,7 @@ func waitForDNS(ctx context.Context, host string, expectedIP string) error {
 	}
 }
 
-func allHostsResolve(hosts []string, expectedIP string) bool {
+func (r *Resolver) AllHostsResolve(hosts []string, expectedIP string) bool {
 	for _, host := range hosts {
 		ips, err := net.LookupHost(host)
 		if err != nil {

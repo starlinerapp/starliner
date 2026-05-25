@@ -4,6 +4,7 @@ import (
 	"go.uber.org/fx"
 	"starliner.app/internal/cluster/application"
 	"starliner.app/internal/cluster/conf"
+	"starliner.app/internal/cluster/infrastructure/dns"
 	"starliner.app/internal/cluster/infrastructure/helm"
 	"starliner.app/internal/cluster/infrastructure/k8s"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/pubsub"
@@ -19,6 +20,7 @@ func main() {
 		conf.Module,
 		crypto.Module,
 		helm.Module,
+		dns.Module,
 		k8s.Module,
 		queue.Module,
 		pubsub.Module,

@@ -11,11 +11,13 @@ import (
 
 type IngressApplication struct {
 	deploy port.Deploy
+	dns    port.DNS
 }
 
-func NewIngressApplication(deploy port.Deploy) *IngressApplication {
+func NewIngressApplication(deploy port.Deploy, dns port.DNS) *IngressApplication {
 	return &IngressApplication{
 		deploy: deploy,
+		dns:    dns,
 	}
 }
 
@@ -46,7 +48,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 		return
 	}
 
-	if !allHostsResolve(hostnames, i.ExpectedIP) {
+	if !ia.dns.AllHostsResolve(hostnames, i.ExpectedIP) {
 		log.Printf("deploying ingress without TLS for DNS propagation")
 		args.TLSEnabled = false
 		if err := ia.deploy.DeployIngress(args); err != nil {
@@ -59,7 +61,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 
 		for _, host := range hostnames {
 			log.Printf("waiting for DNS propagation: %s -> %s", host, i.ExpectedIP)
-			if err := waitForDNS(ctx, host, i.ExpectedIP); err != nil {
+			if err := ia.dns.WaitForHost(ctx, host, i.ExpectedIP); err != nil {
 				log.Printf("failed to wait for DNS for %s: %v\n", host, err)
 				return
 			}
