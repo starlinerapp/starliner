@@ -340,6 +340,10 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			errs = append(errs, err)
 			continue
 		}
+		if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
+			errs = append(errs, fmt.Errorf("cluster ipv4 address is not set"))
+			continue
+		}
 		kubeconfigBase64, err := ga.crypto.Decrypt(*cluster.Kubeconfig)
 		if err != nil {
 			errs = append(errs, err)
@@ -393,6 +397,7 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				DeploymentName:   d.ServiceName,
 				Namespace:        newEnv.Namespace,
 				KubeconfigBase64: kubeconfigBase64,
+				ExpectedIP:       *cluster.IPv4Address,
 			})
 			if err != nil {
 				errs = append(errs, err)

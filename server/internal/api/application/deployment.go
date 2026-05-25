@@ -538,6 +538,9 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
+	if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
+		return fmt.Errorf("cluster ipv4 address is not set")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -583,6 +586,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		DeploymentName:   ingressDeployment.Name,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
+		ExpectedIP:       *cluster.IPv4Address,
 	})
 
 	if err != nil {
@@ -648,6 +652,9 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
+	if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
+		return fmt.Errorf("cluster ipv4 address is not set")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -693,6 +700,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		DeploymentName:   ingressDeployment.Name,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
+		ExpectedIP:       *cluster.IPv4Address,
 	})
 
 	if err != nil {

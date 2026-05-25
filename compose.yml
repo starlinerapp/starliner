@@ -182,6 +182,7 @@ services:
     environment:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      CF_API_TOKEN: ${CF_API_TOKEN}
     volumes:
       - ./server:/app
     networks:

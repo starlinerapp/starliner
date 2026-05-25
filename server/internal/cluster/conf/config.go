@@ -1,14 +1,16 @@
 package conf
 
 import (
+	"reflect"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
-	"reflect"
 )
 
 type Config struct {
 	NatsUrl             string `mapstructure:"NATS_URL" validate:"required"`
 	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
+	CFApiToken          string `mapstructure:"CF_API_TOKEN" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {

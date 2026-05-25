@@ -59,6 +59,7 @@ type IngressDeployment struct {
 	DeploymentName   string
 	Namespace        string
 	KubeconfigBase64 string
+	ExpectedIP       string
 	IngressHosts     []IngressHost
 }
 
