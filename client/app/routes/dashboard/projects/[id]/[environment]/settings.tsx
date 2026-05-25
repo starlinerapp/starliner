@@ -263,7 +263,11 @@ export default function ProjectSettings() {
         open={showDeleteEnvDialog}
         onOpenChange={setShowDeleteEnvDialog}
         title="Delete this Environment"
+        bannerText={
+          "Deleting this environment will permanently delete all deployments associated with it."
+        }
         description="Are you sure you want to delete this environment? This action cannot be undone."
+        isPending={deleteEnvironmentMutation.isPending}
         onConfirm={() => {
           if (environmentId == null) return;
           deleteEnvironmentMutation.mutate({ id: environmentId });
@@ -274,7 +278,11 @@ export default function ProjectSettings() {
         open={showDeleteProjectDialog}
         onOpenChange={setShowDeleteProjectDialog}
         title="Delete this Project"
-        description="Are you sure you want to delete this project? All environments and deployments associated with it will be permanently removed."
+        bannerText={
+          "Deleting this project will permanently delete all environments and deployments associated with it."
+        }
+        description="Are you sure you want to delete this project? This action cannot be undone."
+        isPending={deleteProjectMutation.isPending}
         onConfirm={() => deleteProjectMutation.mutate({ id: projectId })}
       />
     </>

@@ -113,7 +113,11 @@ export default function Settings() {
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         title="Delete this Cluster"
-        description="Are you sure you want to delete this cluster? This action cannot be undone and all associated resources will be permanently removed."
+        bannerText={
+          "Deleting this cluster will permanently delete all associated resources."
+        }
+        description="Are you sure you want to delete this cluster? This action cannot be undone."
+        isPending={deleteClusterMutation.isPending}
         onConfirm={() => deleteClusterMutation.mutate({ id: Number(id) })}
       />
     </>
