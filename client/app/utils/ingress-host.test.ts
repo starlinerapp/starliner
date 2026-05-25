@@ -14,13 +14,22 @@ describe("ingress-host", () => {
 
   it("resolves domain tiers", () => {
     expect(
-      getIngressHostDomain({ isLocal: true, environmentSlug: "production" }),
+      getIngressHostDomain({
+        deploymentEnvironment: "local",
+        environmentSlug: "production",
+      }),
     ).toBe("local");
     expect(
-      getIngressHostDomain({ isLocal: false, environmentSlug: "production" }),
+      getIngressHostDomain({
+        deploymentEnvironment: "production",
+        environmentSlug: "production",
+      }),
     ).toBe("production");
     expect(
-      getIngressHostDomain({ isLocal: false, environmentSlug: "preview" }),
+      getIngressHostDomain({
+        deploymentEnvironment: "staging",
+        environmentSlug: "preview",
+      }),
     ).toBe("staging");
   });
 

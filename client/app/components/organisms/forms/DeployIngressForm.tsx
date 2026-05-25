@@ -37,6 +37,7 @@ export interface IngressFormInput {
 }
 
 interface DeployIngressFormProps {
+  deploymentEnvironment: string;
   defaultValues?: IngressFormInput;
   onSubmit: (data: IngressFormInput) => Promise<void>;
   resetOnSuccess?: boolean;
@@ -46,6 +47,7 @@ const emptyPathEntry: Path = { path: "", pathType: "", service: "" };
 const emptyHostEntry: Host = { name: "", paths: [emptyPathEntry] };
 
 export default function DeployIngressForm({
+  deploymentEnvironment,
   defaultValues,
   onSubmit,
   resetOnSuccess = false,
@@ -54,7 +56,7 @@ export default function DeployIngressForm({
   const { environment } = useEnvironment();
 
   const domain = getIngressHostDomain({
-    isLocal: import.meta.env.DEV,
+    deploymentEnvironment,
     environmentSlug: environment?.slug ?? "production",
   });
 

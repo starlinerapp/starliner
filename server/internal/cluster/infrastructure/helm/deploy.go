@@ -124,7 +124,7 @@ func (d *Deploy) DeployExternalDNS(namespace string, releaseName string, kubecon
 			"provider": map[string]interface{}{
 				"name": "cloudflare",
 			},
-			"policy": "sync",
+			"policy": "upsert-only",
 			"env": []interface{}{
 				map[string]interface{}{
 					"name": "CF_API_TOKEN",

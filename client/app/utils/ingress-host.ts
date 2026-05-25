@@ -1,10 +1,10 @@
 export type IngressHostDomain = "production" | "staging" | "local";
 
 export function getIngressHostDomain(options: {
-  isLocal: boolean;
+  deploymentEnvironment: string;
   environmentSlug: string;
 }): IngressHostDomain {
-  if (options.isLocal) {
+  if (options.deploymentEnvironment === "local") {
     return "local";
   }
 
