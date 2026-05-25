@@ -58,10 +58,21 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 }
 
 func (ia *IngressApplication) HandleEnableIngressTLS(i *value.IngressDeployment) {
+	deployment := *i
+	go ia.enableIngressTLS(deployment)
+}
+
+func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("enable ingress TLS panic: %v", r)
+		}
+	}()
+
 	releaseName := i.DeploymentName
 	hosts := toPortIngressHosts(i.IngressHosts)
-	hostnames := ingressHostnames(i)
-	args := newDeployIngressArgs(i, releaseName, hosts)
+	hostnames := ingressHostnames(&i)
+	args := newDeployIngressArgs(&i, releaseName, hosts)
 
 	if i.ExpectedIP == "" {
 		log.Printf("failed to enable ingress TLS: cluster expected IP is not set\n")
@@ -76,7 +87,7 @@ func (ia *IngressApplication) HandleEnableIngressTLS(i *value.IngressDeployment)
 			log.Printf("waiting for DNS propagation: %s -> %s", host, i.ExpectedIP)
 			if err := ia.dns.WaitForHost(ctx, host, i.ExpectedIP); err != nil {
 				log.Printf("failed to wait for DNS for %s: %v\n", host, err)
-				if err := ia.queue.PublishEnableIngressTLS(i); err != nil {
+				if err := ia.queue.PublishEnableIngressTLS(&i); err != nil {
 					log.Printf("failed to republish enable ingress tls: %v\n", err)
 				}
 				return
