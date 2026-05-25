@@ -264,7 +264,6 @@ export default function ProjectSettings() {
         onOpenChange={setShowDeleteEnvDialog}
         title="Delete this Environment"
         description="Are you sure you want to delete this environment? This action cannot be undone."
-        isPending={deleteEnvironmentMutation.isPending}
         onConfirm={() => {
           if (environmentId == null) return;
           deleteEnvironmentMutation.mutate({ id: environmentId });
