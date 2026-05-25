@@ -1,6 +1,10 @@
 import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
 import { environmentApiFactory } from "~/server/api/clients/server";
+import type { AxiosResponse } from "axios";
+import { Readable } from "stream";
+import { cache } from "~/server/services/cache";
+import { randomUUID } from "crypto";
 
 export const environmentRouter = {
   createEnvironment: protectedProcedure
@@ -85,5 +89,67 @@ export const environmentRouter = {
           branch: input.branchName,
         })
         .then((res) => res.data);
+    }),
+  streamDeploymentNotifications: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .subscription(async function* ({ input, ctx, signal }) {
+      const userId = ctx.user?.id;
+
+      let correlationId = await cache.get(userId);
+
+      if (!correlationId) {
+        correlationId = randomUUID();
+        await cache.set(`user:${userId}`, correlationId, 60 * 60 * 60);
+      }
+
+      let response: AxiosResponse<Readable> | undefined;
+      try {
+        // @ts-expect-error OpenAPI doesn't support SSE
+        response = await environmentApiFactory.streamEnvironmentNotifications(
+          userId,
+          correlationId,
+          input.id,
+          { responseType: "stream", signal },
+        );
+
+        signal?.addEventListener("abort", () => {
+          response?.data?.destroy();
+        });
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        for await (const chunk of response!.data) {
+          if (signal?.aborted) {
+            break;
+          }
+
+          buffer += decoder.decode(chunk, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const raw = line.slice(6).trim();
+              if (raw) {
+                try {
+                  yield JSON.parse(raw);
+                } catch {
+                  yield raw;
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        if (signal?.aborted) return;
+        throw e;
+      } finally {
+        response?.data?.destroy();
+      }
     }),
 };

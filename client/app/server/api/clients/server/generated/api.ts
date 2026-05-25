@@ -467,19 +467,6 @@ export interface RequestJoinTeam {
 /**
  *
  * @export
- * @interface RequestRemoveTeamMember
- */
-export interface RequestRemoveTeamMember {
-  /**
-   *
-   * @type {number}
-   * @memberof RequestRemoveTeamMember
-   */
-  userId: number;
-}
-/**
- *
- * @export
  * @interface RequestRemoveOrganizationMember
  */
 export interface RequestRemoveOrganizationMember {
@@ -487,6 +474,19 @@ export interface RequestRemoveOrganizationMember {
    *
    * @type {number}
    * @memberof RequestRemoveOrganizationMember
+   */
+  userId: number;
+}
+/**
+ *
+ * @export
+ * @interface RequestRemoveTeamMember
+ */
+export interface RequestRemoveTeamMember {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestRemoveTeamMember
    */
   userId: number;
 }
@@ -504,16 +504,16 @@ export interface RequestSendInvite {
   inviteUrlPrefix: string;
   /**
    *
-   * @type {Array<string>}
-   * @memberof RequestSendInvite
-   */
-  toEmails: Array<string>;
-  /**
-   *
    * @type {number}
    * @memberof RequestSendInvite
    */
   teamId?: number;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof RequestSendInvite
+   */
+  toEmails: Array<string>;
 }
 /**
  *
@@ -2688,17 +2688,21 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Delete deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deleteDeployment: async (
       xUserID: string,
+      xCorrelationID: string,
       id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("deleteDeployment", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists("deleteDeployment", "xCorrelationID", xCorrelationID);
       // verify required parameter 'id' is not null or undefined
       assertParamExists("deleteDeployment", "id", id);
       const localVarPath = `/deployments/{id}`.replace(
@@ -2723,6 +2727,9 @@ export const DeploymentApiAxiosParamCreator = function (
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
       }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2741,17 +2748,21 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Deploy database
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployDatabase} data Deploy Database
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployDatabase: async (
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployDatabase,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("deployDatabase", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists("deployDatabase", "xCorrelationID", xCorrelationID);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("deployDatabase", "data", data);
       const localVarPath = `/deployments/databases`;
@@ -2774,6 +2785,9 @@ export const DeploymentApiAxiosParamCreator = function (
 
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
       }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
@@ -2798,17 +2812,25 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Deploy from Git Repository
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployFromGit} data Deploy from Git
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployFromGitRepository: async (
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployFromGit,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("deployFromGitRepository", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists(
+        "deployFromGitRepository",
+        "xCorrelationID",
+        xCorrelationID,
+      );
       // verify required parameter 'data' is not null or undefined
       assertParamExists("deployFromGitRepository", "data", data);
       const localVarPath = `/deployments/git`;
@@ -2831,6 +2853,9 @@ export const DeploymentApiAxiosParamCreator = function (
 
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
       }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
@@ -2855,17 +2880,21 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Deploy image
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployImage} data Deploy Image
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployImage: async (
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployImage,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("deployImage", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists("deployImage", "xCorrelationID", xCorrelationID);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("deployImage", "data", data);
       const localVarPath = `/deployments/images`;
@@ -2888,6 +2917,9 @@ export const DeploymentApiAxiosParamCreator = function (
 
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
       }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
@@ -2912,17 +2944,21 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Deploy ingress
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployIngress} data Deploy Ingress
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployIngress: async (
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployIngress,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("deployIngress", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists("deployIngress", "xCorrelationID", xCorrelationID);
       // verify required parameter 'data' is not null or undefined
       assertParamExists("deployIngress", "data", data);
       const localVarPath = `/deployments/ingresses`;
@@ -2945,6 +2981,9 @@ export const DeploymentApiAxiosParamCreator = function (
 
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
       }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
@@ -3022,6 +3061,7 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Update Deploy from Git
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
      * @param {*} [options] Override http request option.
@@ -3029,12 +3069,19 @@ export const DeploymentApiAxiosParamCreator = function (
      */
     updateDeployFromGitRepository: async (
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateDeployFromGit,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("updateDeployFromGitRepository", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists(
+        "updateDeployFromGitRepository",
+        "xCorrelationID",
+        xCorrelationID,
+      );
       // verify required parameter 'deploymentId' is not null or undefined
       assertParamExists(
         "updateDeployFromGitRepository",
@@ -3067,6 +3114,9 @@ export const DeploymentApiAxiosParamCreator = function (
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
       }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3090,6 +3140,7 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Update image deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateImage} data Update Image
      * @param {*} [options] Override http request option.
@@ -3097,12 +3148,19 @@ export const DeploymentApiAxiosParamCreator = function (
      */
     updateImageDeployment: async (
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateImage,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("updateImageDeployment", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists(
+        "updateImageDeployment",
+        "xCorrelationID",
+        xCorrelationID,
+      );
       // verify required parameter 'deploymentId' is not null or undefined
       assertParamExists("updateImageDeployment", "deploymentId", deploymentId);
       // verify required parameter 'data' is not null or undefined
@@ -3131,6 +3189,9 @@ export const DeploymentApiAxiosParamCreator = function (
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
       }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
+      }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
         baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3154,6 +3215,7 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Update ingress deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateIngress} data Update Ingress
      * @param {*} [options] Override http request option.
@@ -3161,12 +3223,19 @@ export const DeploymentApiAxiosParamCreator = function (
      */
     updateIngressDeployment: async (
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateIngress,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("updateIngressDeployment", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists(
+        "updateIngressDeployment",
+        "xCorrelationID",
+        xCorrelationID,
+      );
       // verify required parameter 'deploymentId' is not null or undefined
       assertParamExists(
         "updateIngressDeployment",
@@ -3198,6 +3267,9 @@ export const DeploymentApiAxiosParamCreator = function (
 
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
       }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
@@ -3233,19 +3305,26 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Delete deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async deleteDeployment(
       xUserID: string,
+      xCorrelationID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
     > {
       const localVarAxiosArgs =
-        await localVarAxiosParamCreator.deleteDeployment(xUserID, id, options);
+        await localVarAxiosParamCreator.deleteDeployment(
+          xUserID,
+          xCorrelationID,
+          id,
+          options,
+        );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["DeploymentApi.deleteDeployment"]?.[
@@ -3263,12 +3342,14 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Deploy database
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployDatabase} data Deploy Database
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async deployDatabase(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployDatabase,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -3276,6 +3357,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deployDatabase(
         xUserID,
+        xCorrelationID,
         data,
         options,
       );
@@ -3296,12 +3378,14 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Deploy from Git Repository
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployFromGit} data Deploy from Git
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async deployFromGitRepository(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployFromGit,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -3310,6 +3394,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.deployFromGitRepository(
           xUserID,
+          xCorrelationID,
           data,
           options,
         );
@@ -3330,12 +3415,14 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Deploy image
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployImage} data Deploy Image
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async deployImage(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployImage,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -3343,6 +3430,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deployImage(
         xUserID,
+        xCorrelationID,
         data,
         options,
       );
@@ -3363,12 +3451,14 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Deploy ingress
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployIngress} data Deploy Ingress
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async deployIngress(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployIngress,
       options?: RawAxiosRequestConfig,
     ): Promise<
@@ -3376,6 +3466,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deployIngress(
         xUserID,
+        xCorrelationID,
         data,
         options,
       );
@@ -3430,6 +3521,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Update Deploy from Git
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
      * @param {*} [options] Override http request option.
@@ -3437,6 +3529,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      */
     async updateDeployFromGitRepository(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateDeployFromGit,
       options?: RawAxiosRequestConfig,
@@ -3446,6 +3539,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateDeployFromGitRepository(
           xUserID,
+          xCorrelationID,
           deploymentId,
           data,
           options,
@@ -3467,6 +3561,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Update image deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateImage} data Update Image
      * @param {*} [options] Override http request option.
@@ -3474,6 +3569,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      */
     async updateImageDeployment(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateImage,
       options?: RawAxiosRequestConfig,
@@ -3483,6 +3579,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateImageDeployment(
           xUserID,
+          xCorrelationID,
           deploymentId,
           data,
           options,
@@ -3504,6 +3601,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Update ingress deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateIngress} data Update Ingress
      * @param {*} [options] Override http request option.
@@ -3511,6 +3609,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      */
     async updateIngressDeployment(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
@@ -3520,6 +3619,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateIngressDeployment(
           xUserID,
+          xCorrelationID,
           deploymentId,
           data,
           options,
@@ -3555,85 +3655,95 @@ export const DeploymentApiFactory = function (
      *
      * @summary Delete deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} id Deployment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deleteDeployment(
       xUserID: string,
+      xCorrelationID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .deleteDeployment(xUserID, id, options)
+        .deleteDeployment(xUserID, xCorrelationID, id, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Deploy database
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployDatabase} data Deploy Database
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployDatabase(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployDatabase,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .deployDatabase(xUserID, data, options)
+        .deployDatabase(xUserID, xCorrelationID, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Deploy from Git Repository
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployFromGit} data Deploy from Git
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployFromGitRepository(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployFromGit,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .deployFromGitRepository(xUserID, data, options)
+        .deployFromGitRepository(xUserID, xCorrelationID, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Deploy image
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployImage} data Deploy Image
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployImage(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployImage,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .deployImage(xUserID, data, options)
+        .deployImage(xUserID, xCorrelationID, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Deploy ingress
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {RequestDeployIngress} data Deploy Ingress
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     deployIngress(
       xUserID: string,
+      xCorrelationID: string,
       data: RequestDeployIngress,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .deployIngress(xUserID, data, options)
+        .deployIngress(xUserID, xCorrelationID, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -3657,6 +3767,7 @@ export const DeploymentApiFactory = function (
      *
      * @summary Update Deploy from Git
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
      * @param {*} [options] Override http request option.
@@ -3664,18 +3775,26 @@ export const DeploymentApiFactory = function (
      */
     updateDeployFromGitRepository(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateDeployFromGit,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .updateDeployFromGitRepository(xUserID, deploymentId, data, options)
+        .updateDeployFromGitRepository(
+          xUserID,
+          xCorrelationID,
+          deploymentId,
+          data,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Update image deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateImage} data Update Image
      * @param {*} [options] Override http request option.
@@ -3683,18 +3802,26 @@ export const DeploymentApiFactory = function (
      */
     updateImageDeployment(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateImage,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .updateImageDeployment(xUserID, deploymentId, data, options)
+        .updateImageDeployment(
+          xUserID,
+          xCorrelationID,
+          deploymentId,
+          data,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
      *
      * @summary Update ingress deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateIngress} data Update Ingress
      * @param {*} [options] Override http request option.
@@ -3702,12 +3829,19 @@ export const DeploymentApiFactory = function (
      */
     updateIngressDeployment(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<void> {
       return localVarFp
-        .updateIngressDeployment(xUserID, deploymentId, data, options)
+        .updateIngressDeployment(
+          xUserID,
+          xCorrelationID,
+          deploymentId,
+          data,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
   };
@@ -3724,6 +3858,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Delete deployment
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {number} id Deployment ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -3731,11 +3866,12 @@ export class DeploymentApi extends BaseAPI {
    */
   public deleteDeployment(
     xUserID: string,
+    xCorrelationID: string,
     id: number,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .deleteDeployment(xUserID, id, options)
+      .deleteDeployment(xUserID, xCorrelationID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3743,6 +3879,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Deploy database
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {RequestDeployDatabase} data Deploy Database
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -3750,11 +3887,12 @@ export class DeploymentApi extends BaseAPI {
    */
   public deployDatabase(
     xUserID: string,
+    xCorrelationID: string,
     data: RequestDeployDatabase,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .deployDatabase(xUserID, data, options)
+      .deployDatabase(xUserID, xCorrelationID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3762,6 +3900,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Deploy from Git Repository
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {RequestDeployFromGit} data Deploy from Git
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -3769,11 +3908,12 @@ export class DeploymentApi extends BaseAPI {
    */
   public deployFromGitRepository(
     xUserID: string,
+    xCorrelationID: string,
     data: RequestDeployFromGit,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .deployFromGitRepository(xUserID, data, options)
+      .deployFromGitRepository(xUserID, xCorrelationID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3781,6 +3921,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Deploy image
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {RequestDeployImage} data Deploy Image
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -3788,11 +3929,12 @@ export class DeploymentApi extends BaseAPI {
    */
   public deployImage(
     xUserID: string,
+    xCorrelationID: string,
     data: RequestDeployImage,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .deployImage(xUserID, data, options)
+      .deployImage(xUserID, xCorrelationID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3800,6 +3942,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Deploy ingress
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {RequestDeployIngress} data Deploy Ingress
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -3807,11 +3950,12 @@ export class DeploymentApi extends BaseAPI {
    */
   public deployIngress(
     xUserID: string,
+    xCorrelationID: string,
     data: RequestDeployIngress,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .deployIngress(xUserID, data, options)
+      .deployIngress(xUserID, xCorrelationID, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3838,6 +3982,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Update Deploy from Git
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {number} deploymentId Deployment ID
    * @param {RequestUpdateDeployFromGit} data Update Deploy from Git
    * @param {*} [options] Override http request option.
@@ -3846,12 +3991,19 @@ export class DeploymentApi extends BaseAPI {
    */
   public updateDeployFromGitRepository(
     xUserID: string,
+    xCorrelationID: string,
     deploymentId: number,
     data: RequestUpdateDeployFromGit,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .updateDeployFromGitRepository(xUserID, deploymentId, data, options)
+      .updateDeployFromGitRepository(
+        xUserID,
+        xCorrelationID,
+        deploymentId,
+        data,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3859,6 +4011,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Update image deployment
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {number} deploymentId Deployment ID
    * @param {RequestUpdateImage} data Update Image
    * @param {*} [options] Override http request option.
@@ -3867,12 +4020,19 @@ export class DeploymentApi extends BaseAPI {
    */
   public updateImageDeployment(
     xUserID: string,
+    xCorrelationID: string,
     deploymentId: number,
     data: RequestUpdateImage,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .updateImageDeployment(xUserID, deploymentId, data, options)
+      .updateImageDeployment(
+        xUserID,
+        xCorrelationID,
+        deploymentId,
+        data,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3880,6 +4040,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Update ingress deployment
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {number} deploymentId Deployment ID
    * @param {RequestUpdateIngress} data Update Ingress
    * @param {*} [options] Override http request option.
@@ -3888,12 +4049,19 @@ export class DeploymentApi extends BaseAPI {
    */
   public updateIngressDeployment(
     xUserID: string,
+    xCorrelationID: string,
     deploymentId: number,
     data: RequestUpdateIngress,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .updateIngressDeployment(xUserID, deploymentId, data, options)
+      .updateIngressDeployment(
+        xUserID,
+        xCorrelationID,
+        deploymentId,
+        data,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 }
@@ -4177,6 +4345,70 @@ export const EnvironmentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Stream environment notifications
+     * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamEnvironmentNotifications: async (
+      xUserID: string,
+      xCorrelationID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("streamEnvironmentNotifications", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists(
+        "streamEnvironmentNotifications",
+        "xCorrelationID",
+        xCorrelationID,
+      );
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("streamEnvironmentNotifications", "id", id);
+      const localVarPath = `/environments/{id}/notifications`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Update Environment Connected Branch
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -4430,6 +4662,43 @@ export const EnvironmentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Stream environment notifications
+     * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async streamEnvironmentNotifications(
+      xUserID: string,
+      xCorrelationID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.streamEnvironmentNotifications(
+          xUserID,
+          xCorrelationID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["EnvironmentApi.streamEnvironmentNotifications"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Update Environment Connected Branch
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -4566,6 +4835,25 @@ export const EnvironmentApiFactory = function (
     },
     /**
      *
+     * @summary Stream environment notifications
+     * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
+     * @param {number} id Environment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamEnvironmentNotifications(
+      xUserID: string,
+      xCorrelationID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .streamEnvironmentNotifications(xUserID, xCorrelationID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Update Environment Connected Branch
      * @param {string} xUserID User ID
      * @param {number} id Environment ID
@@ -4685,6 +4973,27 @@ export class EnvironmentApi extends BaseAPI {
   ) {
     return EnvironmentApiFp(this.configuration)
       .getEnvironmentDeployments(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Stream environment notifications
+   * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
+   * @param {number} id Environment ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof EnvironmentApi
+   */
+  public streamEnvironmentNotifications(
+    xUserID: string,
+    xCorrelationID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return EnvironmentApiFp(this.configuration)
+      .streamEnvironmentNotifications(xUserID, xCorrelationID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5656,6 +5965,178 @@ export class GithubappApi extends BaseAPI {
 }
 
 /**
+ * NotificationsApi - axios parameter creator
+ * @export
+ */
+export const NotificationsApiAxiosParamCreator = function (
+  configuration?: Configuration,
+) {
+  return {
+    /**
+     *
+     * @summary Stream global notifications
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamGlobalNotifications: async (
+      xUserID: string,
+      organizationId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("streamGlobalNotifications", "xUserID", xUserID);
+      // verify required parameter 'organizationId' is not null or undefined
+      assertParamExists(
+        "streamGlobalNotifications",
+        "organizationId",
+        organizationId,
+      );
+      const localVarPath = `/notifications`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (organizationId !== undefined) {
+        localVarQueryParameter["organizationId"] = organizationId;
+      }
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * NotificationsApi - functional programming interface
+ * @export
+ */
+export const NotificationsApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator =
+    NotificationsApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @summary Stream global notifications
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async streamGlobalNotifications(
+      xUserID: string,
+      organizationId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.streamGlobalNotifications(
+          xUserID,
+          organizationId,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["NotificationsApi.streamGlobalNotifications"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * NotificationsApi - factory interface
+ * @export
+ */
+export const NotificationsApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
+  const localVarFp = NotificationsApiFp(configuration);
+  return {
+    /**
+     *
+     * @summary Stream global notifications
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamGlobalNotifications(
+      xUserID: string,
+      organizationId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .streamGlobalNotifications(xUserID, organizationId, options)
+        .then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * NotificationsApi - object-oriented interface
+ * @export
+ * @class NotificationsApi
+ * @extends {BaseAPI}
+ */
+export class NotificationsApi extends BaseAPI {
+  /**
+   *
+   * @summary Stream global notifications
+   * @param {string} xUserID User ID
+   * @param {number} organizationId Organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof NotificationsApi
+   */
+  public streamGlobalNotifications(
+    xUserID: string,
+    organizationId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return NotificationsApiFp(this.configuration)
+      .streamGlobalNotifications(xUserID, organizationId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+}
+
+/**
  * OrganizationApi - axios parameter creator
  * @export
  */
@@ -5992,70 +6473,6 @@ export const OrganizationApiAxiosParamCreator = function (
     },
     /**
      *
-     * @summary Remove member from organization
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    removeOrganizationMember: async (
-      xUserID: string,
-      id: number,
-      data: RequestRemoveOrganizationMember,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("removeOrganizationMember", "xUserID", xUserID);
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists("removeOrganizationMember", "id", id);
-      // verify required parameter 'data' is not null or undefined
-      assertParamExists("removeOrganizationMember", "data", data);
-      const localVarPath = `/organizations/{id}/members`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = {
-        method: "DELETE",
-        ...baseOptions,
-        ...options,
-      };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter["Content-Type"] = "application/json";
-
-      if (xUserID != null) {
-        localVarHeaderParameter["X-User-ID"] = String(xUserID);
-      }
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        data,
-        localVarRequestOptions,
-        configuration,
-      );
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -6147,6 +6564,70 @@ export const OrganizationApiAxiosParamCreator = function (
         ...headersFromBaseOptions,
         ...options.headers,
       };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Remove member from organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    removeOrganizationMember: async (
+      xUserID: string,
+      id: number,
+      data: RequestRemoveOrganizationMember,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("removeOrganizationMember", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("removeOrganizationMember", "id", id);
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("removeOrganizationMember", "data", data);
+      const localVarPath = `/organizations/{id}/members`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -6514,43 +6995,6 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @summary Remove member from organization
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async removeOrganizationMember(
-      xUserID: string,
-      id: number,
-      data: RequestRemoveOrganizationMember,
-      options?: RawAxiosRequestConfig,
-    ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.removeOrganizationMember(
-          xUserID,
-          id,
-          data,
-          options,
-        );
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["OrganizationApi.removeOrganizationMember"]?.[
-          localVarOperationServerIndex
-        ]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-    /**
-     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -6606,6 +7050,43 @@ export const OrganizationApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["OrganizationApi.getUserProjects"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Remove member from organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async removeOrganizationMember(
+      xUserID: string,
+      id: number,
+      data: RequestRemoveOrganizationMember,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.removeOrganizationMember(
+          xUserID,
+          id,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["OrganizationApi.removeOrganizationMember"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -6808,25 +7289,6 @@ export const OrganizationApiFactory = function (
     },
     /**
      *
-     * @summary Remove member from organization
-     * @param {string} xUserID User ID
-     * @param {number} id Organization ID
-     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    removeOrganizationMember(
-      xUserID: string,
-      id: number,
-      data: RequestRemoveOrganizationMember,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
-      return localVarFp
-        .removeOrganizationMember(xUserID, id, data, options)
-        .then((request) => request(axios, basePath));
-    },
-    /**
-     *
      * @summary Get user organizations
      * @param {string} xUserID User ID
      * @param {*} [options] Override http request option.
@@ -6855,6 +7317,25 @@ export const OrganizationApiFactory = function (
     ): AxiosPromise<Array<ResponseProject>> {
       return localVarFp
         .getUserProjects(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Remove member from organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    removeOrganizationMember(
+      xUserID: string,
+      id: number,
+      data: RequestRemoveOrganizationMember,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .removeOrganizationMember(xUserID, id, data, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -7021,27 +7502,6 @@ export class OrganizationApi extends BaseAPI {
 
   /**
    *
-   * @summary Remove member from organization
-   * @param {string} xUserID User ID
-   * @param {number} id Organization ID
-   * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof OrganizationApi
-   */
-  public removeOrganizationMember(
-    xUserID: string,
-    id: number,
-    data: RequestRemoveOrganizationMember,
-    options?: RawAxiosRequestConfig,
-  ) {
-    return OrganizationApiFp(this.configuration)
-      .removeOrganizationMember(xUserID, id, data, options)
-      .then((request) => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
    * @summary Get user organizations
    * @param {string} xUserID User ID
    * @param {*} [options] Override http request option.
@@ -7073,6 +7533,27 @@ export class OrganizationApi extends BaseAPI {
   ) {
     return OrganizationApiFp(this.configuration)
       .getUserProjects(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Remove member from organization
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {RequestRemoveOrganizationMember} data ID of the member to remove from the organization
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof OrganizationApi
+   */
+  public removeOrganizationMember(
+    xUserID: string,
+    id: number,
+    data: RequestRemoveOrganizationMember,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return OrganizationApiFp(this.configuration)
+      .removeOrganizationMember(xUserID, id, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

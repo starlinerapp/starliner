@@ -79,6 +79,8 @@ services:
       AUTH_URL: ${AUTH_URL:-http://auth:3000}
       AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules

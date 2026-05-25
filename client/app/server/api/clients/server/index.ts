@@ -11,6 +11,7 @@ import {
   TeamApiFactory,
   GithubappApiFactory,
   GithubApiFactory,
+  NotificationsApiFactory,
 } from "./generated";
 
 import { serverEnv } from "~/env.server";
@@ -81,6 +82,12 @@ export const githubApiFactory = GithubApiFactory(
 );
 
 export const githubappApiFactory = GithubappApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const notificationsApiFactory = NotificationsApiFactory(
   configuration,
   undefined,
   axiosInstance,

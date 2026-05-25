@@ -3,27 +3,31 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"log"
+	"strconv"
+
+	"github.com/nats-io/nats.go"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
-	"strconv"
 )
 
 const (
-	BuildTriggered    jetstream.Subject = "build.triggered"
-	BuildCompleted    jetstream.Subject = "build.completed"
-	CreateCluster     jetstream.Subject = "create.cluster"
-	ClusterCreated    jetstream.Subject = "cluster.created"
-	DeleteCluster     jetstream.Subject = "delete.cluster"
-	ClusterDeleted    jetstream.Subject = "cluster.deleted"
-	DeployImage       jetstream.Subject = "deploy.image"
-	DeployDatabase    jetstream.Subject = "deploy.database"
-	DatabaseDeployed  jetstream.Subject = "database.deployed"
-	DeployIngress     jetstream.Subject = "deploy.ingress"
-	DeleteDeployment  jetstream.Subject = "delete.deployment"
-	DeploymentDeleted jetstream.Subject = "deployment.deleted"
+	BuildTriggered         jetstream.Subject = "build.triggered"
+	BuildCompleted         jetstream.Subject = "build.completed"
+	CreateCluster          jetstream.Subject = "create.cluster"
+	ClusterCreated         jetstream.Subject = "cluster.created"
+	DeleteCluster          jetstream.Subject = "delete.cluster"
+	ClusterDeleted         jetstream.Subject = "cluster.deleted"
+	DeployImage            jetstream.Subject = "deploy.image"
+	DeployDatabase         jetstream.Subject = "deploy.database"
+	DatabaseDeployed       jetstream.Subject = "database.deployed"
+	DeployIngress          jetstream.Subject = "deploy.ingress"
+	DeleteDeployment       jetstream.Subject = "delete.deployment"
+	DeploymentDeleted      jetstream.Subject = "deployment.deleted"
+	DeploymentNotification jetstream.Subject = "deployment.notification"
+	BuildNotification      jetstream.Subject = "build.notification"
+	ClusterNotification    jetstream.Subject = "cluster.notification"
 )
 
 type Queue struct {
@@ -148,5 +152,35 @@ func (q *Queue) SubscribeToBuildCompleted(handler func(build *value.BuildComplet
 			log.Printf("failed to unmarshal: %v", err)
 		}
 		handler(&b)
+	})
+}
+
+func (q *Queue) SubscribeToDeploymentNotification(handler func(notification *value.EnvironmentNotification)) error {
+	return q.subscriber.Subscribe(DeploymentNotification, "*", "deploymentNotification", func(msg []byte) {
+		var n value.EnvironmentNotification
+		if err := json.Unmarshal(msg, &n); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&n)
+	})
+}
+
+func (q *Queue) SubscribeToBuildNotification(handler func(notification *value.EnvironmentNotification)) error {
+	return q.subscriber.Subscribe(BuildNotification, "*", "buildNotification", func(msg []byte) {
+		var n value.EnvironmentNotification
+		if err := json.Unmarshal(msg, &n); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&n)
+	})
+}
+
+func (q *Queue) SubscribeToClusterNotification(handler func(notification *value.ClusterNotification)) error {
+	return q.subscriber.Subscribe(ClusterNotification, "*", "clusterNotification", func(msg []byte) {
+		var n value.ClusterNotification
+		if err := json.Unmarshal(msg, &n); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&n)
 	})
 }

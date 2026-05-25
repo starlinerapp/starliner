@@ -15,6 +15,7 @@ import (
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/api/presentation/http/sse"
 	corePort "starliner.app/internal/core/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
 )
@@ -27,6 +28,7 @@ type ClusterApplication struct {
 	crypto                 corePort.Crypto
 	queue                  port.Queue
 	grpcProvisionerClient  port.ProvisionerClient
+	userNotificationHub    *sse.UserNotificationHub
 }
 
 func NewClusterApplication(
@@ -37,6 +39,7 @@ func NewClusterApplication(
 	crypto corePort.Crypto,
 	queue port.Queue,
 	grpcProvisionerClient port.ProvisionerClient,
+	userNotificationHub *sse.UserNotificationHub,
 ) *ClusterApplication {
 	return &ClusterApplication{
 		clusterRepository:      clusterRepository,
@@ -46,6 +49,7 @@ func NewClusterApplication(
 		crypto:                 crypto,
 		queue:                  queue,
 		grpcProvisionerClient:  grpcProvisionerClient,
+		userNotificationHub:    userNotificationHub,
 	}
 }
 
@@ -105,6 +109,10 @@ func (ca *ClusterApplication) GetCluster(ctx context.Context, id int64) (*value.
 	}
 
 	return value.NewCluster(cluster), nil
+}
+
+func (ca *ClusterApplication) GetClusterOrgOwnerId(ctx context.Context, clusterId int64) (int64, error) {
+	return ca.clusterRepository.GetClusterOrgOwnerId(ctx, clusterId)
 }
 
 func (ca *ClusterApplication) GetUserCluster(ctx context.Context, userId int64, id int64) (*value.Cluster, error) {
@@ -308,4 +316,14 @@ func (ca *ClusterApplication) HandleClusterDeleted(c *coreValue.ClusterDeleted) 
 		fmt.Printf("failed to delete cluster from database: %v\n", err)
 		return
 	}
+}
+
+func (ca *ClusterApplication) HandleClusterNotification(notification *coreValue.ClusterNotification) {
+	ownerUserId, err := ca.GetClusterOrgOwnerId(context.Background(), notification.ClusterId)
+	if err != nil {
+		log.Printf("failed to get org owner for cluster %d: %v", notification.ClusterId, err)
+		return
+	}
+
+	ca.userNotificationHub.Broadcast(ownerUserId, notification)
 }

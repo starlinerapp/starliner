@@ -10,6 +10,7 @@ docs/DeploymentApi.md
 docs/EnvironmentApi.md
 docs/GithubApi.md
 docs/GithubappApi.md
+docs/NotificationsApi.md
 docs/OrganizationApi.md
 docs/ProjectApi.md
 docs/RequestAcceptInvite.md
@@ -29,6 +30,7 @@ docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
+docs/RequestRemoveOrganizationMember.md
 docs/RequestRemoveTeamMember.md
 docs/RequestSendInvite.md
 docs/RequestSetTeamClusters.md

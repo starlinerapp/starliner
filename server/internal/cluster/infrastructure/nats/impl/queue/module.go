@@ -26,6 +26,7 @@ var Module = fx.Module(
 			DeployIngress,
 			DeleteDeployment,
 			DeploymentDeleted,
+			DeploymentNotification,
 		})
 	}),
 )

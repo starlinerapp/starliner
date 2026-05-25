@@ -1104,6 +1104,11 @@ paths:
         name: X-User-ID
         required: true
         type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
+        required: true
+        type: string
       - description: Deployment ID
         in: path
         name: id
@@ -1154,6 +1159,11 @@ paths:
         name: X-User-ID
         required: true
         type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
+        required: true
+        type: string
       - description: Deploy Database
         in: body
         name: data
@@ -1175,6 +1185,11 @@ paths:
         name: X-User-ID
         required: true
         type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
+        required: true
+        type: string
       - description: Deploy from Git
         in: body
         name: data
@@ -1194,6 +1209,11 @@ paths:
       - description: User ID
         in: header
         name: X-User-ID
+        required: true
+        type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
         required: true
         type: string
       - description: Deployment ID
@@ -1222,6 +1242,11 @@ paths:
         name: X-User-ID
         required: true
         type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
+        required: true
+        type: string
       - description: Deploy Image
         in: body
         name: data
@@ -1241,6 +1266,11 @@ paths:
       - description: User ID
         in: header
         name: X-User-ID
+        required: true
+        type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
         required: true
         type: string
       - description: Deployment ID
@@ -1269,6 +1299,11 @@ paths:
         name: X-User-ID
         required: true
         type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
+        required: true
+        type: string
       - description: Deploy Ingress
         in: body
         name: data
@@ -1288,6 +1323,11 @@ paths:
       - description: User ID
         in: header
         name: X-User-ID
+        required: true
+        type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
         required: true
         type: string
       - description: Deployment ID
@@ -1441,6 +1481,41 @@ paths:
           schema:
             $ref: '#/definitions/response.Deployments'
       summary: Get Environment Deployments
+      tags:
+      - environment
+  /environments/{id}/notifications:
+    get:
+      operationId: streamEnvironmentNotifications
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Correlation ID
+        in: header
+        name: X-Correlation-ID
+        required: true
+        type: string
+      - description: Environment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
+      summary: Stream environment notifications
       tags:
       - environment
   /github/all-repositories/{organizationId}:
@@ -1669,6 +1744,36 @@ paths:
       summary: Get current user
       tags:
       - user
+  /notifications:
+    get:
+      operationId: streamGlobalNotifications
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: query
+        name: organizationId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
+      summary: Stream global notifications
+      tags:
+      - notifications
   /organizations:
     get:
       operationId: getUserOrganizations

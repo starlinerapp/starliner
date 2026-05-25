@@ -27,17 +27,23 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let id: number; //Deployment ID (default to undefined)
 
-const { status, data } = await apiInstance.deleteDeployment(xUserID, id);
+const { status, data } = await apiInstance.deleteDeployment(
+  xUserID,
+  xCorrelationID,
+  id,
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description   | Notes                 |
-| ----------- | ------------ | ------------- | --------------------- |
-| **xUserID** | [**string**] | User ID       | defaults to undefined |
-| **id**      | [**number**] | Deployment ID | defaults to undefined |
+| Name               | Type         | Description    | Notes                 |
+| ------------------ | ------------ | -------------- | --------------------- |
+| **xUserID**        | [**string**] | User ID        | defaults to undefined |
+| **xCorrelationID** | [**string**] | Correlation ID | defaults to undefined |
+| **id**             | [**number**] | Deployment ID  | defaults to undefined |
 
 ### Return type
 
@@ -73,17 +79,23 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let data: RequestDeployDatabase; //Deploy Database
 
-const { status, data } = await apiInstance.deployDatabase(xUserID, data);
+const { status, data } = await apiInstance.deployDatabase(
+  xUserID,
+  xCorrelationID,
+  data,
+);
 ```
 
 ### Parameters
 
-| Name        | Type                      | Description     | Notes                 |
-| ----------- | ------------------------- | --------------- | --------------------- |
-| **data**    | **RequestDeployDatabase** | Deploy Database |                       |
-| **xUserID** | [**string**]              | User ID         | defaults to undefined |
+| Name               | Type                      | Description     | Notes                 |
+| ------------------ | ------------------------- | --------------- | --------------------- |
+| **data**           | **RequestDeployDatabase** | Deploy Database |                       |
+| **xUserID**        | [**string**]              | User ID         | defaults to undefined |
+| **xCorrelationID** | [**string**]              | Correlation ID  | defaults to undefined |
 
 ### Return type
 
@@ -119,20 +131,23 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let data: RequestDeployFromGit; //Deploy from Git
 
 const { status, data } = await apiInstance.deployFromGitRepository(
   xUserID,
+  xCorrelationID,
   data,
 );
 ```
 
 ### Parameters
 
-| Name        | Type                     | Description     | Notes                 |
-| ----------- | ------------------------ | --------------- | --------------------- |
-| **data**    | **RequestDeployFromGit** | Deploy from Git |                       |
-| **xUserID** | [**string**]             | User ID         | defaults to undefined |
+| Name               | Type                     | Description     | Notes                 |
+| ------------------ | ------------------------ | --------------- | --------------------- |
+| **data**           | **RequestDeployFromGit** | Deploy from Git |                       |
+| **xUserID**        | [**string**]             | User ID         | defaults to undefined |
+| **xCorrelationID** | [**string**]             | Correlation ID  | defaults to undefined |
 
 ### Return type
 
@@ -168,17 +183,23 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let data: RequestDeployImage; //Deploy Image
 
-const { status, data } = await apiInstance.deployImage(xUserID, data);
+const { status, data } = await apiInstance.deployImage(
+  xUserID,
+  xCorrelationID,
+  data,
+);
 ```
 
 ### Parameters
 
-| Name        | Type                   | Description  | Notes                 |
-| ----------- | ---------------------- | ------------ | --------------------- |
-| **data**    | **RequestDeployImage** | Deploy Image |                       |
-| **xUserID** | [**string**]           | User ID      | defaults to undefined |
+| Name               | Type                   | Description    | Notes                 |
+| ------------------ | ---------------------- | -------------- | --------------------- |
+| **data**           | **RequestDeployImage** | Deploy Image   |                       |
+| **xUserID**        | [**string**]           | User ID        | defaults to undefined |
+| **xCorrelationID** | [**string**]           | Correlation ID | defaults to undefined |
 
 ### Return type
 
@@ -214,17 +235,23 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let data: RequestDeployIngress; //Deploy Ingress
 
-const { status, data } = await apiInstance.deployIngress(xUserID, data);
+const { status, data } = await apiInstance.deployIngress(
+  xUserID,
+  xCorrelationID,
+  data,
+);
 ```
 
 ### Parameters
 
-| Name        | Type                     | Description    | Notes                 |
-| ----------- | ------------------------ | -------------- | --------------------- |
-| **data**    | **RequestDeployIngress** | Deploy Ingress |                       |
-| **xUserID** | [**string**]             | User ID        | defaults to undefined |
+| Name               | Type                     | Description    | Notes                 |
+| ------------------ | ------------------------ | -------------- | --------------------- |
+| **data**           | **RequestDeployIngress** | Deploy Ingress |                       |
+| **xUserID**        | [**string**]             | User ID        | defaults to undefined |
+| **xCorrelationID** | [**string**]             | Correlation ID | defaults to undefined |
 
 ### Return type
 
@@ -310,11 +337,13 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let deploymentId: number; //Deployment ID (default to undefined)
 let data: RequestUpdateDeployFromGit; //Update Deploy from Git
 
 const { status, data } = await apiInstance.updateDeployFromGitRepository(
   xUserID,
+  xCorrelationID,
   deploymentId,
   data,
 );
@@ -322,11 +351,12 @@ const { status, data } = await apiInstance.updateDeployFromGitRepository(
 
 ### Parameters
 
-| Name             | Type                           | Description            | Notes                 |
-| ---------------- | ------------------------------ | ---------------------- | --------------------- |
-| **data**         | **RequestUpdateDeployFromGit** | Update Deploy from Git |                       |
-| **xUserID**      | [**string**]                   | User ID                | defaults to undefined |
-| **deploymentId** | [**number**]                   | Deployment ID          | defaults to undefined |
+| Name               | Type                           | Description            | Notes                 |
+| ------------------ | ------------------------------ | ---------------------- | --------------------- |
+| **data**           | **RequestUpdateDeployFromGit** | Update Deploy from Git |                       |
+| **xUserID**        | [**string**]                   | User ID                | defaults to undefined |
+| **xCorrelationID** | [**string**]                   | Correlation ID         | defaults to undefined |
+| **deploymentId**   | [**number**]                   | Deployment ID          | defaults to undefined |
 
 ### Return type
 
@@ -362,11 +392,13 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let deploymentId: number; //Deployment ID (default to undefined)
 let data: RequestUpdateImage; //Update Image
 
 const { status, data } = await apiInstance.updateImageDeployment(
   xUserID,
+  xCorrelationID,
   deploymentId,
   data,
 );
@@ -374,11 +406,12 @@ const { status, data } = await apiInstance.updateImageDeployment(
 
 ### Parameters
 
-| Name             | Type                   | Description   | Notes                 |
-| ---------------- | ---------------------- | ------------- | --------------------- |
-| **data**         | **RequestUpdateImage** | Update Image  |                       |
-| **xUserID**      | [**string**]           | User ID       | defaults to undefined |
-| **deploymentId** | [**number**]           | Deployment ID | defaults to undefined |
+| Name               | Type                   | Description    | Notes                 |
+| ------------------ | ---------------------- | -------------- | --------------------- |
+| **data**           | **RequestUpdateImage** | Update Image   |                       |
+| **xUserID**        | [**string**]           | User ID        | defaults to undefined |
+| **xCorrelationID** | [**string**]           | Correlation ID | defaults to undefined |
+| **deploymentId**   | [**number**]           | Deployment ID  | defaults to undefined |
 
 ### Return type
 
@@ -414,11 +447,13 @@ const configuration = new Configuration();
 const apiInstance = new DeploymentApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
 let deploymentId: number; //Deployment ID (default to undefined)
 let data: RequestUpdateIngress; //Update Ingress
 
 const { status, data } = await apiInstance.updateIngressDeployment(
   xUserID,
+  xCorrelationID,
   deploymentId,
   data,
 );
@@ -426,11 +461,12 @@ const { status, data } = await apiInstance.updateIngressDeployment(
 
 ### Parameters
 
-| Name             | Type                     | Description    | Notes                 |
-| ---------------- | ------------------------ | -------------- | --------------------- |
-| **data**         | **RequestUpdateIngress** | Update Ingress |                       |
-| **xUserID**      | [**string**]             | User ID        | defaults to undefined |
-| **deploymentId** | [**number**]             | Deployment ID  | defaults to undefined |
+| Name               | Type                     | Description    | Notes                 |
+| ------------------ | ------------------------ | -------------- | --------------------- |
+| **data**           | **RequestUpdateIngress** | Update Ingress |                       |
+| **xUserID**        | [**string**]             | User ID        | defaults to undefined |
+| **xCorrelationID** | [**string**]             | Correlation ID | defaults to undefined |
+| **deploymentId**   | [**number**]             | Deployment ID  | defaults to undefined |
 
 ### Return type
 

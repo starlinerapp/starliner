@@ -15,6 +15,7 @@ import { Cog, InboxStack, Servers } from "~/components/atoms/icons";
 import { OrganizationProvider } from "~/contexts/OrganizationContext";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
+import ClusterNotificationListener from "~/components/organisms/notifications/ClusterNotificationListener";
 
 export async function loader(loaderArgs: Route.LoaderArgs) {
   const { request, params } = loaderArgs;
@@ -191,6 +192,7 @@ export default function Layout() {
           <Outlet />
         </ExtendedSidebar>
       </Sidebar>
+      <ClusterNotificationListener organizationId={organization.id} />
     </OrganizationProvider>
   );
 }

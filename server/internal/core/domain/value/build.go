@@ -8,6 +8,7 @@ type Arg struct {
 type TriggerBuild struct {
 	BuildId        int64
 	DeploymentId   int64
+	CorrelationId  *string
 	ImageName      string
 	GitUrl         string
 	BranchName     string
@@ -29,6 +30,7 @@ const (
 type BuildCompleted struct {
 	BuildId          int64
 	DeploymentId     int64
+	CorrelationId    *string
 	ImageRegistryUrl string
 	BuildStatus      BuildStatus
 	ImageName        *string
@@ -42,3 +44,4 @@ type BuildLogChunk struct {
 	Data    []byte
 	End     bool
 }
+

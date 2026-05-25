@@ -45,6 +45,11 @@ func NewClusterApplication(
 }
 
 func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) {
+	time.Sleep(5 * time.Second)
+	ca.publishNotification(c.Id, "failed", fmt.Sprintf("Failed to provision cluster %s", c.Name))
+	log.Printf("AAAAAAAAAAAAAAAAA Failed to ")
+	return
+
 	ctx := context.Background()
 
 	var logBuf strings.Builder
@@ -64,6 +69,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to generate ed25519 keypair: %v\n", err)
 		log.Printf("failed to generate ed25519 keypair: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "Failed to generate keypair for cluster provisioning")
 		return
 	}
 
@@ -74,6 +80,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to normalize cluster name: %v\n", err)
 		log.Printf("failed to normalize cluster name: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "Failed to normalize cluster name")
 		return
 	}
 
@@ -85,6 +92,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to provision server: %v\n", err)
 		log.Printf("failed to provision server: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "Failed to provision server")
 		ca.HandleDeleteCluster(&value.DeleteCluster{
 			Id:                     c.Id,
 			ProvisioningId:         provisioningId,
@@ -100,6 +108,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to encode private key to PEM: %v\n", err)
 		log.Printf("failed to encode private key to PEM: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "Failed to encode private key")
 		ca.HandleDeleteCluster(&value.DeleteCluster{
 			Id:                     c.Id,
 			ProvisioningId:         provisioningId,
@@ -111,6 +120,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err := ca.ssh.WaitForSSH(ip, "root", pemBytes, 30*time.Second); err != nil {
 		appendStatus("==> ERROR: SSH not available: %v\n", err)
 		log.Printf("SSH not available: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "SSH not available on provisioned server")
 		return
 	}
 	appendStatus("==> SSH is ready\n")
@@ -121,11 +131,14 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to install k3s: %v\n", err)
 		log.Printf("Failed to install k3s: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "Failed to install K3s")
 		return
 	}
 	appendStatus("==> K3s installed\n")
 
 	kubeconfigBase64 := base64.StdEncoding.EncodeToString([]byte(kubeconfig))
+
+	ca.publishNotification(c.Id, "success", fmt.Sprintf("Cluster %s provisioned successfully", c.Name))
 
 	err = ca.queue.PublishClusterCreated(&value.ClusterCreated{
 		Id:               c.Id,
@@ -160,6 +173,7 @@ func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
 	if err := ca.provision.DeleteServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId); err != nil {
 		appendStatus("==> ERROR: failed to delete server: %v\n", err)
 		log.Printf("failed to delete server: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "Failed to delete server")
 		return
 	}
 	appendStatus("==> Server deleted\n")
@@ -169,5 +183,19 @@ func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
 	}); err != nil {
 		appendStatus("==> ERROR: failed to publish cluster deleted event: %v\n", err)
 		log.Printf("failed to publish cluster deleted event: %v\n", err)
+		ca.publishNotification(c.Id, "failed", "Failed to publish cluster deleted event")
+	} else {
+		ca.publishNotification(c.Id, "success", "Cluster deleted successfully")
+	}
+}
+
+func (ca *ClusterApplication) publishNotification(clusterId int64, status string, message string) {
+	err := ca.queue.PublishClusterNotification(&value.ClusterNotification{
+		ClusterId: clusterId,
+		Status:    status,
+		Message:   message,
+	})
+	if err != nil {
+		log.Printf("failed to publish cluster notification: %v\n", err)
 	}
 }

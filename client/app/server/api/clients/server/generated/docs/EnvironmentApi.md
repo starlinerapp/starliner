@@ -2,14 +2,15 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                                                    | HTTP request                           | Description                         |
-| ------------------------------------------------------------------------- | -------------------------------------- | ----------------------------------- |
-| [**createEnvironment**](#createenvironment)                               | **POST** /environments                 | Create Environment                  |
-| [**deleteEnvironment**](#deleteenvironment)                               | **DELETE** /environments/{id}          | Delete Environment                  |
-| [**getEnvironmentBuilds**](#getenvironmentbuilds)                         | **GET** /environments/{id}/builds      | Get Environment Builds              |
-| [**getEnvironmentConnectedBranch**](#getenvironmentconnectedbranch)       | **GET** /environments/{id}/branch      | Get Environment Connected Branch    |
-| [**getEnvironmentDeployments**](#getenvironmentdeployments)               | **GET** /environments/{id}/deployments | Get Environment Deployments         |
-| [**updateEnvironmentConnectedBranch**](#updateenvironmentconnectedbranch) | **PUT** /environments/{id}/branch      | Update Environment Connected Branch |
+| Method                                                                    | HTTP request                             | Description                         |
+| ------------------------------------------------------------------------- | ---------------------------------------- | ----------------------------------- |
+| [**createEnvironment**](#createenvironment)                               | **POST** /environments                   | Create Environment                  |
+| [**deleteEnvironment**](#deleteenvironment)                               | **DELETE** /environments/{id}            | Delete Environment                  |
+| [**getEnvironmentBuilds**](#getenvironmentbuilds)                         | **GET** /environments/{id}/builds        | Get Environment Builds              |
+| [**getEnvironmentConnectedBranch**](#getenvironmentconnectedbranch)       | **GET** /environments/{id}/branch        | Get Environment Connected Branch    |
+| [**getEnvironmentDeployments**](#getenvironmentdeployments)               | **GET** /environments/{id}/deployments   | Get Environment Deployments         |
+| [**streamEnvironmentNotifications**](#streamenvironmentnotifications)     | **GET** /environments/{id}/notifications | Stream environment notifications    |
+| [**updateEnvironmentConnectedBranch**](#updateenvironmentconnectedbranch) | **PUT** /environments/{id}/branch        | Update Environment Connected Branch |
 
 # **createEnvironment**
 
@@ -244,6 +245,58 @@ No authorization required
 | Status code | Description | Response headers |
 | ----------- | ----------- | ---------------- |
 | **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **streamEnvironmentNotifications**
+
+> streamEnvironmentNotifications()
+
+### Example
+
+```typescript
+import { EnvironmentApi, Configuration } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new EnvironmentApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let xCorrelationID: string; //Correlation ID (default to undefined)
+let id: number; //Environment ID (default to undefined)
+
+const { status, data } = await apiInstance.streamEnvironmentNotifications(
+  xUserID,
+  xCorrelationID,
+  id,
+);
+```
+
+### Parameters
+
+| Name               | Type         | Description    | Notes                 |
+| ------------------ | ------------ | -------------- | --------------------- |
+| **xUserID**        | [**string**] | User ID        | defaults to undefined |
+| **xCorrelationID** | [**string**] | Correlation ID | defaults to undefined |
+| **id**             | [**number**] | Environment ID | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+### HTTP response details
+
+| Status code | Description | Response headers                                                                                        |
+| ----------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| **200**     | OK          | _ Cache-Control - no-cache <br> _ Connection - keep-alive <br> \* Content-Type - text/event-stream <br> |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

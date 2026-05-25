@@ -8,4 +8,5 @@ type Queue interface {
 
 	PublishClusterCreated(cluster *value.ClusterCreated) error
 	PublishClusterDeleted(cluster *value.ClusterDeleted) error
+	PublishClusterNotification(notification *value.ClusterNotification) error
 }

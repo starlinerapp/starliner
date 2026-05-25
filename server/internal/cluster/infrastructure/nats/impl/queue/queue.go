@@ -3,21 +3,23 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"log"
+	"strconv"
+
+	"github.com/nats-io/nats.go"
 	"starliner.app/internal/cluster/domain/port"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
-	"strconv"
 )
 
 const (
-	DeployImage       jetstream.Subject = "deploy.image"
-	DeployDatabase    jetstream.Subject = "deploy.database"
-	DatabaseDeployed  jetstream.Subject = "database.deployed"
-	DeployIngress     jetstream.Subject = "deploy.ingress"
-	DeleteDeployment  jetstream.Subject = "delete.deployment"
-	DeploymentDeleted jetstream.Subject = "deployment.deleted"
+	DeployImage            jetstream.Subject = "deploy.image"
+	DeployDatabase         jetstream.Subject = "deploy.database"
+	DatabaseDeployed       jetstream.Subject = "database.deployed"
+	DeployIngress          jetstream.Subject = "deploy.ingress"
+	DeleteDeployment       jetstream.Subject = "delete.deployment"
+	DeploymentDeleted      jetstream.Subject = "deployment.deleted"
+	DeploymentNotification jetstream.Subject = "deployment.notification"
 )
 
 type Queue struct {
@@ -88,4 +90,13 @@ func (q *Queue) PublishDatabaseDeployed(deployment *value.DatabaseDeployment) er
 	}
 
 	return q.publisher.Publish(DatabaseDeployed, strconv.FormatInt(deployment.DeploymentId, 10), data)
+}
+
+func (q *Queue) PublishDeploymentNotification(notification *value.EnvironmentNotification) error {
+	data, err := json.Marshal(notification)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(DeploymentNotification, strconv.FormatInt(notification.DeploymentId, 10), data)
 }

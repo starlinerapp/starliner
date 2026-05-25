@@ -5,4 +5,5 @@ import "starliner.app/internal/core/domain/value"
 type Queue interface {
 	SubscribeToBuildTriggered(handler func(build *value.TriggerBuild)) error
 	PublishBuildCompleted(build *value.BuildCompleted) error
+	PublishBuildNotification(notification *value.EnvironmentNotification) error
 }

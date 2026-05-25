@@ -3,19 +3,21 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"log"
+	"strconv"
+
+	"github.com/nats-io/nats.go"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
 	"starliner.app/internal/provisioner/domain/port"
-	"strconv"
 )
 
 const (
-	CreateCluster  jetstream.Subject = "create.cluster"
-	ClusterCreated jetstream.Subject = "cluster.created"
-	DeleteCluster  jetstream.Subject = "delete.cluster"
-	ClusterDeleted jetstream.Subject = "cluster.deleted"
+	CreateCluster       jetstream.Subject = "create.cluster"
+	ClusterCreated      jetstream.Subject = "cluster.created"
+	DeleteCluster       jetstream.Subject = "delete.cluster"
+	ClusterDeleted      jetstream.Subject = "cluster.deleted"
+	ClusterNotification jetstream.Subject = "cluster.notification"
 )
 
 type Queue struct {
@@ -64,4 +66,12 @@ func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *value.DeleteClust
 		}
 		handler(&c)
 	})
+}
+
+func (q *Queue) PublishClusterNotification(notification *value.ClusterNotification) error {
+	data, err := json.Marshal(notification)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterNotification, strconv.FormatInt(notification.ClusterId, 10), data)
 }

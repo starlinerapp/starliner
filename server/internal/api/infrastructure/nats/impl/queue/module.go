@@ -22,12 +22,12 @@ var Module = fx.Module(
 		},
 	),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered, BuildCompleted})
+		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered, BuildCompleted, BuildNotification})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted})
+		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted, ClusterNotification})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{DeployImage, DeployDatabase, DatabaseDeployed, DeleteDeployment, DeploymentDeleted})
+		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{DeployImage, DeployDatabase, DatabaseDeployed, DeleteDeployment, DeploymentDeleted, DeploymentNotification})
 	}),
 )

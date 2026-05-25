@@ -12,4 +12,6 @@ type Queue interface {
 	PublishDeploymentDeleted(deployment *value.DeploymentDeleted) error
 
 	SubscribeToDeployIngress(handler func(deployment *value.IngressDeployment)) error
+
+	PublishDeploymentNotification(notification *value.EnvironmentNotification) error
 }

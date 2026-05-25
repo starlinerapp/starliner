@@ -64,6 +64,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
 			BuildId:          build.BuildId,
 			DeploymentId:     build.DeploymentId,
+			CorrelationId:    build.CorrelationId,
 			ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
 			ImageName:        imageName,
 			CommitHash:       commitHash,
@@ -79,6 +80,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	if err != nil {
 		msg := fmt.Sprintf("failed to clone repository: %v", err)
 		publishLogLine(msg + "\n")
+		ba.publishNotification(build.CorrelationId, build.BuildId, build.DeploymentId, "failed", fmt.Sprintf("Failed to clone repository for: %s", build.GitUrl))
 		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
 		return
 	}
@@ -101,7 +103,28 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		publishLogLine(msg + "\n")
 		logs += msg + "\n"
 		status = value.BuildStatusFailed
+		ba.publishNotification(build.CorrelationId, build.BuildId, build.DeploymentId, "failed", fmt.Sprintf("Failed to build image: %s", build.ImageName))
+
+	} else {
+		ba.publishNotification(build.CorrelationId, build.BuildId, build.DeploymentId, "success", fmt.Sprintf("Successfully built image: %s", build.ImageName))
+
 	}
 
 	publishCompleted(&commitHash, &tag, &imagePath, logs, status)
+}
+
+func (ba *BuildApplication) publishNotification(correlationId *string, buildId int64, deploymentId int64, status string, message string) {
+	if correlationId == nil {
+		log.Printf("missing correlation id for build notification, buildId=%d\n", buildId)
+		return
+	}
+	err := ba.queue.PublishBuildNotification(&value.EnvironmentNotification{
+		CorrelationId: *correlationId,
+		DeploymentId:  deploymentId,
+		Status:        status,
+		Message:       message,
+	})
+	if err != nil {
+		log.Printf("failed to publish build notification: %v\n", err)
+	}
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
+
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
@@ -12,7 +14,6 @@ import (
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
-	"strconv"
 )
 
 type EnvironmentApplication struct {
@@ -425,4 +426,18 @@ func (ea *EnvironmentApplication) DeleteEnvironment(ctx context.Context, userId 
 		return err
 	}
 	return ea.environmentRepository.DeleteEnvironment(ctx, environmentId)
+}
+
+func (da *DeploymentApplication) HandleEnvironmentNotification(notification *coreValue.EnvironmentNotification) {
+	environmentId, err := da.GetDeploymentEnvironmentId(notification.DeploymentId)
+	if err != nil {
+		log.Printf("failed to get environment id for deployment %d: %v", notification.DeploymentId, err)
+		return
+	}
+	if environmentId == nil {
+		log.Printf("deployment %d has no environment id", notification.DeploymentId)
+		return
+	}
+
+	da.notificationHub.Broadcast(notification.CorrelationId, *environmentId, notification)
 }

@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"starliner.app/internal/api/conf"
 	"strconv"
+
+	"starliner.app/internal/api/conf"
 
 	"github.com/google/uuid"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
-	"starliner.app/internal/api/domain/repository/interface"
+	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/api/presentation/http/sse"
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
@@ -35,6 +37,7 @@ type DeploymentApplication struct {
 	queue                 port.Queue
 	pubsub                port.Pubsub
 	crypto                corePort.Crypto
+	notificationHub       *sse.EnvironmentNotificationHub
 }
 
 func NewDeploymentApplication(
@@ -53,6 +56,7 @@ func NewDeploymentApplication(
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
+	notificationHub *sse.EnvironmentNotificationHub,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		config:                config,
@@ -70,12 +74,14 @@ func NewDeploymentApplication(
 		queue:                 queue,
 		pubsub:                pubsub,
 		crypto:                crypto,
+		notificationHub:       notificationHub,
 	}
 }
 
 func (da *DeploymentApplication) DeployFromGit(
 	ctx context.Context,
 	userId int64,
+	correlationId string,
 	environmentId int64,
 	serviceName string,
 	port int,
@@ -147,9 +153,12 @@ func (da *DeploymentApplication) DeployFromGit(
 		}
 	}
 
+	fmt.Printf("correlationId: %s\n", correlationId)
+
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
+		CorrelationId:  &correlationId,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		GitUrl:         gitUrl,
 		BranchName:     env.ConnectedBranch,
@@ -163,6 +172,7 @@ func (da *DeploymentApplication) DeployFromGit(
 func (da *DeploymentApplication) UpdateDeployFromGit(
 	ctx context.Context,
 	userId int64,
+	correlationId string,
 	environmentId int64,
 	deploymentId int64,
 	port int,
@@ -224,6 +234,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
 		DeploymentId:   d.Id,
+		CorrelationId:  &correlationId,
 		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 		AccessToken:    accessToken,
 		GitUrl:         d.GitUrl,
@@ -237,6 +248,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 func (da *DeploymentApplication) DeployImage(
 	ctx context.Context,
 	userId int64,
+	correlationId string,
 	environmentId int64,
 	serviceName string,
 	imageName string,
@@ -328,6 +340,7 @@ func (da *DeploymentApplication) DeployImage(
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     deployment.Id,
+		CorrelationId:    &correlationId,
 		DeploymentName:   normalizedServiceName,
 		KubeconfigBase64: kubeconfigBase64,
 		Namespace:        env.Namespace,
@@ -348,6 +361,7 @@ func (da *DeploymentApplication) DeployImage(
 func (da *DeploymentApplication) UpdateImageDeployment(
 	ctx context.Context,
 	userId int64,
+	correlationId string,
 	deploymentId int64,
 	environmentId int64,
 	imageName string,
@@ -420,6 +434,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:     deployment.Id,
+		CorrelationId:    &correlationId,
 		DeploymentName:   normalizedServiceName,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
@@ -440,6 +455,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 func (da *DeploymentApplication) DeployDatabase(
 	ctx context.Context,
 	userId int64,
+	correlationId string,
 	environmentId int64,
 	serviceName string,
 ) error {
@@ -492,6 +508,7 @@ func (da *DeploymentApplication) DeployDatabase(
 
 	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
+		CorrelationId:    &correlationId,
 		DeploymentName:   normalizedServiceName,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
@@ -503,7 +520,7 @@ func (da *DeploymentApplication) DeployDatabase(
 	return nil
 }
 
-func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*value.IngressHost, userId int64, environmentId int64) error {
+func (da *DeploymentApplication) DeployIngress(ctx context.Context, correlationId string, hosts []*value.IngressHost, userId int64, environmentId int64) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
@@ -580,6 +597,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 		IngressHosts:     coreHosts,
 		DeploymentId:     ingressDeployment.Id,
+		CorrelationId:    &correlationId,
 		DeploymentName:   ingressDeployment.Name,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
@@ -595,6 +613,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 func (da *DeploymentApplication) UpdateIngressDeployment(
 	ctx context.Context,
 	userId int64,
+	correlationId string,
 	environmentId int64,
 	deploymentId int64,
 	hosts []*value.IngressHost,
@@ -690,6 +709,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 		IngressHosts:     coreHosts,
 		DeploymentId:     ingressDeployment.Id,
+		CorrelationId:    &correlationId,
 		DeploymentName:   ingressDeployment.Name,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
@@ -702,7 +722,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	return nil
 }
 
-func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymentId int64, userId int64) error {
+func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, correlationId string, deploymentId int64, userId int64) error {
 	if err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId); err != nil {
 		return err
 	}
@@ -736,6 +756,7 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 
 	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
+		CorrelationId:    &correlationId,
 		DeploymentName:   normalizedDeploymentName,
 		Namespace:        deployment.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
@@ -839,6 +860,15 @@ func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.Deployment
 	if err != nil {
 		log.Printf("failed to delete deployment from database: %v\n", err)
 	}
+}
+
+func (da *DeploymentApplication) GetDeploymentEnvironmentId(deploymentId int64) (*int64, error) {
+	ctx := context.Background()
+	deployment, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get deployment: %w", err)
+	}
+	return deployment.EnvironmentId, nil
 }
 
 func (da *DeploymentApplication) RequestDeploymentStatus() error {
@@ -960,6 +990,7 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:          b.DeploymentId,
+		CorrelationId:         b.CorrelationId,
 		DeploymentName:        normalizedDeploymentName,
 		Namespace:             deployment.Namespace,
 		KubeconfigBase64:      kubeconfigBase64,

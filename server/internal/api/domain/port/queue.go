@@ -21,4 +21,10 @@ type Queue interface {
 	SubscribeToDeploymentDeleted(handler func(deployment *value.DeploymentDeleted)) error
 
 	PublishDeployIngress(deployment *value.IngressDeployment) error
+
+	SubscribeToDeploymentNotification(handler func(notification *value.EnvironmentNotification)) error
+
+	SubscribeToBuildNotification(handler func(notification *value.EnvironmentNotification)) error
+
+	SubscribeToClusterNotification(handler func(notification *value.ClusterNotification)) error
 }

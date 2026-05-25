@@ -1,19 +1,22 @@
 package application
 
 import (
+	"fmt"
 	"log"
+
 	"starliner.app/internal/cluster/domain/port"
 	corePort "starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
 type DatabaseApplication struct {
-	deploy port.Deploy
-	secret port.Secret
-	health port.Health
-	queue  port.Queue
-	pubsub port.Pubsub
-	crypto corePort.Crypto
+	deploy   port.Deploy
+	secret   port.Secret
+	health   port.Health
+	queue    port.Queue
+	pubsub   port.Pubsub
+	crypto   corePort.Crypto
+	notifier *Notifier
 }
 
 func NewDatabaseApplication(
@@ -24,17 +27,24 @@ func NewDatabaseApplication(
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
 ) *DatabaseApplication {
+
+	notifier := NewNotifier(queue)
 	return &DatabaseApplication{
-		deploy: deploy,
-		health: health,
-		secret: secret,
-		queue:  queue,
-		pubsub: pubsub,
-		crypto: crypto,
+		deploy:   deploy,
+		health:   health,
+		secret:   secret,
+		queue:    queue,
+		pubsub:   pubsub,
+		crypto:   crypto,
+		notifier: notifier,
 	}
 }
 
 func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
+	if d.CorrelationId == nil {
+		log.Printf("missing correlation id for DB deployment %d\n", d.DeploymentId)
+	}
+
 	err := da.deploy.DeployCloudNativePg(d.Namespace, "cloudnative-pg", d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy cloudnative-pg: %v\n", err)
@@ -44,6 +54,8 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 	err = da.deploy.DeployPostgres(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy database: %v\n", err)
+		da.notifier.publishNotification(d.DeploymentId, *d.CorrelationId, "failed", fmt.Sprintf("Failed to deploy database %s", d.DeploymentName))
+		return
 	}
 
 	credentials, err := da.secret.GetDatabaseCredentials(d.Namespace, releaseName, d.KubeconfigBase64)
@@ -60,4 +72,6 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 	if err != nil {
 		log.Printf("failed to publish event: %v\n", err)
 	}
+
+	da.notifier.publishNotification(d.DeploymentId, *d.CorrelationId, "success", fmt.Sprintf("Database %s deployed successfully", d.DeploymentName))
 }

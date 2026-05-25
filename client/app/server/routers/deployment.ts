@@ -4,6 +4,7 @@ import { deploymentApiFactory } from "~/server/api/clients/server";
 import { type AxiosResponse, isAxiosError } from "axios";
 import { Readable } from "stream";
 import { TRPCError } from "@trpc/server";
+import { cache } from "~/server/services/cache";
 
 const ingressPathSchema = z.object({
   path: z.string(),
@@ -46,17 +47,22 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
       try {
-        const res = await deploymentApiFactory.deployFromGitRepository(userId, {
-          environmentId: input.environmentId,
-          serviceName: input.serviceName,
-          port: input.port,
-          gitUrl: input.gitUrl,
-          dockerfilePath: input.dockerfilePath,
-          projectRepositoryPath: input.projectRepositoryPath,
-          envs: input.envs,
-          args: input.args,
-        });
+        const res = await deploymentApiFactory.deployFromGitRepository(
+          userId,
+          correlationId,
+          {
+            environmentId: input.environmentId,
+            serviceName: input.serviceName,
+            port: input.port,
+            gitUrl: input.gitUrl,
+            dockerfilePath: input.dockerfilePath,
+            projectRepositoryPath: input.projectRepositoryPath,
+            envs: input.envs,
+            args: input.args,
+          },
+        );
         return res.data;
       } catch (err) {
         if (isAxiosError(err) && err.response?.data?.error) {
@@ -99,8 +105,9 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
       return await deploymentApiFactory
-        .updateDeployFromGitRepository(userId, input.deploymentId, {
+        .updateDeployFromGitRepository(userId, correlationId, input.deploymentId, {
           environmentId: input.id,
           port: input.port,
           dockerfilePath: input.dockerfilePath,
@@ -132,17 +139,23 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
+
       try {
-        const res = await deploymentApiFactory.deployImage(userId, {
-          environmentId: input.id,
-          serviceName: input.serviceName,
-          imageName: input.imageName,
-          tag: input.tag,
-          volumeSizeMiB: input.volumeSizeMiB,
-          volumeMountPath: input.volumeMountPath,
-          port: input.port,
-          envs: input.envs,
-        });
+        const res = await deploymentApiFactory.deployImage(
+          userId,
+          correlationId,
+          {
+            environmentId: input.id,
+            serviceName: input.serviceName,
+            imageName: input.imageName,
+            tag: input.tag,
+            volumeSizeMiB: input.volumeSizeMiB,
+            volumeMountPath: input.volumeMountPath,
+            port: input.port,
+            envs: input.envs,
+          },
+        );
         return res.data;
       } catch (err) {
         if (isAxiosError(err) && err.response?.data?.error) {
@@ -177,8 +190,10 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
+
       return await deploymentApiFactory
-        .updateImageDeployment(userId, input.deploymentId, {
+        .updateImageDeployment(userId, correlationId, input.deploymentId, {
           environmentId: input.id,
           imageName: input.imageName,
           tag: input.tag,
@@ -196,11 +211,17 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
+
       try {
-        const res = await deploymentApiFactory.deployDatabase(userId, {
-          environmentId: input.id,
-          serviceName: input.serviceName,
-        });
+        const res = await deploymentApiFactory.deployDatabase(
+          userId,
+          correlationId,
+          {
+            environmentId: input.id,
+            serviceName: input.serviceName,
+          },
+        );
         return res.data;
       } catch (err) {
         if (isAxiosError(err) && err.response?.data?.error) {
@@ -223,8 +244,10 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
+
       return await deploymentApiFactory
-        .deleteDeployment(userId, input.id)
+        .deleteDeployment(userId, correlationId, input.id)
         .then((res) => res.data);
     }),
   deployIngress: protectedProcedure
@@ -236,11 +259,17 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
+
       try {
-        const res = await deploymentApiFactory.deployIngress(userId, {
-          environmentId: input.id,
-          ingressHosts: input.ingressHosts,
-        });
+        const res = await deploymentApiFactory.deployIngress(
+          userId,
+          correlationId,
+          {
+            environmentId: input.id,
+            ingressHosts: input.ingressHosts,
+          },
+        );
         return res.data;
       } catch (err) {
         if (isAxiosError(err) && err.response?.data?.error) {
@@ -265,9 +294,12 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
+
       try {
         const res = await deploymentApiFactory.updateIngressDeployment(
           userId,
+          correlationId,
           input.deploymentId,
           {
             environmentId: input.id,

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -35,12 +36,14 @@ func NewDeploymentHandler(
 // @Tags deployment
 // @ID deployImage
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param data body request.DeployImage true "Deploy Image"
 // @Product JSON
 // @Success 200
 // @Router /deployments/images [post]
 func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 
 	var body request.DeployImage
 	if err := c.BindJSON(&body); err != nil {
@@ -51,6 +54,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 	err := dh.deploymentApplication.DeployImage(
 		c.Request.Context(),
 		currentUser.Id,
+		correlationID,
 		body.EnvironmentId,
 		body.ServiceName,
 		body.ImageName,
@@ -79,6 +83,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 // @Tags deployment
 // @ID updateImageDeployment
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateImage true "Update Image"
 // @Product JSON
@@ -86,6 +91,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 // @Router /deployments/images/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 	deploymentId, err := strconv.ParseInt(c.Param("deploymentId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -101,6 +107,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 	err = dh.deploymentApplication.UpdateImageDeployment(
 		c.Request.Context(),
 		currentUser.Id,
+		correlationID,
 		deploymentId,
 		body.EnvironmentId,
 		body.ImageName,
@@ -122,12 +129,16 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 // @Tags deployment
 // @ID deployDatabase
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param data body request.DeployDatabase true "Deploy Database"
 // @Product JSON
 // @Success 200
 // @Router /deployments/databases [post]
 func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+
+	correlationID := c.GetHeader("X-Correlation-ID")
+	log.Printf("correlation_id=%s deploy database request", correlationID)
 
 	var body request.DeployDatabase
 	if err := c.BindJSON(&body); err != nil {
@@ -138,6 +149,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 	err := dh.deploymentApplication.DeployDatabase(
 		c.Request.Context(),
 		currentUser.Id,
+		correlationID,
 		body.EnvironmentId,
 		body.ServiceName,
 	)
@@ -159,12 +171,14 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 // @Tags deployment
 // @ID deployIngress
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param data body request.DeployIngress true "Deploy Ingress"
 // @Product JSON
 // @Success 200
 // @Router /deployments/ingresses [post]
 func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 
 	var body request.DeployIngress
 	if err := c.BindJSON(&body); err != nil {
@@ -174,6 +188,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 
 	err := dh.deploymentApplication.DeployIngress(
 		c.Request.Context(),
+		correlationID,
 		mapper.MapHostsFromRequest(body.IngressHosts),
 		currentUser.Id,
 		body.EnvironmentId,
@@ -202,6 +217,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 // @Tags deployment
 // @ID updateIngressDeployment
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateIngress true "Update Ingress"
 // @Product JSON
@@ -209,6 +225,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 // @Router /deployments/ingresses/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 	deploymentId, err := strconv.ParseInt(c.Param("deploymentId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -224,6 +241,7 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 	err = dh.deploymentApplication.UpdateIngressDeployment(
 		c.Request.Context(),
 		currentUser.Id,
+		correlationID,
 		body.EnvironmentId,
 		deploymentId,
 		mapper.MapHostsFromRequest(body.IngressHosts),
@@ -252,12 +270,14 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 // @Tags deployment
 // @ID deployFromGitRepository
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param data body request.DeployFromGit true "Deploy from Git"
 // @Product JSON
 // @Success 200
 // @Router /deployments/git [post]
 func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 
 	var body request.DeployFromGit
 	if err := c.BindJSON(&body); err != nil {
@@ -268,6 +288,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 	err := dh.deploymentApplication.DeployFromGit(
 		c.Request.Context(),
 		currentUser.Id,
+		correlationID,
 		body.EnvironmentId,
 		body.ServiceName,
 		body.Port,
@@ -295,6 +316,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 // @Tags deployment
 // @ID updateDeployFromGitRepository
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateDeployFromGit true "Update Deploy from Git"
 // @Product JSON
@@ -302,6 +324,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 // @Router /deployments/git/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 	deploymentId, err := strconv.ParseInt(c.Param("deploymentId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -317,6 +340,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 	err = dh.deploymentApplication.UpdateDeployFromGit(
 		c.Request.Context(),
 		currentUser.Id,
+		correlationID,
 		body.EnvironmentId,
 		deploymentId,
 		body.Port,
@@ -338,12 +362,14 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 // @Tags deployment
 // @ID deleteDeployment
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param id path int true "Deployment ID"
 // @Product JSON
 // @Success 200
 // @Router /deployments/{id} [delete]
 func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 	deploymentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -352,6 +378,7 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 
 	err = dh.deploymentApplication.DeleteDeployment(
 		c.Request.Context(),
+		correlationID,
 		deploymentId,
 		currentUser.Id,
 	)

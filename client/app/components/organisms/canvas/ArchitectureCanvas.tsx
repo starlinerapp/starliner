@@ -34,6 +34,7 @@ import {
   buildTargets,
   makeBaseNode,
 } from "~/service/reactflow/helpers";
+import EnvironmentNotificationListener from "~/components/organisms/notifications/EnvironmentNotificationListener";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -224,29 +225,32 @@ export default function ArchitectureCanvas({
   }, [nodeDataMap]);
 
   return (
-    <div className="h-full w-full">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeOrigin={[0, 0.5]}
-        nodeTypes={nodeTypes}
-        nodesDraggable={false}
-        onNodesChange={onNodesChange}
-        onSelectionChange={onSelectionChange}
-        onConnect={onConnect}
-        onNodeClick={(_, node) => {
-          if (node.type) {
-            handleNodeSelected(node.type, node.id);
-          }
-        }}
-        onPaneClick={() => handlePlaneClick()}
-        proOptions={{ hideAttribution: true }}
-        maxZoom={1}
-        fitViewOptions={{ maxZoom: 1 }}
-      >
-        <Background gap={20} color="#84828E" variant={BackgroundVariant.Dots} />
-        <Controls />
-      </ReactFlow>
-    </div>
+    <>
+      <EnvironmentNotificationListener environmentId={environment?.id} />
+      <div className="h-full w-full">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeOrigin={[0, 0.5]}
+          nodeTypes={nodeTypes}
+          nodesDraggable={false}
+          onNodesChange={onNodesChange}
+          onSelectionChange={onSelectionChange}
+          onConnect={onConnect}
+          onNodeClick={(_, node) => {
+            if (node.type) {
+              handleNodeSelected(node.type, node.id);
+            }
+          }}
+          onPaneClick={() => handlePlaneClick()}
+          proOptions={{ hideAttribution: true }}
+          maxZoom={1}
+          fitViewOptions={{ maxZoom: 1 }}
+        >
+          <Background gap={20} color="#84828E" variant={BackgroundVariant.Dots} />
+          <Controls />
+        </ReactFlow>
+      </div>
+    </>
   );
 }

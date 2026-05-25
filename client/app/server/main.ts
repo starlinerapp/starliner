@@ -10,6 +10,7 @@ import { buildRouter } from "~/server/routers/build";
 import { teamRouter } from "~/server/routers/team";
 import { githubAppRouter } from "~/server/routers/githubapp";
 import { githubRouter } from "~/server/routers/github";
+import { notificationsRouter } from "~/server/routers/notifications";
 
 export const appRouter = createTRPCRouter({
   root: rootRouter,
@@ -23,6 +24,7 @@ export const appRouter = createTRPCRouter({
   team: teamRouter,
   github: githubRouter,
   githubApp: githubAppRouter,
+  notifications: notificationsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/nats-io/nats.go"
 	"starliner.app/internal/builder/domain/port"
@@ -13,8 +14,9 @@ import (
 )
 
 const (
-	BuildTriggered jetstream.Subject = "build.triggered"
-	BuildCompleted jetstream.Subject = "build.completed"
+	BuildTriggered    jetstream.Subject = "build.triggered"
+	BuildCompleted    jetstream.Subject = "build.completed"
+	BuildNotification jetstream.Subject = "build.notification"
 )
 
 type Queue struct {
@@ -48,4 +50,13 @@ func (q *Queue) PublishBuildCompleted(build *value.BuildCompleted) error {
 	}
 
 	return q.publisher.Publish(BuildCompleted, "*", data)
+}
+
+func (q *Queue) PublishBuildNotification(notification *value.EnvironmentNotification) error {
+	data, err := json.Marshal(notification)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %v", err)
+	}
+
+	return q.publisher.Publish(BuildNotification, strconv.FormatInt(notification.DeploymentId, 10), data)
 }

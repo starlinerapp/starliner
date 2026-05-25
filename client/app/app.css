@@ -75,6 +75,13 @@
 
   --color-white-a11: rgba(255, 255, 255, 0.9);
   --color-white-a12: rgba(255, 255, 255, 0.95);
+
+  --animate-shrink: shrink linear forwards;
+
+  @keyframes shrink {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+  }
 }
 
 @layer utilities {

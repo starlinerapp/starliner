@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+
 	"go.uber.org/fx"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/port"
@@ -53,6 +54,18 @@ func (c *Consumer) Start() error {
 
 	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentDeleted", func() error {
 		return c.queue.SubscribeToDeploymentDeleted(c.deploymentApplication.HandleDeploymentDeleted)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentNotification", func() error {
+		return c.queue.SubscribeToDeploymentNotification(c.deploymentApplication.HandleEnvironmentNotification)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToBuildNotification", func() error {
+		return c.queue.SubscribeToBuildNotification(c.deploymentApplication.HandleEnvironmentNotification)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterNotification", func() error {
+		return c.queue.SubscribeToClusterNotification(c.clusterApplication.HandleClusterNotification)
 	})
 
 	return nil
