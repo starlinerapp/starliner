@@ -8,6 +8,7 @@ import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import UpdateConnectedBranchForm from "~/components/organisms/forms/UpdateConnectedBranchForm";
 import Switch from "~/components/atoms/switch/Switch";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
+import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
 
 export default function ProjectSettings() {
   const navigate = useNavigate();
@@ -76,6 +77,8 @@ export default function ProjectSettings() {
   const [pendingCheckedValue, setPendingCheckedValue] = useState<
     boolean | null
   >(null);
+  const [showDeleteEnvDialog, setShowDeleteEnvDialog] = useState(false);
+  const [showDeleteProjectDialog, setShowDeleteProjectDialog] = useState(false);
 
   useEffect(() => {
     if (!showPreviewEnvDialog) {
@@ -179,12 +182,7 @@ export default function ProjectSettings() {
                 environmentSlug === "production"
               }
               size="sm"
-              onClick={() => {
-                if (environmentId == null) return;
-                deleteEnvironmentMutation.mutate({
-                  id: environmentId,
-                });
-              }}
+              onClick={() => setShowDeleteEnvDialog(true)}
             >
               Delete this Environment
             </Button>
@@ -202,11 +200,7 @@ export default function ProjectSettings() {
               intent="danger"
               disabled={isClusterDataLoading}
               size="sm"
-              onClick={() =>
-                deleteProjectMutation.mutate({
-                  id: projectId,
-                })
-              }
+              onClick={() => setShowDeleteProjectDialog(true)}
             >
               Delete this Project
             </Button>
@@ -265,6 +259,32 @@ export default function ProjectSettings() {
           </div>
         </DialogContent>
       </Dialog>
+      <DestructiveDialog
+        open={showDeleteEnvDialog}
+        onOpenChange={setShowDeleteEnvDialog}
+        title="Delete this Environment"
+        bannerText={
+          "Deleting this environment will permanently delete all deployments associated with it."
+        }
+        description="Are you sure you want to delete this environment? This action cannot be undone."
+        isPending={deleteEnvironmentMutation.isPending}
+        onConfirm={() => {
+          if (environmentId == null) return;
+          deleteEnvironmentMutation.mutate({ id: environmentId });
+        }}
+      />
+
+      <DestructiveDialog
+        open={showDeleteProjectDialog}
+        onOpenChange={setShowDeleteProjectDialog}
+        title="Delete this Project"
+        bannerText={
+          "Deleting this project will permanently delete all environments and deployments associated with it."
+        }
+        description="Are you sure you want to delete this project? This action cannot be undone."
+        isPending={deleteProjectMutation.isPending}
+        onConfirm={() => deleteProjectMutation.mutate({ id: projectId })}
+      />
     </>
   );
 }
