@@ -49,15 +49,18 @@ export default function TerminalClient({ webSocketUrl }: TerminalProps) {
     [],
   );
 
-  const syncTerminalSize = useCallback((ws: WebSocket) => {
-    const term = instanceRef.current;
-    if (!term) return;
+  const syncTerminalSize = useCallback(
+    (ws: WebSocket) => {
+      const term = instanceRef.current;
+      if (!term) return;
 
-    fitAddon.fit();
+      fitAddon.fit();
 
-    sendTerminalResize(ws, term.cols, term.rows);
-    term.scrollToBottom();
-  }, [fitAddon]);
+      sendTerminalResize(ws, term.cols, term.rows);
+      term.scrollToBottom();
+    },
+    [fitAddon],
+  );
 
   const debouncedSyncTerminalSize = useMemo(
     () => debounce(50, (ws: WebSocket) => syncTerminalSize(ws)),
