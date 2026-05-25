@@ -4,7 +4,7 @@ import type {
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
-} from "../../../../server/api/clients/server/generated";
+} from "~/server/api/clients/server/generated";
 import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
 import Logs from "~/components/organisms/bottom-bar/deployment/Logs";
 import TerminalClient from "~/components/atoms/terminal/Terminal.client";
@@ -37,9 +37,11 @@ function BottomBarComponent({ deployment }: BottomBarProps) {
           <Logs deployment={deployment} />
         </div>
       ) : deployment ? (
-        <TerminalClient
-          webSocketUrl={`wss://${window.location.host}/ws/deployments/${deployment?.id}`}
-        />
+        <div className="flex min-h-0 flex-1 flex-col">
+          <TerminalClient
+            webSocketUrl={`wss://${window.location.host}/ws/deployments/${deployment?.id}`}
+          />
+        </div>
       ) : (
         <p className="text-mauve-11 p-4">
           No deployment selected. Select one to connect to the terminal.
