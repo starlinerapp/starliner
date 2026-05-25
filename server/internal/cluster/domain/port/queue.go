@@ -12,4 +12,7 @@ type Queue interface {
 	PublishDeploymentDeleted(deployment *value.DeploymentDeleted) error
 
 	SubscribeToDeployIngress(handler func(deployment *value.IngressDeployment)) error
+
+	PublishEnableIngressTLS(deployment *value.IngressDeployment) error
+	SubscribeToEnableIngressTLS(handler func(deployment *value.IngressDeployment)) error
 }

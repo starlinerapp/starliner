@@ -9,15 +9,19 @@ import (
 	"starliner.app/internal/core/domain/value"
 )
 
+const ingressDNSTimeout = 10 * time.Minute
+
 type IngressApplication struct {
 	deploy port.Deploy
 	dns    port.DNS
+	queue  port.Queue
 }
 
-func NewIngressApplication(deploy port.Deploy, dns port.DNS) *IngressApplication {
+func NewIngressApplication(deploy port.Deploy, dns port.DNS, queue port.Queue) *IngressApplication {
 	return &IngressApplication{
 		deploy: deploy,
 		dns:    dns,
+		queue:  queue,
 	}
 }
 
@@ -31,22 +35,13 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 		log.Printf("failed to deploy external dns: %v\n", err)
 	}
 
-	args := &port.DeployIngressArgs{
-		Namespace:        i.Namespace,
-		ReleaseName:      releaseName,
-		KubeconfigBase64: i.KubeconfigBase64,
-		Hosts:            hosts,
-	}
-
-	hostnames := make([]string, 0, len(i.IngressHosts))
-	for _, host := range i.IngressHosts {
-		hostnames = append(hostnames, host.Host)
-	}
-
 	if i.ExpectedIP == "" {
 		log.Printf("failed to deploy ingress: cluster expected IP is not set\n")
 		return
 	}
+
+	hostnames := ingressHostnames(i)
+	args := newDeployIngressArgs(i, releaseName, hosts)
 
 	if !ia.dns.AllHostsResolve(hostnames, i.ExpectedIP) {
 		log.Printf("deploying ingress without TLS for DNS propagation")
@@ -55,14 +50,35 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 			log.Printf("failed to deploy ingress (phase 1): %v\n", err)
 			return
 		}
+	}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	if err := ia.queue.PublishEnableIngressTLS(i); err != nil {
+		log.Printf("failed to publish enable ingress tls: %v\n", err)
+	}
+}
+
+func (ia *IngressApplication) HandleEnableIngressTLS(i *value.IngressDeployment) {
+	releaseName := i.DeploymentName
+	hosts := toPortIngressHosts(i.IngressHosts)
+	hostnames := ingressHostnames(i)
+	args := newDeployIngressArgs(i, releaseName, hosts)
+
+	if i.ExpectedIP == "" {
+		log.Printf("failed to enable ingress TLS: cluster expected IP is not set\n")
+		return
+	}
+
+	if !ia.dns.AllHostsResolve(hostnames, i.ExpectedIP) {
+		ctx, cancel := context.WithTimeout(context.Background(), ingressDNSTimeout)
 		defer cancel()
 
 		for _, host := range hostnames {
 			log.Printf("waiting for DNS propagation: %s -> %s", host, i.ExpectedIP)
 			if err := ia.dns.WaitForHost(ctx, host, i.ExpectedIP); err != nil {
 				log.Printf("failed to wait for DNS for %s: %v\n", host, err)
+				if err := ia.queue.PublishEnableIngressTLS(i); err != nil {
+					log.Printf("failed to republish enable ingress tls: %v\n", err)
+				}
 				return
 			}
 		}
@@ -72,6 +88,27 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 	args.TLSEnabled = true
 	if err := ia.deploy.DeployIngress(args); err != nil {
 		log.Printf("failed to deploy ingress (phase 2): %v\n", err)
+	}
+}
+
+func ingressHostnames(i *value.IngressDeployment) []string {
+	hostnames := make([]string, 0, len(i.IngressHosts))
+	for _, host := range i.IngressHosts {
+		hostnames = append(hostnames, host.Host)
+	}
+	return hostnames
+}
+
+func newDeployIngressArgs(
+	i *value.IngressDeployment,
+	releaseName string,
+	hosts []port.IngressHost,
+) *port.DeployIngressArgs {
+	return &port.DeployIngressArgs{
+		Namespace:        i.Namespace,
+		ReleaseName:      releaseName,
+		KubeconfigBase64: i.KubeconfigBase64,
+		Hosts:            hosts,
 	}
 }
 
