@@ -193,6 +193,12 @@ func (ch *ClusterHandler) OpenTTY(c *gin.Context) {
 
 	rows, _ := strconv.Atoi(c.Query("tty_height"))
 	cols, _ := strconv.Atoi(c.Query("tty_width"))
+	if rows <= 0 {
+		rows = 24
+	}
+	if cols <= 0 {
+		cols = 80
+	}
 
 	conn, err := clusterUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -215,9 +221,16 @@ func (ch *ClusterHandler) OpenTTY(c *gin.Context) {
 			_ = stdinWriter.Close()
 		}(stdinWriter)
 		for {
-			_, msg, err := conn.ReadMessage()
+			messageType, msg, err := conn.ReadMessage()
 			if err != nil {
 				return
+			}
+			if size, ok := parseTTYResizeMessage(messageType, msg); ok {
+				pushTerminalSize(sizeCh, size)
+				continue
+			}
+			if messageType != websocket.BinaryMessage && messageType != websocket.TextMessage {
+				continue
 			}
 			if _, err := stdinWriter.Write(msg); err != nil {
 				return

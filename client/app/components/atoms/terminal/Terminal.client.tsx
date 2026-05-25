@@ -1,83 +1,138 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { XTerm } from "react-xtermjs";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { useXTerm } from "react-xtermjs";
 import { AttachAddon } from "@xterm/addon-attach";
 import { FitAddon } from "@xterm/addon-fit";
-import type { ITerminalAddon } from "@xterm/xterm";
+import type { Terminal } from "@xterm/xterm";
+import { debounce } from "throttle-debounce";
 
 interface TerminalProps {
   webSocketUrl: string;
 }
 
-export default function TerminalClient({ webSocketUrl }: TerminalProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const fitAddonRef = useRef<FitAddon | null>(null);
-  const [addons, setAddons] = useState<ITerminalAddon[]>([]);
+type TtyResizeMessage = {
+  type: "resize";
+  cols: number;
+  rows: number;
+};
 
-  const getTtySize = useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return { rows: 24, cols: 80 };
-    const rect = el.getBoundingClientRect();
-    return {
-      rows: Math.max(1, Math.floor(rect.height / 16)),
-      cols: Math.max(1, Math.floor(rect.width / 8)),
-    };
-  }, []);
+const DEFAULT_TTY_ROWS = 24;
+const DEFAULT_TTY_COLS = 80;
+
+function sendTerminalResize(ws: WebSocket, cols: number, rows: number) {
+  if (ws.readyState !== WebSocket.OPEN || cols <= 0 || rows <= 0) {
+    return;
+  }
+
+  const message: TtyResizeMessage = { type: "resize", cols, rows };
+  ws.send(JSON.stringify(message));
+}
+
+export default function TerminalClient({ webSocketUrl }: TerminalProps) {
+  const wsRef = useRef<WebSocket | null>(null);
+  const instanceRef = useRef<Terminal | null>(null);
+  const attachAddonRef = useRef<AttachAddon | null>(null);
+  const fitAddon = useMemo(() => new FitAddon(), []);
+  const terminalAddons = useMemo(() => [fitAddon], [fitAddon]);
+
+  const terminalOptions = useMemo(
+    () => ({
+      cursorStyle: "block" as const,
+      scrollback: 1000,
+      overviewRulerWidth: 0,
+      theme: {
+        background: "#ffffff",
+        foreground: "#65636D",
+        cursor: "#65636D",
+        selectionBackground: "#bbd6fb",
+      },
+    }),
+    [],
+  );
+
+  const syncTerminalSize = useCallback((ws: WebSocket) => {
+    const term = instanceRef.current;
+    if (!term) return;
+
+    fitAddon.fit();
+
+    sendTerminalResize(ws, term.cols, term.rows);
+    term.scrollToBottom();
+  }, [fitAddon]);
+
+  const debouncedSyncTerminalSize = useMemo(
+    () => debounce(50, (ws: WebSocket) => syncTerminalSize(ws)),
+    [syncTerminalSize],
+  );
+
+  const { ref: terminalRef, instance } = useXTerm({
+    addons: terminalAddons,
+    options: terminalOptions,
+    listeners: {
+      onResize: () => {
+        instanceRef.current?.scrollToBottom();
+      },
+    },
+  });
 
   useEffect(() => {
-    const { rows, cols } = getTtySize();
+    instanceRef.current = instance;
+  }, [instance]);
+
+  useEffect(() => {
+    if (!instance) return;
 
     const ws = new WebSocket(
-      `${webSocketUrl}?tty_height=${rows}&tty_width=${cols}`,
+      `${webSocketUrl}?tty_height=${DEFAULT_TTY_ROWS}&tty_width=${DEFAULT_TTY_COLS}`,
     );
     ws.binaryType = "arraybuffer";
+    wsRef.current = ws;
 
-    ws.onopen = (event) => {
-      const socket = event.target as WebSocket;
-      const fitAddon = new FitAddon();
-      const attachAddon = new AttachAddon(socket);
-      fitAddonRef.current = fitAddon;
-      setAddons([fitAddon, attachAddon]);
-      // Defer fit until XTerm has had a chance to mount/render
-      setTimeout(() => fitAddon.fit(), 50);
+    ws.onopen = () => {
+      attachAddonRef.current?.dispose();
+      const attachAddon = new AttachAddon(ws);
+      attachAddonRef.current = attachAddon;
+      instance.loadAddon(attachAddon);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          syncTerminalSize(ws);
+        });
+      });
     };
 
     ws.onclose = () => {
-      fitAddonRef.current = null;
-      setAddons([]);
+      attachAddonRef.current?.dispose();
+      attachAddonRef.current = null;
+      wsRef.current = null;
     };
 
     ws.onerror = (err) => console.error("WebSocket error:", err);
 
-    return () => ws.close();
-  }, [webSocketUrl, getTtySize]);
+    return () => {
+      debouncedSyncTerminalSize.cancel();
+      attachAddonRef.current?.dispose();
+      attachAddonRef.current = null;
+      ws.close();
+    };
+  }, [webSocketUrl, instance, syncTerminalSize, debouncedSyncTerminalSize]);
 
   useEffect(() => {
-    const el = containerRef.current;
+    const el = terminalRef.current;
     if (!el) return;
 
     const observer = new ResizeObserver(() => {
-      fitAddonRef.current?.fit();
+      const ws = wsRef.current;
+      if (!ws) return;
+      debouncedSyncTerminalSize(ws);
     });
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [terminalRef, debouncedSyncTerminalSize]);
 
   return (
-    <div ref={containerRef} className="m-4 h-full w-full">
-      <XTerm
-        className="h-full w-full"
-        addons={addons}
-        options={{
-          cursorStyle: "block",
-          theme: {
-            background: "#ffffff",
-            foreground: "#65636D",
-            cursor: "#65636D",
-            selectionBackground: "#bbd6fb",
-          },
-        }}
-      />
+    <div className="flex min-h-0 flex-1 flex-col p-4">
+      <div ref={terminalRef} className="min-h-0 flex-1" />
     </div>
   );
 }
