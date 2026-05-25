@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import Button from "~/components/atoms/button/Button";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
 import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
 
 interface TeamDangerZoneProps {
