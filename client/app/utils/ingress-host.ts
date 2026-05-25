@@ -1,72 +1,6 @@
-export type IngressHostDomain = "production" | "staging" | "local";
+const PREFIX_PATTERN = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
-export function getIngressHostDomain(options: {
-  deploymentEnvironment: string;
-  environmentSlug: string;
-}): IngressHostDomain {
-  if (options.deploymentEnvironment === "local") {
-    return "local";
-  }
-
-  if (options.environmentSlug === "production") {
-    return "production";
-  }
-
-  return "staging";
-}
-
-export function getIngressHostSuffix(
-  organizationSlug: string,
-  domain: IngressHostDomain,
-): string {
-  switch (domain) {
-    case "local":
-      return `.${organizationSlug}.dev.starliner.cloud`;
-    case "staging":
-      return `.${organizationSlug}.staging.starliner.cloud`;
-    case "production":
-      return `.${organizationSlug}.starliner.cloud`;
-  }
-}
-
-export function buildFullIngressHost(
-  prefix: string,
-  organizationSlug: string,
-  domain: IngressHostDomain,
-): string {
-  const normalizedPrefix = sanitizeIngressHostPrefix(prefix);
-  return `${normalizedPrefix}${getIngressHostSuffix(organizationSlug, domain)}`;
-}
-
-export function parseIngressHostPrefix(
-  host: string,
-  organizationSlug: string,
-): string {
-  const suffixes = [
-    getIngressHostSuffix(organizationSlug, "production"),
-    getIngressHostSuffix(organizationSlug, "staging"),
-    getIngressHostSuffix(organizationSlug, "local"),
-  ];
-
-  for (const suffix of suffixes) {
-    if (host.endsWith(suffix)) {
-      return host.slice(0, -suffix.length);
-    }
-  }
-
-  return host;
-}
-
-export function isValidIngressHostPrefix(prefix: string): boolean {
-  const normalized = sanitizeIngressHostPrefix(prefix);
-  if (!normalized) {
-    return false;
-  }
-
-  return /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(normalized);
-}
-
-export function sanitizeIngressHostPrefix(input: string): string {
+function normalizePrefix(input: string): string {
   return input
     .trim()
     .toLowerCase()
@@ -75,16 +9,40 @@ export function sanitizeIngressHostPrefix(input: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function isValidIngressHost(
+export function getIngressHostSuffix(
+  organizationSlug: string,
+  deploymentEnvironment: string,
+): string {
+  const subdomain =
+    deploymentEnvironment === "local"
+      ? "dev"
+      : deploymentEnvironment === "staging"
+        ? "staging"
+        : null;
+
+  return subdomain
+    ? `.${organizationSlug}.${subdomain}.starliner.cloud`
+    : `.${organizationSlug}.starliner.cloud`;
+}
+
+export function isValidIngressHostPrefix(prefix: string): boolean {
+  const normalized = normalizePrefix(prefix);
+  return normalized !== "" && PREFIX_PATTERN.test(normalized);
+}
+
+export function buildFullIngressHost(
+  prefix: string,
+  organizationSlug: string,
+  deploymentEnvironment: string,
+): string {
+  return `${normalizePrefix(prefix)}${getIngressHostSuffix(organizationSlug, deploymentEnvironment)}`;
+}
+
+export function parseIngressHostPrefix(
   host: string,
   organizationSlug: string,
-  domain: IngressHostDomain,
-): boolean {
-  const suffix = getIngressHostSuffix(organizationSlug, domain);
-  if (!host.endsWith(suffix)) {
-    return false;
-  }
-
-  const prefix = host.slice(0, -suffix.length);
-  return isValidIngressHostPrefix(prefix);
+  deploymentEnvironment: string,
+): string {
+  const suffix = getIngressHostSuffix(organizationSlug, deploymentEnvironment);
+  return host.endsWith(suffix) ? host.slice(0, -suffix.length) : host;
 }

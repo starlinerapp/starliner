@@ -15,7 +15,6 @@ import {
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import {
   buildFullIngressHost,
-  getIngressHostDomain,
   getIngressHostSuffix,
   isValidIngressHostPrefix,
   parseIngressHostPrefix,
@@ -53,14 +52,11 @@ export default function DeployIngressForm({
   resetOnSuccess = false,
 }: DeployIngressFormProps) {
   const organization = useOrganizationContext();
-  const { environment } = useEnvironment();
 
-  const domain = getIngressHostDomain({
+  const hostSuffix = getIngressHostSuffix(
+    organization.slug,
     deploymentEnvironment,
-    environmentSlug: environment?.slug ?? "production",
-  });
-
-  const hostSuffix = getIngressHostSuffix(organization.slug, domain);
+  );
 
   const parsedDefaultValues = useMemo(() => {
     if (!defaultValues) {
@@ -70,10 +66,14 @@ export default function DeployIngressForm({
     return {
       hosts: defaultValues.hosts.map((host) => ({
         ...host,
-        name: parseIngressHostPrefix(host.name, organization.slug),
+        name: parseIngressHostPrefix(
+          host.name,
+          organization.slug,
+          deploymentEnvironment,
+        ),
       })),
     };
-  }, [defaultValues, organization.slug]);
+  }, [defaultValues, organization.slug, deploymentEnvironment]);
 
   const {
     control,
@@ -117,7 +117,11 @@ export default function DeployIngressForm({
       await onSubmit({
         hosts: data.hosts.map((host) => ({
           ...host,
-          name: buildFullIngressHost(host.name, organization.slug, domain),
+          name: buildFullIngressHost(
+            host.name,
+            organization.slug,
+            deploymentEnvironment,
+          ),
         })),
       });
       if (resetOnSuccess) {
