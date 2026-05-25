@@ -28,9 +28,11 @@ export default function BottomBar({ clusterId, status }: BottomBarProps) {
           <Logs clusterId={clusterId} />
         </div>
       ) : status === "running" ? (
-        <TerminalClient
-          webSocketUrl={`wss://${window.location.host}/ws/clusters/${clusterId}`}
-        />
+        <div className="flex min-h-0 flex-1 flex-col">
+          <TerminalClient
+            webSocketUrl={`wss://${window.location.host}/ws/clusters/${clusterId}`}
+          />
+        </div>
       ) : (
         <p className="text-mauve-11 p-4">
           Terminal is available once the cluster is running.

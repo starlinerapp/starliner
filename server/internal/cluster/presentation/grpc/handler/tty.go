@@ -98,12 +98,9 @@ func (th *TtyHandler) OpenTTY(stream v1.TTYService_OpenTTYServer) error {
 				return fmt.Errorf("stdin write error: %w", err)
 			}
 		case *v1.OpenTTYRequest_Size:
-			select {
-			case sizeCh <- port.TerminalSize{
+			sizeCh <- port.TerminalSize{
 				Columns: uint16(payload.Size.Cols),
 				Rows:    uint16(payload.Size.Rows),
-			}:
-			default:
 			}
 		}
 	}
