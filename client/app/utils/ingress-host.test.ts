@@ -53,7 +53,11 @@ describe("ingress-host", () => {
 
   it("validates full hostnames against the required suffix", () => {
     expect(
-      isValidIngressHost("api.acme.staging.starliner.cloud", orgSlug, "staging"),
+      isValidIngressHost(
+        "api.acme.staging.starliner.cloud",
+        orgSlug,
+        "staging",
+      ),
     ).toBe(true);
     expect(
       isValidIngressHost("api.acme.starliner.cloud", orgSlug, "staging"),
