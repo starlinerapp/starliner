@@ -41,6 +41,7 @@ func (bh *BuildHandler) GetBuildLogs(c *gin.Context) {
 	logs, err := bh.buildApplication.GetBuildLogs(c.Request.Context(), currentUser.Id, buildId)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 

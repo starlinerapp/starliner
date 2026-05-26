@@ -43,6 +43,7 @@ func (oh *OrganizationHandler) CreateOrganization(c *gin.Context) {
 	newOrg, err := oh.organizationApplication.CreateOrganization(c, org.Name, currentUser.Id)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusCreated, response.NewOrganization(newOrg))
@@ -62,6 +63,7 @@ func (oh *OrganizationHandler) GetUserOrganizations(c *gin.Context) {
 	organizations, err := oh.organizationApplication.GetUserOrganizations(c.Request.Context(), currentUser.Id)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.NewOrganizations(organizations))
@@ -88,6 +90,7 @@ func (oh *OrganizationHandler) GetUserProjects(c *gin.Context) {
 	projects, err := oh.organizationApplication.GetProjectsForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.NewProjects(projects))
@@ -114,6 +117,7 @@ func (oh *OrganizationHandler) GetOrganizationClusters(c *gin.Context) {
 	clusters, err := oh.organizationApplication.GetClustersForUser(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.NewClusters(clusters))
@@ -147,6 +151,7 @@ func (oh *OrganizationHandler) UpsertHetznerCredential(c *gin.Context) {
 	err = oh.organizationApplication.UpsertHetznerCredential(c.Request.Context(), currentUser.Id, organizationId, credential.ApiKey)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.Status(http.StatusOK)
@@ -173,6 +178,7 @@ func (oh *OrganizationHandler) GetHetznerCredential(c *gin.Context) {
 	credential, err := oh.organizationApplication.GetHetznerCredential(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -218,9 +224,11 @@ func (oh *OrganizationHandler) SendEmailInvite(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, value.ErrSendInviteEmail) {
 			_ = c.Error(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 			return
 		}
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.Status(http.StatusCreated)
@@ -242,6 +250,7 @@ func (oh *OrganizationHandler) GetInviteDetails(c *gin.Context) {
 	invite, err := oh.organizationApplication.GetInviteDetails(c.Request.Context(), inviteId)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.NewOrganizationInvite(invite))
@@ -267,6 +276,7 @@ func (oh *OrganizationHandler) AcceptInvite(c *gin.Context) {
 	err := oh.organizationApplication.AcceptInvite(c.Request.Context(), body.InviteId, body.RecipientEmail, currentUser.Id)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.Status(http.StatusOK)
@@ -292,6 +302,7 @@ func (oh *OrganizationHandler) GetOrganizationMembers(c *gin.Context) {
 	members, err := oh.organizationApplication.GetOrganizationMembers(c.Request.Context(), currentUser.Id, organizationId)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -326,6 +337,7 @@ func (oh *OrganizationHandler) RemoveOrganizationMember(c *gin.Context) {
 	err = oh.organizationApplication.RemoveOrganizationMember(c.Request.Context(), currentUser.Id, organizationId, body.UserID)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 

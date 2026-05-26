@@ -18,14 +18,14 @@ func WithErrorReporting() gin.HandlerFunc {
 			return
 		}
 
+		if c.Writer.Status() < http.StatusInternalServerError {
+			return
+		}
+
 		if hub := sentrygin.GetHubFromContext(c); hub != nil {
 			for _, e := range c.Errors {
 				hub.CaptureException(e.Err)
 			}
-		}
-
-		if !c.Writer.Written() {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		}
 	}
 }

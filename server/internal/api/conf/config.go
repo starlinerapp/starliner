@@ -34,7 +34,7 @@ type Config struct {
 	ImageRegistryUrl        string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
 	ImageRegistryUsername   string `mapstructure:"IMAGE_REGISTRY_USERNAME" validate:"required"`
 	ImageRegistryPassword   string `mapstructure:"IMAGE_REGISTRY_PASSWORD" validate:"required"`
-	SentryDSN               string `mapstructure:"SENTRY_DSN_BACKEND"`
+	SentryDSN               string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment             string `mapstructure:"ENVIRONMENT"`
 }
 

@@ -68,6 +68,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 			return
 		}
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -112,6 +113,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -149,6 +151,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 			return
 		}
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -190,6 +193,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 		}
 
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -238,6 +242,7 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 		}
 
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -281,6 +286,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 			return
 		}
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -325,6 +331,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 	)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -356,6 +363,7 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 	)
 	if err != nil {
 		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 

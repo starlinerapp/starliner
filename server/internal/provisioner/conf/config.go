@@ -12,7 +12,7 @@ type Config struct {
 	AWSAccessKeyId      string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
 	AWSSecretAccessKey  string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
-	SentryDSN           string `mapstructure:"SENTRY_DSN_BACKEND"`
+	SentryDSN           string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment         string `mapstructure:"ENVIRONMENT"`
 	RedisAddr           string `mapstructure:"REDIS_ADDR" validate:"required"`
 	RedisPassword       string `mapstructure:"REDIS_PASSWORD" validate:"required"`

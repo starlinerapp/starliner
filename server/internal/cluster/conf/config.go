@@ -10,7 +10,7 @@ import (
 type Config struct {
 	NatsUrl             string `mapstructure:"NATS_URL" validate:"required"`
 	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
-	SentryDSN           string `mapstructure:"SENTRY_DSN_BACKEND"`
+	SentryDSN           string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment         string `mapstructure:"ENVIRONMENT"`
 	CFApiToken          string `mapstructure:"CF_API_TOKEN" validate:"required"`
 	RedisAddr           string `mapstructure:"REDIS_ADDR" validate:"required"`
