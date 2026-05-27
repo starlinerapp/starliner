@@ -139,7 +139,10 @@ export default function DeploymentCard({
           >
             <ChevronRight className="w-4 stroke-2" />
           </motion.div>
-          <div className="relative flex items-center">
+          <div
+            className="relative flex items-center"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="relative">
               <div className="bg-mauve-8 absolute top-1/2 -right-1 h-2 w-2 -translate-y-1/2 rounded-full" />
 
