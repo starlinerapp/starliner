@@ -95,6 +95,13 @@ WHERE d.environment_id = $1
   AND d.name = $2
 ORDER BY d.id DESC;
 
+-- name: IsIngressDeployment :one
+SELECT EXISTS (
+  SELECT 1
+  FROM ingress_deployments
+  WHERE deployment_id = @deployment_id
+) AS is_ingress_deployment;
+
 -- name: GetIngressHostByName :one
 SELECT i.host, i.deployment_id
 FROM ingress_hosts i

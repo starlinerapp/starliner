@@ -104,5 +104,7 @@ type DeploymentRepository interface {
 
 	GetIngressHostByName(ctx context.Context, hostName string) (*entity.IngressHostDeployment, error)
 
+	IsIngressDeployment(ctx context.Context, deploymentId int64) (bool, error)
+
 	GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error)
 }

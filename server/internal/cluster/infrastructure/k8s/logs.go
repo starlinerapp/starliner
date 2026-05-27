@@ -5,13 +5,21 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
+	"time"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"starliner.app/internal/cluster/domain/port"
+	"starliner.app/internal/cluster/domain/value"
 	"starliner.app/internal/cluster/infrastructure/shared/kubeconfig"
-	"time"
+)
+
+const (
+	traefikNamespace     = "kube-system"
+	traefikLabelSelector = "app.kubernetes.io/name=traefik"
 )
 
 type Logs struct{}
@@ -20,8 +28,65 @@ func NewLogs() port.Logs {
 	return &Logs{}
 }
 
-func (l *Logs) StreamLogs(ctx context.Context, namespace string, releaseName string, kubeconfigBase64 string) (io.ReadCloser, error) {
-	reader, writer := io.Pipe()
+func (l *Logs) StreamLogs(
+	ctx context.Context,
+	source value.LogSource,
+	environmentNamespace string,
+	releaseName string,
+	kubeconfigBase64 string,
+) (io.ReadCloser, error) {
+	switch source {
+	case value.LogSourceIngress:
+		return l.streamIngressLogs(ctx, environmentNamespace, releaseName, kubeconfigBase64)
+	default:
+		return l.streamWorkloadLogs(ctx, environmentNamespace, releaseName, kubeconfigBase64)
+	}
+}
+
+func (l *Logs) streamWorkloadLogs(
+	ctx context.Context,
+	namespace string,
+	releaseName string,
+	kubeconfigBase64 string,
+) (io.ReadCloser, error) {
+	client, err := newKubernetesClient(kubeconfigBase64)
+	if err != nil {
+		return nil, err
+	}
+
+	labelSelector := fmt.Sprintf("app.kubernetes.io/instance=%s", releaseName)
+	return streamPodLogs(ctx, client, namespace, labelSelector, nil)
+}
+
+func (l *Logs) streamIngressLogs(
+	ctx context.Context,
+	environmentNamespace string,
+	releaseName string,
+	kubeconfigBase64 string,
+) (io.ReadCloser, error) {
+	client, err := newKubernetesClient(kubeconfigBase64)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := ingressLogLineFilter(environmentNamespace, releaseName)
+	return streamPodLogs(ctx, client, traefikNamespace, traefikLabelSelector, filter)
+}
+
+func ingressLogLineFilter(environmentNamespace, releaseName string) func(string) bool {
+	routerKey := fmt.Sprintf("%s-%s", environmentNamespace, releaseName)
+
+	return func(line string) bool {
+		if strings.Contains(line, routerKey) {
+			return true
+		}
+
+		return strings.Contains(line, releaseName) &&
+			strings.Contains(line, environmentNamespace)
+	}
+}
+
+func newKubernetesClient(kubeconfigBase64 string) (*kubernetes.Clientset, error) {
 	var client *kubernetes.Clientset
 
 	err := kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
@@ -34,18 +99,29 @@ func (l *Logs) StreamLogs(ctx context.Context, namespace string, releaseName str
 		if err != nil {
 			return fmt.Errorf("failed to create client: %w", err)
 		}
+
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
+	return client, nil
+}
+
+func streamPodLogs(
+	ctx context.Context,
+	client *kubernetes.Clientset,
+	namespace string,
+	labelSelector string,
+	lineFilter func(string) bool,
+) (io.ReadCloser, error) {
+	reader, writer := io.Pipe()
+
 	go func() {
 		defer func() {
 			_ = writer.Close()
 		}()
-
-		labelSelector := fmt.Sprintf("app.kubernetes.io/instance=%s", releaseName)
 
 		for {
 			select {
@@ -91,8 +167,12 @@ func (l *Logs) StreamLogs(ctx context.Context, namespace string, releaseName str
 
 			scanner := bufio.NewScanner(stream)
 			for scanner.Scan() {
-				_, err := fmt.Fprintln(writer, scanner.Text())
-				if err != nil {
+				line := scanner.Text()
+				if lineFilter != nil && !lineFilter(line) {
+					continue
+				}
+
+				if _, err := fmt.Fprintln(writer, line); err != nil {
 					_ = stream.Close()
 					return
 				}

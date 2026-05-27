@@ -21,8 +21,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type LogSource int32
+
+const (
+	LogSource_LOG_SOURCE_UNSPECIFIED LogSource = 0
+	LogSource_LOG_SOURCE_WORKLOAD    LogSource = 1
+	LogSource_LOG_SOURCE_INGRESS     LogSource = 2
+)
+
+// Enum value maps for LogSource.
+var (
+	LogSource_name = map[int32]string{
+		0: "LOG_SOURCE_UNSPECIFIED",
+		1: "LOG_SOURCE_WORKLOAD",
+		2: "LOG_SOURCE_INGRESS",
+	}
+	LogSource_value = map[string]int32{
+		"LOG_SOURCE_UNSPECIFIED": 0,
+		"LOG_SOURCE_WORKLOAD":    1,
+		"LOG_SOURCE_INGRESS":     2,
+	}
+)
+
+func (x LogSource) Enum() *LogSource {
+	p := new(LogSource)
+	*p = x
+	return p
+}
+
+func (x LogSource) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LogSource) Descriptor() protoreflect.EnumDescriptor {
+	return file_internal_core_infrastructure_grpc_proto_v1_logs_proto_enumTypes[0].Descriptor()
+}
+
+func (LogSource) Type() protoreflect.EnumType {
+	return &file_internal_core_infrastructure_grpc_proto_v1_logs_proto_enumTypes[0]
+}
+
+func (x LogSource) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LogSource.Descriptor instead.
+func (LogSource) EnumDescriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescGZIP(), []int{0}
+}
+
 type StreamLogsRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
+	Source           LogSource              `protobuf:"varint,1,opt,name=source,proto3,enum=proto.v1.LogSource" json:"source,omitempty"`
 	Namespace        string                 `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	ReleaseName      string                 `protobuf:"bytes,3,opt,name=releaseName,proto3" json:"releaseName,omitempty"`
 	KubeconfigBase64 string                 `protobuf:"bytes,4,opt,name=kubeconfigBase64,proto3" json:"kubeconfigBase64,omitempty"`
@@ -58,6 +108,13 @@ func (x *StreamLogsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use StreamLogsRequest.ProtoReflect.Descriptor instead.
 func (*StreamLogsRequest) Descriptor() ([]byte, []int) {
 	return file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *StreamLogsRequest) GetSource() LogSource {
+	if x != nil {
+		return x.Source
+	}
+	return LogSource_LOG_SOURCE_UNSPECIFIED
 }
 
 func (x *StreamLogsRequest) GetNamespace() string {
@@ -129,16 +186,21 @@ var File_internal_core_infrastructure_grpc_proto_v1_logs_proto protoreflect.File
 
 const file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"5internal/core/infrastructure/grpc/proto/v1/logs.proto\x12\bproto.v1\"\x7f\n" +
-	"\x11StreamLogsRequest\x12\x1c\n" +
+	"5internal/core/infrastructure/grpc/proto/v1/logs.proto\x12\bproto.v1\"\xac\x01\n" +
+	"\x11StreamLogsRequest\x12+\n" +
+	"\x06source\x18\x01 \x01(\x0e2\x13.proto.v1.LogSourceR\x06source\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12 \n" +
 	"\vreleaseName\x18\x03 \x01(\tR\vreleaseName\x12*\n" +
 	"\x10kubeconfigBase64\x18\x04 \x01(\tR\x10kubeconfigBase64\"*\n" +
 	"\x12StreamLogsResponse\x12\x14\n" +
-	"\x05chunk\x18\x01 \x01(\fR\x05chunk2X\n" +
+	"\x05chunk\x18\x01 \x01(\fR\x05chunk*X\n" +
+	"\tLogSource\x12\x1a\n" +
+	"\x16LOG_SOURCE_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13LOG_SOURCE_WORKLOAD\x10\x01\x12\x16\n" +
+	"\x12LOG_SOURCE_INGRESS\x10\x022X\n" +
 	"\vLogsService\x12I\n" +
 	"\n" +
-	"StreamLogs\x12\x1b.proto.v1.StreamLogsRequest\x1a\x1c.proto.v1.StreamLogsResponse0\x01B;Z9starliner.app/internal/cluster/presentation/grpc/proto/v1b\x06proto3"
+	"StreamLogs\x12\x1b.proto.v1.StreamLogsRequest\x1a\x1c.proto.v1.StreamLogsResponse0\x01B:Z8starliner.app/internal/core/infrastructure/grpc/proto/v1b\x06proto3"
 
 var (
 	file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescOnce sync.Once
@@ -152,19 +214,22 @@ func file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescGZIP() []
 	return file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDescData
 }
 
+var file_internal_core_infrastructure_grpc_proto_v1_logs_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_internal_core_infrastructure_grpc_proto_v1_logs_proto_goTypes = []any{
-	(*StreamLogsRequest)(nil),  // 0: proto.v1.StreamLogsRequest
-	(*StreamLogsResponse)(nil), // 1: proto.v1.StreamLogsResponse
+	(LogSource)(0),             // 0: proto.v1.LogSource
+	(*StreamLogsRequest)(nil),  // 1: proto.v1.StreamLogsRequest
+	(*StreamLogsResponse)(nil), // 2: proto.v1.StreamLogsResponse
 }
 var file_internal_core_infrastructure_grpc_proto_v1_logs_proto_depIdxs = []int32{
-	0, // 0: proto.v1.LogsService.StreamLogs:input_type -> proto.v1.StreamLogsRequest
-	1, // 1: proto.v1.LogsService.StreamLogs:output_type -> proto.v1.StreamLogsResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: proto.v1.StreamLogsRequest.source:type_name -> proto.v1.LogSource
+	1, // 1: proto.v1.LogsService.StreamLogs:input_type -> proto.v1.StreamLogsRequest
+	2, // 2: proto.v1.LogsService.StreamLogs:output_type -> proto.v1.StreamLogsResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_internal_core_infrastructure_grpc_proto_v1_logs_proto_init() }
@@ -177,13 +242,14 @@ func file_internal_core_infrastructure_grpc_proto_v1_logs_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc), len(file_internal_core_infrastructure_grpc_proto_v1_logs_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_internal_core_infrastructure_grpc_proto_v1_logs_proto_goTypes,
 		DependencyIndexes: file_internal_core_infrastructure_grpc_proto_v1_logs_proto_depIdxs,
+		EnumInfos:         file_internal_core_infrastructure_grpc_proto_v1_logs_proto_enumTypes,
 		MessageInfos:      file_internal_core_infrastructure_grpc_proto_v1_logs_proto_msgTypes,
 	}.Build()
 	File_internal_core_infrastructure_grpc_proto_v1_logs_proto = out.File

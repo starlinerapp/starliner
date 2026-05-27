@@ -784,7 +784,32 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
-	return da.grpcClusterClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
+	logSource, err := da.deploymentLogSource(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	return da.grpcClusterClient.StreamLogs(
+		ctx,
+		string(logSource),
+		deployment.Namespace,
+		normalizedDeploymentName,
+		kubeconfigBase64,
+		w,
+	)
+}
+
+func (da *DeploymentApplication) deploymentLogSource(ctx context.Context, deploymentId int64) (value.LogSource, error) {
+	isIngress, err := da.deploymentRepository.IsIngressDeployment(ctx, deploymentId)
+	if err != nil {
+		return "", err
+	}
+
+	if isIngress {
+		return value.LogSourceIngress, nil
+	}
+
+	return value.LogSourceWorkload, nil
 }
 
 func (da *DeploymentApplication) OpenTTY(

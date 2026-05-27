@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
+	"starliner.app/internal/api/domain/value"
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
@@ -31,13 +32,15 @@ func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
 
 func (c *ClusterClient) StreamLogs(
 	ctx context.Context,
-	namespace string,
+	source string,
+	environmentNamespace string,
 	releaseName string,
 	kubeconfigBase64 string,
 	w io.Writer,
 ) error {
 	stream, err := c.logsServiceClient.StreamLogs(ctx, &v2.StreamLogsRequest{
-		Namespace:        namespace,
+		Source:           logSourceToProto(value.LogSource(source)),
+		Namespace:        environmentNamespace,
 		ReleaseName:      releaseName,
 		KubeconfigBase64: kubeconfigBase64,
 	})
@@ -58,6 +61,15 @@ func (c *ClusterClient) StreamLogs(
 		if err != nil {
 			return err
 		}
+	}
+}
+
+func logSourceToProto(source value.LogSource) v2.LogSource {
+	switch source {
+	case value.LogSourceIngress:
+		return v2.LogSource_LOG_SOURCE_INGRESS
+	default:
+		return v2.LogSource_LOG_SOURCE_WORKLOAD
 	}
 }
 

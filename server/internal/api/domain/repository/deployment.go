@@ -674,6 +674,10 @@ func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostNa
 	}, nil
 }
 
+func (dr *DeploymentRepository) IsIngressDeployment(ctx context.Context, deploymentId int64) (bool, error) {
+	return dr.queries.IsIngressDeployment(ctx, deploymentId)
+}
+
 func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error) {
 	rows, err := dr.queries.GetGitDeploymentsByRepositoryUrl(ctx, repositoryUrl)
 	if err != nil {
