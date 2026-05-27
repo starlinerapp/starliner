@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -9,7 +9,7 @@ import { Outlet, useOutletContext, useParams } from "react-router";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
-import type { ResponseEnvironment } from "../../../../../../server/api/clients/server/generated";
+import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
 import { ReactFlowProvider } from "@xyflow/react";
 import BottomBar from "~/components/organisms/bottom-bar/deployment/BottomBar";
 import type { ImperativePanelHandle } from "react-resizable-panels";
@@ -57,26 +57,38 @@ export default function Layout() {
     return allDeployments.find((d) => d.id === Number(deploymentId));
   }, [environmentDeployments, deploymentId]);
 
-  const navigationBarItems = [
-    {
-      title: "Git Repository",
-      href: `/${slug}/projects/${id}/${environment}/architecture/git`,
-    },
-    {
-      title: "Image",
-      href: `/${slug}/projects/${id}/${environment}/architecture/image`,
-    },
-    {
-      title: "Ingress",
-      href: `/${slug}/projects/${id}/${environment}/architecture/ingress`,
-    },
-    {
-      title: "Database",
-      href: `/${slug}/projects/${id}/${environment}/architecture/database`,
-    },
-  ];
+  const navigationBarItems = useMemo(
+    () => [
+      {
+        title: "Git Repository",
+        href: `/${slug}/projects/${id}/${environment}/architecture/git`,
+      },
+      {
+        title: "Image",
+        href: `/${slug}/projects/${id}/${environment}/architecture/image`,
+      },
+      {
+        title: "Ingress",
+        href: `/${slug}/projects/${id}/${environment}/architecture/ingress`,
+      },
+      {
+        title: "Database",
+        href: `/${slug}/projects/${id}/${environment}/architecture/database`,
+      },
+    ],
+    [slug, id, environment],
+  );
 
   const bottomPanelRef = useRef<ImperativePanelHandle>(null);
+  const navBarRef = useRef<HTMLDivElement>(null);
+  const [minPanelWidth, setMinPanelWidth] = useState<number | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    if (!navBarRef.current) return;
+    setMinPanelWidth(navBarRef.current.scrollWidth);
+  }, [navigationBarItems]);
   useEffect(() => {
     if (!deploymentId) return;
 
@@ -118,21 +130,26 @@ export default function Layout() {
           </ResizablePanel>
         </ResizablePanelGroup>
       </ResizablePanel>
-
       <ResizableHandle />
-
-      <ResizablePanel defaultSize={30} className="flex h-full flex-col">
-        <div className="bg-violet-1">
+      <ResizablePanel
+        defaultSize={30}
+        maxSize={50}
+        style={minPanelWidth ? { minWidth: minPanelWidth } : undefined}
+        className="flex h-full flex-col overflow-hidden"
+      >
+        <div ref={navBarRef} className="bg-violet-1 shrink-0">
           <LinkNavigationBar items={navigationBarItems} />
         </div>
-        <div className="max-h-[calc(100vh-135px)] flex-1 overflow-auto p-4">
-          <Outlet
-            context={{
-              environment: currentEnvironment,
-              clusterId: project?.clusterId,
-              teamId: project?.teamId,
-            }}
-          />
+        <div className="mx-1 max-h-[calc(100vh-135px)] flex-1 overflow-auto">
+          <div className="p-4">
+            <Outlet
+              context={{
+                environment: currentEnvironment,
+                clusterId: project?.clusterId,
+                teamId: project?.teamId,
+              }}
+            />
+          </div>
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
