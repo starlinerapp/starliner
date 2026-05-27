@@ -57,24 +57,27 @@ export default function Layout() {
     return allDeployments.find((d) => d.id === Number(deploymentId));
   }, [environmentDeployments, deploymentId]);
 
-  const navigationBarItems = [
-    {
-      title: "Git Repository",
-      href: `/${slug}/projects/${id}/${environment}/architecture/git`,
-    },
-    {
-      title: "Image",
-      href: `/${slug}/projects/${id}/${environment}/architecture/image`,
-    },
-    {
-      title: "Ingress",
-      href: `/${slug}/projects/${id}/${environment}/architecture/ingress`,
-    },
-    {
-      title: "Database",
-      href: `/${slug}/projects/${id}/${environment}/architecture/database`,
-    },
-  ];
+  const navigationBarItems = useMemo(
+    () => [
+      {
+        title: "Git Repository",
+        href: `/${slug}/projects/${id}/${environment}/architecture/git`,
+      },
+      {
+        title: "Image",
+        href: `/${slug}/projects/${id}/${environment}/architecture/image`,
+      },
+      {
+        title: "Ingress",
+        href: `/${slug}/projects/${id}/${environment}/architecture/ingress`,
+      },
+      {
+        title: "Database",
+        href: `/${slug}/projects/${id}/${environment}/architecture/database`,
+      },
+    ],
+    [slug, id, environment],
+  );
 
   const bottomPanelRef = useRef<ImperativePanelHandle>(null);
   const navBarRef = useRef<HTMLDivElement>(null);
@@ -130,7 +133,6 @@ export default function Layout() {
       <ResizableHandle />
       <ResizablePanel
         defaultSize={30}
-        minSize={20}
         maxSize={50}
         style={minPanelWidth ? { minWidth: minPanelWidth } : undefined}
         className="flex h-full flex-col overflow-hidden"
