@@ -1,4 +1,7 @@
 ingress:
+  hostnameAnnotation: ""
+  tls:
+    enabled: false
   rules:
     - host:
       paths:

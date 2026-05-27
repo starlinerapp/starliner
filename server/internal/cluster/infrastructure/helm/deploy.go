@@ -7,12 +7,14 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"helm.sh/helm/v4/pkg/action"
 	v2 "helm.sh/helm/v4/pkg/chart/v2"
 	"helm.sh/helm/v4/pkg/chart/v2/loader"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"starliner.app/internal/cluster/conf"
 	"starliner.app/internal/cluster/domain/port"
 	"starliner.app/internal/cluster/infrastructure/shared/kubeconfig"
 )
@@ -23,10 +25,13 @@ const (
 )
 
 type Deploy struct {
+	config *conf.Config
 }
 
-func NewDeploy() port.Deploy {
-	return &Deploy{}
+func NewDeploy(config *conf.Config) port.Deploy {
+	return &Deploy{
+		config: config,
+	}
 }
 
 func (d *Deploy) DeployImage(
@@ -110,13 +115,48 @@ func (d *Deploy) DeployPostgres(namespace string, releaseName string, kubeconfig
 	return installChart(PostgresChart, namespace, releaseName, kubeconfigBase64, values)
 }
 
+func (d *Deploy) DeployExternalDNS(namespace string, releaseName string, kubeconfigBase64 string) error {
+	values := map[string]interface{}{
+		"cloudflare": map[string]interface{}{
+			"apiKey": d.config.CFApiToken,
+		},
+		"external-dns": map[string]interface{}{
+			"provider": map[string]interface{}{
+				"name": "cloudflare",
+			},
+			"policy": "upsert-only",
+			"env": []interface{}{
+				map[string]interface{}{
+					"name": "CF_API_TOKEN",
+					"valueFrom": map[string]interface{}{
+						"secretKeyRef": map[string]interface{}{
+							"name": fmt.Sprintf("%s-cloudflare-api-key", releaseName),
+							"key":  "apiKey",
+						},
+					},
+				},
+			},
+		},
+	}
+	return installChart(ExternalDNSChart, namespace, releaseName, kubeconfigBase64, values)
+}
+
 func (d *Deploy) DeleteDeployment(namespace string, releaseName string, kubeconfigBase64 string) error {
 	return uninstallRelease(namespace, releaseName, kubeconfigBase64)
 }
 
 func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
-	rules := make([]interface{}, 0, len(args.Hosts))
-	for _, host := range args.Hosts {
+	values := buildIngressValues(args.Hosts, args.TLSEnabled)
+	return installChart(IngressChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, values)
+}
+
+func buildIngressValues(hosts []port.IngressHost, tlsEnabled bool) map[string]interface{} {
+	rules := make([]interface{}, 0, len(hosts))
+	hostnames := make([]string, 0, len(hosts))
+
+	for _, host := range hosts {
+		hostnames = append(hostnames, host.Host)
+
 		paths := make([]interface{}, 0, len(host.Paths))
 		for _, p := range host.Paths {
 			paths = append(paths, map[string]interface{}{
@@ -137,12 +177,15 @@ func (d *Deploy) DeployIngress(args *port.DeployIngressArgs) error {
 		})
 	}
 
-	values := map[string]interface{}{
+	return map[string]interface{}{
 		"ingress": map[string]interface{}{
-			"rules": rules,
+			"rules":              rules,
+			"hostnameAnnotation": strings.Join(hostnames, ","),
+			"tls": map[string]interface{}{
+				"enabled": tlsEnabled,
+			},
 		},
 	}
-	return installChart(IngressChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, values)
 }
 
 func installChart(

@@ -100,6 +100,9 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 		if err != nil {
 			return nil, err
 		}
+		if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
+			return nil, fmt.Errorf("cluster ipv4 address is not set")
+		}
 		kubeconfigBase64, err := ea.crypto.Decrypt(*cluster.Kubeconfig)
 		if err != nil {
 			return nil, err
@@ -145,6 +148,7 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				DeploymentName:   d.ServiceName,
 				Namespace:        env.Namespace,
 				KubeconfigBase64: kubeconfigBase64,
+				ExpectedIP:       *cluster.IPv4Address,
 			})
 			if err != nil {
 				log.Printf("error publishing: %v", err)

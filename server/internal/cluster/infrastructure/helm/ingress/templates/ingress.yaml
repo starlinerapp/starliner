@@ -3,11 +3,23 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   annotations:
+    {{- if .Values.ingress.hostnameAnnotation }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.hostnameAnnotation }}
+    {{- end }}
+    {{- if .Values.ingress.tls.enabled }}
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+    {{- end }}
 spec:
   ingressClassName: traefik
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        {{- range .Values.ingress.rules }}
+        - {{ tpl .host $ }}
+        {{- end }}
+  {{- end }}
   rules:
     {{- range .Values.ingress.rules }}
     - host: {{ tpl .host $ }}
