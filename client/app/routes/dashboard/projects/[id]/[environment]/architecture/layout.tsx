@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -77,6 +77,15 @@ export default function Layout() {
   ];
 
   const bottomPanelRef = useRef<ImperativePanelHandle>(null);
+  const navBarRef = useRef<HTMLDivElement>(null);
+  const [minPanelWidth, setMinPanelWidth] = useState<number | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    if (!navBarRef.current) return;
+    setMinPanelWidth(navBarRef.current.scrollWidth);
+  }, [navigationBarItems]);
   useEffect(() => {
     if (!deploymentId) return;
 
@@ -118,21 +127,27 @@ export default function Layout() {
           </ResizablePanel>
         </ResizablePanelGroup>
       </ResizablePanel>
-
       <ResizableHandle />
-
-      <ResizablePanel defaultSize={30} className="flex h-full flex-col">
-        <div className="bg-violet-1">
+      <ResizablePanel
+        defaultSize={30}
+        minSize={20}
+        maxSize={50}
+        style={minPanelWidth ? { minWidth: minPanelWidth } : undefined}
+        className="flex h-full flex-col overflow-hidden"
+      >
+        <div ref={navBarRef} className="bg-violet-1 shrink-0">
           <LinkNavigationBar items={navigationBarItems} />
         </div>
-        <div className="max-h-[calc(100vh-135px)] flex-1 overflow-auto p-4">
-          <Outlet
-            context={{
-              environment: currentEnvironment,
-              clusterId: project?.clusterId,
-              teamId: project?.teamId,
-            }}
-          />
+        <div className="mx-1 max-h-[calc(100vh-135px)] flex-1 overflow-auto">
+          <div className="p-4">
+            <Outlet
+              context={{
+                environment: currentEnvironment,
+                clusterId: project?.clusterId,
+                teamId: project?.teamId,
+              }}
+            />
+          </div>
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
