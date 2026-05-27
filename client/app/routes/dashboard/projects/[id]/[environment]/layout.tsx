@@ -68,7 +68,7 @@ export default function ProjectLayout() {
     if (
       !projectEnvironmentKey ||
       !environmentBuilds ||
-      !location.pathname.endsWith("/builds")
+      !location.pathname.endsWith("/deployments")
     ) {
       return;
     }
@@ -101,7 +101,7 @@ export default function ProjectLayout() {
     {
       title: (
         <span className="flex items-center gap-2">
-          <span>Builds</span>
+          <span>Deployments</span>
           {newBuildsSinceFirstLoad > 0 && !isEnvironmentBuildsLoading && (
             <span className="bg-violet-9 rounded-full px-2 py-0.5 text-xs text-white">
               + {newBuildsSinceFirstLoad}
@@ -109,7 +109,7 @@ export default function ProjectLayout() {
           )}
         </span>
       ),
-      href: `/${slug}/projects/${id}/${environment}/builds`,
+      href: `/${slug}/projects/${id}/${environment}/deployments`,
     },
     {
       title: "Settings",

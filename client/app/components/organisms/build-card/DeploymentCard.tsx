@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight } from "~/components/atoms/icons";
 import { formatDistanceToNow } from "date-fns";
 import { Spinner } from "~/components/atoms/spinner/Spinner";
-import { Check, GitMerge, X } from "lucide-react";
+import { Check, GitMerge, Hammer, Play, X } from "lucide-react";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useTRPC } from "~/utils/trpc/react";
 import { useSubscription } from "@trpc/tanstack-react-query";
@@ -19,7 +19,7 @@ interface LogsCardProps {
   args?: { name: string; value: string }[];
 }
 
-export default function BuildCard({
+export default function DeploymentCard({
   isCollapsed: collapsed = true,
   buildId,
   commitHash,
@@ -128,9 +128,9 @@ export default function BuildCard({
           </div>
         </div>
       </div>
-      <div className="border-mauve-6 rounded-b-md border-x-1 border-b-1 text-sm">
+      <div className="border-mauve-6 rounded-b-md border-x border-b text-sm">
         <div
-          className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm"
+          className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <motion.div
@@ -139,7 +139,31 @@ export default function BuildCard({
           >
             <ChevronRight className="w-4 stroke-2" />
           </motion.div>
-          <p>Build Logs</p>
+          <div className="relative flex items-center">
+            <div className="relative">
+              <div className="bg-mauve-8 absolute top-1/2 -right-1 h-2 w-2 -translate-y-1/2 rounded-full" />
+
+              <span className="border-violet-9 bg-violet-3 hover:bg-mauve-2 text-violet-9 relative z-10 flex items-center gap-1.5 rounded-md border px-4 py-0.5">
+                <div className="border-violet-9 flex rounded-full border-[1.5px] p-0.5">
+                  <Hammer className="fill-violet-9 stroke-violet-9 h-2 w-2" />
+                </div>
+                Build
+              </span>
+            </div>
+
+            <div className="bg-mauve-8 h-px w-4" />
+
+            <div className="relative">
+              <div className="bg-mauve-8 absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full" />
+
+              <span className="border-mauve-6 hover:bg-mauve-2 text-mauve-9 relative z-10 flex items-center gap-1.5 rounded-md border bg-white px-4 py-0.5">
+                <div className="border-mauve-9 flex rounded-full border-[1.5px] p-0.5">
+                  <Play className="fill-mauve-9 stroke-mauve-9 h-2 w-2" />
+                </div>
+                Deploy
+              </span>
+            </div>
+          </div>
         </div>
         <AnimatePresence initial={false}>
           {!isCollapsed && (
@@ -151,17 +175,17 @@ export default function BuildCard({
               transition={{ duration: 0.15, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="bg-gray-2 border-t-mauve-6 border-t p-4">
+              <div className="bg-gray-2 border-t-mauve-6 rounded-b-md border-t p-4">
                 {!hasReceivedLogs && isBuilding ? (
                   <BuildCardSkeleton />
                 ) : logs.length === 0 ? (
-                  <pre className="text-mauve-11 max-h-[500px] overflow-y-auto whitespace-pre-wrap">
+                  <pre className="text-mauve-11 max-h-125 overflow-y-auto whitespace-pre-wrap">
                     No logs available
                   </pre>
                 ) : (
                   <pre
                     ref={logsScrollRef}
-                    className="text-mauve-11 max-h-[500px] w-full overflow-y-auto font-mono text-sm break-all whitespace-pre-wrap"
+                    className="text-mauve-11 max-h-125 w-full overflow-y-auto font-mono text-sm break-all whitespace-pre-wrap"
                   >
                     {logs.map((line, i) => (
                       <span key={i} className="block">
