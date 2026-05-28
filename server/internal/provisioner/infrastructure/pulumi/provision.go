@@ -219,7 +219,7 @@ func (p *Provision) configureStack(ctx context.Context, s auto.Stack, provisioni
 	}
 
 	w := s.Workspace()
-	return w.InstallPlugin(ctx, "hcloud", "1.29")
+	return w.InstallPlugin(ctx, "hcloud", "1.36")
 }
 
 func (p *Provision) logAppender(ctx context.Context, clusterId int64, logBuf *strings.Builder, mu *sync.Mutex) func(string) {

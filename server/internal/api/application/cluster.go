@@ -25,6 +25,7 @@ type ClusterApplication struct {
 	teamRepository         interfaces.TeamRepository
 	projectRepository      interfaces.ProjectRepository
 	environmentRepository  interfaces.EnvironmentRepository
+	deploymentRepository   interfaces.DeploymentRepository
 	environmentService     *service.EnvironmentService
 	organizationService    *service.OrganizationService
 	crypto                 corePort.Crypto
@@ -38,6 +39,7 @@ func NewClusterApplication(
 	teamRepository interfaces.TeamRepository,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,
+	deploymentRepository interfaces.DeploymentRepository,
 	environmentService *service.EnvironmentService,
 	organizationService *service.OrganizationService,
 	crypto corePort.Crypto,
@@ -50,6 +52,7 @@ func NewClusterApplication(
 		teamRepository:         teamRepository,
 		projectRepository:      projectRepository,
 		environmentRepository:  environmentRepository,
+		deploymentRepository:   deploymentRepository,
 		environmentService:     environmentService,
 		organizationService:    organizationService,
 		crypto:                 crypto,
@@ -323,6 +326,14 @@ func (ca *ClusterApplication) tearDownClusterProjects(ctx context.Context, clust
 		}
 		for _, env := range envs {
 			if err := ca.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
+				log.Printf(
+					"cluster %d: k8s teardown for environment %d failed (continuing): %v\n",
+					clusterId,
+					env.Id,
+					err,
+				)
+			}
+			if err := ca.deploymentRepository.DeleteDeploymentsByEnvironmentId(ctx, env.Id); err != nil {
 				return err
 			}
 			if err := ca.environmentRepository.DeleteEnvironment(ctx, env.Id); err != nil {

@@ -30,6 +30,10 @@ WHERE id = @id;
 DELETE FROM deployments
 WHERE id = $1;
 
+-- name: DeleteDeploymentsByEnvironmentId :exec
+DELETE FROM deployments
+WHERE environment_id = $1;
+
 -- name: GetDeploymentsWithKubeconfig :many
 SELECT deployments.*, c.kubeconfig, environments.namespace, c.id AS cluster_id, c.provisioning_id, c.organization_id
 FROM deployments

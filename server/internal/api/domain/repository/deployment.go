@@ -610,6 +610,10 @@ func (dr *DeploymentRepository) DeleteDeployment(ctx context.Context, deployment
 	return dr.queries.DeleteDeployment(ctx, deploymentId)
 }
 
+func (dr *DeploymentRepository) DeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error {
+	return dr.queries.DeleteDeploymentsByEnvironmentId(ctx, mapper.ToNullInt64FromPtr(&environmentId))
+}
+
 func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error) {
 	rows, err := dr.queries.GetDeploymentsWithKubeconfig(ctx)
 	if err != nil {

@@ -21,6 +21,16 @@ func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteDeploymentsByEnvironmentId = `-- name: DeleteDeploymentsByEnvironmentId :exec
+DELETE FROM deployments
+WHERE environment_id = $1
+`
+
+func (q *Queries) DeleteDeploymentsByEnvironmentId(ctx context.Context, environmentID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, deleteDeploymentsByEnvironmentId, environmentID)
+	return err
+}
+
 const getDeploymentWithNamespace = `-- name: GetDeploymentWithNamespace :one
 SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, environments.namespace
 FROM deployments
