@@ -3,6 +3,8 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"time"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -11,6 +13,8 @@ import (
 	"starliner.app/internal/cluster/domain/value"
 	"starliner.app/internal/cluster/infrastructure/shared/kubeconfig"
 )
+
+const healthCheckTimeout = 5 * time.Second
 
 type Health struct {
 }
@@ -23,12 +27,14 @@ func (h *Health) CheckPodsHealthy(namespace string, releaseName string, kubeconf
 	var status *value.HealthStatus
 
 	err := kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(context.Background(), healthCheckTimeout)
+		defer cancel()
 
 		config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 		if err != nil {
 			return fmt.Errorf("failed to build kubeconfig: %w", err)
 		}
+		config.Timeout = healthCheckTimeout
 
 		client, err := kubernetes.NewForConfig(config)
 		if err != nil {
