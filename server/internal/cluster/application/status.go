@@ -40,8 +40,17 @@ func (sa *StatusApplication) HandleRequestDeploymentStatus(d *value.Deployment) 
 	health, err := sa.health.CheckPodsHealthy(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to check pods health: %v\n", err)
-		if k8s.IsClusterUnreachable(err) && d.ClusterId != 0 && d.ProvisioningId != "" {
-			sa.RequestClusterReconcile(d)
+		if k8s.IsClusterUnreachable(err) {
+			if d.ClusterId == 0 || d.ProvisioningId == "" {
+				log.Printf(
+					"reconcile not triggered: deployment %d missing cluster metadata (clusterId=%d provisioningId=%q)\n",
+					d.DeploymentId,
+					d.ClusterId,
+					d.ProvisioningId,
+				)
+			} else {
+				sa.RequestClusterReconcile(d)
+			}
 		}
 		return
 	}
@@ -66,6 +75,7 @@ func (sa *StatusApplication) RequestClusterReconcile(d *value.Deployment) {
 		return
 	}
 	if !allowed {
+		log.Printf("reconcile skipped: cluster %d (cooldown)\n", d.ClusterId)
 		return
 	}
 
@@ -76,5 +86,12 @@ func (sa *StatusApplication) RequestClusterReconcile(d *value.Deployment) {
 	})
 	if err != nil {
 		log.Printf("failed to publish reconcile cluster request: %v\n", err)
+		return
 	}
+	log.Printf(
+		"reconcile requested: cluster %d deployment %d namespace %q\n",
+		d.ClusterId,
+		d.DeploymentId,
+		d.Namespace,
+	)
 }

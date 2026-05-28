@@ -228,3 +228,11 @@ func (pr *ProjectRepository) GetProjectEnvironmentsByProjectId(ctx context.Conte
 func (pr *ProjectRepository) DeleteProjectsByTeamId(ctx context.Context, teamId int64) error {
 	return pr.queries.DeleteProjectsByTeamId(ctx, teamId)
 }
+
+func (pr *ProjectRepository) GetProjectIdsByClusterId(ctx context.Context, clusterId int64) ([]int64, error) {
+	return pr.queries.GetProjectIdsByClusterId(ctx, mapper.ToNullInt64FromPtr(&clusterId))
+}
+
+func (pr *ProjectRepository) DeleteProjectsByClusterId(ctx context.Context, clusterId int64) error {
+	return pr.queries.DeleteProjectsByClusterId(ctx, mapper.ToNullInt64FromPtr(&clusterId))
+}

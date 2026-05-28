@@ -32,6 +32,7 @@ func (p *Pubsub) SubscribeToDeploymentStatusRequest(handler func(deployment *val
 		var d value.Deployment
 		if err := json.Unmarshal(msg, &d); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
+			return
 		}
 		handler(&d)
 	})

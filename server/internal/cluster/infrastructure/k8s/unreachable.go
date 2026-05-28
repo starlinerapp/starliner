@@ -18,7 +18,5 @@ func IsClusterUnreachable(err error) bool {
 	msg := strings.ToLower(err.Error())
 	return strings.Contains(msg, "i/o timeout") ||
 		strings.Contains(msg, "connection refused") ||
-		strings.Contains(msg, "no such host") ||
-		strings.Contains(msg, "network is unreachable") ||
-		strings.Contains(msg, "dial tcp")
+		strings.Contains(msg, "context deadline exceeded")
 }

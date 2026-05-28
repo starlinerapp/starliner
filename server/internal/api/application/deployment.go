@@ -890,19 +890,28 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 			kubeconfigBase64, err := da.crypto.Decrypt(*d.Kubeconfig)
 			if err != nil {
 				log.Printf("failed to decrypt kubeconfig: %v\n", err)
+				return
 			}
 
 			normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(d.Deployment.Name)
 			if err != nil {
 				log.Printf("failed to normalize deployment name: %v\n", err)
+				return
 			}
 
-			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.Deployment{
+			deployment := &coreValue.Deployment{
 				Namespace:        d.Deployment.Namespace,
 				DeploymentId:     d.Deployment.Id,
 				DeploymentName:   normalizedDeploymentName,
 				KubeconfigBase64: kubeconfigBase64,
-			})
+				ClusterId:        d.ClusterId,
+				OrganizationId:   d.OrganizationId,
+			}
+			if d.ProvisioningId != nil {
+				deployment.ProvisioningId = *d.ProvisioningId
+			}
+
+			err = da.pubsub.PublishDeploymentStatusRequest(deployment)
 			if err != nil {
 				log.Printf("failed to publish: %v\n", err)
 			}
