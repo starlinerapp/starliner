@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
+	"regexp"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -76,14 +76,23 @@ func (l *Logs) streamIngressLogs(
 func ingressLogLineFilter(environmentNamespace, releaseName string) func(string) bool {
 	routerKey := fmt.Sprintf("%s-%s", environmentNamespace, releaseName)
 
+	routerKeyRe := regexp.MustCompile(tokenDelimitedPattern(routerKey))
+	releaseNameRe := regexp.MustCompile(tokenDelimitedPattern(releaseName))
+	environmentNamespaceRe := regexp.MustCompile(tokenDelimitedPattern(environmentNamespace))
+
 	return func(line string) bool {
-		if strings.Contains(line, routerKey) {
+		if routerKeyRe.MatchString(line) {
 			return true
 		}
 
-		return strings.Contains(line, releaseName) &&
-			strings.Contains(line, environmentNamespace)
+		return releaseNameRe.MatchString(line) &&
+			environmentNamespaceRe.MatchString(line)
 	}
+}
+
+func tokenDelimitedPattern(token string) string {
+	// Hyphens are part of Kubernetes-style identifiers, not token boundaries.
+	return `(?:^|[^a-zA-Z0-9-])` + regexp.QuoteMeta(token) + `(?:[^a-zA-Z0-9-]|$)`
 }
 
 func newKubernetesClient(kubeconfigBase64 string) (*kubernetes.Clientset, error) {
