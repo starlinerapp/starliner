@@ -21,5 +21,8 @@ var Module = fx.Module(
 		func(cfg *Config) conf.CryptoConfig {
 			return cfg
 		},
+		func(cfg *Config) conf.RedisConfig {
+			return cfg
+		},
 	),
 )

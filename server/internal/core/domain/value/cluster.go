@@ -21,6 +21,18 @@ type DeleteCluster struct {
 	ProvisioningCredential string
 }
 
+type ReconcileCluster struct {
+	Id                     int64
+	ProvisioningId         string
+	ProvisioningCredential string
+}
+
+type ReconcileClusterRequest struct {
+	ClusterId      int64
+	OrganizationId int64
+	ProvisioningId string
+}
+
 type ClusterCreated struct {
 	Id               int64
 	ProvisioningId   string

@@ -626,7 +626,10 @@ func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Cont
 				EnvironmentId: mapper.ToPtrFromNullInt64(d.EnvironmentID),
 				Namespace:     d.Namespace,
 			},
-			Kubeconfig: mapper.ToPtrFromNullString(d.Kubeconfig),
+			Kubeconfig:     mapper.ToPtrFromNullString(d.Kubeconfig),
+			ClusterId:      d.ClusterID,
+			OrganizationId: d.OrganizationID,
+			ProvisioningId: mapper.ToPtrFromNullString(d.ProvisioningID),
 		}
 	}
 	return deployments, nil

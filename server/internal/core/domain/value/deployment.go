@@ -33,6 +33,9 @@ type Deployment struct {
 	DeploymentId     int64
 	DeploymentName   string
 	KubeconfigBase64 string
+	ClusterId        int64
+	OrganizationId   int64
+	ProvisioningId   string
 }
 
 type PathType string

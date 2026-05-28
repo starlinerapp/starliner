@@ -368,10 +368,9 @@ func (q *Queries) GetUserEnvironmentIngressDeployments(ctx context.Context, arg 
 
 const isIngressDeployment = `-- name: IsIngressDeployment :one
 SELECT EXISTS (
-  SELECT 1
-  FROM ingress_deployments
-  WHERE deployment_id = $1
-) AS is_ingress_deployment
+    SELECT 1
+    FROM ingress_deployments
+    WHERE deployment_id = $1) AS is_ingress_deployment
 `
 
 func (q *Queries) IsIngressDeployment(ctx context.Context, deploymentID int64) (bool, error) {
