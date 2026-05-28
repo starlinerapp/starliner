@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"regexp"
+	"strings"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -76,23 +76,30 @@ func (l *Logs) streamIngressLogs(
 func ingressLogLineFilter(environmentNamespace, releaseName string) func(string) bool {
 	routerKey := fmt.Sprintf("%s-%s", environmentNamespace, releaseName)
 
-	routerKeyRe := regexp.MustCompile(tokenDelimitedPattern(routerKey))
-	releaseNameRe := regexp.MustCompile(tokenDelimitedPattern(releaseName))
-	environmentNamespaceRe := regexp.MustCompile(tokenDelimitedPattern(environmentNamespace))
-
 	return func(line string) bool {
-		if routerKeyRe.MatchString(line) {
-			return true
-		}
-
-		return releaseNameRe.MatchString(line) &&
-			environmentNamespaceRe.MatchString(line)
+		return matchesTraefikRouterKey(line, routerKey)
 	}
 }
 
-func tokenDelimitedPattern(token string) string {
-	// Hyphens are part of Kubernetes-style identifiers, not token boundaries.
-	return `(?:^|[^a-zA-Z0-9-])` + regexp.QuoteMeta(token) + `(?:[^a-zA-Z0-9-]|$)`
+// matchesTraefikRouterKey matches Traefik access-log router names such as
+// "{namespace}-{release}-{hostname-with-hyphens}@kubernetes".
+func matchesTraefikRouterKey(line, routerKey string) bool {
+	idx := strings.Index(line, routerKey)
+	if idx < 0 {
+		return false
+	}
+
+	after := idx + len(routerKey)
+	if after >= len(line) {
+		return true
+	}
+
+	switch line[after] {
+	case '-', '@', '"', ' ':
+		return true
+	default:
+		return false
+	}
 }
 
 func newKubernetesClient(kubeconfigBase64 string) (*kubernetes.Clientset, error) {

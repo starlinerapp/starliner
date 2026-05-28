@@ -87,6 +87,7 @@ export default function UpdateConnectedBranchForm() {
       {isDirty && (
         <div className="flex justify-end gap-1 px-4 pb-2">
           <Button
+            type="button"
             size="xs"
             className="w-20"
             intent="secondary"
