@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	"google.golang.org/grpc"
@@ -38,8 +39,13 @@ func (c *ClusterClient) StreamLogs(
 	kubeconfigBase64 string,
 	w io.Writer,
 ) error {
+	protoSource, err := logSourceToProto(value.LogSource(source))
+	if err != nil {
+		return err
+	}
+
 	stream, err := c.logsServiceClient.StreamLogs(ctx, &v2.StreamLogsRequest{
-		Source:           logSourceToProto(value.LogSource(source)),
+		Source:           protoSource,
 		Namespace:        environmentNamespace,
 		ReleaseName:      releaseName,
 		KubeconfigBase64: kubeconfigBase64,
@@ -64,12 +70,14 @@ func (c *ClusterClient) StreamLogs(
 	}
 }
 
-func logSourceToProto(source value.LogSource) v2.LogSource {
+func logSourceToProto(source value.LogSource) (v2.LogSource, error) {
 	switch source {
 	case value.LogSourceIngress:
-		return v2.LogSource_LOG_SOURCE_INGRESS
+		return v2.LogSource_LOG_SOURCE_INGRESS, nil
+	case value.LogSourceWorkload:
+		return v2.LogSource_LOG_SOURCE_WORKLOAD, nil
 	default:
-		return v2.LogSource_LOG_SOURCE_WORKLOAD
+		return v2.LogSource_LOG_SOURCE_UNSPECIFIED, fmt.Errorf("unsupported log source: %q", source)
 	}
 }
 
