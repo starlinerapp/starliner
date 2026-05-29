@@ -14,7 +14,7 @@ import (
 	"starliner.app/internal/cluster/infrastructure/shared/kubeconfig"
 )
 
-const healthCheckTimeout = 5 * time.Second
+const healthCheckTimeout = 2 * time.Second
 
 type Health struct {
 }
