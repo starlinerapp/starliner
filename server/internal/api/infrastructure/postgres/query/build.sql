@@ -23,17 +23,7 @@ WHERE b.id = @build_id
   AND team_members.user_id = @user_id;
 
 -- name: GetEnvironmentGitDeploymentBuilds :many
-SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, CASE WHEN d.status_logs_complete
-    AND COALESCE(d.status_logs, '')
-    LIKE '%has failed.%' THEN
-    'failure'
-  WHEN d.status_logs_complete
-    AND COALESCE(d.status_logs, '')
-    LIKE '%is complete.%' THEN
-    'success'
-  ELSE
-    'pending'
-  END AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
 FROM builds b
   INNER JOIN deployments d ON d.id = b.deployment_id
   INNER JOIN git_deployments gd ON gd.deployment_id = d.id

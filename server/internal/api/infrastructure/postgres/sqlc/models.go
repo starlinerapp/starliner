@@ -232,6 +232,7 @@ type Deployment struct {
 	StatusLogs         sql.NullString
 	StatusLogsComplete bool
 	DeletedAt          sql.NullTime
+	RolloutStatus      string
 }
 
 type DeploymentEnvironmentVar struct {

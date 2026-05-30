@@ -47,13 +47,13 @@ WHERE id = @deployment_id;
 -- name: MarkDeploymentStatusLogsComplete :exec
 UPDATE
   deployments
-SET status_logs_complete = TRUE
-WHERE id = $1;
+SET status_logs_complete = TRUE, rollout_status = @rollout_status
+WHERE id = @deployment_id;
 
 -- name: ResetDeploymentStatusLogs :exec
 UPDATE
   deployments
-SET status_logs = NULL, status_logs_complete = FALSE
+SET status_logs = NULL, status_logs_complete = FALSE, rollout_status = 'pending'
 WHERE id = $1;
 
 -- name: SoftDeleteDeployment :exec

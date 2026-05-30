@@ -677,8 +677,15 @@ func (dr *DeploymentRepository) AppendDeploymentStatusLogs(
 	})
 }
 
-func (dr *DeploymentRepository) MarkDeploymentStatusLogsComplete(ctx context.Context, deploymentId int64) error {
-	return dr.queries.MarkDeploymentStatusLogsComplete(ctx, deploymentId)
+func (dr *DeploymentRepository) MarkDeploymentStatusLogsComplete(
+	ctx context.Context,
+	deploymentId int64,
+	rolloutStatus string,
+) error {
+	return dr.queries.MarkDeploymentStatusLogsComplete(ctx, sqlc.MarkDeploymentStatusLogsCompleteParams{
+		RolloutStatus: rolloutStatus,
+		DeploymentID:  deploymentId,
+	})
 }
 
 func (dr *DeploymentRepository) ResetDeploymentStatusLogs(ctx context.Context, deploymentId int64) error {

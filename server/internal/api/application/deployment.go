@@ -947,7 +947,11 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 		return streamErr
 	}
 
-	if markErr := da.deploymentRepository.MarkDeploymentStatusLogsComplete(ctx, deploymentId); markErr != nil {
+	rolloutStatus := "pending"
+	if storedAfter, logsErr := da.deploymentRepository.GetDeploymentStatusLogs(ctx, userId, deploymentId); logsErr == nil {
+		rolloutStatus = rolloutStatusFromLogs(storedAfter.Logs)
+	}
+	if markErr := da.deploymentRepository.MarkDeploymentStatusLogsComplete(ctx, deploymentId, rolloutStatus); markErr != nil {
 		log.Printf("failed to mark deployment status logs complete: %v", markErr)
 	}
 
@@ -979,6 +983,19 @@ func (da *DeploymentApplication) resetDeploymentStatusLogs(ctx context.Context, 
 	if err := da.deploymentRepository.ResetDeploymentStatusLogs(ctx, deploymentId); err != nil {
 		log.Printf("failed to reset deployment status logs for %d: %v", deploymentId, err)
 	}
+}
+
+func rolloutStatusFromLogs(logs *string) string {
+	if logs == nil || *logs == "" {
+		return "pending"
+	}
+	if strings.Contains(*logs, "has failed.") {
+		return "failure"
+	}
+	if strings.Contains(*logs, "is complete.") {
+		return "success"
+	}
+	return "pending"
 }
 
 func (da *DeploymentApplication) resolveDeploymentCommitHash(

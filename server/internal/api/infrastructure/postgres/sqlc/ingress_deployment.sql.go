@@ -16,7 +16,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
 ), new_ingress_deployment AS (
   INSERT INTO ingress_deployments (
     deployment_id)
@@ -395,7 +395,7 @@ WITH updated_ingress AS (
   SET port = $1
   WHERE id = $2
     AND deleted_at IS NULL
-  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at
+  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
 )
 SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
 FROM updated_ingress d

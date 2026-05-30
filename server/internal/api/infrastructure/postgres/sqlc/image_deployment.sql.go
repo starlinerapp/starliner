@@ -73,7 +73,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
 ), new_image_deployment AS (
   INSERT INTO image_deployments (
     deployment_id, name, tag)
@@ -290,7 +290,7 @@ WITH updated_deployment AS (
   SET port = $1
   WHERE id = $2
     AND deleted_at IS NULL
-  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at
+  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
 ), updated_image_deployment AS (
   UPDATE
     image_deployments
