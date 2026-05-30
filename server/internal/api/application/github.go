@@ -469,16 +469,19 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				continue
 			}
 			err = ga.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:     d.Id,
-				DeploymentName:   normalizedDeploymentName,
-				Namespace:        newEnv.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-				ImageName:        d.ImageName,
-				ImageTag:         d.Tag,
-				Port:             deploymentPort,
-				VolumeSizeMiB:    d.VolumeSizeMiB,
-				VolumeMountPath:  d.VolumeMountPath,
-				EnvVars:          coreEnvs,
+				DeploymentId:          d.Id,
+				DeploymentName:        normalizedDeploymentName,
+				Namespace:             newEnv.Namespace,
+				KubeconfigBase64:      kubeconfigBase64,
+				ImageRegistryUrl:      ga.cfg.ImageRegistryUrl,
+				ImageRegistryUsername: ga.cfg.ImageRegistryUsername,
+				ImageRegistryPassword: ga.cfg.ImageRegistryPassword,
+				ImageName:             d.ImageName,
+				ImageTag:              d.Tag,
+				Port:                  deploymentPort,
+				VolumeSizeMiB:         d.VolumeSizeMiB,
+				VolumeMountPath:       d.VolumeMountPath,
+				EnvVars:               coreEnvs,
 			})
 			if err != nil {
 				errs = append(errs, err)

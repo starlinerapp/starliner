@@ -186,16 +186,19 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 			err = ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:     d.Id,
-				DeploymentName:   normalizedDeploymentName,
-				Namespace:        env.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-				ImageName:        d.ImageName,
-				ImageTag:         d.Tag,
-				Port:             deploymentPort,
-				VolumeSizeMiB:    d.VolumeSizeMiB,
-				VolumeMountPath:  d.VolumeMountPath,
-				EnvVars:          coreEnvs,
+				DeploymentId:          d.Id,
+				DeploymentName:        normalizedDeploymentName,
+				Namespace:             env.Namespace,
+				KubeconfigBase64:      kubeconfigBase64,
+				ImageRegistryUrl:      ea.cfg.ImageRegistryUrl,
+				ImageRegistryUsername: ea.cfg.ImageRegistryUsername,
+				ImageRegistryPassword: ea.cfg.ImageRegistryPassword,
+				ImageName:             d.ImageName,
+				ImageTag:              d.Tag,
+				Port:                  deploymentPort,
+				VolumeSizeMiB:         d.VolumeSizeMiB,
+				VolumeMountPath:       d.VolumeMountPath,
+				EnvVars:               coreEnvs,
 			})
 			if err != nil {
 				log.Printf("error publishing: %v", err)
@@ -243,14 +246,17 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 			}
 
 			err = ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:     d.Id,
-				DeploymentName:   normalizedDeploymentName,
-				Namespace:        env.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-				ImageName:        *latestBuild.ImageName,
-				ImageTag:         *latestBuild.CommitHash,
-				Port:             deploymentPort,
-				EnvVars:          coreEnvs,
+				DeploymentId:          d.Id,
+				DeploymentName:        normalizedDeploymentName,
+				Namespace:             env.Namespace,
+				KubeconfigBase64:      kubeconfigBase64,
+				ImageRegistryUrl:      ea.cfg.ImageRegistryUrl,
+				ImageRegistryUsername: ea.cfg.ImageRegistryUsername,
+				ImageRegistryPassword: ea.cfg.ImageRegistryPassword,
+				ImageName:             *latestBuild.ImageName,
+				ImageTag:              *latestBuild.CommitHash,
+				Port:                  deploymentPort,
+				EnvVars:               coreEnvs,
 			})
 			if err != nil {
 				log.Printf("failed to publish: %v\n", err)

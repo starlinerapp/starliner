@@ -383,16 +383,19 @@ func (da *DeploymentApplication) DeployImage(
 	da.resetDeploymentStatusLogs(ctx, deployment.Id)
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
-		DeploymentId:     deployment.Id,
-		DeploymentName:   normalizedServiceName,
-		KubeconfigBase64: kubeconfigBase64,
-		Namespace:        env.Namespace,
-		ImageName:        imageName,
-		ImageTag:         tag,
-		Port:             port,
-		VolumeSizeMiB:    volumeSizeMiB,
-		VolumeMountPath:  volumeMountPath,
-		EnvVars:          coreEnvs,
+		DeploymentId:          deployment.Id,
+		DeploymentName:        normalizedServiceName,
+		KubeconfigBase64:      kubeconfigBase64,
+		Namespace:             env.Namespace,
+		ImageRegistryUrl:      da.config.ImageRegistryUrl,
+		ImageRegistryUsername: da.config.ImageRegistryUsername,
+		ImageRegistryPassword: da.config.ImageRegistryPassword,
+		ImageName:             imageName,
+		ImageTag:              tag,
+		Port:                  port,
+		VolumeSizeMiB:         volumeSizeMiB,
+		VolumeMountPath:       volumeMountPath,
+		EnvVars:               coreEnvs,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
@@ -477,16 +480,19 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 	da.resetDeploymentStatusLogs(ctx, deployment.Id)
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
-		DeploymentId:     deployment.Id,
-		DeploymentName:   normalizedServiceName,
-		Namespace:        env.Namespace,
-		KubeconfigBase64: kubeconfigBase64,
-		ImageName:        imageName,
-		ImageTag:         tag,
-		Port:             port,
-		VolumeSizeMiB:    deployment.VolumeSizeMiB,
-		VolumeMountPath:  deployment.VolumeMountPath,
-		EnvVars:          coreEnvs,
+		DeploymentId:          deployment.Id,
+		DeploymentName:        normalizedServiceName,
+		Namespace:             env.Namespace,
+		KubeconfigBase64:      kubeconfigBase64,
+		ImageRegistryUrl:      da.config.ImageRegistryUrl,
+		ImageRegistryUsername: da.config.ImageRegistryUsername,
+		ImageRegistryPassword: da.config.ImageRegistryPassword,
+		ImageName:             imageName,
+		ImageTag:              tag,
+		Port:                  port,
+		VolumeSizeMiB:         deployment.VolumeSizeMiB,
+		VolumeMountPath:       deployment.VolumeMountPath,
+		EnvVars:               coreEnvs,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
