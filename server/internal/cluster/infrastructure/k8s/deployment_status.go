@@ -202,13 +202,20 @@ func (d *DeploymentStatus) collectReport(
 	}
 
 	b.WriteString("📦 Previous Version\n")
-	b.WriteString(fmt.Sprintf("└─ Pods: %s\n\n", prevCounts))
-
-	b.WriteString(fmt.Sprintf("📦 New Version (%s)\n", versionLabel))
-	b.WriteString(fmt.Sprintf("└─ Pods: %s\n", newCounts))
+	if _, err := fmt.Fprintf(&b, "└─ Pods: %s\n\n", prevCounts); err != nil {
+		return "", false, err
+	}
+	if _, err := fmt.Fprintf(&b, "📦 New Version (%s)\n", versionLabel); err != nil {
+		return "", false, err
+	}
+	if _, err := fmt.Fprintf(&b, "└─ Pods: %s\n", newCounts); err != nil {
+		return "", false, err
+	}
 
 	for _, p := range startingPods {
-		formatPodProgress(&b, p)
+		if err := formatPodProgress(&b, p); err != nil {
+			return "", false, err
+		}
 	}
 
 	if !success && !failed && (newCounts.starting > 0 || newCounts.running < desiredReplicas(deploy)) {
@@ -561,24 +568,35 @@ func progressFromContainerStatus(pod corev1.Pod) []podEvent {
 	return progress
 }
 
-func formatPodProgress(b *strings.Builder, p podProgress) {
+func formatPodProgress(b *strings.Builder, p podProgress) error {
 	b.WriteString("\n\n")
-	b.WriteString(fmt.Sprintf("   └─ Pod %s\n", p.pod.Name))
-	b.WriteString(fmt.Sprintf("      Status: %s\n", p.status))
+	if _, err := fmt.Fprintf(b, "   └─ Pod %s\n", p.pod.Name); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(b, "      Status: %s\n", p.status); err != nil {
+		return err
+	}
 
 	for _, event := range p.events {
 		marker := "✓"
 		if !event.complete {
 			marker = "…"
 		}
-		b.WriteString(fmt.Sprintf("\n      %s %s\n", marker, event.kind))
+		if _, err := fmt.Fprintf(b, "\n      %s %s\n", marker, event.kind); err != nil {
+			return err
+		}
 		if event.detail != "" {
-			b.WriteString(fmt.Sprintf("        %s\n", event.detail))
+			if _, err := fmt.Fprintf(b, "        %s\n", event.detail); err != nil {
+				return err
+			}
 		}
 		for _, line := range event.extra {
-			b.WriteString(fmt.Sprintf("        %s\n", line))
+			if _, err := fmt.Fprintf(b, "        %s\n", line); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
 func deploymentFailed(deploy *appsv1.Deployment) bool {
