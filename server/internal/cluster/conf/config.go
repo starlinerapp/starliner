@@ -11,6 +11,8 @@ type Config struct {
 	NatsUrl             string `mapstructure:"NATS_URL" validate:"required"`
 	EncryptionKeyBase64 string `mapstructure:"ENCRYPTION_KEY_BASE64" validate:"required"`
 	CFApiToken          string `mapstructure:"CF_API_TOKEN" validate:"required"`
+	RedisAddr           string `mapstructure:"REDIS_ADDR" validate:"required"`
+	RedisPassword       string `mapstructure:"REDIS_PASSWORD" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -49,4 +51,12 @@ func (c *Config) GetNatsUrl() string {
 
 func (c *Config) GetEncryptionKeyBase64() string {
 	return c.EncryptionKeyBase64
+}
+
+func (c *Config) GetRedisAddr() string {
+	return c.RedisAddr
+}
+
+func (c *Config) GetRedisPassword() string {
+	return c.RedisPassword
 }

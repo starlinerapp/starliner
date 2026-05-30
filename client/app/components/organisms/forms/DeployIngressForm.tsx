@@ -259,9 +259,7 @@ function HostEditor({
                 type="text"
                 placeholder="Subdomain*"
                 {...register(`hosts.${hostIndex}.name`, {
-                  validate: (value) =>
-                    isValidIngressHostPrefix(value) ||
-                    `Use lowercase letters, numbers, and hyphens before${hostSuffix}`,
+                  validate: (value) => isValidIngressHostPrefix(value),
                 })}
               />
               <span className="text-mauve-11 truncate text-sm">

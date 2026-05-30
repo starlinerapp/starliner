@@ -26,4 +26,6 @@ type ProjectRepository interface {
 	GetTeamProjectIds(ctx context.Context, teamId int64) ([]int64, error)
 	GetProjectEnvironmentsByProjectId(ctx context.Context, projectId int64) ([]*entity.Environment, error)
 	DeleteProjectsByTeamId(ctx context.Context, teamId int64) error
+	GetProjectIdsByClusterId(ctx context.Context, clusterId int64) ([]int64, error)
+	DeleteProjectsByClusterId(ctx context.Context, clusterId int64) error
 }

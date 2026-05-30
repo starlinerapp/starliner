@@ -21,6 +21,16 @@ func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteDeploymentsByEnvironmentId = `-- name: DeleteDeploymentsByEnvironmentId :exec
+DELETE FROM deployments
+WHERE environment_id = $1
+`
+
+func (q *Queries) DeleteDeploymentsByEnvironmentId(ctx context.Context, environmentID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, deleteDeploymentsByEnvironmentId, environmentID)
+	return err
+}
+
 const getDeploymentWithNamespace = `-- name: GetDeploymentWithNamespace :one
 SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, environments.namespace
 FROM deployments
@@ -56,7 +66,7 @@ func (q *Queries) GetDeploymentWithNamespace(ctx context.Context, id int64) (Get
 }
 
 const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig, environments.namespace
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig, environments.namespace, c.id AS cluster_id, c.provisioning_id, c.organization_id
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
   INNER JOIN projects ON environments.project_id = projects.id
@@ -64,15 +74,18 @@ FROM deployments
 `
 
 type GetDeploymentsWithKubeconfigRow struct {
-	ID            int64
-	Name          string
-	Port          string
-	Status        DeploymentStatus
-	EnvironmentID sql.NullInt64
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	Kubeconfig    sql.NullString
-	Namespace     string
+	ID             int64
+	Name           string
+	Port           string
+	Status         DeploymentStatus
+	EnvironmentID  sql.NullInt64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Kubeconfig     sql.NullString
+	Namespace      string
+	ClusterID      int64
+	ProvisioningID sql.NullString
+	OrganizationID int64
 }
 
 func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploymentsWithKubeconfigRow, error) {
@@ -94,6 +107,9 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 			&i.UpdatedAt,
 			&i.Kubeconfig,
 			&i.Namespace,
+			&i.ClusterID,
+			&i.ProvisioningID,
+			&i.OrganizationID,
 		); err != nil {
 			return nil, err
 		}

@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	CreateCluster  jetstream.Subject = "create.cluster"
-	ClusterCreated jetstream.Subject = "cluster.created"
-	DeleteCluster  jetstream.Subject = "delete.cluster"
-	ClusterDeleted jetstream.Subject = "cluster.deleted"
+	CreateCluster    jetstream.Subject = "create.cluster"
+	ClusterCreated   jetstream.Subject = "cluster.created"
+	DeleteCluster    jetstream.Subject = "delete.cluster"
+	ReconcileCluster jetstream.Subject = "reconcile.cluster"
+	ClusterDeleted   jetstream.Subject = "cluster.deleted"
 )
 
 type Queue struct {
@@ -61,6 +62,17 @@ func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *value.DeleteClust
 		var c value.DeleteCluster
 		if err := json.Unmarshal(cluster, &c); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&c)
+	})
+}
+
+func (q *Queue) SubscribeToReconcileCluster(handler func(cluster *value.ReconcileCluster)) error {
+	return q.subscriber.Subscribe(ReconcileCluster, "*", "reconcileCluster", func(cluster []byte) {
+		var c value.ReconcileCluster
+		if err := json.Unmarshal(cluster, &c); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+			return
 		}
 		handler(&c)
 	})

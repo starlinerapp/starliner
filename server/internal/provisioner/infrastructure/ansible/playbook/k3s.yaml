@@ -6,7 +6,7 @@
       args:
         creates: /usr/local/bin/k3s
 
-    - name: Configure Traefik ACME resolver
+    - name: Configure Traefik
       copy:
         dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
         owner: root
@@ -20,6 +20,11 @@
             namespace: kube-system
           spec:
             valuesContent: |-
+              logs:
+                general:
+                  level: INFO
+                access:
+                  enabled: true
               additionalArguments:
                 - "--certificatesresolvers.letsencrypt.acme.email=admin@starliner.app"
                 - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"

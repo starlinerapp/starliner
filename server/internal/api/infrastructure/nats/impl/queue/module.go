@@ -25,7 +25,7 @@ var Module = fx.Module(
 		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered, BuildCompleted})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted})
+		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ReconcileCluster, ClusterDeleted})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{DeployImage, DeployDatabase, DatabaseDeployed, DeleteDeployment, DeploymentDeleted})

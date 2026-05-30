@@ -366,6 +366,20 @@ func (q *Queries) GetUserEnvironmentIngressDeployments(ctx context.Context, arg 
 	return items, nil
 }
 
+const isIngressDeployment = `-- name: IsIngressDeployment :one
+SELECT EXISTS (
+    SELECT 1
+    FROM ingress_deployments
+    WHERE deployment_id = $1) AS is_ingress_deployment
+`
+
+func (q *Queries) IsIngressDeployment(ctx context.Context, deploymentID int64) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isIngressDeployment, deploymentID)
+	var is_ingress_deployment bool
+	err := row.Scan(&is_ingress_deployment)
+	return is_ingress_deployment, err
+}
+
 const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
 WITH updated_ingress AS (
   UPDATE

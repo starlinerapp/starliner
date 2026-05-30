@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useMemo, useState } from "react";
 import type {
   ResponseDatabaseDeployment,
   ResponseGitDeployment,
@@ -17,29 +17,37 @@ type Deployment =
 
 interface BottomBarProps {
   deployment: Deployment | undefined;
+  showTerminal: boolean;
 }
 
 const navigationItems = ["Logs", "Terminal"] as const;
 type NavigationItem = (typeof navigationItems)[number];
 
-function BottomBarComponent({ deployment }: BottomBarProps) {
+function BottomBarComponent({ deployment, showTerminal }: BottomBarProps) {
   const [selected, setSelected] = useState<NavigationItem>("Logs");
+
+  const visibleNavigationItems = useMemo(
+    () => (showTerminal ? navigationItems : (["Logs"] as const)),
+    [showTerminal],
+  );
+
+  const activeTab: NavigationItem = showTerminal ? selected : "Logs";
 
   return (
     <div className="-mt-1 flex h-full flex-col">
       <NavigationBar
-        items={navigationItems}
-        selected={selected}
+        items={visibleNavigationItems}
+        selected={activeTab}
         onSelect={setSelected}
       />
-      {selected === "Logs" ? (
+      {activeTab === "Logs" ? (
         <div className="flex min-h-0 flex-1 flex-col p-4">
           <Logs deployment={deployment} />
         </div>
-      ) : deployment ? (
+      ) : deployment && showTerminal ? (
         <div className="flex min-h-0 flex-1 flex-col">
           <TerminalClient
-            webSocketUrl={`wss://${window.location.host}/ws/deployments/${deployment?.id}`}
+            webSocketUrl={`wss://${window.location.host}/ws/deployments/${deployment.id}`}
           />
         </div>
       ) : (
@@ -54,7 +62,8 @@ function BottomBarComponent({ deployment }: BottomBarProps) {
 const BottomBar = memo(
   BottomBarComponent,
   (prevProps, nextProps) =>
-    prevProps.deployment?.id === nextProps.deployment?.id,
+    prevProps.deployment?.id === nextProps.deployment?.id &&
+    prevProps.showTerminal === nextProps.showTerminal,
 );
 
 export default BottomBar;

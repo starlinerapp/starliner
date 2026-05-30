@@ -5,6 +5,7 @@ import "starliner.app/internal/core/domain/value"
 type Queue interface {
 	SubscribeToCreateCluster(handler func(cluster *value.ProvisionCluster)) error
 	SubscribeToDeleteCluster(handler func(cluster *value.DeleteCluster)) error
+	SubscribeToReconcileCluster(handler func(cluster *value.ReconcileCluster)) error
 
 	PublishClusterCreated(cluster *value.ClusterCreated) error
 	PublishClusterDeleted(cluster *value.ClusterDeleted) error
