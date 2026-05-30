@@ -52,7 +52,8 @@ FROM updated_ingress d
   INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id;
 
 -- name: RepointIngressPathsTargetDeployment :exec
-UPDATE ingress_paths
+UPDATE
+  ingress_paths
 SET deployment_id = @new_deployment_id
 WHERE deployment_id = @old_deployment_id;
 
