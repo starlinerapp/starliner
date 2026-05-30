@@ -884,6 +884,13 @@ definitions:
     - repoName
     - teamId
     type: object
+  response.UpdateGitDeploymentResponse:
+    properties:
+      deploymentId:
+        type: integer
+    required:
+    - deploymentId
+    type: object
   response.User:
     properties:
       better_auth_id:
@@ -1229,6 +1236,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
       summary: Update Deploy from Git
       tags:
       - deployment

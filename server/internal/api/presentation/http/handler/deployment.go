@@ -13,6 +13,7 @@ import (
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
+	"starliner.app/internal/api/presentation/http/dto/response"
 	"starliner.app/internal/api/presentation/http/mapper"
 	"starliner.app/internal/api/presentation/http/sse"
 )
@@ -298,7 +299,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateDeployFromGit true "Update Deploy from Git"
 // @Product JSON
-// @Success 200
+// @Success 200 {object} response.UpdateGitDeploymentResponse
 // @Router /deployments/git/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -330,7 +331,9 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"deploymentId": newDeploymentId})
+	c.JSON(http.StatusOK, response.UpdateGitDeploymentResponse{
+		DeploymentId: newDeploymentId,
+	})
 }
 
 // DeleteDeployment FindAll godoc

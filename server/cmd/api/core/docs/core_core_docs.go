@@ -389,7 +389,10 @@ const docTemplatecoreCore = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateGitDeploymentResponse"
+                        }
                     }
                 }
             }
@@ -3429,6 +3432,17 @@ const docTemplatecoreCore = `{
                     "type": "string"
                 },
                 "teamId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.UpdateGitDeploymentResponse": {
+            "type": "object",
+            "required": [
+                "deploymentId"
+            ],
+            "properties": {
+                "deploymentId": {
                     "type": "integer"
                 }
             }

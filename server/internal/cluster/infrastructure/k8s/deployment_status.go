@@ -188,22 +188,17 @@ func (d *DeploymentStatus) collectReport(
 	var b strings.Builder
 	b.WriteString("🚀 Deployment Status Report\n\n")
 
+	var statusLine string
 	switch {
 	case failed:
-		b.WriteString(fmt.Sprintf(
-			"Application deployment for commit %s has failed.\n\n",
-			versionLabel,
-		))
+		statusLine = "Application deployment for commit %s has failed.\n\n"
 	case success:
-		b.WriteString(fmt.Sprintf(
-			"Application deployment for commit %s is complete.\n\n",
-			versionLabel,
-		))
+		statusLine = "Application deployment for commit %s is complete.\n\n"
 	default:
-		b.WriteString(fmt.Sprintf(
-			"Application deployment for commit %s is in progress.\n\n",
-			versionLabel,
-		))
+		statusLine = "Application deployment for commit %s is in progress.\n\n"
+	}
+	if _, err := fmt.Fprintf(&b, statusLine, versionLabel); err != nil {
+		return "", false, err
 	}
 
 	b.WriteString("📦 Previous Version\n")

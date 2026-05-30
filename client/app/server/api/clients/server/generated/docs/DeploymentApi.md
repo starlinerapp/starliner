@@ -345,7 +345,7 @@ No authorization required
 
 # **updateDeployFromGitRepository**
 
-> updateDeployFromGitRepository(data)
+> ResponseUpdateGitDeploymentResponse updateDeployFromGitRepository(data)
 
 ### Example
 
@@ -380,7 +380,7 @@ const { status, data } = await apiInstance.updateDeployFromGitRepository(
 
 ### Return type
 
-void (empty response body)
+**ResponseUpdateGitDeploymentResponse**
 
 ### Authorization
 
@@ -389,7 +389,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 

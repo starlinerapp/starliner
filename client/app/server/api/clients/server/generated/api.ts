@@ -1686,6 +1686,19 @@ export interface ResponseTeamRepo {
 /**
  *
  * @export
+ * @interface ResponseUpdateGitDeploymentResponse
+ */
+export interface ResponseUpdateGitDeploymentResponse {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseUpdateGitDeploymentResponse
+   */
+  deploymentId: number;
+}
+/**
+ *
+ * @export
  * @interface ResponseUser
  */
 export interface ResponseUser {
@@ -3510,7 +3523,10 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       data: RequestUpdateDeployFromGit,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseUpdateGitDeploymentResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateDeployFromGitRepository(
@@ -3753,7 +3769,7 @@ export const DeploymentApiFactory = function (
       deploymentId: number,
       data: RequestUpdateDeployFromGit,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseUpdateGitDeploymentResponse> {
       return localVarFp
         .updateDeployFromGitRepository(xUserID, deploymentId, data, options)
         .then((request) => request(axios, basePath));

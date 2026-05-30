@@ -245,3 +245,7 @@ func NewGitDeploymentBuilds(builds []*value.GitDeploymentBuild) []GitDeploymentB
 	}
 	return result
 }
+
+type UpdateGitDeploymentResponse struct {
+	DeploymentId int64 `json:"deploymentId" binding:"required"`
+}
