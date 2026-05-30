@@ -273,13 +273,13 @@ export default function DeploymentCard({
             onClick={(event) => event.stopPropagation()}
           >
             <BuildTab
-              isActive={activePhase === "build"}
+              isActive={!isCollapsed && activePhase === "build"}
               hasLogs={hasBuildLogs}
               onSelect={selectBuild}
             />
             <div className="bg-mauve-8 h-px w-4" />
             <DeploymentTab
-              isActive={activePhase === "deploy"}
+              isActive={!isCollapsed && activePhase === "deploy"}
               hasLogs={hasDeployLogs}
               onSelect={selectDeploy}
             />
