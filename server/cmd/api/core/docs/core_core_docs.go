@@ -2958,26 +2958,16 @@ const docTemplatecoreCore = `{
         "response.GitDeploymentBuild": {
             "type": "object",
             "required": [
-                "args",
                 "buildId",
                 "commitHash",
                 "createdAt",
-                "deploymentDeleted",
                 "deploymentId",
                 "deploymentName",
-                "dockerfilePath",
-                "gitUrl",
-                "projectPath",
+                "deploymentRolloutStatus",
                 "source",
                 "status"
             ],
             "properties": {
-                "args": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Arg"
-                    }
-                },
                 "buildId": {
                     "type": "integer"
                 },
@@ -2987,22 +2977,13 @@ const docTemplatecoreCore = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "deploymentDeleted": {
-                    "type": "boolean"
-                },
                 "deploymentId": {
                     "type": "integer"
                 },
                 "deploymentName": {
                     "type": "string"
                 },
-                "dockerfilePath": {
-                    "type": "string"
-                },
-                "gitUrl": {
-                    "type": "string"
-                },
-                "projectPath": {
+                "deploymentRolloutStatus": {
                     "type": "string"
                 },
                 "source": {

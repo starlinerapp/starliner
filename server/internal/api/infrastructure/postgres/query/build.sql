@@ -23,7 +23,7 @@ WHERE b.id = @build_id
   AND team_members.user_id = @user_id;
 
 -- name: GetEnvironmentGitDeploymentBuilds :many
-SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.deleted_at AS deployment_deleted_at, CASE WHEN d.status_logs_complete
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, CASE WHEN d.status_logs_complete
     AND COALESCE(d.status_logs, '')
     LIKE '%has failed.%' THEN
     'failure'
@@ -33,7 +33,7 @@ SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.del
     'success'
   ELSE
     'pending'
-  END AS deployment_rollout_status, b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
+  END AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
 FROM builds b
   INNER JOIN deployments d ON d.id = b.deployment_id
   INNER JOIN git_deployments gd ON gd.deployment_id = d.id

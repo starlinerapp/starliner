@@ -66,13 +66,17 @@ func (q *Queries) GetBuildLogs(ctx context.Context, arg GetBuildLogsParams) (sql
 }
 
 const getEnvironmentGitDeploymentBuilds = `-- name: GetEnvironmentGitDeploymentBuilds :many
-SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.deleted_at AS deployment_deleted_at,
-  CASE
-    WHEN d.status_logs_complete AND COALESCE(d.status_logs, '') LIKE '%has failed.%' THEN 'failure'
-    WHEN d.status_logs_complete AND COALESCE(d.status_logs, '') LIKE '%is complete.%' THEN 'success'
-    ELSE 'pending'
-  END AS deployment_rollout_status,
-  b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, CASE WHEN d.status_logs_complete
+    AND COALESCE(d.status_logs, '')
+    LIKE '%has failed.%' THEN
+    'failure'
+  WHEN d.status_logs_complete
+    AND COALESCE(d.status_logs, '')
+    LIKE '%is complete.%' THEN
+    'success'
+  ELSE
+    'pending'
+  END AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
 FROM builds b
   INNER JOIN deployments d ON d.id = b.deployment_id
   INNER JOIN git_deployments gd ON gd.deployment_id = d.id
@@ -84,15 +88,10 @@ type GetEnvironmentGitDeploymentBuildsRow struct {
 	BuildID                 int64
 	DeploymentID            int64
 	DeploymentName          string
-	DeploymentDeletedAt     sql.NullTime
 	DeploymentRolloutStatus string
-	ImageName               sql.NullString
 	CommitHash              sql.NullString
 	Source                  string
 	Status                  BuildStatus
-	Url                     string
-	ProjectPath             string
-	DockerfilePath          string
 	CreatedAt               time.Time
 }
 
@@ -109,15 +108,10 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 			&i.BuildID,
 			&i.DeploymentID,
 			&i.DeploymentName,
-			&i.DeploymentDeletedAt,
 			&i.DeploymentRolloutStatus,
-			&i.ImageName,
 			&i.CommitHash,
 			&i.Source,
 			&i.Status,
-			&i.Url,
-			&i.ProjectPath,
-			&i.DockerfilePath,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

@@ -642,33 +642,15 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 
 	builds := make([]*entity.GitDeploymentBuild, len(rows))
 	for i, row := range rows {
-		args, err := er.queries.GetGitDeploymentArgs(ctx, row.DeploymentID)
-		if err != nil {
-			return nil, err
-		}
-
-		deploymentArgs := make([]*entity.Arg, len(args))
-		for j, a := range args {
-			deploymentArgs[j] = &entity.Arg{
-				Name:  a.Name,
-				Value: a.Value,
-			}
-		}
-
 		builds[i] = &entity.GitDeploymentBuild{
 			BuildId:                 row.BuildID,
 			DeploymentId:            row.DeploymentID,
 			DeploymentName:          row.DeploymentName,
-			DeploymentDeletedAt:     mapper.ToPtrFromNullTime(row.DeploymentDeletedAt),
 			DeploymentRolloutStatus: row.DeploymentRolloutStatus,
 			CommitHash:              mapper.ToPtrFromNullString(row.CommitHash),
 			Source:                  row.Source,
 			Status:                  entity.BuildStatus(row.Status),
-			GitUrl:                  row.Url,
-			ProjectPath:             row.ProjectPath,
-			DockerfilePath:          row.DockerfilePath,
 			CreatedAt:               row.CreatedAt,
-			Args:                    deploymentArgs,
 		}
 	}
 

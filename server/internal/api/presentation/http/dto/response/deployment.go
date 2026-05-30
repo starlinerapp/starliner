@@ -218,16 +218,11 @@ type GitDeploymentBuild struct {
 	BuildId                 int64     `json:"buildId" binding:"required"`
 	DeploymentId            int64     `json:"deploymentId" binding:"required"`
 	DeploymentName          string    `json:"deploymentName" binding:"required"`
-	DeploymentDeleted       bool      `json:"deploymentDeleted" binding:"required"`
 	DeploymentRolloutStatus string    `json:"deploymentRolloutStatus" binding:"required"`
 	CommitHash              *string   `json:"commitHash" binding:"required"`
 	Source                  string    `json:"source" binding:"required"`
 	Status                  string    `json:"status" binding:"required"`
-	GitUrl                  string    `json:"gitUrl" binding:"required"`
-	ProjectPath             string    `json:"projectPath" binding:"required"`
-	DockerfilePath          string    `json:"dockerfilePath" binding:"required"`
 	CreatedAt               time.Time `json:"createdAt" binding:"required"`
-	Args                    []Arg     `json:"args" binding:"required"`
 }
 
 func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
@@ -235,28 +230,12 @@ func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
 		BuildId:                 build.BuildId,
 		DeploymentId:            build.DeploymentId,
 		DeploymentName:          build.DeploymentName,
-		DeploymentDeleted:       build.DeploymentDeleted,
 		DeploymentRolloutStatus: build.DeploymentRolloutStatus,
 		CommitHash:              build.CommitHash,
 		Source:                  build.Source,
 		Status:                  string(build.Status),
-		GitUrl:                  build.GitUrl,
-		ProjectPath:             build.ProjectPath,
-		DockerfilePath:          build.DockerfilePath,
 		CreatedAt:               build.CreatedAt,
-		Args:                    mapArgsFromBuildValue(build.Args),
 	}
-}
-
-func mapArgsFromBuildValue(args []*value.Arg) []Arg {
-	result := make([]Arg, len(args))
-	for i, a := range args {
-		result[i] = Arg{
-			Name:  a.Name,
-			Value: a.Value,
-		}
-	}
-	return result
 }
 
 func NewGitDeploymentBuilds(builds []*value.GitDeploymentBuild) []GitDeploymentBuild {

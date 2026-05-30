@@ -553,43 +553,29 @@ definitions:
     type: object
   response.GitDeploymentBuild:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/response.Arg'
-        type: array
       buildId:
         type: integer
       commitHash:
         type: string
       createdAt:
         type: string
-      deploymentDeleted:
-        type: boolean
       deploymentId:
         type: integer
       deploymentName:
         type: string
-      dockerfilePath:
-        type: string
-      gitUrl:
-        type: string
-      projectPath:
+      deploymentRolloutStatus:
         type: string
       source:
         type: string
       status:
         type: string
     required:
-    - args
     - buildId
     - commitHash
     - createdAt
-    - deploymentDeleted
     - deploymentId
     - deploymentName
-    - dockerfilePath
-    - gitUrl
-    - projectPath
+    - deploymentRolloutStatus
     - source
     - status
     type: object

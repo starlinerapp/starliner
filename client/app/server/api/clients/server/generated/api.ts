@@ -1051,12 +1051,6 @@ export interface ResponseGitDeployment {
 export interface ResponseGitDeploymentBuild {
   /**
    *
-   * @type {Array<ResponseArg>}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  args: Array<ResponseArg>;
-  /**
-   *
    * @type {number}
    * @memberof ResponseGitDeploymentBuild
    */
@@ -1081,18 +1075,6 @@ export interface ResponseGitDeploymentBuild {
   deploymentId: number;
   /**
    *
-   * @type {boolean}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  deploymentDeleted: boolean;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  deploymentRolloutStatus: string;
-  /**
-   *
    * @type {string}
    * @memberof ResponseGitDeploymentBuild
    */
@@ -1102,19 +1084,7 @@ export interface ResponseGitDeploymentBuild {
    * @type {string}
    * @memberof ResponseGitDeploymentBuild
    */
-  dockerfilePath: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  gitUrl: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  projectPath: string;
+  deploymentRolloutStatus: string;
   /**
    *
    * @type {string}

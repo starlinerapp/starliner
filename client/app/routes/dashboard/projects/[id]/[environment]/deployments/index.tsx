@@ -58,7 +58,6 @@ export default function Builds() {
           key={build.buildId}
           buildId={build.buildId}
           deploymentId={build.deploymentId}
-          deploymentDeleted={build.deploymentDeleted}
           commitHash={build.commitHash}
           source={build.source}
           serviceName={build.deploymentName}

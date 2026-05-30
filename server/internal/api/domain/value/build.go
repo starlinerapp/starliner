@@ -20,14 +20,9 @@ type GitDeploymentBuild struct {
 	BuildId                 int64
 	DeploymentId            int64
 	DeploymentName          string
-	DeploymentDeleted       bool
 	DeploymentRolloutStatus string
 	CommitHash              *string
 	Source                  string
 	Status                  BuildStatus
-	GitUrl                  string
-	ProjectPath             string
-	DockerfilePath          string
 	CreatedAt               time.Time
-	Args                    []*Arg
 }

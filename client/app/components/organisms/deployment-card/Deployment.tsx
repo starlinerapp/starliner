@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
+import { cn } from "~/utils/cn";
+
+const deploymentStatusSnapshotHeader = "🚀 Deployment Status Report";
 
 const deploymentStatusSnapshotDelimiter =
   "────────────────────────────────────────";
@@ -10,37 +13,49 @@ function isSnapshotDelimiter(line: string) {
   return line === deploymentStatusSnapshotDelimiter || /^─{10,}$/.test(line);
 }
 
+function isSnapshotHeader(line: string) {
+  return line.startsWith(deploymentStatusSnapshotHeader);
+}
+
 interface DeploymentTabProps {
   isActive: boolean;
+  hasLogs: boolean;
   onSelect: () => void;
 }
 
-export function DeploymentTab({ isActive, onSelect }: DeploymentTabProps) {
+export function DeploymentTab({
+  isActive,
+  hasLogs,
+  onSelect,
+}: DeploymentTabProps) {
   return (
     <div className="relative">
       <div className="bg-mauve-8 absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full" />
       <button
         type="button"
         onClick={onSelect}
-        className={
-          isActive
-            ? "border-violet-9 bg-violet-3 hover:bg-mauve-2 text-violet-9 relative z-10 flex cursor-pointer items-center gap-1.5 rounded-md border px-4 py-0.5"
-            : "border-mauve-6 hover:bg-mauve-2 text-mauve-9 relative z-10 flex cursor-pointer items-center gap-1.5 rounded-md border bg-white px-4 py-0.5"
-        }
+        className={cn(
+          "hover:bg-mauve-2 relative z-10 flex cursor-pointer items-center gap-1.5 rounded-md border bg-white px-4 py-0.5",
+          !hasLogs && "border-mauve-6 text-mauve-8",
+          hasLogs && isActive && "border-violet-9 bg-violet-3 text-violet-9",
+          hasLogs && !isActive && "border-mauve-9 text-mauve-9",
+        )}
       >
         <div
-          className={
-            isActive
-              ? "border-violet-9 flex rounded-full border-[1.5px] p-0.5"
-              : "border-mauve-9 flex rounded-full border-[1.5px] p-0.5"
-          }
+          className={cn(
+            "flex rounded-full border-[1.5px] p-0.5",
+            !hasLogs && "border-mauve-8",
+            hasLogs && isActive && "border-violet-9",
+            hasLogs && !isActive && "border-mauve-9",
+          )}
         >
           <Play
-            className={
-              isActive
-                ? "fill-violet-9 stroke-violet-9 h-2 w-2"
-                : "fill-mauve-9 stroke-mauve-9 h-2 w-2"
-            }
+            className={cn(
+              "h-2 w-2",
+              !hasLogs && "fill-mauve-8",
+              hasLogs && isActive && "fill-violet-9 stroke-violet-9",
+              hasLogs && !isActive && "fill-mauve-9 stroke-mauve-9",
+            )}
           />
         </div>
         Deploy
@@ -52,23 +67,35 @@ export function DeploymentTab({ isActive, onSelect }: DeploymentTabProps) {
 interface DeploymentLogsProps {
   deploymentId: number;
   buildStatus: string;
-  deploymentDeleted?: boolean;
+  deploymentRolloutStatus: string;
+  followScroll?: boolean;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  sectionRef?: React.RefObject<HTMLDivElement | null>;
+  onHasLogsChange?: (hasLogs: boolean) => void;
 }
 
 export function DeploymentLogs({
   deploymentId,
   buildStatus,
-  deploymentDeleted = false,
+  deploymentRolloutStatus,
+  followScroll = false,
+  scrollContainerRef,
+  sectionRef,
+  onHasLogsChange,
 }: DeploymentLogsProps) {
   const trpc = useTRPC();
-  const [logs, setLogs] = useState<string[]>([]);
-  const logsScrollRef = useRef<HTMLPreElement>(null);
-  const hasLoadedInitial = useRef(false);
+  const [lines, setLines] = useState<string[]>([]);
+  const isLiveRolloutRef = useRef(deploymentRolloutStatus === "pending");
+  const pendingSnapshotRef = useRef(false);
 
   useEffect(() => {
-    setLogs([]);
-    hasLoadedInitial.current = false;
+    setLines([]);
+    pendingSnapshotRef.current = false;
   }, [deploymentId]);
+
+  useEffect(() => {
+    isLiveRolloutRef.current = deploymentRolloutStatus === "pending";
+  }, [deploymentRolloutStatus]);
 
   const buildComplete = buildStatus === "success";
   const buildFailed = buildStatus === "failure";
@@ -79,68 +106,92 @@ export function DeploymentLogs({
       {
         enabled: buildComplete,
         onData: (chunk) => {
-          setLogs((prev) => [...prev, chunk]);
+          const line = chunk.replace(/\r$/, "");
+          if (!line) {
+            return;
+          }
+
+          if (isSnapshotDelimiter(line)) {
+            if (isLiveRolloutRef.current) {
+              pendingSnapshotRef.current = true;
+            }
+            return;
+          }
+
+          setLines((prev) => {
+            if (isSnapshotHeader(line)) {
+              if (isLiveRolloutRef.current) {
+                if (prev.length === 0 || pendingSnapshotRef.current) {
+                  pendingSnapshotRef.current = false;
+                  if (prev.length === 0) {
+                    return [line];
+                  }
+                  return [...prev, "", "", line];
+                }
+
+                let lastHeaderIdx = -1;
+                for (let i = prev.length - 1; i >= 0; i--) {
+                  if (isSnapshotHeader(prev[i] ?? "")) {
+                    lastHeaderIdx = i;
+                    break;
+                  }
+                }
+                if (lastHeaderIdx === -1) {
+                  return [line];
+                }
+                return [...prev.slice(0, lastHeaderIdx), line];
+              }
+
+              if (prev.length === 0) {
+                return [line];
+              }
+              return [...prev, "", "", line];
+            }
+
+            return [...prev, line];
+          });
         },
       },
     ),
   );
 
   useEffect(() => {
-    const el = logsScrollRef.current;
-    if (!el) {
+    onHasLogsChange?.(lines.length > 0);
+  }, [lines, onHasLogsChange]);
+
+  useEffect(() => {
+    if (!followScroll || !scrollContainerRef?.current) {
       return;
     }
-    const scrollToBottom = (behavior: ScrollBehavior) => {
-      const top = el.scrollHeight - el.clientHeight;
-      if (top <= 0) {
-        return;
-      }
-      el.scrollTo({ top, left: 0, behavior });
-    };
-    if (!hasLoadedInitial.current) {
-      if (logs.length > 0) {
-        hasLoadedInitial.current = true;
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            scrollToBottom("auto");
-          });
-        });
-      }
-      return;
-    }
-    scrollToBottom("smooth");
-  }, [logs]);
+    const container = scrollContainerRef.current;
+    const section = sectionRef?.current;
+    const maxScroll = container.scrollHeight - container.clientHeight;
+
+    container.scrollTo({
+      top: maxScroll > 0 ? maxScroll : (section?.offsetTop ?? maxScroll),
+      behavior: "smooth",
+    });
+  }, [lines, followScroll, scrollContainerRef, sectionRef]);
 
   if (buildFailed) {
     return (
-      <pre className="text-mauve-11 max-h-125 overflow-y-auto whitespace-pre-wrap">
+      <p className="text-mauve-11 text-sm whitespace-pre-wrap">
         Build failed — deployment was not triggered.
-      </pre>
-    );
-  }
-
-  if (!buildComplete) {
-    return (
-      <pre className="text-mauve-11 max-h-125 overflow-y-auto whitespace-pre-wrap">
-        Deployment will begin after the build completes.
-      </pre>
+      </p>
     );
   }
 
   return (
-    <pre
-      ref={logsScrollRef}
-      className="text-mauve-11 max-h-125 w-full overflow-y-auto font-mono text-sm break-all whitespace-pre-wrap"
-    >
-      {logs.map((line, i) =>
-        isSnapshotDelimiter(line) ? (
-          <hr key={i} className="border-mauve-6 my-3" />
+    <div className="text-mauve-11 font-mono text-sm break-all whitespace-pre-wrap">
+      {lines.map((line, i) =>
+        line === "" ? (
+          <span key={i} className="block h-4" aria-hidden />
         ) : (
           <span key={i} className="block">
             {line}
           </span>
         ),
       )}
-    </pre>
+    </div>
   );
 }

@@ -22,7 +22,6 @@ type GitDeploymentBuild struct {
 	BuildId                 int64
 	DeploymentId            int64
 	DeploymentName          string
-	DeploymentDeletedAt     *time.Time
 	DeploymentRolloutStatus string
 	ImageName               *string
 	CommitHash              *string
