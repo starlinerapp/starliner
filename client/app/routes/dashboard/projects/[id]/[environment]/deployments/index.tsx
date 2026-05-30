@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import DeploymentCard from "~/components/organisms/build-card/DeploymentCard";
+import DeploymentCard from "~/components/organisms/deployment-card/DeploymentCard";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useParams } from "react-router";
