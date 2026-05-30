@@ -333,7 +333,7 @@ func (ca *ClusterApplication) tearDownClusterProjects(ctx context.Context, clust
 					err,
 				)
 			}
-			if err := ca.deploymentRepository.DeleteDeploymentsByEnvironmentId(ctx, env.Id); err != nil {
+			if err := ca.deploymentRepository.SoftDeleteDeploymentsByEnvironmentId(ctx, env.Id); err != nil {
 				return err
 			}
 			if err := ca.environmentRepository.DeleteEnvironment(ctx, env.Id); err != nil {

@@ -8,6 +8,7 @@ var Module = fx.Module(
 		NewHealth,
 		NewSecret,
 		NewLogs,
+		NewDeploymentStatus,
 		NewTTY,
 	),
 )

@@ -534,6 +534,7 @@ func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId in
 		Name:          res.Name,
 		Port:          res.Port,
 		EnvironmentId: mapper.ToPtrFromNullInt64(res.EnvironmentID),
+		DeletedAt:     mapper.ToPtrFromNullTime(res.DeletedAt),
 	}, nil
 }
 
@@ -606,12 +607,12 @@ func (dr *DeploymentRepository) SoftDeleteDeploymentVolume(ctx context.Context, 
 	return dr.queries.SoftDeleteDeploymentVolume(ctx, sql.NullInt64{Int64: deploymentId, Valid: true})
 }
 
-func (dr *DeploymentRepository) DeleteDeployment(ctx context.Context, deploymentId int64) error {
-	return dr.queries.DeleteDeployment(ctx, deploymentId)
+func (dr *DeploymentRepository) SoftDeleteDeployment(ctx context.Context, deploymentId int64) error {
+	return dr.queries.SoftDeleteDeployment(ctx, deploymentId)
 }
 
-func (dr *DeploymentRepository) DeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error {
-	return dr.queries.DeleteDeploymentsByEnvironmentId(ctx, mapper.ToNullInt64FromPtr(&environmentId))
+func (dr *DeploymentRepository) SoftDeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error {
+	return dr.queries.SoftDeleteDeploymentsByEnvironmentId(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 }
 
 func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error) {
@@ -644,6 +645,44 @@ func (dr *DeploymentRepository) UpdateDeploymentStatus(ctx context.Context, depl
 		Status: sqlc.DeploymentStatus(status),
 		ID:     deploymentId,
 	})
+}
+
+func (dr *DeploymentRepository) GetDeploymentStatusLogs(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.DeploymentStatusLogs, error) {
+	row, err := dr.queries.GetDeploymentStatusLogs(ctx, sqlc.GetDeploymentStatusLogsParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.DeploymentStatusLogs{
+		Logs:     mapper.ToPtrFromNullString(row.StatusLogs),
+		Complete: row.StatusLogsComplete,
+	}, nil
+}
+
+func (dr *DeploymentRepository) AppendDeploymentStatusLogs(
+	ctx context.Context,
+	deploymentId int64,
+	chunk string,
+) error {
+	return dr.queries.AppendDeploymentStatusLogs(ctx, sqlc.AppendDeploymentStatusLogsParams{
+		Chunk:        sql.NullString{String: chunk, Valid: true},
+		DeploymentID: deploymentId,
+	})
+}
+
+func (dr *DeploymentRepository) MarkDeploymentStatusLogsComplete(ctx context.Context, deploymentId int64) error {
+	return dr.queries.MarkDeploymentStatusLogsComplete(ctx, deploymentId)
+}
+
+func (dr *DeploymentRepository) ResetDeploymentStatusLogs(ctx context.Context, deploymentId int64) error {
+	return dr.queries.ResetDeploymentStatusLogs(ctx, deploymentId)
 }
 
 func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error) {
@@ -733,4 +772,87 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 		}
 	}
 	return deployments, nil
+}
+
+func (dr *DeploymentRepository) GetUserGitDeploymentById(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.GitDeployment, error) {
+	row, err := dr.queries.GetUserGitDeploymentById(ctx, sqlc.GetUserGitDeploymentByIdParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("git deployment not found")
+		}
+		return nil, err
+	}
+
+	return dr.mapGitDeploymentRow(ctx, gitDeploymentRow{
+		DeploymentID:   row.DeploymentID,
+		Name:           row.Name,
+		Port:           row.Port,
+		Status:         row.Status,
+		EnvironmentID:  row.EnvironmentID,
+		Url:            row.Url,
+		ProjectPath:    row.ProjectPath,
+		DockerfilePath: row.DockerfilePath,
+	})
+}
+
+type gitDeploymentRow struct {
+	DeploymentID   int64
+	Name           string
+	Port           string
+	Status         sqlc.DeploymentStatus
+	EnvironmentID  sql.NullInt64
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+}
+
+func (dr *DeploymentRepository) mapGitDeploymentRow(
+	ctx context.Context,
+	d gitDeploymentRow,
+) (*entity.GitDeployment, error) {
+	envs, err := dr.queries.GetDeploymentEnvironmentVars(ctx, d.DeploymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	envVars := make([]*entity.EnvVar, len(envs))
+	for j, e := range envs {
+		envVars[j] = &entity.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		}
+	}
+
+	args, err := dr.queries.GetGitDeploymentArgs(ctx, d.DeploymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	deploymentArgs := make([]*entity.Arg, len(args))
+	for j, a := range args {
+		deploymentArgs[j] = &entity.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+
+	return &entity.GitDeployment{
+		Id:                    d.DeploymentID,
+		Name:                  d.Name,
+		Status:                string(d.Status),
+		Port:                  d.Port,
+		EnvironmentId:         mapper.ToPtrFromNullInt64(d.EnvironmentID),
+		GitUrl:                d.Url,
+		ProjectRepositoryPath: d.ProjectPath,
+		DockerfilePath:        d.DockerfilePath,
+		EnvVars:               envVars,
+		Args:                  deploymentArgs,
+	}, nil
 }

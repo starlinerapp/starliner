@@ -656,17 +656,19 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 		}
 
 		builds[i] = &entity.GitDeploymentBuild{
-			BuildId:        row.BuildID,
-			DeploymentId:   row.DeploymentID,
-			DeploymentName: row.DeploymentName,
-			CommitHash:     mapper.ToPtrFromNullString(row.CommitHash),
-			Source:         row.Source,
-			Status:         entity.BuildStatus(row.Status),
-			GitUrl:         row.Url,
-			ProjectPath:    row.ProjectPath,
-			DockerfilePath: row.DockerfilePath,
-			CreatedAt:      row.CreatedAt,
-			Args:           deploymentArgs,
+			BuildId:                 row.BuildID,
+			DeploymentId:            row.DeploymentID,
+			DeploymentName:          row.DeploymentName,
+			DeploymentDeletedAt:     mapper.ToPtrFromNullTime(row.DeploymentDeletedAt),
+			DeploymentRolloutStatus: row.DeploymentRolloutStatus,
+			CommitHash:              mapper.ToPtrFromNullString(row.CommitHash),
+			Source:                  row.Source,
+			Status:                  entity.BuildStatus(row.Status),
+			GitUrl:                  row.Url,
+			ProjectPath:             row.ProjectPath,
+			DockerfilePath:          row.DockerfilePath,
+			CreatedAt:               row.CreatedAt,
+			Args:                    deploymentArgs,
 		}
 	}
 

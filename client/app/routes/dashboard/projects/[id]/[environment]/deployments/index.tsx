@@ -31,7 +31,11 @@ export default function Builds() {
       const builds = query.state.data;
       if (!builds) return false;
       const shouldPoll = builds?.some(
-        (build) => build.status === "building" || build.status === "queued",
+        (build) =>
+          build.status === "building" ||
+          build.status === "queued" ||
+          (build.status === "success" &&
+            build.deploymentRolloutStatus === "pending"),
       );
       return shouldPoll ? 1000 : false;
     },
@@ -51,13 +55,16 @@ export default function Builds() {
       {environmentBuilds?.map((build, i) => (
         <DeploymentCard
           isCollapsed={i > 0}
-          key={i}
+          key={build.buildId}
           buildId={build.buildId}
+          deploymentId={build.deploymentId}
+          deploymentDeleted={build.deploymentDeleted}
           commitHash={build.commitHash}
           source={build.source}
           serviceName={build.deploymentName}
           createdAt={build.createdAt}
           status={build.status}
+          deploymentRolloutStatus={build.deploymentRolloutStatus}
         />
       ))}
     </div>

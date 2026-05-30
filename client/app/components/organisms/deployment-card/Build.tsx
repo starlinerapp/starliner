@@ -44,24 +44,16 @@ export function BuildTab({ isActive, onSelect }: BuildTabProps) {
 
 interface BuildLogsProps {
   buildId: number;
-  status: string;
-  loadingFallback: React.ReactNode;
 }
 
-export function BuildLogs({
-  buildId,
-  status,
-  loadingFallback,
-}: BuildLogsProps) {
+export function BuildLogs({ buildId }: BuildLogsProps) {
   const trpc = useTRPC();
   const [logs, setLogs] = useState<string[]>([]);
-  const [hasReceivedLogs, setHasReceivedLogs] = useState(false);
   const logsScrollRef = useRef<HTMLPreElement>(null);
   const hasLoadedInitial = useRef(false);
 
   useEffect(() => {
     setLogs([]);
-    setHasReceivedLogs(false);
     hasLoadedInitial.current = false;
   }, [buildId]);
 
@@ -71,7 +63,6 @@ export function BuildLogs({
       {
         onData: (chunk) => {
           setLogs((prev) => [...prev, chunk]);
-          setHasReceivedLogs(true);
         },
       },
     ),
@@ -102,20 +93,6 @@ export function BuildLogs({
     }
     scrollToBottom("smooth");
   }, [logs]);
-
-  const isBuilding = status === "queued" || status === "building";
-
-  if (!hasReceivedLogs && isBuilding) {
-    return loadingFallback;
-  }
-
-  if (logs.length === 0) {
-    return (
-      <pre className="text-mauve-11 max-h-125 overflow-y-auto whitespace-pre-wrap">
-        No logs available
-      </pre>
-    );
-  }
 
   return (
     <pre

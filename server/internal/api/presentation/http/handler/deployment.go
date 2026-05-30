@@ -314,7 +314,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		return
 	}
 
-	err = dh.deploymentApplication.UpdateDeployFromGit(
+	newDeploymentId, err := dh.deploymentApplication.UpdateDeployFromGit(
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
@@ -327,9 +327,10 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 	)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"deploymentId": newDeploymentId})
 }
 
 // DeleteDeployment FindAll godoc
@@ -394,6 +395,43 @@ func (dh *DeploymentHandler) StreamDeploymentLogs(c *gin.Context) {
 	c.Header("Connection", "keep-alive")
 
 	err = dh.deploymentApplication.StreamDeploymentLogs(c.Request.Context(), currentUser.Id, deploymentId, sw)
+	if err != nil {
+		sw.WriteError(err)
+	}
+}
+
+// StreamDeploymentStatusLogs FindAll godoc
+// @Summary Stream deployment status logs
+// @State core
+// @Tags deployment
+// @ID streamDeploymentStatusLogs
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Deployment ID"
+// @Product text/event-stream
+// @Success 200
+// @Header 200 {string} Content-Type "text/event-stream"
+// @Header 200 {string} Cache-Control "no-cache"
+// @Header 200 {string} Connection "keep-alive"
+// @Router /deployments/{id}/status/logs/stream [get]
+func (dh *DeploymentHandler) StreamDeploymentStatusLogs(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	deploymentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	sw, ok := sse.NewWriter(c.Writer)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "streaming not supported"})
+		return
+	}
+
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+
+	err = dh.deploymentApplication.StreamDeploymentStatusLogs(c.Request.Context(), currentUser.Id, deploymentId, sw)
 	if err != nil {
 		sw.WriteError(err)
 	}

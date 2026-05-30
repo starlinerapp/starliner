@@ -370,17 +370,19 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 		}
 
 		valueBuilds[i] = &value.GitDeploymentBuild{
-			BuildId:        b.BuildId,
-			DeploymentId:   b.DeploymentId,
-			DeploymentName: b.DeploymentName,
-			CommitHash:     b.CommitHash,
-			Source:         b.Source,
-			Status:         value.BuildStatus(b.Status),
-			GitUrl:         b.GitUrl,
-			ProjectPath:    b.ProjectPath,
-			DockerfilePath: b.DockerfilePath,
-			CreatedAt:      b.CreatedAt,
-			Args:           args,
+			BuildId:                 b.BuildId,
+			DeploymentId:            b.DeploymentId,
+			DeploymentName:          b.DeploymentName,
+			DeploymentDeleted:       b.DeploymentDeletedAt != nil,
+			DeploymentRolloutStatus: b.DeploymentRolloutStatus,
+			CommitHash:              b.CommitHash,
+			Source:                  b.Source,
+			Status:                  value.BuildStatus(b.Status),
+			GitUrl:                  b.GitUrl,
+			ProjectPath:             b.ProjectPath,
+			DockerfilePath:          b.DockerfilePath,
+			CreatedAt:               b.CreatedAt,
+			Args:                    args,
 		}
 	}
 	return valueBuilds, nil

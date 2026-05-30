@@ -29,6 +29,7 @@ docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
+docs/RequestRemoveOrganizationMember.md
 docs/RequestRemoveTeamMember.md
 docs/RequestSendInvite.md
 docs/RequestSetTeamClusters.md

@@ -18,26 +18,63 @@ WHERE deployments.id = $1;
 SELECT deployments.*
 FROM deployments
 WHERE deployments.name = $1
-  AND environment_id = $2;
+  AND environment_id = $2
+  AND deleted_at IS NULL;
 
 -- name: UpdateDeploymentStatus :exec
 UPDATE
   deployments
 SET status = @status::deployment_status
-WHERE id = @id;
+WHERE id = @id
+  AND deleted_at IS NULL;
 
--- name: DeleteDeployment :exec
-DELETE FROM deployments
+-- name: GetDeploymentStatusLogs :one
+SELECT d.status_logs, d.status_logs_complete
+FROM deployments d
+  INNER JOIN environments e ON d.environment_id = e.id
+  INNER JOIN projects ON e.project_id = projects.id
+  INNER JOIN teams ON teams.id = projects.team_id
+  INNER JOIN team_members ON team_members.team_id = teams.id
+WHERE d.id = @deployment_id
+  AND team_members.user_id = @user_id;
+
+-- name: AppendDeploymentStatusLogs :exec
+UPDATE
+  deployments
+SET status_logs = COALESCE(status_logs, '') || @chunk
+WHERE id = @deployment_id;
+
+-- name: MarkDeploymentStatusLogsComplete :exec
+UPDATE
+  deployments
+SET status_logs_complete = TRUE
 WHERE id = $1;
 
--- name: DeleteDeploymentsByEnvironmentId :exec
-DELETE FROM deployments
-WHERE environment_id = $1;
+-- name: ResetDeploymentStatusLogs :exec
+UPDATE
+  deployments
+SET status_logs = NULL, status_logs_complete = FALSE
+WHERE id = $1;
+
+-- name: SoftDeleteDeployment :exec
+UPDATE
+  deployments
+SET deleted_at = NOW()
+WHERE id = $1
+  AND deleted_at IS NULL;
+
+-- name: SoftDeleteDeploymentsByEnvironmentId :exec
+UPDATE
+  deployments
+SET deleted_at = NOW()
+WHERE environment_id = $1
+  AND deleted_at IS NULL;
 
 -- name: GetDeploymentsWithKubeconfig :many
 SELECT deployments.*, c.kubeconfig, environments.namespace, c.id AS cluster_id, c.provisioning_id, c.organization_id
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
   INNER JOIN projects ON environments.project_id = projects.id
-  INNER JOIN clusters c ON c.id = projects.cluster_id;
+  INNER JOIN clusters c ON c.id = projects.cluster_id
+WHERE deployments.deleted_at IS NULL;
 

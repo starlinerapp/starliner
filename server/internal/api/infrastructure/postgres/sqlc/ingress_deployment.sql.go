@@ -16,7 +16,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at
 ), new_ingress_deployment AS (
   INSERT INTO ingress_deployments (
     deployment_id)
@@ -159,7 +159,9 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -219,8 +221,10 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
   AND d.name = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -281,7 +285,9 @@ func (q *Queries) GetEnvironmentIngressDeploymentsByName(ctx context.Context, ar
 const getIngressHostByName = `-- name: GetIngressHostByName :one
 SELECT i.host, i.deployment_id
 FROM ingress_hosts i
+  INNER JOIN deployments d ON d.id = i.deployment_id
 WHERE i.host = $1
+  AND d.deleted_at IS NULL
 `
 
 type GetIngressHostByNameRow struct {
@@ -307,8 +313,10 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -386,7 +394,8 @@ WITH updated_ingress AS (
     deployments
   SET port = $1
   WHERE id = $2
-  RETURNING id, name, port, status, environment_id, created_at, updated_at
+    AND deleted_at IS NULL
+  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at
 )
 SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
 FROM updated_ingress d

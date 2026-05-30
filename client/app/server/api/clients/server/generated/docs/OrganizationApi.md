@@ -12,6 +12,7 @@ All URIs are relative to _http://localhost_
 | [**getOrganizationMembers**](#getorganizationmembers)             | **GET** /organizations/{id}/members                      | Get all organization members           |
 | [**getUserOrganizations**](#getuserorganizations)                 | **GET** /organizations                                   | Get user organizations                 |
 | [**getUserProjects**](#getuserprojects)                           | **GET** /organizations/{id}/projects                     | Get Organization Projects              |
+| [**removeOrganizationMember**](#removeorganizationmember)         | **DELETE** /organizations/{id}/members                   | Remove member from organization        |
 | [**sendOrganizationInvite**](#sendorganizationinvite)             | **POST** /organizations/{id}/invites                     | Send organization invite via email     |
 | [**upsertHetznerCredential**](#upserthetznercredential)           | **POST** /organizations/{id}/settings/credential/hetzner | Upsert Hetzner Provisioning Credential |
 
@@ -388,6 +389,62 @@ No authorization required
 | Status code | Description | Response headers |
 | ----------- | ----------- | ---------------- |
 | **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **removeOrganizationMember**
+
+> removeOrganizationMember(data)
+
+### Example
+
+```typescript
+import {
+  OrganizationApi,
+  Configuration,
+  RequestRemoveOrganizationMember,
+} from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new OrganizationApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let id: number; //Organization ID (default to undefined)
+let data: RequestRemoveOrganizationMember; //ID of the member to remove from the organization
+
+const { status, data } = await apiInstance.removeOrganizationMember(
+  xUserID,
+  id,
+  data,
+);
+```
+
+### Parameters
+
+| Name        | Type                                | Description                                      | Notes                 |
+| ----------- | ----------------------------------- | ------------------------------------------------ | --------------------- |
+| **data**    | **RequestRemoveOrganizationMember** | ID of the member to remove from the organization |                       |
+| **xUserID** | [**string**]                        | User ID                                          | defaults to undefined |
+| **id**      | [**number**]                        | Organization ID                                  | defaults to undefined |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **204**     | No Content  | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

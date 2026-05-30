@@ -1,5 +1,14 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
+import { useSubscription } from "@trpc/tanstack-react-query";
+import { useTRPC } from "~/utils/trpc/react";
+
+const deploymentStatusSnapshotDelimiter =
+  "────────────────────────────────────────";
+
+function isSnapshotDelimiter(line: string) {
+  return line === deploymentStatusSnapshotDelimiter || /^─{10,}$/.test(line);
+}
 
 interface DeploymentTabProps {
   isActive: boolean;
@@ -40,6 +49,98 @@ export function DeploymentTab({ isActive, onSelect }: DeploymentTabProps) {
   );
 }
 
-export function DeploymentLogs() {
-  return <div className="text-mauve-11 max-h-125 min-h-24" />;
+interface DeploymentLogsProps {
+  deploymentId: number;
+  buildStatus: string;
+  deploymentDeleted?: boolean;
+}
+
+export function DeploymentLogs({
+  deploymentId,
+  buildStatus,
+  deploymentDeleted = false,
+}: DeploymentLogsProps) {
+  const trpc = useTRPC();
+  const [logs, setLogs] = useState<string[]>([]);
+  const logsScrollRef = useRef<HTMLPreElement>(null);
+  const hasLoadedInitial = useRef(false);
+
+  useEffect(() => {
+    setLogs([]);
+    hasLoadedInitial.current = false;
+  }, [deploymentId]);
+
+  const buildComplete = buildStatus === "success";
+  const buildFailed = buildStatus === "failure";
+
+  useSubscription(
+    trpc.deployment.streamDeploymentStatusLogs.subscriptionOptions(
+      { deploymentId },
+      {
+        enabled: buildComplete,
+        onData: (chunk) => {
+          setLogs((prev) => [...prev, chunk]);
+        },
+      },
+    ),
+  );
+
+  useEffect(() => {
+    const el = logsScrollRef.current;
+    if (!el) {
+      return;
+    }
+    const scrollToBottom = (behavior: ScrollBehavior) => {
+      const top = el.scrollHeight - el.clientHeight;
+      if (top <= 0) {
+        return;
+      }
+      el.scrollTo({ top, left: 0, behavior });
+    };
+    if (!hasLoadedInitial.current) {
+      if (logs.length > 0) {
+        hasLoadedInitial.current = true;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scrollToBottom("auto");
+          });
+        });
+      }
+      return;
+    }
+    scrollToBottom("smooth");
+  }, [logs]);
+
+  if (buildFailed) {
+    return (
+      <pre className="text-mauve-11 max-h-125 overflow-y-auto whitespace-pre-wrap">
+        Build failed — deployment was not triggered.
+      </pre>
+    );
+  }
+
+  if (!buildComplete) {
+    return (
+      <pre className="text-mauve-11 max-h-125 overflow-y-auto whitespace-pre-wrap">
+        Deployment will begin after the build completes.
+      </pre>
+    );
+  }
+
+  return (
+    <pre
+      ref={logsScrollRef}
+      className="text-mauve-11 max-h-125 w-full overflow-y-auto font-mono text-sm break-all whitespace-pre-wrap"
+    >
+      {logs.map((line, i) =>
+        isSnapshotDelimiter(line) ? (
+          <hr key={i} className="border-mauve-6 my-3" />
+        ) : (
+          <span key={i} className="block">
+            {line}
+          </span>
+        ),
+      )}
+    </pre>
+  );
 }

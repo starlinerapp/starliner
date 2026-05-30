@@ -1,6 +1,9 @@
 package mapper
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 func ToPtrFromNullString(ns sql.NullString) *string {
 	if ns.Valid {
@@ -47,6 +50,13 @@ func ToPtrFromNullInt32(ni sql.NullInt32) *int32 {
 func ToBoolPtrFromNullBool(nb sql.NullBool) *bool {
 	if nb.Valid {
 		return &nb.Bool
+	}
+	return nil
+}
+
+func ToPtrFromNullTime(nt sql.NullTime) *time.Time {
+	if nt.Valid {
+		return &nt.Time
 	}
 	return nil
 }

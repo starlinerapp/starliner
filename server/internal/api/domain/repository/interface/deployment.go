@@ -94,13 +94,18 @@ type DeploymentRepository interface {
 
 	SoftDeleteDeploymentVolume(ctx context.Context, deploymentId int64) error
 
-	DeleteDeployment(ctx context.Context, deploymentId int64) error
+	SoftDeleteDeployment(ctx context.Context, deploymentId int64) error
 
-	DeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error
+	SoftDeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error
 
 	GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error)
 
 	UpdateDeploymentStatus(ctx context.Context, deploymentId int64, status string) error
+
+	GetDeploymentStatusLogs(ctx context.Context, userId int64, deploymentId int64) (*entity.DeploymentStatusLogs, error)
+	AppendDeploymentStatusLogs(ctx context.Context, deploymentId int64, chunk string) error
+	MarkDeploymentStatusLogsComplete(ctx context.Context, deploymentId int64) error
+	ResetDeploymentStatusLogs(ctx context.Context, deploymentId int64) error
 
 	GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error)
 
@@ -109,4 +114,6 @@ type DeploymentRepository interface {
 	IsIngressDeployment(ctx context.Context, deploymentId int64) (bool, error)
 
 	GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error)
+
+	GetUserGitDeploymentById(ctx context.Context, userId int64, deploymentId int64) (*entity.GitDeployment, error)
 }

@@ -610,6 +610,50 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "/deployments/{id}/status/logs/stream": {
+            "get": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Stream deployment status logs",
+                "operationId": "streamDeploymentStatusLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/environments": {
             "post": {
                 "tags": [
@@ -2918,6 +2962,7 @@ const docTemplatecoreCore = `{
                 "buildId",
                 "commitHash",
                 "createdAt",
+                "deploymentDeleted",
                 "deploymentId",
                 "deploymentName",
                 "dockerfilePath",
@@ -2941,6 +2986,9 @@ const docTemplatecoreCore = `{
                 },
                 "createdAt": {
                     "type": "string"
+                },
+                "deploymentDeleted": {
+                    "type": "boolean"
                 },
                 "deploymentId": {
                     "type": "integer"

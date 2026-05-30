@@ -66,27 +66,34 @@ func (q *Queries) GetBuildLogs(ctx context.Context, arg GetBuildLogsParams) (sql
 }
 
 const getEnvironmentGitDeploymentBuilds = `-- name: GetEnvironmentGitDeploymentBuilds :many
-SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
-FROM deployments d
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.deleted_at AS deployment_deleted_at,
+  CASE
+    WHEN d.status_logs_complete AND COALESCE(d.status_logs, '') LIKE '%has failed.%' THEN 'failure'
+    WHEN d.status_logs_complete AND COALESCE(d.status_logs, '') LIKE '%is complete.%' THEN 'success'
+    ELSE 'pending'
+  END AS deployment_rollout_status,
+  b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
+FROM builds b
+  INNER JOIN deployments d ON d.id = b.deployment_id
   INNER JOIN git_deployments gd ON gd.deployment_id = d.id
-  INNER JOIN builds b ON d.id = b.deployment_id
-  INNER JOIN environments e ON d.environment_id = e.id
-WHERE environment_id = $1
+WHERE d.environment_id = $1
 ORDER BY b.created_at DESC
 `
 
 type GetEnvironmentGitDeploymentBuildsRow struct {
-	BuildID        int64
-	DeploymentID   int64
-	DeploymentName string
-	ImageName      sql.NullString
-	CommitHash     sql.NullString
-	Source         string
-	Status         BuildStatus
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
-	CreatedAt      time.Time
+	BuildID                 int64
+	DeploymentID            int64
+	DeploymentName          string
+	DeploymentDeletedAt     sql.NullTime
+	DeploymentRolloutStatus string
+	ImageName               sql.NullString
+	CommitHash              sql.NullString
+	Source                  string
+	Status                  BuildStatus
+	Url                     string
+	ProjectPath             string
+	DockerfilePath          string
+	CreatedAt               time.Time
 }
 
 func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentGitDeploymentBuildsRow, error) {
@@ -102,6 +109,8 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 			&i.BuildID,
 			&i.DeploymentID,
 			&i.DeploymentName,
+			&i.DeploymentDeletedAt,
+			&i.DeploymentRolloutStatus,
 			&i.ImageName,
 			&i.CommitHash,
 			&i.Source,
@@ -133,6 +142,7 @@ FROM deployments d
   INNER JOIN environments e ON d.environment_id = e.id
 WHERE d.environment_id = $1
   AND d.name = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id, b.created_at DESC
 `
 

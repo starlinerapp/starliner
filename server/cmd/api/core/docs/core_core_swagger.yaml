@@ -563,6 +563,8 @@ definitions:
         type: string
       createdAt:
         type: string
+      deploymentDeleted:
+        type: boolean
       deploymentId:
         type: integer
       deploymentName:
@@ -582,6 +584,7 @@ definitions:
     - buildId
     - commitHash
     - createdAt
+    - deploymentDeleted
     - deploymentId
     - deploymentName
     - dockerfilePath
@@ -1143,6 +1146,36 @@ paths:
               description: text/event-stream
               type: string
       summary: Stream deployment logs
+      tags:
+      - deployment
+  /deployments/{id}/status/logs/stream:
+    get:
+      operationId: streamDeploymentStatusLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
+      summary: Stream deployment status logs
       tags:
       - deployment
   /deployments/databases:
