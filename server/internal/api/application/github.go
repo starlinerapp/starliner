@@ -238,6 +238,11 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
+		if err := ga.deploymentRepository.RepointIngressPathsTargetDeployment(ctx, deployment.Id, newDeployment.Id); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
 		b, err := ga.buildRepository.CreateBuild(ctx, newDeployment.Id, "push")
 		if err != nil {
 			errs = append(errs, err)

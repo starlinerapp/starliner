@@ -388,6 +388,22 @@ func (q *Queries) IsIngressDeployment(ctx context.Context, deploymentID int64) (
 	return is_ingress_deployment, err
 }
 
+const repointIngressPathsTargetDeployment = `-- name: RepointIngressPathsTargetDeployment :exec
+UPDATE ingress_paths
+SET deployment_id = $1
+WHERE deployment_id = $2
+`
+
+type RepointIngressPathsTargetDeploymentParams struct {
+	NewDeploymentID int64
+	OldDeploymentID int64
+}
+
+func (q *Queries) RepointIngressPathsTargetDeployment(ctx context.Context, arg RepointIngressPathsTargetDeploymentParams) error {
+	_, err := q.db.ExecContext(ctx, repointIngressPathsTargetDeployment, arg.NewDeploymentID, arg.OldDeploymentID)
+	return err
+}
+
 const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
 WITH updated_ingress AS (
   UPDATE

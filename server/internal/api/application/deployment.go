@@ -266,7 +266,7 @@ func (da *DeploymentApplication) redeployGitDeployment(
 		return nil, err
 	}
 
-	return da.deploymentRepository.CreateGitDeployment(
+	newDeployment, err := da.deploymentRepository.CreateGitDeployment(
 		ctx,
 		*existing.EnvironmentId,
 		existing.Name,
@@ -277,6 +277,15 @@ func (da *DeploymentApplication) redeployGitDeployment(
 		envs,
 		args,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := da.deploymentRepository.RepointIngressPathsTargetDeployment(ctx, existing.Id, newDeployment.Id); err != nil {
+		return nil, err
+	}
+
+	return newDeployment, nil
 }
 
 func (da *DeploymentApplication) DeployImage(

@@ -96,6 +96,8 @@ type DeploymentRepository interface {
 
 	SoftDeleteDeployment(ctx context.Context, deploymentId int64) error
 
+	RepointIngressPathsTargetDeployment(ctx context.Context, oldDeploymentId int64, newDeploymentId int64) error
+
 	SoftDeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error
 
 	GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error)

@@ -51,6 +51,11 @@ SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_po
 FROM updated_ingress d
   INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id;
 
+-- name: RepointIngressPathsTargetDeployment :exec
+UPDATE ingress_paths
+SET deployment_id = @new_deployment_id
+WHERE deployment_id = @old_deployment_id;
+
 -- name: DeleteIngressPathsByDeploymentId :exec
 DELETE FROM ingress_paths
 WHERE deployment_id = @deployment_id;

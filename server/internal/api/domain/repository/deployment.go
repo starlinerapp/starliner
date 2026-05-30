@@ -611,6 +611,17 @@ func (dr *DeploymentRepository) SoftDeleteDeployment(ctx context.Context, deploy
 	return dr.queries.SoftDeleteDeployment(ctx, deploymentId)
 }
 
+func (dr *DeploymentRepository) RepointIngressPathsTargetDeployment(
+	ctx context.Context,
+	oldDeploymentId int64,
+	newDeploymentId int64,
+) error {
+	return dr.queries.RepointIngressPathsTargetDeployment(ctx, sqlc.RepointIngressPathsTargetDeploymentParams{
+		OldDeploymentID: oldDeploymentId,
+		NewDeploymentID: newDeploymentId,
+	})
+}
+
 func (dr *DeploymentRepository) SoftDeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error {
 	return dr.queries.SoftDeleteDeploymentsByEnvironmentId(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 }
