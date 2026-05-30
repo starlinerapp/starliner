@@ -2,9 +2,16 @@ syntax = "proto3";
 
 package proto.v1;
 
-option go_package = "starliner.app/internal/cluster/presentation/grpc/proto/v1";
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
+
+enum LogSource {
+  LOG_SOURCE_UNSPECIFIED = 0;
+  LOG_SOURCE_WORKLOAD = 1;
+  LOG_SOURCE_INGRESS = 2;
+}
 
 message StreamLogsRequest {
+  LogSource source = 1;
   string namespace = 2;
   string releaseName = 3;
   string kubeconfigBase64 = 4;

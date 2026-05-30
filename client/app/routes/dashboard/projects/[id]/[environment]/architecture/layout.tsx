@@ -57,6 +57,16 @@ export default function Layout() {
     return allDeployments.find((d) => d.id === Number(deploymentId));
   }, [environmentDeployments, deploymentId]);
 
+  const isIngressDeployment = useMemo(() => {
+    if (!environmentDeployments || !deploymentId) {
+      return false;
+    }
+
+    return environmentDeployments.ingresses.some(
+      (d) => d.id === Number(deploymentId),
+    );
+  }, [environmentDeployments, deploymentId]);
+
   const navigationBarItems = useMemo(
     () => [
       {
@@ -126,7 +136,10 @@ export default function Layout() {
             defaultSize={3}
             className="border-mauve-6 border-t-1"
           >
-            <BottomBar deployment={currentDeployment} />
+            <BottomBar
+              deployment={currentDeployment}
+              showTerminal={!isIngressDeployment}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </ResizablePanel>

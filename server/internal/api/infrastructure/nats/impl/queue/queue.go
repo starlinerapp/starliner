@@ -17,6 +17,7 @@ const (
 	CreateCluster     jetstream.Subject = "create.cluster"
 	ClusterCreated    jetstream.Subject = "cluster.created"
 	DeleteCluster     jetstream.Subject = "delete.cluster"
+	ReconcileCluster  jetstream.Subject = "reconcile.cluster"
 	ClusterDeleted    jetstream.Subject = "cluster.deleted"
 	DeployImage       jetstream.Subject = "deploy.image"
 	DeployDatabase    jetstream.Subject = "deploy.database"
@@ -83,6 +84,15 @@ func (q *Queue) PublishDeleteCluster(cluster *value.DeleteCluster) error {
 	}
 
 	return q.publisher.Publish(DeleteCluster, strconv.FormatInt(cluster.Id, 10), data)
+}
+
+func (q *Queue) PublishReconcileCluster(cluster *value.ReconcileCluster) error {
+	data, err := json.Marshal(cluster)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(ReconcileCluster, strconv.FormatInt(cluster.Id, 10), data)
 }
 
 func (q *Queue) SubscribeToDatabaseDeploymentCreated(handler func(databaseDeployment *value.DatabaseDeployment)) error {

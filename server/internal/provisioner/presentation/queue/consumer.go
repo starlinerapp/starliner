@@ -40,5 +40,9 @@ func (c *Consumer) Start() error {
 		return c.queue.SubscribeToDeleteCluster(c.clusterApplication.HandleDeleteCluster)
 	})
 
+	go concurrent.WithRecovery(context.Background(), "SubscribeToReconcileCluster", func() error {
+		return c.queue.SubscribeToReconcileCluster(c.clusterApplication.HandleReconcileCluster)
+	})
+
 	return nil
 }

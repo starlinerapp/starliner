@@ -13,11 +13,13 @@ import (
 	sub "starliner.app/internal/cluster/presentation/pubsub"
 	clusterqueue "starliner.app/internal/cluster/presentation/queue"
 	"starliner.app/internal/core/infrastructure/crypto"
+	"starliner.app/internal/core/infrastructure/redis"
 )
 
 func main() {
 	fx.New(
 		conf.Module,
+		redis.Module,
 		crypto.Module,
 		helm.Module,
 		dns.Module,

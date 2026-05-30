@@ -171,3 +171,47 @@ func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
 		log.Printf("failed to publish cluster deleted event: %v\n", err)
 	}
 }
+
+func (ca *ClusterApplication) HandleReconcileCluster(c *value.ReconcileCluster) {
+	ctx := context.Background()
+
+	appendStatus := func(format string, args ...any) {
+		line := fmt.Sprintf(format, args...)
+		if ca.logPublisher == nil {
+			return
+		}
+		if err := ca.logPublisher.PublishLogChunk(ctx, c.Id, []byte(line)); err != nil {
+			log.Printf("failed to publish log chunk: %v", err)
+		}
+	}
+
+	log.Printf("reconcile started: cluster %d\n", c.Id)
+	appendStatus("==> Reconciling server with Pulumi (refresh)...\n")
+	serverMissing, err := ca.provision.ReconcileServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId)
+	if err != nil {
+		appendStatus("==> ERROR: failed to reconcile server: %v\n", err)
+		log.Printf("failed to reconcile server: %v\n", err)
+		return
+	}
+
+	if !serverMissing {
+		appendStatus("==> Server still present in Hetzner; K8s API errors are not infra drift\n")
+		log.Printf("reconcile finished: cluster %d server still present in Hetzner\n", c.Id)
+		return
+	}
+
+	log.Printf("reconcile: cluster %d server missing in Hetzner, destroying stack\n", c.Id)
+	appendStatus("==> Server missing in Hetzner after refresh; destroying stack...\n")
+	if err := ca.provision.DestroyServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId); err != nil {
+		appendStatus("==> ERROR: failed to destroy server stack: %v\n", err)
+		log.Printf("failed to destroy server stack: %v\n", err)
+		return
+	}
+	appendStatus("==> Server stack destroyed\n")
+	log.Printf("reconcile finished: cluster %d server destroyed\n", c.Id)
+
+	if err := ca.queue.PublishClusterDeleted(&value.ClusterDeleted{Id: c.Id}); err != nil {
+		appendStatus("==> ERROR: failed to publish cluster deleted event: %v\n", err)
+		log.Printf("failed to publish cluster deleted event: %v\n", err)
+	}
+}

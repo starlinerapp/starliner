@@ -3,12 +3,14 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
+	"starliner.app/internal/api/domain/value"
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
@@ -31,13 +33,20 @@ func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
 
 func (c *ClusterClient) StreamLogs(
 	ctx context.Context,
-	namespace string,
+	source string,
+	environmentNamespace string,
 	releaseName string,
 	kubeconfigBase64 string,
 	w io.Writer,
 ) error {
+	protoSource, err := logSourceToProto(value.LogSource(source))
+	if err != nil {
+		return err
+	}
+
 	stream, err := c.logsServiceClient.StreamLogs(ctx, &v2.StreamLogsRequest{
-		Namespace:        namespace,
+		Source:           protoSource,
+		Namespace:        environmentNamespace,
 		ReleaseName:      releaseName,
 		KubeconfigBase64: kubeconfigBase64,
 	})
@@ -58,6 +67,17 @@ func (c *ClusterClient) StreamLogs(
 		if err != nil {
 			return err
 		}
+	}
+}
+
+func logSourceToProto(source value.LogSource) (v2.LogSource, error) {
+	switch source {
+	case value.LogSourceIngress:
+		return v2.LogSource_LOG_SOURCE_INGRESS, nil
+	case value.LogSourceWorkload:
+		return v2.LogSource_LOG_SOURCE_WORKLOAD, nil
+	default:
+		return v2.LogSource_LOG_SOURCE_UNSPECIFIED, fmt.Errorf("unsupported log source: %q", source)
 	}
 }
 
