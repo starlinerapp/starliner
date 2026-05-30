@@ -44,6 +44,9 @@ func NewServer(
 	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
 	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
 
+	// Temporary endpoint to verify Sentry error reporting on staging.
+	engine.GET("/debug/sentry", rootHandler.TriggerError)
+
 	webhookRoutes := engine.Group("/webhooks")
 	{
 		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)

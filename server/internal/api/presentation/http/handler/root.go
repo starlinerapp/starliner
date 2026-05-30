@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,4 +25,20 @@ func NewRootHandler() *RootHandler {
 func (rh *RootHandler) GetRoot(c *gin.Context) {
 	res := response.Root{Message: "Hello World!"}
 	c.JSON(http.StatusOK, res)
+}
+
+// TriggerError godoc
+// @Summary Trigger a test error
+// @Tags root
+// @ID triggerError
+// @Product JSON
+// @Success 500
+// @Router /debug/sentry [get]
+//
+// TriggerError deliberately returns a 500 with an attached error so we can
+// confirm Sentry reporting works end-to-end on staging. Safe to remove once
+// the integration is verified.
+func (rh *RootHandler) TriggerError(c *gin.Context) {
+	_ = c.Error(errors.New("test error: sentry integration check"))
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 }
