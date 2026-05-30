@@ -8,8 +8,7 @@ import (
 )
 
 // WithErrorReporting runs the handler chain, then reports any errors attached
-// via c.Error(...) to Sentry through the request hub. If the handler aborted
-// without writing a response, it writes a standard 500.
+// via c.Error(...) to Sentry through the request hub.
 func WithErrorReporting() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
