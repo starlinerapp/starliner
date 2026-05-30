@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import Button from "~/components/atoms/button/Button";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
 
 interface TeamDangerZoneProps {
   teamId: number;
@@ -78,7 +76,7 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
         </table>
       </div>
 
-      <Dialog
+      <DestructiveDialog
         open={showDeleteDialog}
         onOpenChange={(open) => {
           setShowDeleteDialog(open);
@@ -86,42 +84,16 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
             deleteTeamMutation.reset();
           }
         }}
-      >
-        <DialogContent>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <h1>Delete Team</h1>
-              <WarningBanner text="Deleting the team will delete all projects that belong to the team, including the deployments." />
-              <p className="text-mauve-11 text-sm">
-                Are you sure you want to delete this team? This action cannot be
-                undone.
-              </p>
-            </div>
-            {deleteTeamMutation.isError && (
-              <ErrorBanner text={deleteTeamMutation.error.message} />
-            )}
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                intent="secondary"
-                className="w-24"
-                disabled={deleteTeamMutation.isPending}
-                onClick={() => setShowDeleteDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="w-24"
-                intent="primary"
-                disabled={deleteTeamMutation.isPending}
-                onClick={confirmDeleteTeam}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        title={"Delete Team"}
+        bannerText={
+          "Deleting the team will delete all projects that belong to the team, including the deployments."
+        }
+        description={
+          "Are you sure you want to delete this team? This action cannot be undone."
+        }
+        isPending={deleteTeamMutation.isPending}
+        onConfirm={confirmDeleteTeam}
+      />
     </>
   );
 }

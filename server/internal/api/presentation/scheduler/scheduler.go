@@ -2,11 +2,12 @@ package scheduler
 
 import (
 	"context"
-	"go.uber.org/fx"
 	"log"
+	"time"
+
+	"go.uber.org/fx"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/core/util/concurrent"
-	"time"
 )
 
 type Scheduler struct {
@@ -31,7 +32,7 @@ func NewScheduler(
 
 func (s *Scheduler) Start() error {
 	go concurrent.WithRecovery(context.Background(), "RequestDeploymentStatus", func() error {
-		interval := 2 * time.Second
+		interval := 5 * time.Second
 
 		ticker := time.NewTicker(interval)
 		defer ticker.Stop()

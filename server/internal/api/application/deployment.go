@@ -538,6 +538,9 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
+	if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
+		return fmt.Errorf("cluster ipv4 address is not set")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -583,6 +586,7 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		DeploymentName:   ingressDeployment.Name,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
+		ExpectedIP:       *cluster.IPv4Address,
 	})
 
 	if err != nil {
@@ -648,6 +652,9 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
+	if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
+		return fmt.Errorf("cluster ipv4 address is not set")
+	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
 		return err
@@ -693,6 +700,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		DeploymentName:   ingressDeployment.Name,
 		Namespace:        env.Namespace,
 		KubeconfigBase64: kubeconfigBase64,
+		ExpectedIP:       *cluster.IPv4Address,
 	})
 
 	if err != nil {
@@ -776,7 +784,32 @@ func (da *DeploymentApplication) StreamDeploymentLogs(ctx context.Context, userI
 		return err
 	}
 
-	return da.grpcClusterClient.StreamLogs(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, w)
+	logSource, err := da.deploymentLogSource(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	return da.grpcClusterClient.StreamLogs(
+		ctx,
+		string(logSource),
+		deployment.Namespace,
+		normalizedDeploymentName,
+		kubeconfigBase64,
+		w,
+	)
+}
+
+func (da *DeploymentApplication) deploymentLogSource(ctx context.Context, deploymentId int64) (value.LogSource, error) {
+	isIngress, err := da.deploymentRepository.IsIngressDeployment(ctx, deploymentId)
+	if err != nil {
+		return "", err
+	}
+
+	if isIngress {
+		return value.LogSourceIngress, nil
+	}
+
+	return value.LogSourceWorkload, nil
 }
 
 func (da *DeploymentApplication) OpenTTY(
@@ -857,19 +890,28 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 			kubeconfigBase64, err := da.crypto.Decrypt(*d.Kubeconfig)
 			if err != nil {
 				log.Printf("failed to decrypt kubeconfig: %v\n", err)
+				return
 			}
 
 			normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(d.Deployment.Name)
 			if err != nil {
 				log.Printf("failed to normalize deployment name: %v\n", err)
+				return
 			}
 
-			err = da.pubsub.PublishDeploymentStatusRequest(&coreValue.Deployment{
+			deployment := &coreValue.Deployment{
 				Namespace:        d.Deployment.Namespace,
 				DeploymentId:     d.Deployment.Id,
 				DeploymentName:   normalizedDeploymentName,
 				KubeconfigBase64: kubeconfigBase64,
-			})
+				ClusterId:        d.ClusterId,
+				OrganizationId:   d.OrganizationId,
+			}
+			if d.ProvisioningId != nil {
+				deployment.ProvisioningId = *d.ProvisioningId
+			}
+
+			err = da.pubsub.PublishDeploymentStatusRequest(deployment)
 			if err != nil {
 				log.Printf("failed to publish: %v\n", err)
 			}

@@ -125,6 +125,13 @@ func (s *SSH) OpenTTY(
 		session.Stderr = stdoutWriter
 
 		initialSize := port.TerminalSize{Columns: 80, Rows: 24}
+		select {
+		case size, ok := <-terminalSize:
+			if ok {
+				initialSize = size
+			}
+		default:
+		}
 		if err := session.RequestPty("xterm-256color", int(initialSize.Rows), int(initialSize.Columns), ssh.TerminalModes{
 			ssh.ECHO:          1,
 			ssh.TTY_OP_ISPEED: 14400,

@@ -176,12 +176,18 @@ services:
       context: .
       dockerfile: .docker/server/cluster/Dockerfile
       target: dev
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "40002:40002"
       - "57400:57400"
     environment:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      CF_API_TOKEN: ${CF_API_TOKEN}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
     networks:

@@ -5,8 +5,16 @@ import DeployIngressForm, {
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { useLoaderData } from "react-router";
+
+export function loader() {
+  return {
+    deploymentEnvironment: process.env.ENVIRONMENT ?? "",
+  };
+}
 
 export default function Index() {
+  const { deploymentEnvironment } = useLoaderData<typeof loader>();
   const trpc = useTRPC();
   const createIngressMutation = useMutation(
     trpc.deployment.deployIngress.mutationOptions(),
@@ -27,5 +35,11 @@ export default function Index() {
     });
   };
 
-  return <DeployIngressForm resetOnSuccess={true} onSubmit={onSubmit} />;
+  return (
+    <DeployIngressForm
+      deploymentEnvironment={deploymentEnvironment}
+      resetOnSuccess={true}
+      onSubmit={onSubmit}
+    />
+  );
 }

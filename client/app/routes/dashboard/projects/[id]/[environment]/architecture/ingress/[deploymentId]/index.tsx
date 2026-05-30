@@ -2,12 +2,19 @@ import React from "react";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useParams } from "react-router";
+import { useLoaderData, useParams } from "react-router";
 import DeployIngressForm, {
   type IngressFormInput,
 } from "~/components/organisms/forms/DeployIngressForm";
 
+export function loader() {
+  return {
+    deploymentEnvironment: process.env.ENVIRONMENT ?? "",
+  };
+}
+
 export default function UpdateIngressForm() {
+  const { deploymentEnvironment } = useLoaderData<typeof loader>();
   const { deploymentId } = useParams<{
     id: string;
     deploymentId: string;
@@ -50,6 +57,7 @@ export default function UpdateIngressForm() {
     <>
       {!isLoading && (
         <DeployIngressForm
+          deploymentEnvironment={deploymentEnvironment}
           key={deploymentId}
           onSubmit={onSubmit}
           defaultValues={{

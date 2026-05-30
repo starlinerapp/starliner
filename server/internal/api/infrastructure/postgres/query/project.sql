@@ -93,3 +93,12 @@ WHERE e.project_id = $1;
 DELETE FROM projects
 WHERE team_id = $1;
 
+-- name: GetProjectIdsByClusterId :many
+SELECT p.id
+FROM projects p
+WHERE p.cluster_id = $1;
+
+-- name: DeleteProjectsByClusterId :exec
+DELETE FROM projects
+WHERE cluster_id = $1;
+

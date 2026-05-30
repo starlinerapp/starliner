@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 	"starliner.app/internal/cluster/application"
+	"starliner.app/internal/cluster/domain/value"
 	v1 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
@@ -22,7 +23,13 @@ func NewLogsHandler(logsApplication *application.LogsApplication) *LogsHandler {
 }
 
 func (lh *LogsHandler) StreamLogs(req *v1.StreamLogsRequest, stream grpc.ServerStreamingServer[v1.StreamLogsResponse]) error {
-	rc, err := lh.logsApplication.StreamDeploymentLogs(stream.Context(), req.Namespace, req.ReleaseName, req.KubeconfigBase64)
+	rc, err := lh.logsApplication.StreamDeploymentLogs(
+		stream.Context(),
+		logSourceFromProto(req.GetSource()),
+		req.GetNamespace(),
+		req.GetReleaseName(),
+		req.GetKubeconfigBase64(),
+	)
 	if err != nil {
 		return err
 	}
@@ -43,4 +50,13 @@ func (lh *LogsHandler) StreamLogs(req *v1.StreamLogsRequest, stream grpc.ServerS
 	}
 
 	return scanner.Err()
+}
+
+func logSourceFromProto(source v1.LogSource) value.LogSource {
+	switch source {
+	case v1.LogSource_LOG_SOURCE_INGRESS:
+		return value.LogSourceIngress
+	default:
+		return value.LogSourceWorkload
+	}
 }

@@ -23,6 +23,10 @@ type ClusterApplication struct {
 	clusterRepository      interfaces.ClusterRepository
 	organizationRepository interfaces.OrganizationRepository
 	teamRepository         interfaces.TeamRepository
+	projectRepository      interfaces.ProjectRepository
+	environmentRepository  interfaces.EnvironmentRepository
+	deploymentRepository   interfaces.DeploymentRepository
+	environmentService     *service.EnvironmentService
 	organizationService    *service.OrganizationService
 	crypto                 corePort.Crypto
 	queue                  port.Queue
@@ -33,6 +37,10 @@ func NewClusterApplication(
 	clusterRepository interfaces.ClusterRepository,
 	organizationRepository interfaces.OrganizationRepository,
 	teamRepository interfaces.TeamRepository,
+	projectRepository interfaces.ProjectRepository,
+	environmentRepository interfaces.EnvironmentRepository,
+	deploymentRepository interfaces.DeploymentRepository,
+	environmentService *service.EnvironmentService,
 	organizationService *service.OrganizationService,
 	crypto corePort.Crypto,
 	queue port.Queue,
@@ -42,6 +50,10 @@ func NewClusterApplication(
 		clusterRepository:      clusterRepository,
 		organizationRepository: organizationRepository,
 		teamRepository:         teamRepository,
+		projectRepository:      projectRepository,
+		environmentRepository:  environmentRepository,
+		deploymentRepository:   deploymentRepository,
+		environmentService:     environmentService,
 		organizationService:    organizationService,
 		crypto:                 crypto,
 		queue:                  queue,
@@ -301,11 +313,94 @@ func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) 
 	}
 }
 
+func (ca *ClusterApplication) tearDownClusterProjects(ctx context.Context, clusterId int64) error {
+	projectIds, err := ca.projectRepository.GetProjectIdsByClusterId(ctx, clusterId)
+	if err != nil {
+		return err
+	}
+
+	for _, projectId := range projectIds {
+		envs, err := ca.projectRepository.GetProjectEnvironmentsByProjectId(ctx, projectId)
+		if err != nil {
+			return err
+		}
+		for _, env := range envs {
+			if err := ca.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
+				log.Printf(
+					"cluster %d: k8s teardown for environment %d failed (continuing): %v\n",
+					clusterId,
+					env.Id,
+					err,
+				)
+			}
+			if err := ca.deploymentRepository.DeleteDeploymentsByEnvironmentId(ctx, env.Id); err != nil {
+				return err
+			}
+			if err := ca.environmentRepository.DeleteEnvironment(ctx, env.Id); err != nil {
+				return err
+			}
+		}
+	}
+
+	return ca.projectRepository.DeleteProjectsByClusterId(ctx, clusterId)
+}
+
 func (ca *ClusterApplication) HandleClusterDeleted(c *coreValue.ClusterDeleted) {
 	ctx := context.Background()
-	err := ca.clusterRepository.DeleteCluster(ctx, c.Id)
-	if err != nil {
-		fmt.Printf("failed to delete cluster from database: %v\n", err)
+	if err := ca.tearDownClusterProjects(ctx, c.Id); err != nil {
+		log.Printf("failed to tear down cluster %d projects: %v\n", c.Id, err)
 		return
 	}
+
+	err := ca.clusterRepository.DeleteCluster(ctx, c.Id)
+	if err != nil {
+		log.Printf("failed to delete cluster %d from database: %v\n", c.Id, err)
+	}
+}
+
+func (ca *ClusterApplication) HandleReconcileClusterRequest(req *coreValue.ReconcileClusterRequest) {
+	ctx := context.Background()
+
+	cluster, err := ca.clusterRepository.GetCluster(ctx, req.ClusterId)
+	if err != nil {
+		log.Printf("reconcile skipped: cluster %d: %v\n", req.ClusterId, err)
+		return
+	}
+
+	if cluster.Status != entity.ClusterRunning {
+		log.Printf("reconcile skipped: cluster %d status is %s\n", req.ClusterId, cluster.Status)
+		return
+	}
+
+	if cluster.ProvisioningId == nil || *cluster.ProvisioningId != req.ProvisioningId {
+		log.Printf("reconcile skipped: cluster %d provisioning id mismatch\n", req.ClusterId)
+		return
+	}
+
+	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(
+		ctx,
+		req.OrganizationId,
+		value.HetznerCredential,
+	)
+	if err != nil {
+		log.Printf("reconcile skipped: cluster %d credential: %v\n", req.ClusterId, err)
+		return
+	}
+
+	decrypted, err := ca.crypto.Decrypt(credential.Secret)
+	if err != nil {
+		log.Printf("reconcile skipped: cluster %d decrypt credential: %v\n", req.ClusterId, err)
+		return
+	}
+
+	err = ca.queue.PublishReconcileCluster(&coreValue.ReconcileCluster{
+		Id:                     req.ClusterId,
+		ProvisioningId:         req.ProvisioningId,
+		ProvisioningCredential: decrypted,
+	})
+	if err != nil {
+		log.Printf("failed to publish reconcile cluster for %d: %v\n", req.ClusterId, err)
+		return
+	}
+	log.Printf("reconcile queued for cluster %d (provisioning id %q)\n", req.ClusterId, req.ProvisioningId)
 }

@@ -610,6 +610,10 @@ func (dr *DeploymentRepository) DeleteDeployment(ctx context.Context, deployment
 	return dr.queries.DeleteDeployment(ctx, deploymentId)
 }
 
+func (dr *DeploymentRepository) DeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error {
+	return dr.queries.DeleteDeploymentsByEnvironmentId(ctx, mapper.ToNullInt64FromPtr(&environmentId))
+}
+
 func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error) {
 	rows, err := dr.queries.GetDeploymentsWithKubeconfig(ctx)
 	if err != nil {
@@ -626,7 +630,10 @@ func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Cont
 				EnvironmentId: mapper.ToPtrFromNullInt64(d.EnvironmentID),
 				Namespace:     d.Namespace,
 			},
-			Kubeconfig: mapper.ToPtrFromNullString(d.Kubeconfig),
+			Kubeconfig:     mapper.ToPtrFromNullString(d.Kubeconfig),
+			ClusterId:      d.ClusterID,
+			OrganizationId: d.OrganizationID,
+			ProvisioningId: mapper.ToPtrFromNullString(d.ProvisioningID),
 		}
 	}
 	return deployments, nil
@@ -672,6 +679,10 @@ func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostNa
 		Host:         row.Host,
 		DeploymentId: row.DeploymentID,
 	}, nil
+}
+
+func (dr *DeploymentRepository) IsIngressDeployment(ctx context.Context, deploymentId int64) (bool, error) {
+	return dr.queries.IsIngressDeployment(ctx, deploymentId)
 }
 
 func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error) {

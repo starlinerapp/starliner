@@ -18,3 +18,6 @@ var PostgresChart embed.FS
 
 //go:embed ingress
 var IngressChart embed.FS
+
+//go:embed external-dns
+var ExternalDNSChart embed.FS

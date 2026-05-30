@@ -58,6 +58,16 @@ func (q *Queries) DeleteProject(ctx context.Context, arg DeleteProjectParams) er
 	return err
 }
 
+const deleteProjectsByClusterId = `-- name: DeleteProjectsByClusterId :exec
+DELETE FROM projects
+WHERE cluster_id = $1
+`
+
+func (q *Queries) DeleteProjectsByClusterId(ctx context.Context, clusterID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, deleteProjectsByClusterId, clusterID)
+	return err
+}
+
 const deleteProjectsByTeamId = `-- name: DeleteProjectsByTeamId :exec
 DELETE FROM projects
 WHERE team_id = $1
@@ -228,6 +238,35 @@ func (q *Queries) GetProjectEnvironmentsByProjectId(ctx context.Context, project
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProjectIdsByClusterId = `-- name: GetProjectIdsByClusterId :many
+SELECT p.id
+FROM projects p
+WHERE p.cluster_id = $1
+`
+
+func (q *Queries) GetProjectIdsByClusterId(ctx context.Context, clusterID sql.NullInt64) ([]int64, error) {
+	rows, err := q.db.QueryContext(ctx, getProjectIdsByClusterId, clusterID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

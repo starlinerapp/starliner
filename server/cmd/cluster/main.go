@@ -4,6 +4,7 @@ import (
 	"go.uber.org/fx"
 	"starliner.app/internal/cluster/application"
 	"starliner.app/internal/cluster/conf"
+	"starliner.app/internal/cluster/infrastructure/dns"
 	"starliner.app/internal/cluster/infrastructure/helm"
 	"starliner.app/internal/cluster/infrastructure/k8s"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/pubsub"
@@ -12,13 +13,16 @@ import (
 	sub "starliner.app/internal/cluster/presentation/pubsub"
 	clusterqueue "starliner.app/internal/cluster/presentation/queue"
 	"starliner.app/internal/core/infrastructure/crypto"
+	"starliner.app/internal/core/infrastructure/redis"
 )
 
 func main() {
 	fx.New(
 		conf.Module,
+		redis.Module,
 		crypto.Module,
 		helm.Module,
+		dns.Module,
 		k8s.Module,
 		queue.Module,
 		pubsub.Module,

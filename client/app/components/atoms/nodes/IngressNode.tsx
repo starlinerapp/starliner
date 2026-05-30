@@ -5,7 +5,7 @@ import React from "react";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import * as Popover from "@radix-ui/react-popover";
-import type { ResponseIngressHost } from "../../../server/api/clients/server/generated";
+import type { ResponseIngressHost } from "~/server/api/clients/server/generated";
 import { cn } from "~/utils/cn";
 import { useLocation, useMatch, useNavigate } from "react-router";
 
@@ -56,12 +56,12 @@ export default function IngressNode({
                       )}
                     >
                       <div className="border-mauve-6 absolute -left-[2px] h-3 w-5 rounded-bl-md border-b-2 border-l-2" />
-                      <div>
+                      <span className="min-w-0 flex-1 overflow-hidden [&>*]:block [&>*]:max-w-full [&>*]:truncate">
                         <CopyToClipboard
-                          className="text-mauve-11 px-1 text-sm font-medium"
+                          className="text-mauve-11 block max-w-full truncate px-1 text-sm font-medium"
                           text={host.host}
                         />
-                      </div>
+                      </span>
                       <div className="border-mauve-6 relative flex flex-col gap-2 border-l-2 pl-6">
                         {host.paths?.map((path, pathIndex) => {
                           return (

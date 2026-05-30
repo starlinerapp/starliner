@@ -24,6 +24,7 @@ var Module = fx.Module(
 			DeployDatabase,
 			DatabaseDeployed,
 			DeployIngress,
+			EnableIngressTLS,
 			DeleteDeployment,
 			DeploymentDeleted,
 		})

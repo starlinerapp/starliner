@@ -11,6 +11,7 @@ import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import SelectProjectDirectoryDialog from "~/components/organisms/dialog/SelectProjectDirectoryDialog";
 import SelectDockerfileDialog from "~/components/organisms/dialog/SelectDockerfileDialog";
 import { cn } from "~/utils/cn";
+import { isDockerfile, parseDockerfile } from "~/service/dockerFile/dockerFile";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -70,7 +71,11 @@ export default function DeployFromGitForm({
     name: "envs",
   });
 
-  const { fields: argsFields, append: appendArg } = useFieldArray({
+  const {
+    fields: argsFields,
+    append: appendArg,
+    replace: replaceArgs,
+  } = useFieldArray({
     control,
     name: "args",
   });
@@ -107,6 +112,17 @@ export default function DeployFromGitForm({
     retry: false,
   });
 
+  const { data: dockerfileContent } = useQuery({
+    ...trpc.github.getRepositoryFileContent.queryOptions({
+      organizationId: organization.id,
+      owner: selectedRepository?.owner ?? "",
+      repo: selectedRepository?.name ?? "",
+      path: `${projectDirectoryPathInput}/${dockerFilePathInput}`,
+    }),
+    enabled: !!selectedRepository && !!dockerFilePathInput,
+    retry: false,
+  });
+
   useEffect(() => {
     if (!envExampleContent) return;
     if (!isEnvFile(envExampleContent?.content ?? "")) return;
@@ -135,6 +151,36 @@ export default function DeployFromGitForm({
 
     replace([...merged, ...additionalManualEnvs]);
   }, [envExampleContent, getValues, replace]);
+
+  useEffect(() => {
+    if (!dockerfileContent) return;
+    const content = dockerfileContent.content ?? "";
+    if (!isDockerfile(content)) return;
+
+    const parsed = parseDockerfile(content);
+    if (parsed.length === 0) return;
+
+    const currentArgs = getValues("args") ?? [];
+
+    const currentByName = new Map(
+      currentArgs
+        .filter((arg) => arg.name.trim() !== "")
+        .map((arg) => [arg.name, arg.value]),
+    );
+
+    const merged = parsed.map((arg) => ({
+      name: arg.name,
+      value: currentByName.get(arg.name) ?? arg.value ?? "",
+    }));
+
+    const additionalManualArgs = currentArgs.filter(
+      (arg) =>
+        arg.name.trim() !== "" &&
+        !parsed.some((parsedArg) => parsedArg.name === arg.name),
+    );
+
+    replaceArgs([...merged, ...additionalManualArgs]);
+  }, [dockerfileContent, getValues, replaceArgs]);
 
   const submit: SubmitHandler<DeployFromGitFormInput> = async (data) => {
     data.envs = (data.envs ?? []).filter(
@@ -182,6 +228,25 @@ export default function DeployFromGitForm({
       .filter((f) => f.name.trim() !== "" || f.value.trim() !== "");
 
     replace([...before, ...parsed]);
+  };
+
+  const handleArgPaste = (
+    index: number,
+    e: React.ClipboardEvent<HTMLInputElement>,
+  ) => {
+    const pasted = e.clipboardData.getData("text");
+    if (!isDockerfile(pasted)) return;
+
+    e.preventDefault();
+    const parsed = parseDockerfile(pasted);
+    if (parsed.length === 0) return;
+
+    const before = argsFields
+      .slice(0, index)
+      .map((f) => ({ name: f.name, value: f.value }))
+      .filter((f) => f.name.trim() !== "" || f.value.trim() !== "");
+
+    replaceArgs([...before, ...parsed]);
   };
 
   const inputValid =
@@ -262,7 +327,7 @@ export default function DeployFromGitForm({
                 <p className="text-sm">Project Directory</p>
                 <div
                   className={cn(
-                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
                     !projectDirectoryPathInput && "text-mauve-11",
                     !selectedRepository && "hover:bg-gray-2 cursor-not-allowed",
                   )}
@@ -284,7 +349,7 @@ export default function DeployFromGitForm({
                 <p className="text-sm">Dockerfile</p>
                 <div
                   className={cn(
-                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
                     !dockerFilePathInput && "text-mauve-11",
                     (!selectedRepository || !projectDirectoryPathInput) &&
                       "hover:bg-gray-2 cursor-not-allowed",
@@ -353,6 +418,7 @@ export default function DeployFromGitForm({
                   className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                   type="text"
                   placeholder="Name*"
+                  onPaste={(e) => handleArgPaste(index, e)}
                   {...register(`args.${index}.name`)}
                 />
                 <input

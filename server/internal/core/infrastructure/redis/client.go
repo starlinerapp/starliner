@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"starliner.app/internal/core/domain/port"
@@ -11,8 +12,12 @@ type Client struct {
 	client *redis.Client
 }
 
-func NewClient(client *redis.Client) port.KVStore {
+func NewClient(client *redis.Client) *Client {
 	return &Client{client: client}
+}
+
+func (c *Client) TryAcquire(ctx context.Context, key string, ttl time.Duration) (bool, error) {
+	return c.client.SetNX(ctx, key, "1", ttl).Result()
 }
 
 func (c *Client) AppendToStream(ctx context.Context, name string, payload map[string][]byte) error {
