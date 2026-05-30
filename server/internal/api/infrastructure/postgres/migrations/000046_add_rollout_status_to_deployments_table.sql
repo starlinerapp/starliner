@@ -8,12 +8,12 @@ ALTER TABLE deployments
 UPDATE
   deployments
 SET rollout_status = CASE WHEN status_logs_complete
-  AND COALESCE(status_logs, '')
-  LIKE '%has failed.%' THEN
+    AND COALESCE(status_logs, '')
+    LIKE '%has failed.%' THEN
     'failure'
   WHEN status_logs_complete
-  AND COALESCE(status_logs, '')
-  LIKE '%is complete.%' THEN
+    AND COALESCE(status_logs, '')
+    LIKE '%is complete.%' THEN
     'success'
   ELSE
     'pending'
@@ -25,3 +25,4 @@ ALTER TABLE deployments
 
 ALTER TABLE deployments
   DROP COLUMN IF EXISTS rollout_status;
+
