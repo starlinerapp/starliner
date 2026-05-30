@@ -4,17 +4,11 @@ import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { cn } from "~/utils/cn";
 
-const deploymentStatusSnapshotHeader = "🚀 Deployment Status Report";
-
 const deploymentStatusSnapshotDelimiter =
   "────────────────────────────────────────";
 
 function isSnapshotDelimiter(line: string) {
   return line === deploymentStatusSnapshotDelimiter || /^─{10,}$/.test(line);
-}
-
-function isSnapshotHeader(line: string) {
-  return line.startsWith(deploymentStatusSnapshotHeader);
 }
 
 interface DeploymentTabProps {
@@ -67,7 +61,6 @@ export function DeploymentTab({
 interface DeploymentLogsProps {
   deploymentId: number;
   buildStatus: string;
-  deploymentRolloutStatus: string;
   followScroll?: boolean;
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
   sectionRef?: React.RefObject<HTMLDivElement | null>;
@@ -77,7 +70,6 @@ interface DeploymentLogsProps {
 export function DeploymentLogs({
   deploymentId,
   buildStatus,
-  deploymentRolloutStatus,
   followScroll = false,
   scrollContainerRef,
   sectionRef,
@@ -85,17 +77,12 @@ export function DeploymentLogs({
 }: DeploymentLogsProps) {
   const trpc = useTRPC();
   const [lines, setLines] = useState<string[]>([]);
-  const isLiveRolloutRef = useRef(deploymentRolloutStatus === "pending");
-  const pendingSnapshotRef = useRef(false);
+  const snapshotLinesRef = useRef<string[]>([]);
 
   useEffect(() => {
     setLines([]);
-    pendingSnapshotRef.current = false;
+    snapshotLinesRef.current = [];
   }, [deploymentId]);
-
-  useEffect(() => {
-    isLiveRolloutRef.current = deploymentRolloutStatus === "pending";
-  }, [deploymentRolloutStatus]);
 
   const buildComplete = buildStatus === "success";
   const buildFailed = buildStatus === "failure";
@@ -112,44 +99,13 @@ export function DeploymentLogs({
           }
 
           if (isSnapshotDelimiter(line)) {
-            if (isLiveRolloutRef.current) {
-              pendingSnapshotRef.current = true;
-            }
+            snapshotLinesRef.current = [];
+            setLines([]);
             return;
           }
 
-          setLines((prev) => {
-            if (isSnapshotHeader(line)) {
-              if (isLiveRolloutRef.current) {
-                if (prev.length === 0 || pendingSnapshotRef.current) {
-                  pendingSnapshotRef.current = false;
-                  if (prev.length === 0) {
-                    return [line];
-                  }
-                  return [...prev, "", "", line];
-                }
-
-                let lastHeaderIdx = -1;
-                for (let i = prev.length - 1; i >= 0; i--) {
-                  if (isSnapshotHeader(prev[i] ?? "")) {
-                    lastHeaderIdx = i;
-                    break;
-                  }
-                }
-                if (lastHeaderIdx === -1) {
-                  return [line];
-                }
-                return [...prev.slice(0, lastHeaderIdx), line];
-              }
-
-              if (prev.length === 0) {
-                return [line];
-              }
-              return [...prev, "", "", line];
-            }
-
-            return [...prev, line];
-          });
+          snapshotLinesRef.current = [...snapshotLinesRef.current, line];
+          setLines([...snapshotLinesRef.current]);
         },
       },
     ),
@@ -175,9 +131,9 @@ export function DeploymentLogs({
 
   if (buildFailed) {
     return (
-      <p className="text-mauve-11 text-sm whitespace-pre-wrap">
+      <pre className="text-mauve-11 text-sm whitespace-pre-wrap">
         Build failed — deployment was not triggered.
-      </p>
+      </pre>
     );
   }
 

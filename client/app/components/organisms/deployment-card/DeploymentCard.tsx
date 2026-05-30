@@ -315,7 +315,6 @@ export default function DeploymentCard({
                 <DeploymentLogs
                   deploymentId={deploymentId}
                   buildStatus={status}
-                  deploymentRolloutStatus={deploymentRolloutStatus}
                   followScroll={activePhase === "deploy"}
                   scrollContainerRef={scrollContainerRef}
                   sectionRef={deploySectionRef}
