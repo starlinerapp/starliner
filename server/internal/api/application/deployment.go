@@ -380,8 +380,6 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
-	da.resetDeploymentStatusLogs(ctx, deployment.Id)
-
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:          deployment.Id,
 		DeploymentName:        normalizedServiceName,
@@ -477,8 +475,6 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		return err
 	}
 
-	da.resetDeploymentStatusLogs(ctx, deployment.Id)
-
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:          deployment.Id,
 		DeploymentName:        normalizedServiceName,
@@ -553,8 +549,6 @@ func (da *DeploymentApplication) DeployDatabase(
 	if err != nil {
 		return err
 	}
-
-	da.resetDeploymentStatusLogs(ctx, deployment.Id)
 
 	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
 		DeploymentId:     deployment.Id,
@@ -645,8 +639,6 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 
 		coreHosts = append(coreHosts, ch)
 	}
-
-	da.resetDeploymentStatusLogs(ctx, ingressDeployment.Id)
 
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 		IngressHosts:     coreHosts,
@@ -761,8 +753,6 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 
 		coreHosts = append(coreHosts, ch)
 	}
-
-	da.resetDeploymentStatusLogs(ctx, ingressDeployment.Id)
 
 	err = da.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 		IngressHosts:     coreHosts,
@@ -992,12 +982,6 @@ func (d *deploymentStatusLogWriter) Write(p []byte) (int, error) {
 	}
 
 	return d.inner.Write(p)
-}
-
-func (da *DeploymentApplication) resetDeploymentStatusLogs(ctx context.Context, deploymentId int64) {
-	if err := da.deploymentRepository.ResetDeploymentStatusLogs(ctx, deploymentId); err != nil {
-		log.Printf("failed to reset deployment status logs for %d: %v", deploymentId, err)
-	}
 }
 
 func rolloutStatusFromLogs(logs *string) string {
@@ -1233,8 +1217,6 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 	if err != nil {
 		log.Printf("failed to normalize deployment name: %v\n", err)
 	}
-
-	da.resetDeploymentStatusLogs(ctx, b.DeploymentId)
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:          b.DeploymentId,

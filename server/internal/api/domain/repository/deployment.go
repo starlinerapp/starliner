@@ -699,10 +699,6 @@ func (dr *DeploymentRepository) MarkDeploymentStatusLogsComplete(
 	})
 }
 
-func (dr *DeploymentRepository) ResetDeploymentStatusLogs(ctx context.Context, deploymentId int64) error {
-	return dr.queries.ResetDeploymentStatusLogs(ctx, deploymentId)
-}
-
 func (dr *DeploymentRepository) GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error) {
 	row, err := dr.queries.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
 		Name:          serviceName,

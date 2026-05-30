@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"starliner.app/internal/api/conf"
+	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
@@ -212,54 +213,13 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 
-			coreEnvs := make([]*coreValue.EnvVar, 0, len(d.EnvVars))
-			for _, e := range d.EnvVars {
-				res, err := ea.parserService.Parse(e.Value)
-				if err != nil {
-					log.Printf("failed to parse env var: %v\n", err)
-					continue
-				}
-
-				resolvedValue, err := ea.resolverService.Resolve(ctx, env.Id, res)
-				if err != nil {
-					log.Printf("failed to resolve env var: %v\n", err)
-					continue
-				}
-
-				coreEnvs = append(coreEnvs, &coreValue.EnvVar{
-					Name:  e.Name,
-					Value: resolvedValue,
-				})
-			}
-
-			normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
-			if err != nil {
-				return nil, err
-			}
-			deploymentPort, err := strconv.Atoi(d.Port)
-			if err != nil {
-				return nil, err
-			}
-
 			if latestBuild.ImageName == nil {
 				return nil, fmt.Errorf("latest build for git deployment %s is nil", d.ServiceName)
 			}
 
-			err = ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:          d.Id,
-				DeploymentName:        normalizedDeploymentName,
-				Namespace:             env.Namespace,
-				KubeconfigBase64:      kubeconfigBase64,
-				ImageRegistryUrl:      ea.cfg.ImageRegistryUrl,
-				ImageRegistryUsername: ea.cfg.ImageRegistryUsername,
-				ImageRegistryPassword: ea.cfg.ImageRegistryPassword,
-				ImageName:             *latestBuild.ImageName,
-				ImageTag:              *latestBuild.CommitHash,
-				Port:                  deploymentPort,
-				EnvVars:               coreEnvs,
-			})
+			err = ea.triggerDuplicateGitDeploy(ctx, d, latestBuild, env, kubeconfigBase64)
 			if err != nil {
-				log.Printf("failed to publish: %v\n", err)
+				return nil, err
 			}
 		}
 		return value.NewEnvironment(env), nil
@@ -424,4 +384,72 @@ func (ea *EnvironmentApplication) DeleteEnvironment(ctx context.Context, userId 
 		return err
 	}
 	return ea.environmentRepository.DeleteEnvironment(ctx, environmentId)
+}
+
+func (ea *EnvironmentApplication) triggerDuplicateGitDeploy(
+	ctx context.Context,
+	deployment *value.GitDeployment,
+	sourceBuild *entity.GitDeploymentBuild,
+	env *entity.Environment,
+	kubeconfigBase64 string,
+) error {
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(deployment.EnvVars))
+	for _, e := range deployment.EnvVars {
+		res, err := ea.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := ea.resolverService.Resolve(ctx, env.Id, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: resolvedValue,
+		})
+	}
+
+	normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(deployment.ServiceName)
+	if err != nil {
+		return err
+	}
+	deploymentPort, err := strconv.Atoi(deployment.Port)
+	if err != nil {
+		return err
+	}
+
+	b, err := ea.buildRepository.CreateBuild(ctx, deployment.Id, value.BuildSourceDuplicate)
+	if err != nil {
+		return err
+	}
+
+	err = ea.buildRepository.UpdateBuild(
+		ctx,
+		b.Id,
+		value.BuildStatusSuccess,
+		sourceBuild.CommitHash,
+		sourceBuild.ImageName,
+		"",
+	)
+	if err != nil {
+		return err
+	}
+
+	return ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
+		DeploymentId:          deployment.Id,
+		DeploymentName:        normalizedDeploymentName,
+		Namespace:             env.Namespace,
+		KubeconfigBase64:      kubeconfigBase64,
+		ImageRegistryUrl:      ea.cfg.ImageRegistryUrl,
+		ImageRegistryUsername: ea.cfg.ImageRegistryUsername,
+		ImageRegistryPassword: ea.cfg.ImageRegistryPassword,
+		ImageName:             *sourceBuild.ImageName,
+		ImageTag:              *sourceBuild.CommitHash,
+		Port:                  deploymentPort,
+		EnvVars:               coreEnvs,
+	})
 }

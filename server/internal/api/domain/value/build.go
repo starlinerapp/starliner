@@ -11,6 +11,12 @@ const (
 	BuildStatusFailed   BuildStatus = "failure"
 )
 
+const (
+	BuildSourceManual    = "manual"
+	BuildSourcePush      = "push"
+	BuildSourceDuplicate = "duplicate"
+)
+
 type Arg struct {
 	Name  string
 	Value string

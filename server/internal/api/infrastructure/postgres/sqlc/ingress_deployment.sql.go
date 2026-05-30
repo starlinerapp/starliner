@@ -389,7 +389,8 @@ func (q *Queries) IsIngressDeployment(ctx context.Context, deploymentID int64) (
 }
 
 const repointIngressPathsTargetDeployment = `-- name: RepointIngressPathsTargetDeployment :exec
-UPDATE ingress_paths
+UPDATE
+  ingress_paths
 SET deployment_id = $1
 WHERE deployment_id = $2
 `

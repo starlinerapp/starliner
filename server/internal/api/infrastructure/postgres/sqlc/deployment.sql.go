@@ -250,18 +250,6 @@ func (q *Queries) MarkDeploymentStatusLogsComplete(ctx context.Context, arg Mark
 	return err
 }
 
-const resetDeploymentStatusLogs = `-- name: ResetDeploymentStatusLogs :exec
-UPDATE
-  deployments
-SET status_logs = NULL, status_logs_complete = FALSE, rollout_status = 'pending'
-WHERE id = $1
-`
-
-func (q *Queries) ResetDeploymentStatusLogs(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, resetDeploymentStatusLogs, id)
-	return err
-}
-
 const softDeleteDeployment = `-- name: SoftDeleteDeployment :exec
 UPDATE
   deployments

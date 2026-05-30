@@ -47,9 +47,12 @@ export default function DeploymentCard({
   deploymentRolloutStatus,
   createdAt,
 }: LogsCardProps) {
+  const isDeployOnly = source === "duplicate";
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
   const [spacerReady, setSpacerReady] = useState(!collapsed);
-  const [activePhase, setActivePhase] = useState<"build" | "deploy">("build");
+  const [activePhase, setActivePhase] = useState<"build" | "deploy">(
+    isDeployOnly ? "deploy" : "build",
+  );
   const [hasBuildLogs, setHasBuildLogs] = useState(false);
   const [hasDeployLogs, setHasDeployLogs] = useState(false);
   const [bottomSpacerHeight, setBottomSpacerHeight] = useState(0);
@@ -60,13 +63,17 @@ export default function DeploymentCard({
   const buildSectionRef = useRef<HTMLDivElement>(null);
   const deploySectionRef = useRef<HTMLDivElement>(null);
 
-  const isBuilding = status === "queued" || status === "building";
-  const isDeploying =
-    status === "success" && deploymentRolloutStatus === "pending";
-  const isComplete =
-    status === "success" && deploymentRolloutStatus === "success";
-  const isFailed =
-    status === "failure" || deploymentRolloutStatus === "failure";
+  const isBuilding =
+    !isDeployOnly && (status === "queued" || status === "building");
+  const isDeploying = isDeployOnly
+    ? deploymentRolloutStatus === "pending"
+    : status === "success" && deploymentRolloutStatus === "pending";
+  const isComplete = isDeployOnly
+    ? deploymentRolloutStatus === "success"
+    : status === "success" && deploymentRolloutStatus === "success";
+  const isFailed = isDeployOnly
+    ? deploymentRolloutStatus === "failure"
+    : status === "failure" || deploymentRolloutStatus === "failure";
   const showSpinner = isBuilding || isDeploying;
 
   activePhaseRef.current = activePhase;
@@ -252,7 +259,13 @@ export default function DeploymentCard({
             </div>
 
             <div className="text-mauve-10 mt-0.5 text-sm">
-              <p>{source === "manual" ? "Manually triggered" : "On Push"}</p>
+              <p>
+                {source === "duplicate"
+                  ? "On environment clone"
+                  : source === "manual"
+                    ? "Manually triggered"
+                    : "On Push"}
+              </p>
             </div>
           </div>
         </div>
@@ -274,7 +287,7 @@ export default function DeploymentCard({
           >
             <BuildTab
               isActive={!isCollapsed && activePhase === "build"}
-              hasLogs={hasBuildLogs}
+              hasLogs={hasBuildLogs || isDeployOnly}
               onSelect={selectBuild}
             />
             <div className="bg-mauve-8 h-px w-4" />
@@ -298,13 +311,19 @@ export default function DeploymentCard({
               className="bg-gray-2 border-t-mauve-6 overflow-anchor-none max-h-125 overflow-y-auto scroll-smooth rounded-b-md border-t p-4"
             >
               <div ref={buildSectionRef}>
-                <BuildLogs
-                  buildId={buildId}
-                  followScroll={activePhase === "build" && isBuilding}
-                  scrollContainerRef={scrollContainerRef}
-                  sectionRef={buildSectionRef}
-                  onHasLogsChange={setHasBuildLogs}
-                />
+                {isDeployOnly ? (
+                  <pre className="text-mauve-11 text-sm whitespace-pre-wrap">
+                    Build step skipped
+                  </pre>
+                ) : (
+                  <BuildLogs
+                    buildId={buildId}
+                    followScroll={activePhase === "build" && isBuilding}
+                    scrollContainerRef={scrollContainerRef}
+                    sectionRef={buildSectionRef}
+                    onHasLogsChange={setHasBuildLogs}
+                  />
+                )}
               </div>
               <div
                 ref={deploySectionRef}
