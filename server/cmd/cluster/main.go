@@ -13,8 +13,8 @@ import (
 	sub "starliner.app/internal/cluster/presentation/pubsub"
 	clusterqueue "starliner.app/internal/cluster/presentation/queue"
 	"starliner.app/internal/core/infrastructure/crypto"
-	"starliner.app/internal/core/infrastructure/sentry"
 	"starliner.app/internal/core/infrastructure/redis"
+	"starliner.app/internal/core/infrastructure/sentry"
 )
 
 func main() {

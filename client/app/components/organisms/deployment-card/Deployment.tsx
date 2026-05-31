@@ -1,15 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Play } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { cn } from "~/utils/cn";
-
-const deploymentStatusSnapshotDelimiter =
-  "────────────────────────────────────────";
-
-function isSnapshotDelimiter(line: string) {
-  return line === deploymentStatusSnapshotDelimiter || /^─{10,}$/.test(line);
-}
 
 interface DeploymentTabProps {
   isActive: boolean;
@@ -77,11 +70,9 @@ export function DeploymentLogs({
 }: DeploymentLogsProps) {
   const trpc = useTRPC();
   const [lines, setLines] = useState<string[]>([]);
-  const snapshotLinesRef = useRef<string[]>([]);
 
   useEffect(() => {
     setLines([]);
-    snapshotLinesRef.current = [];
   }, [deploymentId]);
 
   const buildComplete = buildStatus === "success";
@@ -98,14 +89,7 @@ export function DeploymentLogs({
             return;
           }
 
-          if (isSnapshotDelimiter(line)) {
-            snapshotLinesRef.current = [];
-            setLines([]);
-            return;
-          }
-
-          snapshotLinesRef.current = [...snapshotLinesRef.current, line];
-          setLines([...snapshotLinesRef.current]);
+          setLines((prev) => [...prev, line]);
         },
       },
     ),

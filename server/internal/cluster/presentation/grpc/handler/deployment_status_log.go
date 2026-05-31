@@ -11,6 +11,7 @@ import (
 
 type DeploymentStatusLogHandler struct {
 	v1.UnimplementedDeploymentStatusLogServiceServer
+	v1.UnimplementedIngressDeploymentStatusLogServiceServer
 	deploymentStatusApplication *application.DeploymentStatusApplication
 }
 
@@ -28,6 +29,7 @@ func (h *DeploymentStatusLogHandler) StreamDeploymentStatusLogs(
 ) error {
 	rc, err := h.deploymentStatusApplication.StreamDeploymentStatusLogs(
 		stream.Context(),
+		req.GetDeploymentId(),
 		req.GetNamespace(),
 		req.GetReleaseName(),
 		req.GetKubeconfigBase64(),
@@ -49,6 +51,44 @@ func (h *DeploymentStatusLogHandler) StreamDeploymentStatusLogs(
 			chunk := make([]byte, n)
 			copy(chunk, buf[:n])
 			if err := stream.Send(&v1.StreamDeploymentStatusLogsResponse{Chunk: chunk}); err != nil {
+				return err
+			}
+		}
+		if readErr == io.EOF {
+			return nil
+		}
+		if readErr != nil {
+			return readErr
+		}
+	}
+}
+
+func (h *DeploymentStatusLogHandler) StreamIngressDeploymentStatusLogs(
+	req *v1.StreamIngressDeploymentStatusLogsRequest,
+	stream grpc.ServerStreamingServer[v1.StreamIngressDeploymentStatusLogsResponse],
+) error {
+	rc, err := h.deploymentStatusApplication.StreamIngressDeploymentStatusLogs(
+		stream.Context(),
+		req.GetDeploymentId(),
+		req.GetNamespace(),
+		req.GetReleaseName(),
+	)
+	if err != nil {
+		return err
+	}
+	defer func(rc io.ReadCloser) {
+		if err := rc.Close(); err != nil {
+			log.Printf("failed to close ingress deployment status log reader: %v", err)
+		}
+	}(rc)
+
+	buf := make([]byte, 64*1024)
+	for {
+		n, readErr := rc.Read(buf)
+		if n > 0 {
+			chunk := make([]byte, n)
+			copy(chunk, buf[:n])
+			if err := stream.Send(&v1.StreamIngressDeploymentStatusLogsResponse{Chunk: chunk}); err != nil {
 				return err
 			}
 		}

@@ -242,6 +242,7 @@ func (th *TeamHandler) RemoveTeamMember(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
 // SetTeamRepositories godoc
 // @Summary Set repositories assigned to a team
 // @State core

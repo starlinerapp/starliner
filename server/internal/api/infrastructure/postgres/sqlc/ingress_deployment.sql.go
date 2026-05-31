@@ -16,7 +16,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, deleted_at, rollout_status
 ), new_ingress_deployment AS (
   INSERT INTO ingress_deployments (
     deployment_id)
@@ -403,44 +403,4 @@ type RepointIngressPathsTargetDeploymentParams struct {
 func (q *Queries) RepointIngressPathsTargetDeployment(ctx context.Context, arg RepointIngressPathsTargetDeploymentParams) error {
 	_, err := q.db.ExecContext(ctx, repointIngressPathsTargetDeployment, arg.NewDeploymentID, arg.OldDeploymentID)
 	return err
-}
-
-const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
-WITH updated_ingress AS (
-  UPDATE
-    deployments
-  SET port = $1
-  WHERE id = $2
-    AND deleted_at IS NULL
-  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
-)
-SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
-FROM updated_ingress d
-  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
-`
-
-type UpdateIngressDeploymentParams struct {
-	Port         string
-	DeploymentID int64
-}
-
-type UpdateIngressDeploymentRow struct {
-	DeploymentID            int64
-	DeploymentName          string
-	DeploymentPort          string
-	DeploymentStatus        DeploymentStatus
-	DeploymentEnvironmentID sql.NullInt64
-}
-
-func (q *Queries) UpdateIngressDeployment(ctx context.Context, arg UpdateIngressDeploymentParams) (UpdateIngressDeploymentRow, error) {
-	row := q.db.QueryRowContext(ctx, updateIngressDeployment, arg.Port, arg.DeploymentID)
-	var i UpdateIngressDeploymentRow
-	err := row.Scan(
-		&i.DeploymentID,
-		&i.DeploymentName,
-		&i.DeploymentPort,
-		&i.DeploymentStatus,
-		&i.DeploymentEnvironmentID,
-	)
-	return i, err
 }

@@ -86,8 +86,7 @@ type Deployment struct {
 }
 
 type DeploymentStatusLogs struct {
-	Logs     *string
-	Complete bool
+	Logs *string
 }
 
 type DeploymentWithKubeconfig struct {

@@ -423,6 +423,8 @@ services:
       dockerfile: .docker/redis/Dockerfile
     command: "redis-server --requirepass ${REDIS_PASSWORD:-password}"
     restart: unless-stopped
+    ports:
+      - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s

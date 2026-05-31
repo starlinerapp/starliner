@@ -117,6 +117,58 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 	return items, nil
 }
 
+const getEnvironmentIngressDeploymentBuilds = `-- name: GetEnvironmentIngressDeploymentBuilds :many
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
+FROM builds b
+  INNER JOIN deployments d ON d.id = b.deployment_id
+  INNER JOIN ingress_deployments ingress_d ON ingress_d.deployment_id = d.id
+WHERE d.environment_id = $1
+ORDER BY b.created_at DESC
+`
+
+type GetEnvironmentIngressDeploymentBuildsRow struct {
+	BuildID                 int64
+	DeploymentID            int64
+	DeploymentName          string
+	DeploymentRolloutStatus string
+	CommitHash              sql.NullString
+	Source                  string
+	Status                  BuildStatus
+	CreatedAt               time.Time
+}
+
+func (q *Queries) GetEnvironmentIngressDeploymentBuilds(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentIngressDeploymentBuildsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentIngressDeploymentBuilds, environmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEnvironmentIngressDeploymentBuildsRow
+	for rows.Next() {
+		var i GetEnvironmentIngressDeploymentBuildsRow
+		if err := rows.Scan(
+			&i.BuildID,
+			&i.DeploymentID,
+			&i.DeploymentName,
+			&i.DeploymentRolloutStatus,
+			&i.CommitHash,
+			&i.Source,
+			&i.Status,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLatestGitDeploymentBuild = `-- name: GetLatestGitDeploymentBuild :one
 SELECT DISTINCT ON (d.id)
   b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at

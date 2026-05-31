@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
+	"strconv"
+
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
@@ -13,7 +16,6 @@ import (
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
-	"strconv"
 )
 
 type EnvironmentApplication struct {
@@ -142,6 +144,11 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 					})
 				}
 				coreHosts = append(coreHosts, ch)
+			}
+			err = createDeployOnlyBuild(ctx, ea.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				log.Printf("failed to create ingress deploy build: %v", err)
+				continue
 			}
 			err = ea.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 				IngressHosts:     coreHosts,
@@ -325,8 +332,18 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 		return nil, err
 	}
 
-	valueBuilds := make([]*value.GitDeploymentBuild, len(builds))
-	for i, b := range builds {
+	ingressBuilds, err := ea.environmentRepository.GetEnvironmentIngressDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	allBuilds := append(builds, ingressBuilds...)
+	sort.Slice(allBuilds, func(i, j int) bool {
+		return allBuilds[i].CreatedAt.After(allBuilds[j].CreatedAt)
+	})
+
+	valueBuilds := make([]*value.GitDeploymentBuild, len(allBuilds))
+	for i, b := range allBuilds {
 		valueBuilds[i] = &value.GitDeploymentBuild{
 			BuildId:                 b.BuildId,
 			DeploymentId:            b.DeploymentId,
