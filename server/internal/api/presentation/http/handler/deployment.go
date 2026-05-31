@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"starliner.app/internal/api/application"
@@ -433,6 +432,7 @@ func (dh *DeploymentHandler) StreamDeploymentStatusLogs(c *gin.Context) {
 
 	sw, ok := sse.NewWriter(c.Writer)
 	if !ok {
+		_ = c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "streaming not supported"})
 		return
 	}
@@ -472,9 +472,7 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 
 	conn, err := deploymentUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		if hub := sentrygin.GetHubFromContext(c); hub != nil {
-			hub.CaptureException(err)
-		}
+		_ = c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "websocket upgrade failed"})
 		return
 	}
