@@ -47,10 +47,6 @@ func NewServer(
 	webhookRoutes := engine.Group("/webhooks")
 	{
 		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)
-		// Temporary endpoint to verify Sentry error reporting on staging.
-		// Lives under /webhooks/ because that is the only path prefix Traefik
-		// forwards to the API publicly. Remove once Sentry is verified.
-		webhookRoutes.GET("/debug/sentry", rootHandler.TriggerError)
 	}
 
 	authEmailRoutes := engine.Group("/auth")
