@@ -123,3 +123,109 @@ var DeploymentStatusLogService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "internal/core/infrastructure/grpc/proto/v1/deployment_status_log.proto",
 }
+
+const (
+	IngressDeploymentStatusLogService_StreamIngressDeploymentStatusLogs_FullMethodName = "/proto.v1.IngressDeploymentStatusLogService/StreamIngressDeploymentStatusLogs"
+)
+
+// IngressDeploymentStatusLogServiceClient is the client API for IngressDeploymentStatusLogService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type IngressDeploymentStatusLogServiceClient interface {
+	StreamIngressDeploymentStatusLogs(ctx context.Context, in *StreamIngressDeploymentStatusLogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamIngressDeploymentStatusLogsResponse], error)
+}
+
+type ingressDeploymentStatusLogServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewIngressDeploymentStatusLogServiceClient(cc grpc.ClientConnInterface) IngressDeploymentStatusLogServiceClient {
+	return &ingressDeploymentStatusLogServiceClient{cc}
+}
+
+func (c *ingressDeploymentStatusLogServiceClient) StreamIngressDeploymentStatusLogs(ctx context.Context, in *StreamIngressDeploymentStatusLogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamIngressDeploymentStatusLogsResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &IngressDeploymentStatusLogService_ServiceDesc.Streams[0], IngressDeploymentStatusLogService_StreamIngressDeploymentStatusLogs_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StreamIngressDeploymentStatusLogsRequest, StreamIngressDeploymentStatusLogsResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type IngressDeploymentStatusLogService_StreamIngressDeploymentStatusLogsClient = grpc.ServerStreamingClient[StreamIngressDeploymentStatusLogsResponse]
+
+// IngressDeploymentStatusLogServiceServer is the server API for IngressDeploymentStatusLogService service.
+// All implementations must embed UnimplementedIngressDeploymentStatusLogServiceServer
+// for forward compatibility.
+type IngressDeploymentStatusLogServiceServer interface {
+	StreamIngressDeploymentStatusLogs(*StreamIngressDeploymentStatusLogsRequest, grpc.ServerStreamingServer[StreamIngressDeploymentStatusLogsResponse]) error
+	mustEmbedUnimplementedIngressDeploymentStatusLogServiceServer()
+}
+
+// UnimplementedIngressDeploymentStatusLogServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedIngressDeploymentStatusLogServiceServer struct{}
+
+func (UnimplementedIngressDeploymentStatusLogServiceServer) StreamIngressDeploymentStatusLogs(*StreamIngressDeploymentStatusLogsRequest, grpc.ServerStreamingServer[StreamIngressDeploymentStatusLogsResponse]) error {
+	return status.Error(codes.Unimplemented, "method StreamIngressDeploymentStatusLogs not implemented")
+}
+func (UnimplementedIngressDeploymentStatusLogServiceServer) mustEmbedUnimplementedIngressDeploymentStatusLogServiceServer() {
+}
+func (UnimplementedIngressDeploymentStatusLogServiceServer) testEmbeddedByValue() {}
+
+// UnsafeIngressDeploymentStatusLogServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IngressDeploymentStatusLogServiceServer will
+// result in compilation errors.
+type UnsafeIngressDeploymentStatusLogServiceServer interface {
+	mustEmbedUnimplementedIngressDeploymentStatusLogServiceServer()
+}
+
+func RegisterIngressDeploymentStatusLogServiceServer(s grpc.ServiceRegistrar, srv IngressDeploymentStatusLogServiceServer) {
+	// If the following call panics, it indicates UnimplementedIngressDeploymentStatusLogServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&IngressDeploymentStatusLogService_ServiceDesc, srv)
+}
+
+func _IngressDeploymentStatusLogService_StreamIngressDeploymentStatusLogs_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamIngressDeploymentStatusLogsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(IngressDeploymentStatusLogServiceServer).StreamIngressDeploymentStatusLogs(m, &grpc.GenericServerStream[StreamIngressDeploymentStatusLogsRequest, StreamIngressDeploymentStatusLogsResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type IngressDeploymentStatusLogService_StreamIngressDeploymentStatusLogsServer = grpc.ServerStreamingServer[StreamIngressDeploymentStatusLogsResponse]
+
+// IngressDeploymentStatusLogService_ServiceDesc is the grpc.ServiceDesc for IngressDeploymentStatusLogService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var IngressDeploymentStatusLogService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.v1.IngressDeploymentStatusLogService",
+	HandlerType: (*IngressDeploymentStatusLogServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamIngressDeploymentStatusLogs",
+			Handler:       _IngressDeploymentStatusLogService_StreamIngressDeploymentStatusLogs_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "internal/core/infrastructure/grpc/proto/v1/deployment_status_log.proto",
+}
