@@ -41,7 +41,8 @@ func (ph *ProjectHandler) CreateProject(c *gin.Context) {
 
 	newProject, err := ph.projectApplication.CreateProject(c.Request.Context(), project.Name, project.ClusterId, currentUser.Id, project.TeamId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusCreated, response.NewProject(newProject))
@@ -67,7 +68,8 @@ func (ph *ProjectHandler) GetProject(c *gin.Context) {
 
 	project, err := ph.projectApplication.GetProject(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.NewProject(project))
@@ -93,7 +95,9 @@ func (ph *ProjectHandler) DeleteProject(c *gin.Context) {
 
 	err = ph.projectApplication.DeleteProject(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 	c.Status(http.StatusOK)
 }
@@ -118,7 +122,9 @@ func (ph *ProjectHandler) GetProjectCluster(c *gin.Context) {
 
 	cluster, err := ph.projectApplication.GetProjectCluster(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 	c.JSON(http.StatusOK, response.NewProjectCluster(cluster))
 }
@@ -143,7 +149,8 @@ func (ph *ProjectHandler) GetProjectEnvironments(c *gin.Context) {
 
 	environments, err := ph.projectApplication.GetProjectEnvironments(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.NewEnvironments(environments))
@@ -169,7 +176,8 @@ func (ph *ProjectHandler) GetProjectPreviewEnvironmentEnabled(c *gin.Context) {
 
 	enabled, err := ph.projectApplication.GetProjectPreviewEnvironmentEnabled(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.ProjectPreviewEnvironmentEnabled{Enabled: enabled})
@@ -194,7 +202,8 @@ func (ph *ProjectHandler) ToggleProjectPreviewEnvironmentEnabled(c *gin.Context)
 
 	enabled, err := ph.projectApplication.ToggleProjectPreviewEnvironmentEnabled(c.Request.Context(), projectId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.ProjectPreviewEnvironmentEnabled{Enabled: enabled})

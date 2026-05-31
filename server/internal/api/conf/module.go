@@ -24,5 +24,7 @@ var Module = fx.Module(
 		func(cfg *Config) conf.CryptoConfig {
 			return cfg
 		},
+		func(cfg *Config) conf.SentryConfig { return cfg },
+		func(cfg *Config) conf.EnvironmentConfig { return cfg },
 	),
 )
