@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"starliner.app/internal/api/application"
@@ -66,7 +67,8 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -110,7 +112,9 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -146,7 +150,8 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -187,9 +192,8 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -237,9 +241,8 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -282,7 +285,8 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -326,7 +330,9 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		mapper.MapArgsFromRequest(body.Args),
 	)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -356,7 +362,9 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 		currentUser.Id,
 	)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -424,6 +432,9 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 
 	conn, err := deploymentUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
+		if hub := sentrygin.GetHubFromContext(c); hub != nil {
+			hub.CaptureException(err)
+		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "websocket upgrade failed"})
 		return
 	}
