@@ -147,7 +147,7 @@ func (ia *IngressApplication) appendStatus(
 }
 
 func (ia *IngressApplication) publishDeploymentCompleted(i *value.IngressDeployment, logs string) {
-	if err := ia.queue.PublishIngressDeploymentCompleted(&value.IngressDeploymentCompleted{
+	if err := ia.queue.PublishDeploymentStatusLogsCompleted(&value.DeploymentStatusLogsCompleted{
 		DeploymentId: i.DeploymentId,
 		Logs:         logs,
 	}); err != nil {

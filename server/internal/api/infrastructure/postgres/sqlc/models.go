@@ -222,17 +222,16 @@ type DatabaseDeployment struct {
 }
 
 type Deployment struct {
-	ID                 int64
-	Name               string
-	Port               string
-	Status             DeploymentStatus
-	EnvironmentID      sql.NullInt64
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
-	StatusLogs         sql.NullString
-	StatusLogsComplete bool
-	DeletedAt          sql.NullTime
-	RolloutStatus      string
+	ID            int64
+	Name          string
+	Port          string
+	Status        DeploymentStatus
+	EnvironmentID sql.NullInt64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	StatusLogs    sql.NullString
+	DeletedAt     sql.NullTime
+	RolloutStatus string
 }
 
 type DeploymentEnvironmentVar struct {

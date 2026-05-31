@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -979,20 +978,9 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 		return err
 	}
 
-	if isIngress && hasStoredLogs {
-		_, err := io.WriteString(w, *stored.Logs)
-		return err
-	}
-
-	if hasStoredLogs && stored.Complete {
-		_, err := io.WriteString(w, *stored.Logs)
-		return err
-	}
-
 	if hasStoredLogs {
-		if _, err := io.WriteString(w, *stored.Logs); err != nil {
-			return err
-		}
+		_, err := io.WriteString(w, *stored.Logs)
+		return err
 	}
 
 	deploymentWithNamespace, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
@@ -1028,56 +1016,16 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 		)
 	}
 
-	persistWriter := &deploymentStatusLogWriter{
-		ctx:          ctx,
-		deploymentId: deploymentId,
-		inner:        w,
-		repository:   da.deploymentRepository,
-	}
-
 	commitHash := da.resolveDeploymentCommitHash(ctx, deploymentWithNamespace)
-	streamErr := da.grpcClusterClient.StreamDeploymentStatusLogs(
+	return da.grpcClusterClient.StreamDeploymentStatusLogs(
 		ctx,
+		deploymentId,
 		deploymentWithNamespace.Namespace,
 		normalizedDeploymentName,
 		kubeconfigBase64,
 		commitHash,
-		persistWriter,
+		w,
 	)
-	if streamErr != nil && !errors.Is(streamErr, context.Canceled) {
-		return streamErr
-	}
-
-	rolloutStatus := "pending"
-	if storedAfter, logsErr := da.deploymentRepository.GetDeploymentStatusLogs(ctx, userId, deploymentId); logsErr == nil {
-		rolloutStatus = rolloutStatusFromLogs(storedAfter.Logs)
-	}
-	if markErr := da.deploymentRepository.MarkDeploymentStatusLogsComplete(ctx, deploymentId, rolloutStatus); markErr != nil {
-		log.Printf("failed to mark deployment status logs complete: %v", markErr)
-	}
-
-	if errors.Is(streamErr, context.Canceled) {
-		return streamErr
-	}
-	return nil
-}
-
-type deploymentStatusLogWriter struct {
-	ctx          context.Context
-	deploymentId int64
-	inner        io.Writer
-	repository   interfaces.DeploymentRepository
-}
-
-func (d *deploymentStatusLogWriter) Write(p []byte) (int, error) {
-	chunk := strings.TrimPrefix(string(p), "\f")
-	if chunk != "" && !strings.HasPrefix(chunk, "Error:") {
-		if err := d.repository.AppendDeploymentStatusLogs(d.ctx, d.deploymentId, chunk); err != nil {
-			log.Printf("failed to append deployment status logs: %v", err)
-		}
-	}
-
-	return d.inner.Write(p)
 }
 
 func rolloutStatusFromLogs(logs *string) string {
@@ -1201,12 +1149,12 @@ func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.Da
 	}
 }
 
-func (da *DeploymentApplication) HandleIngressDeploymentCompleted(c *coreValue.IngressDeploymentCompleted) {
+func (da *DeploymentApplication) HandleDeploymentStatusLogsCompleted(c *coreValue.DeploymentStatusLogsCompleted) {
 	ctx := context.Background()
 	rolloutStatus := rolloutStatusFromLogs(&c.Logs)
 	err := da.deploymentRepository.SetDeploymentStatusLogs(ctx, c.DeploymentId, c.Logs, rolloutStatus)
 	if err != nil {
-		log.Printf("failed to persist ingress deployment status logs: %v", err)
+		log.Printf("failed to persist deployment status logs: %v", err)
 	}
 }
 

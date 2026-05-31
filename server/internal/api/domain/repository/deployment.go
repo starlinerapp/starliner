@@ -599,20 +599,8 @@ func (dr *DeploymentRepository) GetDeploymentStatusLogs(
 	}
 
 	return &entity.DeploymentStatusLogs{
-		Logs:     mapper.ToPtrFromNullString(row.StatusLogs),
-		Complete: row.StatusLogsComplete,
+		Logs: mapper.ToPtrFromNullString(row),
 	}, nil
-}
-
-func (dr *DeploymentRepository) AppendDeploymentStatusLogs(
-	ctx context.Context,
-	deploymentId int64,
-	chunk string,
-) error {
-	return dr.queries.AppendDeploymentStatusLogs(ctx, sqlc.AppendDeploymentStatusLogsParams{
-		Chunk:        sql.NullString{String: chunk, Valid: true},
-		DeploymentID: deploymentId,
-	})
 }
 
 func (dr *DeploymentRepository) SetDeploymentStatusLogs(
@@ -623,17 +611,6 @@ func (dr *DeploymentRepository) SetDeploymentStatusLogs(
 ) error {
 	return dr.queries.SetDeploymentStatusLogs(ctx, sqlc.SetDeploymentStatusLogsParams{
 		Logs:          sql.NullString{String: logs, Valid: true},
-		RolloutStatus: rolloutStatus,
-		DeploymentID:  deploymentId,
-	})
-}
-
-func (dr *DeploymentRepository) MarkDeploymentStatusLogsComplete(
-	ctx context.Context,
-	deploymentId int64,
-	rolloutStatus string,
-) error {
-	return dr.queries.MarkDeploymentStatusLogsComplete(ctx, sqlc.MarkDeploymentStatusLogsCompleteParams{
 		RolloutStatus: rolloutStatus,
 		DeploymentID:  deploymentId,
 	})

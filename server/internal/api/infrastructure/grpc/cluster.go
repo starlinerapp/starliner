@@ -76,6 +76,7 @@ func (c *ClusterClient) StreamLogs(
 
 func (c *ClusterClient) StreamDeploymentStatusLogs(
 	ctx context.Context,
+	deploymentId int64,
 	namespace string,
 	releaseName string,
 	kubeconfigBase64 string,
@@ -83,6 +84,7 @@ func (c *ClusterClient) StreamDeploymentStatusLogs(
 	w io.Writer,
 ) error {
 	stream, err := c.deploymentStatusLogServiceClient.StreamDeploymentStatusLogs(ctx, &v2.StreamDeploymentStatusLogsRequest{
+		DeploymentId:     deploymentId,
 		Namespace:        namespace,
 		ReleaseName:      releaseName,
 		KubeconfigBase64: kubeconfigBase64,

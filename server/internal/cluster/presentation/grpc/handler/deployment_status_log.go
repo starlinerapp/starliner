@@ -29,6 +29,7 @@ func (h *DeploymentStatusLogHandler) StreamDeploymentStatusLogs(
 ) error {
 	rc, err := h.deploymentStatusApplication.StreamDeploymentStatusLogs(
 		stream.Context(),
+		req.GetDeploymentId(),
 		req.GetNamespace(),
 		req.GetReleaseName(),
 		req.GetKubeconfigBase64(),

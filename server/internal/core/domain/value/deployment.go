@@ -71,7 +71,7 @@ type DeploymentDeleted struct {
 	DeploymentId int64
 }
 
-type IngressDeploymentCompleted struct {
+type DeploymentStatusLogsCompleted struct {
 	DeploymentId int64
 	Logs         string
 }

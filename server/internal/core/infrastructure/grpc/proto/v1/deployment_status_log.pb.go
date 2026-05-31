@@ -27,6 +27,7 @@ type StreamDeploymentStatusLogsRequest struct {
 	ReleaseName      string                 `protobuf:"bytes,2,opt,name=release_name,json=releaseName,proto3" json:"release_name,omitempty"`
 	KubeconfigBase64 string                 `protobuf:"bytes,3,opt,name=kubeconfig_base64,json=kubeconfigBase64,proto3" json:"kubeconfig_base64,omitempty"`
 	CommitHash       string                 `protobuf:"bytes,4,opt,name=commit_hash,json=commitHash,proto3" json:"commit_hash,omitempty"`
+	DeploymentId     int64                  `protobuf:"varint,5,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -87,6 +88,13 @@ func (x *StreamDeploymentStatusLogsRequest) GetCommitHash() string {
 		return x.CommitHash
 	}
 	return ""
+}
+
+func (x *StreamDeploymentStatusLogsRequest) GetDeploymentId() int64 {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return 0
 }
 
 type StreamDeploymentStatusLogsResponse struct {
@@ -241,13 +249,14 @@ var File_internal_core_infrastructure_grpc_proto_v1_deployment_status_log_proto 
 
 const file_internal_core_infrastructure_grpc_proto_v1_deployment_status_log_proto_rawDesc = "" +
 	"\n" +
-	"Finternal/core/infrastructure/grpc/proto/v1/deployment_status_log.proto\x12\bproto.v1\"\xb2\x01\n" +
+	"Finternal/core/infrastructure/grpc/proto/v1/deployment_status_log.proto\x12\bproto.v1\"\xd7\x01\n" +
 	"!StreamDeploymentStatusLogsRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12!\n" +
 	"\frelease_name\x18\x02 \x01(\tR\vreleaseName\x12+\n" +
 	"\x11kubeconfig_base64\x18\x03 \x01(\tR\x10kubeconfigBase64\x12\x1f\n" +
 	"\vcommit_hash\x18\x04 \x01(\tR\n" +
-	"commitHash\":\n" +
+	"commitHash\x12#\n" +
+	"\rdeployment_id\x18\x05 \x01(\x03R\fdeploymentId\":\n" +
 	"\"StreamDeploymentStatusLogsResponse\x12\x14\n" +
 	"\x05chunk\x18\x01 \x01(\fR\x05chunk\"\x98\x01\n" +
 	"(StreamIngressDeploymentStatusLogsRequest\x12\x1c\n" +

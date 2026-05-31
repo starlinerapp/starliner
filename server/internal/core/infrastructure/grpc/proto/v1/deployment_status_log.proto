@@ -9,6 +9,7 @@ message StreamDeploymentStatusLogsRequest {
   string release_name = 2;
   string kubeconfig_base64 = 3;
   string commit_hash = 4;
+  int64 deployment_id = 5;
 }
 
 message StreamDeploymentStatusLogsResponse {

@@ -16,7 +16,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, deleted_at, rollout_status
 ), new_database_deployment AS (
   INSERT INTO database_deployments (
     deployment_id)
