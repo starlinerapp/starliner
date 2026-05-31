@@ -33,7 +33,7 @@ func (rh *RootHandler) GetRoot(c *gin.Context) {
 // @ID triggerError
 // @Product JSON
 // @Success 500
-// @Router /debug/sentry [get]
+// @Router /webhooks/debug/sentry [get]
 //
 // TriggerError deliberately returns a 500 with an attached error so we can
 // confirm Sentry reporting works end-to-end on staging. Safe to remove once

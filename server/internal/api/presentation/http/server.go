@@ -44,12 +44,13 @@ func NewServer(
 	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
 	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
 
-	// Temporary endpoint to verify Sentry error reporting on staging.
-	engine.GET("/debug/sentry", rootHandler.TriggerError)
-
 	webhookRoutes := engine.Group("/webhooks")
 	{
 		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)
+		// Temporary endpoint to verify Sentry error reporting on staging.
+		// Lives under /webhooks/ because that is the only path prefix Traefik
+		// forwards to the API publicly. Remove once Sentry is verified.
+		webhookRoutes.GET("/debug/sentry", rootHandler.TriggerError)
 	}
 
 	authEmailRoutes := engine.Group("/auth")
