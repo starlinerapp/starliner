@@ -39,17 +39,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 	hosts := toPortIngressHosts(i.IngressHosts)
 
 	var logBuf strings.Builder
-
-	appendStatus := func(format string, args ...any) {
-		line := fmt.Sprintf(format, args...)
-		logBuf.WriteString(line)
-		if ia.logPublisher == nil {
-			return
-		}
-		if err := ia.logPublisher.PublishLogChunk(context.Background(), i.Namespace, releaseName, []byte(line)); err != nil {
-			log.Printf("failed to publish log chunk: %v", err)
-		}
-	}
+	appendStatus := ia.appendStatus(i.Namespace, releaseName, &logBuf)
 
 	appendStatus("==> Deploying ExternalDNS...\n")
 
@@ -60,6 +50,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 
 	if i.ExpectedIP == "" {
 		appendStatus("==> ERROR: failed to deploy ExternalDNS: IP Address is not set\n")
+		ia.publishDeploymentCompleted(i, logBuf.String())
 		return
 	}
 
@@ -71,11 +62,14 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 		args.TLSEnabled = false
 		if err := ia.deploy.DeployIngress(args); err != nil {
 			appendStatus("==> ERROR: failed to deploy ingress: %v\n", err)
+			ia.publishDeploymentCompleted(i, logBuf.String())
 			return
 		}
 	}
 
-	if err := ia.queue.PublishEnableIngressTLS(i); err != nil {
+	next := *i
+	next.AccumulatedLogs = logBuf.String()
+	if err := ia.queue.PublishEnableIngressTLS(&next); err != nil {
 		log.Printf("failed to publish enable ingress tls: %v\n", err)
 	}
 }
@@ -92,17 +86,8 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 	args := newDeployIngressArgs(&i, releaseName, hosts)
 
 	var logBuf strings.Builder
-
-	appendStatus := func(format string, args ...any) {
-		line := fmt.Sprintf(format, args...)
-		logBuf.WriteString(line)
-		if ia.logPublisher == nil {
-			return
-		}
-		if err := ia.logPublisher.PublishLogChunk(context.Background(), i.Namespace, releaseName, []byte(line)); err != nil {
-			log.Printf("failed to publish log chunk: %v", err)
-		}
-	}
+	logBuf.WriteString(i.AccumulatedLogs)
+	appendStatus := ia.appendStatus(i.Namespace, releaseName, &logBuf)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -112,6 +97,7 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 
 	if i.ExpectedIP == "" {
 		appendStatus("==> ERROR: failed to deploy ExternalDNS: IP Address is not set\n")
+		ia.publishDeploymentCompleted(&i, logBuf.String())
 		return
 	}
 
@@ -123,7 +109,9 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 			appendStatus("==> Waiting for DNS propagation: %s -> %s\n", host, i.ExpectedIP)
 			if err := ia.dns.WaitForHost(ctx, host, i.ExpectedIP); err != nil {
 				appendStatus("==> ERROR: Failed to wait for DNS for %s: %v\n", host, err)
-				if err := ia.queue.PublishEnableIngressTLS(&i); err != nil {
+				retry := i
+				retry.AccumulatedLogs = logBuf.String()
+				if err := ia.queue.PublishEnableIngressTLS(&retry); err != nil {
 					log.Printf("failed to republish enable ingress tls: %v\n", err)
 				}
 				return
@@ -135,8 +123,36 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 	args.TLSEnabled = true
 	if err := ia.deploy.DeployIngress(args); err != nil {
 		appendStatus("==> ERROR: failed to deploy ingress: %v\n", err)
+		ia.publishDeploymentCompleted(&i, logBuf.String())
+		return
 	}
 	appendStatus("==> Ingress deployed successfully\n")
+	ia.publishDeploymentCompleted(&i, logBuf.String())
+}
+
+func (ia *IngressApplication) appendStatus(
+	namespace, releaseName string,
+	logBuf *strings.Builder,
+) func(format string, args ...any) {
+	return func(format string, args ...any) {
+		line := fmt.Sprintf(format, args...)
+		logBuf.WriteString(line)
+		if ia.logPublisher == nil {
+			return
+		}
+		if err := ia.logPublisher.PublishLogChunk(context.Background(), namespace, releaseName, []byte(line)); err != nil {
+			log.Printf("failed to publish log chunk: %v", err)
+		}
+	}
+}
+
+func (ia *IngressApplication) publishDeploymentCompleted(i *value.IngressDeployment, logs string) {
+	if err := ia.queue.PublishIngressDeploymentCompleted(&value.IngressDeploymentCompleted{
+		DeploymentId: i.DeploymentId,
+		Logs:         logs,
+	}); err != nil {
+		log.Printf("failed to publish ingress deployment completed: %v", err)
+	}
 }
 
 func ingressHostnames(i *value.IngressDeployment) []string {

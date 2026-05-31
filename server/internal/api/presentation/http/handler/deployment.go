@@ -209,7 +209,7 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateIngress true "Update Ingress"
 // @Product JSON
-// @Success 200
+// @Success 200 {object} response.UpdateGitDeploymentResponse
 // @Router /deployments/ingresses/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -225,7 +225,7 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 		return
 	}
 
-	err = dh.deploymentApplication.UpdateIngressDeployment(
+	newDeploymentId, err := dh.deploymentApplication.UpdateIngressDeployment(
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
@@ -246,7 +246,9 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, response.UpdateGitDeploymentResponse{
+		DeploymentId: newDeploymentId,
+	})
 }
 
 // DeployFromGitRepository FindAll godoc

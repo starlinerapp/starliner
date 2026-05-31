@@ -64,8 +64,14 @@ type IngressDeployment struct {
 	KubeconfigBase64 string
 	ExpectedIP       string
 	IngressHosts     []IngressHost
+	AccumulatedLogs  string
 }
 
 type DeploymentDeleted struct {
 	DeploymentId int64
+}
+
+type IngressDeploymentCompleted struct {
+	DeploymentId int64
+	Logs         string
 }

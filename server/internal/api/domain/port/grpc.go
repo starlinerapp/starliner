@@ -33,6 +33,14 @@ type ClusterClient interface {
 		w io.Writer,
 	) error
 
+	StreamIngressDeploymentStatusLogs(
+		ctx context.Context,
+		namespace string,
+		releaseName string,
+		kubeconfigBase64 string,
+		w io.Writer,
+	) error
+
 	OpenTTY(
 		ctx context.Context,
 		namespace string,

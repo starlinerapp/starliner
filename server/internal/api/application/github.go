@@ -421,6 +421,11 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				}
 				coreHosts = append(coreHosts, ch)
 			}
+			err = createDeployOnlyBuild(ctx, ga.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
 			err = ga.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 				IngressHosts:     coreHosts,
 				DeploymentId:     d.Id,

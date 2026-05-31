@@ -534,7 +534,10 @@ const docTemplatecoreCore = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateGitDeploymentResponse"
+                        }
                     }
                 }
             }

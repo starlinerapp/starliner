@@ -89,12 +89,12 @@ func (h *DeploymentStatusLogHandler) StreamIngressDeploymentStatusLogs(
 			if err := stream.Send(&v1.StreamIngressDeploymentStatusLogsResponse{Chunk: chunk}); err != nil {
 				return err
 			}
-			if readErr == io.EOF {
-				return nil
-			}
-			if readErr != nil {
-				return readErr
-			}
+		}
+		if readErr == io.EOF {
+			return nil
+		}
+		if readErr != nil {
+			return readErr
 		}
 	}
 }

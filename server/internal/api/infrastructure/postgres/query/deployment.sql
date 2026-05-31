@@ -50,6 +50,12 @@ UPDATE
 SET status_logs_complete = TRUE, rollout_status = @rollout_status
 WHERE id = @deployment_id;
 
+-- name: SetDeploymentStatusLogs :exec
+UPDATE
+  deployments
+SET status_logs = @logs, status_logs_complete = TRUE, rollout_status = @rollout_status
+WHERE id = @deployment_id;
+
 -- name: SoftDeleteDeployment :exec
 UPDATE
   deployments

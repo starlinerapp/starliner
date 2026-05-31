@@ -15,4 +15,6 @@ type Queue interface {
 
 	PublishEnableIngressTLS(deployment *value.IngressDeployment) error
 	SubscribeToEnableIngressTLS(handler func(deployment *value.IngressDeployment)) error
+
+	PublishIngressDeploymentCompleted(completed *value.IngressDeploymentCompleted) error
 }
