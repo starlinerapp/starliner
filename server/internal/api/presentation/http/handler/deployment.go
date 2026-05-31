@@ -13,6 +13,7 @@ import (
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
+	"starliner.app/internal/api/presentation/http/dto/response"
 	"starliner.app/internal/api/presentation/http/mapper"
 	"starliner.app/internal/api/presentation/http/sse"
 )
@@ -66,7 +67,8 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -110,7 +112,9 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -146,7 +150,8 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -187,9 +192,8 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -237,9 +241,8 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -282,7 +285,8 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("Service '%s' already exists", body.ServiceName)})
 			return
 		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -298,7 +302,7 @@ func (dh *DeploymentHandler) DeployFromGitRepository(c *gin.Context) {
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateDeployFromGit true "Update Deploy from Git"
 // @Product JSON
-// @Success 200
+// @Success 200 {object} response.UpdateGitDeploymentResponse
 // @Router /deployments/git/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -314,7 +318,7 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		return
 	}
 
-	err = dh.deploymentApplication.UpdateDeployFromGit(
+	newDeploymentId, err := dh.deploymentApplication.UpdateDeployFromGit(
 		c.Request.Context(),
 		currentUser.Id,
 		body.EnvironmentId,
@@ -326,10 +330,14 @@ func (dh *DeploymentHandler) UpdateDeployFromGitRepository(c *gin.Context) {
 		mapper.MapArgsFromRequest(body.Args),
 	)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, response.UpdateGitDeploymentResponse{
+		DeploymentId: newDeploymentId,
+	})
 }
 
 // DeleteDeployment FindAll godoc
@@ -356,7 +364,9 @@ func (dh *DeploymentHandler) DeleteDeployment(c *gin.Context) {
 		currentUser.Id,
 	)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -399,6 +409,44 @@ func (dh *DeploymentHandler) StreamDeploymentLogs(c *gin.Context) {
 	}
 }
 
+// StreamDeploymentStatusLogs FindAll godoc
+// @Summary Stream deployment status logs
+// @State core
+// @Tags deployment
+// @ID streamDeploymentStatusLogs
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Deployment ID"
+// @Product text/event-stream
+// @Success 200
+// @Header 200 {string} Content-Type "text/event-stream"
+// @Header 200 {string} Cache-Control "no-cache"
+// @Header 200 {string} Connection "keep-alive"
+// @Router /deployments/{id}/status/logs/stream [get]
+func (dh *DeploymentHandler) StreamDeploymentStatusLogs(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	deploymentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	sw, ok := sse.NewWriter(c.Writer)
+	if !ok {
+		_ = c.Error(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "streaming not supported"})
+		return
+	}
+
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+
+	err = dh.deploymentApplication.StreamDeploymentStatusLogs(c.Request.Context(), currentUser.Id, deploymentId, sw)
+	if err != nil {
+		sw.WriteError(err)
+	}
+}
+
 var deploymentUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
@@ -424,6 +472,7 @@ func (dh *DeploymentHandler) OpenTTY(c *gin.Context) {
 
 	conn, err := deploymentUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
+		_ = c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "websocket upgrade failed"})
 		return
 	}

@@ -2,10 +2,11 @@
 
 ## Properties
 
-| Name                | Type       | Description | Notes                  |
-| ------------------- | ---------- | ----------- | ---------------------- |
-| **inviteUrlPrefix** | **string** |             | [default to undefined] |
-| **toEmail**         | **string** |             | [default to undefined] |
+| Name                | Type                    | Description | Notes                             |
+| ------------------- | ----------------------- | ----------- | --------------------------------- |
+| **inviteUrlPrefix** | **string**              |             | [default to undefined]            |
+| **teamId**          | **number**              |             | [optional] [default to undefined] |
+| **toEmails**        | **Array&lt;string&gt;** |             | [default to undefined]            |
 
 ## Example
 
@@ -14,7 +15,8 @@ import { RequestSendInvite } from "./api";
 
 const instance: RequestSendInvite = {
   inviteUrlPrefix,
-  toEmail,
+  teamId,
+  toEmails,
 };
 ```
 

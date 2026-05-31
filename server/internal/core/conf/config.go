@@ -18,3 +18,11 @@ type RedisConfig interface {
 	GetRedisAddr() string
 	GetRedisPassword() string
 }
+
+type SentryConfig interface {
+	GetSentryDSN() string
+}
+
+type EnvironmentConfig interface {
+	GetEnvironment() string
+}

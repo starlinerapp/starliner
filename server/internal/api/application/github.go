@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"starliner.app/internal/api/conf"
+	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
@@ -213,7 +214,36 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		b, err := ga.buildRepository.CreateBuild(ctx, deployment.Id, "push")
+		envs := gitEntityEnvVarsToValue(deployment.EnvVars)
+		args := gitEntityArgsToValue(deployment.Args)
+
+		if err := ga.deploymentRepository.SoftDeleteDeployment(ctx, deployment.Id); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		newDeployment, err := ga.deploymentRepository.CreateGitDeployment(
+			ctx,
+			environmentID,
+			deployment.Name,
+			deployment.Port,
+			deployment.GitUrl,
+			deployment.ProjectRepositoryPath,
+			deployment.DockerfilePath,
+			envs,
+			args,
+		)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		if err := ga.deploymentRepository.RepointIngressPathsTargetDeployment(ctx, deployment.Id, newDeployment.Id); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		b, err := ga.buildRepository.CreateBuild(ctx, newDeployment.Id, "push")
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -250,7 +280,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 
 		err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 			BuildId:        b.Id,
-			DeploymentId:   deployment.Id,
+			DeploymentId:   newDeployment.Id,
 			ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
 			GitUrl:         deployment.GitUrl,
 			BranchName:     branch,
@@ -439,16 +469,19 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				continue
 			}
 			err = ga.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:     d.Id,
-				DeploymentName:   normalizedDeploymentName,
-				Namespace:        newEnv.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-				ImageName:        d.ImageName,
-				ImageTag:         d.Tag,
-				Port:             deploymentPort,
-				VolumeSizeMiB:    d.VolumeSizeMiB,
-				VolumeMountPath:  d.VolumeMountPath,
-				EnvVars:          coreEnvs,
+				DeploymentId:          d.Id,
+				DeploymentName:        normalizedDeploymentName,
+				Namespace:             newEnv.Namespace,
+				KubeconfigBase64:      kubeconfigBase64,
+				ImageRegistryUrl:      ga.cfg.ImageRegistryUrl,
+				ImageRegistryUsername: ga.cfg.ImageRegistryUsername,
+				ImageRegistryPassword: ga.cfg.ImageRegistryPassword,
+				ImageName:             d.ImageName,
+				ImageTag:              d.Tag,
+				Port:                  deploymentPort,
+				VolumeSizeMiB:         d.VolumeSizeMiB,
+				VolumeMountPath:       d.VolumeMountPath,
+				EnvVars:               coreEnvs,
 			})
 			if err != nil {
 				errs = append(errs, err)
@@ -747,4 +780,26 @@ func (ga *GitHubApplication) GetFileContent(ctx context.Context, userId int64, o
 	}
 
 	return content, nil
+}
+
+func gitEntityEnvVarsToValue(envs []*entity.EnvVar) []*value.EnvVar {
+	result := make([]*value.EnvVar, len(envs))
+	for i, e := range envs {
+		result[i] = &value.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		}
+	}
+	return result
+}
+
+func gitEntityArgsToValue(args []*entity.Arg) []*value.Arg {
+	result := make([]*value.Arg, len(args))
+	for i, a := range args {
+		result[i] = &value.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+	return result
 }

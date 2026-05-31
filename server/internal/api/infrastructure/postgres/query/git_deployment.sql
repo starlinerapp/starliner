@@ -22,6 +22,7 @@ WITH updated_deployment AS (
     deployments
   SET port = @port
   WHERE id = @deployment_id
+    AND deleted_at IS NULL
   RETURNING *
 ), updated_git_deployment AS (
   UPDATE
@@ -44,6 +45,7 @@ FROM deployments d
   INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = @environment_id
   AND team_members.user_id = @user_id
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
 -- name: GetEnvironmentGitDeployments :many
@@ -52,11 +54,25 @@ FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
 WHERE environment_id = @environment_id
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
 -- name: GetGitDeploymentsByRepositoryUrl :many
 SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, gd.url, gd.project_path, gd.dockerfile_path
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
-WHERE gd.url = @repository_url;
+WHERE gd.url = @repository_url
+  AND d.deleted_at IS NULL;
+
+-- name: GetUserGitDeploymentById :one
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, gd.url, gd.project_path, gd.dockerfile_path
+FROM deployments d
+  INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+  INNER JOIN environments ON d.environment_id = environments.id
+  INNER JOIN projects ON environments.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
+WHERE d.id = @deployment_id
+  AND team_members.user_id = @user_id
+  AND d.deleted_at IS NULL;
 

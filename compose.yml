@@ -79,6 +79,7 @@ services:
       AUTH_URL: ${AUTH_URL:-http://auth:3000}
       AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
+      SENTRY_DSN_CLIENT: ${SENTRY_DSN_CLIENT}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
@@ -133,6 +134,8 @@ services:
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
       IMAGE_REGISTRY_USERNAME: ${IMAGE_REGISTRY_USERNAME:-server}
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
     networks:
@@ -165,6 +168,8 @@ services:
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
       IMAGE_REGISTRY_USERNAME: ${IMAGE_REGISTRY_USERNAME:-server}
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
     networks:
@@ -185,6 +190,8 @@ services:
     environment:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
       CF_API_TOKEN: ${CF_API_TOKEN}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
@@ -211,6 +218,8 @@ services:
       PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
     depends_on:
       redis:
         condition: service_healthy

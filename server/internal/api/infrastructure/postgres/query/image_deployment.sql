@@ -42,6 +42,7 @@ WITH updated_deployment AS (
     deployments
   SET port = @port
   WHERE id = @deployment_id
+    AND deleted_at IS NULL
   RETURNING *
 ), updated_image_deployment AS (
   UPDATE
@@ -75,6 +76,7 @@ FROM deployments d
   INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
 -- name: GetEnvironmentImageDeployments :many
@@ -85,5 +87,6 @@ FROM deployments d
     AND dv.deleted_at IS NULL
   INNER JOIN environments e ON d.environment_id = e.id
 WHERE environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 

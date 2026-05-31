@@ -19,16 +19,17 @@ type Build struct {
 }
 
 type GitDeploymentBuild struct {
-	BuildId        int64
-	DeploymentId   int64
-	DeploymentName string
-	ImageName      *string
-	CommitHash     *string
-	Source         string
-	Status         BuildStatus
-	GitUrl         string
-	ProjectPath    string
-	DockerfilePath string
-	CreatedAt      time.Time
-	Args           []*Arg
+	BuildId                 int64
+	DeploymentId            int64
+	DeploymentName          string
+	DeploymentRolloutStatus string
+	ImageName               *string
+	CommitHash              *string
+	Source                  string
+	Status                  BuildStatus
+	GitUrl                  string
+	ProjectPath             string
+	DockerfilePath          string
+	CreatedAt               time.Time
+	Args                    []*Arg
 }
