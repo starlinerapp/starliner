@@ -29,6 +29,7 @@ docs/RequestEnvVar.md
 docs/RequestIngressHost.md
 docs/RequestIngressPath.md
 docs/RequestJoinTeam.md
+docs/RequestRemoveOrganizationMember.md
 docs/RequestRemoveTeamMember.md
 docs/RequestSendInvite.md
 docs/RequestSetTeamClusters.md
@@ -71,6 +72,7 @@ docs/ResponseRoot.md
 docs/ResponseTeam.md
 docs/ResponseTeamCluster.md
 docs/ResponseTeamRepo.md
+docs/ResponseUpdateGitDeploymentResponse.md
 docs/ResponseUser.md
 docs/RootApi.md
 docs/TeamApi.md

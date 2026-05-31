@@ -16,3 +16,7 @@ type Logs interface {
 		kubeconfigBase64 string,
 	) (io.ReadCloser, error)
 }
+
+type LogPublisher interface {
+	PublishLogChunk(ctx context.Context, deploymentId int64, namespace string, releaseName string, data []byte) error
+}

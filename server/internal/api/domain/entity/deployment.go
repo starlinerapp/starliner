@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 type PathType string
 
 const (
@@ -80,6 +82,11 @@ type Deployment struct {
 	Port          string
 	Namespace     string
 	EnvironmentId *int64
+	DeletedAt     *time.Time
+}
+
+type DeploymentStatusLogs struct {
+	Logs *string
 }
 
 type DeploymentWithKubeconfig struct {

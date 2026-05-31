@@ -14,6 +14,7 @@ import (
 	clusterqueue "starliner.app/internal/cluster/presentation/queue"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/redis"
+	"starliner.app/internal/core/infrastructure/sentry"
 )
 
 func main() {
@@ -30,5 +31,6 @@ func main() {
 		clusterqueue.Module,
 		sub.Module,
 		grpc.Module,
+		sentry.Module("cluster"),
 	).Run()
 }

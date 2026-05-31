@@ -38,17 +38,11 @@ ON CONFLICT (
     path = EXCLUDED.path
   RETURNING id, ingress_host_id, deployment_id, path, path_type;
 
--- name: UpdateIngressDeployment :one
-WITH updated_ingress AS (
-  UPDATE
-    deployments
-  SET port = @port
-  WHERE id = @deployment_id
-  RETURNING *
-)
-SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
-FROM updated_ingress d
-  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id;
+-- name: RepointIngressPathsTargetDeployment :exec
+UPDATE
+  ingress_paths
+SET deployment_id = @new_deployment_id
+WHERE deployment_id = @old_deployment_id;
 
 -- name: DeleteIngressPathsByDeploymentId :exec
 DELETE FROM ingress_paths
@@ -69,8 +63,10 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
 -- name: GetEnvironmentIngressDeployments :many
@@ -81,7 +77,9 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
 -- name: GetEnvironmentIngressDeploymentsByName :many
@@ -91,8 +89,10 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
   AND d.name = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
 -- name: IsIngressDeployment :one
@@ -104,5 +104,7 @@ SELECT EXISTS (
 -- name: GetIngressHostByName :one
 SELECT i.host, i.deployment_id
 FROM ingress_hosts i
-WHERE i.host = $1;
+  INNER JOIN deployments d ON d.id = i.deployment_id
+WHERE i.host = $1
+  AND d.deleted_at IS NULL;
 

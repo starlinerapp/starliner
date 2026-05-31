@@ -73,7 +73,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, deleted_at, rollout_status
 ), new_image_deployment AS (
   INSERT INTO image_deployments (
     deployment_id, name, tag)
@@ -155,6 +155,7 @@ FROM deployments d
     AND dv.deleted_at IS NULL
   INNER JOIN environments e ON d.environment_id = e.id
 WHERE environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -215,6 +216,7 @@ FROM deployments d
   INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -287,7 +289,8 @@ WITH updated_deployment AS (
     deployments
   SET port = $1
   WHERE id = $2
-  RETURNING id, name, port, status, environment_id, created_at, updated_at
+    AND deleted_at IS NULL
+  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, deleted_at, rollout_status
 ), updated_image_deployment AS (
   UPDATE
     image_deployments

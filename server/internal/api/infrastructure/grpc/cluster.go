@@ -15,8 +15,10 @@ import (
 )
 
 type ClusterClient struct {
-	logsServiceClient v2.LogsServiceClient
-	ttyServiceClient  v2.TTYServiceClient
+	logsServiceClient                       v2.LogsServiceClient
+	deploymentStatusLogServiceClient        v2.DeploymentStatusLogServiceClient
+	ingressDeploymentStatusLogServiceClient v2.IngressDeploymentStatusLogServiceClient
+	ttyServiceClient                        v2.TTYServiceClient
 }
 
 func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
@@ -26,8 +28,10 @@ func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
 	}
 
 	return &ClusterClient{
-		logsServiceClient: v2.NewLogsServiceClient(conn),
-		ttyServiceClient:  v2.NewTTYServiceClient(conn),
+		logsServiceClient:                       v2.NewLogsServiceClient(conn),
+		deploymentStatusLogServiceClient:        v2.NewDeploymentStatusLogServiceClient(conn),
+		ttyServiceClient:                        v2.NewTTYServiceClient(conn),
+		ingressDeploymentStatusLogServiceClient: v2.NewIngressDeploymentStatusLogServiceClient(conn),
 	}, nil
 }
 
@@ -65,6 +69,74 @@ func (c *ClusterClient) StreamLogs(
 
 		_, err = w.Write(resp.Chunk)
 		if err != nil {
+			return err
+		}
+	}
+}
+
+func (c *ClusterClient) StreamDeploymentStatusLogs(
+	ctx context.Context,
+	deploymentId int64,
+	namespace string,
+	releaseName string,
+	kubeconfigBase64 string,
+	commitHash string,
+	w io.Writer,
+) error {
+	stream, err := c.deploymentStatusLogServiceClient.StreamDeploymentStatusLogs(ctx, &v2.StreamDeploymentStatusLogsRequest{
+		DeploymentId:     deploymentId,
+		Namespace:        namespace,
+		ReleaseName:      releaseName,
+		KubeconfigBase64: kubeconfigBase64,
+		CommitHash:       commitHash,
+	})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		if _, err := w.Write(resp.Chunk); err != nil {
+			return err
+		}
+	}
+}
+
+func (c *ClusterClient) StreamIngressDeploymentStatusLogs(
+	ctx context.Context,
+	deploymentId int64,
+	namespace string,
+	releaseName string,
+	kubeconfigBase64 string,
+	w io.Writer,
+) error {
+	stream, err := c.ingressDeploymentStatusLogServiceClient.StreamIngressDeploymentStatusLogs(ctx, &v2.StreamIngressDeploymentStatusLogsRequest{
+		DeploymentId:     deploymentId,
+		Namespace:        namespace,
+		ReleaseName:      releaseName,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		if _, err := w.Write(resp.Chunk); err != nil {
 			return err
 		}
 	}

@@ -32,6 +32,7 @@ FROM deployments d
   INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
 -- name: GetEnvironmentDatabaseDeployments :many
@@ -40,5 +41,6 @@ FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
 WHERE environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 

@@ -339,4 +339,55 @@ export const deploymentRouter = {
         response?.data.destroy();
       }
     }),
+  streamDeploymentStatusLogs: protectedProcedure
+    .input(
+      z.object({
+        deploymentId: z.number(),
+      }),
+    )
+    .subscription(async function* ({ input, ctx, signal }) {
+      const userId = ctx.user?.id;
+
+      let response: AxiosResponse<Readable> | undefined;
+      try {
+        // @ts-expect-error OpenAPI doesn't support SSE
+        response = await deploymentApiFactory.streamDeploymentStatusLogs(
+          userId,
+          input.deploymentId,
+          { responseType: "stream", signal },
+        );
+
+        signal?.addEventListener("abort", () => {
+          response?.data?.destroy();
+        });
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        // @ts-expect-error OpenAPI doesn't support SSE
+        for await (const chunk of response.data) {
+          if (signal?.aborted) {
+            break;
+          }
+
+          buffer += decoder.decode(chunk, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              yield line.slice(6);
+            }
+          }
+        }
+      } catch (err) {
+        if (signal?.aborted) {
+          return;
+        }
+
+        throw err;
+      } finally {
+        response?.data.destroy();
+      }
+    }),
 };

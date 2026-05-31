@@ -20,6 +20,7 @@ import (
 	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/s3"
+	"starliner.app/internal/core/infrastructure/sentry"
 )
 
 func main() {
@@ -42,5 +43,6 @@ func main() {
 		healthpubsub.Module,
 		clusterpubsub.Module,
 		scheduler.Module,
+		sentry.Module("api"),
 	).Run()
 }

@@ -66,8 +66,8 @@ export default [
                 ],
               ),
               route(
-                "builds",
-                "routes/dashboard/projects/[id]/[environment]/builds/index.tsx",
+                "deployments",
+                "routes/dashboard/projects/[id]/[environment]/deployments/index.tsx",
               ),
               route(
                 "settings",

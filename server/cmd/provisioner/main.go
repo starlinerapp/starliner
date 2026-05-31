@@ -5,6 +5,7 @@ import (
 	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/redis"
+	"starliner.app/internal/core/infrastructure/sentry"
 	"starliner.app/internal/provisioner/application"
 	"starliner.app/internal/provisioner/conf"
 	"starliner.app/internal/provisioner/infrastructure/ansible"
@@ -28,5 +29,6 @@ func main() {
 		application.Module,
 		provisionerqueue.Module,
 		grpc.Module,
+		sentry.Module("provisioner"),
 	).Run()
 }

@@ -4,7 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
+	"strconv"
+
 	"starliner.app/internal/api/conf"
+	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
@@ -12,7 +16,6 @@ import (
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
-	"strconv"
 )
 
 type EnvironmentApplication struct {
@@ -142,6 +145,11 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				}
 				coreHosts = append(coreHosts, ch)
 			}
+			err = createDeployOnlyBuild(ctx, ea.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				log.Printf("failed to create ingress deploy build: %v", err)
+				continue
+			}
 			err = ea.queue.PublishDeployIngress(&coreValue.IngressDeployment{
 				IngressHosts:     coreHosts,
 				DeploymentId:     d.Id,
@@ -186,16 +194,19 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 			err = ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:     d.Id,
-				DeploymentName:   normalizedDeploymentName,
-				Namespace:        env.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-				ImageName:        d.ImageName,
-				ImageTag:         d.Tag,
-				Port:             deploymentPort,
-				VolumeSizeMiB:    d.VolumeSizeMiB,
-				VolumeMountPath:  d.VolumeMountPath,
-				EnvVars:          coreEnvs,
+				DeploymentId:          d.Id,
+				DeploymentName:        normalizedDeploymentName,
+				Namespace:             env.Namespace,
+				KubeconfigBase64:      kubeconfigBase64,
+				ImageRegistryUrl:      ea.cfg.ImageRegistryUrl,
+				ImageRegistryUsername: ea.cfg.ImageRegistryUsername,
+				ImageRegistryPassword: ea.cfg.ImageRegistryPassword,
+				ImageName:             d.ImageName,
+				ImageTag:              d.Tag,
+				Port:                  deploymentPort,
+				VolumeSizeMiB:         d.VolumeSizeMiB,
+				VolumeMountPath:       d.VolumeMountPath,
+				EnvVars:               coreEnvs,
 			})
 			if err != nil {
 				log.Printf("error publishing: %v", err)
@@ -209,51 +220,13 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 
-			coreEnvs := make([]*coreValue.EnvVar, 0, len(d.EnvVars))
-			for _, e := range d.EnvVars {
-				res, err := ea.parserService.Parse(e.Value)
-				if err != nil {
-					log.Printf("failed to parse env var: %v\n", err)
-					continue
-				}
-
-				resolvedValue, err := ea.resolverService.Resolve(ctx, env.Id, res)
-				if err != nil {
-					log.Printf("failed to resolve env var: %v\n", err)
-					continue
-				}
-
-				coreEnvs = append(coreEnvs, &coreValue.EnvVar{
-					Name:  e.Name,
-					Value: resolvedValue,
-				})
-			}
-
-			normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
-			if err != nil {
-				return nil, err
-			}
-			deploymentPort, err := strconv.Atoi(d.Port)
-			if err != nil {
-				return nil, err
-			}
-
 			if latestBuild.ImageName == nil {
 				return nil, fmt.Errorf("latest build for git deployment %s is nil", d.ServiceName)
 			}
 
-			err = ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:     d.Id,
-				DeploymentName:   normalizedDeploymentName,
-				Namespace:        env.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-				ImageName:        *latestBuild.ImageName,
-				ImageTag:         *latestBuild.CommitHash,
-				Port:             deploymentPort,
-				EnvVars:          coreEnvs,
-			})
+			err = ea.triggerDuplicateGitDeploy(ctx, d, latestBuild, env, kubeconfigBase64)
 			if err != nil {
-				log.Printf("failed to publish: %v\n", err)
+				return nil, err
 			}
 		}
 		return value.NewEnvironment(env), nil
@@ -359,28 +332,27 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 		return nil, err
 	}
 
-	valueBuilds := make([]*value.GitDeploymentBuild, len(builds))
-	for i, b := range builds {
-		args := make([]*value.Arg, len(b.Args))
-		for j, a := range b.Args {
-			args[j] = &value.Arg{
-				Name:  a.Name,
-				Value: a.Value,
-			}
-		}
+	ingressBuilds, err := ea.environmentRepository.GetEnvironmentIngressDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
 
+	allBuilds := append(builds, ingressBuilds...)
+	sort.Slice(allBuilds, func(i, j int) bool {
+		return allBuilds[i].CreatedAt.After(allBuilds[j].CreatedAt)
+	})
+
+	valueBuilds := make([]*value.GitDeploymentBuild, len(allBuilds))
+	for i, b := range allBuilds {
 		valueBuilds[i] = &value.GitDeploymentBuild{
-			BuildId:        b.BuildId,
-			DeploymentId:   b.DeploymentId,
-			DeploymentName: b.DeploymentName,
-			CommitHash:     b.CommitHash,
-			Source:         b.Source,
-			Status:         value.BuildStatus(b.Status),
-			GitUrl:         b.GitUrl,
-			ProjectPath:    b.ProjectPath,
-			DockerfilePath: b.DockerfilePath,
-			CreatedAt:      b.CreatedAt,
-			Args:           args,
+			BuildId:                 b.BuildId,
+			DeploymentId:            b.DeploymentId,
+			DeploymentName:          b.DeploymentName,
+			DeploymentRolloutStatus: b.DeploymentRolloutStatus,
+			CommitHash:              b.CommitHash,
+			Source:                  b.Source,
+			Status:                  value.BuildStatus(b.Status),
+			CreatedAt:               b.CreatedAt,
 		}
 	}
 	return valueBuilds, nil
@@ -429,4 +401,72 @@ func (ea *EnvironmentApplication) DeleteEnvironment(ctx context.Context, userId 
 		return err
 	}
 	return ea.environmentRepository.DeleteEnvironment(ctx, environmentId)
+}
+
+func (ea *EnvironmentApplication) triggerDuplicateGitDeploy(
+	ctx context.Context,
+	deployment *value.GitDeployment,
+	sourceBuild *entity.GitDeploymentBuild,
+	env *entity.Environment,
+	kubeconfigBase64 string,
+) error {
+	coreEnvs := make([]*coreValue.EnvVar, 0, len(deployment.EnvVars))
+	for _, e := range deployment.EnvVars {
+		res, err := ea.parserService.Parse(e.Value)
+		if err != nil {
+			log.Printf("failed to parse env var: %v\n", err)
+			continue
+		}
+
+		resolvedValue, err := ea.resolverService.Resolve(ctx, env.Id, res)
+		if err != nil {
+			log.Printf("failed to resolve env var: %v\n", err)
+			continue
+		}
+
+		coreEnvs = append(coreEnvs, &coreValue.EnvVar{
+			Name:  e.Name,
+			Value: resolvedValue,
+		})
+	}
+
+	normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(deployment.ServiceName)
+	if err != nil {
+		return err
+	}
+	deploymentPort, err := strconv.Atoi(deployment.Port)
+	if err != nil {
+		return err
+	}
+
+	b, err := ea.buildRepository.CreateBuild(ctx, deployment.Id, value.BuildSourceDuplicate)
+	if err != nil {
+		return err
+	}
+
+	err = ea.buildRepository.UpdateBuild(
+		ctx,
+		b.Id,
+		value.BuildStatusSuccess,
+		sourceBuild.CommitHash,
+		sourceBuild.ImageName,
+		"",
+	)
+	if err != nil {
+		return err
+	}
+
+	return ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
+		DeploymentId:          deployment.Id,
+		DeploymentName:        normalizedDeploymentName,
+		Namespace:             env.Namespace,
+		KubeconfigBase64:      kubeconfigBase64,
+		ImageRegistryUrl:      ea.cfg.ImageRegistryUrl,
+		ImageRegistryUsername: ea.cfg.ImageRegistryUsername,
+		ImageRegistryPassword: ea.cfg.ImageRegistryPassword,
+		ImageName:             *sourceBuild.ImageName,
+		ImageTag:              *sourceBuild.CommitHash,
+		Port:                  deploymentPort,
+		EnvVars:               coreEnvs,
+	})
 }

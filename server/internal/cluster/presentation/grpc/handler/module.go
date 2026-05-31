@@ -6,6 +6,7 @@ var Module = fx.Module(
 	"handler",
 	fx.Provide(
 		NewLogsHandler,
+		NewDeploymentStatusLogHandler,
 		NewTtyHandler,
 	),
 )

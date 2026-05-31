@@ -12,19 +12,20 @@ import (
 )
 
 const (
-	BuildTriggered    jetstream.Subject = "build.triggered"
-	BuildCompleted    jetstream.Subject = "build.completed"
-	CreateCluster     jetstream.Subject = "create.cluster"
-	ClusterCreated    jetstream.Subject = "cluster.created"
-	DeleteCluster     jetstream.Subject = "delete.cluster"
-	ReconcileCluster  jetstream.Subject = "reconcile.cluster"
-	ClusterDeleted    jetstream.Subject = "cluster.deleted"
-	DeployImage       jetstream.Subject = "deploy.image"
-	DeployDatabase    jetstream.Subject = "deploy.database"
-	DatabaseDeployed  jetstream.Subject = "database.deployed"
-	DeployIngress     jetstream.Subject = "deploy.ingress"
-	DeleteDeployment  jetstream.Subject = "delete.deployment"
-	DeploymentDeleted jetstream.Subject = "deployment.deleted"
+	BuildTriggered                jetstream.Subject = "build.triggered"
+	BuildCompleted                jetstream.Subject = "build.completed"
+	CreateCluster                 jetstream.Subject = "create.cluster"
+	ClusterCreated                jetstream.Subject = "cluster.created"
+	DeleteCluster                 jetstream.Subject = "delete.cluster"
+	ReconcileCluster              jetstream.Subject = "reconcile.cluster"
+	ClusterDeleted                jetstream.Subject = "cluster.deleted"
+	DeployImage                   jetstream.Subject = "deploy.image"
+	DeployDatabase                jetstream.Subject = "deploy.database"
+	DatabaseDeployed              jetstream.Subject = "database.deployed"
+	DeployIngress                 jetstream.Subject = "deploy.ingress"
+	DeleteDeployment              jetstream.Subject = "delete.deployment"
+	DeploymentDeleted             jetstream.Subject = "deployment.deleted"
+	DeploymentStatusLogsCompleted jetstream.Subject = "deployment.status_logs.completed"
 )
 
 type Queue struct {
@@ -149,6 +150,17 @@ func (q *Queue) PublishDeployIngress(deployment *value.IngressDeployment) error 
 	}
 
 	return q.publisher.Publish(DeployIngress, "*", data)
+}
+
+func (q *Queue) SubscribeToDeploymentStatusLogsCompleted(handler func(completed *value.DeploymentStatusLogsCompleted)) error {
+	return q.subscriber.Subscribe(DeploymentStatusLogsCompleted, "*", "deploymentStatusLogsCompleted", func(msg []byte) {
+		var completed value.DeploymentStatusLogsCompleted
+		if err := json.Unmarshal(msg, &completed); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+			return
+		}
+		handler(&completed)
+	})
 }
 
 func (q *Queue) SubscribeToBuildCompleted(handler func(build *value.BuildCompleted)) error {

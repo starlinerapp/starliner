@@ -23,7 +23,10 @@ func NewClusterLogApplication(
 	}
 }
 
-func (a *ClusterLogApplication) StreamProvisioningLogs(ctx context.Context, clusterId int64) (io.ReadCloser, error) {
+func (a *ClusterLogApplication) StreamProvisioningLogs(
+	ctx context.Context,
+	clusterId int64,
+) (io.ReadCloser, error) {
 	pr, pw := io.Pipe()
 
 	go func() {

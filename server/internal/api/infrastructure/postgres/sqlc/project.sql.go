@@ -307,7 +307,8 @@ WHERE e.name = 'Production'
     FROM deployments d
       JOIN git_deployments g ON g.deployment_id = d.id
     WHERE d.environment_id = e.id
-      AND g.url = $1)
+      AND g.url = $1
+      AND d.deleted_at IS NULL)
 `
 
 func (q *Queries) GetProjectProductionEnvironmentsByRepositoryUrl(ctx context.Context, url string) ([]Environment, error) {
