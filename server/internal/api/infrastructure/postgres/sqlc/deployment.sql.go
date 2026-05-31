@@ -11,42 +11,71 @@ import (
 	"time"
 )
 
-const deleteDeployment = `-- name: DeleteDeployment :exec
-DELETE FROM deployments
-WHERE id = $1
+const appendDeploymentStatusLogs = `-- name: AppendDeploymentStatusLogs :exec
+UPDATE
+  deployments
+SET status_logs = COALESCE(status_logs, '') || $1
+WHERE id = $2
 `
 
-func (q *Queries) DeleteDeployment(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteDeployment, id)
+type AppendDeploymentStatusLogsParams struct {
+	Chunk        sql.NullString
+	DeploymentID int64
+}
+
+func (q *Queries) AppendDeploymentStatusLogs(ctx context.Context, arg AppendDeploymentStatusLogsParams) error {
+	_, err := q.db.ExecContext(ctx, appendDeploymentStatusLogs, arg.Chunk, arg.DeploymentID)
 	return err
 }
 
-const deleteDeploymentsByEnvironmentId = `-- name: DeleteDeploymentsByEnvironmentId :exec
-DELETE FROM deployments
-WHERE environment_id = $1
+const getDeploymentStatusLogs = `-- name: GetDeploymentStatusLogs :one
+SELECT d.status_logs, d.status_logs_complete
+FROM deployments d
+  INNER JOIN environments e ON d.environment_id = e.id
+  INNER JOIN projects ON e.project_id = projects.id
+  INNER JOIN teams ON teams.id = projects.team_id
+  INNER JOIN team_members ON team_members.team_id = teams.id
+WHERE d.id = $1
+  AND team_members.user_id = $2
 `
 
-func (q *Queries) DeleteDeploymentsByEnvironmentId(ctx context.Context, environmentID sql.NullInt64) error {
-	_, err := q.db.ExecContext(ctx, deleteDeploymentsByEnvironmentId, environmentID)
-	return err
+type GetDeploymentStatusLogsParams struct {
+	DeploymentID int64
+	UserID       int64
+}
+
+type GetDeploymentStatusLogsRow struct {
+	StatusLogs         sql.NullString
+	StatusLogsComplete bool
+}
+
+func (q *Queries) GetDeploymentStatusLogs(ctx context.Context, arg GetDeploymentStatusLogsParams) (GetDeploymentStatusLogsRow, error) {
+	row := q.db.QueryRowContext(ctx, getDeploymentStatusLogs, arg.DeploymentID, arg.UserID)
+	var i GetDeploymentStatusLogsRow
+	err := row.Scan(&i.StatusLogs, &i.StatusLogsComplete)
+	return i, err
 }
 
 const getDeploymentWithNamespace = `-- name: GetDeploymentWithNamespace :one
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, environments.namespace
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.status_logs_complete, deployments.deleted_at, deployments.rollout_status, environments.namespace
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
 WHERE deployments.id = $1
 `
 
 type GetDeploymentWithNamespaceRow struct {
-	ID            int64
-	Name          string
-	Port          string
-	Status        DeploymentStatus
-	EnvironmentID sql.NullInt64
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	Namespace     string
+	ID                 int64
+	Name               string
+	Port               string
+	Status             DeploymentStatus
+	EnvironmentID      sql.NullInt64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	StatusLogs         sql.NullString
+	StatusLogsComplete bool
+	DeletedAt          sql.NullTime
+	RolloutStatus      string
+	Namespace          string
 }
 
 func (q *Queries) GetDeploymentWithNamespace(ctx context.Context, id int64) (GetDeploymentWithNamespaceRow, error) {
@@ -60,32 +89,41 @@ func (q *Queries) GetDeploymentWithNamespace(ctx context.Context, id int64) (Get
 		&i.EnvironmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.StatusLogs,
+		&i.StatusLogsComplete,
+		&i.DeletedAt,
+		&i.RolloutStatus,
 		&i.Namespace,
 	)
 	return i, err
 }
 
 const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, c.kubeconfig, environments.namespace, c.id AS cluster_id, c.provisioning_id, c.organization_id
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.status_logs_complete, deployments.deleted_at, deployments.rollout_status, c.kubeconfig, environments.namespace, c.id AS cluster_id, c.provisioning_id, c.organization_id
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
   INNER JOIN projects ON environments.project_id = projects.id
   INNER JOIN clusters c ON c.id = projects.cluster_id
+WHERE deployments.deleted_at IS NULL
 `
 
 type GetDeploymentsWithKubeconfigRow struct {
-	ID             int64
-	Name           string
-	Port           string
-	Status         DeploymentStatus
-	EnvironmentID  sql.NullInt64
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	Kubeconfig     sql.NullString
-	Namespace      string
-	ClusterID      int64
-	ProvisioningID sql.NullString
-	OrganizationID int64
+	ID                 int64
+	Name               string
+	Port               string
+	Status             DeploymentStatus
+	EnvironmentID      sql.NullInt64
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	StatusLogs         sql.NullString
+	StatusLogsComplete bool
+	DeletedAt          sql.NullTime
+	RolloutStatus      string
+	Kubeconfig         sql.NullString
+	Namespace          string
+	ClusterID          int64
+	ProvisioningID     sql.NullString
+	OrganizationID     int64
 }
 
 func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploymentsWithKubeconfigRow, error) {
@@ -105,6 +143,10 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 			&i.EnvironmentID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.StatusLogs,
+			&i.StatusLogsComplete,
+			&i.DeletedAt,
+			&i.RolloutStatus,
 			&i.Kubeconfig,
 			&i.Namespace,
 			&i.ClusterID,
@@ -125,10 +167,11 @@ func (q *Queries) GetDeploymentsWithKubeconfig(ctx context.Context) ([]GetDeploy
 }
 
 const getEnvironmentDeploymentByName = `-- name: GetEnvironmentDeploymentByName :one
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.status_logs_complete, deployments.deleted_at, deployments.rollout_status
 FROM deployments
 WHERE deployments.name = $1
   AND environment_id = $2
+  AND deleted_at IS NULL
 `
 
 type GetEnvironmentDeploymentByNameParams struct {
@@ -147,12 +190,16 @@ func (q *Queries) GetEnvironmentDeploymentByName(ctx context.Context, arg GetEnv
 		&i.EnvironmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.StatusLogs,
+		&i.StatusLogsComplete,
+		&i.DeletedAt,
+		&i.RolloutStatus,
 	)
 	return i, err
 }
 
 const getUserDeployment = `-- name: GetUserDeployment :one
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.status_logs_complete, deployments.deleted_at, deployments.rollout_status
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
   INNER JOIN projects ON environments.project_id = projects.id
@@ -178,8 +225,55 @@ func (q *Queries) GetUserDeployment(ctx context.Context, arg GetUserDeploymentPa
 		&i.EnvironmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.StatusLogs,
+		&i.StatusLogsComplete,
+		&i.DeletedAt,
+		&i.RolloutStatus,
 	)
 	return i, err
+}
+
+const markDeploymentStatusLogsComplete = `-- name: MarkDeploymentStatusLogsComplete :exec
+UPDATE
+  deployments
+SET status_logs_complete = TRUE, rollout_status = $1
+WHERE id = $2
+`
+
+type MarkDeploymentStatusLogsCompleteParams struct {
+	RolloutStatus string
+	DeploymentID  int64
+}
+
+func (q *Queries) MarkDeploymentStatusLogsComplete(ctx context.Context, arg MarkDeploymentStatusLogsCompleteParams) error {
+	_, err := q.db.ExecContext(ctx, markDeploymentStatusLogsComplete, arg.RolloutStatus, arg.DeploymentID)
+	return err
+}
+
+const softDeleteDeployment = `-- name: SoftDeleteDeployment :exec
+UPDATE
+  deployments
+SET deleted_at = NOW()
+WHERE id = $1
+  AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteDeployment(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, softDeleteDeployment, id)
+	return err
+}
+
+const softDeleteDeploymentsByEnvironmentId = `-- name: SoftDeleteDeploymentsByEnvironmentId :exec
+UPDATE
+  deployments
+SET deleted_at = NOW()
+WHERE environment_id = $1
+  AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteDeploymentsByEnvironmentId(ctx context.Context, environmentID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, softDeleteDeploymentsByEnvironmentId, environmentID)
+	return err
 }
 
 const updateDeploymentStatus = `-- name: UpdateDeploymentStatus :exec
@@ -187,6 +281,7 @@ UPDATE
   deployments
 SET status = $1::deployment_status
 WHERE id = $2
+  AND deleted_at IS NULL
 `
 
 type UpdateDeploymentStatusParams struct {

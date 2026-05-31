@@ -66,27 +66,23 @@ func (q *Queries) GetBuildLogs(ctx context.Context, arg GetBuildLogsParams) (sql
 }
 
 const getEnvironmentGitDeploymentBuilds = `-- name: GetEnvironmentGitDeploymentBuilds :many
-SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
-FROM deployments d
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
+FROM builds b
+  INNER JOIN deployments d ON d.id = b.deployment_id
   INNER JOIN git_deployments gd ON gd.deployment_id = d.id
-  INNER JOIN builds b ON d.id = b.deployment_id
-  INNER JOIN environments e ON d.environment_id = e.id
-WHERE environment_id = $1
+WHERE d.environment_id = $1
 ORDER BY b.created_at DESC
 `
 
 type GetEnvironmentGitDeploymentBuildsRow struct {
-	BuildID        int64
-	DeploymentID   int64
-	DeploymentName string
-	ImageName      sql.NullString
-	CommitHash     sql.NullString
-	Source         string
-	Status         BuildStatus
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
-	CreatedAt      time.Time
+	BuildID                 int64
+	DeploymentID            int64
+	DeploymentName          string
+	DeploymentRolloutStatus string
+	CommitHash              sql.NullString
+	Source                  string
+	Status                  BuildStatus
+	CreatedAt               time.Time
 }
 
 func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentGitDeploymentBuildsRow, error) {
@@ -102,13 +98,10 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 			&i.BuildID,
 			&i.DeploymentID,
 			&i.DeploymentName,
-			&i.ImageName,
+			&i.DeploymentRolloutStatus,
 			&i.CommitHash,
 			&i.Source,
 			&i.Status,
-			&i.Url,
-			&i.ProjectPath,
-			&i.DockerfilePath,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -133,6 +126,7 @@ FROM deployments d
   INNER JOIN environments e ON d.environment_id = e.id
 WHERE d.environment_id = $1
   AND d.name = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id, b.created_at DESC
 `
 

@@ -16,7 +16,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
 ), new_git_deployment AS (
   INSERT INTO git_deployments (
     deployment_id, url, project_path, dockerfile_path)
@@ -76,6 +76,7 @@ FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
 WHERE environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -127,6 +128,7 @@ SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, gd.url
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
 WHERE gd.url = $1
+  AND d.deleted_at IS NULL
 `
 
 type GetGitDeploymentsByRepositoryUrlRow struct {
@@ -182,6 +184,7 @@ FROM deployments d
   INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -233,13 +236,59 @@ func (q *Queries) GetUserEnvironmentGitDeployments(ctx context.Context, arg GetU
 	return items, nil
 }
 
+const getUserGitDeploymentById = `-- name: GetUserGitDeploymentById :one
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, gd.url, gd.project_path, gd.dockerfile_path
+FROM deployments d
+  INNER JOIN git_deployments gd ON d.id = gd.deployment_id
+  INNER JOIN environments ON d.environment_id = environments.id
+  INNER JOIN projects ON environments.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
+WHERE d.id = $1
+  AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
+`
+
+type GetUserGitDeploymentByIdParams struct {
+	DeploymentID int64
+	UserID       int64
+}
+
+type GetUserGitDeploymentByIdRow struct {
+	DeploymentID   int64
+	Name           string
+	Port           string
+	Status         DeploymentStatus
+	EnvironmentID  sql.NullInt64
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+}
+
+func (q *Queries) GetUserGitDeploymentById(ctx context.Context, arg GetUserGitDeploymentByIdParams) (GetUserGitDeploymentByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserGitDeploymentById, arg.DeploymentID, arg.UserID)
+	var i GetUserGitDeploymentByIdRow
+	err := row.Scan(
+		&i.DeploymentID,
+		&i.Name,
+		&i.Port,
+		&i.Status,
+		&i.EnvironmentID,
+		&i.Url,
+		&i.ProjectPath,
+		&i.DockerfilePath,
+	)
+	return i, err
+}
+
 const updateGitDeployment = `-- name: UpdateGitDeployment :one
 WITH updated_deployment AS (
   UPDATE
     deployments
   SET port = $1
   WHERE id = $2
-  RETURNING id, name, port, status, environment_id, created_at, updated_at
+    AND deleted_at IS NULL
+  RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, status_logs_complete, deleted_at, rollout_status
 ), updated_git_deployment AS (
   UPDATE
     git_deployments

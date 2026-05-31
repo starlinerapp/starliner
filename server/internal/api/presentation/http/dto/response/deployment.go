@@ -215,44 +215,27 @@ func NewDeployments(deployments *value.Deployments) Deployments {
 }
 
 type GitDeploymentBuild struct {
-	BuildId        int64     `json:"buildId" binding:"required"`
-	DeploymentId   int64     `json:"deploymentId" binding:"required"`
-	DeploymentName string    `json:"deploymentName" binding:"required"`
-	CommitHash     *string   `json:"commitHash" binding:"required"`
-	Source         string    `json:"source" binding:"required"`
-	Status         string    `json:"status" binding:"required"`
-	GitUrl         string    `json:"gitUrl" binding:"required"`
-	ProjectPath    string    `json:"projectPath" binding:"required"`
-	DockerfilePath string    `json:"dockerfilePath" binding:"required"`
-	CreatedAt      time.Time `json:"createdAt" binding:"required"`
-	Args           []Arg     `json:"args" binding:"required"`
+	BuildId                 int64     `json:"buildId" binding:"required"`
+	DeploymentId            int64     `json:"deploymentId" binding:"required"`
+	DeploymentName          string    `json:"deploymentName" binding:"required"`
+	DeploymentRolloutStatus string    `json:"deploymentRolloutStatus" binding:"required"`
+	CommitHash              *string   `json:"commitHash" binding:"required"`
+	Source                  string    `json:"source" binding:"required"`
+	Status                  string    `json:"status" binding:"required"`
+	CreatedAt               time.Time `json:"createdAt" binding:"required"`
 }
 
 func NewGitDeploymentBuild(build *value.GitDeploymentBuild) GitDeploymentBuild {
 	return GitDeploymentBuild{
-		BuildId:        build.BuildId,
-		DeploymentId:   build.DeploymentId,
-		DeploymentName: build.DeploymentName,
-		CommitHash:     build.CommitHash,
-		Source:         build.Source,
-		Status:         string(build.Status),
-		GitUrl:         build.GitUrl,
-		ProjectPath:    build.ProjectPath,
-		DockerfilePath: build.DockerfilePath,
-		CreatedAt:      build.CreatedAt,
-		Args:           mapArgsFromBuildValue(build.Args),
+		BuildId:                 build.BuildId,
+		DeploymentId:            build.DeploymentId,
+		DeploymentName:          build.DeploymentName,
+		DeploymentRolloutStatus: build.DeploymentRolloutStatus,
+		CommitHash:              build.CommitHash,
+		Source:                  build.Source,
+		Status:                  string(build.Status),
+		CreatedAt:               build.CreatedAt,
 	}
-}
-
-func mapArgsFromBuildValue(args []*value.Arg) []Arg {
-	result := make([]Arg, len(args))
-	for i, a := range args {
-		result[i] = Arg{
-			Name:  a.Name,
-			Value: a.Value,
-		}
-	}
-	return result
 }
 
 func NewGitDeploymentBuilds(builds []*value.GitDeploymentBuild) []GitDeploymentBuild {
@@ -261,4 +244,8 @@ func NewGitDeploymentBuilds(builds []*value.GitDeploymentBuild) []GitDeploymentB
 		result = append(result, NewGitDeploymentBuild(build))
 	}
 	return result
+}
+
+type UpdateGitDeploymentResponse struct {
+	DeploymentId int64 `json:"deploymentId" binding:"required"`
 }

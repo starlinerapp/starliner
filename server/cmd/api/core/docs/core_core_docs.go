@@ -389,7 +389,10 @@ const docTemplatecoreCore = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateGitDeploymentResponse"
+                        }
                     }
                 }
             }
@@ -573,6 +576,50 @@ const docTemplatecoreCore = `{
                 ],
                 "summary": "Stream deployment logs",
                 "operationId": "streamDeploymentLogs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/deployments/{id}/status/logs/stream": {
+            "get": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Stream deployment status logs",
+                "operationId": "streamDeploymentStatusLogs",
                 "parameters": [
                     {
                         "type": "string",
@@ -2914,25 +2961,16 @@ const docTemplatecoreCore = `{
         "response.GitDeploymentBuild": {
             "type": "object",
             "required": [
-                "args",
                 "buildId",
                 "commitHash",
                 "createdAt",
                 "deploymentId",
                 "deploymentName",
-                "dockerfilePath",
-                "gitUrl",
-                "projectPath",
+                "deploymentRolloutStatus",
                 "source",
                 "status"
             ],
             "properties": {
-                "args": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Arg"
-                    }
-                },
                 "buildId": {
                     "type": "integer"
                 },
@@ -2948,13 +2986,7 @@ const docTemplatecoreCore = `{
                 "deploymentName": {
                     "type": "string"
                 },
-                "dockerfilePath": {
-                    "type": "string"
-                },
-                "gitUrl": {
-                    "type": "string"
-                },
-                "projectPath": {
+                "deploymentRolloutStatus": {
                     "type": "string"
                 },
                 "source": {
@@ -3400,6 +3432,17 @@ const docTemplatecoreCore = `{
                     "type": "string"
                 },
                 "teamId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.UpdateGitDeploymentResponse": {
+            "type": "object",
+            "required": [
+                "deploymentId"
+            ],
+            "properties": {
+                "deploymentId": {
                     "type": "integer"
                 }
             }

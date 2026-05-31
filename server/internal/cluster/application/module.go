@@ -13,6 +13,7 @@ var Module = fx.Module(
 		NewIngressApplication,
 		NewStatusApplication,
 		NewLogsApplication,
+		NewDeploymentStatusApplication,
 		NewTTYApplication,
 	),
 )

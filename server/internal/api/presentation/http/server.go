@@ -123,6 +123,7 @@ func NewServer(
 		deploymentRoutes.PUT("/ingresses/:deploymentId", deploymentHandler.UpdateIngressDeployment)
 		deploymentRoutes.DELETE("/:id", deploymentHandler.DeleteDeployment)
 		deploymentRoutes.GET("/:id/logs", deploymentHandler.StreamDeploymentLogs)
+		deploymentRoutes.GET("/:id/status/logs/stream", deploymentHandler.StreamDeploymentStatusLogs)
 	}
 
 	buildRoutes := engine.Group("/builds")

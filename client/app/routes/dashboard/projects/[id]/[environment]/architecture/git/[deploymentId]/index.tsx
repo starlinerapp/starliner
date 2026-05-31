@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +8,13 @@ import DeployFromGitForm, {
 } from "~/components/organisms/forms/DeployFromGitForm";
 
 export default function UpdateGitDeployment() {
-  const { deploymentId } = useParams<{ deploymentId: string }>();
+  const { slug, id, environment, deploymentId } = useParams<{
+    slug: string;
+    id: string;
+    environment: string;
+    deploymentId: string;
+  }>();
+  const navigate = useNavigate();
 
   const { environment: currentEnvironment, teamId } = useEnvironment();
 
@@ -42,12 +48,23 @@ export default function UpdateGitDeployment() {
         args: data.args,
       },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           queryClient.invalidateQueries({
             queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
               id: currentEnvironment.id,
             }),
           });
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentDeployments.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
+          if (result?.deploymentId && slug && id && environment) {
+            navigate(
+              `/${slug}/projects/${id}/${environment}/architecture/git/${result.deploymentId}`,
+              { replace: true },
+            );
+          }
         },
       },
     );
