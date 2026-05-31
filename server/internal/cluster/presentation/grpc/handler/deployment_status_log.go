@@ -69,6 +69,7 @@ func (h *DeploymentStatusLogHandler) StreamIngressDeploymentStatusLogs(
 ) error {
 	rc, err := h.deploymentStatusApplication.StreamIngressDeploymentStatusLogs(
 		stream.Context(),
+		req.GetDeploymentId(),
 		req.GetNamespace(),
 		req.GetReleaseName(),
 	)

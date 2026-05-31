@@ -1009,6 +1009,7 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 	if isIngress {
 		return da.grpcClusterClient.StreamIngressDeploymentStatusLogs(
 			ctx,
+			deploymentId,
 			deploymentWithNamespace.Namespace,
 			normalizedDeploymentName,
 			kubeconfigBase64,

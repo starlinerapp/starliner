@@ -39,7 +39,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 	hosts := toPortIngressHosts(i.IngressHosts)
 
 	var logBuf strings.Builder
-	appendStatus := ia.appendStatus(i.Namespace, releaseName, &logBuf)
+	appendStatus := ia.appendStatus(i.DeploymentId, i.Namespace, releaseName, &logBuf)
 
 	appendStatus("==> Deploying ExternalDNS...\n")
 
@@ -87,7 +87,7 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 
 	var logBuf strings.Builder
 	logBuf.WriteString(i.AccumulatedLogs)
-	appendStatus := ia.appendStatus(i.Namespace, releaseName, &logBuf)
+	appendStatus := ia.appendStatus(i.DeploymentId, i.Namespace, releaseName, &logBuf)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -131,6 +131,7 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 }
 
 func (ia *IngressApplication) appendStatus(
+	deploymentId int64,
 	namespace, releaseName string,
 	logBuf *strings.Builder,
 ) func(format string, args ...any) {
@@ -140,7 +141,7 @@ func (ia *IngressApplication) appendStatus(
 		if ia.logPublisher == nil {
 			return
 		}
-		if err := ia.logPublisher.PublishLogChunk(context.Background(), namespace, releaseName, []byte(line)); err != nil {
+		if err := ia.logPublisher.PublishLogChunk(context.Background(), deploymentId, namespace, releaseName, []byte(line)); err != nil {
 			log.Printf("failed to publish log chunk: %v", err)
 		}
 	}

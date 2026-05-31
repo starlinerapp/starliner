@@ -111,12 +111,14 @@ func (c *ClusterClient) StreamDeploymentStatusLogs(
 
 func (c *ClusterClient) StreamIngressDeploymentStatusLogs(
 	ctx context.Context,
+	deploymentId int64,
 	namespace string,
 	releaseName string,
 	kubeconfigBase64 string,
 	w io.Writer,
 ) error {
 	stream, err := c.ingressDeploymentStatusLogServiceClient.StreamIngressDeploymentStatusLogs(ctx, &v2.StreamIngressDeploymentStatusLogsRequest{
+		DeploymentId:     deploymentId,
 		Namespace:        namespace,
 		ReleaseName:      releaseName,
 		KubeconfigBase64: kubeconfigBase64,

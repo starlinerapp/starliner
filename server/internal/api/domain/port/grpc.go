@@ -36,6 +36,7 @@ type ClusterClient interface {
 
 	StreamIngressDeploymentStatusLogs(
 		ctx context.Context,
+		deploymentId int64,
 		namespace string,
 		releaseName string,
 		kubeconfigBase64 string,

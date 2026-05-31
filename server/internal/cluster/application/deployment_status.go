@@ -43,15 +43,16 @@ func (a *DeploymentStatusApplication) StreamDeploymentStatusLogs(
 	commitHash string,
 ) (io.ReadCloser, error) {
 	a.ensureWorkloadPoll(deploymentId, namespace, releaseName, kubeconfigBase64, commitHash)
-	return a.streamLogs(ctx, workloadLogStream(namespace, releaseName))
+	return a.streamLogs(ctx, workloadLogStream(deploymentId, namespace, releaseName))
 }
 
 func (a *DeploymentStatusApplication) StreamIngressDeploymentStatusLogs(
 	ctx context.Context,
+	deploymentId int64,
 	namespace string,
 	releaseName string,
 ) (io.ReadCloser, error) {
-	return a.streamLogs(ctx, ingressLogStream(namespace, releaseName))
+	return a.streamLogs(ctx, ingressLogStream(deploymentId, namespace, releaseName))
 }
 
 func (a *DeploymentStatusApplication) ensureWorkloadPoll(
@@ -91,7 +92,7 @@ func (a *DeploymentStatusApplication) ensureWorkloadPoll(
 			if n > 0 {
 				chunk := buf[:n]
 				logBuf.Write(chunk)
-				if err := a.publishLogChunk(ctx, workloadLogStream(namespace, releaseName), chunk); err != nil {
+				if err := a.publishLogChunk(ctx, workloadLogStream(deploymentId, namespace, releaseName), chunk); err != nil {
 					log.Printf("failed to publish workload log chunk: %v", err)
 				}
 			}
@@ -155,8 +156,8 @@ func (a *DeploymentStatusApplication) streamLogs(ctx context.Context, streamName
 	return pr, nil
 }
 
-func (a *DeploymentStatusApplication) PublishLogChunk(ctx context.Context, namespace string, releaseName string, data []byte) error {
-	return a.publishLogChunk(ctx, ingressLogStream(namespace, releaseName), data)
+func (a *DeploymentStatusApplication) PublishLogChunk(ctx context.Context, deploymentId int64, namespace string, releaseName string, data []byte) error {
+	return a.publishLogChunk(ctx, ingressLogStream(deploymentId, namespace, releaseName), data)
 }
 
 func (a *DeploymentStatusApplication) publishLogChunk(ctx context.Context, streamName string, data []byte) error {
@@ -173,10 +174,10 @@ func (a *DeploymentStatusApplication) publishLogChunk(ctx context.Context, strea
 	)
 }
 
-func ingressLogStream(namespace string, releaseName string) string {
-	return fmt.Sprintf("ingress:%s:%s:logs", namespace, releaseName)
+func ingressLogStream(deploymentId int64, namespace string, releaseName string) string {
+	return fmt.Sprintf("ingress:%d:%s:%s:logs", deploymentId, namespace, releaseName)
 }
 
-func workloadLogStream(namespace string, releaseName string) string {
-	return fmt.Sprintf("workload:%s:%s:logs", namespace, releaseName)
+func workloadLogStream(deploymentId int64, namespace string, releaseName string) string {
+	return fmt.Sprintf("workload:%d:%s:%s:logs", deploymentId, namespace, releaseName)
 }

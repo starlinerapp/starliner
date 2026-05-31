@@ -18,5 +18,5 @@ type Logs interface {
 }
 
 type LogPublisher interface {
-	PublishLogChunk(ctx context.Context, namespace string, releaseName string, data []byte) error
+	PublishLogChunk(ctx context.Context, deploymentId int64, namespace string, releaseName string, data []byte) error
 }
