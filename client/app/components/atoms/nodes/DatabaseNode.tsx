@@ -31,7 +31,7 @@ export default function DatabaseNode({
       className={cn(
         "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
         selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
-        isDeleting && "pointer-events-none opacity-75 grayscale",
+        isDeleting && "pointer-events-none grayscale",
       )}
     >
       <Handle
