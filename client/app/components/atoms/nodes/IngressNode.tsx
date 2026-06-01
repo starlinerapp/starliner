@@ -1,7 +1,7 @@
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { EllipsisVertical, Shuffle, Trash } from "~/components/atoms/icons";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
-import React from "react";
+import React, { useState } from "react";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 import * as Popover from "@radix-ui/react-popover";
@@ -21,11 +21,14 @@ export default function IngressNode({
   data,
   selected,
 }: NodeProps<IngressNode>) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   return (
     <div
       className={cn(
         "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
         selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+        isDeleting && "pointer-events-none opacity-75 grayscale",
       )}
     >
       <Handle
@@ -40,7 +43,10 @@ export default function IngressNode({
             <Shuffle className="w-5" />
             <p>{data.serviceName}</p>
           </div>
-          <IngressContextMenu deploymentId={data.id} />
+          <IngressContextMenu
+            deploymentId={data.id}
+            setIsDeleting={setIsDeleting}
+          />
         </div>
         <div>
           <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
@@ -107,9 +113,13 @@ export default function IngressNode({
 
 interface IngressContextMenuProps {
   deploymentId: number;
+  setIsDeleting: (v: boolean) => void;
 }
 
-function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
+function IngressContextMenu({
+  deploymentId,
+  setIsDeleting,
+}: IngressContextMenuProps) {
   const trpc = useTRPC();
   const deleteDeploymentMutation = useMutation(
     trpc.deployment.deleteDeployment.mutationOptions(),
@@ -123,6 +133,8 @@ function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
   );
 
   function handleDeleteClicked() {
+    setIsDeleting(true);
+
     deleteDeploymentMutation.mutate(
       {
         id: deploymentId,
@@ -133,6 +145,9 @@ function IngressContextMenu({ deploymentId }: IngressContextMenuProps) {
             const parent = pathname.replace(/\/[^/]+\/?$/, "");
             navigate(parent, { relative: "path", replace: true });
           }
+        },
+        onError: () => {
+          setIsDeleting(false);
         },
       },
     );

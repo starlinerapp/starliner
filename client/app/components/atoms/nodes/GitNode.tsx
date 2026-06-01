@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { cn } from "~/utils/cn";
@@ -18,11 +18,14 @@ type GitNode = Node<{
 }>;
 
 export default function GitNode({ data, selected }: NodeProps<GitNode>) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   return (
     <div
       className={cn(
         "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
         selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+        isDeleting && "pointer-events-none opacity-75 grayscale",
       )}
     >
       <Handle
@@ -43,7 +46,10 @@ export default function GitNode({ data, selected }: NodeProps<GitNode>) {
             <GitBranch className="w-5" />
             <p>{data.serviceName}</p>
           </div>
-          <GitContextMenu deploymentId={data.id} />
+          <GitContextMenu
+            deploymentId={data.id}
+            setIsDeleting={setIsDeleting}
+          />
         </div>
         <div>
           <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm shadow-md">
@@ -88,9 +94,10 @@ export default function GitNode({ data, selected }: NodeProps<GitNode>) {
 
 interface GitContextMenuProps {
   deploymentId: number;
+  setIsDeleting: (v: boolean) => void;
 }
 
-function GitContextMenu({ deploymentId }: GitContextMenuProps) {
+function GitContextMenu({ deploymentId, setIsDeleting }: GitContextMenuProps) {
   const trpc = useTRPC();
   const deleteDeploymentMutation = useMutation(
     trpc.deployment.deleteDeployment.mutationOptions(),
@@ -104,6 +111,7 @@ function GitContextMenu({ deploymentId }: GitContextMenuProps) {
   );
 
   function handleDeleteClicked() {
+    setIsDeleting(true);
     deleteDeploymentMutation.mutate(
       {
         id: deploymentId,
@@ -114,6 +122,9 @@ function GitContextMenu({ deploymentId }: GitContextMenuProps) {
             const parent = pathname.replace(/\/[^/]+\/?$/, "");
             navigate(parent, { relative: "path", replace: true });
           }
+        },
+        onError: () => {
+          setIsDeleting(false);
         },
       },
     );

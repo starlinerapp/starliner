@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { Database, EllipsisVertical, Trash } from "~/components/atoms/icons";
@@ -24,11 +24,14 @@ export default function DatabaseNode({
   data,
   selected,
 }: NodeProps<DatabaseNode>) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   return (
     <div
       className={cn(
         "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
         selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+        isDeleting && "pointer-events-none opacity-75 grayscale",
       )}
     >
       <Handle
@@ -42,7 +45,10 @@ export default function DatabaseNode({
             <Database className="w-5" />
             <p>{data.serviceName}</p>
           </div>
-          <DatabaseContextMenu deploymentId={data.id} />
+          <DatabaseContextMenu
+            deploymentId={data.id}
+            setIsDeleting={setIsDeleting}
+          />
         </div>
         <div>
           <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm shadow-md">
@@ -108,9 +114,13 @@ export default function DatabaseNode({
 
 interface DatabaseContextMenuProps {
   deploymentId: number;
+  setIsDeleting: (v: boolean) => void;
 }
 
-function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
+function DatabaseContextMenu({
+  deploymentId,
+  setIsDeleting,
+}: DatabaseContextMenuProps) {
   const trpc = useTRPC();
   const deleteDeploymentMutation = useMutation(
     trpc.deployment.deleteDeployment.mutationOptions(),
@@ -124,6 +134,7 @@ function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
   );
 
   function handleDeleteClicked() {
+    setIsDeleting(true);
     deleteDeploymentMutation.mutate(
       {
         id: deploymentId,
@@ -134,6 +145,9 @@ function DatabaseContextMenu({ deploymentId }: DatabaseContextMenuProps) {
             const parent = pathname.replace(/\/[^/]+\/?$/, "");
             navigate(parent, { relative: "path", replace: true });
           }
+        },
+        onError: () => {
+          setIsDeleting(false);
         },
       },
     );

@@ -2,7 +2,7 @@ import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { Cube, EllipsisVertical, Trash } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
-import React from "react";
+import React, { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
@@ -19,11 +19,14 @@ type ImageNode = Node<{
 }>;
 
 export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   return (
     <div
       className={cn(
         "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
         selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+        isDeleting && "pointer-events-none opacity-75 grayscale",
       )}
     >
       <Handle
@@ -44,7 +47,10 @@ export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
             <Cube className="w-5" />
             <p>{data.serviceName}</p>
           </div>
-          <ImageContextMenu deploymentId={data.id} />
+          <ImageContextMenu
+            deploymentId={data.id}
+            setIsDeleting={setIsDeleting}
+          />
         </div>
         <div>
           <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm shadow-md">
@@ -87,9 +93,13 @@ export default function ImageNode({ data, selected }: NodeProps<ImageNode>) {
 
 interface ImageContextMenuProps {
   deploymentId: number;
+  setIsDeleting: (v: boolean) => void;
 }
 
-function ImageContextMenu({ deploymentId }: ImageContextMenuProps) {
+function ImageContextMenu({
+  deploymentId,
+  setIsDeleting,
+}: ImageContextMenuProps) {
   const trpc = useTRPC();
   const deleteDeploymentMutation = useMutation(
     trpc.deployment.deleteDeployment.mutationOptions(),
@@ -103,6 +113,7 @@ function ImageContextMenu({ deploymentId }: ImageContextMenuProps) {
   );
 
   function handleDeleteClicked() {
+    setIsDeleting(true);
     deleteDeploymentMutation.mutate(
       {
         id: deploymentId,
@@ -113,6 +124,9 @@ function ImageContextMenu({ deploymentId }: ImageContextMenuProps) {
             const parent = pathname.replace(/\/[^/]+\/?$/, "");
             navigate(parent, { relative: "path", replace: true });
           }
+        },
+        onError: () => {
+          setIsDeleting(false);
         },
       },
     );
