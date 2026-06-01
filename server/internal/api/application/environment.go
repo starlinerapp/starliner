@@ -170,6 +170,12 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 
+			err = createDeployOnlyBuild(ctx, ea.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				log.Printf("failed to create database deploy build: %v", err)
+				continue
+			}
+
 			err = ea.queue.PublishDeployDatabase(&coreValue.Deployment{
 				Namespace:        env.Namespace,
 				DeploymentId:     d.Id,
@@ -347,8 +353,14 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 		return nil, err
 	}
 
+	databaseBuilds, err := ea.environmentRepository.GetEnvironmentDatabaseDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
 	allBuilds := append(builds, ingressBuilds...)
 	allBuilds = append(allBuilds, imageBuilds...)
+	allBuilds = append(allBuilds, databaseBuilds...)
 	sort.Slice(allBuilds, func(i, j int) bool {
 		return allBuilds[i].CreatedAt.After(allBuilds[j].CreatedAt)
 	})

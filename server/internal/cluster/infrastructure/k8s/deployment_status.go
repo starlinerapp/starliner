@@ -143,10 +143,7 @@ func (d *DeploymentStatus) collectReport(
 	deploy, err := client.AppsV1().Deployments(namespace).Get(ctx, releaseName, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			return fmt.Sprintf(
-				"🚀 Deployment Status Report\n\nWaiting for deployment %s to appear in the cluster...\n",
-				releaseName,
-			), false, nil
+			return d.collectStatefulSetReport(ctx, client, namespace, releaseName)
 		}
 		return "", false, fmt.Errorf("get deployment: %w", err)
 	}
@@ -223,6 +220,93 @@ func (d *DeploymentStatus) collectReport(
 	}
 
 	return b.String(), done, nil
+}
+
+func (d *DeploymentStatus) collectStatefulSetReport(
+	ctx context.Context,
+	client *kubernetes.Clientset,
+	namespace string,
+	releaseName string,
+) (string, bool, error) {
+	stsName := releaseName + "-db"
+	sts, err := client.AppsV1().StatefulSets(namespace).Get(ctx, stsName, metav1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return fmt.Sprintf(
+				"🚀 Deployment Status Report\n\nWaiting for database %s to appear in the cluster...\n",
+				stsName,
+			), false, nil
+		}
+		return "", false, fmt.Errorf("get statefulset: %w", err)
+	}
+
+	labelSelector := metav1.FormatLabelSelector(sts.Spec.Selector)
+	pods, err := client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		return "", false, fmt.Errorf("list pods: %w", err)
+	}
+
+	counts := countAllPods(pods.Items)
+	versionLabel := versionFromStatefulSet(sts)
+	startingPods := collectStartingPods(ctx, client, namespace, pods.Items, nil, nil)
+
+	desired := desiredStatefulSetReplicas(sts)
+	failed := counts.failed > 0
+	success := !failed && counts.running >= desired && counts.starting == 0 && counts.terminating == 0
+	done := failed || success
+
+	var b strings.Builder
+	b.WriteString("🚀 Deployment Status Report\n\n")
+
+	var statusLine string
+	switch {
+	case failed:
+		statusLine = "Application deployment for commit %s has failed.\n\n"
+	case success:
+		statusLine = "Application deployment for commit %s is complete.\n\n"
+	default:
+		statusLine = "Application deployment for commit %s is in progress.\n\n"
+	}
+	if _, err := fmt.Fprintf(&b, statusLine, versionLabel); err != nil {
+		return "", false, err
+	}
+
+	if _, err := fmt.Fprintf(&b, "📦 Pods\n└─ %s\n", counts); err != nil {
+		return "", false, err
+	}
+
+	for _, p := range startingPods {
+		if err := formatPodProgress(&b, p); err != nil {
+			return "", false, err
+		}
+	}
+
+	if !success && !failed && (counts.starting > 0 || counts.running < desired) {
+		b.WriteString("\n⏳ Waiting for pod readiness checks to pass...\n")
+	}
+
+	return b.String(), done, nil
+}
+
+func desiredStatefulSetReplicas(sts *appsv1.StatefulSet) int {
+	if sts.Spec.Replicas == nil {
+		return 1
+	}
+	return int(*sts.Spec.Replicas)
+}
+
+func versionFromStatefulSet(sts *appsv1.StatefulSet) string {
+	if len(sts.Spec.Template.Spec.Containers) == 0 {
+		return "unknown"
+	}
+	image := sts.Spec.Template.Spec.Containers[0].Image
+	parts := strings.Split(image, ":")
+	if len(parts) < 2 {
+		return image
+	}
+	return parts[len(parts)-1]
 }
 
 func desiredReplicas(deploy *appsv1.Deployment) int {

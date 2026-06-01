@@ -546,6 +546,11 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return err
+	}
+
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}

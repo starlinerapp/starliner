@@ -29,6 +29,7 @@ type EnvironmentRepository interface {
 	GetEnvironmentGitDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error)
 	GetEnvironmentIngressDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error)
 	GetEnvironmentImageDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error)
+	GetEnvironmentDatabaseDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error)
 	GetEnvironmentBranch(ctx context.Context, environmentId int64) (string, error)
 	UpdateEnvironmentBranch(ctx context.Context, environmentId int64, branch string) error
 }

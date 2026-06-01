@@ -2,7 +2,7 @@ import Button from "~/components/atoms/button/Button";
 import { ArrowRight } from "~/components/atoms/icons";
 import React, { useState } from "react";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
@@ -27,6 +27,7 @@ export default function DeployDatabaseForm({
   const [error, setError] = useState<string | null>(null);
 
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const createDatabaseMutation = useMutation(
     trpc.deployment.deployDatabase.mutationOptions(),
@@ -44,6 +45,11 @@ export default function DeployDatabaseForm({
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
           reset();
           setError(null);
         },
