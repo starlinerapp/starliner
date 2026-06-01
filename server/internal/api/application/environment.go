@@ -305,7 +305,7 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 			return nil, err
 		}
 
-		internalEndpoint := fmt.Sprintf("%s-rw:%s", normalizedServiceName, d.Port)
+		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
 		databaseDeployments[i] = &value.DatabaseDeployment{
 			Id:               d.Id,
 			ServiceName:      d.ServiceName,

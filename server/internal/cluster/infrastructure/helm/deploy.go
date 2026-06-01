@@ -94,24 +94,8 @@ func (d *Deploy) DeployImage(
 	return installChart(DeploymentChart, args.Namespace, args.ReleaseName, args.KubeconfigBase64, values)
 }
 
-func (d *Deploy) DeployCloudNativePg(namespace string, releaseName string, kubeconfigBase64 string) error {
-	return installChart(CloudNativePgChart, namespace, releaseName, kubeconfigBase64, nil)
-}
-
 func (d *Deploy) DeployPostgres(namespace string, releaseName string, kubeconfigBase64 string) error {
-	values := map[string]interface{}{
-		"cluster": map[string]interface{}{
-			"bootstrap": map[string]interface{}{
-				"initdb": map[string]interface{}{
-					"database": "app",
-					"owner":    "app",
-					"secret": map[string]interface{}{
-						"name": fmt.Sprintf("%s-%s", releaseName, "db-credentials"),
-					},
-				},
-			},
-		},
-	}
+	values := map[string]interface{}{}
 	return installChart(PostgresChart, namespace, releaseName, kubeconfigBase64, values)
 }
 

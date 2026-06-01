@@ -1,7 +1,7 @@
 // NOTE: Initial draft generated with AI assistance.
 // Code has been reviewed and modified.
 
-import type { ResponseDeployments } from "../../server/api/clients/server/generated";
+import type { ResponseDeployments } from "~/server/api/clients/server/generated";
 import { Position } from "@xyflow/react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -9,7 +9,7 @@ import { Position } from "@xyflow/react";
 interface DatabaseTarget {
   id: string;
   serviceName: string;
-  rwHost: string;
+  host: string;
 }
 
 interface ServiceTarget {
@@ -70,9 +70,9 @@ const hostFromPostgresConnectionString = (
   }
 };
 
-const referencesDatabase = (value: string, { rwHost }: DatabaseTarget) => {
-  if (value === rwHost) return true;
-  return hostFromPostgresConnectionString(value) === rwHost;
+const referencesDatabase = (value: string, { host }: DatabaseTarget) => {
+  if (value === host) return true;
+  return hostFromPostgresConnectionString(value) === host;
 };
 
 // ─── Target Builders ──────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ export const buildTargets = (deployments: ResponseDeployments): Targets => ({
   databaseTargets: deployments.databases.map((db) => ({
     id: String(db.id),
     serviceName: db.serviceName,
-    rwHost: `${db.serviceName}-rw`,
+    host: `${db.serviceName}`,
   })),
   imageTargets: deployments.images.map((t) => ({
     id: String(t.id),

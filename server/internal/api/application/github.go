@@ -716,7 +716,7 @@ func (ga *GitHubApplication) getEnvironmentDeployments(ctx context.Context, envi
 			return nil, err
 		}
 
-		internalEndpoint := fmt.Sprintf("%s-rw:%s", normalizedServiceName, d.Port)
+		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
 		databaseDeployments[i] = &value.DatabaseDeployment{
 			Id:               d.Id,
 			ServiceName:      d.ServiceName,
