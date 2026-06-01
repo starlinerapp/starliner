@@ -55,6 +55,24 @@ services:
     networks:
       - internal
 
+  nats-surveyor:
+    image: natsio/nats-surveyor:latest
+    restart: unless-stopped
+    depends_on:
+      - nats
+    command:
+      - "-s"
+      - "nats://nats:4222"
+      - "--user"
+      - "sys"
+      - "--password"
+      - "syspassword"
+      - "--accounts"
+      - "--jsz"
+      - "all"
+    networks:
+      - internal
+
 volumes:
   prometheus-data:
   grafana-data:

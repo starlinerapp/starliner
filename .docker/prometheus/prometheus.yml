@@ -7,6 +7,10 @@ scrape_configs:
     static_configs:
       - targets: ["nats-exporter:7777"]
 
+  - job_name: nats-surveyor
+    static_configs:
+      - targets: ["nats-surveyor:7777"]
+
 #  - job_name: server-api
 #    static_configs:
 #      - targets: ["server-api:9090"]
