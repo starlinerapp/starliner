@@ -143,7 +143,17 @@ func (d *DeploymentStatus) collectReport(
 	deploy, err := client.AppsV1().Deployments(namespace).Get(ctx, releaseName, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			return d.collectStatefulSetReport(ctx, client, namespace, releaseName)
+			_, stsErr := client.AppsV1().StatefulSets(namespace).Get(ctx, releaseName+"-db", metav1.GetOptions{})
+			if stsErr == nil {
+				return d.collectStatefulSetReport(ctx, client, namespace, releaseName)
+			}
+			if !apierrors.IsNotFound(stsErr) {
+				return "", false, fmt.Errorf("get statefulset: %w", stsErr)
+			}
+			return fmt.Sprintf(
+				"🚀 Deployment Status Report\n\nWaiting for deployment %s to appear in the cluster...\n",
+				releaseName,
+			), false, nil
 		}
 		return "", false, fmt.Errorf("get deployment: %w", err)
 	}

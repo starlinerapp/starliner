@@ -479,6 +479,11 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				errs = append(errs, err)
 				continue
 			}
+			err = createDeployOnlyBuild(ctx, ga.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
 			err = ga.queue.PublishDeployImage(&coreValue.ImageDeployment{
 				DeploymentId:          d.Id,
 				DeploymentName:        normalizedDeploymentName,
