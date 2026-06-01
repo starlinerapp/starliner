@@ -193,6 +193,11 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 			if err != nil {
 				return nil, err
 			}
+			err = createDeployOnlyBuild(ctx, ea.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				log.Printf("failed to create image deploy build: %v", err)
+				continue
+			}
 			err = ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
 				DeploymentId:          d.Id,
 				DeploymentName:        normalizedDeploymentName,
@@ -337,7 +342,13 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 		return nil, err
 	}
 
+	imageBuilds, err := ea.environmentRepository.GetEnvironmentImageDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
 	allBuilds := append(builds, ingressBuilds...)
+	allBuilds = append(allBuilds, imageBuilds...)
 	sort.Slice(allBuilds, func(i, j int) bool {
 		return allBuilds[i].CreatedAt.After(allBuilds[j].CreatedAt)
 	})

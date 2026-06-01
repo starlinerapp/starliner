@@ -342,6 +342,11 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return err
+	}
+
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
@@ -433,6 +438,11 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		strconv.Itoa(port),
 		envs,
 	)
+	if err != nil {
+		return err
+	}
+
+	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
 	if err != nil {
 		return err
 	}
