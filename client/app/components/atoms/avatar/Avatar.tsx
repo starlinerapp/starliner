@@ -13,7 +13,7 @@ export function AvatarIcon({ name, profilePicture }: AvatarIconProps) {
   return (
     <>
       {profilePicture ? (
-        <div className="h-8 w-8 rounded-full">
+        <div className="h-8 w-8 rounded-full overflow-hidden">
           <img
             src={profilePicture}
             alt="Profile Picture"
