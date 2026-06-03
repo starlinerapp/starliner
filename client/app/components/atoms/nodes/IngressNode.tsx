@@ -52,7 +52,7 @@ export default function IngressNode({
           <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
             <div className="flex flex-col">
               <p>Ingress</p>
-              {data.hosts.map((host) => {
+              {data.hosts.map((host, hostIndex) => {
                 return (
                   <div key={host.host} className="relative">
                     <div
