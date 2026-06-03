@@ -57,7 +57,7 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
 
     window.addEventListener("resize", updateActiveRect);
     return () => window.removeEventListener("resize", updateActiveRect);
-  }, [updateActiveRect]);
+  }, [updateActiveRect, items]);
 
   return (
     <div

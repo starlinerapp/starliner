@@ -150,7 +150,7 @@ export default function ArchitectureCanvas({
     }));
 
     return { rawNodes, rawEdges };
-  }, [graphFingerprint, deployments.databases.map, deployments]);
+  }, [graphFingerprint]);
 
   const didInitialFitViewRef = useRef(false);
 
@@ -183,7 +183,7 @@ export default function ArchitectureCanvas({
     return () => {
       cancelled = true;
     };
-  }, [rawGraph, fitView, deploymentId]);
+  }, [rawGraph]);
 
   // Sync selection whenever the deploymentId URL param changes
   useEffect(() => {
