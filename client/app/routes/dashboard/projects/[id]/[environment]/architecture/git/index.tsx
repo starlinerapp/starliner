@@ -1,13 +1,12 @@
-import React from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import DeployFromGitForm, {
   type DeployFromGitFormInput,
 } from "~/components/organisms/forms/DeployFromGitForm";
-import { useTRPC } from "~/utils/trpc/react";
-import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { useTRPC } from "~/utils/trpc/react";
 
 export function loader() {
   return {

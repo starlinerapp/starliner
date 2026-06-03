@@ -1,13 +1,13 @@
-import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { EllipsisVertical, Shuffle, Trash } from "~/components/atoms/icons";
-import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
-import React, { useState } from "react";
-import { useTRPC } from "~/utils/trpc/react";
-import { useMutation } from "@tanstack/react-query";
 import * as Popover from "@radix-ui/react-popover";
+import { useMutation } from "@tanstack/react-query";
+import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
+import { useState } from "react";
+import { useLocation, useMatch, useNavigate } from "react-router";
+import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
+import { EllipsisVertical, Shuffle, Trash } from "~/components/atoms/icons";
 import type { ResponseIngressHost } from "~/server/api/clients/server/generated";
 import { cn } from "~/utils/cn";
-import { useLocation, useMatch, useNavigate } from "react-router";
+import { useTRPC } from "~/utils/trpc/react";
 
 type IngressNode = Node<{
   id: number;
@@ -52,9 +52,9 @@ export default function IngressNode({
           <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
             <div className="flex flex-col">
               <p>Ingress</p>
-              {data.hosts.map((host, hostIndex) => {
+              {data.hosts.map((host) => {
                 return (
-                  <div key={hostIndex} className="relative">
+                  <div key={host.host} className="relative">
                     <div
                       className={cn(
                         "border-mauve-6 relative flex flex-col gap-1 border-l-2 pl-6",
@@ -69,10 +69,10 @@ export default function IngressNode({
                         />
                       </span>
                       <div className="border-mauve-6 relative flex flex-col gap-2 border-l-2 pl-6">
-                        {host.paths?.map((path, pathIndex) => {
+                        {host.paths?.map((path) => {
                           return (
                             <div
-                              key={pathIndex}
+                              key={path.path}
                               className="relative flex flex-col gap-1"
                             >
                               <div className="border-mauve-6 absolute -left-6.5 h-3 w-5 rounded-bl-md border-b-2 border-l-2" />
@@ -172,6 +172,7 @@ function IngressContextMenu({
           <div className="flex min-w-[120px] flex-col p-0.5">
             <Popover.Close asChild>
               <button
+                type="button"
                 className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
                 onClick={(e) => {
                   e.stopPropagation();

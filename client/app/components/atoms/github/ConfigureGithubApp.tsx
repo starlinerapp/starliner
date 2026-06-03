@@ -1,4 +1,3 @@
-import React from "react";
 import { GithubLogo } from "~/components/atoms/icons";
 
 interface ConfigureGitHubAppProps {

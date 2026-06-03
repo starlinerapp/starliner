@@ -1,11 +1,11 @@
-import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
-import { Outlet, useLocation, useParams } from "react-router";
-import React, { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import React, { useEffect, useMemo } from "react";
+import { Outlet, useLocation, useParams } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
+import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function ProjectLayout() {
   const { slug, id, environment } = useParams<{

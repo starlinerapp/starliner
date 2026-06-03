@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { formatSlugInput, sanitizeSlug } from "~/utils/slug";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface CreateTeamFormInput {
   name: string;

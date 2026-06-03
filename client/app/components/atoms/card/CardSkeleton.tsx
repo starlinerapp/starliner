@@ -1,6 +1,6 @@
-import React from "react";
-import { cn } from "~/utils/cn";
+import type React from "react";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { cn } from "~/utils/cn";
 
 interface CardProps {
   className?: string;

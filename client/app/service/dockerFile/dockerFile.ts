@@ -17,7 +17,7 @@ export function parseDockerfile(
     if (!line || line.startsWith("#")) continue;
 
     while (line.endsWith("\\") && i + 1 < lines.length) {
-      line = line.slice(0, -1).trim() + " " + lines[++i].trim();
+      line = `${line.slice(0, -1).trim()} ${lines[++i].trim()}`;
     }
 
     if (!/^ARG\s+/i.test(line)) continue;

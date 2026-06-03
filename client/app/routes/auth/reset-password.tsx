@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
-import Button from "~/components/atoms/button/Button";
-import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
+import { getAuthClient } from "~/utils/auth/client";
 
 interface ResetFormInput {
   password: string;

@@ -1,6 +1,7 @@
-import React, { useState, useLayoutEffect, useRef, useCallback } from "react";
-import { NavLink, useLocation } from "react-router";
 import { motion } from "framer-motion";
+import type React from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { NavLink, useLocation } from "react-router";
 import { cn } from "~/utils/cn";
 
 type NavigationBarItem = {
@@ -56,7 +57,7 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
 
     window.addEventListener("resize", updateActiveRect);
     return () => window.removeEventListener("resize", updateActiveRect);
-  }, [updateActiveRect, items]);
+  }, [updateActiveRect]);
 
   return (
     <div

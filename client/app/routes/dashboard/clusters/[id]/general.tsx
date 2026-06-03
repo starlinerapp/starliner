@@ -1,20 +1,20 @@
-import React, { useEffect, useRef } from "react";
-import Button from "~/components/atoms/button/Button";
-import { Download } from "~/components/atoms/icons";
-import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
-import { useNavigate, useParams } from "react-router";
-import { useTRPC } from "~/utils/trpc/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useEffect, useRef } from "react";
+import type { ImperativePanelHandle } from "react-resizable-panels";
+import { useNavigate, useParams } from "react-router";
+import Button from "~/components/atoms/button/Button";
+import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
+import { Download } from "~/components/atoms/icons";
 import LiveIndicator from "~/components/atoms/live-indicator/LiveIndicator";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/atoms/resizable/Resizable";
-import type { ImperativePanelHandle } from "react-resizable-panels";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import BottomBar from "~/components/organisms/bottom-bar/cluster/BottomBar";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function General() {
   const navigate = useNavigate();
@@ -46,7 +46,14 @@ export default function General() {
         navigate(`/${slug}/clusters/all`);
       })();
     }
-  }, [error, id, slug]);
+  }, [
+    error,
+    slug,
+    organization.id,
+    trpc.organization.getOrganizationClusters.queryKey,
+    queryClient.invalidateQueries,
+    navigate,
+  ]);
 
   const bottomPanelRef = useRef<ImperativePanelHandle>(null);
 

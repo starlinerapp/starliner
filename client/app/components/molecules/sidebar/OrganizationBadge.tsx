@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import * as Popover from "@radix-ui/react-popover";
 import * as HoverCard from "@radix-ui/react-hover-card";
-import { cn } from "~/utils/cn";
-import { ChevronRight, Plus } from "~/components/atoms/icons";
-import { Link, useParams } from "react-router";
-import { useTRPC } from "~/utils/trpc/react";
+import * as Popover from "@radix-ui/react-popover";
 import { useQuery } from "@tanstack/react-query";
+import React, { useMemo } from "react";
+import { Link, useParams } from "react-router";
+import { ChevronRight, Plus } from "~/components/atoms/icons";
+import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface OrganizationIconProps {
   name: string;
@@ -103,10 +103,10 @@ export default function OrganizationBadge() {
                   className="border-gray-6 m-2 cursor-pointer rounded-md border bg-white shadow-md"
                 >
                   <div className="flex min-w-[160px] flex-col p-1">
-                    {otherOrganizations.map((organization, i) => (
+                    {otherOrganizations.map((organization) => (
                       <Link
                         to={`/${organization.slug}`}
-                        key={i}
+                        key={organization.slug}
                         className="hover:bg-gray-3 flex items-center gap-2 rounded-md p-2 text-xs"
                         onClick={() => setOpen(false)}
                       >

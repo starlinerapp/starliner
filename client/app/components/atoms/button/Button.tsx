@@ -1,8 +1,5 @@
-import React, {
-  type ButtonHTMLAttributes,
-  type PropsWithChildren,
-} from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { ButtonHTMLAttributes, PropsWithChildren } from "react";
 import { cn } from "~/utils/cn";
 
 type ButtonProps = PropsWithChildren<ButtonHTMLAttributes<HTMLButtonElement>>;
@@ -51,8 +48,7 @@ const buttonVariants = cva(
 );
 
 export interface ButtonVariants
-  extends
-    Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "disabled">,
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled">,
     VariantProps<typeof buttonVariants> {}
 
 export default function Button({

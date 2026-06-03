@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useSubscription } from "@trpc/tanstack-react-query";
+import { useEffect, useRef, useState } from "react";
+import { useTRPC } from "~/utils/trpc/react";
 import type {
   ResponseDatabaseDeployment,
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
 } from "../../../../server/api/clients/server/generated";
-import { useTRPC } from "~/utils/trpc/react";
-import { useSubscription } from "@trpc/tanstack-react-query";
 
 type Deployment =
   | ResponseGitDeployment

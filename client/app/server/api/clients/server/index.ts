@@ -1,20 +1,19 @@
-import {
-  OrganizationApiFactory,
-  Configuration,
-  RootApiFactory,
-  UserApiFactory,
-  ProjectApiFactory,
-  EnvironmentApiFactory,
-  ClusterApiFactory,
-  DeploymentApiFactory,
-  BuildApiFactory,
-  TeamApiFactory,
-  GithubappApiFactory,
-  GithubApiFactory,
-} from "./generated";
-
 import { serverEnv } from "~/env.server";
 import { axiosInstance } from "./axios.server";
+import {
+  BuildApiFactory,
+  ClusterApiFactory,
+  Configuration,
+  DeploymentApiFactory,
+  EnvironmentApiFactory,
+  GithubApiFactory,
+  GithubappApiFactory,
+  OrganizationApiFactory,
+  ProjectApiFactory,
+  RootApiFactory,
+  TeamApiFactory,
+  UserApiFactory,
+} from "./generated";
 
 const configuration = new Configuration({
   basePath: `http://${serverEnv.SERVER_BASE_URL}`,

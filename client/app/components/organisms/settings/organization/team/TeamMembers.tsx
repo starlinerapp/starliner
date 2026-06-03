@@ -1,16 +1,16 @@
 import * as Popover from "@radix-ui/react-popover";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { ChevronDown, MagnifyingGlass } from "~/components/atoms/icons";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import React, { useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import AddMemberDialog from "~/components/organisms/dialog/AddMemberDialog";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
-import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
-import AddMemberDialog from "~/components/organisms/dialog/AddMemberDialog";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface MemberToRemove {
   userId: number;
@@ -126,7 +126,6 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                         className="border-mauve-6 placeholder:text-mauve-11 w-full rounded-md border p-2 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
                         type="text"
                         placeholder="Search Members"
-                        autoFocus
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                       />
@@ -135,6 +134,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                       {filteredOrgMembers.length > 0 ? (
                         filteredOrgMembers.map((m) => (
                           <button
+                            type="button"
                             key={m.id}
                             onClick={() => handleAddMember(m.id)}
                             className="hover:bg-gray-3 flex w-full cursor-pointer items-center gap-3 rounded p-2 text-left transition-colors"
@@ -177,22 +177,20 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
           )}
         </div>
         {isLoading ? (
-          <>
-            {Array.from({ length: 1 }).map((_, i) => (
-              <div
-                key={i}
-                className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
-              >
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <div className="flex flex-col gap-1">
-                    <Skeleton className="h-4.5 w-28" />
-                    <Skeleton className="h-4.5 w-44" />
-                  </div>
+          Array.from({ length: 1 }).map((_, i) => (
+            <div
+              key={i}
+              className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+            >
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4.5 w-28" />
+                  <Skeleton className="h-4.5 w-44" />
                 </div>
               </div>
-            ))}
-          </>
+            </div>
+          ))
         ) : members?.length === 0 ? (
           <div className="text-mauve-11 px-4 py-3 text-sm">No members yet.</div>
         ) : (

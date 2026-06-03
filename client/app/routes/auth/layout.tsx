@@ -1,7 +1,6 @@
-import type { Route } from "./+types/layout";
 import { Outlet, redirect } from "react-router";
-import React from "react";
 import { auth } from "~/utils/auth/server";
+import type { Route } from "./+types/layout";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await auth.api.getSession({

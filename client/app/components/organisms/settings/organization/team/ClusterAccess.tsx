@@ -1,15 +1,15 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Button from "~/components/atoms/button/Button";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import React, { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import { useTRPC } from "~/utils/trpc/react";
 
 export function ClusterAccess({ teamId }: { teamId: number }) {
   const trpc = useTRPC();
@@ -50,7 +50,9 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
 
   useEffect(() => {
     if (showAssignClusterDialog) {
-      setPendingAssignedClusterIds(getAssignedClusterIds());
+      setPendingAssignedClusterIds(
+        new Set(teamClusters?.map((c) => c.clusterId) ?? []),
+      );
     }
   }, [showAssignClusterDialog, teamClusters]);
 

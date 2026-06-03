@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import { motion } from "framer-motion";
+import type React from "react";
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router";
+import { ChevronDown } from "~/components/atoms/icons";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/atoms/resizable/Resizable";
-import { NavLink, useLocation } from "react-router";
-import { cn } from "~/utils/cn";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import { ChevronDown } from "~/components/atoms/icons";
-import { motion } from "framer-motion";
+import { cn } from "~/utils/cn";
 
 type SidebarItem = {
   id: string;
@@ -65,6 +66,7 @@ function CollapsibleGroup({ group }: { group: SidebarGroup }) {
   return (
     <div className="flex flex-col gap-0.5">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "hover:bg-gray-3 flex w-full items-center justify-between rounded-md px-3 py-2 text-sm",

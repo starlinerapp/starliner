@@ -1,5 +1,5 @@
-import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import * as React from "react";
 import { Cross } from "~/components/atoms/icons";
 
 export const DialogContent = React.forwardRef<
@@ -16,6 +16,7 @@ export const DialogContent = React.forwardRef<
       {children}
       <DialogPrimitive.Close className="cursor-pointer" asChild>
         <button
+          type="button"
           className="text-violet11 hover:bg-gray-4 absolute top-2.5 right-2.5 inline-flex size-[25px] appearance-none items-center justify-center rounded-md bg-white focus:outline-none"
           aria-label="Close"
         >

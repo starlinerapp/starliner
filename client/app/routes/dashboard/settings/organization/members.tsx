@@ -1,14 +1,14 @@
-import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useState } from "react";
+import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 import AddMemberDialog from "~/components/organisms/dialog/AddMemberDialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface MemberToRemove {
   userId: number;

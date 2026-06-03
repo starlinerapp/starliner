@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
-import { ChevronRight } from "lucide-react";
-import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface SelectProjectDirectoryDialogProps {
   repositoryOwner: string;
@@ -103,8 +103,8 @@ export default function SelectProjectDirectoryDialog({
                     <DirectoryItemSkeleton depth={1} />
                   </span>
                 ) : (
-                  projectDirectories.map((directory, i) => (
-                    <span key={i}>
+                  projectDirectories.map((directory) => (
+                    <span key={directory.path ?? directory.name}>
                       <DirectoryItem
                         name={directory.name}
                         path={directory.path ?? directory.name}
@@ -222,7 +222,7 @@ function DirectoryItem({
             subDirectories.map((dir, i) => (
               <DirectoryItem
                 className={cn(i === 0 && "pt-2")}
-                key={i}
+                key={dir.path ?? dir.name}
                 name={dir.name}
                 path={dir.path ?? `${path}/${dir.name}`}
                 depth={depth + 1}

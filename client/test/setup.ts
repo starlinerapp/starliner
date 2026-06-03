@@ -1,5 +1,5 @@
 import { setupServer } from "msw/node";
-import { afterEach, beforeAll, afterAll } from "vitest";
+import { afterAll, afterEach, beforeAll } from "vitest";
 
 export const restHandlers = [];
 

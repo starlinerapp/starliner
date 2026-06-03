@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
-import Button from "~/components/atoms/button/Button";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useEffect } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { ChevronDown } from "~/components/atoms/icons";
-import { cn } from "~/utils/cn";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Button from "~/components/atoms/button/Button";
+import { ChevronDown } from "~/components/atoms/icons";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface NewProjectFormInput {
   name: string;
@@ -44,14 +44,14 @@ export default function NewProject() {
 
   useEffect(() => {
     setValue("teamId", teamsData?.[0] ? String(teamsData[0].id) : "");
-  }, [teamsData?.[0]?.id, setValue]);
+  }, [teamsData?.[0]?.id, setValue, teamsData?.[0]]);
 
   useEffect(() => {
     setValue(
       "clusterId",
       clustersData?.[0] ? String(clustersData[0].clusterId) : "",
     );
-  }, [clustersData?.[0]?.clusterId, setValue]);
+  }, [clustersData?.[0]?.clusterId, setValue, clustersData?.[0]]);
 
   const isLoading = isClustersLoading || isTeamsLoading;
 

@@ -1,5 +1,5 @@
-import { protectedProcedure } from "~/server/trpc";
 import { userApiFactory } from "~/server/api/clients/server";
+import { protectedProcedure } from "~/server/trpc";
 
 export const userRouter = {
   getUser: protectedProcedure.query(async ({ ctx }) => {

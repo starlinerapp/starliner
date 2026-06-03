@@ -5,12 +5,12 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "typecheck": "tsc",
-    "fmt": "prettier --write .",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix",
+    "fmt": "biome format --write .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
     "drizzle:generate": "npx drizzle-kit generate",
     "drizzle:migrate": "npx drizzle-kit migrate",
-    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/auth/docs/auth_auth_swagger.yaml' -g typescript-axios -o src/infrastructure/api/client/generated && prettier src/infrastructure/api/client/generated --write"
+    "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/auth/docs/auth_auth_swagger.yaml' -g typescript-axios -o src/infrastructure/api/client/generated && biome format --write src/infrastructure/api/client/generated"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
@@ -25,17 +25,13 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@biomejs/biome": "2.4.16",
     "@openapitools/openapi-generator-cli": "^2.32.0",
     "@types/node": "^20.11.17",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
-    "eslint": "^10.4.0",
-    "jiti": "^2.7.0",
-    "prettier": "^3.8.3",
     "tsx": "^4.22.0",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.59.3"
+    "typescript": "^5.8.3"
   },
   "overrides": {
     "esbuild": "^0.27.3"

@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
-import Button from "~/components/atoms/button/Button";
-import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import UpdateConnectedBranchForm from "~/components/organisms/forms/UpdateConnectedBranchForm";
-import Switch from "~/components/atoms/switch/Switch";
+import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import Switch from "~/components/atoms/switch/Switch";
 import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
+import UpdateConnectedBranchForm from "~/components/organisms/forms/UpdateConnectedBranchForm";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function ProjectSettings() {
   const navigate = useNavigate();

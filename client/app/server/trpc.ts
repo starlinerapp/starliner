@@ -1,5 +1,5 @@
-import superjson from "superjson";
 import { initTRPC, TRPCError } from "@trpc/server";
+import superjson from "superjson";
 import { ZodError } from "zod";
 import { auth } from "~/utils/auth/server";
 

@@ -1,7 +1,6 @@
-import React from "react";
+import { Link } from "react-router";
 import { ExclamationTriangle, LinkOut } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
-import { Link } from "react-router";
 
 interface WarningBannerLinkOutProps {
   text: string;

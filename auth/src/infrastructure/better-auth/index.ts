@@ -1,10 +1,10 @@
 import { betterAuth } from "better-auth";
-import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { bearer } from "better-auth/plugins";
 import type { EmailApplication } from "src/application/email";
-import type { db } from "../db";
 import type { AuthService } from "../../domain/port/auth";
 import { serverEnv } from "../../env.server";
+import type { db } from "../db";
 import { account, session, user, verification } from "../db/schema";
 
 type Db = typeof db;

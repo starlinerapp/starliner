@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { NavLink, useSearchParams } from "react-router";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import SuccessBanner from "~/components/atoms/banner/SuccessBanner";
+import Button from "~/components/atoms/button/Button";
 import {
   ArrowRight,
   ChevronRight,
   Eye,
   EyeSlash,
 } from "~/components/atoms/icons";
-import { NavLink, useSearchParams } from "react-router";
-import Button from "~/components/atoms/button/Button";
 import { getAuthClient } from "~/utils/auth/client";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import SuccessBanner from "~/components/atoms/banner/SuccessBanner";
 
 interface SignUpFormInput {
   email: string;

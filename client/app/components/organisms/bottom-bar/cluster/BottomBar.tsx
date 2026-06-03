@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
+import { useState } from "react";
 import TerminalClient from "~/components/atoms/terminal/Terminal.client";
 import Logs from "~/components/organisms/bottom-bar/cluster/Logs";
+import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
 
 const navigationItems = ["Logs", "Terminal"] as const;
 type NavigationItem = (typeof navigationItems)[number];

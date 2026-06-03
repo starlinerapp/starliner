@@ -1,17 +1,17 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Button from "~/components/atoms/button/Button";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
-import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import { useTRPC } from "~/utils/trpc/react";
 
 export function RepositoryAccess({
   teamId,
@@ -66,7 +66,9 @@ export function RepositoryAccess({
 
   useEffect(() => {
     if (showAssignDialog) {
-      setPendingAssignedRepoIds(getAssignedRepoIds());
+      setPendingAssignedRepoIds(
+        new Set(teamRepos?.map((r) => r.githubRepoId) ?? []),
+      );
     }
   }, [showAssignDialog, teamRepos]);
 

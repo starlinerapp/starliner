@@ -1,10 +1,9 @@
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
-import Button from "~/components/atoms/button/Button";
-import React from "react";
+import { useMutation } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { getAuthClient } from "~/utils/auth/client";
-import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 
 interface NewOrganizationFormInput {
@@ -37,6 +36,7 @@ export default function NewOrganization() {
   return (
     <div className="flex w-125 flex-col gap-4">
       <button
+        type="button"
         className="hover:bg-gray-4 flex cursor-pointer items-center gap-0.5 self-end rounded-md px-2 py-0.5 text-sm font-light"
         onClick={handleSignOutClicked}
       >

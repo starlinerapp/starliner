@@ -1,10 +1,10 @@
-import React, { useRef, useState } from "react";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import { useTRPC } from "~/utils/trpc/react";
-import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import type React from "react";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 import { Cross } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
 import {
@@ -12,6 +12,7 @@ import {
   getInvalidEmails,
   isValidEmail,
 } from "~/utils/email";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface FormInput {
   emails: string;

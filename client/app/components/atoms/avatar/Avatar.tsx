@@ -1,8 +1,7 @@
-import React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { useNavigate } from "react-router";
-import { getAuthClient } from "~/utils/auth/client";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { getAuthClient } from "~/utils/auth/client";
 
 interface AvatarIconProps {
   name: string;
@@ -16,7 +15,7 @@ export function AvatarIcon({ name, profilePicture }: AvatarIconProps) {
         <div className="h-8 w-8 overflow-hidden rounded-full">
           <img
             src={profilePicture}
-            alt="Profile Picture"
+            alt="User avatar"
             className="h-full w-full object-cover"
           />
         </div>
@@ -77,6 +76,7 @@ export default function Avatar() {
               <p>Documentation</p>
             </a>
             <button
+              type="button"
               className="hover:bg-gray-3 flex cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-xs"
               onClick={handleSignOutClicked}
             >

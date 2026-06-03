@@ -1,4 +1,9 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useMemo } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,16 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/atoms/dropdown/DropdownMenu";
-import ChevronDown from "~/components/atoms/icons/ChevronDown";
 import { ChevronRight } from "~/components/atoms/icons";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
-import { useNavigate, useParams } from "react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import ChevronDown from "~/components/atoms/icons/ChevronDown";
 import type { ResponseProject } from "~/server/api/clients/server/generated";
 import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface NewEnvironmentFormInput {
   environmentName: string;

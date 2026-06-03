@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useTRPC } from "~/utils/trpc/react";
 import { useSubscription } from "@trpc/tanstack-react-query";
+import { useEffect, useRef, useState } from "react";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface LogsProps {
   clusterId: number | undefined;

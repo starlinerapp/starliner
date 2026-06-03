@@ -1,8 +1,8 @@
-import React from "react";
-import { cn } from "~/utils/cn";
-import { LinkOut } from "~/components/atoms/icons";
-import { Link } from "react-router";
 import { CheckCircle } from "lucide-react";
+import type React from "react";
+import { Link } from "react-router";
+import { LinkOut } from "~/components/atoms/icons";
+import { cn } from "~/utils/cn";
 
 interface SuccessBannerLinkOutProps {
   text: string;

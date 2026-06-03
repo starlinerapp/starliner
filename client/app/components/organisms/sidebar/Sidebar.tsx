@@ -1,9 +1,9 @@
-import React from "react";
-import SidebarItem from "~/components/molecules/sidebar/SidebarItem";
+import type React from "react";
 import Avatar from "~/components/atoms/avatar/Avatar";
 import OrganizationBadge from "~/components/molecules/sidebar/OrganizationBadge";
+import SidebarItem from "~/components/molecules/sidebar/SidebarItem";
 
-type SidebarItem = {
+type SidebarItemConfig = {
   id: string;
   title: string;
   icon: React.ReactNode;
@@ -11,7 +11,7 @@ type SidebarItem = {
 };
 
 interface SidebarProps {
-  sidebarItems: SidebarItem[];
+  sidebarItems: SidebarItemConfig[];
   children: React.ReactNode;
 }
 

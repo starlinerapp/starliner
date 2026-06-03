@@ -1,7 +1,6 @@
-import { ArrowRight } from "~/components/atoms/icons";
-import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
-import React from "react";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
+import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
+import { ArrowRight } from "~/components/atoms/icons";
 import { caller } from "~/utils/trpc/server";
 import type { Route } from "./+types/githubapp";
 

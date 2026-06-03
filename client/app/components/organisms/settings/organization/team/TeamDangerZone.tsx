@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import Button from "~/components/atoms/button/Button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useTRPC } from "~/utils/trpc/react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import Button from "~/components/atoms/button/Button";
 import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface TeamDangerZoneProps {
   teamId: number;

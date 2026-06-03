@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import { useTRPC } from "~/utils/trpc/react";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "~/utils/cn";
 import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface SelectDockerfileDialogProps {
   repositoryOwner: string;
@@ -45,9 +45,9 @@ export default function SelectDockerfileDialog({
   function handleContinue() {
     if (selectedPath === null) return;
     const normalizedPath = path.startsWith("./") ? path.slice(2) : path;
-    const relativePath = selectedPath.startsWith(normalizedPath + "/")
-      ? "./" + selectedPath.slice(normalizedPath.length + 1)
-      : "./" + selectedPath;
+    const relativePath = selectedPath.startsWith(`${normalizedPath}/`)
+      ? `./${selectedPath.slice(normalizedPath.length + 1)}`
+      : `./${selectedPath}`;
 
     onConfirm(relativePath);
     onOpenChange(false);
@@ -73,8 +73,8 @@ export default function SelectDockerfileDialog({
                   <DirectoryItemSkeleton depth={0} />
                 </span>
               ) : (
-                repositoryContentData?.map((item, i) => (
-                  <span key={i}>
+                repositoryContentData?.map((item) => (
+                  <span key={item.path ?? item.name}>
                     <DirectoryItem
                       name={item.name}
                       path={item.path ?? item.name}
@@ -201,7 +201,7 @@ function DirectoryItem({
             subFiles?.map((dir, i) => (
               <DirectoryItem
                 className={cn(i === 0 && "pt-2")}
-                key={i}
+                key={dir.path ?? dir.name}
                 name={dir.name}
                 path={dir.path ?? `${path}/${dir.name}`}
                 type={dir.type}

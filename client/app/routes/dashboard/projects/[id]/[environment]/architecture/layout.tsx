@@ -1,18 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ReactFlowProvider } from "@xyflow/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ImperativePanelHandle } from "react-resizable-panels";
+import { Outlet, useOutletContext, useParams } from "react-router";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/atoms/resizable/Resizable";
-import ArchitectureCanvas from "~/components/organisms/canvas/ArchitectureCanvas";
-import { Outlet, useOutletContext, useParams } from "react-router";
-import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
-import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
-import { ReactFlowProvider } from "@xyflow/react";
 import BottomBar from "~/components/organisms/bottom-bar/deployment/BottomBar";
-import type { ImperativePanelHandle } from "react-resizable-panels";
+import ArchitectureCanvas from "~/components/organisms/canvas/ArchitectureCanvas";
+import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
+import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
+import { useTRPC } from "~/utils/trpc/react";
 
 type ContextType = {
   environment: ResponseEnvironment;
@@ -98,7 +98,7 @@ export default function Layout() {
   useEffect(() => {
     if (!navBarRef.current) return;
     setMinPanelWidth(navBarRef.current.scrollWidth);
-  }, [navigationBarItems]);
+  }, []);
   useEffect(() => {
     if (!deploymentId) return;
 

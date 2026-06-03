@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { NavLink } from "react-router";
 import { cn } from "~/utils/cn";
 

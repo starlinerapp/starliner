@@ -1,13 +1,13 @@
-import React, { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
+import TerminalClient from "~/components/atoms/terminal/Terminal.client";
+import Logs from "~/components/organisms/bottom-bar/deployment/Logs";
+import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
 import type {
   ResponseDatabaseDeployment,
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
 } from "~/server/api/clients/server/generated";
-import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
-import Logs from "~/components/organisms/bottom-bar/deployment/Logs";
-import TerminalClient from "~/components/atoms/terminal/Terminal.client";
 
 type Deployment =
   | ResponseGitDeployment

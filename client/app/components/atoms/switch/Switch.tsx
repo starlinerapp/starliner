@@ -1,5 +1,5 @@
-import React from "react";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
+import React from "react";
 
 type SwitchProps = React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>;
 

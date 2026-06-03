@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import Button from "~/components/atoms/button/Button";
-import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Button from "~/components/atoms/button/Button";
 import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -49,7 +49,13 @@ export default function Settings() {
         navigate(`clusters/all`);
       })();
     }
-  }, [error]);
+  }, [
+    error,
+    trpc.organization.getOrganizationClusters.queryKey,
+    queryClient.invalidateQueries,
+    organization.id,
+    navigate,
+  ]);
 
   const deleteClusterMutation = useMutation(
     trpc.cluster.deleteCluster.mutationOptions({

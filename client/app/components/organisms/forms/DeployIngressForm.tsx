@@ -1,24 +1,24 @@
-import React, { useMemo, useState } from "react";
-import { ArrowRight, ChevronDown, Minus, Plus } from "~/components/atoms/icons";
-import Button from "~/components/atoms/button/Button";
-import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useMemo, useState } from "react";
 import {
   type Control,
   type SubmitHandler,
+  type UseFormRegister,
   useFieldArray,
   useForm,
-  type UseFormRegister,
 } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, ChevronDown, Minus, Plus } from "~/components/atoms/icons";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import {
   buildFullIngressHost,
   getIngressHostSuffix,
   isValidIngressHostPrefix,
   parseIngressHostPrefix,
 } from "~/utils/ingress-host";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface Path {
   path: string;

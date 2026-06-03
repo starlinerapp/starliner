@@ -1,12 +1,11 @@
-import React from "react";
-import { redirect, useLoaderData, useNavigate } from "react-router";
-import type { Route } from "./+types/app";
-import { auth } from "~/utils/auth/server";
-import { ChevronDown, ChevronRight } from "~/components/atoms/icons";
-import Button from "~/components/atoms/button/Button";
-import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { redirect, useLoaderData, useNavigate } from "react-router";
+import Button from "~/components/atoms/button/Button";
+import { ChevronDown, ChevronRight } from "~/components/atoms/icons";
+import { auth } from "~/utils/auth/server";
+import { useTRPC } from "~/utils/trpc/react";
+import type { Route } from "./+types/app";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);

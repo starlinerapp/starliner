@@ -1,10 +1,9 @@
-import { Outlet, redirect, useParams } from "react-router";
-import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import { Outlet, redirect, useParams } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 import { caller } from "~/utils/trpc/server";
 import type { Route } from "./+types/layout";
 

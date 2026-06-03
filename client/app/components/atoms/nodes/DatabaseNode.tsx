@@ -1,13 +1,13 @@
-import React, { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { Database, EllipsisVertical, Trash } from "~/components/atoms/icons";
-import { useTRPC } from "~/utils/trpc/react";
 import { useMutation } from "@tanstack/react-query";
-import { cn } from "~/utils/cn";
-import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
+import { useState } from "react";
 import { useLocation, useMatch, useNavigate } from "react-router";
+import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
+import { Database, EllipsisVertical, Trash } from "~/components/atoms/icons";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 type DatabaseNode = Node<{
   id: number;
@@ -172,6 +172,7 @@ function DatabaseContextMenu({
           <div className="flex min-w-[120px] flex-col p-0.5">
             <Popover.Close asChild>
               <button
+                type="button"
                 className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
                 onClick={(e) => {
                   e.stopPropagation();

@@ -1,17 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
-import Button from "~/components/atoms/button/Button";
-import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
+import { useQuery } from "@tanstack/react-query";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
-import { useTRPC } from "~/utils/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import SelectProjectDirectoryDialog from "~/components/organisms/dialog/SelectProjectDirectoryDialog";
 import SelectDockerfileDialog from "~/components/organisms/dialog/SelectDockerfileDialog";
-import { cn } from "~/utils/cn";
+import SelectProjectDirectoryDialog from "~/components/organisms/dialog/SelectProjectDirectoryDialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { isDockerfile, parseDockerfile } from "~/service/dockerFile/dockerFile";
+import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
+import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 export interface DeployFromGitFormInput {
   url: string;

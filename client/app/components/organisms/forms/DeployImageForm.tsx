@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
 
 export interface ImageFormInput {
@@ -58,7 +59,7 @@ export default function DeployImageForm({
   const volumeSizeInput = watch("volumeSizeMiB", null);
   const volumeMountPathInput = watch("volumeMountPath", null);
 
-  const hasVolumeSize = !!volumeSizeInput && !isNaN(volumeSizeInput);
+  const hasVolumeSize = !!volumeSizeInput && !Number.isNaN(volumeSizeInput);
   const hasVolumeMountPath = !!volumeMountPathInput?.trim();
   const isVolumeIncomplete = hasVolumeSize !== hasVolumeMountPath;
 
@@ -67,7 +68,7 @@ export default function DeployImageForm({
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
-    if (!data.volumeSizeMiB || isNaN(data.volumeSizeMiB)) {
+    if (!data.volumeSizeMiB || Number.isNaN(data.volumeSizeMiB)) {
       data.volumeSizeMiB = null;
     }
     if (!data.volumeMountPath?.trim()) {

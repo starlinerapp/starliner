@@ -1,7 +1,6 @@
-import React from "react";
+import { useSearchParams } from "react-router";
 import { GithubLogo } from "~/components/atoms/icons";
 import { getAuthClient } from "~/utils/auth/client";
-import { useSearchParams } from "react-router";
 
 export default function SignInWithGitHub() {
   const authClient = getAuthClient();
@@ -20,6 +19,7 @@ export default function SignInWithGitHub() {
 
   return (
     <button
+      type="button"
       onClick={handleButtonClicked}
       className="border-mauve-6 hover:bg-gray-3 text-mauve-12 flex w-full cursor-pointer justify-center rounded-md border bg-white px-4 py-2 text-sm"
     >
