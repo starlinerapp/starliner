@@ -10,11 +10,7 @@ import {
   DeploymentTab,
 } from "~/components/organisms/deployment-card/Deployment";
 import { cn } from "~/utils/cn";
-import {
-  scrollContainerToSectionBottom,
-  scrollContainerToSectionStart,
-  scrollContainerToTop,
-} from "./scroll";
+import { scrollContainerToSectionStart, scrollContainerToTop } from "./scroll";
 
 interface LogsCardProps {
   isCollapsed?: boolean;
