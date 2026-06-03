@@ -44,14 +44,14 @@ export default function NewProject() {
 
   useEffect(() => {
     setValue("teamId", teamsData?.[0] ? String(teamsData[0].id) : "");
-  }, [teamsData?.[0]?.id, setValue, teamsData?.[0]]);
+  }, [teamsData?.[0]?.id, setValue]);
 
   useEffect(() => {
     setValue(
       "clusterId",
       clustersData?.[0] ? String(clustersData[0].clusterId) : "",
     );
-  }, [clustersData?.[0]?.clusterId, setValue, clustersData?.[0]]);
+  }, [clustersData?.[0]?.clusterId, setValue]);
 
   const isLoading = isClustersLoading || isTeamsLoading;
 
