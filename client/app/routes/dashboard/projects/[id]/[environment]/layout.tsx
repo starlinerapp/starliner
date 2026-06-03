@@ -115,6 +115,10 @@ export default function ProjectLayout() {
       title: "Settings",
       href: `/${slug}/projects/${id}/${environment}/settings`,
     },
+    {
+      title: "Domains",
+      href: `/${slug}/projects/${id}/${environment}/domains`,
+    },
   ];
 
   return (

@@ -73,6 +73,10 @@ export default [
                 "settings",
                 "routes/dashboard/projects/[id]/[environment]/settings.tsx",
               ),
+              route(
+                "domains",
+                "routes/dashboard/projects/[id]/[environment]/domains/index.tsx",
+              ),
             ]),
           ]),
         ]),
