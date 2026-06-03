@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight } from "~/components/atoms/icons";
 import { formatDistanceToNow } from "date-fns";
@@ -10,7 +10,7 @@ import {
   DeploymentTab,
 } from "~/components/organisms/deployment-card/Deployment";
 import { cn } from "~/utils/cn";
-import { scrollContainerToSectionStart, scrollContainerToTop } from "./scroll";
+import { scrollContainerToTop } from "./scroll";
 
 interface LogsCardProps {
   isCollapsed?: boolean;
@@ -22,7 +22,7 @@ interface LogsCardProps {
   createdAt: string;
   status: string;
   deploymentRolloutStatus: string;
-  autoSwitchToDeployAfterBuildLogs?: boolean;
+  isDeployOnly?: boolean;
 }
 
 const EXPAND_TRANSITION_MS = 200;
@@ -37,9 +37,9 @@ export default function DeploymentCard({
   status,
   deploymentRolloutStatus,
   createdAt,
-  autoSwitchToDeployAfterBuildLogs = false,
+  isDeployOnly: isDeployOnlyProp = false,
 }: LogsCardProps) {
-  const isDeployOnly = source === "duplicate";
+  const isDeployOnly = isDeployOnlyProp || source === "duplicate";
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
   const [spacerReady, setSpacerReady] = useState(!collapsed);
   const [activePhase, setActivePhase] = useState<"build" | "deploy">(
@@ -47,14 +47,8 @@ export default function DeploymentCard({
   );
   const [hasBuildLogs, setHasBuildLogs] = useState(false);
   const [hasDeployLogs, setHasDeployLogs] = useState(false);
-  const [bottomSpacerHeight, setBottomSpacerHeight] = useState(0);
   const previousStatusRef = useRef(status);
-  const wasCollapsedRef = useRef(isCollapsed);
-  const activePhaseRef = useRef(activePhase);
-  const hasAutoSwitchedToDeployRef = useRef(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const buildSectionRef = useRef<HTMLDivElement>(null);
-  const deploySectionRef = useRef<HTMLDivElement>(null);
 
   const isBuilding =
     !isDeployOnly && (status === "queued" || status === "building");
@@ -69,41 +63,14 @@ export default function DeploymentCard({
     : status === "failure" || deploymentRolloutStatus === "failure";
   const showSpinner = isBuilding || isDeploying;
 
-  activePhaseRef.current = activePhase;
-
-  const updateBottomSpacer = useCallback(() => {
-    const container = scrollContainerRef.current;
-    const deploy = deploySectionRef.current;
-    if (!container || !deploy) {
-      return;
-    }
-
-    const containerHeight = container.clientHeight;
-    const existingSpacer = deploy.querySelector<HTMLElement>(
-      "[data-deploy-scroll-spacer]",
-    );
-    const existingSpacerHeight = existingSpacer?.offsetHeight ?? 0;
-    const deployContentHeight = deploy.offsetHeight - existingSpacerHeight;
-
-    setBottomSpacerHeight(Math.max(0, containerHeight - deployContentHeight));
-  }, []);
-
   const scrollToPhase = useCallback(
-    (phase: "build" | "deploy", behavior: ScrollBehavior = "smooth") => {
+    (behavior: ScrollBehavior = "smooth") => {
       const container = scrollContainerRef.current;
-      const deploySection = deploySectionRef.current;
       if (!container) {
         return;
       }
 
-      if (phase === "build") {
-        scrollContainerToTop(container, behavior);
-        return;
-      }
-
-      if (deploySection) {
-        scrollContainerToSectionStart(container, deploySection, behavior);
-      }
+      scrollContainerToTop(container, behavior);
     },
     [],
   );
@@ -119,7 +86,6 @@ export default function DeploymentCard({
   useEffect(() => {
     if (isCollapsed) {
       setSpacerReady(false);
-      setBottomSpacerHeight(0);
       return;
     }
 
@@ -130,62 +96,13 @@ export default function DeploymentCard({
     return () => window.clearTimeout(timeout);
   }, [isCollapsed]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isCollapsed || !spacerReady) {
       return;
     }
 
-    updateBottomSpacer();
-
-    const container = scrollContainerRef.current;
-    const build = buildSectionRef.current;
-    const deploy = deploySectionRef.current;
-    if (!container) {
-      return;
-    }
-
-    const observer = new ResizeObserver(() => {
-      updateBottomSpacer();
-    });
-
-    observer.observe(container);
-    if (build) {
-      observer.observe(build);
-    }
-    if (deploy) {
-      observer.observe(deploy);
-    }
-
-    return () => observer.disconnect();
-  }, [isCollapsed, spacerReady, updateBottomSpacer, buildId, deploymentId]);
-
-  useEffect(() => {
-    const wasCollapsed = wasCollapsedRef.current;
-    wasCollapsedRef.current = isCollapsed;
-    if (!wasCollapsed || isCollapsed) {
-      return;
-    }
-
-    requestAnimationFrame(() => {
-      const container = scrollContainerRef.current;
-      if (activePhaseRef.current === "build" && container) {
-        scrollContainerToTop(container, "instant");
-      }
-    });
-  }, [isCollapsed]);
-
-  useEffect(() => {
-    if (!spacerReady || activePhase !== "deploy" || isCollapsed) {
-      return;
-    }
-    requestAnimationFrame(() => {
-      scrollToPhase("deploy", "smooth");
-    });
-  }, [spacerReady, activePhase, isCollapsed, scrollToPhase]);
-
-  useEffect(() => {
-    hasAutoSwitchedToDeployRef.current = false;
-  }, [buildId]);
+    scrollToPhase("smooth");
+  }, [activePhase, isCollapsed, spacerReady, scrollToPhase]);
 
   useEffect(() => {
     const previousStatus = previousStatusRef.current;
@@ -200,41 +117,18 @@ export default function DeploymentCard({
     }
   }, [status, expandCard]);
 
-  useEffect(() => {
-    if (
-      !autoSwitchToDeployAfterBuildLogs ||
-      hasAutoSwitchedToDeployRef.current
-    ) {
-      return;
-    }
-    if (status !== "success" || !hasBuildLogs) {
-      return;
-    }
-
-    hasAutoSwitchedToDeployRef.current = true;
-    setActivePhase("deploy");
-    expandCard();
-  }, [autoSwitchToDeployAfterBuildLogs, status, hasBuildLogs, expandCard]);
-
   const selectBuild = () => {
     setActivePhase("build");
     if (isCollapsed) {
       expandCard();
     }
-    requestAnimationFrame(() => {
-      scrollToPhase("build", "smooth");
-    });
   };
 
   const selectDeploy = () => {
     setActivePhase("deploy");
     if (isCollapsed) {
       expandCard();
-      return;
     }
-    requestAnimationFrame(() => {
-      scrollToPhase("deploy", "smooth");
-    });
   };
 
   return (
@@ -324,7 +218,7 @@ export default function DeploymentCard({
               ref={scrollContainerRef}
               className="bg-gray-2 border-t-mauve-6 overflow-anchor-none max-h-125 overflow-y-auto scroll-smooth rounded-b-md border-t p-4"
             >
-              <div ref={buildSectionRef}>
+              <div className={cn(activePhase === "deploy" && "hidden")}>
                 {isDeployOnly ? (
                   <pre className="text-mauve-11 text-sm whitespace-pre-wrap">
                     Build step skipped
@@ -333,34 +227,23 @@ export default function DeploymentCard({
                   <BuildLogs
                     buildId={buildId}
                     followScroll={activePhase === "build" && isBuilding}
-                    scrollContainerRef={scrollContainerRef}
-                    sectionRef={buildSectionRef}
                     onHasLogsChange={setHasBuildLogs}
                   />
                 )}
               </div>
               <div
-                ref={deploySectionRef}
                 className={cn(
-                  !isBuilding && "border-mauve-6 mt-4 border-t pt-4",
+                  !isBuilding &&
+                    activePhase === "build" &&
+                    "border-mauve-6 mt-4 border-t pt-4",
                 )}
               >
                 <DeploymentLogs
                   deploymentId={deploymentId}
                   buildStatus={status}
                   followScroll={activePhase === "deploy" && isDeploying}
-                  scrollContainerRef={scrollContainerRef}
-                  sectionRef={deploySectionRef}
                   onHasLogsChange={setHasDeployLogs}
                 />
-                {spacerReady && bottomSpacerHeight > 0 && (
-                  <div
-                    aria-hidden
-                    data-deploy-scroll-spacer
-                    className="shrink-0"
-                    style={{ height: bottomSpacerHeight }}
-                  />
-                )}
               </div>
             </div>
           </div>

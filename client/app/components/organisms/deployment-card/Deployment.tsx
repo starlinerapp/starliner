@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { cn } from "~/utils/cn";
-import { scrollContainerToSectionBottom } from "./scroll";
 
 interface DeploymentTabProps {
   isActive: boolean;
@@ -56,8 +55,6 @@ interface DeploymentLogsProps {
   deploymentId: number;
   buildStatus: string;
   followScroll?: boolean;
-  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
-  sectionRef?: React.RefObject<HTMLDivElement | null>;
   onHasLogsChange?: (hasLogs: boolean) => void;
 }
 
@@ -65,12 +62,11 @@ export function DeploymentLogs({
   deploymentId,
   buildStatus,
   followScroll = false,
-  scrollContainerRef,
-  sectionRef,
   onHasLogsChange,
 }: DeploymentLogsProps) {
   const trpc = useTRPC();
   const [lines, setLines] = useState<string[]>([]);
+  const tailRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setLines([]);
@@ -101,17 +97,12 @@ export function DeploymentLogs({
   }, [lines, onHasLogsChange]);
 
   useEffect(() => {
-    if (!followScroll || !scrollContainerRef?.current || !sectionRef?.current) {
+    if (!followScroll || !tailRef.current) {
       return;
     }
 
-    scrollContainerToSectionBottom(
-      scrollContainerRef.current,
-      sectionRef.current,
-      "smooth",
-      "[data-deploy-scroll-spacer]",
-    );
-  }, [lines, followScroll, scrollContainerRef, sectionRef]);
+    tailRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [lines, followScroll]);
 
   if (buildFailed) {
     return (
@@ -132,6 +123,7 @@ export function DeploymentLogs({
           </span>
         ),
       )}
+      <span ref={tailRef} className="block h-px" aria-hidden />
     </div>
   );
 }

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Hammer } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { cn } from "~/utils/cn";
-import { scrollContainerToSectionBottom } from "./scroll";
 
 interface BuildTabProps {
   isActive: boolean;
@@ -51,20 +50,17 @@ export function BuildTab({ isActive, hasLogs, onSelect }: BuildTabProps) {
 interface BuildLogsProps {
   buildId: number;
   followScroll?: boolean;
-  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
-  sectionRef?: React.RefObject<HTMLDivElement | null>;
   onHasLogsChange?: (hasLogs: boolean) => void;
 }
 
 export function BuildLogs({
   buildId,
   followScroll = false,
-  scrollContainerRef,
-  sectionRef,
   onHasLogsChange,
 }: BuildLogsProps) {
   const trpc = useTRPC();
   const [logs, setLogs] = useState<string[]>([]);
+  const tailRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setLogs([]);
@@ -86,16 +82,12 @@ export function BuildLogs({
   }, [logs, onHasLogsChange]);
 
   useEffect(() => {
-    if (!followScroll || !scrollContainerRef?.current || !sectionRef?.current) {
+    if (!followScroll || !tailRef.current) {
       return;
     }
 
-    scrollContainerToSectionBottom(
-      scrollContainerRef.current,
-      sectionRef.current,
-      "smooth",
-    );
-  }, [logs, followScroll, scrollContainerRef, sectionRef]);
+    tailRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [logs, followScroll]);
 
   return (
     <div className="text-mauve-11 font-mono text-sm break-all whitespace-pre-wrap">
@@ -104,6 +96,7 @@ export function BuildLogs({
           {line}
         </span>
       ))}
+      <span ref={tailRef} className="block h-px" aria-hidden />
     </div>
   );
 }

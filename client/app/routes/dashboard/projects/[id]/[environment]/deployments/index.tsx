@@ -83,9 +83,7 @@ export default function Builds() {
           createdAt={build.createdAt}
           status={build.status}
           deploymentRolloutStatus={build.deploymentRolloutStatus}
-          autoSwitchToDeployAfterBuildLogs={skippedBuildDeploymentIds.has(
-            build.deploymentId,
-          )}
+          isDeployOnly={skippedBuildDeploymentIds.has(build.deploymentId)}
         />
       ))}
     </div>
