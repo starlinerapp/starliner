@@ -3,6 +3,7 @@ import { Hammer } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { cn } from "~/utils/cn";
+import { scrollContainerToSectionBottom } from "./scroll";
 
 interface BuildTabProps {
   isActive: boolean;
@@ -85,19 +86,15 @@ export function BuildLogs({
   }, [logs, onHasLogsChange]);
 
   useEffect(() => {
-    if (!followScroll || !scrollContainerRef?.current) {
+    if (!followScroll || !scrollContainerRef?.current || !sectionRef?.current) {
       return;
     }
-    const container = scrollContainerRef.current;
-    const section = sectionRef?.current;
-    const targetScroll = section
-      ? Math.max(
-          0,
-          section.offsetTop + section.offsetHeight - container.clientHeight,
-        )
-      : container.scrollHeight - container.clientHeight;
 
-    container.scrollTo({ top: targetScroll, behavior: "smooth" });
+    scrollContainerToSectionBottom(
+      scrollContainerRef.current,
+      sectionRef.current,
+      "smooth",
+    );
   }, [logs, followScroll, scrollContainerRef, sectionRef]);
 
   return (

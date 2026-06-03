@@ -10,6 +10,11 @@ import {
   DeploymentTab,
 } from "~/components/organisms/deployment-card/Deployment";
 import { cn } from "~/utils/cn";
+import {
+  scrollContainerToSectionBottom,
+  scrollContainerToSectionStart,
+  scrollContainerToTop,
+} from "./scroll";
 
 interface LogsCardProps {
   isCollapsed?: boolean;
@@ -25,17 +30,6 @@ interface LogsCardProps {
 }
 
 const EXPAND_TRANSITION_MS = 200;
-
-function scrollToDeploySectionStart(
-  container: HTMLDivElement,
-  section: HTMLElement,
-  behavior: ScrollBehavior = "smooth",
-) {
-  container.scrollTo({
-    top: section.offsetTop,
-    behavior,
-  });
-}
 
 export default function DeploymentCard({
   isCollapsed: collapsed = true,
@@ -107,12 +101,12 @@ export default function DeploymentCard({
       }
 
       if (phase === "build") {
-        container.scrollTo({ top: 0, behavior });
+        scrollContainerToTop(container, behavior);
         return;
       }
 
       if (deploySection) {
-        scrollToDeploySectionStart(container, deploySection, behavior);
+        scrollContainerToSectionStart(container, deploySection, behavior);
       }
     },
     [],
@@ -177,8 +171,9 @@ export default function DeploymentCard({
     }
 
     requestAnimationFrame(() => {
-      if (activePhaseRef.current === "build") {
-        scrollContainerRef.current?.scrollTo({ top: 0, behavior: "instant" });
+      const container = scrollContainerRef.current;
+      if (activePhaseRef.current === "build" && container) {
+        scrollContainerToTop(container, "instant");
       }
     });
   }, [isCollapsed]);
@@ -354,7 +349,7 @@ export default function DeploymentCard({
                 <DeploymentLogs
                   deploymentId={deploymentId}
                   buildStatus={status}
-                  followScroll={activePhase === "deploy"}
+                  followScroll={activePhase === "deploy" && isDeploying}
                   scrollContainerRef={scrollContainerRef}
                   sectionRef={deploySectionRef}
                   onHasLogsChange={setHasDeployLogs}

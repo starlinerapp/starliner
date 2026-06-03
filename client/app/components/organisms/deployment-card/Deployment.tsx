@@ -3,6 +3,7 @@ import { Play } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { cn } from "~/utils/cn";
+import { scrollContainerToSectionBottom } from "./scroll";
 
 interface DeploymentTabProps {
   isActive: boolean;
@@ -100,17 +101,16 @@ export function DeploymentLogs({
   }, [lines, onHasLogsChange]);
 
   useEffect(() => {
-    if (!followScroll || !scrollContainerRef?.current) {
+    if (!followScroll || !scrollContainerRef?.current || !sectionRef?.current) {
       return;
     }
-    const container = scrollContainerRef.current;
-    const section = sectionRef?.current;
-    const maxScroll = container.scrollHeight - container.clientHeight;
 
-    container.scrollTo({
-      top: maxScroll > 0 ? maxScroll : (section?.offsetTop ?? maxScroll),
-      behavior: "smooth",
-    });
+    scrollContainerToSectionBottom(
+      scrollContainerRef.current,
+      sectionRef.current,
+      "smooth",
+      "[data-deploy-scroll-spacer]",
+    );
   }, [lines, followScroll, scrollContainerRef, sectionRef]);
 
   if (buildFailed) {
