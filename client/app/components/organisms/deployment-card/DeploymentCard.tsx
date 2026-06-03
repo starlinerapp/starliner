@@ -205,7 +205,10 @@ export default function DeploymentCard({
   }, [status, expandCard]);
 
   useEffect(() => {
-    if (!autoSwitchToDeployAfterBuildLogs || hasAutoSwitchedToDeployRef.current) {
+    if (
+      !autoSwitchToDeployAfterBuildLogs ||
+      hasAutoSwitchedToDeployRef.current
+    ) {
       return;
     }
     if (status !== "success" || !hasBuildLogs) {

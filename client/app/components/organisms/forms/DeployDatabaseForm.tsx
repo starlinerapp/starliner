@@ -19,10 +19,9 @@ export default function DeployDatabaseForm({
   onSubmit,
   resetOnSuccess = false,
 }: DeployDatabaseFormProps) {
-  const { register, handleSubmit, watch, reset } =
-    useForm<DatabaseFormInput>({
-      defaultValues,
-    });
+  const { register, handleSubmit, watch, reset } = useForm<DatabaseFormInput>({
+    defaultValues,
+  });
   const serviceNameInput = watch("serviceName", "");
 
   const [error, setError] = useState<string | null>(null);
