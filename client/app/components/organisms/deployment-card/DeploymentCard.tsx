@@ -21,6 +21,7 @@ interface LogsCardProps {
   createdAt: string;
   status: string;
   deploymentRolloutStatus: string;
+  autoSwitchToDeployAfterBuildLogs?: boolean;
 }
 
 const EXPAND_TRANSITION_MS = 200;
@@ -46,6 +47,7 @@ export default function DeploymentCard({
   status,
   deploymentRolloutStatus,
   createdAt,
+  autoSwitchToDeployAfterBuildLogs = false,
 }: LogsCardProps) {
   const isDeployOnly = source === "duplicate";
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
@@ -59,6 +61,7 @@ export default function DeploymentCard({
   const previousStatusRef = useRef(status);
   const wasCollapsedRef = useRef(isCollapsed);
   const activePhaseRef = useRef(activePhase);
+  const hasAutoSwitchedToDeployRef = useRef(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const buildSectionRef = useRef<HTMLDivElement>(null);
   const deploySectionRef = useRef<HTMLDivElement>(null);
@@ -190,6 +193,10 @@ export default function DeploymentCard({
   }, [spacerReady, activePhase, isCollapsed, scrollToPhase]);
 
   useEffect(() => {
+    hasAutoSwitchedToDeployRef.current = false;
+  }, [buildId]);
+
+  useEffect(() => {
     const previousStatus = previousStatusRef.current;
     previousStatusRef.current = status;
 
@@ -201,6 +208,19 @@ export default function DeploymentCard({
       expandCard();
     }
   }, [status, expandCard]);
+
+  useEffect(() => {
+    if (!autoSwitchToDeployAfterBuildLogs || hasAutoSwitchedToDeployRef.current) {
+      return;
+    }
+    if (status !== "success" || !hasBuildLogs) {
+      return;
+    }
+
+    hasAutoSwitchedToDeployRef.current = true;
+    setActivePhase("deploy");
+    expandCard();
+  }, [autoSwitchToDeployAfterBuildLogs, status, hasBuildLogs, expandCard]);
 
   const selectBuild = () => {
     setActivePhase("build");

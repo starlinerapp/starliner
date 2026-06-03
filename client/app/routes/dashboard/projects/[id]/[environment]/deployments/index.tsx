@@ -41,6 +41,25 @@ export default function Builds() {
     },
   });
 
+  const { data: environmentDeployments } = useQuery({
+    ...trpc.environment.getEnvironmentDeployments.queryOptions({
+      id: Number(currentEnvironment?.id),
+    }),
+    enabled: !!currentEnvironment,
+  });
+
+  const skippedBuildDeploymentIds = useMemo(() => {
+    if (!environmentDeployments) {
+      return new Set<number>();
+    }
+
+    return new Set([
+      ...environmentDeployments.images.map((d) => d.id),
+      ...environmentDeployments.databases.map((d) => d.id),
+      ...environmentDeployments.ingresses.map((d) => d.id),
+    ]);
+  }, [environmentDeployments]);
+
   if (!isLoading && environmentBuilds?.length === 0)
     return (
       <div className="flex flex-col gap-1 p-4">
@@ -64,6 +83,9 @@ export default function Builds() {
           createdAt={build.createdAt}
           status={build.status}
           deploymentRolloutStatus={build.deploymentRolloutStatus}
+          autoSwitchToDeployAfterBuildLogs={skippedBuildDeploymentIds.has(
+            build.deploymentId,
+          )}
         />
       ))}
     </div>
