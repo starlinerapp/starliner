@@ -108,4 +108,8 @@ type DeploymentRepository interface {
 	GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error)
 
 	GetUserGitDeploymentById(ctx context.Context, userId int64, deploymentId int64) (*entity.GitDeployment, error)
+
+	GetUserImageDeploymentById(ctx context.Context, userId int64, deploymentId int64) (*entity.ImageDeployment, error)
+
+	GetUserDatabaseDeploymentById(ctx context.Context, userId int64, deploymentId int64) (*entity.DatabaseDeployment, error)
 }

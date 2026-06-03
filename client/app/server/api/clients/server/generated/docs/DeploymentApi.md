@@ -11,6 +11,7 @@ All URIs are relative to _http://localhost_
 | [**deployIngress**](#deployingress)                                 | **POST** /deployments/ingresses               | Deploy ingress                |
 | [**streamDeploymentLogs**](#streamdeploymentlogs)                   | **GET** /deployments/{id}/logs                | Stream deployment logs        |
 | [**streamDeploymentStatusLogs**](#streamdeploymentstatuslogs)       | **GET** /deployments/{id}/status/logs/stream  | Stream deployment status logs |
+| [**updateDatabaseDeployment**](#updatedatabasedeployment)           | **PUT** /deployments/databases/{deploymentId} | Update database deployment    |
 | [**updateDeployFromGitRepository**](#updatedeployfromgitrepository) | **PUT** /deployments/git/{deploymentId}       | Update Deploy from Git        |
 | [**updateImageDeployment**](#updateimagedeployment)                 | **PUT** /deployments/images/{deploymentId}    | Update image deployment       |
 | [**updateIngressDeployment**](#updateingressdeployment)             | **PUT** /deployments/ingresses/{deploymentId} | Update ingress deployment     |
@@ -343,6 +344,58 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **updateDatabaseDeployment**
+
+> ResponseUpdateGitDeploymentResponse updateDatabaseDeployment(data)
+
+### Example
+
+```typescript
+import { DeploymentApi, Configuration, RequestUpdateDatabase } from "./api";
+
+const configuration = new Configuration();
+const apiInstance = new DeploymentApi(configuration);
+
+let xUserID: string; //User ID (default to undefined)
+let deploymentId: number; //Deployment ID (default to undefined)
+let data: RequestUpdateDatabase; //Update Database
+
+const { status, data } = await apiInstance.updateDatabaseDeployment(
+  xUserID,
+  deploymentId,
+  data,
+);
+```
+
+### Parameters
+
+| Name             | Type                      | Description     | Notes                 |
+| ---------------- | ------------------------- | --------------- | --------------------- |
+| **data**         | **RequestUpdateDatabase** | Update Database |                       |
+| **xUserID**      | [**string**]              | User ID         | defaults to undefined |
+| **deploymentId** | [**number**]              | Deployment ID   | defaults to undefined |
+
+### Return type
+
+**ResponseUpdateGitDeploymentResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: _/_
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+| ----------- | ----------- | ---------------- |
+| **200**     | OK          | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **updateDeployFromGitRepository**
 
 > ResponseUpdateGitDeploymentResponse updateDeployFromGitRepository(data)
@@ -401,7 +454,7 @@ No authorization required
 
 # **updateImageDeployment**
 
-> updateImageDeployment(data)
+> ResponseUpdateGitDeploymentResponse updateImageDeployment(data)
 
 ### Example
 
@@ -432,7 +485,7 @@ const { status, data } = await apiInstance.updateImageDeployment(
 
 ### Return type
 
-void (empty response body)
+**ResponseUpdateGitDeploymentResponse**
 
 ### Authorization
 
@@ -441,7 +494,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 

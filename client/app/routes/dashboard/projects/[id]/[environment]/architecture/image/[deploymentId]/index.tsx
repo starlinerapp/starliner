@@ -1,14 +1,20 @@
 import React from "react";
+import { useNavigate, useParams } from "react-router";
 import DeployImageForm, {
   type ImageFormInput,
 } from "~/components/organisms/forms/DeployImageForm";
 import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useParams } from "react-router";
 
 export default function UpdateImageForm() {
-  const { deploymentId } = useParams<{ deploymentId: string }>();
+  const { slug, id, environment, deploymentId } = useParams<{
+    slug: string;
+    id: string;
+    environment: string;
+    deploymentId: string;
+  }>();
+  const navigate = useNavigate();
 
   const { environment: currentEnvironment } = useEnvironment();
 
@@ -40,12 +46,23 @@ export default function UpdateImageForm() {
         envs: data.envs,
       },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           queryClient.invalidateQueries({
             queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
               id: currentEnvironment.id,
             }),
           });
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentDeployments.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
+          if (result?.deploymentId && slug && id && environment) {
+            navigate(
+              `/${slug}/projects/${id}/${environment}/architecture/image/${result.deploymentId}`,
+              { replace: true },
+            );
+          }
         },
       },
     );

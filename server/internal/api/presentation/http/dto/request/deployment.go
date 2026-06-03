@@ -54,6 +54,10 @@ type DeployDatabase struct {
 	ServiceName   string `json:"serviceName" binding:"required"`
 }
 
+type UpdateDatabase struct {
+	EnvironmentId int64 `json:"environmentId" binding:"required"`
+}
+
 type IngressPath struct {
 	Path        string `json:"path" binding:"required"`
 	PathType    string `json:"pathType" binding:"required,oneof=Prefix Exact"`

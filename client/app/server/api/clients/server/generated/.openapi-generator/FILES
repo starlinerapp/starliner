@@ -36,6 +36,7 @@ docs/RequestSetTeamClusters.md
 docs/RequestSetTeamRepositories.md
 docs/RequestTeamClusterAssignment.md
 docs/RequestTeamRepoAssignment.md
+docs/RequestUpdateDatabase.md
 docs/RequestUpdateDeployFromGit.md
 docs/RequestUpdateEnvironmentConnectBranch.md
 docs/RequestUpdateImage.md

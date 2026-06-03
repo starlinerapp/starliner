@@ -1,65 +1,43 @@
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight } from "~/components/atoms/icons";
 import React, { useState } from "react";
-import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 
-interface DeployDatabaseFormInput {
+export interface DatabaseFormInput {
   serviceName: string;
 }
 
 interface DeployDatabaseFormProps {
-  defaultValues?: DeployDatabaseFormInput;
+  defaultValues?: DatabaseFormInput;
+  onSubmit: (data: DatabaseFormInput) => Promise<void>;
+  resetOnSuccess?: boolean;
 }
 
 export default function DeployDatabaseForm({
   defaultValues,
+  onSubmit,
+  resetOnSuccess = false,
 }: DeployDatabaseFormProps) {
   const { register, handleSubmit, watch, reset } =
-    useForm<DeployDatabaseFormInput>({
+    useForm<DatabaseFormInput>({
       defaultValues,
     });
   const serviceNameInput = watch("serviceName", "");
 
   const [error, setError] = useState<string | null>(null);
+  const isExistingDeployment = !!defaultValues;
 
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-
-  const createDatabaseMutation = useMutation(
-    trpc.deployment.deployDatabase.mutationOptions(),
-  );
-
-  const { environment: currentEnvironment } = useEnvironment();
-
-  const submit: SubmitHandler<DeployDatabaseFormInput> = async (data) => {
-    if (!currentEnvironment) return;
-
-    createDatabaseMutation.mutate(
-      {
-        id: currentEnvironment.id,
-        serviceName: data.serviceName,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
-              id: currentEnvironment.id,
-            }),
-          });
-          reset();
-          setError(null);
-        },
-        onError: (e) => {
-          setError(
-            e instanceof Error ? e.message : "Oops something went wrong!",
-          );
-        },
-      },
-    );
+  const submit: SubmitHandler<DatabaseFormInput> = async (data) => {
+    try {
+      await onSubmit(data);
+      if (resetOnSuccess) {
+        reset();
+      }
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Oops something went wrong!");
+    }
   };
 
   return (
@@ -82,7 +60,7 @@ export default function DeployDatabaseForm({
             className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
             type="text"
             placeholder="Name*"
-            disabled={!!defaultValues?.serviceName}
+            disabled={isExistingDeployment}
             {...register("serviceName", {
               required: true,
             })}
@@ -93,9 +71,9 @@ export default function DeployDatabaseForm({
         type="submit"
         size="sm"
         className="w-28 flex-shrink-0 py-1.5"
-        disabled={!!defaultValues || !serviceNameInput}
+        disabled={!isExistingDeployment && !serviceNameInput}
       >
-        {defaultValues ? "Redeploy" : "Deploy"}
+        {isExistingDeployment ? "Redeploy" : "Deploy"}
         <ArrowRight className="w-4 stroke-2" />
       </Button>
     </form>
