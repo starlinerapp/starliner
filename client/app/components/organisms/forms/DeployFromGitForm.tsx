@@ -326,9 +326,10 @@ export default function DeployFromGitForm({
             <div className="flex items-center gap-2">
               <div className="w-full">
                 <p className="text-sm">Project Directory</p>
-                <div
+                <button
+                  type="button"
                   className={cn(
-                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
+                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-left text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
                     !projectDirectoryPathInput && "text-mauve-11",
                     !selectedRepository && "cursor-not-allowed hover:bg-gray-2",
                   )}
@@ -337,8 +338,10 @@ export default function DeployFromGitForm({
                     setIsSelectProjectDialogOpen(true);
                   }}
                 >
-                  <p>{projectDirectoryPathInput || "Select directory*"}</p>
-                </div>
+                  <span>
+                    {projectDirectoryPathInput || "Select directory*"}
+                  </span>
+                </button>
                 <input
                   type="hidden"
                   {...register("projectDirectoryPath", {
@@ -348,9 +351,10 @@ export default function DeployFromGitForm({
               </div>
               <div className="w-full">
                 <p className="text-sm">Dockerfile</p>
-                <div
+                <button
+                  type="button"
                   className={cn(
-                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
+                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-left text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
                     !dockerFilePathInput && "text-mauve-11",
                     (!selectedRepository || !projectDirectoryPathInput) &&
                       "cursor-not-allowed hover:bg-gray-2",
@@ -361,8 +365,8 @@ export default function DeployFromGitForm({
                     setIsSelectDockerFileDialogOpen(true);
                   }}
                 >
-                  <p>{dockerFilePathInput || "Select Dockerfile*"}</p>
-                </div>
+                  <span>{dockerFilePathInput || "Select Dockerfile*"}</span>
+                </button>
                 <input
                   type="hidden"
                   {...register("dockerfilePath", {

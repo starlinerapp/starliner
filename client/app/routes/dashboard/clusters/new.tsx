@@ -78,12 +78,13 @@ export default function NewCluster() {
         crumbs={[
           {
             label: (
-              <p
+              <button
+                type="button"
                 className="cursor-pointer hover:underline"
                 onClick={() => navigate("../all", { relative: "path" })}
               >
                 All Clusters
-              </p>
+              </button>
             ),
           },
           { label: "New Cluster" },

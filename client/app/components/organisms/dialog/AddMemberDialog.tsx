@@ -203,9 +203,9 @@ export default function AddMemberDialog({
             className="flex flex-col gap-3"
             onSubmit={handleSubmit(onInviteMember)}
           >
-            <div
+            <label
+              htmlFor="invite-emails"
               className="flex h-10 items-center gap-1.5 overflow-x-auto rounded-md border border-mauve-6 bg-gray-2 px-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
-              onClick={() => inputRef.current?.focus()}
             >
               {recognized.map((email) => {
                 const valid =
@@ -248,6 +248,7 @@ export default function AddMemberDialog({
               })}
               <input
                 ref={inputRef}
+                id="invite-emails"
                 type="text"
                 value={current}
                 onChange={(event) =>
@@ -261,7 +262,7 @@ export default function AddMemberDialog({
                     : undefined
                 }
               />
-            </div>
+            </label>
             <div className="flex justify-end gap-2">
               <Button
                 type="button"

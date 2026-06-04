@@ -38,12 +38,13 @@ export default function TeamDetail() {
           { label: "Organization" },
           {
             label: (
-              <p
+              <button
+                type="button"
                 className="cursor-pointer hover:underline"
                 onClick={() => navigate("../", { relative: "path" })}
               >
                 Teams
-              </p>
+              </button>
             ),
           },
           {

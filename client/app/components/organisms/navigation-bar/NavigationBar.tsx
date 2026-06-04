@@ -40,7 +40,8 @@ export default function NavigationBar<T extends string>({
         className="relative flex w-full gap-4 border-mauve-6 border-b px-2 pt-2 pb-1 text-mauve-11 text-sm"
       >
         {items.map((item, i) => (
-          <div
+          <button
+            type="button"
             key={i}
             className="relative z-10 cursor-pointer px-2 py-1.5"
             onClick={() => onSelect(item)}
@@ -53,7 +54,7 @@ export default function NavigationBar<T extends string>({
             >
               {item}
             </span>
-          </div>
+          </button>
         ))}
 
         <motion.div

@@ -182,20 +182,22 @@ export default function DeploymentCard({
         </div>
       </div>
       <div className="rounded-b-md border-mauve-6 border-x border-b text-sm">
-        <div
-          className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm"
-          onClick={toggleCollapsed}
-        >
+        <div className="relative flex items-center gap-3 px-4 py-2 text-sm">
+          <button
+            type="button"
+            aria-label="Toggle logs"
+            aria-expanded={!isCollapsed}
+            onClick={toggleCollapsed}
+            className="absolute inset-0 cursor-pointer"
+          />
           <motion.div
+            className="relative"
             animate={{ rotate: isCollapsed ? 0 : 90 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
             <ChevronRight className="w-4 stroke-2" />
           </motion.div>
-          <div
-            className="relative flex items-center"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <div className="relative flex items-center">
             <BuildTab
               isActive={!isCollapsed && activePhase === "build"}
               hasLogs={!isDeployOnly && hasBuildLogs}

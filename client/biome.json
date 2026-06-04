@@ -26,9 +26,7 @@
     "rules": {
       "recommended": true,
       "a11y": {
-        "noSvgWithoutTitle": "off",
-        "noStaticElementInteractions": "off",
-        "useKeyWithClickEvents": "off"
+        "noSvgWithoutTitle": "off"
       },
       "suspicious": {
         "noArrayIndexKey": "off"

@@ -5,9 +5,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "typecheck": "tsc",
-    "fmt": "biome format --write .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "drizzle:generate": "npx drizzle-kit generate",
     "drizzle:migrate": "npx drizzle-kit migrate",
     "openapi:generate": "openapi-generator-cli generate -i '../server/cmd/api/auth/docs/auth_auth_swagger.yaml' -g typescript-axios -o src/infrastructure/api/client/generated && biome format --write src/infrastructure/api/client/generated"

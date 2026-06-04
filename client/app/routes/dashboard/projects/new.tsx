@@ -87,12 +87,13 @@ export default function NewProject() {
         crumbs={[
           {
             label: (
-              <p
+              <button
+                type="button"
                 className="cursor-pointer hover:underline"
                 onClick={() => navigate("../all", { relative: "path" })}
               >
                 All Projects
-              </p>
+              </button>
             ),
           },
           { label: "New Project" },
