@@ -6,6 +6,7 @@ on:
 
 jobs:
   auth-lint:
+    if: '! github.event.pull_request.draft'
     runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
