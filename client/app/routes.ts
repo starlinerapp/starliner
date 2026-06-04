@@ -144,4 +144,5 @@ export default [
     // tRPC routes
     route("trpc/*", "routes/api/trpc.ts"),
   ]),
+  route("*", "routes/404.tsx"),
 ] satisfies RouteConfig;
