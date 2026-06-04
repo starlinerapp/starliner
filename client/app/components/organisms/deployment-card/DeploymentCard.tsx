@@ -28,7 +28,6 @@ interface LogsCardProps {
   createdAt: string;
   status: string;
   deploymentRolloutStatus: string;
-  isDeployOnly?: boolean;
 }
 
 const EXPAND_TRANSITION_MS = 200;
@@ -43,9 +42,10 @@ export default function DeploymentCard({
   status,
   deploymentRolloutStatus,
   createdAt,
-  isDeployOnly: isDeployOnlyProp = false,
 }: LogsCardProps) {
-  const isDeployOnly = isDeployOnlyProp || source === "duplicate";
+  const isDeployOnly =
+    source === "duplicate" ||
+    (source === "manual" && status === "success" && !commitHash);
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
   const [spacerReady, setSpacerReady] = useState(!collapsed);
   const [activePhase, setActivePhase] = useState<"build" | "deploy">(
