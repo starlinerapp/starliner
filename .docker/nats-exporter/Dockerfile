@@ -1,1 +1,0 @@
-FROM natsio/prometheus-nats-exporter:0.20.0

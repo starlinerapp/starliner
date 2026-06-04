@@ -31,6 +31,7 @@ services:
       - server-api
     networks:
       - internal
+      - external
 
   auth:
     build:
@@ -56,6 +57,7 @@ services:
       - node-modules-auth:/app/node_modules
     networks:
       - internal
+      - external
     labels:
       - traefik.enable=true
       - traefik.http.routers.auth.rule=Host(`auth.dev.starliner.app`)
@@ -85,6 +87,7 @@ services:
       - node-modules-client:/app/node_modules
     networks:
       - internal
+      - external
     labels:
       - traefik.enable=true
       - traefik.http.routers.client.rule=Host(`dev.starliner.app`)
@@ -140,6 +143,7 @@ services:
       - ./server:/app
     networks:
       - internal
+      - external
     labels:
       - traefik.enable=true
       - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && PathPrefix(`/webhooks/`)
@@ -174,6 +178,7 @@ services:
       - ./server:/app
     networks:
       - internal
+      - external
 
   server-cluster:
     restart: unless-stopped
@@ -199,6 +204,7 @@ services:
       - ./server:/app
     networks:
       - internal
+      - external
 
   server-provisioner:
     restart: unless-stopped
@@ -227,6 +233,7 @@ services:
       - ./server:/app
     networks:
       - internal
+      - external
 
   db:
     restart: unless-stopped
@@ -248,6 +255,7 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - internal
+      - external
 
   auth-db:
     restart: unless-stopped
@@ -269,12 +277,16 @@ services:
       - auth-db-data:/var/lib/postgresql/data
     networks:
       - internal
+      - external
 
   nats:
     restart: unless-stopped
     build:
       context: .
       dockerfile: .docker/nats/Dockerfile
+    environment:
+      NATS_SYS_USER: ${NATS_SYS_USER:-sys}
+      NATS_SYS_PASSWORD: ${NATS_SYS_PASSWORD:-syspassword}
     ports:
       - "4222:4222"
       - "8222:8222"
@@ -283,6 +295,7 @@ services:
     command: ["-c", "/etc/nats/nats.conf"]
     networks:
       - internal
+      - external
 
   nats-box:
     restart: unless-stopped
@@ -295,6 +308,7 @@ services:
     tty: true
     networks:
       - internal
+      - external
 
   master:
     build:
@@ -314,6 +328,7 @@ services:
       retries: 5
     networks:
       - internal
+      - external
 
   volume1:
     build:
@@ -336,6 +351,7 @@ services:
       retries: 5
     networks:
       - internal
+      - external
 
   volume2:
     build:
@@ -358,6 +374,7 @@ services:
       retries: 5
     networks:
       - internal
+      - external
 
   filer:
     build:
@@ -382,6 +399,7 @@ services:
       retries: 5
     networks:
       - internal
+      - external
 
   s3:
     build:
@@ -404,6 +422,7 @@ services:
       retries: 5
     networks:
       - internal
+      - external
 
   buildkit:
     build:
@@ -416,6 +435,7 @@ services:
       - buildkit-data:/var/lib/buildkit
     networks:
       - internal
+      - external
 
   redis:
     build:
@@ -434,6 +454,7 @@ services:
       - redis-data:/data
     networks:
       - internal
+      - external
 
   mailpit:
     image: axllent/mailpit:latest
@@ -447,6 +468,7 @@ services:
       MP_ENABLE_CHAOS: "true"
     networks:
       - internal
+      - external
 
 volumes:
   node-modules-client:
@@ -460,3 +482,5 @@ volumes:
 
 networks:
   internal:
+  external:
+    external: true
