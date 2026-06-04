@@ -198,7 +198,7 @@ export default function DeploymentCard({
           >
             <BuildTab
               isActive={!isCollapsed && activePhase === "build"}
-              hasLogs={hasBuildLogs || isDeployOnly}
+              hasLogs={!isDeployOnly && hasBuildLogs}
               onSelect={selectBuild}
             />
             <div className="bg-mauve-8 h-px w-4" />
