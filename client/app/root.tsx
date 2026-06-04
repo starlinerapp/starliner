@@ -43,12 +43,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const data = useLoaderData<typeof loader>();
-  const env = data?.env ?? {
-    SENTRY_DSN_CLIENT: "",
-    ENVIRONMENT: "",
-    AUTH_PUBLIC_URL: "",
-  };
+  const { env } = useLoaderData<typeof loader>();
 
   return (
     <html lang="en">
