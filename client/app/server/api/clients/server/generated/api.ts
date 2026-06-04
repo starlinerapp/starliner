@@ -3600,7 +3600,10 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseUpdateGitDeploymentResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateIngressDeployment(
@@ -3807,7 +3810,7 @@ export const DeploymentApiFactory = function (
       deploymentId: number,
       data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseUpdateGitDeploymentResponse> {
       return localVarFp
         .updateIngressDeployment(xUserID, deploymentId, data, options)
         .then((request) => request(axios, basePath));

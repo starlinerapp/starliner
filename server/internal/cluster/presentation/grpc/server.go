@@ -31,6 +31,7 @@ func NewServer(
 
 	pb.RegisterLogsServiceServer(server, logsHandler)
 	pb.RegisterDeploymentStatusLogServiceServer(server, deploymentStatusLogHandler)
+	pb.RegisterIngressDeploymentStatusLogServiceServer(server, deploymentStatusLogHandler)
 	pb.RegisterTTYServiceServer(server, ttyHandler)
 
 	return &Server{server: server}

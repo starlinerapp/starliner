@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -595,6 +594,11 @@ func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*val
 		return err
 	}
 
+	err = createDeployOnlyBuild(ctx, da.buildRepository, ingressDeployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return err
+	}
+
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
@@ -662,10 +666,29 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	environmentId int64,
 	deploymentId int64,
 	hosts []*value.IngressHost,
-) error {
+) (int64, error) {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
-		return err
+		return 0, err
+	}
+
+	existing, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
+	if err != nil {
+		return 0, err
+	}
+	if existing.DeletedAt != nil {
+		return 0, fmt.Errorf("ingress deployment not found")
+	}
+	if existing.EnvironmentId == nil || *existing.EnvironmentId != environmentId {
+		return 0, fmt.Errorf("ingress deployment not found")
+	}
+
+	isIngress, err := da.deploymentRepository.IsIngressDeployment(ctx, deploymentId)
+	if err != nil {
+		return 0, err
+	}
+	if !isIngress {
+		return 0, fmt.Errorf("ingress deployment not found")
 	}
 
 	hostsToValidate := make([]*value.IngressHost, 0, len(hosts))
@@ -673,11 +696,11 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		if h == nil {
 			continue
 		}
-		existing, err := da.deploymentRepository.GetIngressHostByName(ctx, h.Host)
+		existingHost, err := da.deploymentRepository.GetIngressHostByName(ctx, h.Host)
 		if err != nil {
-			return err
+			return 0, err
 		}
-		if existing != nil && existing.DeploymentId == deploymentId {
+		if existingHost != nil && existingHost.DeploymentId == deploymentId {
 			continue
 		}
 		hostsToValidate = append(hostsToValidate, h)
@@ -685,39 +708,38 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 
 	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hostsToValidate)
 	if err != nil {
-		return err
+		return 0, err
+	}
+
+	ingressDeployment, err := da.redeployIngressDeployment(ctx, deploymentId, environmentId, hosts)
+	if err != nil {
+		return 0, err
+	}
+
+	err = createDeployOnlyBuild(ctx, da.buildRepository, ingressDeployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return 0, err
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
 	if err != nil {
-		return err
-	}
-
-	ingressDeployment, err := da.deploymentRepository.UpdateIngressDeployment(
-		ctx,
-		deploymentId,
-		"80",
-		environmentId,
-		hosts,
-	)
-	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if cluster.Kubeconfig == nil {
-		return fmt.Errorf("cluster kubeconfig is nil")
+		return 0, fmt.Errorf("cluster kubeconfig is nil")
 	}
 	if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
-		return fmt.Errorf("cluster ipv4 address is not set")
+		return 0, fmt.Errorf("cluster ipv4 address is not set")
 	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	coreHosts := make([]coreValue.IngressHost, 0, len(hosts))
@@ -730,17 +752,17 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		for _, p := range h.Paths {
 			target, err := da.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, environmentId)
 			if err != nil {
-				return err
+				return 0, err
 			}
 
 			targetPort, err := strconv.Atoi(target.Port)
 			if err != nil {
-				return err
+				return 0, err
 			}
 
 			normalizedServiceName, err := da.normalizerService.FormatToDNS1123(p.ServiceName)
 			if err != nil {
-				return err
+				return 0, err
 			}
 
 			ch.Paths = append(ch.Paths, coreValue.IngressPath{
@@ -767,7 +789,59 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		log.Printf("error publishing: %v", err)
 	}
 
-	return nil
+	return ingressDeployment.Id, nil
+}
+
+func (da *DeploymentApplication) redeployIngressDeployment(
+	ctx context.Context,
+	deploymentId int64,
+	environmentId int64,
+	hosts []*value.IngressHost,
+) (*entity.IngressDeployment, error) {
+	deploymentWithNamespace, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+
+	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+
+	if cluster.Kubeconfig == nil {
+		return nil, fmt.Errorf("cluster kubeconfig is nil")
+	}
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	normalizedDeploymentName, err := da.normalizerService.FormatToDNS1123(deploymentWithNamespace.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := da.deploymentRepository.SoftDeleteDeployment(ctx, deploymentId); err != nil {
+		return nil, err
+	}
+
+	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
+		DeploymentId:     deploymentWithNamespace.Id,
+		DeploymentName:   normalizedDeploymentName,
+		Namespace:        deploymentWithNamespace.Namespace,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+	if err != nil {
+		log.Printf("error publishing ingress delete: %v", err)
+	}
+
+	return da.deploymentRepository.CreateIngressDeployment(
+		ctx,
+		fmt.Sprintf("ingress-%s", uuid.New().String()[:8]),
+		"80",
+		environmentId,
+		hosts,
+	)
 }
 
 func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymentId int64, userId int64) error {
@@ -888,8 +962,15 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 		return err
 	}
 
+	isIngress, err := da.deploymentRepository.IsIngressDeployment(ctx, deploymentId)
+	if err != nil {
+		return err
+	}
+
+	hasStoredLogs := stored.Logs != nil && *stored.Logs != ""
+
 	if deployment.DeletedAt != nil {
-		if stored.Logs != nil && *stored.Logs != "" {
+		if hasStoredLogs {
 			_, err := io.WriteString(w, *stored.Logs)
 			return err
 		}
@@ -897,15 +978,9 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 		return err
 	}
 
-	if stored.Complete && stored.Logs != nil && *stored.Logs != "" {
+	if hasStoredLogs {
 		_, err := io.WriteString(w, *stored.Logs)
 		return err
-	}
-
-	if stored.Logs != nil && *stored.Logs != "" {
-		if _, err := io.WriteString(w, *stored.Logs); err != nil {
-			return err
-		}
 	}
 
 	deploymentWithNamespace, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
@@ -931,70 +1006,61 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 		return err
 	}
 
-	commitHash := da.resolveDeploymentCommitHash(ctx, deploymentWithNamespace)
-
-	persistWriter := &deploymentStatusLogWriter{
-		ctx:          ctx,
-		deploymentId: deploymentId,
-		inner:        w,
-		repository:   da.deploymentRepository,
+	if isIngress {
+		return da.grpcClusterClient.StreamIngressDeploymentStatusLogs(
+			ctx,
+			deploymentId,
+			deploymentWithNamespace.Namespace,
+			normalizedDeploymentName,
+			kubeconfigBase64,
+			w,
+		)
 	}
 
-	streamErr := da.grpcClusterClient.StreamDeploymentStatusLogs(
+	commitHash := da.resolveDeploymentCommitHash(ctx, deploymentWithNamespace)
+	return da.grpcClusterClient.StreamDeploymentStatusLogs(
 		ctx,
+		deploymentId,
 		deploymentWithNamespace.Namespace,
 		normalizedDeploymentName,
 		kubeconfigBase64,
 		commitHash,
-		persistWriter,
+		w,
 	)
-	if streamErr != nil && !errors.Is(streamErr, context.Canceled) {
-		return streamErr
-	}
-
-	rolloutStatus := "pending"
-	if storedAfter, logsErr := da.deploymentRepository.GetDeploymentStatusLogs(ctx, userId, deploymentId); logsErr == nil {
-		rolloutStatus = rolloutStatusFromLogs(storedAfter.Logs)
-	}
-	if markErr := da.deploymentRepository.MarkDeploymentStatusLogsComplete(ctx, deploymentId, rolloutStatus); markErr != nil {
-		log.Printf("failed to mark deployment status logs complete: %v", markErr)
-	}
-
-	if errors.Is(streamErr, context.Canceled) {
-		return streamErr
-	}
-	return nil
-}
-
-type deploymentStatusLogWriter struct {
-	ctx          context.Context
-	deploymentId int64
-	inner        io.Writer
-	repository   interfaces.DeploymentRepository
-}
-
-func (d *deploymentStatusLogWriter) Write(p []byte) (int, error) {
-	chunk := strings.TrimPrefix(string(p), "\f")
-	if chunk != "" && !strings.HasPrefix(chunk, "Error:") {
-		if err := d.repository.AppendDeploymentStatusLogs(d.ctx, d.deploymentId, chunk); err != nil {
-			log.Printf("failed to append deployment status logs: %v", err)
-		}
-	}
-
-	return d.inner.Write(p)
 }
 
 func rolloutStatusFromLogs(logs *string) string {
 	if logs == nil || *logs == "" {
 		return "pending"
 	}
-	if strings.Contains(*logs, "has failed.") {
+	if strings.Contains(*logs, "has failed.") || strings.Contains(*logs, "==> ERROR:") {
 		return "failure"
 	}
-	if strings.Contains(*logs, "is complete.") {
+	if strings.Contains(*logs, "is complete.") || strings.Contains(*logs, "Ingress deployed successfully") {
 		return "success"
 	}
 	return "pending"
+}
+
+func createDeployOnlyBuild(
+	ctx context.Context,
+	buildRepository interfaces.BuildRepository,
+	deploymentId int64,
+	source string,
+) error {
+	b, err := buildRepository.CreateBuild(ctx, deploymentId, source)
+	if err != nil {
+		return err
+	}
+
+	return buildRepository.UpdateBuild(
+		ctx,
+		b.Id,
+		value.BuildStatusSuccess,
+		nil,
+		nil,
+		"Build skipped",
+	)
 }
 
 func (da *DeploymentApplication) resolveDeploymentCommitHash(
@@ -1081,6 +1147,15 @@ func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.Da
 	err = da.deploymentRepository.UpdateDatabaseDeploymentCredentials(ctx, c.DbName, c.DeploymentId, c.Username, encryptedPassword)
 	if err != nil {
 		log.Printf("failed to update database deployment credentials: %v\n", err)
+	}
+}
+
+func (da *DeploymentApplication) HandleDeploymentStatusLogsCompleted(c *coreValue.DeploymentStatusLogsCompleted) {
+	ctx := context.Background()
+	rolloutStatus := rolloutStatusFromLogs(&c.Logs)
+	err := da.deploymentRepository.SetDeploymentStatusLogs(ctx, c.DeploymentId, c.Logs, rolloutStatus)
+	if err != nil {
+		log.Printf("failed to persist deployment status logs: %v", err)
 	}
 }
 

@@ -657,6 +657,29 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeploymentBuilds(ctx context.C
 	return builds, nil
 }
 
+func (er *EnvironmentRepository) GetEnvironmentIngressDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error) {
+	rows, err := er.queries.GetEnvironmentIngressDeploymentBuilds(ctx, mapper.ToNullInt64FromPtr(&environmentId))
+	if err != nil {
+		return nil, err
+	}
+
+	builds := make([]*entity.GitDeploymentBuild, len(rows))
+	for i, row := range rows {
+		builds[i] = &entity.GitDeploymentBuild{
+			BuildId:                 row.BuildID,
+			DeploymentId:            row.DeploymentID,
+			DeploymentName:          row.DeploymentName,
+			DeploymentRolloutStatus: row.DeploymentRolloutStatus,
+			CommitHash:              mapper.ToPtrFromNullString(row.CommitHash),
+			Source:                  row.Source,
+			Status:                  entity.BuildStatus(row.Status),
+			CreatedAt:               row.CreatedAt,
+		}
+	}
+
+	return builds, nil
+}
+
 func (er *EnvironmentRepository) GetEnvironmentBranch(ctx context.Context, environmentId int64) (string, error) {
 	branch, err := er.queries.GetEnvironmentBranch(ctx, environmentId)
 	if err != nil {

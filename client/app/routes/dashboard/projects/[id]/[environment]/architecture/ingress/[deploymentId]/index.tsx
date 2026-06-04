@@ -1,8 +1,8 @@
 import React from "react";
+import { useNavigate, useLoaderData, useParams } from "react-router";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useLoaderData, useParams } from "react-router";
 import DeployIngressForm, {
   type IngressFormInput,
 } from "~/components/organisms/forms/DeployIngressForm";
@@ -15,12 +15,16 @@ export function loader() {
 
 export default function UpdateIngressForm() {
   const { deploymentEnvironment } = useLoaderData<typeof loader>();
-  const { deploymentId } = useParams<{
+  const { slug, id, environment, deploymentId } = useParams<{
+    slug: string;
     id: string;
+    environment: string;
     deploymentId: string;
   }>();
+  const navigate = useNavigate();
 
   const { environment: currentEnvironment } = useEnvironment();
+  const queryClient = useQueryClient();
 
   const trpc = useTRPC();
   const { data: environmentDeployments, isLoading } = useQuery(
@@ -35,18 +39,40 @@ export default function UpdateIngressForm() {
   );
 
   const onSubmit = async (data: IngressFormInput) => {
-    await updateIngressMutation.mutateAsync({
-      id: currentEnvironment.id,
-      deploymentId: Number(deploymentId),
-      ingressHosts: data.hosts.map((h) => ({
-        host: h.name,
-        paths: h.paths.map((p) => ({
-          path: p.path,
-          pathType: p.pathType as "Prefix" | "Exact",
-          serviceName: p.service,
+    await updateIngressMutation.mutateAsync(
+      {
+        id: currentEnvironment.id,
+        deploymentId: Number(deploymentId),
+        ingressHosts: data.hosts.map((h) => ({
+          host: h.name,
+          paths: h.paths.map((p) => ({
+            path: p.path,
+            pathType: p.pathType as "Prefix" | "Exact",
+            serviceName: p.service,
+          })),
         })),
-      })),
-    });
+      },
+      {
+        onSuccess: (result) => {
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentDeployments.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
+          if (result?.deploymentId && slug && id && environment) {
+            navigate(
+              `/${slug}/projects/${id}/${environment}/architecture/ingress/${result.deploymentId}`,
+              { replace: true },
+            );
+          }
+        },
+      },
+    );
   };
 
   const ingressDeployment = environmentDeployments?.ingresses.find(

@@ -1332,6 +1332,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
       summary: Update ingress deployment
       tags:
       - deployment

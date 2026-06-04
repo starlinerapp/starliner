@@ -453,7 +453,7 @@ No authorization required
 
 # **updateIngressDeployment**
 
-> updateIngressDeployment(data)
+> ResponseUpdateGitDeploymentResponse updateIngressDeployment(data)
 
 ### Example
 
@@ -484,7 +484,7 @@ const { status, data } = await apiInstance.updateIngressDeployment(
 
 ### Return type
 
-void (empty response body)
+**ResponseUpdateGitDeploymentResponse**
 
 ### Authorization
 
@@ -493,7 +493,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: _/_
 
 ### HTTP response details
 

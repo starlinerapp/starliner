@@ -38,19 +38,6 @@ ON CONFLICT (
     path = EXCLUDED.path
   RETURNING id, ingress_host_id, deployment_id, path, path_type;
 
--- name: UpdateIngressDeployment :one
-WITH updated_ingress AS (
-  UPDATE
-    deployments
-  SET port = @port
-  WHERE id = @deployment_id
-    AND deleted_at IS NULL
-  RETURNING *
-)
-SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
-FROM updated_ingress d
-  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id;
-
 -- name: RepointIngressPathsTargetDeployment :exec
 UPDATE
   ingress_paths

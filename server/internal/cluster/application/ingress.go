@@ -2,7 +2,9 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"starliner.app/internal/cluster/domain/port"
@@ -12,16 +14,23 @@ import (
 const ingressDNSTimeout = 10 * time.Minute
 
 type IngressApplication struct {
-	deploy port.Deploy
-	dns    port.DNS
-	queue  port.Queue
+	deploy       port.Deploy
+	dns          port.DNS
+	queue        port.Queue
+	logPublisher port.LogPublisher
 }
 
-func NewIngressApplication(deploy port.Deploy, dns port.DNS, queue port.Queue) *IngressApplication {
+func NewIngressApplication(
+	deploy port.Deploy,
+	dns port.DNS,
+	queue port.Queue,
+	logPublisher port.LogPublisher,
+) *IngressApplication {
 	return &IngressApplication{
-		deploy: deploy,
-		dns:    dns,
-		queue:  queue,
+		deploy:       deploy,
+		dns:          dns,
+		queue:        queue,
+		logPublisher: logPublisher,
 	}
 }
 
@@ -29,14 +38,19 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 	releaseName := i.DeploymentName
 	hosts := toPortIngressHosts(i.IngressHosts)
 
-	log.Printf("deploying external DNS")
+	var logBuf strings.Builder
+	appendStatus := ia.appendStatus(i.DeploymentId, i.Namespace, releaseName, &logBuf)
+
+	appendStatus("==> Deploying ExternalDNS...\n")
+
 	err := ia.deploy.DeployExternalDNS(i.Namespace, "external-dns", i.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy external dns: %v\n", err)
 	}
 
 	if i.ExpectedIP == "" {
-		log.Printf("failed to deploy ingress: cluster expected IP is not set\n")
+		appendStatus("==> ERROR: failed to deploy ExternalDNS: IP Address is not set\n")
+		ia.publishDeploymentCompleted(i, logBuf.String())
 		return
 	}
 
@@ -44,15 +58,18 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 	args := newDeployIngressArgs(i, releaseName, hosts)
 
 	if !ia.dns.AllHostsResolve(hostnames, i.ExpectedIP) {
-		log.Printf("deploying ingress without TLS for DNS propagation")
+		appendStatus("==> Deploying ingress without TLS for DNS propagation...\n")
 		args.TLSEnabled = false
 		if err := ia.deploy.DeployIngress(args); err != nil {
-			log.Printf("failed to deploy ingress (phase 1): %v\n", err)
+			appendStatus("==> ERROR: failed to deploy ingress: %v\n", err)
+			ia.publishDeploymentCompleted(i, logBuf.String())
 			return
 		}
 	}
 
-	if err := ia.queue.PublishEnableIngressTLS(i); err != nil {
+	next := *i
+	next.AccumulatedLogs = logBuf.String()
+	if err := ia.queue.PublishEnableIngressTLS(&next); err != nil {
 		log.Printf("failed to publish enable ingress tls: %v\n", err)
 	}
 }
@@ -63,19 +80,24 @@ func (ia *IngressApplication) HandleEnableIngressTLS(i *value.IngressDeployment)
 }
 
 func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
+	releaseName := i.DeploymentName
+	hosts := toPortIngressHosts(i.IngressHosts)
+	hostnames := ingressHostnames(&i)
+	args := newDeployIngressArgs(&i, releaseName, hosts)
+
+	var logBuf strings.Builder
+	logBuf.WriteString(i.AccumulatedLogs)
+	appendStatus := ia.appendStatus(i.DeploymentId, i.Namespace, releaseName, &logBuf)
+
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("enable ingress TLS panic: %v", r)
 		}
 	}()
 
-	releaseName := i.DeploymentName
-	hosts := toPortIngressHosts(i.IngressHosts)
-	hostnames := ingressHostnames(&i)
-	args := newDeployIngressArgs(&i, releaseName, hosts)
-
 	if i.ExpectedIP == "" {
-		log.Printf("failed to enable ingress TLS: cluster expected IP is not set\n")
+		appendStatus("==> ERROR: failed to deploy ExternalDNS: IP Address is not set\n")
+		ia.publishDeploymentCompleted(&i, logBuf.String())
 		return
 	}
 
@@ -84,10 +106,12 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 		defer cancel()
 
 		for _, host := range hostnames {
-			log.Printf("waiting for DNS propagation: %s -> %s", host, i.ExpectedIP)
+			appendStatus("==> Waiting for DNS propagation: %s -> %s\n", host, i.ExpectedIP)
 			if err := ia.dns.WaitForHost(ctx, host, i.ExpectedIP); err != nil {
-				log.Printf("failed to wait for DNS for %s: %v\n", host, err)
-				if err := ia.queue.PublishEnableIngressTLS(&i); err != nil {
+				appendStatus("==> ERROR: Failed to wait for DNS for %s: %v\n", host, err)
+				retry := i
+				retry.AccumulatedLogs = logBuf.String()
+				if err := ia.queue.PublishEnableIngressTLS(&retry); err != nil {
 					log.Printf("failed to republish enable ingress tls: %v\n", err)
 				}
 				return
@@ -95,10 +119,40 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 		}
 	}
 
-	log.Printf("deploying ingress with TLS")
+	appendStatus("==> Deploying ingress with TLS...\n")
 	args.TLSEnabled = true
 	if err := ia.deploy.DeployIngress(args); err != nil {
-		log.Printf("failed to deploy ingress (phase 2): %v\n", err)
+		appendStatus("==> ERROR: failed to deploy ingress: %v\n", err)
+		ia.publishDeploymentCompleted(&i, logBuf.String())
+		return
+	}
+	appendStatus("==> Ingress deployed successfully\n")
+	ia.publishDeploymentCompleted(&i, logBuf.String())
+}
+
+func (ia *IngressApplication) appendStatus(
+	deploymentId int64,
+	namespace, releaseName string,
+	logBuf *strings.Builder,
+) func(format string, args ...any) {
+	return func(format string, args ...any) {
+		line := fmt.Sprintf(format, args...)
+		logBuf.WriteString(line)
+		if ia.logPublisher == nil {
+			return
+		}
+		if err := ia.logPublisher.PublishLogChunk(context.Background(), deploymentId, namespace, releaseName, []byte(line)); err != nil {
+			log.Printf("failed to publish log chunk: %v", err)
+		}
+	}
+}
+
+func (ia *IngressApplication) publishDeploymentCompleted(i *value.IngressDeployment, logs string) {
+	if err := ia.queue.PublishDeploymentStatusLogsCompleted(&value.DeploymentStatusLogsCompleted{
+		DeploymentId: i.DeploymentId,
+		Logs:         logs,
+	}); err != nil {
+		log.Printf("failed to publish ingress deployment completed: %v", err)
 	}
 }
 

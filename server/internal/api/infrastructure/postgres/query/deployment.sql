@@ -29,7 +29,7 @@ WHERE id = @id
   AND deleted_at IS NULL;
 
 -- name: GetDeploymentStatusLogs :one
-SELECT d.status_logs, d.status_logs_complete
+SELECT d.status_logs
 FROM deployments d
   INNER JOIN environments e ON d.environment_id = e.id
   INNER JOIN projects ON e.project_id = projects.id
@@ -38,16 +38,10 @@ FROM deployments d
 WHERE d.id = @deployment_id
   AND team_members.user_id = @user_id;
 
--- name: AppendDeploymentStatusLogs :exec
+-- name: SetDeploymentStatusLogs :exec
 UPDATE
   deployments
-SET status_logs = COALESCE(status_logs, '') || @chunk
-WHERE id = @deployment_id;
-
--- name: MarkDeploymentStatusLogsComplete :exec
-UPDATE
-  deployments
-SET status_logs_complete = TRUE, rollout_status = @rollout_status
+SET status_logs = @logs, rollout_status = @rollout_status
 WHERE id = @deployment_id;
 
 -- name: SoftDeleteDeployment :exec

@@ -55,5 +55,9 @@ func (c *Consumer) Start() error {
 		return c.queue.SubscribeToDeploymentDeleted(c.deploymentApplication.HandleDeploymentDeleted)
 	})
 
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentStatusLogsCompleted", func() error {
+		return c.queue.SubscribeToDeploymentStatusLogsCompleted(c.deploymentApplication.HandleDeploymentStatusLogsCompleted)
+	})
+
 	return nil
 }

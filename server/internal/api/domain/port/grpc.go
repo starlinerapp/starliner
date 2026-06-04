@@ -26,10 +26,20 @@ type ClusterClient interface {
 
 	StreamDeploymentStatusLogs(
 		ctx context.Context,
+		deploymentId int64,
 		namespace string,
 		releaseName string,
 		kubeconfigBase64 string,
 		commitHash string,
+		w io.Writer,
+	) error
+
+	StreamIngressDeploymentStatusLogs(
+		ctx context.Context,
+		deploymentId int64,
+		namespace string,
+		releaseName string,
+		kubeconfigBase64 string,
 		w io.Writer,
 	) error
 

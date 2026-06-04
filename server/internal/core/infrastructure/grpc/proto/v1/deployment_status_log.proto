@@ -9,6 +9,7 @@ message StreamDeploymentStatusLogsRequest {
   string release_name = 2;
   string kubeconfig_base64 = 3;
   string commit_hash = 4;
+  int64 deployment_id = 5;
 }
 
 message StreamDeploymentStatusLogsResponse {
@@ -17,4 +18,19 @@ message StreamDeploymentStatusLogsResponse {
 
 service DeploymentStatusLogService {
   rpc StreamDeploymentStatusLogs(StreamDeploymentStatusLogsRequest) returns (stream StreamDeploymentStatusLogsResponse);
+}
+
+message StreamIngressDeploymentStatusLogsRequest {
+  string namespace = 1;
+  string release_name = 2;
+  string kubeconfig_base64 = 3;
+  int64 deployment_id = 4;
+}
+
+message StreamIngressDeploymentStatusLogsResponse {
+  bytes chunk = 1;
+}
+
+service IngressDeploymentStatusLogService {
+  rpc StreamIngressDeploymentStatusLogs(StreamIngressDeploymentStatusLogsRequest) returns (stream StreamIngressDeploymentStatusLogsResponse);
 }

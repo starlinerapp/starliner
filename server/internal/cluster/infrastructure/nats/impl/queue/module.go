@@ -27,6 +27,7 @@ var Module = fx.Module(
 			EnableIngressTLS,
 			DeleteDeployment,
 			DeploymentDeleted,
+			DeploymentStatusLogsCompleted,
 		})
 	}),
 )
