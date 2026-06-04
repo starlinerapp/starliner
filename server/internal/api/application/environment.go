@@ -170,6 +170,12 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 				return nil, err
 			}
 
+			err = createDeployOnlyBuild(ctx, ea.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				log.Printf("failed to create database deploy build: %v", err)
+				continue
+			}
+
 			err = ea.queue.PublishDeployDatabase(&coreValue.Deployment{
 				Namespace:        env.Namespace,
 				DeploymentId:     d.Id,
@@ -192,6 +198,11 @@ func (ea *EnvironmentApplication) CreateEnvironment(
 			normalizedDeploymentName, err := ea.normalizerService.FormatToDNS1123(d.ServiceName)
 			if err != nil {
 				return nil, err
+			}
+			err = createDeployOnlyBuild(ctx, ea.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				log.Printf("failed to create image deploy build: %v", err)
+				continue
 			}
 			err = ea.queue.PublishDeployImage(&coreValue.ImageDeployment{
 				DeploymentId:          d.Id,
@@ -300,7 +311,7 @@ func (ea *EnvironmentApplication) GetEnvironmentDeployments(ctx context.Context,
 			return nil, err
 		}
 
-		internalEndpoint := fmt.Sprintf("%s-rw:%s", normalizedServiceName, d.Port)
+		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
 		databaseDeployments[i] = &value.DatabaseDeployment{
 			Id:               d.Id,
 			ServiceName:      d.ServiceName,
@@ -337,7 +348,19 @@ func (ea *EnvironmentApplication) GetEnvironmentGitDeploymentBuilds(ctx context.
 		return nil, err
 	}
 
+	imageBuilds, err := ea.environmentRepository.GetEnvironmentImageDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	databaseBuilds, err := ea.environmentRepository.GetEnvironmentDatabaseDeploymentBuilds(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
 	allBuilds := append(builds, ingressBuilds...)
+	allBuilds = append(allBuilds, imageBuilds...)
+	allBuilds = append(allBuilds, databaseBuilds...)
 	sort.Slice(allBuilds, func(i, j int) bool {
 		return allBuilds[i].CreatedAt.After(allBuilds[j].CreatedAt)
 	})

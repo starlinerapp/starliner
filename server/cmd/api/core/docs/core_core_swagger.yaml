@@ -284,6 +284,13 @@ definitions:
     - githubRepoId
     - repoName
     type: object
+  request.UpdateDatabase:
+    properties:
+      environmentId:
+        type: integer
+    required:
+    - environmentId
+    type: object
   request.UpdateDeployFromGit:
     properties:
       args:
@@ -1192,6 +1199,34 @@ paths:
       summary: Deploy database
       tags:
       - deployment
+  /deployments/databases/{deploymentId}:
+    put:
+      operationId: updateDatabaseDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Update Database
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDatabase'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
+      summary: Update database deployment
+      tags:
+      - deployment
   /deployments/git:
     post:
       operationId: deployFromGitRepository
@@ -1285,6 +1320,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
       summary: Update image deployment
       tags:
       - deployment

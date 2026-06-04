@@ -448,6 +448,12 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				continue
 			}
 
+			err = createDeployOnlyBuild(ctx, ga.buildRepository, d.Id, value.BuildSourceDuplicate)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+
 			err = ga.queue.PublishDeployDatabase(&coreValue.Deployment{
 				Namespace:        newEnv.Namespace,
 				DeploymentId:     d.Id,
@@ -469,6 +475,11 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			coreEnvs := value.ToCoreEnvVars(d.EnvVars)
 
 			normalizedDeploymentName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+			err = createDeployOnlyBuild(ctx, ga.buildRepository, d.Id, value.BuildSourceDuplicate)
 			if err != nil {
 				errs = append(errs, err)
 				continue
@@ -716,7 +727,7 @@ func (ga *GitHubApplication) getEnvironmentDeployments(ctx context.Context, envi
 			return nil, err
 		}
 
-		internalEndpoint := fmt.Sprintf("%s-rw:%s", normalizedServiceName, d.Port)
+		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
 		databaseDeployments[i] = &value.DatabaseDeployment{
 			Id:               d.Id,
 			ServiceName:      d.ServiceName,

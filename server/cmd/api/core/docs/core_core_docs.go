@@ -323,6 +323,48 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "/deployments/databases/{deploymentId}": {
+            "put": {
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "Update database deployment",
+                "operationId": "updateDatabaseDeployment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "deploymentId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Database",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDatabase"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateGitDeploymentResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/deployments/git": {
             "post": {
                 "tags": [
@@ -463,7 +505,10 @@ const docTemplatecoreCore = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateGitDeploymentResponse"
+                        }
                     }
                 }
             }
@@ -2570,6 +2615,17 @@ const docTemplatecoreCore = `{
                 },
                 "repoName": {
                     "type": "string"
+                }
+            }
+        },
+        "request.UpdateDatabase": {
+            "type": "object",
+            "required": [
+                "environmentId"
+            ],
+            "properties": {
+                "environmentId": {
+                    "type": "integer"
                 }
             }
         },

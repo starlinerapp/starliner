@@ -38,6 +38,22 @@ FROM builds b
 WHERE d.environment_id = $1
 ORDER BY b.created_at DESC;
 
+-- name: GetEnvironmentImageDeploymentBuilds :many
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
+FROM builds b
+  INNER JOIN deployments d ON d.id = b.deployment_id
+  INNER JOIN image_deployments img_d ON img_d.deployment_id = d.id
+WHERE d.environment_id = $1
+ORDER BY b.created_at DESC;
+
+-- name: GetEnvironmentDatabaseDeploymentBuilds :many
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
+FROM builds b
+  INNER JOIN deployments d ON d.id = b.deployment_id
+  INNER JOIN database_deployments db_d ON db_d.deployment_id = d.id
+WHERE d.environment_id = $1
+ORDER BY b.created_at DESC;
+
 -- name: GetLatestGitDeploymentBuild :one
 SELECT DISTINCT ON (d.id)
   b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, b.image_name AS image_name, b.commit_hash, b.source, b.status, gd.url, gd.project_path, gd.dockerfile_path, b.created_at
