@@ -9,7 +9,7 @@ Sentry.init({
   environment: window.ENV.ENVIRONMENT,
   sendDefaultPii: true,
   beforeSend(event, hint) {
-    const error = hint.originalException;
+    const error = hint?.originalException;
     if (isRouteErrorResponse(error) && error.status === 404) return null;
     return event;
   },
