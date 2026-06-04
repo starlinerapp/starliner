@@ -663,6 +663,28 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeploymentBuilds(ctx conte
 		return nil, err
 	}
 
+	return mapEnvironmentDeploymentBuildRows(rows), nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentImageDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error) {
+	rows, err := er.queries.GetEnvironmentImageDeploymentBuilds(ctx, mapper.ToNullInt64FromPtr(&environmentId))
+	if err != nil {
+		return nil, err
+	}
+
+	return mapEnvironmentImageDeploymentBuildRows(rows), nil
+}
+
+func (er *EnvironmentRepository) GetEnvironmentDatabaseDeploymentBuilds(ctx context.Context, environmentId int64) ([]*entity.GitDeploymentBuild, error) {
+	rows, err := er.queries.GetEnvironmentDatabaseDeploymentBuilds(ctx, mapper.ToNullInt64FromPtr(&environmentId))
+	if err != nil {
+		return nil, err
+	}
+
+	return mapEnvironmentDatabaseDeploymentBuildRows(rows), nil
+}
+
+func mapEnvironmentDeploymentBuildRows(rows []sqlc.GetEnvironmentIngressDeploymentBuildsRow) []*entity.GitDeploymentBuild {
 	builds := make([]*entity.GitDeploymentBuild, len(rows))
 	for i, row := range rows {
 		builds[i] = &entity.GitDeploymentBuild{
@@ -677,7 +699,43 @@ func (er *EnvironmentRepository) GetEnvironmentIngressDeploymentBuilds(ctx conte
 		}
 	}
 
-	return builds, nil
+	return builds
+}
+
+func mapEnvironmentImageDeploymentBuildRows(rows []sqlc.GetEnvironmentImageDeploymentBuildsRow) []*entity.GitDeploymentBuild {
+	builds := make([]*entity.GitDeploymentBuild, len(rows))
+	for i, row := range rows {
+		builds[i] = &entity.GitDeploymentBuild{
+			BuildId:                 row.BuildID,
+			DeploymentId:            row.DeploymentID,
+			DeploymentName:          row.DeploymentName,
+			DeploymentRolloutStatus: row.DeploymentRolloutStatus,
+			CommitHash:              mapper.ToPtrFromNullString(row.CommitHash),
+			Source:                  row.Source,
+			Status:                  entity.BuildStatus(row.Status),
+			CreatedAt:               row.CreatedAt,
+		}
+	}
+
+	return builds
+}
+
+func mapEnvironmentDatabaseDeploymentBuildRows(rows []sqlc.GetEnvironmentDatabaseDeploymentBuildsRow) []*entity.GitDeploymentBuild {
+	builds := make([]*entity.GitDeploymentBuild, len(rows))
+	for i, row := range rows {
+		builds[i] = &entity.GitDeploymentBuild{
+			BuildId:                 row.BuildID,
+			DeploymentId:            row.DeploymentID,
+			DeploymentName:          row.DeploymentName,
+			DeploymentRolloutStatus: row.DeploymentRolloutStatus,
+			CommitHash:              mapper.ToPtrFromNullString(row.CommitHash),
+			Source:                  row.Source,
+			Status:                  entity.BuildStatus(row.Status),
+			CreatedAt:               row.CreatedAt,
+		}
+	}
+
+	return builds
 }
 
 func (er *EnvironmentRepository) GetEnvironmentBranch(ctx context.Context, environmentId int64) (string, error) {

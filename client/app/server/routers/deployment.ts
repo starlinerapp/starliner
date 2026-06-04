@@ -215,6 +215,21 @@ export const deploymentRouter = {
         throw err;
       }
     }),
+  updateDatabase: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        deploymentId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .updateDatabaseDeployment(userId, input.deploymentId, {
+          environmentId: input.id,
+        })
+        .then((res) => res.data);
+    }),
   deleteDeployment: protectedProcedure
     .input(
       z.object({

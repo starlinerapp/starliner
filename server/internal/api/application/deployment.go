@@ -342,6 +342,11 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
+	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return err
+	}
+
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
@@ -409,44 +414,57 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 	imageName string,
 	tag string,
 	port int,
-	envs []*value.EnvVar) error {
+	envs []*value.EnvVar) (int64, error) {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
-		return err
+		return 0, err
+	}
+
+	existing, err := da.deploymentRepository.GetUserImageDeploymentById(ctx, userId, deploymentId)
+	if err != nil {
+		return 0, err
+	}
+	if existing.EnvironmentId == nil || *existing.EnvironmentId != environmentId {
+		return 0, fmt.Errorf("image deployment not found")
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	deployment, err := da.deploymentRepository.UpdateImageDeployment(
+	deployment, err := da.redeployImageDeployment(
 		ctx,
-		deploymentId,
+		existing,
 		imageName,
 		tag,
 		strconv.Itoa(port),
 		envs,
 	)
 	if err != nil {
-		return err
+		return 0, err
+	}
+
+	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return 0, err
 	}
 
 	if deployment.EnvironmentId == nil {
-		return fmt.Errorf("deployment %d has nil environment id", deployment.Id)
+		return 0, fmt.Errorf("deployment %d has nil environment id", deployment.Id)
 	}
 
 	if cluster.Kubeconfig == nil {
-		return fmt.Errorf("cluster kubeconfig is nil")
+		return 0, fmt.Errorf("cluster kubeconfig is nil")
 	}
 	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	coreEnvs := make([]*coreValue.EnvVar, 0, len(envs))
@@ -471,7 +489,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 
 	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(deployment.ServiceName)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
@@ -493,7 +511,45 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		log.Printf("error publishing: %v", err)
 	}
 
-	return nil
+	return deployment.Id, nil
+}
+
+func (da *DeploymentApplication) redeployImageDeployment(
+	ctx context.Context,
+	existing *entity.ImageDeployment,
+	imageName string,
+	tag string,
+	port string,
+	envs []*value.EnvVar,
+) (*entity.ImageDeployment, error) {
+	if existing.EnvironmentId == nil {
+		return nil, fmt.Errorf("deployment %d has nil environment id", existing.Id)
+	}
+
+	if err := da.deploymentRepository.SoftDeleteDeployment(ctx, existing.Id); err != nil {
+		return nil, err
+	}
+
+	newDeployment, err := da.deploymentRepository.CreateImageDeployment(
+		ctx,
+		existing.ServiceName,
+		imageName,
+		tag,
+		port,
+		existing.VolumeSizeMiB,
+		existing.VolumeMountPath,
+		*existing.EnvironmentId,
+		envs,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := da.deploymentRepository.RepointIngressPathsTargetDeployment(ctx, existing.Id, newDeployment.Id); err != nil {
+		return nil, err
+	}
+
+	return newDeployment, nil
 }
 
 func (da *DeploymentApplication) DeployDatabase(
@@ -536,6 +592,11 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
+	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return err
+	}
+
 	if cluster.Kubeconfig == nil {
 		return fmt.Errorf("cluster kubeconfig is nil")
 	}
@@ -560,6 +621,100 @@ func (da *DeploymentApplication) DeployDatabase(
 	}
 
 	return nil
+}
+
+func (da *DeploymentApplication) UpdateDatabaseDeployment(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+	environmentId int64,
+) (int64, error) {
+	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return 0, err
+	}
+
+	existing, err := da.deploymentRepository.GetUserDatabaseDeploymentById(ctx, userId, deploymentId)
+	if err != nil {
+		return 0, err
+	}
+	if existing.EnvironmentId == nil || *existing.EnvironmentId != environmentId {
+		return 0, fmt.Errorf("database deployment not found")
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return 0, err
+	}
+
+	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
+	if err != nil {
+		return 0, err
+	}
+
+	deployment, err := da.redeployDatabaseDeployment(ctx, existing)
+	if err != nil {
+		return 0, err
+	}
+
+	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	if err != nil {
+		return 0, err
+	}
+
+	if cluster.Kubeconfig == nil {
+		return 0, fmt.Errorf("cluster kubeconfig is nil")
+	}
+	kubeconfigBase64, err := da.crypto.Decrypt(*cluster.Kubeconfig)
+	if err != nil {
+		return 0, err
+	}
+
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(deployment.ServiceName)
+	if err != nil {
+		return 0, err
+	}
+
+	err = da.queue.PublishDeployDatabase(&coreValue.Deployment{
+		DeploymentId:     deployment.Id,
+		DeploymentName:   normalizedServiceName,
+		Namespace:        env.Namespace,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+	if err != nil {
+		log.Printf("error publishing: %v", err)
+	}
+
+	return deployment.Id, nil
+}
+
+func (da *DeploymentApplication) redeployDatabaseDeployment(
+	ctx context.Context,
+	existing *entity.DatabaseDeployment,
+) (*entity.DatabaseDeployment, error) {
+	if existing.EnvironmentId == nil {
+		return nil, fmt.Errorf("deployment %d has nil environment id", existing.Id)
+	}
+
+	if err := da.deploymentRepository.SoftDeleteDeployment(ctx, existing.Id); err != nil {
+		return nil, err
+	}
+
+	newDeployment, err := da.deploymentRepository.CreateDatabaseDeployment(
+		ctx,
+		existing.ServiceName,
+		existing.Port,
+		*existing.EnvironmentId,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := da.deploymentRepository.RepointIngressPathsTargetDeployment(ctx, existing.Id, newDeployment.Id); err != nil {
+		return nil, err
+	}
+
+	return newDeployment, nil
 }
 
 func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*value.IngressHost, userId int64, environmentId int64) error {

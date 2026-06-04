@@ -65,6 +65,58 @@ func (q *Queries) GetBuildLogs(ctx context.Context, arg GetBuildLogsParams) (sql
 	return logs, err
 }
 
+const getEnvironmentDatabaseDeploymentBuilds = `-- name: GetEnvironmentDatabaseDeploymentBuilds :many
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
+FROM builds b
+  INNER JOIN deployments d ON d.id = b.deployment_id
+  INNER JOIN database_deployments db_d ON db_d.deployment_id = d.id
+WHERE d.environment_id = $1
+ORDER BY b.created_at DESC
+`
+
+type GetEnvironmentDatabaseDeploymentBuildsRow struct {
+	BuildID                 int64
+	DeploymentID            int64
+	DeploymentName          string
+	DeploymentRolloutStatus string
+	CommitHash              sql.NullString
+	Source                  string
+	Status                  BuildStatus
+	CreatedAt               time.Time
+}
+
+func (q *Queries) GetEnvironmentDatabaseDeploymentBuilds(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentDatabaseDeploymentBuildsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentDatabaseDeploymentBuilds, environmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEnvironmentDatabaseDeploymentBuildsRow
+	for rows.Next() {
+		var i GetEnvironmentDatabaseDeploymentBuildsRow
+		if err := rows.Scan(
+			&i.BuildID,
+			&i.DeploymentID,
+			&i.DeploymentName,
+			&i.DeploymentRolloutStatus,
+			&i.CommitHash,
+			&i.Source,
+			&i.Status,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEnvironmentGitDeploymentBuilds = `-- name: GetEnvironmentGitDeploymentBuilds :many
 SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
 FROM builds b
@@ -94,6 +146,58 @@ func (q *Queries) GetEnvironmentGitDeploymentBuilds(ctx context.Context, environ
 	var items []GetEnvironmentGitDeploymentBuildsRow
 	for rows.Next() {
 		var i GetEnvironmentGitDeploymentBuildsRow
+		if err := rows.Scan(
+			&i.BuildID,
+			&i.DeploymentID,
+			&i.DeploymentName,
+			&i.DeploymentRolloutStatus,
+			&i.CommitHash,
+			&i.Source,
+			&i.Status,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEnvironmentImageDeploymentBuilds = `-- name: GetEnvironmentImageDeploymentBuilds :many
+SELECT b.id AS build_id, d.id AS deployment_id, d.name AS deployment_name, d.rollout_status AS deployment_rollout_status, b.commit_hash, b.source, b.status, b.created_at
+FROM builds b
+  INNER JOIN deployments d ON d.id = b.deployment_id
+  INNER JOIN image_deployments img_d ON img_d.deployment_id = d.id
+WHERE d.environment_id = $1
+ORDER BY b.created_at DESC
+`
+
+type GetEnvironmentImageDeploymentBuildsRow struct {
+	BuildID                 int64
+	DeploymentID            int64
+	DeploymentName          string
+	DeploymentRolloutStatus string
+	CommitHash              sql.NullString
+	Source                  string
+	Status                  BuildStatus
+	CreatedAt               time.Time
+}
+
+func (q *Queries) GetEnvironmentImageDeploymentBuilds(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentImageDeploymentBuildsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEnvironmentImageDeploymentBuilds, environmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEnvironmentImageDeploymentBuildsRow
+	for rows.Next() {
+		var i GetEnvironmentImageDeploymentBuildsRow
 		if err := rows.Scan(
 			&i.BuildID,
 			&i.DeploymentID,

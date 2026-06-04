@@ -6,7 +6,6 @@ var Module = fx.Module(
 	"k8s",
 	fx.Provide(
 		NewHealth,
-		NewSecret,
 		NewLogs,
 		NewDeploymentStatus,
 		NewTTY,
