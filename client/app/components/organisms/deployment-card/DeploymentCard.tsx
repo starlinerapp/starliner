@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { motion } from "framer-motion";
 import { ChevronRight } from "~/components/atoms/icons";
 import { formatDistanceToNow } from "date-fns";
@@ -63,17 +69,14 @@ export default function DeploymentCard({
     : status === "failure" || deploymentRolloutStatus === "failure";
   const showSpinner = isBuilding || isDeploying;
 
-  const scrollToPhase = useCallback(
-    (behavior: ScrollBehavior = "smooth") => {
-      const container = scrollContainerRef.current;
-      if (!container) {
-        return;
-      }
+  const scrollToPhase = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const container = scrollContainerRef.current;
+    if (!container) {
+      return;
+    }
 
-      scrollContainerToTop(container, behavior);
-    },
-    [],
-  );
+    scrollContainerToTop(container, behavior);
+  }, []);
 
   const expandCard = useCallback(() => {
     setIsCollapsed(false);
