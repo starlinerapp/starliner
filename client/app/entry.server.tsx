@@ -1,13 +1,11 @@
-import * as Sentry from "@sentry/react-router";
-import React from "react";
 import { PassThrough } from "node:stream";
-
-import type { EntryContext } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
-import { ServerRouter } from "react-router";
+import * as Sentry from "@sentry/react-router";
 import { isbot } from "isbot";
 import type { RenderToPipeableStreamOptions } from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
+import type { EntryContext } from "react-router";
+import { ServerRouter } from "react-router";
 
 export const handleError = Sentry.createSentryHandleError({
   logErrors: false,

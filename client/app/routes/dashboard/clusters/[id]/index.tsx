@@ -1,11 +1,10 @@
-import React from "react";
-import type { Route } from "./+types/index";
 import { redirect } from "react-router";
+import type { Route } from "./+types/index";
 
 export async function loader({ params }: Route.LoaderArgs) {
   throw redirect(`/${params.slug}/clusters/${params.id}/general`);
 }
 
 export default function Cluster() {
-  return <></>;
+  return null;
 }

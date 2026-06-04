@@ -1,6 +1,6 @@
-import { cn } from "~/utils/cn";
 import { motion } from "framer-motion";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "~/utils/cn";
 
 interface NavigationBarProps<T extends string> {
   items: readonly T[];
@@ -37,10 +37,11 @@ export default function NavigationBar<T extends string>({
     <div className="bg-violet-1">
       <div
         ref={containerRef}
-        className="border-mauve-6 text-mauve-11 relative flex w-full gap-4 border-b px-2 pt-2 pb-1 text-sm"
+        className="relative flex w-full gap-4 border-mauve-6 border-b px-2 pt-2 pb-1 text-mauve-11 text-sm"
       >
         {items.map((item, i) => (
-          <div
+          <button
+            type="button"
             key={i}
             className="relative z-10 cursor-pointer px-2 py-1.5"
             onClick={() => onSelect(item)}
@@ -48,16 +49,16 @@ export default function NavigationBar<T extends string>({
             <span
               className={cn(
                 "pb-2",
-                selected === item && "text-violet-11 font-semibold",
+                selected === item && "font-semibold text-violet-11",
               )}
             >
               {item}
             </span>
-          </div>
+          </button>
         ))}
 
         <motion.div
-          className="bg-violet-11 absolute bottom-0 h-[3px] rounded-md"
+          className="absolute bottom-0 h-[3px] rounded-md bg-violet-11"
           animate={{ left: activeRect.left, width: activeRect.width }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />

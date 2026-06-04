@@ -1,21 +1,21 @@
-import React, {
+import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
+import { Check, GitMerge, X } from "lucide-react";
+import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from "react";
-import { motion } from "framer-motion";
 import { ChevronRight } from "~/components/atoms/icons";
-import { formatDistanceToNow } from "date-fns";
 import { Spinner } from "~/components/atoms/spinner/Spinner";
-import { Check, GitMerge, X } from "lucide-react";
-import { BuildLogs, BuildTab } from "./Build";
 import {
   DeploymentLogs,
   DeploymentTab,
 } from "~/components/organisms/deployment-card/Deployment";
 import { cn } from "~/utils/cn";
+import { BuildLogs, BuildTab } from "./Build";
 import { scrollContainerToTop } from "./scroll";
 
 interface LogsCardProps {
@@ -136,18 +136,18 @@ export default function DeploymentCard({
 
   return (
     <div className="shadow-xs">
-      <div className="border-mauve-6 rounded-t-md border px-4 py-3 text-sm">
+      <div className="rounded-t-md border border-mauve-6 px-4 py-3 text-sm">
         <div className="flex gap-3">
           <div className="flex h-5 w-5 shrink-0 items-center justify-center">
-            {showSpinner && <Spinner className="stroke-violet-10 size-5" />}
+            {showSpinner && <Spinner className="size-5 stroke-violet-10" />}
             {isComplete && (
-              <div className="bg-grass-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
-                <Check className="w-3.5 stroke-white stroke-2" />
+              <div className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-grass-9">
+                <Check className="w-3.5 stroke-2 stroke-white" />
               </div>
             )}
             {isFailed && (
-              <div className="bg-red-9 flex h-4.5 w-4.5 items-center justify-center rounded-full">
-                <X className="w-3.5 stroke-white stroke-2" />
+              <div className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-9">
+                <X className="w-3.5 stroke-2 stroke-white" />
               </div>
             )}
           </div>
@@ -162,14 +162,14 @@ export default function DeploymentCard({
                 {formatDistanceToNow(new Date(createdAt))} ago
               </p>
               {commitHash && (
-                <p className="text-mauve-10 bg-gray-3 border-mauve-6 flex items-center gap-1 rounded-md border px-1.5">
+                <p className="flex items-center gap-1 rounded-md border border-mauve-6 bg-gray-3 px-1.5 text-mauve-10">
                   <GitMerge size={16} />
                   {commitHash.slice(0, 7)}
                 </p>
               )}
             </div>
 
-            <div className="text-mauve-10 mt-0.5 text-sm">
+            <div className="mt-0.5 text-mauve-10 text-sm">
               <p>
                 {source === "duplicate"
                   ? "On environment clone"
@@ -181,27 +181,29 @@ export default function DeploymentCard({
           </div>
         </div>
       </div>
-      <div className="border-mauve-6 rounded-b-md border-x border-b text-sm">
-        <div
-          className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm"
-          onClick={toggleCollapsed}
-        >
+      <div className="rounded-b-md border-mauve-6 border-x border-b text-sm">
+        <div className="relative flex items-center gap-3 px-4 py-2 text-sm">
+          <button
+            type="button"
+            aria-label="Toggle logs"
+            aria-expanded={!isCollapsed}
+            onClick={toggleCollapsed}
+            className="absolute inset-0 cursor-pointer"
+          />
           <motion.div
+            className="relative"
             animate={{ rotate: isCollapsed ? 0 : 90 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
             <ChevronRight className="w-4 stroke-2" />
           </motion.div>
-          <div
-            className="relative flex items-center"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <div className="relative flex items-center">
             <BuildTab
               isActive={!isCollapsed && activePhase === "build"}
               hasLogs={!isDeployOnly && hasBuildLogs}
               onSelect={selectBuild}
             />
-            <div className="bg-mauve-8 h-px w-4" />
+            <div className="h-px w-4 bg-mauve-8" />
             <DeploymentTab
               isActive={!isCollapsed && activePhase === "deploy"}
               hasLogs={hasDeployLogs}
@@ -219,11 +221,11 @@ export default function DeploymentCard({
           <div className="min-h-0 overflow-hidden">
             <div
               ref={scrollContainerRef}
-              className="bg-gray-2 border-t-mauve-6 overflow-anchor-none max-h-125 overflow-y-auto scroll-smooth rounded-b-md border-t p-4"
+              className="overflow-anchor-none max-h-125 overflow-y-auto scroll-smooth rounded-b-md border-t border-t-mauve-6 bg-gray-2 p-4"
             >
               <div className={cn(activePhase === "deploy" && "hidden")}>
                 {isDeployOnly ? (
-                  <pre className="text-mauve-11 text-sm whitespace-pre-wrap">
+                  <pre className="whitespace-pre-wrap text-mauve-11 text-sm">
                     Build step skipped
                   </pre>
                 ) : (
@@ -238,7 +240,7 @@ export default function DeploymentCard({
                 className={cn(
                   !isBuilding &&
                     activePhase === "build" &&
-                    "border-mauve-6 mt-4 border-t pt-4",
+                    "mt-4 border-mauve-6 border-t pt-4",
                 )}
               >
                 <DeploymentLogs

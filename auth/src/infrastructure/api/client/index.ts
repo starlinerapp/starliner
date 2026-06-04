@@ -1,7 +1,7 @@
-import { serverEnv } from "../../../env.server";
-import { AuthApiFactory, Configuration } from "./generated";
-import { createServerApiAxios } from "./axios";
 import type { ApiService } from "../../../domain/port/api";
+import { serverEnv } from "../../../env.server";
+import { createServerApiAxios } from "./axios";
+import { AuthApiFactory, Configuration } from "./generated";
 
 export class AuthApiService implements ApiService {
   constructor(

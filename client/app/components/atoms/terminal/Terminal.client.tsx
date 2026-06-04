@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { useXTerm } from "react-xtermjs";
 import { AttachAddon } from "@xterm/addon-attach";
 import { FitAddon } from "@xterm/addon-fit";
 import type { Terminal } from "@xterm/xterm";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useXTerm } from "react-xtermjs";
 import { debounce } from "throttle-debounce";
 
 interface TerminalProps {

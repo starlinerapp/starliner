@@ -1,11 +1,10 @@
-import React from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import DeployImageForm, {
   type ImageFormInput,
 } from "~/components/organisms/forms/DeployImageForm";
-import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function UpdateImageForm() {
   const { slug, id, environment, deploymentId } = useParams<{

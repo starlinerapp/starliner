@@ -1,17 +1,17 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Button from "~/components/atoms/button/Button";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
-import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import { useTRPC } from "~/utils/trpc/react";
 
 export function RepositoryAccess({
   teamId,
@@ -66,7 +66,9 @@ export function RepositoryAccess({
 
   useEffect(() => {
     if (showAssignDialog) {
-      setPendingAssignedRepoIds(getAssignedRepoIds());
+      setPendingAssignedRepoIds(
+        new Set(teamRepos?.map((r) => r.githubRepoId) ?? []),
+      );
     }
   }, [showAssignDialog, teamRepos]);
 
@@ -116,8 +118,8 @@ export function RepositoryAccess({
 
   return (
     <div className="w-full">
-      <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
+      <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
+        <div className="flex h-14 items-center justify-between border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
           <p>Repositories</p>
           {organization.isOwner && (
             <Dialog
@@ -152,7 +154,7 @@ export function RepositoryAccess({
                   ) : allReposSorted.length === 0 ? (
                     <WarningBanner text="Install the GitHub App to assign repositories to this team." />
                   ) : (
-                    <div className="bg-mauve-2 border-mauve-6 flex max-h-[60vh] flex-col overflow-y-auto rounded-md border">
+                    <div className="flex max-h-[60vh] flex-col overflow-y-auto rounded-md border border-mauve-6 bg-mauve-2">
                       {allReposSorted.map((repo) => (
                         <label
                           key={repo.id}
@@ -164,15 +166,15 @@ export function RepositoryAccess({
                             onChange={(event) => {
                               toggleRepo(repo.id, event.target.checked);
                             }}
-                            className="border-mauve-6 h-4.5 w-4.5 shrink-0 rounded"
+                            className="h-4.5 w-4.5 shrink-0 rounded border-mauve-6"
                           />
                           <div className="flex min-w-0 flex-1 flex-col gap-1">
-                            <p className="text-mauve-12 truncate text-sm font-medium">
+                            <p className="truncate font-medium text-mauve-12 text-sm">
                               {repo.owner}/{repo.name}
                             </p>
                             {repo.description && (
                               <p
-                                className="text-mauve-11 truncate text-xs"
+                                className="truncate text-mauve-11 text-xs"
                                 title={repo.description}
                               >
                                 {repo.description}
@@ -231,14 +233,14 @@ export function RepositoryAccess({
             <Skeleton className="h-5 w-48" />
           </div>
         ) : teamRepos?.length === 0 ? (
-          <p className="text-mauve-11 px-4 py-3 text-sm">
+          <p className="px-4 py-3 text-mauve-11 text-sm">
             No repositories assigned.
           </p>
         ) : (
           teamRepos?.map((repo) => (
             <div
               key={repo.githubRepoId}
-              className="border-mauve-6 text-mauve-12 min-w-0 border-b px-4 py-3 text-sm last:border-b-0"
+              className="min-w-0 border-mauve-6 border-b px-4 py-3 text-mauve-12 text-sm last:border-b-0"
             >
               <span className="block truncate" title={repo.repoName}>
                 {repo.repoName}

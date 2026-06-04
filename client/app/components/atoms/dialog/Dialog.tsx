@@ -1,5 +1,5 @@
-import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import * as React from "react";
 import { Cross } from "~/components/atoms/icons";
 
 export const DialogContent = React.forwardRef<
@@ -7,7 +7,7 @@ export const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ children, ...props }, forwardedRef) => (
   <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay className="bg-black-a6 fixed inset-0" />
+    <DialogPrimitive.Overlay className="fixed inset-0 bg-black-a6" />
     <DialogPrimitive.Content
       className="fixed top-1/2 left-1/2 z-99 max-h-[85vh] w-[90vw] max-w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] shadow-xl focus:outline-none"
       {...props}
@@ -16,7 +16,8 @@ export const DialogContent = React.forwardRef<
       {children}
       <DialogPrimitive.Close className="cursor-pointer" asChild>
         <button
-          className="text-violet11 hover:bg-gray-4 absolute top-2.5 right-2.5 inline-flex size-[25px] appearance-none items-center justify-center rounded-md bg-white focus:outline-none"
+          type="button"
+          className="absolute top-2.5 right-2.5 inline-flex size-[25px] appearance-none items-center justify-center rounded-md bg-white text-violet11 hover:bg-gray-4 focus:outline-none"
           aria-label="Close"
         >
           <Cross

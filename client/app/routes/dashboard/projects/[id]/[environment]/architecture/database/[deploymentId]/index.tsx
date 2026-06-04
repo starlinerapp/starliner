@@ -1,9 +1,8 @@
-import React from "react";
-import DeployDatabaseForm from "~/components/organisms/forms/DeployDatabaseForm";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
+import DeployDatabaseForm from "~/components/organisms/forms/DeployDatabaseForm";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { useTRPC } from "~/utils/trpc/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function UpdateDatabaseDeployment() {
   const { slug, id, environment, deploymentId } = useParams<{

@@ -1,10 +1,9 @@
-import React from "react";
-import superjson from "superjson";
 import {
   defaultShouldDehydrateQuery,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createTRPCClient,
   httpBatchStreamLink,
@@ -12,11 +11,11 @@ import {
   loggerLink,
   splitLink,
 } from "@trpc/client";
-import { type PropsWithChildren, useState } from "react";
 import type { inferRouterInputs } from "@trpc/server";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
+import { type PropsWithChildren, useState } from "react";
+import superjson from "superjson";
 import type { AppRouter } from "~/server/main";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function createQueryClient() {
   return new QueryClient({
@@ -37,7 +36,7 @@ function createQueryClient() {
   });
 }
 
-let browserQueryClient: QueryClient | undefined = undefined;
+let browserQueryClient: QueryClient | undefined;
 
 export const getQueryClient = () => {
   if (typeof window === "undefined") {

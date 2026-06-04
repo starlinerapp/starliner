@@ -1,10 +1,3 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
 import {
   addEdge,
   applyNodeChanges,
@@ -19,21 +12,22 @@ import {
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "@xyflow/react/dist/style.css";
-import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
-import type { ResponseEnvironment } from "../../../server/api/clients/server/generated";
+import { useLocation, useMatch, useNavigate, useParams } from "react-router";
 import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
+import GitNode from "~/components/atoms/nodes/GitNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
 import getElkLayout from "~/service/reactflow/getElkLayout";
-import { useLocation, useMatch, useNavigate, useParams } from "react-router";
-import GitNode from "~/components/atoms/nodes/GitNode";
 import {
   buildEdgePairs,
   buildTargets,
   makeBaseNode,
 } from "~/service/reactflow/helpers";
+import { useTRPC } from "~/utils/trpc/react";
+import type { ResponseEnvironment } from "../../../server/api/clients/server/generated";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;

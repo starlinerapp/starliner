@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import { BulkUserLookupRequestSchema } from "../dto/request/user";
-import { BulkUserLookupResponseSchema } from "../dto/response/user";
 import { ErrorResponseSchema } from "../dto/response/common";
+import { BulkUserLookupResponseSchema } from "../dto/response/user";
 
 export const bulkUserLookupRoute = createRoute({
   method: "post",

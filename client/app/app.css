@@ -109,5 +109,5 @@ body {
 }
 
 .xterm-viewport {
-  overflow-y: auto !important;
+  overflow-y: auto;
 }

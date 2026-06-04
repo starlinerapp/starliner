@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import * as Popover from "@radix-ui/react-popover";
 import * as HoverCard from "@radix-ui/react-hover-card";
-import { cn } from "~/utils/cn";
-import { ChevronRight, Plus } from "~/components/atoms/icons";
-import { Link, useParams } from "react-router";
-import { useTRPC } from "~/utils/trpc/react";
+import * as Popover from "@radix-ui/react-popover";
 import { useQuery } from "@tanstack/react-query";
+import React, { useMemo } from "react";
+import { Link, useParams } from "react-router";
+import { ChevronRight, Plus } from "~/components/atoms/icons";
+import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface OrganizationIconProps {
   name: string;
@@ -16,7 +16,7 @@ function OrganizationIcon({ name, className }: OrganizationIconProps) {
   return (
     <div
       className={cn(
-        "bg-violet-9 flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border p-1 text-lg text-white",
+        "flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border bg-violet-9 p-1 text-lg text-white",
         className,
       )}
     >
@@ -50,14 +50,14 @@ export default function OrganizationBadge() {
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger className="data-[state=open]:bg-violet-3 data-[state=open]:border-gray-4 hover:bg-violet-3 hover:border-gray-4 flex h-11 w-11 items-center justify-center self-center rounded-md border border-white">
+      <Popover.Trigger className="flex h-11 w-11 items-center justify-center self-center rounded-md border border-white hover:border-gray-4 hover:bg-violet-3 data-[state=open]:border-gray-4 data-[state=open]:bg-violet-3">
         <OrganizationIcon name={currentOrganization?.name ?? ""} />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
           side="right"
           align="start"
-          className="border-gray-6 m-2 rounded-md border bg-white shadow-md"
+          className="m-2 rounded-md border border-gray-6 bg-white shadow-md"
         >
           <div className="flex min-w-[180px] flex-col p-1">
             <div className="flex gap-2.5 p-1">
@@ -66,7 +66,7 @@ export default function OrganizationBadge() {
                 className="h-9 w-9"
               />
               <div className="flex flex-col justify-between">
-                <p className="text-gray-12 text-sm font-bold">
+                <p className="font-bold text-gray-12 text-sm">
                   {currentOrganization?.name ?? ""}
                 </p>
                 <p className="text-gray-11 text-xs">
@@ -77,20 +77,20 @@ export default function OrganizationBadge() {
             </div>
             <Link
               to={`/${currentOrganization?.slug}/settings/organization/members`}
-              className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
+              className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
               onClick={() => setOpen(false)}
             >
               <p>Organization Settings</p>
             </Link>
             <Link
               to={`/${currentOrganization?.slug}/projects`}
-              className="hover:bg-gray-3 flex flex-row items-center gap-2 rounded-md p-2 text-xs"
+              className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
               onClick={() => setOpen(false)}
             >
               <p>Projects</p>
             </Link>
             <HoverCard.Root openDelay={0} closeDelay={100}>
-              <HoverCard.Trigger className="hover:bg-gray-3 flex cursor-pointer flex-row items-center justify-between gap-2 rounded-md p-2 text-xs">
+              <HoverCard.Trigger className="flex cursor-pointer flex-row items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-gray-3">
                 <p>Switch Organization</p>
                 <ChevronRight width={12} strokeWidth={2.5} />
               </HoverCard.Trigger>
@@ -100,24 +100,24 @@ export default function OrganizationBadge() {
                   align="start"
                   sideOffset={-8}
                   alignOffset={-8}
-                  className="border-gray-6 m-2 cursor-pointer rounded-md border bg-white shadow-md"
+                  className="m-2 cursor-pointer rounded-md border border-gray-6 bg-white shadow-md"
                 >
                   <div className="flex min-w-[160px] flex-col p-1">
-                    {otherOrganizations.map((organization, i) => (
+                    {otherOrganizations.map((organization) => (
                       <Link
                         to={`/${organization.slug}`}
-                        key={i}
-                        className="hover:bg-gray-3 flex items-center gap-2 rounded-md p-2 text-xs"
+                        key={organization.slug}
+                        className="flex items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
                         onClick={() => setOpen(false)}
                       >
                         {organization.name}
                       </Link>
                     ))}
                     {otherOrganizations.length > 0 && (
-                      <hr className="border-gray-4 my-1" />
+                      <hr className="my-1 border-gray-4" />
                     )}
                     <Link
-                      className="hover:bg-gray-3 flex flex-row items-center justify-between gap-2 rounded-md p-2 text-xs"
+                      className="flex flex-row items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
                       to="/organizations/new"
                       target="_blank"
                       onClick={() => setOpen(false)}

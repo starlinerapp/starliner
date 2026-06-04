@@ -1,14 +1,13 @@
-import React from "react";
-import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
-import { GithubLogo } from "~/components/atoms/icons";
-import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
-import { useLoaderData, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import { useLoaderData, useLocation } from "react-router";
+import ConfigureGitHubApp from "~/components/atoms/github/ConfigureGithubApp";
+import InstallGitHubApp from "~/components/atoms/github/InstallGitHubApp";
+import { GithubLogo } from "~/components/atoms/icons";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
-import ConfigureGitHubApp from "~/components/atoms/github/ConfigureGithubApp";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useTRPC } from "~/utils/trpc/react";
 
 export function loader() {
   return {
@@ -39,8 +38,8 @@ export default function GitHubIntegration() {
         ]}
       />
       <div className="flex flex-col px-4 py-4">
-        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs font-bold uppercase">
+        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
+          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
             Integrations
           </div>
           <form onSubmit={() => {}}>

@@ -1,8 +1,8 @@
 // NOTE: Initial draft generated with AI assistance.
 // Code has been reviewed and modified.
 
-import type { ResponseDeployments } from "~/server/api/clients/server/generated";
 import { Position } from "@xyflow/react";
+import type { ResponseDeployments } from "~/server/api/clients/server/generated";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

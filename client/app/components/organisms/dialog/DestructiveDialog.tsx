@@ -1,7 +1,6 @@
-import * as React from "react";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 
 interface DestructiveDialogProps {
   open: boolean;

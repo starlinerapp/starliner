@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import { useTRPC } from "~/utils/trpc/react";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "~/utils/cn";
 import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface SelectDockerfileDialogProps {
   repositoryOwner: string;
@@ -45,9 +45,9 @@ export default function SelectDockerfileDialog({
   function handleContinue() {
     if (selectedPath === null) return;
     const normalizedPath = path.startsWith("./") ? path.slice(2) : path;
-    const relativePath = selectedPath.startsWith(normalizedPath + "/")
-      ? "./" + selectedPath.slice(normalizedPath.length + 1)
-      : "./" + selectedPath;
+    const relativePath = selectedPath.startsWith(`${normalizedPath}/`)
+      ? `./${selectedPath.slice(normalizedPath.length + 1)}`
+      : `./${selectedPath}`;
 
     onConfirm(relativePath);
     onOpenChange(false);
@@ -65,7 +65,7 @@ export default function SelectDockerfileDialog({
                 you&#39;d like to use for this deployment.
               </p>
             </div>
-            <form className="bg-mauve-2 border-mauve-6 flex max-h-[500px] flex-col gap-2 overflow-y-auto rounded-md border-1 p-2">
+            <form className="flex max-h-[500px] flex-col gap-2 overflow-y-auto rounded-md border-1 border-mauve-6 bg-mauve-2 p-2">
               {isRootLoading ? (
                 <span className="flex flex-col gap-2">
                   <DirectoryItemSkeleton depth={0} />
@@ -73,8 +73,8 @@ export default function SelectDockerfileDialog({
                   <DirectoryItemSkeleton depth={0} />
                 </span>
               ) : (
-                repositoryContentData?.map((item, i) => (
-                  <span key={i}>
+                repositoryContentData?.map((item) => (
+                  <span key={item.path ?? item.name}>
                     <DirectoryItem
                       name={item.name}
                       path={item.path ?? item.name}
@@ -156,14 +156,14 @@ function DirectoryItem({
   return (
     <div className={cn("flex flex-col", className)}>
       <fieldset
-        className="text-mauve-12 flex items-center gap-2"
+        className="flex items-center gap-2 text-mauve-12"
         style={{ paddingLeft: `${depth * 1.5}rem` }}
       >
         {isDir && (
           <button
             type="button"
             onClick={() => setIsExpanded((prev) => !prev)}
-            className="text-mauve-11 hover:text-mauve-12 transition-transform outline-none"
+            className="text-mauve-11 outline-none transition-transform hover:text-mauve-12"
           >
             <ChevronRight
               className="h-5 w-5 transition-transform duration-150"
@@ -184,7 +184,7 @@ function DirectoryItem({
             onChange={() => onSelect(path)}
           />
         )}
-        <label htmlFor={path} className="text-mauve-11 font-mono text-sm">
+        <label htmlFor={path} className="font-mono text-mauve-11 text-sm">
           {name}
         </label>
       </fieldset>
@@ -201,7 +201,7 @@ function DirectoryItem({
             subFiles?.map((dir, i) => (
               <DirectoryItem
                 className={cn(i === 0 && "pt-2")}
-                key={i}
+                key={dir.path ?? dir.name}
                 name={dir.name}
                 path={dir.path ?? `${path}/${dir.name}`}
                 type={dir.type}
@@ -234,9 +234,9 @@ function DirectoryItemSkeleton({
       className={cn("flex items-center gap-2", className)}
       style={{ paddingLeft: `${depth * 1.5}rem` }}
     >
-      <div className="bg-mauve-5 h-4 w-4 animate-pulse rounded-full" />
+      <div className="h-4 w-4 animate-pulse rounded-full bg-mauve-5" />
       <div
-        className="bg-mauve-5 h-4 animate-pulse rounded"
+        className="h-4 animate-pulse rounded bg-mauve-5"
         style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }}
       />
     </div>

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import Button from "~/components/atoms/button/Button";
-import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Button from "~/components/atoms/button/Button";
 import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -49,7 +49,13 @@ export default function Settings() {
         navigate(`clusters/all`);
       })();
     }
-  }, [error]);
+  }, [
+    error,
+    trpc.organization.getOrganizationClusters.queryKey,
+    queryClient.invalidateQueries,
+    organization.id,
+    navigate,
+  ]);
 
   const deleteClusterMutation = useMutation(
     trpc.cluster.deleteCluster.mutationOptions({
@@ -79,13 +85,13 @@ export default function Settings() {
           />
         )}
         <div className="w-full pt-4 shadow-xs">
-          <div className="border-mauve-6 rounded-md border text-sm">
-            <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
+          <div className="rounded-md border border-mauve-6 text-sm">
+            <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
               Danger Zone
             </div>
             <div className="flex items-center justify-between px-4 py-2">
               <div>
-                <p className="text-md font-bold">Delete this Cluster</p>
+                <p className="font-bold text-md">Delete this Cluster</p>
                 <p className="text-mauve-11 text-xs">
                   Once you delete a cluster, there is no going back. Please be
                   certain.

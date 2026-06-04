@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import { motion } from "framer-motion";
+import type React from "react";
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router";
+import { ChevronDown } from "~/components/atoms/icons";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/atoms/resizable/Resizable";
-import { NavLink, useLocation } from "react-router";
-import { cn } from "~/utils/cn";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import { ChevronDown } from "~/components/atoms/icons";
-import { motion } from "framer-motion";
+import { cn } from "~/utils/cn";
 
 type SidebarItem = {
   id: string;
@@ -37,14 +38,14 @@ function SidebarLink({ item }: { item: SidebarItem }) {
       {({ isActive }) => (
         <span
           className={cn(
-            "hover:bg-gray-3 flex h-full w-full rounded-md",
+            "flex h-full w-full rounded-md hover:bg-gray-3",
             isActive
-              ? "bg-violet-3 text-violet-11 font-bold"
+              ? "bg-violet-3 font-bold text-violet-11"
               : "text-violet-12",
           )}
         >
           <span
-            className={cn(isActive && "bg-violet-11 rounded-md", "m-2 w-[3px]")}
+            className={cn(isActive && "rounded-md bg-violet-11", "m-2 w-[3px]")}
           />
           <p className="w-full truncate rounded-md py-2 text-sm">
             {item.title}
@@ -65,10 +66,11 @@ function CollapsibleGroup({ group }: { group: SidebarGroup }) {
   return (
     <div className="flex flex-col gap-0.5">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "hover:bg-gray-3 flex w-full items-center justify-between rounded-md px-3 py-2 text-sm",
-          isChildActive ? "text-violet-11 font-bold" : "text-violet-12",
+          "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-gray-3",
+          isChildActive ? "font-bold text-violet-11" : "text-violet-12",
         )}
       >
         <span className="truncate">{group.title}</span>
@@ -107,9 +109,9 @@ export default function ExtendedSidebar({
         defaultSize={15}
         minSize={10}
         maxSize={20}
-        className="bg-violet-1 border-mauve-6 h-screen border-r"
+        className="h-screen border-mauve-6 border-r bg-violet-1"
       >
-        <div className="text-violet-12 border-mauve-6 flex h-10 items-center border-b px-4 text-sm font-bold">
+        <div className="flex h-10 items-center border-mauve-6 border-b px-4 font-bold text-sm text-violet-12">
           {title}
         </div>
         {isLoading ? (
