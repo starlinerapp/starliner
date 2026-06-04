@@ -270,6 +270,55 @@ func (q *Queries) GetUserEnvironmentImageDeployments(ctx context.Context, arg Ge
 	return items, nil
 }
 
+const getUserImageDeploymentById = `-- name: GetUserImageDeploymentById :one
+SELECT d.id AS deployment_id, d.name AS service_name, d.port, d.status, d.environment_id, img_d.name AS image_name, img_d.tag, dv.volume_size_mib, dv.mount_path
+FROM deployments d
+  INNER JOIN image_deployments img_d ON d.id = img_d.deployment_id
+  LEFT JOIN deployment_volumes dv ON d.id = dv.deployment_id
+    AND dv.deleted_at IS NULL
+  INNER JOIN environments e ON d.environment_id = e.id
+  INNER JOIN projects ON e.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
+WHERE d.id = $1
+  AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
+`
+
+type GetUserImageDeploymentByIdParams struct {
+	DeploymentID int64
+	UserID       int64
+}
+
+type GetUserImageDeploymentByIdRow struct {
+	DeploymentID  int64
+	ServiceName   string
+	Port          string
+	Status        DeploymentStatus
+	EnvironmentID sql.NullInt64
+	ImageName     string
+	Tag           string
+	VolumeSizeMib sql.NullInt32
+	MountPath     sql.NullString
+}
+
+func (q *Queries) GetUserImageDeploymentById(ctx context.Context, arg GetUserImageDeploymentByIdParams) (GetUserImageDeploymentByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserImageDeploymentById, arg.DeploymentID, arg.UserID)
+	var i GetUserImageDeploymentByIdRow
+	err := row.Scan(
+		&i.DeploymentID,
+		&i.ServiceName,
+		&i.Port,
+		&i.Status,
+		&i.EnvironmentID,
+		&i.ImageName,
+		&i.Tag,
+		&i.VolumeSizeMib,
+		&i.MountPath,
+	)
+	return i, err
+}
+
 const softDeleteDeploymentVolume = `-- name: SoftDeleteDeploymentVolume :exec
 UPDATE
   deployment_volumes

@@ -84,7 +84,7 @@ func (dh *DeploymentHandler) DeployImage(c *gin.Context) {
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateImage true "Update Image"
 // @Product JSON
-// @Success 200
+// @Success 200 {object} response.UpdateGitDeploymentResponse
 // @Router /deployments/images/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
@@ -100,7 +100,7 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 		return
 	}
 
-	err = dh.deploymentApplication.UpdateImageDeployment(
+	newDeploymentId, err := dh.deploymentApplication.UpdateImageDeployment(
 		c.Request.Context(),
 		currentUser.Id,
 		deploymentId,
@@ -117,7 +117,9 @@ func (dh *DeploymentHandler) UpdateImageDeployment(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, response.UpdateGitDeploymentResponse{
+		DeploymentId: newDeploymentId,
+	})
 }
 
 // DeployDatabase FindAll godoc
@@ -156,6 +158,49 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+// UpdateDatabaseDeployment FindAll godoc
+// @Summary Update database deployment
+// @State core
+// @Tags deployment
+// @ID updateDatabaseDeployment
+// @Param X-User-ID header string true "User ID"
+// @Param deploymentId path int true "Deployment ID"
+// @Param data body request.UpdateDatabase true "Update Database"
+// @Product JSON
+// @Success 200 {object} response.UpdateGitDeploymentResponse
+// @Router /deployments/databases/{deploymentId} [put]
+func (dh *DeploymentHandler) UpdateDatabaseDeployment(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	deploymentId, err := strconv.ParseInt(c.Param("deploymentId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	var body request.UpdateDatabase
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	newDeploymentId, err := dh.deploymentApplication.UpdateDatabaseDeployment(
+		c.Request.Context(),
+		currentUser.Id,
+		deploymentId,
+		body.EnvironmentId,
+	)
+
+	if err != nil {
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.UpdateGitDeploymentResponse{
+		DeploymentId: newDeploymentId,
+	})
 }
 
 // DeployIngress FindAll godoc

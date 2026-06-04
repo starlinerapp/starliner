@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useTRPC } from "~/utils/trpc/react";
@@ -55,8 +55,6 @@ interface DeploymentLogsProps {
   deploymentId: number;
   buildStatus: string;
   followScroll?: boolean;
-  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
-  sectionRef?: React.RefObject<HTMLDivElement | null>;
   onHasLogsChange?: (hasLogs: boolean) => void;
 }
 
@@ -64,12 +62,11 @@ export function DeploymentLogs({
   deploymentId,
   buildStatus,
   followScroll = false,
-  scrollContainerRef,
-  sectionRef,
   onHasLogsChange,
 }: DeploymentLogsProps) {
   const trpc = useTRPC();
   const [lines, setLines] = useState<string[]>([]);
+  const tailRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setLines([]);
@@ -100,18 +97,12 @@ export function DeploymentLogs({
   }, [lines, onHasLogsChange]);
 
   useEffect(() => {
-    if (!followScroll || !scrollContainerRef?.current) {
+    if (!followScroll || !tailRef.current) {
       return;
     }
-    const container = scrollContainerRef.current;
-    const section = sectionRef?.current;
-    const maxScroll = container.scrollHeight - container.clientHeight;
 
-    container.scrollTo({
-      top: maxScroll > 0 ? maxScroll : (section?.offsetTop ?? maxScroll),
-      behavior: "smooth",
-    });
-  }, [lines, followScroll, scrollContainerRef, sectionRef]);
+    tailRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [lines, followScroll]);
 
   if (buildFailed) {
     return (
@@ -132,6 +123,7 @@ export function DeploymentLogs({
           </span>
         ),
       )}
+      <span ref={tailRef} className="block h-px" aria-hidden />
     </div>
   );
 }

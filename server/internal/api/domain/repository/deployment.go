@@ -787,3 +787,74 @@ func (dr *DeploymentRepository) mapGitDeploymentRow(
 		Args:                  deploymentArgs,
 	}, nil
 }
+
+func (dr *DeploymentRepository) GetUserImageDeploymentById(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.ImageDeployment, error) {
+	row, err := dr.queries.GetUserImageDeploymentById(ctx, sqlc.GetUserImageDeploymentByIdParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("image deployment not found")
+		}
+		return nil, err
+	}
+
+	envVars, err := dr.queries.GetDeploymentEnvironmentVars(ctx, row.DeploymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	variables := make([]*entity.EnvVar, len(envVars))
+	for i, e := range envVars {
+		variables[i] = &entity.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		}
+	}
+
+	return &entity.ImageDeployment{
+		Id:              row.DeploymentID,
+		Status:          string(row.Status),
+		ServiceName:     row.ServiceName,
+		ImageName:       row.ImageName,
+		Tag:             row.Tag,
+		Port:            row.Port,
+		EnvironmentId:   mapper.ToPtrFromNullInt64(row.EnvironmentID),
+		VolumeSizeMiB:   mapper.ToPtrFromNullInt32(row.VolumeSizeMib),
+		VolumeMountPath: mapper.ToPtrFromNullString(row.MountPath),
+		EnvVars:         variables,
+	}, nil
+}
+
+func (dr *DeploymentRepository) GetUserDatabaseDeploymentById(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.DatabaseDeployment, error) {
+	row, err := dr.queries.GetUserDatabaseDeploymentById(ctx, sqlc.GetUserDatabaseDeploymentByIdParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("database deployment not found")
+		}
+		return nil, err
+	}
+
+	return &entity.DatabaseDeployment{
+		Id:            row.DeploymentID,
+		ServiceName:   row.Name,
+		Status:        string(row.Status),
+		Database:      mapper.ToPtrFromNullString(row.Database),
+		Username:      mapper.ToPtrFromNullString(row.Username),
+		Password:      mapper.ToPtrFromNullString(row.Password),
+		Port:          row.Port,
+		EnvironmentId: mapper.ToPtrFromNullInt64(row.EnvironmentID),
+	}, nil
+}

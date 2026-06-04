@@ -2,12 +2,13 @@ import React from "react";
 import DeployImageForm, {
   type ImageFormInput,
 } from "~/components/organisms/forms/DeployImageForm";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 
 export default function Index() {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const { environment: currentEnvironment } = useEnvironment();
 
@@ -20,16 +21,27 @@ export default function Index() {
       return;
     }
 
-    await createImageMutation.mutateAsync({
-      id: currentEnvironment.id,
-      serviceName: data.serviceName,
-      imageName: data.imageName,
-      tag: data.tag,
-      port: data.port,
-      volumeSizeMiB: data.volumeSizeMiB ?? undefined,
-      volumeMountPath: data.volumeMountPath ?? undefined,
-      envs: data.envs,
-    });
+    await createImageMutation.mutateAsync(
+      {
+        id: currentEnvironment.id,
+        serviceName: data.serviceName,
+        imageName: data.imageName,
+        tag: data.tag,
+        port: data.port,
+        volumeSizeMiB: data.volumeSizeMiB ?? undefined,
+        volumeMountPath: data.volumeMountPath ?? undefined,
+        envs: data.envs,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: trpc.environment.getEnvironmentBuilds.queryKey({
+              id: currentEnvironment.id,
+            }),
+          });
+        },
+      },
+    );
   };
 
   return <DeployImageForm resetOnSuccess={true} onSubmit={onSubmit} />;
