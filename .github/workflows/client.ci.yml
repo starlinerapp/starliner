@@ -2,10 +2,12 @@ name: Client Lint And Test
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 jobs:
   client-lint-and-test:
+    if: '! github.event.pull_request.draft'
     runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
