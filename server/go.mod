@@ -1,6 +1,6 @@
 module starliner.app
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.11
@@ -29,7 +29,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
-	github.com/tonistiigi/fsutil v0.0.0-20260603195051-59d78b7d9d5a
+	github.com/tonistiigi/fsutil v0.0.0-20260603212341-ed540e182f8a
 	go.uber.org/fx v1.24.0
 	golang.org/x/crypto v0.52.0
 	google.golang.org/grpc v1.81.1
@@ -312,7 +312,7 @@ require (
 	k8s.io/apiserver v0.36.1 // indirect
 	k8s.io/component-base v0.36.1 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20260520065146-aa012df4f4af // indirect
+	k8s.io/kube-openapi v0.0.0-20260603220949-865597e52e25 // indirect
 	k8s.io/kubectl v0.36.1 // indirect
 	k8s.io/streaming v0.36.1 // indirect
 	k8s.io/utils v0.0.0-20260507154919-ff6756f316d2 // indirect
