@@ -66,11 +66,11 @@ export default function OrganizationTeams() {
 
   return (
     <div className="flex flex-col">
-      <div className="border-mauve-6 overflow-hidden rounded-md border text-sm shadow-xs">
+      <div className="overflow-hidden rounded-md border border-mauve-6 text-sm shadow-xs">
         <table className="w-full border-collapse">
           <thead className="h-14">
-            <tr className="border-mauve-6 bg-gray-2 border-b">
-              <th className="text-mauve-12 w-1/2 px-4 py-3 text-left text-xs font-bold uppercase">
+            <tr className="border-mauve-6 border-b bg-gray-2">
+              <th className="w-1/2 px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
                 Teams
               </th>
               <th className="w-1/2 px-4 py-3"></th>
@@ -108,7 +108,7 @@ export default function OrganizationTeams() {
               <tr>
                 <td
                   colSpan={columnCount}
-                  className="text-mauve-11 px-4 py-3 text-sm"
+                  className="px-4 py-3 text-mauve-11 text-sm"
                 >
                   No teams yet.
                 </td>
@@ -117,14 +117,14 @@ export default function OrganizationTeams() {
               teamsData?.map((team) => (
                 <tr
                   key={team.id}
-                  className="border-mauve-6 hover:bg-gray-2 cursor-pointer border-b last:border-b-0"
+                  className="cursor-pointer border-mauve-6 border-b last:border-b-0 hover:bg-gray-2"
                   onClick={() =>
                     navigate(`/${slug}/settings/organization/teams/${team.id}`)
                   }
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="bg-violet-9 flex h-9 w-9 items-center justify-center rounded-md text-base text-white">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-violet-9 text-base text-white">
                         {team.slug.substring(0, 1)?.toUpperCase()}
                       </div>
                       <div className="flex flex-col">
@@ -158,7 +158,7 @@ export default function OrganizationTeams() {
                 onSubmit={handleCreateSubmit(onCreateTeam)}
               >
                 <input
-                  className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full rounded-md border p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full rounded-md border border-mauve-6 bg-gray-2 p-2 text-mauve-11 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   placeholder="Team Slug*"
                   maxLength={50}
                   {...registerCreate("name")}

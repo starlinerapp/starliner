@@ -70,12 +70,12 @@ export default function AcceptInvite() {
 
   return (
     <div className="flex w-125 flex-col gap-4">
-      <h1 className="text-xl font-medium">Join {invite.organizationName}</h1>
+      <h1 className="font-medium text-xl">Join {invite.organizationName}</h1>
       {error && (
         <ErrorBanner text={error}>
           {!emailMatches && (
             <button
-              className="cursor-pointer text-sm font-light underline"
+              className="cursor-pointer font-light text-sm underline"
               type="button"
               onClick={handleLogout}
             >

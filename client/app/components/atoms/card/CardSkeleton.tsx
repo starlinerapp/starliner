@@ -11,7 +11,7 @@ export function CardSkeleton({
 }: React.PropsWithChildren<CardProps>) {
   return (
     <Skeleton
-      className={cn("border-mauve-6 h-52 rounded-md border-1", className)}
+      className={cn("h-52 rounded-md border-1 border-mauve-6", className)}
     />
   );
 }

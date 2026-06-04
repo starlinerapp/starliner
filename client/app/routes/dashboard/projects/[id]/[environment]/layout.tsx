@@ -103,7 +103,7 @@ export default function ProjectLayout() {
         <span className="flex items-center gap-2">
           <span>Deployments</span>
           {newBuildsSinceFirstLoad > 0 && !isEnvironmentBuildsLoading && (
-            <span className="bg-violet-9 rounded-full px-2 py-0.5 text-xs text-white">
+            <span className="rounded-full bg-violet-9 px-2 py-0.5 text-white text-xs">
               + {newBuildsSinceFirstLoad}
             </span>
           )}
@@ -126,7 +126,7 @@ export default function ProjectLayout() {
           </div>
         ) : (
           <div className="flex items-center gap-3 px-4 pt-4">
-            <h1 className="text-mauve-12 text-xl font-bold">
+            <h1 className="font-bold text-mauve-12 text-xl">
               {currentProject?.name}
             </h1>
             <ManageEnvironments

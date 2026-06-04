@@ -90,11 +90,11 @@ export default function General() {
     <ResizablePanelGroup direction="vertical" className="h-full w-full">
       <ResizablePanel defaultSize={70} className="h-full overflow-auto">
         <div className="w-full p-4">
-          <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-            <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs font-bold uppercase">
+          <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
+            <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
               Details
             </div>
-            <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
               <div>
                 <h1 className="text-mauve-12">Status</h1>
               </div>
@@ -103,11 +103,11 @@ export default function General() {
               ) : (
                 <span className="flex items-center gap-3">
                   <LiveIndicator type={liveIndicatorType} />
-                  <p className="text-mauve-11 pr-2 capitalize">{status}</p>
+                  <p className="pr-2 text-mauve-11 capitalize">{status}</p>
                 </span>
               )}
             </div>
-            <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
               <div>
                 <h1 className="text-mauve-12">Server Type</h1>
               </div>
@@ -120,7 +120,7 @@ export default function General() {
                 />
               )}
             </div>
-            <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
               <div>
                 <h1 className="text-mauve-12">IPv4 Address</h1>
               </div>
@@ -133,7 +133,7 @@ export default function General() {
                 />
               )}
             </div>
-            <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
               <div>
                 <h1 className="text-mauve-12">User</h1>
               </div>

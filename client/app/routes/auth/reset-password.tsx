@@ -70,15 +70,15 @@ export default function ResetPassword() {
   if (isInvalidRequest) {
     return (
       <div className="flex w-[500px] flex-col gap-4">
-        <h1 className="text-xl font-medium">Oups! The link is invalid</h1>
+        <h1 className="font-medium text-xl">Oups! The link is invalid</h1>
         <p className="text-mauve-11 text-sm">{INVALID_TOKEN_ERROR}</p>
-        <div className="hover:bg-gray-3 flex w-56 items-center gap-2 rounded-md p-1 py-0.5">
+        <div className="flex w-56 items-center gap-2 rounded-md p-1 py-0.5 hover:bg-gray-3">
           <ArrowRight width="20" strokeWidth="2" />
           <NavLink to={forgotLink} className="underline">
             Request a new reset link
           </NavLink>
         </div>
-        <div className="hover:bg-gray-3 flex w-38 items-center gap-2 rounded-md p-1 py-0.5">
+        <div className="flex w-38 items-center gap-2 rounded-md p-1 py-0.5 hover:bg-gray-3">
           <ArrowRight width="20" strokeWidth="2" />
           <NavLink to={loginLink} className="underline">
             Back to sign in
@@ -90,16 +90,16 @@ export default function ResetPassword() {
 
   return (
     <div className="flex w-[500px] flex-col gap-4">
-      <p className="flex items-center justify-end text-sm font-light">
+      <p className="flex items-center justify-end font-light text-sm">
         <NavLink
           to={loginLink}
-          className="hover:bg-gray-4 flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline"
+          className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline hover:bg-gray-4"
         >
           Back to sign in <ArrowRight className="w-3" />
         </NavLink>
       </p>
-      <h1 className="text-xl font-medium">Set a new password</h1>
-      <p className="text-mauve-11 -mt-1 text-sm">
+      <h1 className="font-medium text-xl">Set a new password</h1>
+      <p className="-mt-1 text-mauve-11 text-sm">
         Choose a new password for your account.
       </p>
       {error && <ErrorBanner text={error} />}
@@ -109,7 +109,7 @@ export default function ResetPassword() {
             New password
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+            className="rounded-md border-1 border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="password"
             id="password"
             autoComplete="new-password"
@@ -122,7 +122,7 @@ export default function ResetPassword() {
             Confirm password
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+            className="rounded-md border-1 border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="password"
             id="confirmPassword"
             autoComplete="new-password"

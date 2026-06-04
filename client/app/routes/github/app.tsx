@@ -71,10 +71,10 @@ export default function GithubApp() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="bg-mauve-4 wiggle-pattern w-1/2"></div>
+      <div className="wiggle-pattern w-1/2 bg-mauve-4"></div>
       <div className="flex w-1/2 items-center justify-center p-16 shadow-md">
         <div className="flex w-[500px] flex-col gap-4">
-          <h1 className="text-xl font-medium">
+          <h1 className="font-medium text-xl">
             Link the Github App to an Organization
           </h1>
           <p className="text-mauve-11 text-sm">
@@ -95,7 +95,7 @@ export default function GithubApp() {
                   {...register("organizationId", {
                     required: true,
                   })}
-                  className="border-mauve-6 w-full appearance-none rounded-md border-1 p-2"
+                  className="w-full appearance-none rounded-md border-1 border-mauve-6 p-2"
                 >
                   {organizations?.map((org, i) => (
                     <option key={i} value={org.id}>

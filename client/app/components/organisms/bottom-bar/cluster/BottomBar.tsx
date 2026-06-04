@@ -34,7 +34,7 @@ export default function BottomBar({ clusterId, status }: BottomBarProps) {
           />
         </div>
       ) : (
-        <p className="text-mauve-11 p-4">
+        <p className="p-4 text-mauve-11">
           Terminal is available once the cluster is running.
         </p>
       )}

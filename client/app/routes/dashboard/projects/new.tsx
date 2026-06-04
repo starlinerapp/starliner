@@ -99,7 +99,7 @@ export default function NewProject() {
         ]}
       />
       <div className="flex flex-col gap-2 p-4">
-        <h1 className="text-xl font-bold">New Project</h1>
+        <h1 className="font-bold text-xl">New Project</h1>
         {!teamExists && !isLoading ? (
           <WarningBanner
             text="You must join or create a team before creating projects."
@@ -139,7 +139,7 @@ export default function NewProject() {
         <div className="mt-4">
           <form className="flex gap-2" onSubmit={handleSubmit(onSubmit)}>
             <input
-              className="border-mauve-6 placeholder:text-mauve-11 w-80 rounded-md border px-2 py-1 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="w-80 rounded-md border border-mauve-6 px-2 py-1 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
               type="text"
               placeholder="Name*"
               {...register("name")}
@@ -149,7 +149,7 @@ export default function NewProject() {
                 {...register("teamId", { required: true })}
                 name="teamId"
                 className={cn(
-                  "border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                  "h-full w-full appearance-none rounded-md border border-mauve-6 px-2 py-1 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
                   teamExists ? "" : "text-mauve-11",
                 )}
                 disabled={!teamExists}
@@ -180,7 +180,7 @@ export default function NewProject() {
                 {...register("clusterId", { required: true })}
                 name="clusterId"
                 className={cn(
-                  "border-mauve-6 h-full w-full appearance-none rounded-md border px-2 py-1 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                  "h-full w-full appearance-none rounded-md border border-mauve-6 px-2 py-1 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
                   clusterExists ? "" : "text-mauve-11",
                 )}
                 disabled={!clusterExists}

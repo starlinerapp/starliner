@@ -21,7 +21,7 @@ export default function SignInWithGitHub() {
     <button
       type="button"
       onClick={handleButtonClicked}
-      className="border-mauve-6 hover:bg-gray-3 text-mauve-12 flex w-full cursor-pointer justify-center rounded-md border bg-white px-4 py-2 text-sm"
+      className="flex w-full cursor-pointer justify-center rounded-md border border-mauve-6 bg-white px-4 py-2 text-mauve-12 text-sm hover:bg-gray-3"
     >
       <span className="flex items-center gap-2.5">
         <GithubLogo className="h-5 w-5 invert" />

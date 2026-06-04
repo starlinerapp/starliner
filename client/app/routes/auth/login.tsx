@@ -86,21 +86,21 @@ export default function Login() {
 
   return (
     <div className="flex w-125 flex-col gap-4">
-      <p className="flex items-center justify-end gap-1.5 py-0.5 text-sm font-light">
+      <p className="flex items-center justify-end gap-1.5 py-0.5 font-light text-sm">
         Don&#39;t have an account?
         <NavLink
           to={signupLink}
-          className="hover:bg-gray-4 flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline"
+          className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline hover:bg-gray-4"
         >
           Sign up <ArrowRight className="w-3" />
         </NavLink>
       </p>
-      <h1 className="text-xl font-medium">Sign in to Starliner</h1>
+      <h1 className="font-medium text-xl">Sign in to Starliner</h1>
       {error && (
         <ErrorBanner text={error}>
           {unverifiedEmail && (
             <button
-              className="enabled:hover:text-mauve-12 text-sm underline enabled:cursor-pointer"
+              className="text-sm underline enabled:cursor-pointer enabled:hover:text-mauve-12"
               type="button"
               disabled={isResending}
               onClick={() => {
@@ -122,7 +122,7 @@ export default function Login() {
             Email
           </label>
           <input
-            className="border-mauve-6 rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+            className="rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="text"
             placeholder="Email"
             {...register("email")}
@@ -147,7 +147,7 @@ export default function Login() {
           <div className="relative">
             <input
               id="password"
-              className="border-mauve-6 w-full rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="w-full rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               {...register("password")}
@@ -157,7 +157,7 @@ export default function Login() {
               onClick={() => setShowPassword(!showPassword)}
               type="button"
               aria-label={showPassword ? "Hide password" : "Show password"}
-              className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+              className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-mauve-11"
             >
               {showPassword ? (
                 <EyeSlash className="h-4 w-4" />

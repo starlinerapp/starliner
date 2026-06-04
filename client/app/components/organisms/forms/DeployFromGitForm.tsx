@@ -277,7 +277,7 @@ export default function DeployFromGitForm({
             <p className="text-sm">Service Name</p>
             <div className="flex gap-2">
               <input
-                className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
+                className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 disabled:text-mauve-10 disabled:hover:cursor-not-allowed"
                 type="text"
                 placeholder="Name*"
                 disabled={!!defaultValues?.serviceName}
@@ -304,7 +304,7 @@ export default function DeployFromGitForm({
                       replace([]);
                     }}
                     className={cn(
-                      "border-mauve-6 bg-gray-2 hover:bg-gray-3 disabled:bg-gray-2 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed",
+                      "h-10 w-full cursor-pointer appearance-none rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] hover:bg-gray-3 disabled:bg-gray-2 disabled:hover:cursor-not-allowed",
                       urlInput ? "text-mauve-12" : "text-mauve-11",
                     )}
                   >
@@ -328,9 +328,9 @@ export default function DeployFromGitForm({
                 <p className="text-sm">Project Directory</p>
                 <div
                   className={cn(
-                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
                     !projectDirectoryPathInput && "text-mauve-11",
-                    !selectedRepository && "hover:bg-gray-2 cursor-not-allowed",
+                    !selectedRepository && "cursor-not-allowed hover:bg-gray-2",
                   )}
                   onClick={() => {
                     if (!selectedRepository) return;
@@ -350,10 +350,10 @@ export default function DeployFromGitForm({
                 <p className="text-sm">Dockerfile</p>
                 <div
                   className={cn(
-                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
                     !dockerFilePathInput && "text-mauve-11",
                     (!selectedRepository || !projectDirectoryPathInput) &&
-                      "hover:bg-gray-2 cursor-not-allowed",
+                      "cursor-not-allowed hover:bg-gray-2",
                   )}
                   onClick={() => {
                     if (!selectedRepository || !projectDirectoryPathInput)
@@ -376,7 +376,7 @@ export default function DeployFromGitForm({
             <p className="text-sm">Port</p>
             <div className="flex gap-2">
               <input
-                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                 type="number"
                 placeholder="Port*"
                 {...register("port", { required: true, valueAsNumber: true })}
@@ -388,14 +388,14 @@ export default function DeployFromGitForm({
             {fields.map((field, index) => (
               <div key={field.id} className="flex gap-2">
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Name*"
                   onPaste={(e) => handleEnvPaste(index, e)}
                   {...register(`envs.${index}.name`)}
                 />
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Value*"
                   {...register(`envs.${index}.value`)}
@@ -416,14 +416,14 @@ export default function DeployFromGitForm({
             {argsFields.map((field, index) => (
               <div key={field.id} className="flex gap-2">
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Name*"
                   onPaste={(e) => handleArgPaste(index, e)}
                   {...register(`args.${index}.name`)}
                 />
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Value*"
                   {...register(`args.${index}.value`)}

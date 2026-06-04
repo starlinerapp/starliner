@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Play } from "lucide-react";
 import { useSubscription } from "@trpc/tanstack-react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import { Play } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface DeploymentTabProps {
   isActive: boolean;
@@ -17,12 +17,12 @@ export function DeploymentTab({
 }: DeploymentTabProps) {
   return (
     <div className="relative">
-      <div className="bg-mauve-8 absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full" />
+      <div className="absolute top-1/2 -left-1 h-2 w-2 -translate-y-1/2 rounded-full bg-mauve-8" />
       <button
         type="button"
         onClick={onSelect}
         className={cn(
-          "hover:bg-mauve-2 relative z-10 flex cursor-pointer items-center gap-1.5 rounded-md border bg-white px-4 py-0.5",
+          "relative z-10 flex cursor-pointer items-center gap-1.5 rounded-md border bg-white px-4 py-0.5 hover:bg-mauve-2",
           !hasLogs && "border-mauve-6 text-mauve-8",
           hasLogs && isActive && "border-violet-9 bg-violet-3 text-violet-9",
           hasLogs && !isActive && "border-mauve-9 text-mauve-9",
@@ -106,14 +106,14 @@ export function DeploymentLogs({
 
   if (buildFailed) {
     return (
-      <pre className="text-mauve-11 text-sm whitespace-pre-wrap">
+      <pre className="whitespace-pre-wrap text-mauve-11 text-sm">
         Build failed — deployment was not triggered.
       </pre>
     );
   }
 
   return (
-    <div className="text-mauve-11 font-mono text-sm break-all whitespace-pre-wrap">
+    <div className="whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
       {lines.map((line, i) =>
         line === "" ? (
           <span key={i} className="block h-4" aria-hidden />

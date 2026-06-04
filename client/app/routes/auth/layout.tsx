@@ -17,7 +17,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function Page() {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
-      <div className="bg-mauve-4 wiggle-pattern hidden md:block md:w-1/2" />
+      <div className="wiggle-pattern hidden bg-mauve-4 md:block md:w-1/2" />
       <div className="flex w-full flex-1 items-center justify-center px-4 py-8 shadow-md sm:px-6 md:w-1/2 md:p-16">
         <Outlet />
       </div>

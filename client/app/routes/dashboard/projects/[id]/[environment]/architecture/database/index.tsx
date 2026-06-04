@@ -1,7 +1,7 @@
-import DeployDatabaseForm from "~/components/organisms/forms/DeployDatabaseForm";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import DeployDatabaseForm from "~/components/organisms/forms/DeployDatabaseForm";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function Index() {
   const trpc = useTRPC();

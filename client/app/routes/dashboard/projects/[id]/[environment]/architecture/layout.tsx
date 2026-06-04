@@ -117,7 +117,7 @@ export default function Layout() {
       <ResizablePanel defaultSize={70} className="h-full">
         <ResizablePanelGroup
           direction="vertical"
-          className="border-mauve-6 h-full w-full border-r-1"
+          className="h-full w-full border-mauve-6 border-r-1"
         >
           <ResizablePanel defaultSize={70} className="h-full">
             {currentEnvironment && (
@@ -150,7 +150,7 @@ export default function Layout() {
         style={minPanelWidth ? { minWidth: minPanelWidth } : undefined}
         className="flex h-full flex-col overflow-hidden"
       >
-        <div ref={navBarRef} className="bg-violet-1 shrink-0">
+        <div ref={navBarRef} className="shrink-0 bg-violet-1">
           <LinkNavigationBar items={navigationBarItems} />
         </div>
         <div className="mx-1 max-h-[calc(100vh-135px)] flex-1 overflow-auto">

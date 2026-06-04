@@ -104,8 +104,8 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
 
   return (
     <>
-      <div className="border-mauve-6 w-full rounded-md border text-sm shadow-xs">
-        <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center justify-between border-b px-4 text-xs font-bold uppercase">
+      <div className="w-full rounded-md border border-mauve-6 text-sm shadow-xs">
+        <div className="flex h-14 items-center justify-between border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
           <p>Members</p>
           {organization.isOwner && (
             <Popover.Root open={addMemberOpen} onOpenChange={setAddMemberOpen}>
@@ -118,26 +118,26 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                 </Button>
               </Popover.Trigger>
               <Popover.Portal>
-                <Popover.Content className="border-mauve-6 mx-2 my-1 w-70 rounded-md border bg-white shadow-md">
+                <Popover.Content className="mx-2 my-1 w-70 rounded-md border border-mauve-6 bg-white shadow-md">
                   <div className="space-y-2 p-2">
                     <div className="relative">
-                      <MagnifyingGlass className="text-mauve-11 absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
+                      <MagnifyingGlass className="absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2 text-mauve-11" />
                       <input
-                        className="border-mauve-6 placeholder:text-mauve-11 w-full rounded-md border p-2 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                        className="w-full rounded-md border border-mauve-6 p-2 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                         type="text"
                         placeholder="Search Members"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                       />
                     </div>
-                    <div className="divide-gray-4 flex max-h-60 flex-col divide-y overflow-y-auto">
+                    <div className="flex max-h-60 flex-col divide-y divide-gray-4 overflow-y-auto">
                       {filteredOrgMembers.length > 0 ? (
                         filteredOrgMembers.map((m) => (
                           <button
                             type="button"
                             key={m.id}
                             onClick={() => handleAddMember(m.id)}
-                            className="hover:bg-gray-3 flex w-full cursor-pointer items-center gap-3 rounded p-2 text-left transition-colors"
+                            className="flex w-full cursor-pointer items-center gap-3 rounded p-2 text-left transition-colors hover:bg-gray-3"
                           >
                             <AvatarIcon
                               name={m.name}
@@ -152,13 +152,13 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
                           </button>
                         ))
                       ) : (
-                        <div className="text-mauve-11 flex h-12 items-center justify-center text-xs">
+                        <div className="flex h-12 items-center justify-center text-mauve-11 text-xs">
                           <p>No members found</p>
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className="border-mauve-6 bg-mauve-2 border-t p-2 text-xs">
+                  <div className="border-mauve-6 border-t bg-mauve-2 p-2 text-xs">
                     <Button
                       type="button"
                       intent="primary"
@@ -180,7 +180,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
           Array.from({ length: 1 }).map((_, i) => (
             <div
               key={i}
-              className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+              className="flex items-center justify-between border-mauve-6 border-b px-4 py-3 text-mauve-12 text-sm last:border-b-0"
             >
               <div className="flex items-center gap-3">
                 <Skeleton className="h-8 w-8 rounded-full" />
@@ -192,12 +192,12 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
             </div>
           ))
         ) : members?.length === 0 ? (
-          <div className="text-mauve-11 px-4 py-3 text-sm">No members yet.</div>
+          <div className="px-4 py-3 text-mauve-11 text-sm">No members yet.</div>
         ) : (
           members?.map((member) => (
             <div
               key={member.user_id}
-              className="border-mauve-6 text-mauve-12 flex items-center justify-between border-b px-4 py-3 text-sm last:border-b-0"
+              className="flex items-center justify-between border-mauve-6 border-b px-4 py-3 text-mauve-12 text-sm last:border-b-0"
             >
               <div className="flex items-center gap-3">
                 <AvatarIcon
@@ -212,7 +212,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
               {organization.isOwner &&
                 member.user_id !== Number(user?.user_id) && (
                   <Button
-                    className="text-mauve-12 w-20 text-xs"
+                    className="w-20 text-mauve-12 text-xs"
                     intent="secondary"
                     disabled={removeMemberMutation.isPending}
                     onClick={() =>
@@ -254,7 +254,7 @@ export default function TeamMembers({ teamId }: { teamId: number }) {
               <h1>Remove Member</h1>
               <p className="text-mauve-11 text-sm">
                 Are you sure you want to remove{" "}
-                <span className="text-mauve-12 font-medium">
+                <span className="font-medium text-mauve-12">
                   {memberToRemove?.name}
                 </span>{" "}
                 from this team?

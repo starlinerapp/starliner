@@ -37,7 +37,7 @@ export default function NavigationBar<T extends string>({
     <div className="bg-violet-1">
       <div
         ref={containerRef}
-        className="border-mauve-6 text-mauve-11 relative flex w-full gap-4 border-b px-2 pt-2 pb-1 text-sm"
+        className="relative flex w-full gap-4 border-mauve-6 border-b px-2 pt-2 pb-1 text-mauve-11 text-sm"
       >
         {items.map((item, i) => (
           <div
@@ -48,7 +48,7 @@ export default function NavigationBar<T extends string>({
             <span
               className={cn(
                 "pb-2",
-                selected === item && "text-violet-11 font-semibold",
+                selected === item && "font-semibold text-violet-11",
               )}
             >
               {item}
@@ -57,7 +57,7 @@ export default function NavigationBar<T extends string>({
         ))}
 
         <motion.div
-          className="bg-violet-11 absolute bottom-0 h-[3px] rounded-md"
+          className="absolute bottom-0 h-[3px] rounded-md bg-violet-11"
           animate={{ left: activeRect.left, width: activeRect.width }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />

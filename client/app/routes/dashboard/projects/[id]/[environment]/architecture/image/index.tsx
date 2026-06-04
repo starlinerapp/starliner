@@ -1,10 +1,9 @@
-import React from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DeployImageForm, {
   type ImageFormInput,
 } from "~/components/organisms/forms/DeployImageForm";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function Index() {
   const trpc = useTRPC();

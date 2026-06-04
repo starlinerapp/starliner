@@ -108,13 +108,13 @@ export default function ProjectSettings() {
   return (
     <>
       <div className="w-full space-y-4 p-4">
-        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
+        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
+          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
             Project Settings
           </div>
-          <div className="border-mauve-6 flex items-center justify-between px-4 py-2">
+          <div className="flex items-center justify-between border-mauve-6 px-4 py-2">
             <div className="flex flex-col">
-              <p className="text-md font-bold">PR Environments</p>
+              <p className="font-bold text-md">PR Environments</p>
               <p className="text-mauve-11 text-xs">
                 Automatically created by Starliner when a pull request is opened
                 and up when the PR is closed.
@@ -136,13 +136,13 @@ export default function ProjectSettings() {
           </div>
         </div>
 
-        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
+        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
+          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
             Environment Settings
           </div>
-          <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+          <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
             <div className="flex flex-col">
-              <p className="text-md font-bold">Assigned Cluster</p>
+              <p className="font-bold text-md">Assigned Cluster</p>
               <p className="text-mauve-11 text-xs">
                 The Cluster this project is running on.
               </p>
@@ -151,7 +151,7 @@ export default function ProjectSettings() {
               <Skeleton className="h-9.5 w-1/2" />
             ) : (
               <input
-                className="border-mauve-6 disabled:text-mauve-11 w-1/2 cursor-not-allowed rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="w-1/2 cursor-not-allowed rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:text-mauve-11"
                 value={clusterData?.clusterName}
                 disabled
               />
@@ -160,13 +160,13 @@ export default function ProjectSettings() {
           <UpdateConnectedBranchForm />
         </div>
 
-        <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-          <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs uppercase">
+        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
+          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
             Danger Zone
           </div>
-          <div className="border-mauve-6 flex items-center justify-between border-b px-4 py-2">
+          <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
             <div>
-              <p className="text-md font-bold">Delete this Environment</p>
+              <p className="font-bold text-md">Delete this Environment</p>
               <p className="text-mauve-11 text-xs">
                 Once you delete an environment, there is no going back. Please
                 be certain.
@@ -187,9 +187,9 @@ export default function ProjectSettings() {
               Delete this Environment
             </Button>
           </div>
-          <div className="border-mauve-6 flex items-center justify-between px-4 py-2">
+          <div className="flex items-center justify-between border-mauve-6 px-4 py-2">
             <div>
-              <p className="text-md font-bold">Delete this Project</p>
+              <p className="font-bold text-md">Delete this Project</p>
               <p className="text-mauve-11 text-xs">
                 Deleting the project will delete all environments and
                 deployments associated with it.

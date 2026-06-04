@@ -21,18 +21,18 @@ export default function WarningBanner({
   return (
     <div
       className={cn(
-        "border-amber-6 bg-amber-3 flex w-full rounded-md border-1",
+        "flex w-full rounded-md border-1 border-amber-6 bg-amber-3",
         className,
       )}
     >
-      <div className="bg-amber-9 flex w-11 items-center justify-center rounded-l-sm">
+      <div className="flex w-11 items-center justify-center rounded-l-sm bg-amber-9">
         <ExclamationTriangle width={18} strokeWidth={2} />
       </div>
       <div className="flex items-center gap-2 p-2.5">
-        <p className="text-sm font-light">{text}</p>
+        <p className="font-light text-sm">{text}</p>
         {linkOut && (
           <span className="flex items-center gap-1">
-            <Link className="text-sm font-light underline" to={linkOut.href}>
+            <Link className="font-light text-sm underline" to={linkOut.href}>
               {linkOut.text}
             </Link>
             <LinkOut width={18} />

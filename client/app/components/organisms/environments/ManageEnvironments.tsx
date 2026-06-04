@@ -98,7 +98,7 @@ export default function ManageEnvironments({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="border-violet-10 flex cursor-pointer items-center gap-1.5 rounded-md border-[1px] px-2 text-sm">
+          <div className="flex cursor-pointer items-center gap-1.5 rounded-md border-[1px] border-violet-10 px-2 text-sm">
             <h1>{currentEnvironment?.name}</h1>
             <ChevronDown height={15} width={15} />
           </div>
@@ -148,7 +148,7 @@ export default function ManageEnvironments({
               <input
                 type="text"
                 placeholder="Environment Name*"
-                className="border-mauve-6 rounded-md border p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] focus:outline-none"
+                className="rounded-md border border-mauve-6 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] focus:outline-none"
                 {...register("environmentName", {
                   required: true,
                   validate: (v) => v.trim().length > 0,
@@ -158,7 +158,7 @@ export default function ManageEnvironments({
                 <label
                   htmlFor="creation-mode-duplicate"
                   className={cn(
-                    "border-mauve-6 flex cursor-pointer items-start gap-2 rounded-md border p-2",
+                    "flex cursor-pointer items-start gap-2 rounded-md border border-mauve-6 p-2",
                     creationMode === "duplicate" &&
                       "border-violet-9 bg-violet-2",
                   )}
@@ -178,7 +178,7 @@ export default function ManageEnvironments({
                           required: creationMode === "duplicate",
                           valueAsNumber: true,
                         })}
-                        className="border-mauve-6 hover:bg-gray-3 h-10 w-full cursor-pointer appearance-none rounded-md border bg-white p-2 text-sm"
+                        className="h-10 w-full cursor-pointer appearance-none rounded-md border border-mauve-6 bg-white p-2 text-sm hover:bg-gray-3"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {environments.map((env) => (
@@ -200,7 +200,7 @@ export default function ManageEnvironments({
                 <label
                   htmlFor="creation-mode-empty"
                   className={cn(
-                    "border-mauve-6 flex cursor-pointer items-start gap-2 rounded-md border p-2",
+                    "flex cursor-pointer items-start gap-2 rounded-md border border-mauve-6 p-2",
                     creationMode === "empty" && "border-violet-9 bg-violet-2",
                   )}
                 >

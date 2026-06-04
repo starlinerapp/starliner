@@ -61,8 +61,8 @@ export default function HetznerCredentials() {
   if (!organization.isOwner) return null;
 
   return (
-    <div className="border-mauve-6 rounded-md border text-sm shadow-xs">
-      <div className="border-mauve-6 text-mauve-12 bg-gray-2 flex h-14 items-center border-b px-4 text-xs font-bold uppercase">
+    <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
+      <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
         Hetzner
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -85,12 +85,12 @@ export default function HetznerCredentials() {
           {isLoading ? (
             <div className="relative w-1/2">
               <Skeleton className="h-9.5 w-full rounded-md" />
-              <Eye className="text-mauve-11 absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
+              <Eye className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-mauve-11" />
             </div>
           ) : (
             <div className="relative w-1/2">
               <input
-                className="border-mauve-6 text-mauve-11 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border p-2 pr-10 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="w-full min-w-52 rounded-md border border-mauve-6 bg-gray-2 p-2 pr-10 text-mauve-11 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                 type={show ? "text" : "password"}
                 placeholder="API Key*"
                 {...register("apiKey")}
@@ -99,7 +99,7 @@ export default function HetznerCredentials() {
                 onClick={() => setShow(!show)}
                 type="button"
                 aria-label={show ? "Hide API token" : "Show API token"}
-                className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2"
+                className="absolute top-1/2 right-3 -translate-y-1/2 text-mauve-11"
               >
                 {show ? (
                   <EyeSlash className="h-4 w-4" />

@@ -62,7 +62,7 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
   return (
     <div
       ref={containerRef}
-      className="border-mauve-6 text-mauve-11 relative flex w-full gap-4 border-b px-2 pt-2 pb-1 text-sm"
+      className="relative flex w-full gap-4 border-mauve-6 border-b px-2 pt-2 pb-1 text-mauve-11 text-sm"
     >
       {items.map((link) => (
         <NavLink
@@ -74,7 +74,7 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
             <span
               className={cn(
                 "truncate pb-2",
-                isActive && "text-violet-11 font-semibold",
+                isActive && "font-semibold text-violet-11",
               )}
             >
               {link.title}
@@ -84,7 +84,7 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
       ))}
 
       <motion.div
-        className="bg-violet-11 absolute bottom-0 h-[3px] rounded-md"
+        className="absolute bottom-0 h-[3px] rounded-md bg-violet-11"
         animate={{ left: activeRect.left, width: activeRect.width }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       />

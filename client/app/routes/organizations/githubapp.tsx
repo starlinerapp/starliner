@@ -43,12 +43,12 @@ export default function OrganizationGithubApp() {
     <div className="flex w-125 flex-col gap-4">
       <button
         type="button"
-        className="hover:bg-gray-4 flex cursor-pointer items-center gap-0.5 self-end rounded-md px-2 py-0.5 text-sm font-light"
+        className="flex cursor-pointer items-center gap-0.5 self-end rounded-md px-2 py-0.5 font-light text-sm hover:bg-gray-4"
         onClick={() => navigate(redirectTo)}
       >
         Skip <ArrowRight className="w-3" />
       </button>
-      <h1 className="text-xl font-medium">Install the GitHub App</h1>
+      <h1 className="font-medium text-xl">Install the GitHub App</h1>
       <p className="text-mauve-11 text-sm">
         Connect GitHub to list repositories, react to pull requests, and
         automate workflows for your organization. You can install it later from

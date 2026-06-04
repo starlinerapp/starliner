@@ -25,19 +25,19 @@ export default function SuccessBanner({
   return (
     <div
       className={cn(
-        "border-grass-6 bg-grass-3 flex w-full rounded-md border",
+        "flex w-full rounded-md border border-grass-6 bg-grass-3",
         className,
       )}
     >
-      <div className="bg-grass-9 flex w-11 items-center justify-center rounded-l-sm">
+      <div className="flex w-11 items-center justify-center rounded-l-sm bg-grass-9">
         <CheckCircle width={18} strokeWidth={2} />
       </div>
       <div className="flex items-center gap-2 p-2.5">
-        <p className="text-sm font-light">{text}</p>
+        <p className="font-light text-sm">{text}</p>
         {children}
         {linkOut && (
           <span className="flex items-center gap-1">
-            <Link className="text-sm font-light underline" to={linkOut.href}>
+            <Link className="font-light text-sm underline" to={linkOut.href}>
               {linkOut.text}
             </Link>
             <LinkOut width={18} />

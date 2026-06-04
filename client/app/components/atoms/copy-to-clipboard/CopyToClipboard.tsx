@@ -53,7 +53,7 @@ const CopyToClipboard = ({
               await handleCopy();
             }}
             className={cn(
-              "hover:bg-gray-4 flex cursor-pointer flex-row gap-1 rounded-md px-2 align-middle",
+              "flex cursor-pointer flex-row gap-1 rounded-md px-2 align-middle hover:bg-gray-4",
               masked && "font-mono",
               className,
             )}

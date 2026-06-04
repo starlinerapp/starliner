@@ -23,8 +23,8 @@ export default function GitNode({ data, selected }: NodeProps<GitNode>) {
   return (
     <div
       className={cn(
-        "bg-white-a12 text-mauve-11 hover:ring-violet-6 hover:rounded-md hover:ring-2",
-        selected && "ring-violet-8 hover:ring-violet-8 rounded-md ring-2",
+        "bg-white-a12 text-mauve-11 hover:rounded-md hover:ring-2 hover:ring-violet-6",
+        selected && "rounded-md ring-2 ring-violet-8 hover:ring-violet-8",
         isDeleting && "pointer-events-none grayscale",
       )}
     >
@@ -40,7 +40,7 @@ export default function GitNode({ data, selected }: NodeProps<GitNode>) {
         position={Position.Right}
         className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
       />
-      <div className="database-node border-mauve-6 bg-mauve-2 flex w-[350px] flex-col gap-2 rounded-md border-1 p-2 shadow-md">
+      <div className="database-node flex w-[350px] flex-col gap-2 rounded-md border-1 border-mauve-6 bg-mauve-2 p-2 shadow-md">
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
             <GitBranch className="w-5" />
@@ -52,7 +52,7 @@ export default function GitNode({ data, selected }: NodeProps<GitNode>) {
           />
         </div>
         <div>
-          <div className="bg-gray-2 border-mauve-6 flex justify-between rounded-t-md border-1 p-2 text-sm shadow-md">
+          <div className="flex justify-between rounded-t-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-md">
             <p>Status</p>
             <span className="flex items-center gap-1.5">
               <span
@@ -64,12 +64,12 @@ export default function GitNode({ data, selected }: NodeProps<GitNode>) {
               <p>{data.status}</p>
             </span>
           </div>
-          <div className="bg-white-a12 border-mauve-6 -mt-1.5 flex flex-col gap-2 rounded-md border-1 p-2 text-sm shadow-sm">
+          <div className="-mt-1.5 flex flex-col gap-2 rounded-md border-1 border-mauve-6 bg-white-a12 p-2 text-sm shadow-sm">
             <span className="flex min-w-0 items-center gap-2">
               <p className="shrink-0">Repository</p>
               <span className="min-w-0 flex-1 overflow-hidden [&>*]:block [&>*]:max-w-full [&>*]:truncate">
                 <CopyToClipboard
-                  className="text-mauve-11 block max-w-full truncate"
+                  className="block max-w-full truncate text-mauve-11"
                   text={data.gitUrl}
                 />
               </span>
@@ -133,7 +133,7 @@ function GitContextMenu({ deploymentId, setIsDeleting }: GitContextMenuProps) {
   return (
     <Popover.Root>
       <Popover.Trigger
-        className="hover:bg-gray-4 flex h-7 w-7 cursor-pointer rounded-md p-1"
+        className="flex h-7 w-7 cursor-pointer rounded-md p-1 hover:bg-gray-4"
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -144,13 +144,13 @@ function GitContextMenu({ deploymentId, setIsDeleting }: GitContextMenuProps) {
         <Popover.Content
           side="bottom"
           align="start"
-          className="border-gray-6 m-2 rounded-md border bg-white shadow-md"
+          className="m-2 rounded-md border border-gray-6 bg-white shadow-md"
         >
           <div className="flex min-w-[120px] flex-col p-0.5">
             <Popover.Close asChild>
               <button
                 type="button"
-                className="hover:bg-gray-3 text-mauve-11 flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-sm"
+                className="flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-mauve-11 text-sm hover:bg-gray-3"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDeleteClicked();

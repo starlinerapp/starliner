@@ -42,11 +42,11 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
 
   return (
     <>
-      <div className="border-mauve-6 overflow-hidden rounded-md border text-sm shadow-xs">
+      <div className="overflow-hidden rounded-md border border-mauve-6 text-sm shadow-xs">
         <table className="w-full table-fixed border-collapse">
           <thead className="h-14">
-            <tr className="border-mauve-6 bg-gray-2 border-b">
-              <th className="text-mauve-12 w-[40%] px-4 py-3 text-left text-xs font-bold uppercase">
+            <tr className="border-mauve-6 border-b bg-gray-2">
+              <th className="w-[40%] px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
                 Danger Zone
               </th>
             </tr>
@@ -55,7 +55,7 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
             <tr>
               <td className="flex justify-between px-4 py-2">
                 <span>
-                  <p className="text-md font-bold">Delete this Team</p>
+                  <p className="font-bold text-md">Delete this Team</p>
                   <p className="text-mauve-11 text-xs">
                     Once you delete a team, there is no going back. Please be
                     certain.

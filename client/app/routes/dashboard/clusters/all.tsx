@@ -59,12 +59,12 @@ export default function Clusters() {
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <MagnifyingGlass className="text-mauve-11 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 stroke-2" />
+              <MagnifyingGlass className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 stroke-2 text-mauve-11" />
               <input
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="border-mauve-6 bg-gray-2 placeholder:text-mauve-11 w-full rounded-md border py-2 pr-2 pl-9 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="w-full rounded-md border border-mauve-6 bg-gray-2 py-2 pr-2 pl-9 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                 placeholder="Search for clusters"
               />
             </div>
@@ -93,8 +93,8 @@ export default function Clusters() {
                         <div className="flex items-center rounded-t-md px-4 pt-2 pb-1">
                           <div className="flex w-full justify-between">
                             <div>
-                              <FolderOpen className="fill-mauve-11 w-6" />{" "}
-                              <h2 className="text-mauve-12 font-semibold">
+                              <FolderOpen className="w-6 fill-mauve-11" />{" "}
+                              <h2 className="font-semibold text-mauve-12">
                                 {cluster.name}
                               </h2>
                             </div>
@@ -106,7 +106,7 @@ export default function Clusters() {
                                 damping: 30,
                               }}
                             >
-                              <ArrowRight className="text-mauve-11 w-5 pt-2" />
+                              <ArrowRight className="w-5 pt-2 text-mauve-11" />
                             </motion.div>
                           </div>
                         </div>
@@ -127,7 +127,7 @@ export default function Clusters() {
                             {cluster.teamSlugs.map((teamSlug, i) => (
                               <p
                                 key={i}
-                                className="text-violet-11 bg-violet-3 w-fit rounded-md px-2 py-1 text-xs"
+                                className="w-fit rounded-md bg-violet-3 px-2 py-1 text-violet-11 text-xs"
                               >
                                 #<span>{teamSlug}</span>
                               </p>

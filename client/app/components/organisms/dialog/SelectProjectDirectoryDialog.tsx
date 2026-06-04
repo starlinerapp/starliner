@@ -63,12 +63,12 @@ export default function SelectProjectDirectoryDialog({
                 deploy.
               </p>
             </div>
-            <form className="bg-mauve-2 border-mauve-6 flex max-h-125 flex-col gap-2 overflow-y-auto rounded-md border p-2">
-              <fieldset className="text-mauve-12 flex items-center gap-2">
+            <form className="flex max-h-125 flex-col gap-2 overflow-y-auto rounded-md border border-mauve-6 bg-mauve-2 p-2">
+              <fieldset className="flex items-center gap-2 text-mauve-12">
                 <button
                   type="button"
                   onClick={() => setIsRootExpanded((prev) => !prev)}
-                  className="text-mauve-11 hover:text-mauve-12 outline-none"
+                  className="text-mauve-11 outline-none hover:text-mauve-12"
                 >
                   <ChevronRight
                     className="h-5 w-5 transition-transform duration-150"
@@ -90,7 +90,7 @@ export default function SelectProjectDirectoryDialog({
                 />
                 <label
                   htmlFor="root"
-                  className="text-mauve-11 font-mono text-sm"
+                  className="font-mono text-mauve-11 text-sm"
                 >
                   ./
                 </label>
@@ -183,13 +183,13 @@ function DirectoryItem({
   return (
     <div className={cn("flex flex-col", className)}>
       <fieldset
-        className="text-mauve-12 flex items-center gap-2"
+        className="flex items-center gap-2 text-mauve-12"
         style={{ paddingLeft: `${depth * 1.5}rem` }}
       >
         <button
           type="button"
           onClick={() => setIsExpanded((prev) => !prev)}
-          className="text-mauve-11 hover:text-mauve-12 transition-transform outline-none"
+          className="text-mauve-11 outline-none transition-transform hover:text-mauve-12"
         >
           <ChevronRight
             className="h-5 w-5 transition-transform duration-150"
@@ -254,9 +254,9 @@ function DirectoryItemSkeleton({
       className={cn("flex items-center gap-2", className)}
       style={{ paddingLeft: `${depth * 1.5}rem` }}
     >
-      <div className="bg-mauve-5 h-4 w-4 animate-pulse rounded-full" />
+      <div className="h-4 w-4 animate-pulse rounded-full bg-mauve-5" />
       <div
-        className="bg-mauve-5 h-4 animate-pulse rounded"
+        className="h-4 animate-pulse rounded bg-mauve-5"
         style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }}
       />
     </div>

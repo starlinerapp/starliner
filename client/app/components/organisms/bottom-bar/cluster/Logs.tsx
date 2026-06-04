@@ -67,7 +67,7 @@ export default function Logs({ clusterId }: LogsProps) {
           ref={logsScrollRef}
           className="h-full min-h-0 w-full overflow-y-auto"
         >
-          <pre className="text-mauve-11 w-full font-mono text-sm break-all whitespace-pre-wrap">
+          <pre className="w-full whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
             {logs.map((line, i) => (
               <span key={i} className="block">
                 {line}

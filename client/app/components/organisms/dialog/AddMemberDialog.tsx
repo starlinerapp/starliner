@@ -204,7 +204,7 @@ export default function AddMemberDialog({
             onSubmit={handleSubmit(onInviteMember)}
           >
             <div
-              className="border-mauve-6 bg-gray-2 flex h-10 items-center gap-1.5 overflow-x-auto rounded-md border px-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="flex h-10 items-center gap-1.5 overflow-x-auto rounded-md border border-mauve-6 bg-gray-2 px-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               onClick={() => inputRef.current?.focus()}
             >
               {recognized.map((email) => {
@@ -215,9 +215,9 @@ export default function AddMemberDialog({
                   <span
                     key={email}
                     className={cn(
-                      "inline-flex h-6 max-w-48 shrink-0 items-center gap-1 rounded-md border px-2 text-xs font-medium shadow-sm",
+                      "inline-flex h-6 max-w-48 shrink-0 items-center gap-1 rounded-md border px-2 font-medium text-xs shadow-sm",
                       valid
-                        ? "border-mauve-6 text-mauve-12 bg-white"
+                        ? "border-mauve-6 bg-white text-mauve-12"
                         : "border-red-6 bg-red-3 text-red-11",
                     )}
                     title={
@@ -254,7 +254,7 @@ export default function AddMemberDialog({
                   updateEmails(recognized, event.target.value)
                 }
                 onKeyDown={handleInputKeyDown}
-                className="text-mauve-12 placeholder:text-mauve-11 h-full min-w-32 flex-1 bg-transparent text-sm outline-none"
+                className="h-full min-w-32 flex-1 bg-transparent text-mauve-12 text-sm outline-none placeholder:text-mauve-11"
                 placeholder={
                   recognized.length === 0 && !current
                     ? "Enter one or more emails"

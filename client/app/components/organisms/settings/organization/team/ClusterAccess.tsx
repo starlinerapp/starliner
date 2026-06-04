@@ -100,14 +100,14 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
   }
 
   return (
-    <div className="border-mauve-6 overflow-hidden rounded-md border text-sm shadow-xs">
+    <div className="overflow-hidden rounded-md border border-mauve-6 text-sm shadow-xs">
       <table className="w-full table-fixed border-collapse">
         <thead className="h-14">
-          <tr className="border-mauve-6 bg-gray-2 border-b">
-            <th className="text-mauve-12 w-[40%] px-4 py-3 text-left text-xs font-bold uppercase">
+          <tr className="border-mauve-6 border-b bg-gray-2">
+            <th className="w-[40%] px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
               Cluster
             </th>
-            <th className="text-mauve-12 w-[40%] px-4 py-3 text-left text-xs font-bold uppercase">
+            <th className="w-[40%] px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
               Server Type
             </th>
             <th className="w-[20%] px-4 py-3">
@@ -152,7 +152,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                             }}
                           />
                         ) : (
-                          <div className="bg-mauve-2 border-mauve-6 flex max-h-[60vh] flex-col overflow-y-auto rounded-md border">
+                          <div className="flex max-h-[60vh] flex-col overflow-y-auto rounded-md border border-mauve-6 bg-mauve-2">
                             {allClustersSorted.map((cluster) => (
                               <label
                                 key={cluster.id}
@@ -169,20 +169,20 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                                       event.target.checked,
                                     );
                                   }}
-                                  className="border-mauve-6 h-4.5 w-4.5 shrink-0 rounded"
+                                  className="h-4.5 w-4.5 shrink-0 rounded border-mauve-6"
                                 />
                                 <div className="flex items-center gap-2">
                                   <p
-                                    className="text-mauve-12 truncate text-sm font-medium"
+                                    className="truncate font-medium text-mauve-12 text-sm"
                                     title={cluster.name}
                                   >
                                     {cluster.name}
                                   </p>
                                   <span
-                                    className="text-mauve-11 flex items-center gap-1 text-sm"
+                                    className="flex items-center gap-1 text-mauve-11 text-sm"
                                     title={cluster.serverType}
                                   >
-                                    <span className="border-mauve-6 rounded-md border bg-white px-1 py-0.5">
+                                    <span className="rounded-md border border-mauve-6 bg-white px-1 py-0.5">
                                       {cluster.serverType}
                                     </span>
                                   </span>
@@ -232,7 +232,7 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
             </tr>
           ) : teamClusters?.length === 0 ? (
             <tr>
-              <td colSpan={3} className="text-mauve-11 px-4 py-3 text-sm">
+              <td colSpan={3} className="px-4 py-3 text-mauve-11 text-sm">
                 No clusters assigned.
               </td>
             </tr>
@@ -244,13 +244,13 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
               >
                 <td className="px-4 py-3">
                   <span
-                    className="text-mauve-12 block truncate font-medium"
+                    className="block truncate font-medium text-mauve-12"
                     title={cluster.clusterName}
                   >
                     {cluster.clusterName}
                   </span>
                 </td>
-                <td className="text-mauve-11 px-4 py-3">
+                <td className="px-4 py-3 text-mauve-11">
                   <span className="block truncate" title={cluster.serverType}>
                     {cluster.serverType}
                   </span>

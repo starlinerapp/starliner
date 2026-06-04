@@ -59,7 +59,7 @@ export default function TeamDetail() {
         {isLoading ? (
           <Skeleton className="h-7 w-36" />
         ) : (
-          <h1 className="text-xl font-bold">#{team?.slug}</h1>
+          <h1 className="font-bold text-xl">#{team?.slug}</h1>
         )}
         <div className="flex flex-col gap-4">
           <div className="w-full">

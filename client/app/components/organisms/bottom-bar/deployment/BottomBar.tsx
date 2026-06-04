@@ -51,7 +51,7 @@ function BottomBarComponent({ deployment, showTerminal }: BottomBarProps) {
           />
         </div>
       ) : (
-        <p className="text-mauve-11 p-4">
+        <p className="p-4 text-mauve-11">
           No deployment selected. Select one to connect to the terminal.
         </p>
       )}

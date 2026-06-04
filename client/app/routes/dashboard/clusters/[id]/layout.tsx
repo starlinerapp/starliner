@@ -50,14 +50,14 @@ export default function ClusterLayout() {
   ];
 
   return (
-    <div className="bg-violet-1 flex h-full flex-col">
+    <div className="flex h-full flex-col bg-violet-1">
       {isLoading ? (
         <div className="bg-violet-1 px-4 pt-4">
           <Skeleton className="h-7 w-32" />
         </div>
       ) : (
-        <div className="bg-violet-1 flex items-center gap-3 px-4 pt-4">
-          <h1 className="text-mauve-12 text-xl font-bold">
+        <div className="flex items-center gap-3 bg-violet-1 px-4 pt-4">
+          <h1 className="font-bold text-mauve-12 text-xl">
             {currentCluster?.name}
           </h1>
         </div>
