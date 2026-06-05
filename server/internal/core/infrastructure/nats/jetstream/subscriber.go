@@ -20,11 +20,43 @@ func (s *Subscriber) Subscribe(subject Subject, identifier string, durable strin
 	uniqueSubject := fmt.Sprintf("%s.%s", subject, identifier)
 	queueGroup := fmt.Sprintf("%s-workers", durable)
 	sub, err := s.js.QueueSubscribe(uniqueSubject, queueGroup, func(msg *nats.Msg) {
-		if err := msg.Ack(); err != nil {
-			log.Printf("failed to ack message: %v", err)
-			return
-		}
-		cb(msg.Data)
+		go func() {
+			done := make(chan struct{})
+			go func() {
+				ticker := time.NewTicker(15 * time.Second)
+				defer ticker.Stop()
+				if err := msg.InProgress(); err != nil {
+					log.Printf("failed to set message in progress: %v", err)
+				}
+				for {
+					select {
+					case <-done:
+						return
+					case <-ticker.C:
+						if err := msg.InProgress(); err != nil {
+							log.Printf("failed to set message in progress: %v", err)
+							return
+						}
+					}
+				}
+			}()
+
+			defer func() {
+				close(done)
+				if r := recover(); r != nil {
+					log.Printf("panic in message handler: %v", r)
+					if err := msg.Nak(); err != nil {
+						log.Printf("failed to nak message: %v", err)
+					}
+					return
+				}
+				if err := msg.Ack(); err != nil {
+					log.Printf("failed to ack message: %v", err)
+				}
+			}()
+
+			cb(msg.Data)
+		}()
 	},
 		nats.Durable(durable),
 		nats.ManualAck(),
