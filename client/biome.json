@@ -7,14 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": [
-      "**",
-      "!.react-router",
-      "!app/components/atoms/icons",
-      "!app/server/api/clients/server/generated",
-      "!app/server/api/clients/auth/generated",
-      "!build"
-    ]
+    "includes": ["**", "!.react-router", "!build"]
   },
   "formatter": {
     "enabled": true,
@@ -23,6 +16,12 @@
   },
   "linter": {
     "enabled": true,
+    "includes": [
+      "**",
+      "!app/components/atoms/icons/**",
+      "!app/server/api/clients/server/generated/**",
+      "!app/server/api/clients/auth/generated/**"
+    ],
     "rules": {
       "recommended": true,
       "a11y": {
