@@ -19,6 +19,12 @@ services:
       - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=600s"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entrypoint=metrics"
+      - "--metrics.prometheus.addentrypointslabels=true"
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addserviceslabels=true"
+      - "--entrypoints.metrics.address=:8082"
     ports:
       - "80:80"
       - "443:443"
