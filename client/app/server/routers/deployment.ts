@@ -1,8 +1,8 @@
-import { protectedProcedure } from "~/server/trpc";
+import type { Readable } from "node:stream";
 import { z } from "zod";
 import { deploymentApiFactory } from "~/server/api/clients/server";
+import { protectedProcedure } from "~/server/trpc";
 import { type AxiosResponse, isAxiosError } from "axios";
-import { Readable } from "stream";
 import { TRPCError } from "@trpc/server";
 import { cache } from "~/server/services/cache";
 
@@ -236,6 +236,21 @@ export const deploymentRouter = {
         throw err;
       }
     }),
+  updateDatabase: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        deploymentId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await deploymentApiFactory
+        .updateDatabaseDeployment(userId, input.deploymentId, {
+          environmentId: input.id,
+        })
+        .then((res) => res.data);
+    }),
   deleteDeployment: protectedProcedure
     .input(
       z.object({
@@ -358,6 +373,57 @@ export const deploymentRouter = {
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               yield line.slice(6).trim();
+            }
+          }
+        }
+      } catch (err) {
+        if (signal?.aborted) {
+          return;
+        }
+
+        throw err;
+      } finally {
+        response?.data.destroy();
+      }
+    }),
+  streamDeploymentStatusLogs: protectedProcedure
+    .input(
+      z.object({
+        deploymentId: z.number(),
+      }),
+    )
+    .subscription(async function* ({ input, ctx, signal }) {
+      const userId = ctx.user?.id;
+
+      let response: AxiosResponse<Readable> | undefined;
+      try {
+        // @ts-expect-error OpenAPI doesn't support SSE
+        response = await deploymentApiFactory.streamDeploymentStatusLogs(
+          userId,
+          input.deploymentId,
+          { responseType: "stream", signal },
+        );
+
+        signal?.addEventListener("abort", () => {
+          response?.data?.destroy();
+        });
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        // @ts-expect-error OpenAPI doesn't support SSE
+        for await (const chunk of response.data) {
+          if (signal?.aborted) {
+            break;
+          }
+
+          buffer += decoder.decode(chunk, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              yield line.slice(6);
             }
           }
         }

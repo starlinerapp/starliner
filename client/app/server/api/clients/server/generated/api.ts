@@ -576,6 +576,19 @@ export interface RequestTeamRepoAssignment {
 /**
  *
  * @export
+ * @interface RequestUpdateDatabase
+ */
+export interface RequestUpdateDatabase {
+  /**
+   *
+   * @type {number}
+   * @memberof RequestUpdateDatabase
+   */
+  environmentId: number;
+}
+/**
+ *
+ * @export
  * @interface RequestUpdateDeployFromGit
  */
 export interface RequestUpdateDeployFromGit {
@@ -1051,12 +1064,6 @@ export interface ResponseGitDeployment {
 export interface ResponseGitDeploymentBuild {
   /**
    *
-   * @type {Array<ResponseArg>}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  args: Array<ResponseArg>;
-  /**
-   *
    * @type {number}
    * @memberof ResponseGitDeploymentBuild
    */
@@ -1090,19 +1097,7 @@ export interface ResponseGitDeploymentBuild {
    * @type {string}
    * @memberof ResponseGitDeploymentBuild
    */
-  dockerfilePath: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  gitUrl: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ResponseGitDeploymentBuild
-   */
-  projectPath: string;
+  deploymentRolloutStatus: string;
   /**
    *
    * @type {string}
@@ -1700,6 +1695,19 @@ export interface ResponseTeamRepo {
    * @memberof ResponseTeamRepo
    */
   teamId: number;
+}
+/**
+ *
+ * @export
+ * @interface ResponseUpdateGitDeploymentResponse
+ */
+export interface ResponseUpdateGitDeploymentResponse {
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseUpdateGitDeploymentResponse
+   */
+  deploymentId: number;
 }
 /**
  *
@@ -3059,6 +3067,127 @@ export const DeploymentApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Stream deployment status logs
+     * @param {string} xUserID User ID
+     * @param {number} id Deployment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamDeploymentStatusLogs: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("streamDeploymentStatusLogs", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("streamDeploymentStatusLogs", "id", id);
+      const localVarPath = `/deployments/{id}/status/logs/stream`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Update database deployment
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDatabase} data Update Database
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateDatabaseDeployment: async (
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDatabase,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("updateDatabaseDeployment", "xUserID", xUserID);
+      // verify required parameter 'deploymentId' is not null or undefined
+      assertParamExists(
+        "updateDatabaseDeployment",
+        "deploymentId",
+        deploymentId,
+      );
+      // verify required parameter 'data' is not null or undefined
+      assertParamExists("updateDatabaseDeployment", "data", data);
+      const localVarPath = `/deployments/databases/{deploymentId}`.replace(
+        `{${"deploymentId"}}`,
+        encodeURIComponent(String(deploymentId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        data,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Update Deploy from Git
      * @param {string} xUserID User ID
      * @param {string} xCorrelationID Correlation ID
@@ -3519,6 +3648,80 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Stream deployment status logs
+     * @param {string} xUserID User ID
+     * @param {number} id Deployment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async streamDeploymentStatusLogs(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.streamDeploymentStatusLogs(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.streamDeploymentStatusLogs"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Update database deployment
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDatabase} data Update Database
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateDatabaseDeployment(
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDatabase,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseUpdateGitDeploymentResponse>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.updateDatabaseDeployment(
+          xUserID,
+          deploymentId,
+          data,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DeploymentApi.updateDatabaseDeployment"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Update Deploy from Git
      * @param {string} xUserID User ID
      * @param {string} xCorrelationID Correlation ID
@@ -3534,7 +3737,10 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       data: RequestUpdateDeployFromGit,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseUpdateGitDeploymentResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateDeployFromGitRepository(
@@ -3574,7 +3780,10 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       data: RequestUpdateImage,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseUpdateGitDeploymentResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateImageDeployment(
@@ -3614,7 +3823,10 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
     ): Promise<
-      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseUpdateGitDeploymentResponse>
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateIngressDeployment(
@@ -3765,6 +3977,42 @@ export const DeploymentApiFactory = function (
     },
     /**
      *
+     * @summary Stream deployment status logs
+     * @param {string} xUserID User ID
+     * @param {number} id Deployment ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    streamDeploymentStatusLogs(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .streamDeploymentStatusLogs(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Update database deployment
+     * @param {string} xUserID User ID
+     * @param {number} deploymentId Deployment ID
+     * @param {RequestUpdateDatabase} data Update Database
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateDatabaseDeployment(
+      xUserID: string,
+      deploymentId: number,
+      data: RequestUpdateDatabase,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseUpdateGitDeploymentResponse> {
+      return localVarFp
+        .updateDatabaseDeployment(xUserID, deploymentId, data, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Update Deploy from Git
      * @param {string} xUserID User ID
      * @param {string} xCorrelationID Correlation ID
@@ -3779,7 +4027,7 @@ export const DeploymentApiFactory = function (
       deploymentId: number,
       data: RequestUpdateDeployFromGit,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseUpdateGitDeploymentResponse> {
       return localVarFp
         .updateDeployFromGitRepository(
           xUserID,
@@ -3806,7 +4054,7 @@ export const DeploymentApiFactory = function (
       deploymentId: number,
       data: RequestUpdateImage,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseUpdateGitDeploymentResponse> {
       return localVarFp
         .updateImageDeployment(
           xUserID,
@@ -3833,7 +4081,7 @@ export const DeploymentApiFactory = function (
       deploymentId: number,
       data: RequestUpdateIngress,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<void> {
+    ): AxiosPromise<ResponseUpdateGitDeploymentResponse> {
       return localVarFp
         .updateIngressDeployment(
           xUserID,
@@ -3975,6 +4223,46 @@ export class DeploymentApi extends BaseAPI {
   ) {
     return DeploymentApiFp(this.configuration)
       .streamDeploymentLogs(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Stream deployment status logs
+   * @param {string} xUserID User ID
+   * @param {number} id Deployment ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public streamDeploymentStatusLogs(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .streamDeploymentStatusLogs(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Update database deployment
+   * @param {string} xUserID User ID
+   * @param {number} deploymentId Deployment ID
+   * @param {RequestUpdateDatabase} data Update Database
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeploymentApi
+   */
+  public updateDatabaseDeployment(
+    xUserID: string,
+    deploymentId: number,
+    data: RequestUpdateDatabase,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DeploymentApiFp(this.configuration)
+      .updateDatabaseDeployment(xUserID, deploymentId, data, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

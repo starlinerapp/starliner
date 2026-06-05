@@ -1,11 +1,11 @@
-import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
-import { Outlet, useLocation, useParams } from "react-router";
-import React, { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import React, { useEffect, useMemo } from "react";
+import { Outlet, useLocation, useParams } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
+import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function ProjectLayout() {
   const { slug, id, environment } = useParams<{
@@ -68,7 +68,7 @@ export default function ProjectLayout() {
     if (
       !projectEnvironmentKey ||
       !environmentBuilds ||
-      !location.pathname.endsWith("/builds")
+      !location.pathname.endsWith("/deployments")
     ) {
       return;
     }
@@ -101,15 +101,15 @@ export default function ProjectLayout() {
     {
       title: (
         <span className="flex items-center gap-2">
-          <span>Builds</span>
+          <span>Deployments</span>
           {newBuildsSinceFirstLoad > 0 && !isEnvironmentBuildsLoading && (
-            <span className="bg-violet-9 rounded-full px-2 py-0.5 text-xs text-white">
+            <span className="rounded-full bg-violet-9 px-2 py-0.5 text-white text-xs">
               + {newBuildsSinceFirstLoad}
             </span>
           )}
         </span>
       ),
-      href: `/${slug}/projects/${id}/${environment}/builds`,
+      href: `/${slug}/projects/${id}/${environment}/deployments`,
     },
     {
       title: "Settings",
@@ -126,7 +126,7 @@ export default function ProjectLayout() {
           </div>
         ) : (
           <div className="flex items-center gap-3 px-4 pt-4">
-            <h1 className="text-mauve-12 text-xl font-bold">
+            <h1 className="font-bold text-mauve-12 text-xl">
               {currentProject?.name}
             </h1>
             <ManageEnvironments

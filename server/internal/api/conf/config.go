@@ -35,6 +35,8 @@ type Config struct {
 	ImageRegistryUrl        string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
 	ImageRegistryUsername   string `mapstructure:"IMAGE_REGISTRY_USERNAME" validate:"required"`
 	ImageRegistryPassword   string `mapstructure:"IMAGE_REGISTRY_PASSWORD" validate:"required"`
+	SentryDSN               string `mapstructure:"SENTRY_DSN_SERVER"`
+	Environment             string `mapstructure:"ENVIRONMENT"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -85,4 +87,12 @@ func (c *Config) GetNatsUrl() string {
 
 func (c *Config) GetEncryptionKeyBase64() string {
 	return c.EncryptionKeyBase64
+}
+
+func (c *Config) GetSentryDSN() string {
+	return c.SentryDSN
+}
+
+func (c *Config) GetEnvironment() string {
+	return c.Environment
 }

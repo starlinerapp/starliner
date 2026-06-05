@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { NavLink, useSearchParams } from "react-router";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import SuccessBanner from "~/components/atoms/banner/SuccessBanner";
+import Button from "~/components/atoms/button/Button";
 import {
   ArrowRight,
   ChevronRight,
   Eye,
   EyeSlash,
 } from "~/components/atoms/icons";
-import { NavLink, useSearchParams } from "react-router";
-import Button from "~/components/atoms/button/Button";
 import { getAuthClient } from "~/utils/auth/client";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import SuccessBanner from "~/components/atoms/banner/SuccessBanner";
 
 interface SignUpFormInput {
   email: string;
@@ -62,16 +62,16 @@ export default function SignUp() {
 
   return (
     <div className="flex w-125 flex-col gap-4">
-      <p className="flex items-center justify-end gap-2 py-0.5 text-sm font-light">
+      <p className="flex items-center justify-end gap-2 py-0.5 font-light text-sm">
         Already have an account?
         <NavLink
           to={loginLink}
-          className="hover:bg-gray-4 flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline"
+          className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline hover:bg-gray-4"
         >
           Sign in <ArrowRight className="w-3" />
         </NavLink>
       </p>
-      <h1 className="text-xl font-medium">Sign up for Starliner</h1>
+      <h1 className="font-medium text-xl">Sign up for Starliner</h1>
       {error && <ErrorBanner text={error} />}
       {success && <SuccessBanner text={success} />}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
@@ -81,7 +81,7 @@ export default function SignUp() {
           </label>
           <input
             id="username"
-            className="border-mauve-6 rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+            className="rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="text"
             placeholder="Full Name*"
             {...register("username")}
@@ -93,7 +93,7 @@ export default function SignUp() {
           </label>
           <input
             id="email"
-            className="border-mauve-6 rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+            className="rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="email"
             placeholder="Email"
             {...register("email")}
@@ -106,7 +106,7 @@ export default function SignUp() {
           <div className="relative">
             <input
               id="password"
-              className="border-mauve-6 w-full rounded-md border p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="w-full rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               {...register("password")}
@@ -116,7 +116,7 @@ export default function SignUp() {
               onClick={() => setShowPassword(!showPassword)}
               type="button"
               aria-label={showPassword ? "Hide password" : "Show password"}
-              className="text-mauve-11 absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+              className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-mauve-11"
             >
               {showPassword ? (
                 <EyeSlash className="h-4 w-4" />
@@ -129,7 +129,7 @@ export default function SignUp() {
         <Button className="mt-2" type="submit" size="md">
           Create account <ChevronRight className="w-4 stroke-3" />
         </Button>
-        <p className="text-mauve-11 mt-1 text-xs">
+        <p className="mt-1 text-mauve-11 text-xs">
           By creating an account you agree to the Terms of Service. For more
           information about Starliner&#39;s privacy practices see the Privacy
           Statement. We&#39;ll occasionally send account-related emails.

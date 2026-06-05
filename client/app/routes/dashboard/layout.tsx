@@ -1,5 +1,4 @@
-import React from "react";
-import type { Route } from "./+types/layout";
+import { useQuery } from "@tanstack/react-query";
 import {
   Outlet,
   redirect,
@@ -7,15 +6,16 @@ import {
   useLocation,
   useParams,
 } from "react-router";
-import { caller } from "~/utils/trpc/server";
-import { auth } from "~/utils/auth/server";
-import Sidebar from "~/components/organisms/sidebar/Sidebar";
-import ExtendedSidebar from "~/components/organisms/extended-sidebar/ExtendedSidebar";
 import { Cog, InboxStack, Servers } from "~/components/atoms/icons";
+import ExtendedSidebar from "~/components/organisms/extended-sidebar/ExtendedSidebar";
+import Sidebar from "~/components/organisms/sidebar/Sidebar";
 import { OrganizationProvider } from "~/contexts/OrganizationContext";
+import { auth } from "~/utils/auth/server";
 import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import ClusterNotificationListener from "~/components/organisms/notifications/ClusterNotificationListener";
+import { caller } from "~/utils/trpc/server";
+import type { Route } from "./+types/layout";
 
 export async function loader(loaderArgs: Route.LoaderArgs) {
   const { request, params } = loaderArgs;

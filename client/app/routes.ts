@@ -1,9 +1,9 @@
 import {
+  index,
+  layout,
+  prefix,
   type RouteConfig,
   route,
-  prefix,
-  layout,
-  index,
 } from "@react-router/dev/routes";
 
 export default [
@@ -66,8 +66,8 @@ export default [
                 ],
               ),
               route(
-                "builds",
-                "routes/dashboard/projects/[id]/[environment]/builds/index.tsx",
+                "deployments",
+                "routes/dashboard/projects/[id]/[environment]/deployments/index.tsx",
               ),
               route(
                 "settings",
@@ -144,4 +144,5 @@ export default [
     // tRPC routes
     route("trpc/*", "routes/api/trpc.ts"),
   ]),
+  route("*", "routes/404.tsx"),
 ] satisfies RouteConfig;

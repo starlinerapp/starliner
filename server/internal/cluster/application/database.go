@@ -10,19 +10,17 @@ import (
 )
 
 type DatabaseApplication struct {
-	deploy   port.Deploy
-	secret   port.Secret
-	health   port.Health
-	queue    port.Queue
-	pubsub   port.Pubsub
-	crypto   corePort.Crypto
+	deploy port.Deploy
+	health port.Health
+	queue  port.Queue
+	pubsub port.Pubsub
+	crypto corePort.Crypto
 	notifier *Notifier
 }
 
 func NewDatabaseApplication(
 	deploy port.Deploy,
 	health port.Health,
-	secret port.Secret,
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
@@ -30,12 +28,11 @@ func NewDatabaseApplication(
 
 	notifier := NewNotifier(queue)
 	return &DatabaseApplication{
-		deploy:   deploy,
-		health:   health,
-		secret:   secret,
-		queue:    queue,
-		pubsub:   pubsub,
-		crypto:   crypto,
+		deploy: deploy,
+		health: health,
+		queue:  queue,
+		pubsub: pubsub,
+		crypto: crypto,
 		notifier: notifier,
 	}
 }
@@ -51,23 +48,18 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 	}
 
 	releaseName := d.DeploymentName
-	err = da.deploy.DeployPostgres(d.Namespace, releaseName, d.KubeconfigBase64)
+	err := da.deploy.DeployPostgres(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy database: %v\n", err)
 		da.notifier.publishNotification(d.DeploymentId, *d.CorrelationId, "failed", fmt.Sprintf("Failed to deploy database %s", d.DeploymentName))
 		return
 	}
 
-	credentials, err := da.secret.GetDatabaseCredentials(d.Namespace, releaseName, d.KubeconfigBase64)
-	if err != nil {
-		log.Printf("failed to get database credentials: %v\n", err)
-	}
-
 	err = da.queue.PublishDatabaseDeployed(&value.DatabaseDeployment{
 		DeploymentId: d.DeploymentId,
-		DbName:       credentials.DatabaseName,
-		Username:     credentials.Username,
-		Password:     credentials.Password,
+		DbName:       "postgres",
+		Username:     "postgres",
+		Password:     "postgres",
 	})
 	if err != nil {
 		log.Printf("failed to publish event: %v\n", err)

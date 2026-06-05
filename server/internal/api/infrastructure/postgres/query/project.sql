@@ -58,7 +58,8 @@ WHERE e.name = 'Production'
     FROM deployments d
       JOIN git_deployments g ON g.deployment_id = d.id
     WHERE d.environment_id = e.id
-      AND g.url = $1);
+      AND g.url = $1
+      AND d.deleted_at IS NULL);
 
 -- name: GetProjectPreviewEnvironmentEnabled :one
 SELECT p.preview_environments_enabled
@@ -92,4 +93,13 @@ WHERE e.project_id = $1;
 -- name: DeleteProjectsByTeamId :exec
 DELETE FROM projects
 WHERE team_id = $1;
+
+-- name: GetProjectIdsByClusterId :many
+SELECT p.id
+FROM projects p
+WHERE p.cluster_id = $1;
+
+-- name: DeleteProjectsByClusterId :exec
+DELETE FROM projects
+WHERE cluster_id = $1;
 

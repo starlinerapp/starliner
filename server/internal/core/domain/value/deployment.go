@@ -35,6 +35,9 @@ type Deployment struct {
 	CorrelationId    *string
 	DeploymentName   string
 	KubeconfigBase64 string
+	ClusterId        int64
+	OrganizationId   int64
+	ProvisioningId   string
 }
 
 type PathType string
@@ -62,9 +65,16 @@ type IngressDeployment struct {
 	DeploymentName   string
 	Namespace        string
 	KubeconfigBase64 string
+	ExpectedIP       string
 	IngressHosts     []IngressHost
+	AccumulatedLogs  string
 }
 
 type DeploymentDeleted struct {
 	DeploymentId int64
+}
+
+type DeploymentStatusLogsCompleted struct {
+	DeploymentId int64
+	Logs         string
 }

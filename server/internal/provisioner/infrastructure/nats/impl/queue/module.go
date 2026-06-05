@@ -20,6 +20,6 @@ var Module = fx.Module(
 		},
 	),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ClusterDeleted, ClusterNotification})
+		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ReconcileCluster, ClusterDeleted, ClusterNotification})
 	}),
 )

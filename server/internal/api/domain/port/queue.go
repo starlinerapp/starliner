@@ -10,6 +10,7 @@ type Queue interface {
 	SubscribeToClusterCreated(handler func(cluster *value.ClusterCreated)) error
 
 	PublishDeleteCluster(cluster *value.DeleteCluster) error
+	PublishReconcileCluster(cluster *value.ReconcileCluster) error
 	SubscribeToClusterDeleted(handler func(cluster *value.ClusterDeleted)) error
 
 	PublishDeployImage(deployment *value.ImageDeployment) error
@@ -21,6 +22,8 @@ type Queue interface {
 	SubscribeToDeploymentDeleted(handler func(deployment *value.DeploymentDeleted)) error
 
 	PublishDeployIngress(deployment *value.IngressDeployment) error
+
+	SubscribeToDeploymentStatusLogsCompleted(handler func(completed *value.DeploymentStatusLogsCompleted)) error
 
 	SubscribeToDeploymentNotification(handler func(notification *value.EnvironmentNotification)) error
 

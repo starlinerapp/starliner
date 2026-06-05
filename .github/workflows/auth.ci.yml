@@ -2,10 +2,12 @@ name: Auth Linters
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 jobs:
   auth-lint:
+    if: '! github.event.pull_request.draft'
     runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
@@ -21,12 +23,8 @@ jobs:
         run: npm install
         working-directory: auth
 
-      - name: Run ESLint
-        run: npm run lint
-        working-directory: auth
-
-      - name: Run format check
-        run: npx prettier --check "src/**/*.{ts,tsx}"
+      - name: Run Biome
+        run: npx biome ci .
         working-directory: auth
 
       - name: Run type check

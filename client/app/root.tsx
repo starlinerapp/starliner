@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react-router";
-import React from "react";
+import type React from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -51,6 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <script
           suppressHydrationWarning
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: server-controlled env var injection, not user input
           dangerouslySetInnerHTML={{ __html: envScript(env) }}
         />
         <meta charSet="utf-8" />

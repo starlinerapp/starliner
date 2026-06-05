@@ -1,7 +1,7 @@
-import { protectedProcedure } from "~/server/trpc";
 import { z } from "zod";
 import { teamsApiFactory } from "~/server/api/clients/server";
 import { enrichMembersWithAuthDetails } from "~/server/services/users";
+import { protectedProcedure } from "~/server/trpc";
 
 export const teamRouter = {
   createTeam: protectedProcedure

@@ -16,7 +16,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, deleted_at, rollout_status
 ), new_ingress_deployment AS (
   INSERT INTO ingress_deployments (
     deployment_id)
@@ -159,7 +159,9 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -219,8 +221,10 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
   AND d.name = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -281,7 +285,9 @@ func (q *Queries) GetEnvironmentIngressDeploymentsByName(ctx context.Context, ar
 const getIngressHostByName = `-- name: GetIngressHostByName :one
 SELECT i.host, i.deployment_id
 FROM ingress_hosts i
+  INNER JOIN deployments d ON d.id = i.deployment_id
 WHERE i.host = $1
+  AND d.deleted_at IS NULL
 `
 
 type GetIngressHostByNameRow struct {
@@ -307,8 +313,10 @@ FROM deployments d
   LEFT JOIN ingress_hosts ih ON ih.deployment_id = d.id
   LEFT JOIN ingress_paths ip ON ip.ingress_host_id = ih.id
   LEFT JOIN deployments svc ON svc.id = ip.deployment_id
+    AND svc.deleted_at IS NULL
 WHERE d.environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -366,41 +374,33 @@ func (q *Queries) GetUserEnvironmentIngressDeployments(ctx context.Context, arg 
 	return items, nil
 }
 
-const updateIngressDeployment = `-- name: UpdateIngressDeployment :one
-WITH updated_ingress AS (
-  UPDATE
-    deployments
-  SET port = $1
-  WHERE id = $2
-  RETURNING id, name, port, status, environment_id, created_at, updated_at
-)
-SELECT d.id AS deployment_id, d.name AS deployment_name, d.port AS deployment_port, d.status AS deployment_status, d.environment_id AS deployment_environment_id
-FROM updated_ingress d
-  INNER JOIN ingress_deployments ingress_d ON d.id = ingress_d.deployment_id
+const isIngressDeployment = `-- name: IsIngressDeployment :one
+SELECT EXISTS (
+    SELECT 1
+    FROM ingress_deployments
+    WHERE deployment_id = $1) AS is_ingress_deployment
 `
 
-type UpdateIngressDeploymentParams struct {
-	Port         string
-	DeploymentID int64
+func (q *Queries) IsIngressDeployment(ctx context.Context, deploymentID int64) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isIngressDeployment, deploymentID)
+	var is_ingress_deployment bool
+	err := row.Scan(&is_ingress_deployment)
+	return is_ingress_deployment, err
 }
 
-type UpdateIngressDeploymentRow struct {
-	DeploymentID            int64
-	DeploymentName          string
-	DeploymentPort          string
-	DeploymentStatus        DeploymentStatus
-	DeploymentEnvironmentID sql.NullInt64
+const repointIngressPathsTargetDeployment = `-- name: RepointIngressPathsTargetDeployment :exec
+UPDATE
+  ingress_paths
+SET deployment_id = $1
+WHERE deployment_id = $2
+`
+
+type RepointIngressPathsTargetDeploymentParams struct {
+	NewDeploymentID int64
+	OldDeploymentID int64
 }
 
-func (q *Queries) UpdateIngressDeployment(ctx context.Context, arg UpdateIngressDeploymentParams) (UpdateIngressDeploymentRow, error) {
-	row := q.db.QueryRowContext(ctx, updateIngressDeployment, arg.Port, arg.DeploymentID)
-	var i UpdateIngressDeploymentRow
-	err := row.Scan(
-		&i.DeploymentID,
-		&i.DeploymentName,
-		&i.DeploymentPort,
-		&i.DeploymentStatus,
-		&i.DeploymentEnvironmentID,
-	)
-	return i, err
+func (q *Queries) RepointIngressPathsTargetDeployment(ctx context.Context, arg RepointIngressPathsTargetDeploymentParams) error {
+	_, err := q.db.ExecContext(ctx, repointIngressPathsTargetDeployment, arg.NewDeploymentID, arg.OldDeploymentID)
+	return err
 }

@@ -1,16 +1,16 @@
+import * as http from "node:http";
+import { createRequestHandler } from "@react-router/express";
+import * as Sentry from "@sentry/react-router";
 import compression from "compression";
 import express from "express";
-import morgan from "morgan";
 import httpProxy from "http-proxy";
-import * as http from "node:http";
-import * as Sentry from "@sentry/react-router";
-import { getSessionFromNodeHeaders } from "~/utils/auth/server";
-import { createRequestHandler } from "@react-router/express";
+import morgan from "morgan";
 import type { ServerBuild } from "react-router";
+import { getSessionFromNodeHeaders } from "~/utils/auth/server";
 
 const BUILD_PATH = "./build/server/index.js";
 const DEVELOPMENT = process.env.NODE_ENV === "development";
-const PORT = Number.parseInt(process.env.PORT || "5173");
+const PORT = Number.parseInt(process.env.PORT || "5173", 10);
 const SERVER_BASE_URL = process.env.SERVER_BASE_URL;
 const SERVER_BASIC_AUTH_USER = process.env.SERVER_BASIC_AUTH_USER;
 const SERVER_BASIC_AUTH_PASSWORD = process.env.SERVER_BASIC_AUTH_PASSWORD;
@@ -110,7 +110,7 @@ server.on("upgrade", async (req, socket, head) => {
       `${SERVER_BASIC_AUTH_USER}:${SERVER_BASIC_AUTH_PASSWORD}`,
     ).toString("base64");
 
-    req.headers["authorization"] = `Basic ${credentials}`;
+    req.headers.authorization = `Basic ${credentials}`;
 
     wsProxy.ws(req, socket, head);
   } catch (error) {

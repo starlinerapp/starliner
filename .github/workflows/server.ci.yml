@@ -1,10 +1,12 @@
 name: Server Linters
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 jobs:
   server-lint:
+    if: '! github.event.pull_request.draft'
     runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
@@ -14,7 +16,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.26.3"
+          go-version: "1.26.4"
 
       - name: Install pgFormatter 5.9
         run: |

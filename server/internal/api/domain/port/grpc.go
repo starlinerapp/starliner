@@ -17,6 +17,26 @@ type BuilderClient interface {
 type ClusterClient interface {
 	StreamLogs(
 		ctx context.Context,
+		source string,
+		environmentNamespace string,
+		releaseName string,
+		kubeconfigBase64 string,
+		w io.Writer,
+	) error
+
+	StreamDeploymentStatusLogs(
+		ctx context.Context,
+		deploymentId int64,
+		namespace string,
+		releaseName string,
+		kubeconfigBase64 string,
+		commitHash string,
+		w io.Writer,
+	) error
+
+	StreamIngressDeploymentStatusLogs(
+		ctx context.Context,
+		deploymentId int64,
 		namespace string,
 		releaseName string,
 		kubeconfigBase64 string,

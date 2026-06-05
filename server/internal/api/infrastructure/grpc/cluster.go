@@ -3,18 +3,22 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
+	"starliner.app/internal/api/domain/value"
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
 type ClusterClient struct {
-	logsServiceClient v2.LogsServiceClient
-	ttyServiceClient  v2.TTYServiceClient
+	logsServiceClient                       v2.LogsServiceClient
+	deploymentStatusLogServiceClient        v2.DeploymentStatusLogServiceClient
+	ingressDeploymentStatusLogServiceClient v2.IngressDeploymentStatusLogServiceClient
+	ttyServiceClient                        v2.TTYServiceClient
 }
 
 func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
@@ -24,20 +28,29 @@ func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
 	}
 
 	return &ClusterClient{
-		logsServiceClient: v2.NewLogsServiceClient(conn),
-		ttyServiceClient:  v2.NewTTYServiceClient(conn),
+		logsServiceClient:                       v2.NewLogsServiceClient(conn),
+		deploymentStatusLogServiceClient:        v2.NewDeploymentStatusLogServiceClient(conn),
+		ttyServiceClient:                        v2.NewTTYServiceClient(conn),
+		ingressDeploymentStatusLogServiceClient: v2.NewIngressDeploymentStatusLogServiceClient(conn),
 	}, nil
 }
 
 func (c *ClusterClient) StreamLogs(
 	ctx context.Context,
-	namespace string,
+	source string,
+	environmentNamespace string,
 	releaseName string,
 	kubeconfigBase64 string,
 	w io.Writer,
 ) error {
+	protoSource, err := logSourceToProto(value.LogSource(source))
+	if err != nil {
+		return err
+	}
+
 	stream, err := c.logsServiceClient.StreamLogs(ctx, &v2.StreamLogsRequest{
-		Namespace:        namespace,
+		Source:           protoSource,
+		Namespace:        environmentNamespace,
 		ReleaseName:      releaseName,
 		KubeconfigBase64: kubeconfigBase64,
 	})
@@ -58,6 +71,85 @@ func (c *ClusterClient) StreamLogs(
 		if err != nil {
 			return err
 		}
+	}
+}
+
+func (c *ClusterClient) StreamDeploymentStatusLogs(
+	ctx context.Context,
+	deploymentId int64,
+	namespace string,
+	releaseName string,
+	kubeconfigBase64 string,
+	commitHash string,
+	w io.Writer,
+) error {
+	stream, err := c.deploymentStatusLogServiceClient.StreamDeploymentStatusLogs(ctx, &v2.StreamDeploymentStatusLogsRequest{
+		DeploymentId:     deploymentId,
+		Namespace:        namespace,
+		ReleaseName:      releaseName,
+		KubeconfigBase64: kubeconfigBase64,
+		CommitHash:       commitHash,
+	})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		if _, err := w.Write(resp.Chunk); err != nil {
+			return err
+		}
+	}
+}
+
+func (c *ClusterClient) StreamIngressDeploymentStatusLogs(
+	ctx context.Context,
+	deploymentId int64,
+	namespace string,
+	releaseName string,
+	kubeconfigBase64 string,
+	w io.Writer,
+) error {
+	stream, err := c.ingressDeploymentStatusLogServiceClient.StreamIngressDeploymentStatusLogs(ctx, &v2.StreamIngressDeploymentStatusLogsRequest{
+		DeploymentId:     deploymentId,
+		Namespace:        namespace,
+		ReleaseName:      releaseName,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		if _, err := w.Write(resp.Chunk); err != nil {
+			return err
+		}
+	}
+}
+
+func logSourceToProto(source value.LogSource) (v2.LogSource, error) {
+	switch source {
+	case value.LogSourceIngress:
+		return v2.LogSource_LOG_SOURCE_INGRESS, nil
+	case value.LogSourceWorkload:
+		return v2.LogSource_LOG_SOURCE_WORKLOAD, nil
+	default:
+		return v2.LogSource_LOG_SOURCE_UNSPECIFIED, fmt.Errorf("unsupported log source: %q", source)
 	}
 }
 

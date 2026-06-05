@@ -24,6 +24,7 @@ type DeployIngressArgs struct {
 	ReleaseName      string
 	KubeconfigBase64 string
 	Hosts            []IngressHost
+	TLSEnabled       bool
 }
 
 type EnvVar struct {
@@ -49,10 +50,11 @@ type DeployImageArgs struct {
 type Deploy interface {
 	DeployImage(args *DeployImageArgs) error
 
-	DeployCloudNativePg(namespace string, releaseName string, kubeconfigBase64 string) error
-
 	DeployPostgres(namespace string, releaseName string, kubeconfigBase64 string) error
+
 	DeleteDeployment(namespace string, releaseName string, kubeconfigBase64 string) error
+
+	DeployExternalDNS(namespace string, releaseName string, kubeconfigBase64 string) error
 
 	DeployIngress(args *DeployIngressArgs) error
 }

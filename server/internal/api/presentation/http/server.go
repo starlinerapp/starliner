@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -39,7 +40,7 @@ func NewServer(
 	notificationHandler *handler.NotificationsHandler,
 ) *Server {
 	engine := gin.New()
-	engine.Use(gin.Logger(), gin.Recovery())
+	engine.Use(gin.Logger(), gin.Recovery(), sentrygin.New(sentrygin.Options{Repanic: true}), middleware.WithErrorReporting())
 
 	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
 	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
@@ -126,10 +127,12 @@ func NewServer(
 		deploymentRoutes.POST("/images", deploymentHandler.DeployImage)
 		deploymentRoutes.PUT("/images/:deploymentId", deploymentHandler.UpdateImageDeployment)
 		deploymentRoutes.POST("/databases", deploymentHandler.DeployDatabase)
+		deploymentRoutes.PUT("/databases/:deploymentId", deploymentHandler.UpdateDatabaseDeployment)
 		deploymentRoutes.POST("/ingresses", deploymentHandler.DeployIngress)
 		deploymentRoutes.PUT("/ingresses/:deploymentId", deploymentHandler.UpdateIngressDeployment)
 		deploymentRoutes.DELETE("/:id", deploymentHandler.DeleteDeployment)
 		deploymentRoutes.GET("/:id/logs", deploymentHandler.StreamDeploymentLogs)
+		deploymentRoutes.GET("/:id/status/logs/stream", deploymentHandler.StreamDeploymentStatusLogs)
 	}
 
 	buildRoutes := engine.Group("/builds")

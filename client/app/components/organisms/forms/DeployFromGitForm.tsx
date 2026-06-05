@@ -1,16 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
-import Button from "~/components/atoms/button/Button";
-import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
+import { useQuery } from "@tanstack/react-query";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
-import { useTRPC } from "~/utils/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
-import SelectProjectDirectoryDialog from "~/components/organisms/dialog/SelectProjectDirectoryDialog";
 import SelectDockerfileDialog from "~/components/organisms/dialog/SelectDockerfileDialog";
+import SelectProjectDirectoryDialog from "~/components/organisms/dialog/SelectProjectDirectoryDialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { isDockerfile, parseDockerfile } from "~/service/dockerFile/dockerFile";
+import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
 import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 export interface DeployFromGitFormInput {
   url: string;
@@ -70,7 +72,11 @@ export default function DeployFromGitForm({
     name: "envs",
   });
 
-  const { fields: argsFields, append: appendArg } = useFieldArray({
+  const {
+    fields: argsFields,
+    append: appendArg,
+    replace: replaceArgs,
+  } = useFieldArray({
     control,
     name: "args",
   });
@@ -107,6 +113,17 @@ export default function DeployFromGitForm({
     retry: false,
   });
 
+  const { data: dockerfileContent } = useQuery({
+    ...trpc.github.getRepositoryFileContent.queryOptions({
+      organizationId: organization.id,
+      owner: selectedRepository?.owner ?? "",
+      repo: selectedRepository?.name ?? "",
+      path: `${projectDirectoryPathInput}/${dockerFilePathInput}`,
+    }),
+    enabled: !!selectedRepository && !!dockerFilePathInput,
+    retry: false,
+  });
+
   useEffect(() => {
     if (!envExampleContent) return;
     if (!isEnvFile(envExampleContent?.content ?? "")) return;
@@ -135,6 +152,36 @@ export default function DeployFromGitForm({
 
     replace([...merged, ...additionalManualEnvs]);
   }, [envExampleContent, getValues, replace]);
+
+  useEffect(() => {
+    if (!dockerfileContent) return;
+    const content = dockerfileContent.content ?? "";
+    if (!isDockerfile(content)) return;
+
+    const parsed = parseDockerfile(content);
+    if (parsed.length === 0) return;
+
+    const currentArgs = getValues("args") ?? [];
+
+    const currentByName = new Map(
+      currentArgs
+        .filter((arg) => arg.name.trim() !== "")
+        .map((arg) => [arg.name, arg.value]),
+    );
+
+    const merged = parsed.map((arg) => ({
+      name: arg.name,
+      value: currentByName.get(arg.name) ?? arg.value ?? "",
+    }));
+
+    const additionalManualArgs = currentArgs.filter(
+      (arg) =>
+        arg.name.trim() !== "" &&
+        !parsed.some((parsedArg) => parsedArg.name === arg.name),
+    );
+
+    replaceArgs([...merged, ...additionalManualArgs]);
+  }, [dockerfileContent, getValues, replaceArgs]);
 
   const submit: SubmitHandler<DeployFromGitFormInput> = async (data) => {
     data.envs = (data.envs ?? []).filter(
@@ -184,6 +231,25 @@ export default function DeployFromGitForm({
     replace([...before, ...parsed]);
   };
 
+  const handleArgPaste = (
+    index: number,
+    e: React.ClipboardEvent<HTMLInputElement>,
+  ) => {
+    const pasted = e.clipboardData.getData("text");
+    if (!isDockerfile(pasted)) return;
+
+    e.preventDefault();
+    const parsed = parseDockerfile(pasted);
+    if (parsed.length === 0) return;
+
+    const before = argsFields
+      .slice(0, index)
+      .map((f) => ({ name: f.name, value: f.value }))
+      .filter((f) => f.name.trim() !== "" || f.value.trim() !== "");
+
+    replaceArgs([...before, ...parsed]);
+  };
+
   const inputValid =
     urlInput &&
     port &&
@@ -211,7 +277,7 @@ export default function DeployFromGitForm({
             <p className="text-sm">Service Name</p>
             <div className="flex gap-2">
               <input
-                className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
+                className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 disabled:text-mauve-10 disabled:hover:cursor-not-allowed"
                 type="text"
                 placeholder="Name*"
                 disabled={!!defaultValues?.serviceName}
@@ -238,7 +304,7 @@ export default function DeployFromGitForm({
                       replace([]);
                     }}
                     className={cn(
-                      "border-mauve-6 bg-gray-2 hover:bg-gray-3 disabled:bg-gray-2 h-10 w-full cursor-pointer appearance-none rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed",
+                      "h-10 w-full cursor-pointer appearance-none rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] hover:bg-gray-3 disabled:bg-gray-2 disabled:hover:cursor-not-allowed",
                       urlInput ? "text-mauve-12" : "text-mauve-11",
                     )}
                   >
@@ -260,19 +326,22 @@ export default function DeployFromGitForm({
             <div className="flex items-center gap-2">
               <div className="w-full">
                 <p className="text-sm">Project Directory</p>
-                <div
+                <button
+                  type="button"
                   className={cn(
-                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-left text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
                     !projectDirectoryPathInput && "text-mauve-11",
-                    !selectedRepository && "hover:bg-gray-2 cursor-not-allowed",
+                    !selectedRepository && "cursor-not-allowed hover:bg-gray-2",
                   )}
                   onClick={() => {
                     if (!selectedRepository) return;
                     setIsSelectProjectDialogOpen(true);
                   }}
                 >
-                  <p>{projectDirectoryPathInput || "Select directory*"}</p>
-                </div>
+                  <span>
+                    {projectDirectoryPathInput || "Select directory*"}
+                  </span>
+                </button>
                 <input
                   type="hidden"
                   {...register("projectDirectoryPath", {
@@ -282,12 +351,13 @@ export default function DeployFromGitForm({
               </div>
               <div className="w-full">
                 <p className="text-sm">Dockerfile</p>
-                <div
+                <button
+                  type="button"
                   className={cn(
-                    "border-mauve-6 placeholder:text-mauve-11 bg-gray-2 hover:bg-gray-3 h-9.5 w-full min-w-52 cursor-pointer rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]",
+                    "h-9.5 w-full cursor-pointer rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-left text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 hover:bg-gray-3",
                     !dockerFilePathInput && "text-mauve-11",
                     (!selectedRepository || !projectDirectoryPathInput) &&
-                      "hover:bg-gray-2 cursor-not-allowed",
+                      "cursor-not-allowed hover:bg-gray-2",
                   )}
                   onClick={() => {
                     if (!selectedRepository || !projectDirectoryPathInput)
@@ -295,8 +365,8 @@ export default function DeployFromGitForm({
                     setIsSelectDockerFileDialogOpen(true);
                   }}
                 >
-                  <p>{dockerFilePathInput || "Select Dockerfile*"}</p>
-                </div>
+                  <span>{dockerFilePathInput || "Select Dockerfile*"}</span>
+                </button>
                 <input
                   type="hidden"
                   {...register("dockerfilePath", {
@@ -310,7 +380,7 @@ export default function DeployFromGitForm({
             <p className="text-sm">Port</p>
             <div className="flex gap-2">
               <input
-                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                 type="number"
                 placeholder="Port*"
                 {...register("port", { required: true, valueAsNumber: true })}
@@ -322,14 +392,14 @@ export default function DeployFromGitForm({
             {fields.map((field, index) => (
               <div key={field.id} className="flex gap-2">
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Name*"
                   onPaste={(e) => handleEnvPaste(index, e)}
                   {...register(`envs.${index}.name`)}
                 />
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Value*"
                   {...register(`envs.${index}.value`)}
@@ -350,13 +420,14 @@ export default function DeployFromGitForm({
             {argsFields.map((field, index) => (
               <div key={field.id} className="flex gap-2">
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Name*"
+                  onPaste={(e) => handleArgPaste(index, e)}
                   {...register(`args.${index}.name`)}
                 />
                 <input
-                  className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                   type="text"
                   placeholder="Value*"
                   {...register(`args.${index}.value`)}

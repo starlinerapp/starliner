@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"starliner.app/internal/api/application"
 )
@@ -25,8 +24,8 @@ func (u *UserMiddleware) WithUser() gin.HandlerFunc {
 
 		user, err := u.userApplication.GetOrCreateUser(c, userId)
 		if err != nil {
-			log.Printf("failed to get or create user")
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			_ = c.Error(err)
+			c.Abort()
 			return
 		}
 

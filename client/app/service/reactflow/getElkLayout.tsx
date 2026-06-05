@@ -1,9 +1,9 @@
 // NOTE: Initial draft generated with AI assistance.
 // Code has been reviewed and modified.
 
-import ELK from "elkjs/lib/elk.bundled.js";
-import type { ElkNode } from "elkjs/lib/elk.bundled";
 import type { Edge, Node } from "@xyflow/react";
+import type { ElkNode } from "elkjs/lib/elk.bundled";
+import ELK from "elkjs/lib/elk.bundled.js";
 
 const DEFAULT_H = 120;
 const DEFAULT_W = 220;
@@ -31,10 +31,10 @@ function buildComponents(nodes: Node[], edges: Edge[]): Component[] {
 
   for (const e of edges) {
     if (!nodeIds.has(e.source) || !nodeIds.has(e.target)) continue;
-    adj.get(e.source)!.add(e.target);
-    adj.get(e.target)!.add(e.source);
-    edgeIdsByNode.get(e.source)!.push(e.id);
-    edgeIdsByNode.get(e.target)!.push(e.id);
+    adj.get(e.source)?.add(e.target);
+    adj.get(e.target)?.add(e.source);
+    edgeIdsByNode.get(e.source)?.push(e.id);
+    edgeIdsByNode.get(e.target)?.push(e.id);
   }
 
   const visited = new Set<string>();
@@ -91,7 +91,7 @@ function boundsOfLaidOutNodes(
     maxX = Math.max(maxX, x + w);
     maxY = Math.max(maxY, y + h);
   }
-  if (!isFinite(minX)) return { minX: 0, minY: 0, width: 0, height: 0 };
+  if (!Number.isFinite(minX)) return { minX: 0, minY: 0, width: 0, height: 0 };
   return { minX, minY, width: maxX - minX, height: maxY - minY };
 }
 

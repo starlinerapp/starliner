@@ -284,6 +284,13 @@ definitions:
     - githubRepoId
     - repoName
     type: object
+  request.UpdateDatabase:
+    properties:
+      environmentId:
+        type: integer
+    required:
+    - environmentId
+    type: object
   request.UpdateDeployFromGit:
     properties:
       args:
@@ -553,10 +560,6 @@ definitions:
     type: object
   response.GitDeploymentBuild:
     properties:
-      args:
-        items:
-          $ref: '#/definitions/response.Arg'
-        type: array
       buildId:
         type: integer
       commitHash:
@@ -567,26 +570,19 @@ definitions:
         type: integer
       deploymentName:
         type: string
-      dockerfilePath:
-        type: string
-      gitUrl:
-        type: string
-      projectPath:
+      deploymentRolloutStatus:
         type: string
       source:
         type: string
       status:
         type: string
     required:
-    - args
     - buildId
     - commitHash
     - createdAt
     - deploymentId
     - deploymentName
-    - dockerfilePath
-    - gitUrl
-    - projectPath
+    - deploymentRolloutStatus
     - source
     - status
     type: object
@@ -895,6 +891,13 @@ definitions:
     - repoName
     - teamId
     type: object
+  response.UpdateGitDeploymentResponse:
+    properties:
+      deploymentId:
+        type: integer
+    required:
+    - deploymentId
+    type: object
   response.User:
     properties:
       better_auth_id:
@@ -1150,6 +1153,36 @@ paths:
       summary: Stream deployment logs
       tags:
       - deployment
+  /deployments/{id}/status/logs/stream:
+    get:
+      operationId: streamDeploymentStatusLogs
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          headers:
+            Cache-Control:
+              description: no-cache
+              type: string
+            Connection:
+              description: keep-alive
+              type: string
+            Content-Type:
+              description: text/event-stream
+              type: string
+      summary: Stream deployment status logs
+      tags:
+      - deployment
   /deployments/databases:
     post:
       operationId: deployDatabase
@@ -1174,6 +1207,34 @@ paths:
         "200":
           description: OK
       summary: Deploy database
+      tags:
+      - deployment
+  /deployments/databases/{deploymentId}:
+    put:
+      operationId: updateDatabaseDeployment
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - description: Update Database
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDatabase'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
+      summary: Update database deployment
       tags:
       - deployment
   /deployments/git:
@@ -1230,6 +1291,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
       summary: Update Deploy from Git
       tags:
       - deployment
@@ -1287,6 +1350,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
       summary: Update image deployment
       tags:
       - deployment
@@ -1344,6 +1409,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateGitDeploymentResponse'
       summary: Update ingress deployment
       tags:
       - deployment

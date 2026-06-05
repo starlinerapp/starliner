@@ -48,7 +48,8 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 	}
 	newCluster, err := ch.clusterApplication.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.ServerType, cluster.OrganizationID, cluster.TeamID)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	c.JSON(http.StatusOK, response.NewCluster(newCluster))
@@ -74,7 +75,8 @@ func (ch *ClusterHandler) GetCluster(c *gin.Context) {
 
 	cluster, err := ch.clusterApplication.GetUserCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 	if cluster == nil {
@@ -103,7 +105,8 @@ func (ch *ClusterHandler) GetClusterPrivateKey(c *gin.Context) {
 	}
 	file, err := ch.clusterApplication.GetClusterPrivateKey(c.Request.Context(), clusterId, currentUser.Id)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
@@ -134,7 +137,9 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 
 	err = ch.clusterApplication.DeleteCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
 	}
 
 	c.Status(http.StatusOK)
@@ -202,6 +207,7 @@ func (ch *ClusterHandler) OpenTTY(c *gin.Context) {
 
 	conn, err := clusterUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
+		_ = c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "websocket upgrade failed"})
 		return
 	}

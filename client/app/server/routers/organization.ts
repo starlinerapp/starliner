@@ -1,9 +1,9 @@
-import { protectedProcedure } from "~/server/trpc";
-import { organizationApiFactory } from "~/server/api/clients/server";
-import { enrichMembersWithAuthDetails } from "~/server/services/users";
 import { TRPCError } from "@trpc/server";
 import { isAxiosError } from "axios";
 import { z } from "zod";
+import { organizationApiFactory } from "~/server/api/clients/server";
+import { enrichMembersWithAuthDetails } from "~/server/services/users";
+import { protectedProcedure } from "~/server/trpc";
 
 export const organizationRouter = {
   createOrganization: protectedProcedure

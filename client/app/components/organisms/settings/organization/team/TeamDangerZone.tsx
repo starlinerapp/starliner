@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import Button from "~/components/atoms/button/Button";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useTRPC } from "~/utils/trpc/react";
+import Button from "~/components/atoms/button/Button";
+import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface TeamDangerZoneProps {
   teamId: number;
@@ -44,11 +42,11 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
 
   return (
     <>
-      <div className="border-mauve-6 overflow-hidden rounded-md border text-sm shadow-xs">
+      <div className="overflow-hidden rounded-md border border-mauve-6 text-sm shadow-xs">
         <table className="w-full table-fixed border-collapse">
           <thead className="h-14">
-            <tr className="border-mauve-6 bg-gray-2 border-b">
-              <th className="text-mauve-12 w-[40%] px-4 py-3 text-left text-xs font-bold uppercase">
+            <tr className="border-mauve-6 border-b bg-gray-2">
+              <th className="w-[40%] px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
                 Danger Zone
               </th>
             </tr>
@@ -57,7 +55,7 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
             <tr>
               <td className="flex justify-between px-4 py-2">
                 <span>
-                  <p className="text-md font-bold">Delete this Team</p>
+                  <p className="font-bold text-md">Delete this Team</p>
                   <p className="text-mauve-11 text-xs">
                     Once you delete a team, there is no going back. Please be
                     certain.
@@ -78,7 +76,7 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
         </table>
       </div>
 
-      <Dialog
+      <DestructiveDialog
         open={showDeleteDialog}
         onOpenChange={(open) => {
           setShowDeleteDialog(open);
@@ -86,42 +84,16 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
             deleteTeamMutation.reset();
           }
         }}
-      >
-        <DialogContent>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <h1>Delete Team</h1>
-              <WarningBanner text="Deleting the team will delete all projects that belong to the team, including the deployments." />
-              <p className="text-mauve-11 text-sm">
-                Are you sure you want to delete this team? This action cannot be
-                undone.
-              </p>
-            </div>
-            {deleteTeamMutation.isError && (
-              <ErrorBanner text={deleteTeamMutation.error.message} />
-            )}
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                intent="secondary"
-                className="w-24"
-                disabled={deleteTeamMutation.isPending}
-                onClick={() => setShowDeleteDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="w-24"
-                intent="primary"
-                disabled={deleteTeamMutation.isPending}
-                onClick={confirmDeleteTeam}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        title={"Delete Team"}
+        bannerText={
+          "Deleting the team will delete all projects that belong to the team, including the deployments."
+        }
+        description={
+          "Are you sure you want to delete this team? This action cannot be undone."
+        }
+        isPending={deleteTeamMutation.isPending}
+        onConfirm={confirmDeleteTeam}
+      />
     </>
   );
 }

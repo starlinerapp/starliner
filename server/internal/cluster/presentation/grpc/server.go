@@ -20,6 +20,7 @@ type Server struct {
 
 func NewServer(
 	logsHandler *handler.LogsHandler,
+	deploymentStatusLogHandler *handler.DeploymentStatusLogHandler,
 	ttyHandler *handler.TtyHandler,
 ) *Server {
 	server := grpc.NewServer(
@@ -29,6 +30,8 @@ func NewServer(
 	reflection.Register(server)
 
 	pb.RegisterLogsServiceServer(server, logsHandler)
+	pb.RegisterDeploymentStatusLogServiceServer(server, deploymentStatusLogHandler)
+	pb.RegisterIngressDeploymentStatusLogServiceServer(server, deploymentStatusLogHandler)
 	pb.RegisterTTYServiceServer(server, ttyHandler)
 
 	return &Server{server: server}

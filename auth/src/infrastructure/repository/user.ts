@@ -1,8 +1,8 @@
 import { inArray } from "drizzle-orm";
-import type { db } from "../db";
 import type { User } from "../../domain/entity/user";
 import type { UserRepository } from "../../domain/repository/interface/user";
 import { user as userTable } from "../../infrastructure/db/schema";
+import type { db } from "../db";
 
 type Db = typeof db;
 

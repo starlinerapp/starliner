@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { cn } from "~/utils/cn";
 
 interface CardProps {
@@ -12,7 +12,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "border-mauve-6 hover:bg-gray-2 h-52 cursor-pointer rounded-md border-1 shadow-xs",
+        "h-52 cursor-pointer rounded-md border-1 border-mauve-6 shadow-xs hover:bg-gray-2",
         className,
       )}
     >

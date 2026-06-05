@@ -10,63 +10,83 @@
     "Rubik", "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-  --color-gray-1: #00000003;
-  --color-gray-2: #00000006;
-  --color-gray-3: #0000000f;
-  --color-gray-4: #00000017;
-  --color-gray-5: #0000001f;
-  --color-gray-6: #00000026;
-  --color-gray-7: #00000031;
-  --color-gray-8: #00000044;
-  --color-gray-9: #00000072;
-  --color-gray-10: #0000007c;
-  --color-gray-11: #0000009b;
-  --color-gray-12: #000000df;
+  --color-gray-1: #fcfcfc;
+  --color-gray-2: #f9f9f9;
+  --color-gray-3: #f0f0f0;
+  --color-gray-4: #e8e8e8;
+  --color-gray-5: #e0e0e0;
+  --color-gray-6: #d9d9d9;
+  --color-gray-7: #cecece;
+  --color-gray-8: #bbbbbb;
+  --color-gray-9: #8d8d8d;
+  --color-gray-10: #838383;
+  --color-gray-11: #646464;
+  --color-gray-12: #202020;
 
-  --color-violet-1: #5500aa03;
-  --color-violet-2: #4900ff07;
-  --color-violet-3: #4400ee0f;
-  --color-violet-4: #4300ff1b;
-  --color-violet-5: #3600ff26;
-  --color-violet-6: #3100fb35;
-  --color-violet-7: #2d01dd4a;
-  --color-violet-8: #2b00d066;
-  --color-violet-9: #2400b7a9;
-  --color-violet-10: #2300abb2;
-  --color-violet-11: #1f0099af;
-  --color-violet-12: #0b0043d9;
+  --color-violet-1: #fdfcfe;
+  --color-violet-2: #faf8ff;
+  --color-violet-3: #f4f0fe;
+  --color-violet-4: #ebe4ff;
+  --color-violet-5: #e1d9ff;
+  --color-violet-6: #d4cafe;
+  --color-violet-7: #c2b5f5;
+  --color-violet-8: #aa99ec;
+  --color-violet-9: #6e56cf;
+  --color-violet-10: #654dc4;
+  --color-violet-11: #6550b9;
+  --color-violet-12: #2f265f;
 
-  --color-mauve-1: #55005503;
-  --color-mauve-2: #2b005506;
-  --color-mauve-3: #30004010;
-  --color-mauve-4: #20003618;
-  --color-mauve-5: #20003820;
+  --color-mauve-1: #fdfcfd;
+  --color-mauve-2: #faf9fb;
+  --color-mauve-3: #f2eff3;
+  --color-mauve-4: #eae7ec;
+  --color-mauve-5: #e3dfe6;
   --color-mauve-6: #dbd8e0;
-  --color-mauve-7: #10003332;
-  --color-mauve-8: #08003145;
-  --color-mauve-9: #05001d73;
-  --color-mauve-10: #0500197d;
-  --color-mauve-11: #0400119c;
-  --color-mauve-12: #020008e0;
+  --color-mauve-7: #d0cdd7;
+  --color-mauve-8: #bcbac7;
+  --color-mauve-9: #8e8c99;
+  --color-mauve-10: #84828e;
+  --color-mauve-11: #65636d;
+  --color-mauve-12: #211f26;
 
-  --color-grass-3: #00970016;
-  --color-grass-6: #008f0a4d;
-  --color-grass-9: #008619b9;
-  --color-grass-10: #007b17c1;
+  --color-grass-1: #fbfefb;
+  --color-grass-2: #f5fbf5;
+  --color-grass-3: #e9f6e9;
+  --color-grass-4: #daf1db;
+  --color-grass-5: #c4e8d1;
+  --color-grass-6: #adddc0;
+  --color-grass-7: #8eceaa;
+  --color-grass-8: #5bb98b;
+  --color-grass-9: #30a46c;
+  --color-grass-10: #2b9a66;
+  --color-grass-11: #218358;
+  --color-grass-12: #193b2d;
 
-  --color-amber-3: #ffde003d;
-  --color-amber-6: #eab5008c;
-  --color-amber-9: #ffb300c2;
-  --color-amber-10: #ffb300e7;
+  --color-amber-1: #fefdfb;
+  --color-amber-2: #fefbe9;
+  --color-amber-3: #fff7c2;
+  --color-amber-4: #ffee9c;
+  --color-amber-5: #fbe577;
+  --color-amber-6: #f3d673;
+  --color-amber-7: #e9c162;
+  --color-amber-8: #e2a336;
+  --color-amber-9: #ffc53d;
+  --color-amber-10: #ffba18;
+  --color-amber-11: #ab6400;
+  --color-amber-12: #4f3422;
 
-  --color-red-3: #f3000d14;
-  --color-red-5: #ff000632;
-  --color-red-6: #f8000442;
-  --color-red-8: #d2000571;
-  --color-red-9: #db0007b7;
-  --color-red-10: #d10005c1;
-  --color-red-11: #c40006d3;
-  --color-red-12: #55000de8;
+  --color-red-1: #fffcfc;
+  --color-red-2: #fff7f7;
+  --color-red-3: #feebec;
+  --color-red-4: #ffdbdc;
+  --color-red-5: #ffcdce;
+  --color-red-6: #fdbdbe;
+  --color-red-7: #f4a9aa;
+  --color-red-8: #eb8e90;
+  --color-red-9: #e5484d;
+  --color-red-10: #dc3e42;
+  --color-red-11: #ce2c31;
+  --color-red-12: #641723;
 
   --color-black-a12: rgba(0, 0, 0, 0.95);
   --color-black-a9: rgba(0, 0, 0, 0.7);
@@ -96,5 +116,5 @@ body {
 }
 
 .xterm-viewport {
-  overflow-y: auto !important;
+  overflow-y: auto;
 }

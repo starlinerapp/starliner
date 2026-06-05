@@ -68,5 +68,9 @@ func (c *Consumer) Start() error {
 		return c.queue.SubscribeToClusterNotification(c.clusterApplication.HandleClusterNotification)
 	})
 
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentStatusLogsCompleted", func() error {
+		return c.queue.SubscribeToDeploymentStatusLogsCompleted(c.deploymentApplication.HandleDeploymentStatusLogsCompleted)
+	})
+
 	return nil
 }

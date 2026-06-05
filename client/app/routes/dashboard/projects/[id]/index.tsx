@@ -1,7 +1,6 @@
-import React from "react";
-import type { Route } from "./+types/index";
 import { redirect } from "react-router";
 import { caller } from "~/utils/trpc/server";
+import type { Route } from "./+types/index";
 
 export async function loader(loaderArgs: Route.LoaderArgs) {
   const { params } = loaderArgs;
@@ -17,5 +16,5 @@ export async function loader(loaderArgs: Route.LoaderArgs) {
 }
 
 export default function Project() {
-  return <></>;
+  return null;
 }

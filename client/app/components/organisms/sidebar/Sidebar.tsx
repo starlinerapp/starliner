@@ -1,9 +1,9 @@
-import React from "react";
-import SidebarItem from "~/components/molecules/sidebar/SidebarItem";
+import type React from "react";
 import Avatar from "~/components/atoms/avatar/Avatar";
 import OrganizationBadge from "~/components/molecules/sidebar/OrganizationBadge";
+import SidebarItem from "~/components/molecules/sidebar/SidebarItem";
 
-type SidebarItem = {
+type SidebarItemConfig = {
   id: string;
   title: string;
   icon: React.ReactNode;
@@ -11,14 +11,14 @@ type SidebarItem = {
 };
 
 interface SidebarProps {
-  sidebarItems: SidebarItem[];
+  sidebarItems: SidebarItemConfig[];
   children: React.ReactNode;
 }
 
 export default function Sidebar({ sidebarItems, children }: SidebarProps) {
   return (
     <div className="flex">
-      <div className="border-mauve-6 flex h-screen w-18 flex-col justify-between border-r pt-4">
+      <div className="flex h-screen w-18 flex-col justify-between border-mauve-6 border-r pt-4">
         <div className="flex flex-col gap-3 self-center">
           <OrganizationBadge />
           {sidebarItems.map((item) => (

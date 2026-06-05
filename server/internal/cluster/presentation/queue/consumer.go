@@ -57,5 +57,9 @@ func (c *Consumer) Start() error {
 		return c.queue.SubscribeToDeployIngress(c.ingressApplication.HandleDeployIngress)
 	})
 
+	go concurrent.WithRecovery(context.Background(), "SubscribeToEnableIngressTLS", func() error {
+		return c.queue.SubscribeToEnableIngressTLS(c.ingressApplication.HandleEnableIngressTLS)
+	})
+
 	return nil
 }

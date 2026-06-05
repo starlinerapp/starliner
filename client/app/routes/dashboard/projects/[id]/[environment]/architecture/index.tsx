@@ -1,4 +1,3 @@
-import React from "react";
 import { redirect } from "react-router";
 import { caller } from "~/utils/trpc/server";
 import type { Route } from "./+types/layout";
@@ -23,5 +22,5 @@ export async function loader(loaderArgs: Route.LoaderArgs) {
 }
 
 export default function Architecture() {
-  return <></>;
+  return null;
 }

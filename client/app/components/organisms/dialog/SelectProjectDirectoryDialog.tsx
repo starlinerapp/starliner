@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import Button from "~/components/atoms/button/Button";
-import { ChevronRight } from "lucide-react";
-import { useTRPC } from "~/utils/trpc/react";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import Button from "~/components/atoms/button/Button";
+import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface SelectProjectDirectoryDialogProps {
   repositoryOwner: string;
@@ -63,12 +63,12 @@ export default function SelectProjectDirectoryDialog({
                 deploy.
               </p>
             </div>
-            <form className="bg-mauve-2 border-mauve-6 flex max-h-125 flex-col gap-2 overflow-y-auto rounded-md border p-2">
-              <fieldset className="text-mauve-12 flex items-center gap-2">
+            <form className="flex max-h-125 flex-col gap-2 overflow-y-auto rounded-md border border-mauve-6 bg-mauve-2 p-2">
+              <fieldset className="flex items-center gap-2 text-mauve-12">
                 <button
                   type="button"
                   onClick={() => setIsRootExpanded((prev) => !prev)}
-                  className="text-mauve-11 hover:text-mauve-12 outline-none"
+                  className="text-mauve-11 outline-none hover:text-mauve-12"
                 >
                   <ChevronRight
                     className="h-5 w-5 transition-transform duration-150"
@@ -90,7 +90,7 @@ export default function SelectProjectDirectoryDialog({
                 />
                 <label
                   htmlFor="root"
-                  className="text-mauve-11 font-mono text-sm"
+                  className="font-mono text-mauve-11 text-sm"
                 >
                   ./
                 </label>
@@ -103,8 +103,8 @@ export default function SelectProjectDirectoryDialog({
                     <DirectoryItemSkeleton depth={1} />
                   </span>
                 ) : (
-                  projectDirectories.map((directory, i) => (
-                    <span key={i}>
+                  projectDirectories.map((directory) => (
+                    <span key={directory.path ?? directory.name}>
                       <DirectoryItem
                         name={directory.name}
                         path={directory.path ?? directory.name}
@@ -183,13 +183,13 @@ function DirectoryItem({
   return (
     <div className={cn("flex flex-col", className)}>
       <fieldset
-        className="text-mauve-12 flex items-center gap-2"
+        className="flex items-center gap-2 text-mauve-12"
         style={{ paddingLeft: `${depth * 1.5}rem` }}
       >
         <button
           type="button"
           onClick={() => setIsExpanded((prev) => !prev)}
-          className="text-mauve-11 hover:text-mauve-12 transition-transform outline-none"
+          className="text-mauve-11 outline-none transition-transform hover:text-mauve-12"
         >
           <ChevronRight
             className="h-5 w-5 transition-transform duration-150"
@@ -222,7 +222,7 @@ function DirectoryItem({
             subDirectories.map((dir, i) => (
               <DirectoryItem
                 className={cn(i === 0 && "pt-2")}
-                key={i}
+                key={dir.path ?? dir.name}
                 name={dir.name}
                 path={dir.path ?? `${path}/${dir.name}`}
                 depth={depth + 1}
@@ -254,9 +254,9 @@ function DirectoryItemSkeleton({
       className={cn("flex items-center gap-2", className)}
       style={{ paddingLeft: `${depth * 1.5}rem` }}
     >
-      <div className="bg-mauve-5 h-4 w-4 animate-pulse rounded-full" />
+      <div className="h-4 w-4 animate-pulse rounded-full bg-mauve-5" />
       <div
-        className="bg-mauve-5 h-4 animate-pulse rounded"
+        className="h-4 animate-pulse rounded bg-mauve-5"
         style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }}
       />
     </div>

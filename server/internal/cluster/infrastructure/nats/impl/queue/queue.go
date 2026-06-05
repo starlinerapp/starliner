@@ -13,12 +13,14 @@ import (
 )
 
 const (
-	DeployImage            jetstream.Subject = "deploy.image"
-	DeployDatabase         jetstream.Subject = "deploy.database"
-	DatabaseDeployed       jetstream.Subject = "database.deployed"
-	DeployIngress          jetstream.Subject = "deploy.ingress"
-	DeleteDeployment       jetstream.Subject = "delete.deployment"
-	DeploymentDeleted      jetstream.Subject = "deployment.deleted"
+	DeployImage                   jetstream.Subject = "deploy.image"
+	DeployDatabase                jetstream.Subject = "deploy.database"
+	DatabaseDeployed              jetstream.Subject = "database.deployed"
+	DeployIngress                 jetstream.Subject = "deploy.ingress"
+	EnableIngressTLS              jetstream.Subject = "enable.ingress.tls"
+	DeleteDeployment              jetstream.Subject = "delete.deployment"
+	DeploymentDeleted             jetstream.Subject = "deployment.deleted"
+	DeploymentStatusLogsCompleted jetstream.Subject = "deployment.status_logs.completed"
 	DeploymentNotification jetstream.Subject = "deployment.notification"
 )
 
@@ -69,6 +71,27 @@ func (q *Queue) SubscribeToDeployIngress(handler func(deployment *value.IngressD
 		var d value.IngressDeployment
 		if err := json.Unmarshal(msg, &d); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
+			return
+		}
+		handler(&d)
+	})
+}
+
+func (q *Queue) PublishEnableIngressTLS(deployment *value.IngressDeployment) error {
+	data, err := json.Marshal(deployment)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(EnableIngressTLS, strconv.FormatInt(deployment.DeploymentId, 10), data)
+}
+
+func (q *Queue) SubscribeToEnableIngressTLS(handler func(deployment *value.IngressDeployment)) error {
+	return q.subscriber.Subscribe(EnableIngressTLS, "*", "enableIngressTLS", func(msg []byte) {
+		var d value.IngressDeployment
+		if err := json.Unmarshal(msg, &d); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+			return
 		}
 		handler(&d)
 	})
@@ -90,6 +113,15 @@ func (q *Queue) PublishDatabaseDeployed(deployment *value.DatabaseDeployment) er
 	}
 
 	return q.publisher.Publish(DatabaseDeployed, strconv.FormatInt(deployment.DeploymentId, 10), data)
+}
+
+func (q *Queue) PublishDeploymentStatusLogsCompleted(completed *value.DeploymentStatusLogsCompleted) error {
+	data, err := json.Marshal(completed)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(DeploymentStatusLogsCompleted, strconv.FormatInt(completed.DeploymentId, 10), data)
 }
 
 func (q *Queue) PublishDeploymentNotification(notification *value.EnvironmentNotification) error {

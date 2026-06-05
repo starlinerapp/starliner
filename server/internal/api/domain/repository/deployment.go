@@ -410,79 +410,6 @@ func (dr *DeploymentRepository) CreateIngressDeployment(
 	}, nil
 }
 
-func (dr *DeploymentRepository) UpdateIngressDeployment(
-	ctx context.Context,
-	deploymentId int64,
-	port string,
-	environmentId int64,
-	hosts []*value.IngressHost,
-) (*entity.IngressDeployment, error) {
-	tx, err := dr.db.BeginTx(ctx, &sql.TxOptions{})
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = tx.Rollback()
-	}()
-
-	qtx := dr.queries.WithTx(tx)
-
-	d, err := qtx.UpdateIngressDeployment(ctx, sqlc.UpdateIngressDeploymentParams{
-		Port:         port,
-		DeploymentID: deploymentId,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if err := qtx.DeleteIngressPathsByDeploymentId(ctx, deploymentId); err != nil {
-		return nil, err
-	}
-	if err := qtx.DeleteIngressHostsByDeploymentId(ctx, deploymentId); err != nil {
-		return nil, err
-	}
-
-	for _, h := range hosts {
-		createdHost, err := qtx.CreateIngressHost(ctx, sqlc.CreateIngressHostParams{
-			DeploymentID: d.DeploymentID,
-			Host:         h.Host,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		for _, p := range h.Paths {
-			deployment, err := qtx.GetEnvironmentDeploymentByName(ctx, sqlc.GetEnvironmentDeploymentByNameParams{
-				Name:          p.ServiceName,
-				EnvironmentID: mapper.ToNullInt64FromPtr(&environmentId),
-			})
-			if err != nil {
-				return nil, err
-			}
-
-			if _, err := qtx.CreateIngressPath(ctx, sqlc.CreateIngressPathParams{
-				IngressHostID: createdHost.ID,
-				DeploymentID:  deployment.ID,
-				Path:          p.Path,
-				PathType:      string(p.PathType),
-			}); err != nil {
-				return nil, fmt.Errorf("failed to create ingress path: %w", err)
-			}
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, err
-	}
-
-	return &entity.IngressDeployment{
-		Id:            d.DeploymentID,
-		Name:          d.DeploymentName,
-		Port:          d.DeploymentPort,
-		EnvironmentId: mapper.ToPtrFromNullInt64(d.DeploymentEnvironmentID),
-	}, nil
-}
-
 func (dr *DeploymentRepository) CreateDatabaseDeployment(
 	ctx context.Context,
 	serviceName string,
@@ -534,6 +461,7 @@ func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId in
 		Name:          res.Name,
 		Port:          res.Port,
 		EnvironmentId: mapper.ToPtrFromNullInt64(res.EnvironmentID),
+		DeletedAt:     mapper.ToPtrFromNullTime(res.DeletedAt),
 	}, nil
 }
 
@@ -606,8 +534,23 @@ func (dr *DeploymentRepository) SoftDeleteDeploymentVolume(ctx context.Context, 
 	return dr.queries.SoftDeleteDeploymentVolume(ctx, sql.NullInt64{Int64: deploymentId, Valid: true})
 }
 
-func (dr *DeploymentRepository) DeleteDeployment(ctx context.Context, deploymentId int64) error {
-	return dr.queries.DeleteDeployment(ctx, deploymentId)
+func (dr *DeploymentRepository) SoftDeleteDeployment(ctx context.Context, deploymentId int64) error {
+	return dr.queries.SoftDeleteDeployment(ctx, deploymentId)
+}
+
+func (dr *DeploymentRepository) RepointIngressPathsTargetDeployment(
+	ctx context.Context,
+	oldDeploymentId int64,
+	newDeploymentId int64,
+) error {
+	return dr.queries.RepointIngressPathsTargetDeployment(ctx, sqlc.RepointIngressPathsTargetDeploymentParams{
+		OldDeploymentID: oldDeploymentId,
+		NewDeploymentID: newDeploymentId,
+	})
+}
+
+func (dr *DeploymentRepository) SoftDeleteDeploymentsByEnvironmentId(ctx context.Context, environmentId int64) error {
+	return dr.queries.SoftDeleteDeploymentsByEnvironmentId(ctx, mapper.ToNullInt64FromPtr(&environmentId))
 }
 
 func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Context) ([]*entity.DeploymentWithKubeconfig, error) {
@@ -626,7 +569,10 @@ func (dr *DeploymentRepository) GetAllDeploymentsWithKubeconfig(ctx context.Cont
 				EnvironmentId: mapper.ToPtrFromNullInt64(d.EnvironmentID),
 				Namespace:     d.Namespace,
 			},
-			Kubeconfig: mapper.ToPtrFromNullString(d.Kubeconfig),
+			Kubeconfig:     mapper.ToPtrFromNullString(d.Kubeconfig),
+			ClusterId:      d.ClusterID,
+			OrganizationId: d.OrganizationID,
+			ProvisioningId: mapper.ToPtrFromNullString(d.ProvisioningID),
 		}
 	}
 	return deployments, nil
@@ -636,6 +582,37 @@ func (dr *DeploymentRepository) UpdateDeploymentStatus(ctx context.Context, depl
 	return dr.queries.UpdateDeploymentStatus(ctx, sqlc.UpdateDeploymentStatusParams{
 		Status: sqlc.DeploymentStatus(status),
 		ID:     deploymentId,
+	})
+}
+
+func (dr *DeploymentRepository) GetDeploymentStatusLogs(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.DeploymentStatusLogs, error) {
+	row, err := dr.queries.GetDeploymentStatusLogs(ctx, sqlc.GetDeploymentStatusLogsParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.DeploymentStatusLogs{
+		Logs: mapper.ToPtrFromNullString(row),
+	}, nil
+}
+
+func (dr *DeploymentRepository) SetDeploymentStatusLogs(
+	ctx context.Context,
+	deploymentId int64,
+	logs string,
+	rolloutStatus string,
+) error {
+	return dr.queries.SetDeploymentStatusLogs(ctx, sqlc.SetDeploymentStatusLogsParams{
+		Logs:          sql.NullString{String: logs, Valid: true},
+		RolloutStatus: rolloutStatus,
+		DeploymentID:  deploymentId,
 	})
 }
 
@@ -672,6 +649,10 @@ func (dr *DeploymentRepository) GetIngressHostByName(ctx context.Context, hostNa
 		Host:         row.Host,
 		DeploymentId: row.DeploymentID,
 	}, nil
+}
+
+func (dr *DeploymentRepository) IsIngressDeployment(ctx context.Context, deploymentId int64) (bool, error) {
+	return dr.queries.IsIngressDeployment(ctx, deploymentId)
 }
 
 func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error) {
@@ -722,4 +703,158 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 		}
 	}
 	return deployments, nil
+}
+
+func (dr *DeploymentRepository) GetUserGitDeploymentById(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.GitDeployment, error) {
+	row, err := dr.queries.GetUserGitDeploymentById(ctx, sqlc.GetUserGitDeploymentByIdParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("git deployment not found")
+		}
+		return nil, err
+	}
+
+	return dr.mapGitDeploymentRow(ctx, gitDeploymentRow{
+		DeploymentID:   row.DeploymentID,
+		Name:           row.Name,
+		Port:           row.Port,
+		Status:         row.Status,
+		EnvironmentID:  row.EnvironmentID,
+		Url:            row.Url,
+		ProjectPath:    row.ProjectPath,
+		DockerfilePath: row.DockerfilePath,
+	})
+}
+
+type gitDeploymentRow struct {
+	DeploymentID   int64
+	Name           string
+	Port           string
+	Status         sqlc.DeploymentStatus
+	EnvironmentID  sql.NullInt64
+	Url            string
+	ProjectPath    string
+	DockerfilePath string
+}
+
+func (dr *DeploymentRepository) mapGitDeploymentRow(
+	ctx context.Context,
+	d gitDeploymentRow,
+) (*entity.GitDeployment, error) {
+	envs, err := dr.queries.GetDeploymentEnvironmentVars(ctx, d.DeploymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	envVars := make([]*entity.EnvVar, len(envs))
+	for j, e := range envs {
+		envVars[j] = &entity.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		}
+	}
+
+	args, err := dr.queries.GetGitDeploymentArgs(ctx, d.DeploymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	deploymentArgs := make([]*entity.Arg, len(args))
+	for j, a := range args {
+		deploymentArgs[j] = &entity.Arg{
+			Name:  a.Name,
+			Value: a.Value,
+		}
+	}
+
+	return &entity.GitDeployment{
+		Id:                    d.DeploymentID,
+		Name:                  d.Name,
+		Status:                string(d.Status),
+		Port:                  d.Port,
+		EnvironmentId:         mapper.ToPtrFromNullInt64(d.EnvironmentID),
+		GitUrl:                d.Url,
+		ProjectRepositoryPath: d.ProjectPath,
+		DockerfilePath:        d.DockerfilePath,
+		EnvVars:               envVars,
+		Args:                  deploymentArgs,
+	}, nil
+}
+
+func (dr *DeploymentRepository) GetUserImageDeploymentById(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.ImageDeployment, error) {
+	row, err := dr.queries.GetUserImageDeploymentById(ctx, sqlc.GetUserImageDeploymentByIdParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("image deployment not found")
+		}
+		return nil, err
+	}
+
+	envVars, err := dr.queries.GetDeploymentEnvironmentVars(ctx, row.DeploymentID)
+	if err != nil {
+		return nil, err
+	}
+
+	variables := make([]*entity.EnvVar, len(envVars))
+	for i, e := range envVars {
+		variables[i] = &entity.EnvVar{
+			Name:  e.Name,
+			Value: e.Value,
+		}
+	}
+
+	return &entity.ImageDeployment{
+		Id:              row.DeploymentID,
+		Status:          string(row.Status),
+		ServiceName:     row.ServiceName,
+		ImageName:       row.ImageName,
+		Tag:             row.Tag,
+		Port:            row.Port,
+		EnvironmentId:   mapper.ToPtrFromNullInt64(row.EnvironmentID),
+		VolumeSizeMiB:   mapper.ToPtrFromNullInt32(row.VolumeSizeMib),
+		VolumeMountPath: mapper.ToPtrFromNullString(row.MountPath),
+		EnvVars:         variables,
+	}, nil
+}
+
+func (dr *DeploymentRepository) GetUserDatabaseDeploymentById(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.DatabaseDeployment, error) {
+	row, err := dr.queries.GetUserDatabaseDeploymentById(ctx, sqlc.GetUserDatabaseDeploymentByIdParams{
+		DeploymentID: deploymentId,
+		UserID:       userId,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("database deployment not found")
+		}
+		return nil, err
+	}
+
+	return &entity.DatabaseDeployment{
+		Id:            row.DeploymentID,
+		ServiceName:   row.Name,
+		Status:        string(row.Status),
+		Database:      mapper.ToPtrFromNullString(row.Database),
+		Username:      mapper.ToPtrFromNullString(row.Username),
+		Password:      mapper.ToPtrFromNullString(row.Password),
+		Port:          row.Port,
+		EnvironmentId: mapper.ToPtrFromNullInt64(row.EnvironmentID),
+	}, nil
 }

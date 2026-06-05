@@ -12,8 +12,10 @@ import (
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
+	"github.com/pulumi/pulumi/sdk/v3/go/auto/optpreview"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optrefresh"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/apitype"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"golang.org/x/crypto/ssh"
 	"starliner.app/internal/core/domain/value"
@@ -85,17 +87,7 @@ func (p *Provision) ProvisionServer(ctx context.Context, clusterId int64, provis
 		logBuf strings.Builder
 		mu     sync.Mutex
 	)
-	appendLog := func(line string) {
-		mu.Lock()
-		logBuf.WriteString(line)
-		mu.Unlock()
-
-		if p.logPublisher != nil {
-			if err := p.logPublisher.PublishLogChunk(ctx, clusterId, []byte(line)); err != nil {
-				log.Printf("failed to publish log chunk: %v", err)
-			}
-		}
-	}
+	appendLog := p.logAppender(ctx, clusterId, &logBuf, &mu)
 
 	defer func() {
 		logs = logBuf.String()
@@ -110,17 +102,7 @@ func (p *Provision) ProvisionServer(ctx context.Context, clusterId int64, provis
 		return stackName, "", "", err
 	}
 
-	err = s.SetConfig(ctx, "hcloud:token", auto.ConfigValue{
-		Value:  provisioningCredential,
-		Secret: true,
-	})
-	if err != nil {
-		return stackName, "", "", err
-	}
-
-	w := s.Workspace()
-	err = w.InstallPlugin(ctx, "hcloud", "1.29")
-	if err != nil {
+	if err := p.configureStack(ctx, s, provisioningCredential); err != nil {
 		return stackName, "", "", err
 	}
 
@@ -144,51 +126,45 @@ func (p *Provision) ProvisionServer(ctx context.Context, clusterId int64, provis
 	return stackName, ip, "", nil
 }
 
-func (p *Provision) DeleteServer(ctx context.Context, clusterId int64, provisioningCredential string, provisioningId string) error {
-	parts := strings.Split(provisioningId, "/")
-	projectName := parts[1]
+func (p *Provision) ReconcileServer(ctx context.Context, clusterId int64, provisioningCredential string, provisioningId string) (serverMissing bool, err error) {
+	s, stream, err := p.prepareStack(ctx, clusterId, provisioningCredential, provisioningId)
+	if err != nil {
+		return false, err
+	}
 
-	var (
-		logs strings.Builder
-		mu   sync.Mutex
-	)
+	refreshRes, err := s.Refresh(ctx, optrefresh.ProgressStreams(stream))
+	if err != nil {
+		return false, err
+	}
 
-	appendLog := func(line string) {
-		mu.Lock()
-		logs.WriteString(line)
-		mu.Unlock()
-
-		if p.logPublisher != nil {
-			if err := p.logPublisher.PublishLogChunk(ctx, clusterId, []byte(line)); err != nil {
-				log.Printf("failed to publish delete provisioning log chunk: %v", err)
-			}
+	if refreshRes.Summary.ResourceChanges != nil {
+		if deletes := (*refreshRes.Summary.ResourceChanges)["delete"]; deletes > 0 {
+			return true, nil
 		}
 	}
 
-	s, err := auto.SelectStackInlineSource(ctx, provisioningId, projectName, DeployFunc(DeployParams{
-		ServerName: projectName,
-		PublicKey:  nil,
-	}))
+	previewRes, err := s.Preview(ctx, optpreview.ProgressStreams(stream))
+	if err != nil {
+		return false, err
+	}
+
+	return previewRes.ChangeSummary[apitype.OpCreate] > 0, nil
+}
+
+func (p *Provision) DestroyServer(ctx context.Context, clusterId int64, provisioningCredential string, provisioningId string) error {
+	s, stream, err := p.prepareStack(ctx, clusterId, provisioningCredential, provisioningId)
 	if err != nil {
 		return err
 	}
 
-	err = s.SetConfig(ctx, "hcloud:token", auto.ConfigValue{
-		Value:  provisioningCredential,
-		Secret: true,
-	})
+	_, err = s.Destroy(ctx, optdestroy.ProgressStreams(stream))
+	return err
+}
+
+func (p *Provision) DeleteServer(ctx context.Context, clusterId int64, provisioningCredential string, provisioningId string) error {
+	s, stream, err := p.prepareStack(ctx, clusterId, provisioningCredential, provisioningId)
 	if err != nil {
 		return err
-	}
-
-	w := s.Workspace()
-	err = w.InstallPlugin(ctx, "hcloud", "1.29")
-	if err != nil {
-		return err
-	}
-
-	stream := &inlineLogWriter{
-		appendLog: appendLog,
 	}
 
 	_, err = s.Refresh(ctx, optrefresh.ProgressStreams(stream))
@@ -197,11 +173,67 @@ func (p *Provision) DeleteServer(ctx context.Context, clusterId int64, provision
 	}
 
 	_, err = s.Destroy(ctx, optdestroy.ProgressStreams(stream))
+	return err
+}
+
+func (p *Provision) prepareStack(
+	ctx context.Context,
+	clusterId int64,
+	provisioningCredential string,
+	provisioningId string,
+) (auto.Stack, *inlineLogWriter, error) {
+	parts := strings.Split(provisioningId, "/")
+	if len(parts) < 2 {
+		return auto.Stack{}, nil, fmt.Errorf("invalid provisioning id %q", provisioningId)
+	}
+	projectName := parts[1]
+
+	var (
+		logBuf strings.Builder
+		mu     sync.Mutex
+	)
+	appendLog := p.logAppender(ctx, clusterId, &logBuf, &mu)
+	stream := &inlineLogWriter{appendLog: appendLog}
+
+	s, err := auto.SelectStackInlineSource(ctx, provisioningId, projectName, DeployFunc(DeployParams{
+		ServerName: projectName,
+		PublicKey:  nil,
+	}))
 	if err != nil {
+		return auto.Stack{}, nil, err
+	}
+
+	if err := p.configureStack(ctx, s, provisioningCredential); err != nil {
+		return auto.Stack{}, nil, err
+	}
+
+	return s, stream, nil
+}
+
+func (p *Provision) configureStack(ctx context.Context, s auto.Stack, provisioningCredential string) error {
+	if err := s.SetConfig(ctx, "hcloud:token", auto.ConfigValue{
+		Value:  provisioningCredential,
+		Secret: true,
+	}); err != nil {
 		return err
 	}
 
-	return nil
+	w := s.Workspace()
+	return w.InstallPlugin(ctx, "hcloud", "1.36")
+}
+
+func (p *Provision) logAppender(ctx context.Context, clusterId int64, logBuf *strings.Builder, mu *sync.Mutex) func(string) {
+	return func(line string) {
+		mu.Lock()
+		logBuf.WriteString(line)
+		mu.Unlock()
+
+		if p.logPublisher != nil {
+			if err := p.logPublisher.PublishLogChunk(ctx, clusterId, []byte(line)); err != nil {
+				log.Printf("failed to publish log chunk: %v", err)
+			}
+		}
+	}
 }
 
 type inlineLogWriter struct {

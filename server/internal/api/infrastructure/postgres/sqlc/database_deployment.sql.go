@@ -16,7 +16,7 @@ WITH new_deployment AS (
     name, port, environment_id)
   VALUES (
     $1, $2, $3)
-RETURNING id, name, port, status, environment_id, created_at, updated_at
+RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, deleted_at, rollout_status
 ), new_database_deployment AS (
   INSERT INTO database_deployments (
     deployment_id)
@@ -64,6 +64,7 @@ FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
 WHERE environment_id = $1
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 
@@ -110,6 +111,51 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, environ
 	return items, nil
 }
 
+const getUserDatabaseDeploymentById = `-- name: GetUserDatabaseDeploymentById :one
+SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
+FROM deployments d
+  INNER JOIN database_deployments db ON d.id = db.deployment_id
+  INNER JOIN environments ON d.environment_id = environments.id
+  INNER JOIN projects ON environments.project_id = projects.id
+  INNER JOIN teams ON projects.team_id = teams.id
+  INNER JOIN team_members ON team_members.team_id = teams.id
+WHERE d.id = $1
+  AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
+`
+
+type GetUserDatabaseDeploymentByIdParams struct {
+	DeploymentID int64
+	UserID       int64
+}
+
+type GetUserDatabaseDeploymentByIdRow struct {
+	DeploymentID  int64
+	Name          string
+	Port          string
+	Status        DeploymentStatus
+	EnvironmentID sql.NullInt64
+	Database      sql.NullString
+	Username      sql.NullString
+	Password      sql.NullString
+}
+
+func (q *Queries) GetUserDatabaseDeploymentById(ctx context.Context, arg GetUserDatabaseDeploymentByIdParams) (GetUserDatabaseDeploymentByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserDatabaseDeploymentById, arg.DeploymentID, arg.UserID)
+	var i GetUserDatabaseDeploymentByIdRow
+	err := row.Scan(
+		&i.DeploymentID,
+		&i.Name,
+		&i.Port,
+		&i.Status,
+		&i.EnvironmentID,
+		&i.Database,
+		&i.Username,
+		&i.Password,
+	)
+	return i, err
+}
+
 const getUserEnvironmentDatabaseDeployments = `-- name: GetUserEnvironmentDatabaseDeployments :many
 SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
 FROM deployments d
@@ -120,6 +166,7 @@ FROM deployments d
   INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE environment_id = $1
   AND team_members.user_id = $2
+  AND d.deleted_at IS NULL
 ORDER BY d.id DESC
 `
 

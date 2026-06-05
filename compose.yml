@@ -9,7 +9,7 @@ services:
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=internal"
+      - "--providers.docker.network=shared"
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
@@ -19,6 +19,12 @@ services:
       - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=600s"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entrypoint=metrics"
+      - "--metrics.prometheus.addentrypointslabels=true"
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addserviceslabels=true"
+      - "--entrypoints.metrics.address=:8082"
     ports:
       - "80:80"
       - "443:443"
@@ -30,7 +36,7 @@ services:
       - client
       - server-api
     networks:
-      - internal
+      - shared
 
   auth:
     build:
@@ -55,7 +61,7 @@ services:
       - ./auth:/app
       - node-modules-auth:/app/node_modules
     networks:
-      - internal
+      - shared
     labels:
       - traefik.enable=true
       - traefik.http.routers.auth.rule=Host(`auth.dev.starliner.app`)
@@ -81,11 +87,12 @@ services:
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+      SENTRY_DSN_CLIENT: ${SENTRY_DSN_CLIENT}
     volumes:
       - ./client:/app
       - node-modules-client:/app/node_modules
     networks:
-      - internal
+      - shared
     labels:
       - traefik.enable=true
       - traefik.http.routers.client.rule=Host(`dev.starliner.app`)
@@ -135,10 +142,12 @@ services:
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
       IMAGE_REGISTRY_USERNAME: ${IMAGE_REGISTRY_USERNAME:-server}
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
     labels:
       - traefik.enable=true
       - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && PathPrefix(`/webhooks/`)
@@ -167,10 +176,12 @@ services:
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
       IMAGE_REGISTRY_USERNAME: ${IMAGE_REGISTRY_USERNAME:-server}
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
 
   server-cluster:
     restart: unless-stopped
@@ -178,16 +189,24 @@ services:
       context: .
       dockerfile: .docker/server/cluster/Dockerfile
       target: dev
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "40002:40002"
       - "57400:57400"
     environment:
       NATS_URL: ${NATS_URL:-http://nats:4222}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
+      CF_API_TOKEN: ${CF_API_TOKEN}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
 
   server-provisioner:
     restart: unless-stopped
@@ -203,17 +222,19 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       ENCRYPTION_KEY_BASE64: ${ENCRYPTION_KEY_BASE64:-D8gwlwA/vul5rfmnMeMI0Y5bdbZHYQhyTsOlvpk4RaI=}
-      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=s3:8333&region=none&disableSSL=true&s3ForcePathStyle=true}
+      PULUMI_BACKEND_URL: ${PULUMI_BACKEND_URL:-s3://pulumi-backend?endpoint=http://s3:8333&region=none&s3ForcePathStyle=true}
       PULUMI_CONFIG_PASSPHRASE: ${PULUMI_CONFIG_PASSPHRASE:-test}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+      SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
+      ENVIRONMENT: ${ENVIRONMENT:-dev}
     depends_on:
       redis:
         condition: service_healthy
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
 
   db:
     restart: unless-stopped
@@ -234,7 +255,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
-      - internal
+      - shared
 
   auth-db:
     restart: unless-stopped
@@ -255,13 +276,16 @@ services:
     volumes:
       - auth-db-data:/var/lib/postgresql/data
     networks:
-      - internal
+      - shared
 
   nats:
     restart: unless-stopped
     build:
       context: .
       dockerfile: .docker/nats/Dockerfile
+    environment:
+      NATS_SYS_USER: ${NATS_SYS_USER:-sys}
+      NATS_SYS_PASSWORD: ${NATS_SYS_PASSWORD:-syspassword}
     ports:
       - "4222:4222"
       - "8222:8222"
@@ -269,7 +293,7 @@ services:
       - nats-data:/data/jetstream
     command: ["-c", "/etc/nats/nats.conf"]
     networks:
-      - internal
+      - shared
 
   nats-box:
     restart: unless-stopped
@@ -281,7 +305,7 @@ services:
     entrypoint: /bin/sh
     tty: true
     networks:
-      - internal
+      - shared
 
   master:
     build:
@@ -300,7 +324,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   volume1:
     build:
@@ -322,7 +346,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   volume2:
     build:
@@ -344,7 +368,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   filer:
     build:
@@ -368,7 +392,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   s3:
     build:
@@ -390,7 +414,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   buildkit:
     build:
@@ -402,7 +426,7 @@ services:
       - ./.docker/buildkit/buildkitd.toml:/etc/buildkit/buildkitd.toml:ro
       - buildkit-data:/var/lib/buildkit
     networks:
-      - internal
+      - shared
 
   redis:
     build:
@@ -410,6 +434,8 @@ services:
       dockerfile: .docker/redis/Dockerfile
     command: "redis-server --requirepass ${REDIS_PASSWORD:-password}"
     restart: unless-stopped
+    ports:
+      - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
@@ -418,7 +444,7 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - internal
+      - shared
 
   mailpit:
     image: axllent/mailpit:latest
@@ -431,7 +457,7 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
       MP_ENABLE_CHAOS: "true"
     networks:
-      - internal
+      - shared
 
 volumes:
   node-modules-client:
@@ -444,4 +470,5 @@ volumes:
   buildkit-data:
 
 networks:
-  internal:
+  shared:
+    name: shared

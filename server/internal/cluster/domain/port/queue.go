@@ -13,5 +13,10 @@ type Queue interface {
 
 	SubscribeToDeployIngress(handler func(deployment *value.IngressDeployment)) error
 
+	PublishEnableIngressTLS(deployment *value.IngressDeployment) error
+	SubscribeToEnableIngressTLS(handler func(deployment *value.IngressDeployment)) error
+
+	PublishDeploymentStatusLogsCompleted(completed *value.DeploymentStatusLogsCompleted) error
+
 	PublishDeploymentNotification(notification *value.EnvironmentNotification) error
 }

@@ -229,6 +229,9 @@ type Deployment struct {
 	EnvironmentID sql.NullInt64
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	StatusLogs    sql.NullString
+	DeletedAt     sql.NullTime
+	RolloutStatus string
 }
 
 type DeploymentEnvironmentVar struct {
