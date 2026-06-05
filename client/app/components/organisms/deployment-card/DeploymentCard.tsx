@@ -188,7 +188,7 @@ export default function DeploymentCard({
             aria-label="Toggle logs"
             aria-expanded={!isCollapsed}
             onClick={toggleCollapsed}
-            className="absolute inset-0 cursor-pointer"
+            className="absolute z-10 inset-0 cursor-pointer"
           />
           <motion.div
             className="relative"
