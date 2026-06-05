@@ -1,23 +1,27 @@
 # ClusterApi
 
-All URIs are relative to _http://localhost_
+All URIs are relative to *http://localhost*
 
-| Method                                                              | HTTP request                                    | Description                      |
-| ------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------- |
-| [**createCluster**](#createcluster)                                 | **POST** /clusters                              | Create Cluster                   |
-| [**deleteCluster**](#deletecluster)                                 | **DELETE** /clusters/{id}                       | Delete Cluster                   |
-| [**getCluster**](#getcluster)                                       | **GET** /clusters/{id}                          | Get Cluster                      |
-| [**getClusterPrivateKey**](#getclusterprivatekey)                   | **GET** /clusters/{id}/private-key              | Get Cluster Private Key          |
-| [**streamClusterProvisioningLogs**](#streamclusterprovisioninglogs) | **GET** /clusters/{id}/provisioning/logs/stream | Stream cluster provisioning logs |
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**createCluster**](#createcluster) | **POST** /clusters | Create Cluster|
+|[**deleteCluster**](#deletecluster) | **DELETE** /clusters/{id} | Delete Cluster|
+|[**getCluster**](#getcluster) | **GET** /clusters/{id} | Get Cluster|
+|[**getClusterPrivateKey**](#getclusterprivatekey) | **GET** /clusters/{id}/private-key | Get Cluster Private Key|
+|[**streamClusterProvisioningLogs**](#streamclusterprovisioninglogs) | **GET** /clusters/{id}/provisioning/logs/stream | Stream cluster provisioning logs|
 
 # **createCluster**
-
 > ResponseCluster createCluster(data)
+
 
 ### Example
 
 ```typescript
-import { ClusterApi, Configuration, RequestCreateCluster } from "./api";
+import {
+    ClusterApi,
+    Configuration,
+    RequestCreateCluster
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ClusterApi(configuration);
@@ -25,15 +29,19 @@ const apiInstance = new ClusterApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let data: RequestCreateCluster; //Create Cluster
 
-const { status, data } = await apiInstance.createCluster(xUserID, data);
+const { status, data } = await apiInstance.createCluster(
+    xUserID,
+    data
+);
 ```
 
 ### Parameters
 
-| Name        | Type                     | Description    | Notes                 |
-| ----------- | ------------------------ | -------------- | --------------------- |
-| **data**    | **RequestCreateCluster** | Create Cluster |                       |
-| **xUserID** | [**string**]             | User ID        | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **data** | **RequestCreateCluster**| Create Cluster | |
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+
 
 ### Return type
 
@@ -45,25 +53,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteCluster**
-
 > deleteCluster()
+
 
 ### Example
 
 ```typescript
-import { ClusterApi, Configuration } from "./api";
+import {
+    ClusterApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ClusterApi(configuration);
@@ -71,15 +82,19 @@ const apiInstance = new ClusterApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Cluster ID (default to undefined)
 
-const { status, data } = await apiInstance.deleteCluster(xUserID, id);
+const { status, data } = await apiInstance.deleteCluster(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description | Notes                 |
-| ----------- | ------------ | ----------- | --------------------- |
-| **xUserID** | [**string**] | User ID     | defaults to undefined |
-| **id**      | [**number**] | Cluster ID  | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Cluster ID | defaults to undefined|
+
 
 ### Return type
 
@@ -91,25 +106,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: Not defined
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getCluster**
-
 > ResponseCluster getCluster()
+
 
 ### Example
 
 ```typescript
-import { ClusterApi, Configuration } from "./api";
+import {
+    ClusterApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ClusterApi(configuration);
@@ -117,15 +135,19 @@ const apiInstance = new ClusterApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Cluster ID (default to undefined)
 
-const { status, data } = await apiInstance.getCluster(xUserID, id);
+const { status, data } = await apiInstance.getCluster(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description | Notes                 |
-| ----------- | ------------ | ----------- | --------------------- |
-| **xUserID** | [**string**] | User ID     | defaults to undefined |
-| **id**      | [**number**] | Cluster ID  | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Cluster ID | defaults to undefined|
+
 
 ### Return type
 
@@ -137,25 +159,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getClusterPrivateKey**
-
 > File getClusterPrivateKey()
+
 
 ### Example
 
 ```typescript
-import { ClusterApi, Configuration } from "./api";
+import {
+    ClusterApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ClusterApi(configuration);
@@ -163,15 +188,19 @@ const apiInstance = new ClusterApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Cluster ID (default to undefined)
 
-const { status, data } = await apiInstance.getClusterPrivateKey(xUserID, id);
+const { status, data } = await apiInstance.getClusterPrivateKey(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description | Notes                 |
-| ----------- | ------------ | ----------- | --------------------- |
-| **xUserID** | [**string**] | User ID     | defaults to undefined |
-| **id**      | [**number**] | Cluster ID  | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Cluster ID | defaults to undefined|
+
 
 ### Return type
 
@@ -183,25 +212,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **streamClusterProvisioningLogs**
-
 > streamClusterProvisioningLogs()
+
 
 ### Example
 
 ```typescript
-import { ClusterApi, Configuration } from "./api";
+import {
+    ClusterApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ClusterApi(configuration);
@@ -210,17 +242,18 @@ let xUserID: string; //User ID (default to undefined)
 let id: number; //Cluster ID (default to undefined)
 
 const { status, data } = await apiInstance.streamClusterProvisioningLogs(
-  xUserID,
-  id,
+    xUserID,
+    id
 );
 ```
 
 ### Parameters
 
-| Name        | Type         | Description | Notes                 |
-| ----------- | ------------ | ----------- | --------------------- |
-| **xUserID** | [**string**] | User ID     | defaults to undefined |
-| **id**      | [**number**] | Cluster ID  | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Cluster ID | defaults to undefined|
+
 
 ### Return type
 
@@ -232,13 +265,14 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: Not defined
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
 
 ### HTTP response details
-
-| Status code | Description | Response headers                                                                                        |
-| ----------- | ----------- | ------------------------------------------------------------------------------------------------------- |
-| **200**     | OK          | _ Cache-Control - no-cache <br> _ Connection - keep-alive <br> \* Content-Type - text/event-stream <br> |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  * Cache-Control - no-cache <br>  * Connection - keep-alive <br>  * Content-Type - text/event-stream <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

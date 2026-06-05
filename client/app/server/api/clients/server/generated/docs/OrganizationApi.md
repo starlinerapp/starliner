@@ -1,29 +1,33 @@
 # OrganizationApi
 
-All URIs are relative to _http://localhost_
+All URIs are relative to *http://localhost*
 
-| Method                                                            | HTTP request                                             | Description                            |
-| ----------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------- |
-| [**acceptOrganizationInvite**](#acceptorganizationinvite)         | **POST** /invites/accept                                 | Accept organization invite             |
-| [**createOrganization**](#createorganization)                     | **POST** /organizations                                  | Create organization                    |
-| [**getHetznerCredential**](#gethetznercredential)                 | **GET** /organizations/{id}/settings/credential/hetzner  | Get Hetzner Provisioning Credential    |
-| [**getOrganizationClusters**](#getorganizationclusters)           | **GET** /organizations/{id}/clusters                     | Get Organization Clusters              |
-| [**getOrganizationInviteDetails**](#getorganizationinvitedetails) | **GET** /invites/{inviteId}                              | Get organization invite details        |
-| [**getOrganizationMembers**](#getorganizationmembers)             | **GET** /organizations/{id}/members                      | Get all organization members           |
-| [**getUserOrganizations**](#getuserorganizations)                 | **GET** /organizations                                   | Get user organizations                 |
-| [**getUserProjects**](#getuserprojects)                           | **GET** /organizations/{id}/projects                     | Get Organization Projects              |
-| [**removeOrganizationMember**](#removeorganizationmember)         | **DELETE** /organizations/{id}/members                   | Remove member from organization        |
-| [**sendOrganizationInvite**](#sendorganizationinvite)             | **POST** /organizations/{id}/invites                     | Send organization invite via email     |
-| [**upsertHetznerCredential**](#upserthetznercredential)           | **POST** /organizations/{id}/settings/credential/hetzner | Upsert Hetzner Provisioning Credential |
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**acceptOrganizationInvite**](#acceptorganizationinvite) | **POST** /invites/accept | Accept organization invite|
+|[**createOrganization**](#createorganization) | **POST** /organizations | Create organization|
+|[**getHetznerCredential**](#gethetznercredential) | **GET** /organizations/{id}/settings/credential/hetzner | Get Hetzner Provisioning Credential|
+|[**getOrganizationClusters**](#getorganizationclusters) | **GET** /organizations/{id}/clusters | Get Organization Clusters|
+|[**getOrganizationInviteDetails**](#getorganizationinvitedetails) | **GET** /invites/{inviteId} | Get organization invite details|
+|[**getOrganizationMembers**](#getorganizationmembers) | **GET** /organizations/{id}/members | Get all organization members|
+|[**getUserOrganizations**](#getuserorganizations) | **GET** /organizations | Get user organizations|
+|[**getUserProjects**](#getuserprojects) | **GET** /organizations/{id}/projects | Get Organization Projects|
+|[**removeOrganizationMember**](#removeorganizationmember) | **DELETE** /organizations/{id}/members | Remove member from organization|
+|[**sendOrganizationInvite**](#sendorganizationinvite) | **POST** /organizations/{id}/invites | Send organization invite via email|
+|[**upsertHetznerCredential**](#upserthetznercredential) | **POST** /organizations/{id}/settings/credential/hetzner | Upsert Hetzner Provisioning Credential|
 
 # **acceptOrganizationInvite**
-
 > acceptOrganizationInvite(data)
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration, RequestAcceptInvite } from "./api";
+import {
+    OrganizationApi,
+    Configuration,
+    RequestAcceptInvite
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -32,17 +36,18 @@ let xUserID: string; //User ID (default to undefined)
 let data: RequestAcceptInvite; //Accept Invite
 
 const { status, data } = await apiInstance.acceptOrganizationInvite(
-  xUserID,
-  data,
+    xUserID,
+    data
 );
 ```
 
 ### Parameters
 
-| Name        | Type                    | Description   | Notes                 |
-| ----------- | ----------------------- | ------------- | --------------------- |
-| **data**    | **RequestAcceptInvite** | Accept Invite |                       |
-| **xUserID** | [**string**]            | User ID       | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **data** | **RequestAcceptInvite**| Accept Invite | |
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+
 
 ### Return type
 
@@ -54,29 +59,29 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: Not defined
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createOrganization**
-
 > ResponseOrganization createOrganization(data)
+
 
 ### Example
 
 ```typescript
 import {
-  OrganizationApi,
-  Configuration,
-  RequestCreateOrganization,
-} from "./api";
+    OrganizationApi,
+    Configuration,
+    RequestCreateOrganization
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -84,15 +89,19 @@ const apiInstance = new OrganizationApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let data: RequestCreateOrganization; //Create Organization
 
-const { status, data } = await apiInstance.createOrganization(xUserID, data);
+const { status, data } = await apiInstance.createOrganization(
+    xUserID,
+    data
+);
 ```
 
 ### Parameters
 
-| Name        | Type                          | Description         | Notes                 |
-| ----------- | ----------------------------- | ------------------- | --------------------- |
-| **data**    | **RequestCreateOrganization** | Create Organization |                       |
-| **xUserID** | [**string**]                  | User ID             | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **data** | **RequestCreateOrganization**| Create Organization | |
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+
 
 ### Return type
 
@@ -104,25 +113,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **201**     | Created     | -                |
+|-------------|-------------|------------------|
+|**201** | Created |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getHetznerCredential**
-
 > ResponseGetOrganizationProvisioningCredentialResponse getHetznerCredential()
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration } from "./api";
+import {
+    OrganizationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -130,15 +142,19 @@ const apiInstance = new OrganizationApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Organization ID (default to undefined)
 
-const { status, data } = await apiInstance.getHetznerCredential(xUserID, id);
+const { status, data } = await apiInstance.getHetznerCredential(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description     | Notes                 |
-| ----------- | ------------ | --------------- | --------------------- |
-| **xUserID** | [**string**] | User ID         | defaults to undefined |
-| **id**      | [**number**] | Organization ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Organization ID | defaults to undefined|
+
 
 ### Return type
 
@@ -150,25 +166,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getOrganizationClusters**
-
 > Array<ResponseCluster> getOrganizationClusters()
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration } from "./api";
+import {
+    OrganizationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -176,15 +195,19 @@ const apiInstance = new OrganizationApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Organization ID (default to undefined)
 
-const { status, data } = await apiInstance.getOrganizationClusters(xUserID, id);
+const { status, data } = await apiInstance.getOrganizationClusters(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description     | Notes                 |
-| ----------- | ------------ | --------------- | --------------------- |
-| **xUserID** | [**string**] | User ID         | defaults to undefined |
-| **id**      | [**number**] | Organization ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Organization ID | defaults to undefined|
+
 
 ### Return type
 
@@ -196,25 +219,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getOrganizationInviteDetails**
-
 > ResponseOrganizationInvite getOrganizationInviteDetails()
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration } from "./api";
+import {
+    OrganizationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -223,17 +249,18 @@ let xUserID: string; //User ID (default to undefined)
 let inviteId: string; //Invite ID (default to undefined)
 
 const { status, data } = await apiInstance.getOrganizationInviteDetails(
-  xUserID,
-  inviteId,
+    xUserID,
+    inviteId
 );
 ```
 
 ### Parameters
 
-| Name         | Type         | Description | Notes                 |
-| ------------ | ------------ | ----------- | --------------------- |
-| **xUserID**  | [**string**] | User ID     | defaults to undefined |
-| **inviteId** | [**string**] | Invite ID   | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **inviteId** | [**string**] | Invite ID | defaults to undefined|
+
 
 ### Return type
 
@@ -245,25 +272,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getOrganizationMembers**
-
 > Array<ResponseOrganizationMember> getOrganizationMembers()
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration } from "./api";
+import {
+    OrganizationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -271,15 +301,19 @@ const apiInstance = new OrganizationApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Organization ID (default to undefined)
 
-const { status, data } = await apiInstance.getOrganizationMembers(xUserID, id);
+const { status, data } = await apiInstance.getOrganizationMembers(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description     | Notes                 |
-| ----------- | ------------ | --------------- | --------------------- |
-| **xUserID** | [**string**] | User ID         | defaults to undefined |
-| **id**      | [**number**] | Organization ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Organization ID | defaults to undefined|
+
 
 ### Return type
 
@@ -291,39 +325,45 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getUserOrganizations**
-
 > Array<ResponseOrganization> getUserOrganizations()
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration } from "./api";
+import {
+    OrganizationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
 
 let xUserID: string; //User ID (default to undefined)
 
-const { status, data } = await apiInstance.getUserOrganizations(xUserID);
+const { status, data } = await apiInstance.getUserOrganizations(
+    xUserID
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description | Notes                 |
-| ----------- | ------------ | ----------- | --------------------- |
-| **xUserID** | [**string**] | User ID     | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+
 
 ### Return type
 
@@ -335,25 +375,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getUserProjects**
-
 > Array<ResponseProject> getUserProjects()
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration } from "./api";
+import {
+    OrganizationApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -361,15 +404,19 @@ const apiInstance = new OrganizationApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Organization ID (default to undefined)
 
-const { status, data } = await apiInstance.getUserProjects(xUserID, id);
+const { status, data } = await apiInstance.getUserProjects(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description     | Notes                 |
-| ----------- | ------------ | --------------- | --------------------- |
-| **xUserID** | [**string**] | User ID         | defaults to undefined |
-| **id**      | [**number**] | Organization ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Organization ID | defaults to undefined|
+
 
 ### Return type
 
@@ -381,29 +428,29 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **removeOrganizationMember**
-
 > removeOrganizationMember(data)
+
 
 ### Example
 
 ```typescript
 import {
-  OrganizationApi,
-  Configuration,
-  RequestRemoveOrganizationMember,
-} from "./api";
+    OrganizationApi,
+    Configuration,
+    RequestRemoveOrganizationMember
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -413,19 +460,20 @@ let id: number; //Organization ID (default to undefined)
 let data: RequestRemoveOrganizationMember; //ID of the member to remove from the organization
 
 const { status, data } = await apiInstance.removeOrganizationMember(
-  xUserID,
-  id,
-  data,
+    xUserID,
+    id,
+    data
 );
 ```
 
 ### Parameters
 
-| Name        | Type                                | Description                                      | Notes                 |
-| ----------- | ----------------------------------- | ------------------------------------------------ | --------------------- |
-| **data**    | **RequestRemoveOrganizationMember** | ID of the member to remove from the organization |                       |
-| **xUserID** | [**string**]                        | User ID                                          | defaults to undefined |
-| **id**      | [**number**]                        | Organization ID                                  | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **data** | **RequestRemoveOrganizationMember**| ID of the member to remove from the organization | |
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Organization ID | defaults to undefined|
+
 
 ### Return type
 
@@ -437,25 +485,29 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: Not defined
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **204**     | No Content  | -                |
+|-------------|-------------|------------------|
+|**204** | No Content |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **sendOrganizationInvite**
-
 > sendOrganizationInvite(data)
+
 
 ### Example
 
 ```typescript
-import { OrganizationApi, Configuration, RequestSendInvite } from "./api";
+import {
+    OrganizationApi,
+    Configuration,
+    RequestSendInvite
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -465,19 +517,20 @@ let id: number; //Organization ID (default to undefined)
 let data: RequestSendInvite; //Send Invite
 
 const { status, data } = await apiInstance.sendOrganizationInvite(
-  xUserID,
-  id,
-  data,
+    xUserID,
+    id,
+    data
 );
 ```
 
 ### Parameters
 
-| Name        | Type                  | Description     | Notes                 |
-| ----------- | --------------------- | --------------- | --------------------- |
-| **data**    | **RequestSendInvite** | Send Invite     |                       |
-| **xUserID** | [**string**]          | User ID         | defaults to undefined |
-| **id**      | [**number**]          | Organization ID | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **data** | **RequestSendInvite**| Send Invite | |
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Organization ID | defaults to undefined|
+
 
 ### Return type
 
@@ -489,29 +542,29 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: Not defined
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **201**     | Created     | -                |
+|-------------|-------------|------------------|
+|**201** | Created |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **upsertHetznerCredential**
-
 > upsertHetznerCredential(data)
+
 
 ### Example
 
 ```typescript
 import {
-  OrganizationApi,
-  Configuration,
-  RequestUpsertHetznerCredential,
-} from "./api";
+    OrganizationApi,
+    Configuration,
+    RequestUpsertHetznerCredential
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrganizationApi(configuration);
@@ -521,19 +574,20 @@ let id: number; //Organization ID (default to undefined)
 let data: RequestUpsertHetznerCredential; //Upsert Hetzner Credential
 
 const { status, data } = await apiInstance.upsertHetznerCredential(
-  xUserID,
-  id,
-  data,
+    xUserID,
+    id,
+    data
 );
 ```
 
 ### Parameters
 
-| Name        | Type                               | Description               | Notes                 |
-| ----------- | ---------------------------------- | ------------------------- | --------------------- |
-| **data**    | **RequestUpsertHetznerCredential** | Upsert Hetzner Credential |                       |
-| **xUserID** | [**string**]                       | User ID                   | defaults to undefined |
-| **id**      | [**number**]                       | Organization ID           | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **data** | **RequestUpsertHetznerCredential**| Upsert Hetzner Credential | |
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Organization ID | defaults to undefined|
+
 
 ### Return type
 
@@ -545,13 +599,14 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: Not defined
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

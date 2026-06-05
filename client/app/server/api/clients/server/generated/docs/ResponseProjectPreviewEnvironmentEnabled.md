@@ -1,18 +1,19 @@
 # ResponseProjectPreviewEnvironmentEnabled
 
+
 ## Properties
 
-| Name        | Type        | Description | Notes                  |
-| ----------- | ----------- | ----------- | ---------------------- |
-| **enabled** | **boolean** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**enabled** | **boolean** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseProjectPreviewEnvironmentEnabled } from "./api";
+import { ResponseProjectPreviewEnvironmentEnabled } from './api';
 
 const instance: ResponseProjectPreviewEnvironmentEnabled = {
-  enabled,
+    enabled,
 };
 ```
 

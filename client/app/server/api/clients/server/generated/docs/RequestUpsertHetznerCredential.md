@@ -1,18 +1,19 @@
 # RequestUpsertHetznerCredential
 
+
 ## Properties
 
-| Name       | Type       | Description | Notes                  |
-| ---------- | ---------- | ----------- | ---------------------- |
-| **apiKey** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**apiKey** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestUpsertHetznerCredential } from "./api";
+import { RequestUpsertHetznerCredential } from './api';
 
 const instance: RequestUpsertHetznerCredential = {
-  apiKey,
+    apiKey,
 };
 ```
 

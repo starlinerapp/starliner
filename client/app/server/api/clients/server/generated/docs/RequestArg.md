@@ -1,20 +1,21 @@
 # RequestArg
 
+
 ## Properties
 
-| Name      | Type       | Description | Notes                  |
-| --------- | ---------- | ----------- | ---------------------- |
-| **name**  | **string** |             | [default to undefined] |
-| **value** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **string** |  | [default to undefined]
+**value** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestArg } from "./api";
+import { RequestArg } from './api';
 
 const instance: RequestArg = {
-  name,
-  value,
+    name,
+    value,
 };
 ```
 

@@ -1,24 +1,25 @@
 # RequestCreateEnvironment
 
+
 ## Properties
 
-| Name                    | Type       | Description | Notes                             |
-| ----------------------- | ---------- | ----------- | --------------------------------- |
-| **name**                | **string** |             | [default to undefined]            |
-| **organizationId**      | **number** |             | [default to undefined]            |
-| **projectId**           | **number** |             | [default to undefined]            |
-| **sourceEnvironmentId** | **number** |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **string** |  | [default to undefined]
+**organizationId** | **number** |  | [default to undefined]
+**projectId** | **number** |  | [default to undefined]
+**sourceEnvironmentId** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestCreateEnvironment } from "./api";
+import { RequestCreateEnvironment } from './api';
 
 const instance: RequestCreateEnvironment = {
-  name,
-  organizationId,
-  projectId,
-  sourceEnvironmentId,
+    name,
+    organizationId,
+    projectId,
+    sourceEnvironmentId,
 };
 ```
 

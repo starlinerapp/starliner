@@ -1,18 +1,19 @@
 # RequestSetTeamClusters
 
+
 ## Properties
 
-| Name         | Type                                                                             | Description | Notes                             |
-| ------------ | -------------------------------------------------------------------------------- | ----------- | --------------------------------- |
-| **clusters** | [**Array&lt;RequestTeamClusterAssignment&gt;**](RequestTeamClusterAssignment.md) |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**clusters** | [**Array&lt;RequestTeamClusterAssignment&gt;**](RequestTeamClusterAssignment.md) |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestSetTeamClusters } from "./api";
+import { RequestSetTeamClusters } from './api';
 
 const instance: RequestSetTeamClusters = {
-  clusters,
+    clusters,
 };
 ```
 

@@ -1,20 +1,23 @@
 # BuildApi
 
-All URIs are relative to _http://localhost_
+All URIs are relative to *http://localhost*
 
-| Method                                  | HTTP request                     | Description       |
-| --------------------------------------- | -------------------------------- | ----------------- |
-| [**getBuildLogs**](#getbuildlogs)       | **GET** /builds/{id}/logs        | Get Build Logs    |
-| [**streamBuildLogs**](#streambuildlogs) | **GET** /builds/{id}/logs/stream | Stream build logs |
+|Method | HTTP request | Description|
+|------------- | ------------- | -------------|
+|[**getBuildLogs**](#getbuildlogs) | **GET** /builds/{id}/logs | Get Build Logs|
+|[**streamBuildLogs**](#streambuildlogs) | **GET** /builds/{id}/logs/stream | Stream build logs|
 
 # **getBuildLogs**
-
 > ResponseBuildLogs getBuildLogs()
+
 
 ### Example
 
 ```typescript
-import { BuildApi, Configuration } from "./api";
+import {
+    BuildApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new BuildApi(configuration);
@@ -22,15 +25,19 @@ const apiInstance = new BuildApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Build ID (default to undefined)
 
-const { status, data } = await apiInstance.getBuildLogs(xUserID, id);
+const { status, data } = await apiInstance.getBuildLogs(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description | Notes                 |
-| ----------- | ------------ | ----------- | --------------------- |
-| **xUserID** | [**string**] | User ID     | defaults to undefined |
-| **id**      | [**number**] | Build ID    | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Build ID | defaults to undefined|
+
 
 ### Return type
 
@@ -42,25 +49,28 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: _/_
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
 
 ### HTTP response details
-
 | Status code | Description | Response headers |
-| ----------- | ----------- | ---------------- |
-| **200**     | OK          | -                |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **streamBuildLogs**
-
 > streamBuildLogs()
+
 
 ### Example
 
 ```typescript
-import { BuildApi, Configuration } from "./api";
+import {
+    BuildApi,
+    Configuration
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new BuildApi(configuration);
@@ -68,15 +78,19 @@ const apiInstance = new BuildApi(configuration);
 let xUserID: string; //User ID (default to undefined)
 let id: number; //Build ID (default to undefined)
 
-const { status, data } = await apiInstance.streamBuildLogs(xUserID, id);
+const { status, data } = await apiInstance.streamBuildLogs(
+    xUserID,
+    id
+);
 ```
 
 ### Parameters
 
-| Name        | Type         | Description | Notes                 |
-| ----------- | ------------ | ----------- | --------------------- |
-| **xUserID** | [**string**] | User ID     | defaults to undefined |
-| **id**      | [**number**] | Build ID    | defaults to undefined |
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **xUserID** | [**string**] | User ID | defaults to undefined|
+| **id** | [**number**] | Build ID | defaults to undefined|
+
 
 ### Return type
 
@@ -88,13 +102,14 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: Not defined
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
 
 ### HTTP response details
-
-| Status code | Description | Response headers                                                                                        |
-| ----------- | ----------- | ------------------------------------------------------------------------------------------------------- |
-| **200**     | OK          | _ Cache-Control - no-cache <br> _ Connection - keep-alive <br> \* Content-Type - text/event-stream <br> |
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  * Cache-Control - no-cache <br>  * Connection - keep-alive <br>  * Content-Type - text/event-stream <br>  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

@@ -1,18 +1,19 @@
 # RequestUpdateDatabase
 
+
 ## Properties
 
-| Name              | Type       | Description | Notes                  |
-| ----------------- | ---------- | ----------- | ---------------------- |
-| **environmentId** | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**environmentId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestUpdateDatabase } from "./api";
+import { RequestUpdateDatabase } from './api';
 
 const instance: RequestUpdateDatabase = {
-  environmentId,
+    environmentId,
 };
 ```
 

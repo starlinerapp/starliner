@@ -1,26 +1,27 @@
 # RequestUpdateImage
 
+
 ## Properties
 
-| Name              | Type                                               | Description | Notes                  |
-| ----------------- | -------------------------------------------------- | ----------- | ---------------------- |
-| **environmentId** | **number**                                         |             | [default to undefined] |
-| **envs**          | [**Array&lt;RequestEnvVar&gt;**](RequestEnvVar.md) |             | [default to undefined] |
-| **imageName**     | **string**                                         |             | [default to undefined] |
-| **port**          | **number**                                         |             | [default to undefined] |
-| **tag**           | **string**                                         |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**environmentId** | **number** |  | [default to undefined]
+**envs** | [**Array&lt;RequestEnvVar&gt;**](RequestEnvVar.md) |  | [default to undefined]
+**imageName** | **string** |  | [default to undefined]
+**port** | **number** |  | [default to undefined]
+**tag** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestUpdateImage } from "./api";
+import { RequestUpdateImage } from './api';
 
 const instance: RequestUpdateImage = {
-  environmentId,
-  envs,
-  imageName,
-  port,
-  tag,
+    environmentId,
+    envs,
+    imageName,
+    port,
+    tag,
 };
 ```
 

@@ -1,22 +1,23 @@
 # ResponseTeamRepo
 
+
 ## Properties
 
-| Name             | Type       | Description | Notes                  |
-| ---------------- | ---------- | ----------- | ---------------------- |
-| **githubRepoId** | **number** |             | [default to undefined] |
-| **repoName**     | **string** |             | [default to undefined] |
-| **teamId**       | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**githubRepoId** | **number** |  | [default to undefined]
+**repoName** | **string** |  | [default to undefined]
+**teamId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseTeamRepo } from "./api";
+import { ResponseTeamRepo } from './api';
 
 const instance: ResponseTeamRepo = {
-  githubRepoId,
-  repoName,
-  teamId,
+    githubRepoId,
+    repoName,
+    teamId,
 };
 ```
 

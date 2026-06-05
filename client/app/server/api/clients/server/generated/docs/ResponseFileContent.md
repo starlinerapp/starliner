@@ -1,18 +1,19 @@
 # ResponseFileContent
 
+
 ## Properties
 
-| Name        | Type       | Description | Notes                             |
-| ----------- | ---------- | ----------- | --------------------------------- |
-| **content** | **string** |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**content** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseFileContent } from "./api";
+import { ResponseFileContent } from './api';
 
 const instance: ResponseFileContent = {
-  content,
+    content,
 };
 ```
 

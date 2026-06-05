@@ -1,28 +1,29 @@
 # ResponseRepositoryFile
 
+
 ## Properties
 
-| Name     | Type       | Description | Notes                  |
-| -------- | ---------- | ----------- | ---------------------- |
-| **name** | **string** |             | [default to undefined] |
-| **path** | **string** |             | [default to undefined] |
-| **sha**  | **string** |             | [default to undefined] |
-| **size** | **number** |             | [default to undefined] |
-| **type** | **string** |             | [default to undefined] |
-| **url**  | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **string** |  | [default to undefined]
+**path** | **string** |  | [default to undefined]
+**sha** | **string** |  | [default to undefined]
+**size** | **number** |  | [default to undefined]
+**type** | **string** |  | [default to undefined]
+**url** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseRepositoryFile } from "./api";
+import { ResponseRepositoryFile } from './api';
 
 const instance: ResponseRepositoryFile = {
-  name,
-  path,
-  sha,
-  size,
-  type,
-  url,
+    name,
+    path,
+    sha,
+    size,
+    type,
+    url,
 };
 ```
 

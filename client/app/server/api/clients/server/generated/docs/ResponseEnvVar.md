@@ -1,20 +1,21 @@
 # ResponseEnvVar
 
+
 ## Properties
 
-| Name      | Type       | Description | Notes                  |
-| --------- | ---------- | ----------- | ---------------------- |
-| **name**  | **string** |             | [default to undefined] |
-| **value** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **string** |  | [default to undefined]
+**value** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseEnvVar } from "./api";
+import { ResponseEnvVar } from './api';
 
 const instance: ResponseEnvVar = {
-  name,
-  value,
+    name,
+    value,
 };
 ```
 

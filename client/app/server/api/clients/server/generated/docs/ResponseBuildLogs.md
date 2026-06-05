@@ -1,18 +1,19 @@
 # ResponseBuildLogs
 
+
 ## Properties
 
-| Name     | Type       | Description | Notes                  |
-| -------- | ---------- | ----------- | ---------------------- |
-| **logs** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**logs** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseBuildLogs } from "./api";
+import { ResponseBuildLogs } from './api';
 
 const instance: ResponseBuildLogs = {
-  logs,
+    logs,
 };
 ```
 

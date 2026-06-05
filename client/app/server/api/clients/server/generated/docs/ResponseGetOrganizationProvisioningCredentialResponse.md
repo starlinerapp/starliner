@@ -1,18 +1,19 @@
 # ResponseGetOrganizationProvisioningCredentialResponse
 
+
 ## Properties
 
-| Name           | Type                                                                                            | Description | Notes                             |
-| -------------- | ----------------------------------------------------------------------------------------------- | ----------- | --------------------------------- |
-| **credential** | [**ResponseOrganizationProvisioningCredential**](ResponseOrganizationProvisioningCredential.md) |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**credential** | [**ResponseOrganizationProvisioningCredential**](ResponseOrganizationProvisioningCredential.md) |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseGetOrganizationProvisioningCredentialResponse } from "./api";
+import { ResponseGetOrganizationProvisioningCredentialResponse } from './api';
 
 const instance: ResponseGetOrganizationProvisioningCredentialResponse = {
-  credential,
+    credential,
 };
 ```
 

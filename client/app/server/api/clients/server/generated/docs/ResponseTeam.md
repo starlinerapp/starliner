@@ -1,22 +1,23 @@
 # ResponseTeam
 
+
 ## Properties
 
-| Name                | Type       | Description | Notes                  |
-| ------------------- | ---------- | ----------- | ---------------------- |
-| **id**              | **number** |             | [default to undefined] |
-| **organization_id** | **number** |             | [default to undefined] |
-| **slug**            | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**id** | **number** |  | [default to undefined]
+**organization_id** | **number** |  | [default to undefined]
+**slug** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseTeam } from "./api";
+import { ResponseTeam } from './api';
 
 const instance: ResponseTeam = {
-  id,
-  organization_id,
-  slug,
+    id,
+    organization_id,
+    slug,
 };
 ```
 

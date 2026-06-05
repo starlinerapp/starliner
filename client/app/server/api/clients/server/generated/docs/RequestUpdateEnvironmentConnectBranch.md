@@ -1,18 +1,19 @@
 # RequestUpdateEnvironmentConnectBranch
 
+
 ## Properties
 
-| Name       | Type       | Description | Notes                  |
-| ---------- | ---------- | ----------- | ---------------------- |
-| **branch** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**branch** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestUpdateEnvironmentConnectBranch } from "./api";
+import { RequestUpdateEnvironmentConnectBranch } from './api';
 
 const instance: RequestUpdateEnvironmentConnectBranch = {
-  branch,
+    branch,
 };
 ```
 

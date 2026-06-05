@@ -1,20 +1,21 @@
 # ResponseOrganizationProvisioningCredential
 
+
 ## Properties
 
-| Name         | Type       | Description | Notes                  |
-| ------------ | ---------- | ----------- | ---------------------- |
-| **provider** | **string** |             | [default to undefined] |
-| **secret**   | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**provider** | **string** |  | [default to undefined]
+**secret** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseOrganizationProvisioningCredential } from "./api";
+import { ResponseOrganizationProvisioningCredential } from './api';
 
 const instance: ResponseOrganizationProvisioningCredential = {
-  provider,
-  secret,
+    provider,
+    secret,
 };
 ```
 

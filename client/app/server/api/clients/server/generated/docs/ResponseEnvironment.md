@@ -1,22 +1,23 @@
 # ResponseEnvironment
 
+
 ## Properties
 
-| Name     | Type       | Description | Notes                  |
-| -------- | ---------- | ----------- | ---------------------- |
-| **id**   | **number** |             | [default to undefined] |
-| **name** | **string** |             | [default to undefined] |
-| **slug** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**id** | **number** |  | [default to undefined]
+**name** | **string** |  | [default to undefined]
+**slug** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseEnvironment } from "./api";
+import { ResponseEnvironment } from './api';
 
 const instance: ResponseEnvironment = {
-  id,
-  name,
-  slug,
+    id,
+    name,
+    slug,
 };
 ```
 

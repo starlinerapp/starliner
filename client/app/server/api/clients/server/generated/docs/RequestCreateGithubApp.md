@@ -1,20 +1,21 @@
 # RequestCreateGithubApp
 
+
 ## Properties
 
-| Name               | Type       | Description | Notes                  |
-| ------------------ | ---------- | ----------- | ---------------------- |
-| **installationId** | **number** |             | [default to undefined] |
-| **organizationId** | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**installationId** | **number** |  | [default to undefined]
+**organizationId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestCreateGithubApp } from "./api";
+import { RequestCreateGithubApp } from './api';
 
 const instance: RequestCreateGithubApp = {
-  installationId,
-  organizationId,
+    installationId,
+    organizationId,
 };
 ```
 

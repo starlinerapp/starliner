@@ -1,20 +1,21 @@
 # RequestDeployDatabase
 
+
 ## Properties
 
-| Name              | Type       | Description | Notes                  |
-| ----------------- | ---------- | ----------- | ---------------------- |
-| **environmentId** | **number** |             | [default to undefined] |
-| **serviceName**   | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**environmentId** | **number** |  | [default to undefined]
+**serviceName** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestDeployDatabase } from "./api";
+import { RequestDeployDatabase } from './api';
 
 const instance: RequestDeployDatabase = {
-  environmentId,
-  serviceName,
+    environmentId,
+    serviceName,
 };
 ```
 

@@ -1,18 +1,19 @@
 # RequestRemoveTeamMember
 
+
 ## Properties
 
-| Name       | Type       | Description | Notes                  |
-| ---------- | ---------- | ----------- | ---------------------- |
-| **userId** | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**userId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestRemoveTeamMember } from "./api";
+import { RequestRemoveTeamMember } from './api';
 
 const instance: RequestRemoveTeamMember = {
-  userId,
+    userId,
 };
 ```
 

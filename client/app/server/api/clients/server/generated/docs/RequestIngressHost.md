@@ -1,20 +1,21 @@
 # RequestIngressHost
 
+
 ## Properties
 
-| Name      | Type                                                         | Description | Notes                  |
-| --------- | ------------------------------------------------------------ | ----------- | ---------------------- |
-| **host**  | **string**                                                   |             | [default to undefined] |
-| **paths** | [**Array&lt;RequestIngressPath&gt;**](RequestIngressPath.md) |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**host** | **string** |  | [default to undefined]
+**paths** | [**Array&lt;RequestIngressPath&gt;**](RequestIngressPath.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestIngressHost } from "./api";
+import { RequestIngressHost } from './api';
 
 const instance: RequestIngressHost = {
-  host,
-  paths,
+    host,
+    paths,
 };
 ```
 

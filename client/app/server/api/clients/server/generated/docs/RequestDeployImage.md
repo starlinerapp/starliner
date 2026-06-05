@@ -1,32 +1,33 @@
 # RequestDeployImage
 
+
 ## Properties
 
-| Name                | Type                                               | Description | Notes                             |
-| ------------------- | -------------------------------------------------- | ----------- | --------------------------------- |
-| **environmentId**   | **number**                                         |             | [default to undefined]            |
-| **envs**            | [**Array&lt;RequestEnvVar&gt;**](RequestEnvVar.md) |             | [default to undefined]            |
-| **imageName**       | **string**                                         |             | [default to undefined]            |
-| **port**            | **number**                                         |             | [default to undefined]            |
-| **serviceName**     | **string**                                         |             | [default to undefined]            |
-| **tag**             | **string**                                         |             | [default to undefined]            |
-| **volumeMountPath** | **string**                                         |             | [optional] [default to undefined] |
-| **volumeSizeMiB**   | **number**                                         |             | [optional] [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**environmentId** | **number** |  | [default to undefined]
+**envs** | [**Array&lt;RequestEnvVar&gt;**](RequestEnvVar.md) |  | [default to undefined]
+**imageName** | **string** |  | [default to undefined]
+**port** | **number** |  | [default to undefined]
+**serviceName** | **string** |  | [default to undefined]
+**tag** | **string** |  | [default to undefined]
+**volumeMountPath** | **string** |  | [optional] [default to undefined]
+**volumeSizeMiB** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestDeployImage } from "./api";
+import { RequestDeployImage } from './api';
 
 const instance: RequestDeployImage = {
-  environmentId,
-  envs,
-  imageName,
-  port,
-  serviceName,
-  tag,
-  volumeMountPath,
-  volumeSizeMiB,
+    environmentId,
+    envs,
+    imageName,
+    port,
+    serviceName,
+    tag,
+    volumeMountPath,
+    volumeSizeMiB,
 };
 ```
 

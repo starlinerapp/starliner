@@ -1,20 +1,21 @@
 # ResponseProjectCluster
 
+
 ## Properties
 
-| Name            | Type       | Description | Notes                  |
-| --------------- | ---------- | ----------- | ---------------------- |
-| **clusterId**   | **number** |             | [default to undefined] |
-| **clusterName** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**clusterId** | **number** |  | [default to undefined]
+**clusterName** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseProjectCluster } from "./api";
+import { ResponseProjectCluster } from './api';
 
 const instance: ResponseProjectCluster = {
-  clusterId,
-  clusterName,
+    clusterId,
+    clusterName,
 };
 ```
 

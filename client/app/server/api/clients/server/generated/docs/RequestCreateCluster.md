@@ -1,24 +1,25 @@
 # RequestCreateCluster
 
+
 ## Properties
 
-| Name               | Type       | Description | Notes                  |
-| ------------------ | ---------- | ----------- | ---------------------- |
-| **name**           | **string** |             | [default to undefined] |
-| **organizationId** | **number** |             | [default to undefined] |
-| **serverType**     | **string** |             | [default to undefined] |
-| **teamId**         | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **string** |  | [default to undefined]
+**organizationId** | **number** |  | [default to undefined]
+**serverType** | **string** |  | [default to undefined]
+**teamId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestCreateCluster } from "./api";
+import { RequestCreateCluster } from './api';
 
 const instance: RequestCreateCluster = {
-  name,
-  organizationId,
-  serverType,
-  teamId,
+    name,
+    organizationId,
+    serverType,
+    teamId,
 };
 ```
 

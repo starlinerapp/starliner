@@ -1,18 +1,19 @@
 # ResponseEnvironmentBranch
 
+
 ## Properties
 
-| Name       | Type       | Description | Notes                  |
-| ---------- | ---------- | ----------- | ---------------------- |
-| **branch** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**branch** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseEnvironmentBranch } from "./api";
+import { ResponseEnvironmentBranch } from './api';
 
 const instance: ResponseEnvironmentBranch = {
-  branch,
+    branch,
 };
 ```
 

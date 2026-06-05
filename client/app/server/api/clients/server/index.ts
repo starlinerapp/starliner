@@ -12,8 +12,6 @@ import {
   ProjectApiFactory,
   RootApiFactory,
   TeamApiFactory,
-  GithubappApiFactory,
-  GithubApiFactory,
   NotificationsApiFactory,
   UserApiFactory,
 } from "./generated";

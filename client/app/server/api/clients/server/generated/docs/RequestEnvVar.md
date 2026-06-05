@@ -1,20 +1,21 @@
 # RequestEnvVar
 
+
 ## Properties
 
-| Name      | Type       | Description | Notes                  |
-| --------- | ---------- | ----------- | ---------------------- |
-| **name**  | **string** |             | [default to undefined] |
-| **value** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **string** |  | [default to undefined]
+**value** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestEnvVar } from "./api";
+import { RequestEnvVar } from './api';
 
 const instance: RequestEnvVar = {
-  name,
-  value,
+    name,
+    value,
 };
 ```
 

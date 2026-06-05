@@ -1,20 +1,21 @@
 # RequestUpdateIngress
 
+
 ## Properties
 
-| Name              | Type                                                         | Description | Notes                  |
-| ----------------- | ------------------------------------------------------------ | ----------- | ---------------------- |
-| **environmentId** | **number**                                                   |             | [default to undefined] |
-| **ingressHosts**  | [**Array&lt;RequestIngressHost&gt;**](RequestIngressHost.md) |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**environmentId** | **number** |  | [default to undefined]
+**ingressHosts** | [**Array&lt;RequestIngressHost&gt;**](RequestIngressHost.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestUpdateIngress } from "./api";
+import { RequestUpdateIngress } from './api';
 
 const instance: RequestUpdateIngress = {
-  environmentId,
-  ingressHosts,
+    environmentId,
+    ingressHosts,
 };
 ```
 

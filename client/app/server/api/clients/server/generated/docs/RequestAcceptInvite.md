@@ -1,20 +1,21 @@
 # RequestAcceptInvite
 
+
 ## Properties
 
-| Name               | Type       | Description | Notes                  |
-| ------------------ | ---------- | ----------- | ---------------------- |
-| **inviteId**       | **string** |             | [default to undefined] |
-| **recipientEmail** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**inviteId** | **string** |  | [default to undefined]
+**recipientEmail** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestAcceptInvite } from "./api";
+import { RequestAcceptInvite } from './api';
 
 const instance: RequestAcceptInvite = {
-  inviteId,
-  recipientEmail,
+    inviteId,
+    recipientEmail,
 };
 ```
 

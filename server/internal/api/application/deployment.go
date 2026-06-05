@@ -11,7 +11,6 @@ import (
 	"starliner.app/internal/api/conf"
 
 	"github.com/google/uuid"
-	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/entity"
 	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
@@ -399,7 +398,7 @@ func (da *DeploymentApplication) DeployImage(
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:          deployment.Id,
-		CorrelationId:    &correlationId,
+		CorrelationId:         &correlationId,
 		DeploymentName:        normalizedServiceName,
 		KubeconfigBase64:      kubeconfigBase64,
 		Namespace:             env.Namespace,
@@ -509,7 +508,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:          deployment.Id,
-		CorrelationId:    &correlationId,
+		CorrelationId:         &correlationId,
 		DeploymentName:        normalizedServiceName,
 		Namespace:             env.Namespace,
 		KubeconfigBase64:      kubeconfigBase64,
@@ -736,7 +735,7 @@ func (da *DeploymentApplication) redeployDatabaseDeployment(
 	return newDeployment, nil
 }
 
-func (da *DeploymentApplication) DeployIngress(ctx context.Context, hosts []*value.IngressHost, userId int64, environmentId int64) error {
+func (da *DeploymentApplication) DeployIngress(ctx context.Context, correlationId string, hosts []*value.IngressHost, userId int64, environmentId int64) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
@@ -1062,9 +1061,8 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, correlati
 	}
 
 	err = da.queue.PublishDeleteDeployment(&coreValue.Deployment{
-		DeploymentId:     deployment.Id,
-		CorrelationId:    &correlationId,
 		DeploymentId:     deploymentWithNamespace.Id,
+		CorrelationId:    &correlationId,
 		DeploymentName:   normalizedDeploymentName,
 		Namespace:        deploymentWithNamespace.Namespace,
 		KubeconfigBase64: kubeconfigBase64,

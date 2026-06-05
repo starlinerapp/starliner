@@ -12,7 +12,6 @@ import Sidebar from "~/components/organisms/sidebar/Sidebar";
 import { OrganizationProvider } from "~/contexts/OrganizationContext";
 import { auth } from "~/utils/auth/server";
 import { useTRPC } from "~/utils/trpc/react";
-import { useQuery } from "@tanstack/react-query";
 import ClusterNotificationListener from "~/components/organisms/notifications/ClusterNotificationListener";
 import { caller } from "~/utils/trpc/server";
 import type { Route } from "./+types/layout";

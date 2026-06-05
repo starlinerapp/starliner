@@ -1,24 +1,25 @@
 # ResponseDeployments
 
+
 ## Properties
 
-| Name               | Type                                                                         | Description | Notes                  |
-| ------------------ | ---------------------------------------------------------------------------- | ----------- | ---------------------- |
-| **databases**      | [**Array&lt;ResponseDatabaseDeployment&gt;**](ResponseDatabaseDeployment.md) |             | [default to undefined] |
-| **gitDeployments** | [**Array&lt;ResponseGitDeployment&gt;**](ResponseGitDeployment.md)           |             | [default to undefined] |
-| **images**         | [**Array&lt;ResponseImageDeployment&gt;**](ResponseImageDeployment.md)       |             | [default to undefined] |
-| **ingresses**      | [**Array&lt;ResponseIngressDeployment&gt;**](ResponseIngressDeployment.md)   |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**databases** | [**Array&lt;ResponseDatabaseDeployment&gt;**](ResponseDatabaseDeployment.md) |  | [default to undefined]
+**gitDeployments** | [**Array&lt;ResponseGitDeployment&gt;**](ResponseGitDeployment.md) |  | [default to undefined]
+**images** | [**Array&lt;ResponseImageDeployment&gt;**](ResponseImageDeployment.md) |  | [default to undefined]
+**ingresses** | [**Array&lt;ResponseIngressDeployment&gt;**](ResponseIngressDeployment.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseDeployments } from "./api";
+import { ResponseDeployments } from './api';
 
 const instance: ResponseDeployments = {
-  databases,
-  gitDeployments,
-  images,
-  ingresses,
+    databases,
+    gitDeployments,
+    images,
+    ingresses,
 };
 ```
 

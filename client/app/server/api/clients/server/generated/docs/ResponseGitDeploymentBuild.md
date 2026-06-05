@@ -1,32 +1,33 @@
 # ResponseGitDeploymentBuild
 
+
 ## Properties
 
-| Name                        | Type       | Description | Notes                  |
-| --------------------------- | ---------- | ----------- | ---------------------- |
-| **buildId**                 | **number** |             | [default to undefined] |
-| **commitHash**              | **string** |             | [default to undefined] |
-| **createdAt**               | **string** |             | [default to undefined] |
-| **deploymentId**            | **number** |             | [default to undefined] |
-| **deploymentName**          | **string** |             | [default to undefined] |
-| **deploymentRolloutStatus** | **string** |             | [default to undefined] |
-| **source**                  | **string** |             | [default to undefined] |
-| **status**                  | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**buildId** | **number** |  | [default to undefined]
+**commitHash** | **string** |  | [default to undefined]
+**createdAt** | **string** |  | [default to undefined]
+**deploymentId** | **number** |  | [default to undefined]
+**deploymentName** | **string** |  | [default to undefined]
+**deploymentRolloutStatus** | **string** |  | [default to undefined]
+**source** | **string** |  | [default to undefined]
+**status** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseGitDeploymentBuild } from "./api";
+import { ResponseGitDeploymentBuild } from './api';
 
 const instance: ResponseGitDeploymentBuild = {
-  buildId,
-  commitHash,
-  createdAt,
-  deploymentId,
-  deploymentName,
-  deploymentRolloutStatus,
-  source,
-  status,
+    buildId,
+    commitHash,
+    createdAt,
+    deploymentId,
+    deploymentName,
+    deploymentRolloutStatus,
+    source,
+    status,
 };
 ```
 

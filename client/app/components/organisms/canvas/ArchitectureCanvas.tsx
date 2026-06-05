@@ -28,7 +28,7 @@ import {
 } from "~/service/reactflow/helpers";
 import EnvironmentNotificationListener from "~/components/organisms/notifications/EnvironmentNotificationListener";
 import { useTRPC } from "~/utils/trpc/react";
-import type { ResponseEnvironment } from "../../../server/api/clients/server/generated";
+import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;

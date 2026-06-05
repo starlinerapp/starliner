@@ -13,8 +13,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons && npm run fmt",
-    "openapi:generate:server": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/clients/server/generated && biome format --write app/server/api/clients/server/generated",
-    "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated && rm /tmp/auth-openapi.json && biome format --write app/server/api/clients/auth/generated"
+    "openapi:generate:server": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/clients/server/generated && npx biome format --write app/server/api/clients/server/generated",
+    "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated && rm /tmp/auth-openapi.json && npx biome format --write app/server/api/clients/auth/generated"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -47,7 +47,7 @@
     "express": "^5.2.1",
     "framer-motion": "^12.23.22",
     "http-proxy": "^1.18.1",
-    "ioredis": "^5.10.1",
+    "ioredis": "^5.11.1",
     "isbot": "^5.1.27",
     "lucide-react": "^0.577.0",
     "morgan": "^1.10.1",

@@ -1,18 +1,19 @@
 # ResponseUpdateGitDeploymentResponse
 
+
 ## Properties
 
-| Name             | Type       | Description | Notes                  |
-| ---------------- | ---------- | ----------- | ---------------------- |
-| **deploymentId** | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**deploymentId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseUpdateGitDeploymentResponse } from "./api";
+import { ResponseUpdateGitDeploymentResponse } from './api';
 
 const instance: ResponseUpdateGitDeploymentResponse = {
-  deploymentId,
+    deploymentId,
 };
 ```
 

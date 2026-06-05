@@ -1,20 +1,21 @@
 # ResponseArg
 
+
 ## Properties
 
-| Name      | Type       | Description | Notes                  |
-| --------- | ---------- | ----------- | ---------------------- |
-| **name**  | **string** |             | [default to undefined] |
-| **value** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**name** | **string** |  | [default to undefined]
+**value** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ResponseArg } from "./api";
+import { ResponseArg } from './api';
 
 const instance: ResponseArg = {
-  name,
-  value,
+    name,
+    value,
 };
 ```
 

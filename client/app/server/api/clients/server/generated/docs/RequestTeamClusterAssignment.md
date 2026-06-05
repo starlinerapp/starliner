@@ -1,18 +1,19 @@
 # RequestTeamClusterAssignment
 
+
 ## Properties
 
-| Name          | Type       | Description | Notes                  |
-| ------------- | ---------- | ----------- | ---------------------- |
-| **clusterId** | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**clusterId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestTeamClusterAssignment } from "./api";
+import { RequestTeamClusterAssignment } from './api';
 
 const instance: RequestTeamClusterAssignment = {
-  clusterId,
+    clusterId,
 };
 ```
 

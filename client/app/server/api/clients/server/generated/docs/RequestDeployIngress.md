@@ -1,20 +1,21 @@
 # RequestDeployIngress
 
+
 ## Properties
 
-| Name              | Type                                                         | Description | Notes                  |
-| ----------------- | ------------------------------------------------------------ | ----------- | ---------------------- |
-| **environmentId** | **number**                                                   |             | [default to undefined] |
-| **ingressHosts**  | [**Array&lt;RequestIngressHost&gt;**](RequestIngressHost.md) |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**environmentId** | **number** |  | [default to undefined]
+**ingressHosts** | [**Array&lt;RequestIngressHost&gt;**](RequestIngressHost.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestDeployIngress } from "./api";
+import { RequestDeployIngress } from './api';
 
 const instance: RequestDeployIngress = {
-  environmentId,
-  ingressHosts,
+    environmentId,
+    ingressHosts,
 };
 ```
 

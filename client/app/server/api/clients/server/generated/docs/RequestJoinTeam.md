@@ -1,18 +1,19 @@
 # RequestJoinTeam
 
+
 ## Properties
 
-| Name     | Type       | Description | Notes                  |
-| -------- | ---------- | ----------- | ---------------------- |
-| **slug** | **string** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**slug** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestJoinTeam } from "./api";
+import { RequestJoinTeam } from './api';
 
 const instance: RequestJoinTeam = {
-  slug,
+    slug,
 };
 ```
 

@@ -197,8 +197,10 @@ func (dh *DeploymentHandler) UpdateDatabaseDeployment(c *gin.Context) {
 		return
 	}
 
+	//TODO add correlation id
 	newDeploymentId, err := dh.deploymentApplication.UpdateDatabaseDeployment(
 		c.Request.Context(),
+		"",
 		currentUser.Id,
 		deploymentId,
 		body.EnvironmentId,

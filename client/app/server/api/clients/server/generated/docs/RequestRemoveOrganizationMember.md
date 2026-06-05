@@ -1,18 +1,19 @@
 # RequestRemoveOrganizationMember
 
+
 ## Properties
 
-| Name       | Type       | Description | Notes                  |
-| ---------- | ---------- | ----------- | ---------------------- |
-| **userId** | **number** |             | [default to undefined] |
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**userId** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestRemoveOrganizationMember } from "./api";
+import { RequestRemoveOrganizationMember } from './api';
 
 const instance: RequestRemoveOrganizationMember = {
-  userId,
+    userId,
 };
 ```
 
