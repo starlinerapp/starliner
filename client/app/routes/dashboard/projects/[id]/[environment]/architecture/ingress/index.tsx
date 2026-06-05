@@ -7,13 +7,20 @@ import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/a
 import { useTRPC } from "~/utils/trpc/react";
 
 export function loader() {
+  const deploymentDomain = process.env.DEPLOYMENT_DOMAIN;
+  if (!deploymentDomain) {
+    throw new Error("DEPLOYMENT_DOMAIN is not set");
+  }
+
   return {
     deploymentEnvironment: process.env.ENVIRONMENT ?? "",
+    deploymentDomain,
   };
 }
 
 export default function Index() {
-  const { deploymentEnvironment } = useLoaderData<typeof loader>();
+  const { deploymentEnvironment, deploymentDomain } =
+    useLoaderData<typeof loader>();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const createIngressMutation = useMutation(
@@ -26,7 +33,7 @@ export default function Index() {
       {
         id: currentEnvironment.id,
         ingressHosts: data.hosts.map((h) => ({
-          host: h.name,
+          prefix: h.name,
           paths: h.paths.map((p) => ({
             path: p.path,
             pathType: p.pathType as "Prefix" | "Exact",
@@ -49,6 +56,7 @@ export default function Index() {
   return (
     <DeployIngressForm
       deploymentEnvironment={deploymentEnvironment}
+      deploymentDomain={deploymentDomain}
       resetOnSuccess={true}
       onSubmit={onSubmit}
     />

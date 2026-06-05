@@ -12,6 +12,7 @@ function normalizePrefix(input: string): string {
 export function getIngressHostSuffix(
   organizationSlug: string,
   deploymentEnvironment: string,
+  deploymentDomain: string,
 ): string {
   const subdomain =
     deploymentEnvironment === "local"
@@ -21,8 +22,8 @@ export function getIngressHostSuffix(
         : null;
 
   return subdomain
-    ? `.${organizationSlug}.${subdomain}.starliner.cloud`
-    : `.${organizationSlug}.starliner.cloud`;
+    ? `.${organizationSlug}.${subdomain}.${deploymentDomain}`
+    : `.${organizationSlug}.${deploymentDomain}`;
 }
 
 export function isValidIngressHostPrefix(prefix: string): boolean {
@@ -34,15 +35,21 @@ export function buildFullIngressHost(
   prefix: string,
   organizationSlug: string,
   deploymentEnvironment: string,
+  deploymentDomain: string,
 ): string {
-  return `${normalizePrefix(prefix)}${getIngressHostSuffix(organizationSlug, deploymentEnvironment)}`;
+  return `${normalizePrefix(prefix)}${getIngressHostSuffix(organizationSlug, deploymentEnvironment, deploymentDomain)}`;
 }
 
 export function parseIngressHostPrefix(
   host: string,
   organizationSlug: string,
   deploymentEnvironment: string,
+  deploymentDomain: string,
 ): string {
-  const suffix = getIngressHostSuffix(organizationSlug, deploymentEnvironment);
+  const suffix = getIngressHostSuffix(
+    organizationSlug,
+    deploymentEnvironment,
+    deploymentDomain,
+  );
   return host.endsWith(suffix) ? host.slice(0, -suffix.length) : host;
 }
