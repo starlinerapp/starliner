@@ -1,11 +1,11 @@
-import React, { useMemo, useRef } from "react";
 import { useSubscription } from "@trpc/tanstack-react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { SuccessToast } from "~/components/atoms/toast/SuccessToast";
+import { useMemo, useRef } from "react";
 import {
   ErrorToast,
   type ToastHandle,
 } from "~/components/atoms/toast/ErrorToast";
+import { SuccessToast } from "~/components/atoms/toast/SuccessToast";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface EnvironmentNotificationListenerProps {
   environmentId: number;

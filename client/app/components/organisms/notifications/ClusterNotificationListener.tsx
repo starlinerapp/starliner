@@ -1,11 +1,11 @@
-import React, {useMemo, useRef, useState} from "react";
 import { useSubscription } from "@trpc/tanstack-react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { SuccessToast } from "~/components/atoms/toast/SuccessToast";
+import { useMemo, useRef } from "react";
 import {
   ErrorToast,
   type ToastHandle,
 } from "~/components/atoms/toast/ErrorToast";
+import { SuccessToast } from "~/components/atoms/toast/SuccessToast";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface ClusterNotificationListenerProps {
   organizationId: number;
@@ -18,8 +18,6 @@ export default function ClusterNotificationListener({
   const successRef = useRef<ToastHandle>(null);
   const errorRef = useRef<ToastHandle>(null);
 
-  const [text, setText] = useState<string>("")
-
   const subscriptionOptions = useMemo(
     () =>
       trpc.notifications.streamGlobalNotifications.subscriptionOptions(
@@ -30,8 +28,6 @@ export default function ClusterNotificationListener({
             status: string;
             message: string;
           }) => {
-
-              setText(data.message)
             if (data.status === "success") {
               successRef.current?.publish(data.message);
             } else if (data.status === "failed") {
@@ -47,7 +43,6 @@ export default function ClusterNotificationListener({
 
   return (
     <>
-        <p>text: {text}</p>
       <SuccessToast ref={successRef} title="Success" />
       <ErrorToast ref={errorRef} title="Oops something went wrong" />
     </>

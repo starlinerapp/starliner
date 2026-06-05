@@ -1,8 +1,8 @@
-import * as React from "react";
 import * as ToastPrimitive from "@radix-ui/react-toast";
-import { cn } from "~/utils/cn";
-import type { ToastHandle } from "~/components/atoms/toast/ErrorToast";
+import * as React from "react";
 import { CheckCircle } from "~/components/atoms/icons";
+import type { ToastHandle } from "~/components/atoms/toast/ErrorToast";
+import { cn } from "~/utils/cn";
 
 interface SuccessToastProps {
   title?: string;
@@ -65,12 +65,12 @@ function SingleSuccessToast({
         if (!o) onClose();
       }}
       className={cn(
-        "border-grass-9 relative flex flex-row items-center gap-3 overflow-hidden rounded-xl border px-4 py-3 shadow-md",
-        "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-4",
-        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-right-full",
+        "relative flex flex-row items-center gap-3 overflow-hidden rounded-xl border border-grass-9 px-4 py-3 shadow-md",
+        "data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-4 data-[state=open]:animate-in",
+        "data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-right-full data-[state=closed]:animate-out",
         "data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x)",
         "data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-transform",
-        "data-[swipe=end]:animate-out data-[swipe=end]:slide-out-to-right-full",
+        "data-[swipe=end]:slide-out-to-right-full data-[swipe=end]:animate-out",
       )}
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
@@ -87,7 +87,7 @@ function SingleSuccessToast({
       <ToastPrimitive.Close className="sr-only" />
       <div className="absolute right-0 bottom-0 left-0 h-1">
         <div
-          className="bg-grass-10 animate-shrink h-full origin-left"
+          className="h-full origin-left animate-shrink bg-grass-10"
           style={{ animation: `shrink ${duration}ms linear forwards` }}
         />
       </div>

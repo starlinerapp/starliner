@@ -99,8 +99,12 @@
   --animate-shrink: shrink linear forwards;
 
   @keyframes shrink {
-    from { transform: scaleX(1); }
-    to { transform: scaleX(0); }
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
+    }
   }
 }
 

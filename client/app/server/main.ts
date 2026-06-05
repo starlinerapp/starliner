@@ -4,13 +4,13 @@ import { deploymentRouter } from "~/server/routers/deployment";
 import { environmentRouter } from "~/server/routers/environment";
 import { githubRouter } from "~/server/routers/github";
 import { githubAppRouter } from "~/server/routers/githubapp";
+import { notificationsRouter } from "~/server/routers/notifications";
 import { organizationRouter } from "~/server/routers/organization";
 import { projectRouter } from "~/server/routers/project";
 import { rootRouter } from "~/server/routers/root";
 import { teamRouter } from "~/server/routers/team";
 import { userRouter } from "~/server/routers/user";
 import { createTRPCRouter } from "~/server/trpc";
-import { notificationsRouter } from "~/server/routers/notifications";
 
 export const appRouter = createTRPCRouter({
   root: rootRouter,

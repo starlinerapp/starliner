@@ -20,15 +20,15 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import GitNode from "~/components/atoms/nodes/GitNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
+import EnvironmentNotificationListener from "~/components/organisms/notifications/EnvironmentNotificationListener";
+import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
 import getElkLayout from "~/service/reactflow/getElkLayout";
 import {
   buildEdgePairs,
   buildTargets,
   makeBaseNode,
 } from "~/service/reactflow/helpers";
-import EnvironmentNotificationListener from "~/components/organisms/notifications/EnvironmentNotificationListener";
 import { useTRPC } from "~/utils/trpc/react";
-import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;
@@ -241,7 +241,11 @@ export default function ArchitectureCanvas({
           maxZoom={1}
           fitViewOptions={{ maxZoom: 1 }}
         >
-          <Background gap={20} color="#84828E" variant={BackgroundVariant.Dots} />
+          <Background
+            gap={20}
+            color="#84828E"
+            variant={BackgroundVariant.Dots}
+          />
           <Controls />
         </ReactFlow>
       </div>

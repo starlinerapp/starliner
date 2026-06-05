@@ -8,11 +8,11 @@ import {
 } from "react-router";
 import { Cog, InboxStack, Servers } from "~/components/atoms/icons";
 import ExtendedSidebar from "~/components/organisms/extended-sidebar/ExtendedSidebar";
+import ClusterNotificationListener from "~/components/organisms/notifications/ClusterNotificationListener";
 import Sidebar from "~/components/organisms/sidebar/Sidebar";
 import { OrganizationProvider } from "~/contexts/OrganizationContext";
 import { auth } from "~/utils/auth/server";
 import { useTRPC } from "~/utils/trpc/react";
-import ClusterNotificationListener from "~/components/organisms/notifications/ClusterNotificationListener";
 import { caller } from "~/utils/trpc/server";
 import type { Route } from "./+types/layout";
 

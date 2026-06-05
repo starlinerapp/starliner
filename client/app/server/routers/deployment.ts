@@ -1,10 +1,10 @@
 import type { Readable } from "node:stream";
+import { TRPCError } from "@trpc/server";
+import { type AxiosResponse, isAxiosError } from "axios";
 import { z } from "zod";
 import { deploymentApiFactory } from "~/server/api/clients/server";
-import { protectedProcedure } from "~/server/trpc";
-import { type AxiosResponse, isAxiosError } from "axios";
-import { TRPCError } from "@trpc/server";
 import { cache } from "~/server/services/cache";
+import { protectedProcedure } from "~/server/trpc";
 
 const ingressPathSchema = z.object({
   path: z.string(),
@@ -107,14 +107,19 @@ export const deploymentRouter = {
       const userId = ctx.user?.id;
       const correlationId = (await cache.get(`user:${userId}`)) || "";
       return await deploymentApiFactory
-        .updateDeployFromGitRepository(userId, correlationId, input.deploymentId, {
-          environmentId: input.id,
-          port: input.port,
-          dockerfilePath: input.dockerfilePath,
-          projectRepositoryPath: input.projectRepositoryPath,
-          envs: input.envs,
-          args: input.args,
-        })
+        .updateDeployFromGitRepository(
+          userId,
+          correlationId,
+          input.deploymentId,
+          {
+            environmentId: input.id,
+            port: input.port,
+            dockerfilePath: input.dockerfilePath,
+            projectRepositoryPath: input.projectRepositoryPath,
+            envs: input.envs,
+            args: input.args,
+          },
+        )
         .then((res) => res.data);
     }),
   deployImage: protectedProcedure

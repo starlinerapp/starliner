@@ -11,6 +11,7 @@ type Notifier struct {
 	queue port.Queue
 }
 
+// TODO ask leon later how to fixit using port
 func NewNotifier(queue port.Queue) *Notifier {
 	return &Notifier{queue: queue}
 }

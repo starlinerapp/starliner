@@ -8,11 +8,11 @@ import {
   EnvironmentApiFactory,
   GithubApiFactory,
   GithubappApiFactory,
+  NotificationsApiFactory,
   OrganizationApiFactory,
   ProjectApiFactory,
   RootApiFactory,
   TeamApiFactory,
-  NotificationsApiFactory,
   UserApiFactory,
 } from "./generated";
 

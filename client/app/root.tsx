@@ -12,9 +12,9 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import * as ToastPrimitive from "@radix-ui/react-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TRPCReactProvider } from "~/utils/trpc/react";
-import * as ToastPrimitive from "@radix-ui/react-toast";
 
 function envScript(env: { SENTRY_DSN_CLIENT: string; ENVIRONMENT: string }) {
   return `window.ENV = ${JSON.stringify(env).replace(/</g, "\\u003c")};`;
