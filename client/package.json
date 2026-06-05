@@ -12,16 +12,15 @@
     "lint:fix": "biome check --write .",
     "test": "vitest",
     "test:run": "vitest run",
-    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons && npm run fmt",
-    "openapi:generate:server": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/clients/server/generated && npx biome format --write app/server/api/clients/server/generated",
-    "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated && rm /tmp/auth-openapi.json && npx biome format --write app/server/api/clients/auth/generated"
+    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons && npm run lint:fix",
+    "openapi:generate:server": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/clients/server/generated --global-property apiDocs=false,modelDocs=false && npm run lint:fix",
+    "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated --global-property apiDocs=false,modelDocs=false && rm /tmp/auth-openapi.json && npm run lint:fix"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-hover-card": "^1.1.15",
     "@radix-ui/react-popover": "^1.1.15",
-    "@radix-ui/react-toast": "^1.2.15",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-router/node": "^7.16.0",
     "@react-router/serve": "^7.16.0",
@@ -47,7 +46,6 @@
     "express": "^5.2.1",
     "framer-motion": "^12.23.22",
     "http-proxy": "^1.18.1",
-    "ioredis": "^5.11.1",
     "isbot": "^5.1.27",
     "lucide-react": "^0.577.0",
     "morgan": "^1.10.1",
