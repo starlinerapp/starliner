@@ -41,12 +41,21 @@ func (s *Subscriber) Subscribe(subject Subject, identifier string, durable strin
 				}
 			}()
 
-			cb(msg.Data)
-			close(done)
+			defer func() {
+				close(done)
+				if r := recover(); r != nil {
+					log.Printf("panic in message handler: %v", r)
+					if err := msg.Nak(); err != nil {
+						log.Printf("failed to nak message: %v", err)
+					}
+					return
+				}
+				if err := msg.Ack(); err != nil {
+					log.Printf("failed to ack message: %v", err)
+				}
+			}()
 
-			if err := msg.Ack(); err != nil {
-				log.Printf("failed to ack message: %v", err)
-			}
+			cb(msg.Data)
 		}()
 	},
 		nats.Durable(durable),
