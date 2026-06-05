@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { throttle } from "throttle-debounce";
 
 export default function useMouseLeave() {
@@ -7,7 +7,7 @@ export default function useMouseLeave() {
 
   const handleMouseMove = useRef(
     throttle(50, (e: MouseEvent) => {
-      if (!elementRef || !elementRef.current) return;
+      if (!elementRef?.current) return;
 
       const rect = elementRef.current.getBoundingClientRect();
 
@@ -29,32 +29,35 @@ export default function useMouseLeave() {
     window.addEventListener("mousemove", handleMouseMove);
   }).current;
 
-  const setRef = useCallback((node: HTMLElement | null) => {
-    if (elementRef && elementRef.current) {
-      elementRef.current.removeEventListener("mouseenter", handleMouseEnter);
-    }
+  const setRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (elementRef?.current) {
+        elementRef.current.removeEventListener("mouseenter", handleMouseEnter);
+      }
 
-    if (node !== null) {
-      node.addEventListener("mouseenter", handleMouseEnter);
+      if (node !== null) {
+        node.addEventListener("mouseenter", handleMouseEnter);
 
-      elementRef.current = node;
-    }
-  }, []);
+        elementRef.current = node;
+      }
+    },
+    [handleMouseEnter],
+  );
 
   useEffect(() => {
     if (mouseLeft) {
       window.removeEventListener("mousemove", handleMouseMove);
     }
-  }, [mouseLeft]);
+  }, [mouseLeft, handleMouseMove]);
 
   useEffect(() => {
     return () => {
-      if (elementRef && elementRef.current) {
+      if (elementRef?.current) {
         elementRef.current.removeEventListener("mouseenter", handleMouseEnter);
       }
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, []);
+  }, [handleMouseMove, handleMouseEnter]);
 
   return [mouseLeft, setRef, elementRef] as const;
 }

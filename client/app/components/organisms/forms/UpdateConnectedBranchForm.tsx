@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo } from "react";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import { useEffect, useMemo } from "react";
+import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
-import { useForm } from "react-hook-form";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface FormInput {
   connectedBranch: string;
@@ -70,7 +70,7 @@ export default function UpdateConnectedBranchForm() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex flex-col">
-          <p className="text-md font-bold">Connected Branch</p>
+          <p className="font-bold text-md">Connected Branch</p>
           <p className="text-mauve-11 text-xs">
             Changes made to this GitHub branch will be automatically redeployed.
           </p>
@@ -79,7 +79,7 @@ export default function UpdateConnectedBranchForm() {
           <Skeleton className="h-9.5 w-1/2" />
         ) : (
           <input
-            className="border-mauve-6 disabled:text-mauve-11 w-1/2 rounded-md border-1 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+            className="w-1/2 rounded-md border-1 border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:text-mauve-11"
             {...register("connectedBranch")}
           />
         )}

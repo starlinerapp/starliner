@@ -1,8 +1,8 @@
-import React, { useMemo } from "react";
-import DeploymentCard from "~/components/organisms/deployment-card/DeploymentCard";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
+import { useMemo } from "react";
 import { useParams } from "react-router";
+import DeploymentCard from "~/components/organisms/deployment-card/DeploymentCard";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function Builds() {
   const trpc = useTRPC();

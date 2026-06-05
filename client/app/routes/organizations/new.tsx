@@ -1,10 +1,9 @@
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
-import Button from "~/components/atoms/button/Button";
-import React from "react";
+import { useMutation } from "@tanstack/react-query";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { getAuthClient } from "~/utils/auth/client";
-import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "~/utils/trpc/react";
 
 interface NewOrganizationFormInput {
@@ -37,12 +36,13 @@ export default function NewOrganization() {
   return (
     <div className="flex w-125 flex-col gap-4">
       <button
-        className="hover:bg-gray-4 flex cursor-pointer items-center gap-0.5 self-end rounded-md px-2 py-0.5 text-sm font-light"
+        type="button"
+        className="flex cursor-pointer items-center gap-0.5 self-end rounded-md px-2 py-0.5 font-light text-sm hover:bg-gray-4"
         onClick={handleSignOutClicked}
       >
         Sign out <ArrowRight className="w-3" />
       </button>
-      <h1 className="text-xl font-medium">Create a New Organization</h1>
+      <h1 className="font-medium text-xl">Create a New Organization</h1>
       <p className="text-mauve-11 text-sm">
         Organizations represent the top level in your hierarchy. You&#39;ll be
         able to bundle a collection of teams within an organization as well as
@@ -54,7 +54,7 @@ export default function NewOrganization() {
             Organization Name
           </label>
           <input
-            className="border-mauve-6 rounded-md border-1 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+            className="rounded-md border-1 border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             type="text"
             placeholder="e.g. My Company"
             {...register("name")}

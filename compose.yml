@@ -9,7 +9,7 @@ services:
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=internal"
+      - "--providers.docker.network=shared"
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
@@ -30,7 +30,7 @@ services:
       - client
       - server-api
     networks:
-      - internal
+      - shared
 
   auth:
     build:
@@ -55,7 +55,7 @@ services:
       - ./auth:/app
       - node-modules-auth:/app/node_modules
     networks:
-      - internal
+      - shared
     labels:
       - traefik.enable=true
       - traefik.http.routers.auth.rule=Host(`auth.dev.starliner.app`)
@@ -84,7 +84,7 @@ services:
       - ./client:/app
       - node-modules-client:/app/node_modules
     networks:
-      - internal
+      - shared
     labels:
       - traefik.enable=true
       - traefik.http.routers.client.rule=Host(`dev.starliner.app`)
@@ -139,7 +139,7 @@ services:
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
     labels:
       - traefik.enable=true
       - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && PathPrefix(`/webhooks/`)
@@ -173,7 +173,7 @@ services:
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
 
   server-cluster:
     restart: unless-stopped
@@ -198,7 +198,7 @@ services:
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
 
   server-provisioner:
     restart: unless-stopped
@@ -226,7 +226,7 @@ services:
     volumes:
       - ./server:/app
     networks:
-      - internal
+      - shared
 
   db:
     restart: unless-stopped
@@ -247,7 +247,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
-      - internal
+      - shared
 
   auth-db:
     restart: unless-stopped
@@ -268,13 +268,16 @@ services:
     volumes:
       - auth-db-data:/var/lib/postgresql/data
     networks:
-      - internal
+      - shared
 
   nats:
     restart: unless-stopped
     build:
       context: .
       dockerfile: .docker/nats/Dockerfile
+    environment:
+      NATS_SYS_USER: ${NATS_SYS_USER:-sys}
+      NATS_SYS_PASSWORD: ${NATS_SYS_PASSWORD:-syspassword}
     ports:
       - "4222:4222"
       - "8222:8222"
@@ -282,7 +285,7 @@ services:
       - nats-data:/data/jetstream
     command: ["-c", "/etc/nats/nats.conf"]
     networks:
-      - internal
+      - shared
 
   nats-box:
     restart: unless-stopped
@@ -294,7 +297,7 @@ services:
     entrypoint: /bin/sh
     tty: true
     networks:
-      - internal
+      - shared
 
   master:
     build:
@@ -313,7 +316,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   volume1:
     build:
@@ -335,7 +338,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   volume2:
     build:
@@ -357,7 +360,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   filer:
     build:
@@ -381,7 +384,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   s3:
     build:
@@ -403,7 +406,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - internal
+      - shared
 
   buildkit:
     build:
@@ -415,7 +418,7 @@ services:
       - ./.docker/buildkit/buildkitd.toml:/etc/buildkit/buildkitd.toml:ro
       - buildkit-data:/var/lib/buildkit
     networks:
-      - internal
+      - shared
 
   redis:
     build:
@@ -433,7 +436,7 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - internal
+      - shared
 
   mailpit:
     image: axllent/mailpit:latest
@@ -446,7 +449,7 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
       MP_ENABLE_CHAOS: "true"
     networks:
-      - internal
+      - shared
 
 volumes:
   node-modules-client:
@@ -459,4 +462,5 @@ volumes:
   buildkit-data:
 
 networks:
-  internal:
+  shared:
+    name: shared

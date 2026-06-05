@@ -1,9 +1,9 @@
+import axios from "axios";
+import { serverEnv } from "~/env.server";
 import {
   Configuration,
   UsersApiFactory,
 } from "~/server/api/clients/auth/generated";
-import { serverEnv } from "~/env.server";
-import axios from "axios";
 
 const axiosInstance = axios.create();
 

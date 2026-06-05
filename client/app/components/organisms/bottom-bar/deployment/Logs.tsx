@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useSubscription } from "@trpc/tanstack-react-query";
+import { useEffect, useRef, useState } from "react";
+import { useTRPC } from "~/utils/trpc/react";
 import type {
   ResponseDatabaseDeployment,
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
 } from "../../../../server/api/clients/server/generated";
-import { useTRPC } from "~/utils/trpc/react";
-import { useSubscription } from "@trpc/tanstack-react-query";
 
 type Deployment =
   | ResponseGitDeployment
@@ -81,7 +81,7 @@ export default function Logs({ deployment }: LogsProps) {
           ref={logsScrollRef}
           className="h-full min-h-0 w-full overflow-y-auto"
         >
-          <pre className="text-mauve-11 w-full font-mono text-sm break-all whitespace-pre-wrap">
+          <pre className="w-full whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
             {logs.map((line, i) => (
               <span key={i} className="block">
                 {line}

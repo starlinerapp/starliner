@@ -3,9 +3,9 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import type { UserApplication } from "../../application/user";
 import type { AuthService } from "../../domain/port/auth";
-import { UserHandler } from "./handler/user";
-import { AuthHandler } from "./handler/auth";
 import { serverEnv } from "../../env.server";
+import { AuthHandler } from "./handler/auth";
+import { UserHandler } from "./handler/user";
 
 type AppDependencies = {
   userApplication: UserApplication;

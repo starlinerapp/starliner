@@ -1,11 +1,10 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router";
-import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
-import { useTRPC } from "~/utils/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router";
 import DeployFromGitForm, {
   type DeployFromGitFormInput,
 } from "~/components/organisms/forms/DeployFromGitForm";
+import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { useTRPC } from "~/utils/trpc/react";
 
 export default function UpdateGitDeployment() {
   const { slug, id, environment, deploymentId } = useParams<{

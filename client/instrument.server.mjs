@@ -1,5 +1,5 @@
-import * as Sentry from "@sentry/react-router";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import * as Sentry from "@sentry/react-router";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN_CLIENT,

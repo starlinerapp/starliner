@@ -1,6 +1,6 @@
-import React from "react";
-import { cn } from "~/utils/cn";
+import type React from "react";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { cn } from "~/utils/cn";
 
 interface CardProps {
   className?: string;
@@ -11,7 +11,7 @@ export function CardSkeleton({
 }: React.PropsWithChildren<CardProps>) {
   return (
     <Skeleton
-      className={cn("border-mauve-6 h-52 rounded-md border-1", className)}
+      className={cn("h-52 rounded-md border-1 border-mauve-6", className)}
     />
   );
 }

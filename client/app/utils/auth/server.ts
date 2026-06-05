@@ -1,5 +1,5 @@
-import { createAuthClient } from "better-auth/client";
 import type { IncomingHttpHeaders } from "node:http";
+import { createAuthClient } from "better-auth/client";
 import { serverEnv } from "~/env.server";
 
 const authBaseURL = `${serverEnv.AUTH_URL.replace(/\/$/, "")}/api/auth`;

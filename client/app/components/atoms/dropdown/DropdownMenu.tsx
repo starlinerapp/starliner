@@ -1,7 +1,7 @@
-import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { cn } from "~/utils/cn";
+import * as React from "react";
 import { ChevronRight } from "~/components/atoms/icons";
+import { cn } from "~/utils/cn";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -42,7 +42,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "border-gray-6 text-gray-12 z-50 overflow-hidden rounded-md border bg-white p-1 shadow-lg",
+      "z-50 overflow-hidden rounded-md border border-gray-6 bg-white p-1 text-gray-12 shadow-lg",
       className,
     )}
     {...props}
@@ -61,7 +61,7 @@ const DropdownMenuContent = React.forwardRef<
       sideOffset={sideOffset}
       align="start"
       className={cn(
-        "border-gray-6 text-mauve-12 z-50 overflow-hidden rounded-md border bg-white p-1 shadow-md",
+        "z-50 overflow-hidden rounded-md border border-gray-6 bg-white p-1 text-mauve-12 shadow-md",
         className,
       )}
       {...props}
@@ -79,7 +79,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "hover:bg-gray-3 relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none",
+      "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-gray-3",
       inset && "pl-8",
       className,
     )}
@@ -97,7 +97,7 @@ const DropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      "hover:bg-gray-3 cursor-pointer rounded-md px-2 py-1.5 text-xs font-medium",
+      "cursor-pointer rounded-md px-2 py-1.5 font-medium text-xs hover:bg-gray-3",
       inset && "pl-8",
       className,
     )}
@@ -112,7 +112,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn("bg-mauve-6 -mx-[5px] my-[5px] h-[1px]", className)}
+    className={cn("-mx-[5px] my-[5px] h-[1px] bg-mauve-6", className)}
     {...props}
   />
 ));
@@ -133,15 +133,15 @@ DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
 
 export {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuGroup,
-  DropdownMenuPortal,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 };

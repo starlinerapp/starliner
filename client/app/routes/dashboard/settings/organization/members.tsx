@@ -1,14 +1,14 @@
-import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/utils/trpc/react";
-import { useOrganizationContext } from "~/contexts/OrganizationContext";
-import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useState } from "react";
+import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
 import AddMemberDialog from "~/components/organisms/dialog/AddMemberDialog";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useTRPC } from "~/utils/trpc/react";
 
 interface MemberToRemove {
   userId: number;
@@ -72,14 +72,14 @@ export default function Members() {
         ]}
       />
       <div className="flex flex-col px-4 py-4">
-        <div className="border-mauve-6 overflow-hidden rounded-md border text-sm shadow-xs">
+        <div className="overflow-hidden rounded-md border border-mauve-6 text-sm shadow-xs">
           <table className="w-full border-collapse">
             <thead className="h-14">
-              <tr className="border-mauve-6 bg-gray-2 border-b">
-                <th className="text-mauve-12 w-1/2 px-4 py-3 text-left text-xs font-bold uppercase">
+              <tr className="border-mauve-6 border-b bg-gray-2">
+                <th className="w-1/2 px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
                   Member
                 </th>
-                <th className="text-mauve-12 w-1/2 px-4 py-3 text-left text-xs font-bold uppercase">
+                <th className="w-1/2 px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
                   Role
                 </th>
                 {organization.isOwner && (
@@ -125,7 +125,7 @@ export default function Members() {
                 <tr>
                   <td
                     colSpan={organization.isOwner ? 3 : 2}
-                    className="text-mauve-11 px-4 py-3 text-sm"
+                    className="px-4 py-3 text-mauve-11 text-sm"
                   >
                     No members yet.
                   </td>
@@ -144,7 +144,7 @@ export default function Members() {
                         />
 
                         <div className="flex flex-col">
-                          <span className="text-mauve-12 font-medium">
+                          <span className="font-medium text-mauve-12">
                             {member.name}
                           </span>
 
@@ -154,7 +154,7 @@ export default function Members() {
                         </div>
                       </div>
                     </td>
-                    <td className="text-mauve-11 px-4 py-3">
+                    <td className="px-4 py-3 text-mauve-11">
                       {member.is_owner ? "Owner" : "Member"}
                     </td>
                     {organization.isOwner && (
@@ -163,7 +163,7 @@ export default function Members() {
                           {!member.is_owner &&
                             member.id !== Number(user?.user_id) && (
                               <Button
-                                className="text-mauve-12 w-20 text-xs"
+                                className="w-20 text-mauve-12 text-xs"
                                 intent="secondary"
                                 disabled={removeMemberMutation.isPending}
                                 onClick={() =>
@@ -210,7 +210,7 @@ export default function Members() {
               <h1>Remove Member</h1>
               <p className="text-mauve-11 text-sm">
                 Are you sure you want to remove{" "}
-                <span className="text-mauve-12 font-medium">
+                <span className="font-medium text-mauve-12">
                   {memberToRemove?.name}
                 </span>{" "}
                 from this organization? They will lose access to all

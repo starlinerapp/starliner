@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import useMouseLeave from "~/hooks/useMouseLeave";
+import { useEffect, useState } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/atoms/tooltip/Tooltip";
+import useMouseLeave from "~/hooks/useMouseLeave";
 import { cn } from "~/utils/cn";
 
 interface CopyToClipboardProps {
@@ -45,20 +45,21 @@ const CopyToClipboard = ({
     <TooltipProvider>
       <Tooltip open={open} onOpenChange={setOpen} delayDuration={300}>
         <TooltipTrigger ref={ref}>
-          <p
+          <button
+            type="button"
             onClick={async (e) => {
               e.stopPropagation();
               e.preventDefault();
               await handleCopy();
             }}
             className={cn(
-              "hover:bg-gray-4 flex cursor-pointer flex-row gap-1 rounded-md px-2 align-middle",
+              "flex cursor-pointer flex-row gap-1 rounded-md px-2 align-middle hover:bg-gray-4",
               masked && "font-mono",
               className,
             )}
           >
             {masked ? "•••••" : text}
-          </p>
+          </button>
         </TooltipTrigger>
         <TooltipContent>
           <p>{copied ? "Copied" : "Click to copy"}</p>

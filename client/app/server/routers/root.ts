@@ -1,5 +1,5 @@
-import { protectedProcedure } from "~/server/trpc";
 import { rootApiFactory } from "~/server/api/clients/server";
+import { protectedProcedure } from "~/server/trpc";
 
 export const rootRouter = {
   getRoot: protectedProcedure.query(async ({ ctx }) => {

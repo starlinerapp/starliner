@@ -1,10 +1,10 @@
 // Defines bridge between tRPC server and client.
 
-import type { LoaderFunctionArgs } from "react-router";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
-import { getQueryClient } from "~/utils/trpc/react";
+import type { LoaderFunctionArgs } from "react-router";
 import { appRouter } from "~/server/main";
 import { createCallerFactory, createTRPCContext } from "~/server/trpc";
+import { getQueryClient } from "~/utils/trpc/react";
 
 const createContext = (opts: { headers: Headers }) => {
   return createTRPCContext({

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
 
 export interface ImageFormInput {
@@ -58,7 +59,7 @@ export default function DeployImageForm({
   const volumeSizeInput = watch("volumeSizeMiB", null);
   const volumeMountPathInput = watch("volumeMountPath", null);
 
-  const hasVolumeSize = !!volumeSizeInput && !isNaN(volumeSizeInput);
+  const hasVolumeSize = !!volumeSizeInput && !Number.isNaN(volumeSizeInput);
   const hasVolumeMountPath = !!volumeMountPathInput?.trim();
   const isVolumeIncomplete = hasVolumeSize !== hasVolumeMountPath;
 
@@ -67,7 +68,7 @@ export default function DeployImageForm({
       (e) => e.name.trim() !== "" || e.value.trim() !== "",
     );
 
-    if (!data.volumeSizeMiB || isNaN(data.volumeSizeMiB)) {
+    if (!data.volumeSizeMiB || Number.isNaN(data.volumeSizeMiB)) {
       data.volumeSizeMiB = null;
     }
     if (!data.volumeMountPath?.trim()) {
@@ -115,7 +116,7 @@ export default function DeployImageForm({
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
       <div className="flex flex-col gap-1">
         <p>Docker Hub</p>
-        <p className="text-mauve-11 truncate text-sm">
+        <p className="truncate text-mauve-11 text-sm">
           Docker Hub Container Image Library
         </p>
       </div>
@@ -129,7 +130,7 @@ export default function DeployImageForm({
           <p className="text-sm">Service Name</p>
           <div className="flex gap-2">
             <input
-              className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
+              className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 disabled:text-mauve-10 disabled:hover:cursor-not-allowed"
               type="text"
               placeholder="Name*"
               disabled={!!defaultValues?.serviceName}
@@ -143,14 +144,14 @@ export default function DeployImageForm({
           <p className="text-sm">Image</p>
           <div className="flex items-center gap-2">
             <input
-              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
               type="text"
               placeholder="Name*"
               {...register("imageName", { required: true })}
             />
             {":"}
             <input
-              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-24 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="w-full min-w-24 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
               type="text"
               placeholder="Tag*"
               {...register("tag", { required: true })}
@@ -161,7 +162,7 @@ export default function DeployImageForm({
           <p className="text-sm">Port</p>
           <div className="flex gap-2">
             <input
-              className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
               type="number"
               placeholder="Port*"
               {...register("port", { required: true, valueAsNumber: true })}
@@ -173,14 +174,14 @@ export default function DeployImageForm({
           {fields.map((field, index) => (
             <div key={field.id} className="flex gap-2">
               <input
-                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                 type="text"
                 placeholder="Name*"
                 onPaste={(e) => handleEnvPaste(index, e)}
                 {...register(`envs.${index}.name`)}
               />
               <input
-                className="border-mauve-6 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+                className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
                 type="text"
                 placeholder="Value*"
                 {...register(`envs.${index}.value`)}
@@ -206,7 +207,7 @@ export default function DeployImageForm({
             <div className="flex flex-col gap-y-2">
               <div className="flex items-center gap-2">
                 <input
-                  className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
+                  className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 disabled:text-mauve-10 disabled:hover:cursor-not-allowed"
                   type="number"
                   placeholder="Size*"
                   disabled={!!defaultValues?.volumeSizeMiB}
@@ -219,7 +220,7 @@ export default function DeployImageForm({
               </div>
 
               <input
-                className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
+                className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 disabled:text-mauve-10 disabled:hover:cursor-not-allowed"
                 type="text"
                 placeholder="Mount Path*"
                 disabled={!!defaultValues?.volumeMountPath}

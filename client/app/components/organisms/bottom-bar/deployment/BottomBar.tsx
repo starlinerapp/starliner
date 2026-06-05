@@ -1,13 +1,13 @@
-import React, { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
+import TerminalClient from "~/components/atoms/terminal/Terminal.client";
+import Logs from "~/components/organisms/bottom-bar/deployment/Logs";
+import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
 import type {
   ResponseDatabaseDeployment,
   ResponseGitDeployment,
   ResponseImageDeployment,
   ResponseIngressDeployment,
 } from "~/server/api/clients/server/generated";
-import NavigationBar from "~/components/organisms/navigation-bar/NavigationBar";
-import Logs from "~/components/organisms/bottom-bar/deployment/Logs";
-import TerminalClient from "~/components/atoms/terminal/Terminal.client";
 
 type Deployment =
   | ResponseGitDeployment
@@ -51,7 +51,7 @@ function BottomBarComponent({ deployment, showTerminal }: BottomBarProps) {
           />
         </div>
       ) : (
-        <p className="text-mauve-11 p-4">
+        <p className="p-4 text-mauve-11">
           No deployment selected. Select one to connect to the terminal.
         </p>
       )}

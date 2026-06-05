@@ -2,10 +2,12 @@ name: Client Lint And Test
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 jobs:
   client-lint-and-test:
+    if: '! github.event.pull_request.draft'
     runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
@@ -21,12 +23,8 @@ jobs:
         run: npm install
         working-directory: client
 
-      - name: Run ESLint
-        run: npm run lint
-        working-directory: client
-
-      - name: Run format check
-        run: npx prettier --check "app/**/*.{ts,tsx}"
+      - name: Run Biome
+        run: npx biome ci .
         working-directory: client
 
       - name: Run type check

@@ -1,8 +1,8 @@
-import Button from "~/components/atoms/button/Button";
-import { ArrowRight } from "~/components/atoms/icons";
-import React, { useState } from "react";
+import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight } from "~/components/atoms/icons";
 
 export interface DatabaseFormInput {
   serviceName: string;
@@ -43,7 +43,7 @@ export default function DeployDatabaseForm({
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
       <div className="flex flex-col gap-1">
         <p>PostgreSQL</p>
-        <p className="text-mauve-11 truncate text-sm">
+        <p className="truncate text-mauve-11 text-sm">
           Powerful, open source relational database
         </p>
       </div>
@@ -56,7 +56,7 @@ export default function DeployDatabaseForm({
         <p className="text-sm">Service Name</p>
         <div className="flex gap-2">
           <input
-            className="border-mauve-6 disabled:text-mauve-10 placeholder:text-mauve-11 bg-gray-2 w-full min-w-52 rounded-md border-1 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:hover:cursor-not-allowed"
+            className="w-full min-w-52 rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11 disabled:text-mauve-10 disabled:hover:cursor-not-allowed"
             type="text"
             placeholder="Name*"
             disabled={isExistingDeployment}

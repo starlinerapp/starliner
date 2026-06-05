@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { NavLink, useSearchParams } from "react-router";
-import Button from "~/components/atoms/button/Button";
-import { getAuthClient } from "~/utils/auth/client";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Button from "~/components/atoms/button/Button";
+import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
+import { getAuthClient } from "~/utils/auth/client";
 
 interface ForgotFormInput {
   email: string;
@@ -45,17 +45,17 @@ export default function ForgotPassword() {
 
   return (
     <div className="flex w-[500px] flex-col gap-4">
-      <p className="flex items-center justify-end gap-1.5 py-0.5 text-sm font-light">
+      <p className="flex items-center justify-end gap-1.5 py-0.5 font-light text-sm">
         Remember your password?
         <NavLink
           to={loginLink}
-          className="hover:bg-gray-4 flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline"
+          className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 underline hover:bg-gray-4"
         >
           Sign in <ArrowRight className="w-3" />
         </NavLink>
       </p>
-      <h1 className="text-xl font-medium">Reset your password</h1>
-      <p className="text-mauve-11 -mt-1 text-sm">
+      <h1 className="font-medium text-xl">Reset your password</h1>
+      <p className="-mt-1 text-mauve-11 text-sm">
         Enter your account email and we’ll send you a link to set a new
         password.
       </p>
@@ -72,7 +72,7 @@ export default function ForgotPassword() {
               Email
             </label>
             <input
-              className="border-mauve-6 rounded-md border-1 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
+              className="rounded-md border-1 border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
               type="email"
               id="email"
               autoComplete="email"
