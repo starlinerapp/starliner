@@ -101,9 +101,14 @@ export function RepositoryAccess({
       },
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: trpc.team.getTeamRepositories.queryKey(),
-          });
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: trpc.team.getTeamRepositories.queryKey(),
+            }),
+            queryClient.invalidateQueries({
+              queryKey: trpc.github.getRepositories.queryKey(),
+            }),
+          ]);
 
           setShowAssignDialog(false);
         },
