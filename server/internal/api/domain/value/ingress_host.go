@@ -8,11 +8,7 @@ import (
 
 var ErrInvalidIngressHostPrefix = errors.New("invalid ingress host prefix")
 
-var (
-	ingressHostPrefixPattern      = regexp.MustCompile(`^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$`)
-	ingressHostInvalidCharPattern = regexp.MustCompile(`[^a-z0-9-]+`)
-	ingressHostDashPattern        = regexp.MustCompile(`-+`)
-)
+var ingressHostPrefixPattern = regexp.MustCompile(`^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$`)
 
 type IngressHostInput struct {
 	Prefix string
@@ -20,16 +16,11 @@ type IngressHostInput struct {
 }
 
 func NormalizeIngressHostPrefix(prefix string) string {
-	normalized := strings.ToLower(strings.TrimSpace(prefix))
-	normalized = ingressHostInvalidCharPattern.ReplaceAllString(normalized, "-")
-	normalized = ingressHostDashPattern.ReplaceAllString(normalized, "-")
-	normalized = strings.Trim(normalized, "-")
-	return normalized
+	return strings.ToLower(strings.TrimSpace(prefix))
 }
 
 func IsValidIngressHostPrefix(prefix string) bool {
-	normalized := NormalizeIngressHostPrefix(prefix)
-	return normalized != "" && ingressHostPrefixPattern.MatchString(normalized)
+	return ingressHostPrefixPattern.MatchString(NormalizeIngressHostPrefix(prefix))
 }
 
 func GetIngressHostSuffix(
@@ -63,19 +54,6 @@ func BuildFullIngressHost(
 		serverEnvironment,
 		deploymentDomain,
 	)
-}
-
-func ParseIngressHostPrefix(
-	host string,
-	organizationSlug string,
-	serverEnvironment string,
-	deploymentDomain string,
-) string {
-	suffix := GetIngressHostSuffix(organizationSlug, serverEnvironment, deploymentDomain)
-	if strings.HasSuffix(host, suffix) {
-		return host[:len(host)-len(suffix)]
-	}
-	return host
 }
 
 func BuildIngressHostsFromPrefixes(

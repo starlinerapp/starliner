@@ -1,14 +1,5 @@
 const PREFIX_PATTERN = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
-function normalizePrefix(input: string): string {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export function getIngressHostSuffix(
   organizationSlug: string,
   deploymentEnvironment: string,
@@ -27,8 +18,7 @@ export function getIngressHostSuffix(
 }
 
 export function isValidIngressHostPrefix(prefix: string): boolean {
-  const normalized = normalizePrefix(prefix);
-  return normalized !== "" && PREFIX_PATTERN.test(normalized);
+  return PREFIX_PATTERN.test(prefix.trim().toLowerCase());
 }
 
 export function parseIngressHostPrefix(
