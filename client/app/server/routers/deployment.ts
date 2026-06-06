@@ -250,8 +250,9 @@ export const deploymentRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
       return await deploymentApiFactory
-        .updateDatabaseDeployment(userId, input.deploymentId, {
+        .updateDatabaseDeployment(userId, correlationId, input.deploymentId, {
           environmentId: input.id,
         })
         .then((res) => res.data);

@@ -7,13 +7,13 @@ import {
 import { SuccessToast } from "~/components/atoms/toast/SuccessToast";
 import { useTRPC } from "~/utils/trpc/react";
 
-interface ClusterNotificationListenerProps {
+interface GlobalNotificationListenerProps {
   organizationId: number;
 }
 
-export default function ClusterNotificationListener({
+export default function GlobalNotificationListener({
   organizationId,
-}: ClusterNotificationListenerProps) {
+}: GlobalNotificationListenerProps) {
   const trpc = useTRPC();
   const successRef = useRef<ToastHandle>(null);
   const errorRef = useRef<ToastHandle>(null);

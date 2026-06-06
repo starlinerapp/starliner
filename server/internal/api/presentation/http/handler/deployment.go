@@ -178,6 +178,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 // @Tags deployment
 // @ID updateDatabaseDeployment
 // @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
 // @Param deploymentId path int true "Deployment ID"
 // @Param data body request.UpdateDatabase true "Update Database"
 // @Product JSON
@@ -185,6 +186,7 @@ func (dh *DeploymentHandler) DeployDatabase(c *gin.Context) {
 // @Router /deployments/databases/{deploymentId} [put]
 func (dh *DeploymentHandler) UpdateDatabaseDeployment(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationID := c.GetHeader("X-Correlation-ID")
 	deploymentId, err := strconv.ParseInt(c.Param("deploymentId"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
@@ -197,10 +199,9 @@ func (dh *DeploymentHandler) UpdateDatabaseDeployment(c *gin.Context) {
 		return
 	}
 
-	//TODO add correlation id
 	newDeploymentId, err := dh.deploymentApplication.UpdateDatabaseDeployment(
 		c.Request.Context(),
-		"",
+		correlationID,
 		currentUser.Id,
 		deploymentId,
 		body.EnvironmentId,

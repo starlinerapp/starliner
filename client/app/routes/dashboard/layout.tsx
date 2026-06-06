@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { Cog, InboxStack, Servers } from "~/components/atoms/icons";
 import ExtendedSidebar from "~/components/organisms/extended-sidebar/ExtendedSidebar";
-import ClusterNotificationListener from "~/components/organisms/notifications/ClusterNotificationListener";
+import GlobalNotificationListener from "~/components/organisms/notifications/GlobalNotificationListener";
 import Sidebar from "~/components/organisms/sidebar/Sidebar";
 import { OrganizationProvider } from "~/contexts/OrganizationContext";
 import { auth } from "~/utils/auth/server";
@@ -191,7 +191,7 @@ export default function Layout() {
           <Outlet />
         </ExtendedSidebar>
       </Sidebar>
-      <ClusterNotificationListener organizationId={organization.id} />
+      <GlobalNotificationListener organizationId={organization.id} />
     </OrganizationProvider>
   );
 }

@@ -346,6 +346,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "Deployment ID",
                         "name": "deploymentId",

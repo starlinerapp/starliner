@@ -20,7 +20,6 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import GitNode from "~/components/atoms/nodes/GitNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
-import EnvironmentNotificationListener from "~/components/organisms/notifications/EnvironmentNotificationListener";
 import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
 import getElkLayout from "~/service/reactflow/getElkLayout";
 import {
@@ -219,36 +218,29 @@ export default function ArchitectureCanvas({
   }, [nodeDataMap]);
 
   return (
-    <>
-      <EnvironmentNotificationListener environmentId={environment?.id} />
-      <div className="h-full w-full">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeOrigin={[0, 0.5]}
-          nodeTypes={nodeTypes}
-          nodesDraggable={false}
-          onNodesChange={onNodesChange}
-          onSelectionChange={onSelectionChange}
-          onConnect={onConnect}
-          onNodeClick={(_, node) => {
-            if (node.type) {
-              handleNodeSelected(node.type, node.id);
-            }
-          }}
-          onPaneClick={() => handlePlaneClick()}
-          proOptions={{ hideAttribution: true }}
-          maxZoom={1}
-          fitViewOptions={{ maxZoom: 1 }}
-        >
-          <Background
-            gap={20}
-            color="#84828E"
-            variant={BackgroundVariant.Dots}
-          />
-          <Controls />
-        </ReactFlow>
-      </div>
-    </>
+    <div className="h-full w-full">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeOrigin={[0, 0.5]}
+        nodeTypes={nodeTypes}
+        nodesDraggable={false}
+        onNodesChange={onNodesChange}
+        onSelectionChange={onSelectionChange}
+        onConnect={onConnect}
+        onNodeClick={(_, node) => {
+          if (node.type) {
+            handleNodeSelected(node.type, node.id);
+          }
+        }}
+        onPaneClick={() => handlePlaneClick()}
+        proOptions={{ hideAttribution: true }}
+        maxZoom={1}
+        fitViewOptions={{ maxZoom: 1 }}
+      >
+        <Background gap={20} color="#84828E" variant={BackgroundVariant.Dots} />
+        <Controls />
+      </ReactFlow>
+    </div>
   );
 }

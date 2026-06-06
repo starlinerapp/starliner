@@ -19,6 +19,7 @@ import (
 	"starliner.app/internal/api/presentation/scheduler"
 	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
+	"starliner.app/internal/core/infrastructure/redis"
 	"starliner.app/internal/core/infrastructure/s3"
 	"starliner.app/internal/core/infrastructure/sentry"
 )
@@ -30,6 +31,7 @@ func main() {
 		queue.Module,
 		pubsub.Module,
 		s3.Module,
+		redis.Module,
 		crypto.Module,
 		grpc.Module,
 		email.Module,

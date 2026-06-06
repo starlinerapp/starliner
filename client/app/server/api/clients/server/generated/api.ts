@@ -3122,6 +3122,7 @@ export const DeploymentApiAxiosParamCreator = function (
      *
      * @summary Update database deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateDatabase} data Update Database
      * @param {*} [options] Override http request option.
@@ -3129,12 +3130,19 @@ export const DeploymentApiAxiosParamCreator = function (
      */
     updateDatabaseDeployment: async (
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateDatabase,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
       assertParamExists("updateDatabaseDeployment", "xUserID", xUserID);
+      // verify required parameter 'xCorrelationID' is not null or undefined
+      assertParamExists(
+        "updateDatabaseDeployment",
+        "xCorrelationID",
+        xCorrelationID,
+      );
       // verify required parameter 'deploymentId' is not null or undefined
       assertParamExists(
         "updateDatabaseDeployment",
@@ -3166,6 +3174,9 @@ export const DeploymentApiAxiosParamCreator = function (
 
       if (xUserID != null) {
         localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      if (xCorrelationID != null) {
+        localVarHeaderParameter["X-Correlation-ID"] = String(xCorrelationID);
       }
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions =
@@ -3684,6 +3695,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      *
      * @summary Update database deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateDatabase} data Update Database
      * @param {*} [options] Override http request option.
@@ -3691,6 +3703,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
      */
     async updateDatabaseDeployment(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateDatabase,
       options?: RawAxiosRequestConfig,
@@ -3703,6 +3716,7 @@ export const DeploymentApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.updateDatabaseDeployment(
           xUserID,
+          xCorrelationID,
           deploymentId,
           data,
           options,
@@ -3996,6 +4010,7 @@ export const DeploymentApiFactory = function (
      *
      * @summary Update database deployment
      * @param {string} xUserID User ID
+     * @param {string} xCorrelationID Correlation ID
      * @param {number} deploymentId Deployment ID
      * @param {RequestUpdateDatabase} data Update Database
      * @param {*} [options] Override http request option.
@@ -4003,12 +4018,19 @@ export const DeploymentApiFactory = function (
      */
     updateDatabaseDeployment(
       xUserID: string,
+      xCorrelationID: string,
       deploymentId: number,
       data: RequestUpdateDatabase,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<ResponseUpdateGitDeploymentResponse> {
       return localVarFp
-        .updateDatabaseDeployment(xUserID, deploymentId, data, options)
+        .updateDatabaseDeployment(
+          xUserID,
+          xCorrelationID,
+          deploymentId,
+          data,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
@@ -4249,6 +4271,7 @@ export class DeploymentApi extends BaseAPI {
    *
    * @summary Update database deployment
    * @param {string} xUserID User ID
+   * @param {string} xCorrelationID Correlation ID
    * @param {number} deploymentId Deployment ID
    * @param {RequestUpdateDatabase} data Update Database
    * @param {*} [options] Override http request option.
@@ -4257,12 +4280,19 @@ export class DeploymentApi extends BaseAPI {
    */
   public updateDatabaseDeployment(
     xUserID: string,
+    xCorrelationID: string,
     deploymentId: number,
     data: RequestUpdateDatabase,
     options?: RawAxiosRequestConfig,
   ) {
     return DeploymentApiFp(this.configuration)
-      .updateDatabaseDeployment(xUserID, deploymentId, data, options)
+      .updateDatabaseDeployment(
+        xUserID,
+        xCorrelationID,
+        deploymentId,
+        data,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 

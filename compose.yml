@@ -144,6 +144,8 @@ services:
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
       SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
     networks:

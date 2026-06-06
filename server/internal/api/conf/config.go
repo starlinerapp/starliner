@@ -37,6 +37,8 @@ type Config struct {
 	ImageRegistryPassword   string `mapstructure:"IMAGE_REGISTRY_PASSWORD" validate:"required"`
 	SentryDSN               string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment             string `mapstructure:"ENVIRONMENT"`
+	RedisAddr               string `mapstructure:"REDIS_ADDR" validate:"required"`
+	RedisPassword           string `mapstructure:"REDIS_PASSWORD" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -96,3 +98,12 @@ func (c *Config) GetSentryDSN() string {
 func (c *Config) GetEnvironment() string {
 	return c.Environment
 }
+
+func (c *Config) GetRedisAddr() string {
+	return c.RedisAddr
+}
+
+func (c *Config) GetRedisPassword() string {
+	return c.RedisPassword
+}
+
