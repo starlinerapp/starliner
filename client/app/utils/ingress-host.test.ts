@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildFullIngressHost,
   getIngressHostSuffix,
   isValidIngressHostPrefix,
   parseIngressHostPrefix,
@@ -22,14 +21,8 @@ describe("ingress-host", () => {
     );
   });
 
-  it("builds and parses full hostnames", () => {
-    const full = buildFullIngressHost(
-      "api",
-      orgSlug,
-      "staging",
-      deploymentDomain,
-    );
-    expect(full).toBe("api.acme.staging.starliner.cloud");
+  it("parses prefixes from full hostnames", () => {
+    const full = "api.acme.staging.starliner.cloud";
     expect(
       parseIngressHostPrefix(full, orgSlug, "staging", deploymentDomain),
     ).toBe("api");

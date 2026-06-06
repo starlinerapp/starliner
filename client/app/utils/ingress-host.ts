@@ -31,15 +31,6 @@ export function isValidIngressHostPrefix(prefix: string): boolean {
   return normalized !== "" && PREFIX_PATTERN.test(normalized);
 }
 
-export function buildFullIngressHost(
-  prefix: string,
-  organizationSlug: string,
-  deploymentEnvironment: string,
-  deploymentDomain: string,
-): string {
-  return `${normalizePrefix(prefix)}${getIngressHostSuffix(organizationSlug, deploymentEnvironment, deploymentDomain)}`;
-}
-
 export function parseIngressHostPrefix(
   host: string,
   organizationSlug: string,
