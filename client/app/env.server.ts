@@ -7,7 +7,7 @@ const envSchema = z.object({
   SERVER_BASIC_AUTH_USER: z.string(),
   SERVER_BASIC_AUTH_PASSWORD: z.string(),
   DEPLOYMENT_DOMAIN: z.string(),
-  ENVIRONMENT: z.string().default(""),
+  ENVIRONMENT: z.string(),
 });
 
 function createServerEnv() {
