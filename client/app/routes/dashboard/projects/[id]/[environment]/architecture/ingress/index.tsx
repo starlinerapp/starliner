@@ -3,8 +3,8 @@ import { useLoaderData } from "react-router";
 import DeployIngressForm, {
   type IngressFormInput,
 } from "~/components/organisms/forms/DeployIngressForm";
-import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { serverEnv } from "~/env.server";
+import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { useTRPC } from "~/utils/trpc/react";
 
 export function loader() {
