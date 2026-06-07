@@ -85,12 +85,12 @@ func (ds *DeploymentService) getIngressHostSuffix(
 }
 
 func (ds *DeploymentService) buildFullIngressHost(
-	prefix string,
+	prefix value.IngressHostPrefix,
 	organizationSlug string,
 	serverEnvironment string,
 	deploymentDomain string,
 ) string {
-	return value.NormalizeIngressHostPrefix(prefix) + ds.getIngressHostSuffix(
+	return string(prefix) + ds.getIngressHostSuffix(
 		organizationSlug,
 		serverEnvironment,
 		deploymentDomain,
@@ -110,12 +110,13 @@ func (ds *DeploymentService) BuildIngressHosts(
 			continue
 		}
 
-		if !value.IsValidIngressHostPrefix(input.Prefix) {
-			return nil, value.ErrInvalidIngressHostPrefix
+		prefix, err := value.NewIngressHostPrefix(input.Prefix)
+		if err != nil {
+			return nil, err
 		}
 
 		out = append(out, &value.IngressHost{
-			Host:  ds.buildFullIngressHost(input.Prefix, organizationSlug, serverEnvironment, deploymentDomain),
+			Host:  ds.buildFullIngressHost(prefix, organizationSlug, serverEnvironment, deploymentDomain),
 			Paths: input.Paths,
 		})
 	}

@@ -741,7 +741,7 @@ func (da *DeploymentApplication) DeployIngress(
 		return err
 	}
 
-	hosts, err := da.buildIngressHosts(inputs, organization.Slug)
+	hosts, err := da.deploymentService.BuildIngressHosts(inputs, organization.Slug, da.config.GetEnvironment(), da.config.GetDeploymentDomain())
 	if err != nil {
 		return err
 	}
@@ -855,7 +855,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		return 0, err
 	}
 
-	hosts, err := da.buildIngressHosts(inputs, organization.Slug)
+	hosts, err := da.deploymentService.BuildIngressHosts(inputs, organization.Slug, da.config.GetEnvironment(), da.config.GetDeploymentDomain())
 	if err != nil {
 		return 0, err
 	}
@@ -975,17 +975,6 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	return ingressDeployment.Id, nil
 }
 
-func (da *DeploymentApplication) buildIngressHosts(
-	inputs []*value.IngressHostInput,
-	organizationSlug string,
-) ([]*value.IngressHost, error) {
-	return da.deploymentService.BuildIngressHosts(
-		inputs,
-		organizationSlug,
-		da.config.GetEnvironment(),
-		da.config.GetDeploymentDomain(),
-	)
-}
 
 func (da *DeploymentApplication) redeployIngressDeployment(
 	ctx context.Context,
