@@ -20,7 +20,7 @@ export default defineConfig((config) => ({
   ],
 
   server: {
-    allowedHosts: [process.env.DOMAIN ?? "dev.starliner.app", "client"],
+    allowedHosts: ["dev.starliner.app", "client"],
   },
 
   optimizeDeps: {

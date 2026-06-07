@@ -979,7 +979,7 @@ func (da *DeploymentApplication) buildIngressHosts(
 	inputs []*value.IngressHostInput,
 	organizationSlug string,
 ) ([]*value.IngressHost, error) {
-	return value.BuildIngressHostsFromPrefixes(
+	return da.deploymentService.BuildIngressHosts(
 		inputs,
 		organizationSlug,
 		da.config.GetEnvironment(),

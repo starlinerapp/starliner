@@ -4,17 +4,13 @@ import DeployIngressForm, {
   type IngressFormInput,
 } from "~/components/organisms/forms/DeployIngressForm";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
+import { serverEnv } from "~/env.server";
 import { useTRPC } from "~/utils/trpc/react";
 
 export function loader() {
-  const deploymentDomain = process.env.DEPLOYMENT_DOMAIN;
-  if (!deploymentDomain) {
-    throw new Error("DEPLOYMENT_DOMAIN is not set");
-  }
-
   return {
-    deploymentEnvironment: process.env.ENVIRONMENT ?? "",
-    deploymentDomain,
+    deploymentEnvironment: serverEnv.ENVIRONMENT,
+    deploymentDomain: serverEnv.DEPLOYMENT_DOMAIN,
   };
 }
 
