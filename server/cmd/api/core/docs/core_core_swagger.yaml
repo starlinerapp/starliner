@@ -191,15 +191,15 @@ definitions:
     type: object
   request.IngressHost:
     properties:
-      host:
-        type: string
       paths:
         items:
           $ref: '#/definitions/request.IngressPath'
         type: array
+      prefix:
+        type: string
     required:
-    - host
     - paths
+    - prefix
     type: object
   request.IngressPath:
     properties:

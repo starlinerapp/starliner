@@ -2477,18 +2477,18 @@ const docTemplatecoreCore = `{
         "request.IngressHost": {
             "type": "object",
             "required": [
-                "host",
-                "paths"
+                "paths",
+                "prefix"
             ],
             "properties": {
-                "host": {
-                    "type": "string"
-                },
                 "paths": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/request.IngressPath"
                     }
+                },
+                "prefix": {
+                    "type": "string"
                 }
             }
         },
