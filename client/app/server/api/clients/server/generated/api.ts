@@ -406,16 +406,16 @@ export interface RequestEnvVar {
 export interface RequestIngressHost {
   /**
    *
-   * @type {string}
-   * @memberof RequestIngressHost
-   */
-  host: string;
-  /**
-   *
    * @type {Array<RequestIngressPath>}
    * @memberof RequestIngressHost
    */
   paths: Array<RequestIngressPath>;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressHost
+   */
+  prefix: string;
 }
 /**
  *

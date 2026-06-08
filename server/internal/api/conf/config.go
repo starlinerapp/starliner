@@ -36,6 +36,7 @@ type Config struct {
 	ImageRegistryPassword   string `mapstructure:"IMAGE_REGISTRY_PASSWORD" validate:"required"`
 	SentryDSN               string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment             string `mapstructure:"ENVIRONMENT"`
+	DeploymentDomain        string `mapstructure:"DEPLOYMENT_DOMAIN" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -94,4 +95,8 @@ func (c *Config) GetSentryDSN() string {
 
 func (c *Config) GetEnvironment() string {
 	return c.Environment
+}
+
+func (c *Config) GetDeploymentDomain() string {
+	return c.DeploymentDomain
 }
