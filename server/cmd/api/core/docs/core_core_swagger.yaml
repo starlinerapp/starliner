@@ -870,12 +870,20 @@ definitions:
         type: string
       serverType:
         type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/response.ClusterStatus'
+        enum:
+        - pending
+        - running
+        - deleted
       teamId:
         type: integer
     required:
     - clusterId
     - clusterName
     - serverType
+    - status
     - teamId
     type: object
   response.TeamRepo:

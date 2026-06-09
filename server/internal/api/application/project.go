@@ -41,6 +41,10 @@ func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, cl
 		return nil, err
 	}
 
+	if err := pa.teamService.ValidateClusterReady(ctx, teamId, clusterId); err != nil {
+		return nil, err
+	}
+
 	namespace, err := pa.normalizerService.FormatToDNS1123(name + "-" + value.EnvironmentProductionName)
 	if err != nil {
 		return nil, err

@@ -3459,6 +3459,7 @@ const docTemplatecoreCore = `{
                 "clusterId",
                 "clusterName",
                 "serverType",
+                "status",
                 "teamId"
             ],
             "properties": {
@@ -3470,6 +3471,18 @@ const docTemplatecoreCore = `{
                 },
                 "serverType": {
                     "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "running",
+                        "deleted"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.ClusterStatus"
+                        }
+                    ]
                 },
                 "teamId": {
                     "type": "integer"

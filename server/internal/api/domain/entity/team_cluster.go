@@ -5,4 +5,5 @@ type TeamCluster struct {
 	ClusterId   int64
 	ClusterName string
 	ServerType  string
+	Status      ClusterStatus
 }

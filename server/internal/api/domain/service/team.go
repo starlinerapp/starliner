@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
+
+	"starliner.app/internal/api/domain/entity"
 	_interface "starliner.app/internal/api/domain/repository/interface"
 )
 
@@ -36,6 +39,17 @@ func (os *TeamService) ValidateUserAndClusterInTeam(ctx context.Context, userId 
 	_, err = os.teamRepository.GetTeamCluster(ctx, teamId, clusterId)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (os *TeamService) ValidateClusterReady(ctx context.Context, teamId int64, clusterId int64) error {
+	cluster, err := os.teamRepository.GetTeamCluster(ctx, teamId, clusterId)
+	if err != nil {
+		return err
+	}
+	if cluster.Status != entity.ClusterRunning {
+		return errors.New("cluster is not ready")
 	}
 	return nil
 }
