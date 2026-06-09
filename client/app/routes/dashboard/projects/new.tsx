@@ -38,13 +38,7 @@ export default function NewProject() {
   const { data: clustersData, isLoading: isClustersLoading } = useQuery(
     trpc.team.getTeamClusters.queryOptions(
       { teamId: Number(teamIdInput) },
-      {
-        enabled: !!teamIdInput,
-        refetchInterval: (query) =>
-          query.state.data?.some((cluster) => cluster.status === "pending")
-            ? 2000
-            : false,
-      },
+      { enabled: !!teamIdInput },
     ),
   );
 
