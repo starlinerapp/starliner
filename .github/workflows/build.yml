@@ -11,7 +11,7 @@ env:
   ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && 'staging' || 'production' }}
 jobs:
   build-auth:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -37,7 +37,7 @@ jobs:
           platforms: linux/amd64
 
   build-client:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -63,7 +63,7 @@ jobs:
           platforms: linux/amd64
 
   build-server-api:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -88,7 +88,7 @@ jobs:
           platforms: linux/amd64
 
   build-server-builder:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -113,7 +113,7 @@ jobs:
           platforms: linux/amd64
 
   build-server-cluster:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -138,7 +138,7 @@ jobs:
           platforms: linux/amd64
 
   build-server-provisioner:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -170,7 +170,7 @@ jobs:
       - build-server-builder
       - build-server-cluster
       - build-server-provisioner
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: self-hosted
     steps:
       - name: Trigger Deployment
         uses: peter-evans/repository-dispatch@v4
