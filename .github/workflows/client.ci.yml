@@ -4,6 +4,9 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
+permissions:
+  actions: read
+
 jobs:
   determine-runner:
     runs-on: ubuntu-latest
@@ -24,23 +27,29 @@ jobs:
     runs-on: ${{ fromJson(needs.determine-runner.outputs.runner) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24.11.1'
+
       - name: Install dependencies
         run: npm install
         working-directory: client
+
       - name: Run Biome
         run: npx biome ci .
         working-directory: client
+
       - name: Run type check
         run: npm run typecheck
         working-directory: client
+
       - name: Run vulnerability check
         run: npm audit
         working-directory: client
+
       - name: Run tests
         run: npm run test:run
         working-directory: client
