@@ -11,7 +11,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (!github.event.pull_request.draft &&
       github.event.pull_request.head.repo.fork == false)
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux]
 
     steps:
       - name: Checkout code
