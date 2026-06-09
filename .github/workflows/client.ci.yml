@@ -7,7 +7,10 @@ on:
 
 jobs:
   client-lint-and-test:
-    if: '! github.event.pull_request.draft'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (!github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.fork == false)
     runs-on: [self-hosted, linux]
 
     steps:
