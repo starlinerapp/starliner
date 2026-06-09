@@ -1,40 +1,46 @@
 name: Client Lint And Test
-
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 jobs:
-  client-lint-and-test:
-    if: '! github.event.pull_request.draft'
-    runs-on: [self-hosted, blacksmith-4vcpu-ubuntu-2404]
+  determine-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runner: ${{ steps.set-runner.outputs.use-runner }}
+    steps:
+      - name: Determine which runner to use
+        id: set-runner
+        uses: jimmygchen/runner-fallback-action@v1
+        with:
+          primary-runner: "self-hosted"
+          fallback-runner: "blacksmith-4vcpu-ubuntu-2404"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
+  client-lint-and-test:
+    needs: determine-runner
+    if: '! github.event.pull_request.draft'
+    runs-on: ${{ fromJson(needs.determine-runner.outputs.runner) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
-
+        uses: actions/checkout@v4
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: '24.11.1'
-
+          node-version: '20'
       - name: Install dependencies
         run: npm install
         working-directory: client
-
       - name: Run Biome
         run: npx biome ci .
         working-directory: client
-
       - name: Run type check
         run: npm run typecheck
         working-directory: client
-
       - name: Run vulnerability check
         run: npm audit
         working-directory: client
-
       - name: Run tests
         run: npm run test:run
         working-directory: client
