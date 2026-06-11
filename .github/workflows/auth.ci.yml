@@ -7,8 +7,11 @@ on:
 
 jobs:
   auth-lint:
-    if: '! github.event.pull_request.draft'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (!github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.fork == false)
+    runs-on: [self-hosted, linux]
 
     steps:
       - name: Checkout code
