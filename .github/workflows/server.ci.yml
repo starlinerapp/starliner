@@ -24,7 +24,7 @@ jobs:
           curl -fsSL "https://github.com/darold/pgFormatter/archive/refs/tags/v${version}.tar.gz" -o pgformatter.tar.gz
           tar xzf pgformatter.tar.gz
           echo "$PWD/pgFormatter-${version}" >> "$GITHUB_PATH"
-          pg_format --version
+          "$PWD/pgFormatter-${version}/pg_format" --version
 
       - name: Check SQL formatting
         run: |
