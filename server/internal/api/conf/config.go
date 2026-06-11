@@ -108,7 +108,6 @@ func (c *Config) GetRedisPassword() string {
 	return c.RedisPassword
 }
 
-
 func (c *Config) GetDeploymentDomain() string {
 	return c.DeploymentDomain
 }

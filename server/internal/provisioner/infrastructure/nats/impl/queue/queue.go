@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	CreateCluster   jetstream.Subject = "create.cluster"
-	DeleteCluster   jetstream.Subject = "delete.cluster"
+	CreateCluster    jetstream.Subject = "create.cluster"
+	DeleteCluster    jetstream.Subject = "delete.cluster"
 	ReconcileCluster jetstream.Subject = "reconcile.cluster"
 
 	ClusterProvisionedSuccess jetstream.Subject = "cluster.provisioned.success"

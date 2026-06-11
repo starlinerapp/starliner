@@ -19,7 +19,7 @@ FROM new_deployment d
 -- name: UpdateDatabaseDeploymentCredentials :exec
 UPDATE
   database_deployments
-SET DATABASE = @database, username = @username, password = @password
+SET DATABASE = @database, username = @username, PASSWORD = @password
 WHERE deployment_id = @deployment_id;
 
 -- name: GetUserEnvironmentDatabaseDeployments :many

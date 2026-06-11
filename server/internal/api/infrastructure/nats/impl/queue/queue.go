@@ -288,4 +288,3 @@ func (q *Queue) SubscribeToDeploymentStatusLogsCompleted(handler func(completed 
 		handler(&completed)
 	})
 }
-

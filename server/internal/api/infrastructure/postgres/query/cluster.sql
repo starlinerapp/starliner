@@ -85,5 +85,6 @@ WHERE c.id = @cluster_id
 -- name: GetClusterOrgOwnerId :one
 SELECT organizations.owner_id
 FROM clusters
-         INNER JOIN organizations ON organizations.id = clusters.organization_id
+  INNER JOIN organizations ON organizations.id = clusters.organization_id
 WHERE clusters.id = $1;
+

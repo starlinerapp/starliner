@@ -103,7 +103,6 @@ func (q *Queue) SubscribeToEnableIngressTLS(handler func(deployment *value.Ingre
 	})
 }
 
-
 func (q *Queue) PublishDeploymentStatusLogsCompleted(completed *value.DeploymentStatusLogsCompleted) error {
 	data, err := json.Marshal(completed)
 	if err != nil {
