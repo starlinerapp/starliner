@@ -1666,11 +1666,18 @@ export interface ResponseTeamCluster {
   serverType: string;
   /**
    *
+   * @type {ResponseClusterStatus}
+   * @memberof ResponseTeamCluster
+   */
+  status: ResponseClusterStatus;
+  /**
+   *
    * @type {number}
    * @memberof ResponseTeamCluster
    */
   teamId: number;
 }
+
 /**
  *
  * @export

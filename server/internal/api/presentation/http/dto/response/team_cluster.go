@@ -3,10 +3,11 @@ package response
 import "starliner.app/internal/api/domain/value"
 
 type TeamCluster struct {
-	TeamID      int64  `json:"teamId" binding:"required"`
-	ClusterID   int64  `json:"clusterId" binding:"required"`
-	ClusterName string `json:"clusterName" binding:"required"`
-	ServerType  string `json:"serverType" binding:"required"`
+	TeamID      int64         `json:"teamId" binding:"required"`
+	ClusterID   int64         `json:"clusterId" binding:"required"`
+	ClusterName string        `json:"clusterName" binding:"required"`
+	ServerType  string        `json:"serverType" binding:"required"`
+	Status      ClusterStatus `json:"status" binding:"required,oneof=pending running deleted"`
 }
 
 func NewTeamCluster(tc *value.TeamCluster) TeamCluster {
@@ -15,6 +16,7 @@ func NewTeamCluster(tc *value.TeamCluster) TeamCluster {
 		ClusterID:   tc.ClusterId,
 		ClusterName: tc.ClusterName,
 		ServerType:  tc.ServerType,
+		Status:      ClusterStatus(tc.Status),
 	}
 }
 

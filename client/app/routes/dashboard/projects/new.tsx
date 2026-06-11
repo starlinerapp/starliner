@@ -42,6 +42,10 @@ export default function NewProject() {
     ),
   );
 
+  const readyClusters = clustersData?.filter(
+    (cluster) => cluster.status === "running",
+  );
+
   useEffect(() => {
     setValue("teamId", teamsData?.[0] ? String(teamsData[0].id) : "");
   }, [teamsData?.[0]?.id, setValue]);
@@ -49,9 +53,9 @@ export default function NewProject() {
   useEffect(() => {
     setValue(
       "clusterId",
-      clustersData?.[0] ? String(clustersData[0].clusterId) : "",
+      readyClusters?.[0] ? String(readyClusters[0].clusterId) : "",
     );
-  }, [clustersData?.[0]?.clusterId, setValue]);
+  }, [readyClusters?.[0]?.clusterId, setValue]);
 
   const isLoading = isClustersLoading || isTeamsLoading;
 
@@ -76,7 +80,7 @@ export default function NewProject() {
     });
   };
 
-  const clusterExists = clustersData && clustersData.length > 0;
+  const clusterExists = readyClusters && readyClusters.length > 0;
   const teamExists = teamsData && teamsData.length > 0;
   const selectedTeamHasNoClusters =
     !!teamIdInput && teamExists && !clusterExists && !isLoading;
@@ -191,7 +195,7 @@ export default function NewProject() {
                     <option value="" disabled>
                       Cluster*
                     </option>
-                    {clustersData.map((cluster, i) => (
+                    {readyClusters.map((cluster, i) => (
                       <option key={i} value={cluster.clusterId}>
                         {cluster.clusterName}
                       </option>
