@@ -75,6 +75,9 @@ services:
       context: .
       dockerfile: .docker/client/Dockerfile
       target: development-dependencies-env
+    depends_on:
+      redis:
+        condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
