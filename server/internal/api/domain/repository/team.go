@@ -215,6 +215,7 @@ func (tr *TeamRepository) GetTeamClusters(ctx context.Context, teamID int64) ([]
 			ClusterId:   row.ID,
 			ClusterName: row.Name,
 			ServerType:  row.ServerType,
+			Status:      entity.ClusterStatus(row.Status),
 		}
 	}
 	return clusters, nil
@@ -270,6 +271,7 @@ func (tr *TeamRepository) GetTeamCluster(ctx context.Context, teamID int64, clus
 		ClusterId:   cluster.ID,
 		ClusterName: cluster.Name,
 		ServerType:  cluster.ServerType,
+		Status:      entity.ClusterStatus(cluster.Status),
 	}, nil
 }
 

@@ -78,6 +78,7 @@ services:
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
+      DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
       CLIENT_BASE_URL: ${CLIENT_BASE_URL:-https://dev.starliner.app}
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
@@ -146,6 +147,7 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-dev}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+      DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
     volumes:
       - ./server:/app
     networks:

@@ -406,16 +406,16 @@ export interface RequestEnvVar {
 export interface RequestIngressHost {
   /**
    *
-   * @type {string}
-   * @memberof RequestIngressHost
-   */
-  host: string;
-  /**
-   *
    * @type {Array<RequestIngressPath>}
    * @memberof RequestIngressHost
    */
   paths: Array<RequestIngressPath>;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestIngressHost
+   */
+  prefix: string;
 }
 /**
  *
@@ -1666,11 +1666,18 @@ export interface ResponseTeamCluster {
   serverType: string;
   /**
    *
+   * @type {ResponseClusterStatus}
+   * @memberof ResponseTeamCluster
+   */
+  status: ResponseClusterStatus;
+  /**
+   *
    * @type {number}
    * @memberof ResponseTeamCluster
    */
   teamId: number;
 }
+
 /**
  *
  * @export

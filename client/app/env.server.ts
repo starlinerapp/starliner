@@ -8,6 +8,8 @@ const envSchema = z.object({
   SERVER_BASIC_AUTH_PASSWORD: z.string(),
   REDIS_ADDR: z.string(),
   REDIS_PASSWORD: z.string(),
+  DEPLOYMENT_DOMAIN: z.string(),
+  ENVIRONMENT: z.string(),
 });
 
 function createServerEnv() {

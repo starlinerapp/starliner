@@ -29,8 +29,9 @@ type DeploymentApplication struct {
 	parserService         *service.ParserService
 	resolverService       *service.ResolverService
 	normalizerService     *coreService.NormalizerService
-	environmentRepository interfaces.EnvironmentRepository
-	deploymentRepository  interfaces.DeploymentRepository
+	environmentRepository  interfaces.EnvironmentRepository
+	organizationRepository interfaces.OrganizationRepository
+	deploymentRepository   interfaces.DeploymentRepository
 	buildRepository       interfaces.BuildRepository
 	githubAppRepository   interfaces.GithubAppRepository
 	gitHub                port.GitHub
@@ -49,6 +50,7 @@ func NewDeploymentApplication(
 	resolverService *service.ResolverService,
 	normalizerService *coreService.NormalizerService,
 	environmentRepository interfaces.EnvironmentRepository,
+	organizationRepository interfaces.OrganizationRepository,
 	deploymentRepository interfaces.DeploymentRepository,
 	buildRepository interfaces.BuildRepository,
 	githubAppRepository interfaces.GithubAppRepository,
@@ -66,8 +68,9 @@ func NewDeploymentApplication(
 		parserService:         parserService,
 		resolverService:       resolverService,
 		normalizerService:     normalizerService,
-		environmentRepository: environmentRepository,
-		deploymentRepository:  deploymentRepository,
+		environmentRepository:  environmentRepository,
+		organizationRepository: organizationRepository,
+		deploymentRepository:   deploymentRepository,
 		buildRepository:       buildRepository,
 		githubAppRepository:   githubAppRepository,
 		gitHub:                gitHub,
@@ -153,8 +156,6 @@ func (da *DeploymentApplication) DeployFromGit(
 			Value: a.Value,
 		}
 	}
-
-	fmt.Printf("correlationId: %s\n", correlationId)
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:        b.Id,
@@ -735,18 +736,34 @@ func (da *DeploymentApplication) redeployDatabaseDeployment(
 	return newDeployment, nil
 }
 
-func (da *DeploymentApplication) DeployIngress(ctx context.Context, correlationId string, hosts []*value.IngressHost, userId int64, environmentId int64) error {
+func (da *DeploymentApplication) DeployIngress(
+	ctx context.Context,
+	correlationId string,
+	inputs []*value.IngressHostInput,
+	userId int64,
+	environmentId int64,
+) error {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
 	if err != nil {
 		return err
 	}
 
-	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
 	if err != nil {
 		return err
 	}
 
-	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	organization, err := da.organizationRepository.GetOrganization(ctx, cluster.OrganizationId)
+	if err != nil {
+		return err
+	}
+
+	hosts, err := da.deploymentService.BuildIngressHosts(inputs, organization.Slug, da.config.GetEnvironment(), da.config.GetDeploymentDomain())
+	if err != nil {
+		return err
+	}
+
+	err = da.deploymentService.ValidateIngressHostsAvailable(ctx, hosts)
 	if err != nil {
 		return err
 	}
@@ -840,9 +857,24 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	correlationId string,
 	environmentId int64,
 	deploymentId int64,
-	hosts []*value.IngressHost,
+	inputs []*value.IngressHostInput,
 ) (int64, error) {
 	err := da.environmentService.ValidateUserPermission(ctx, userId, environmentId)
+	if err != nil {
+		return 0, err
+	}
+
+	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
+	if err != nil {
+		return 0, err
+	}
+
+	organization, err := da.organizationRepository.GetOrganization(ctx, cluster.OrganizationId)
+	if err != nil {
+		return 0, err
+	}
+
+	hosts, err := da.deploymentService.BuildIngressHosts(inputs, organization.Slug, da.config.GetEnvironment(), da.config.GetDeploymentDomain())
 	if err != nil {
 		return 0, err
 	}
@@ -892,11 +924,6 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	}
 
 	err = createDeployOnlyBuild(ctx, da.buildRepository, ingressDeployment.Id, value.BuildSourceManual)
-	if err != nil {
-		return 0, err
-	}
-
-	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
 	if err != nil {
 		return 0, err
 	}
@@ -967,6 +994,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 
 	return ingressDeployment.Id, nil
 }
+
 
 func (da *DeploymentApplication) redeployIngressDeployment(
 	ctx context.Context,

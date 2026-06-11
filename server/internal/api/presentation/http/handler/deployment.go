@@ -242,12 +242,16 @@ func (dh *DeploymentHandler) DeployIngress(c *gin.Context) {
 	err := dh.deploymentApplication.DeployIngress(
 		c.Request.Context(),
 		correlationID,
-		mapper.MapHostsFromRequest(body.IngressHosts),
+		mapper.MapIngressHostInputsFromRequest(body.IngressHosts),
 		currentUser.Id,
 		body.EnvironmentId,
 	)
 
 	if err != nil {
+		if errors.Is(err, value.ErrInvalidIngressHostPrefix) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		if errors.Is(err, value.ErrIngressHostAlreadyExists) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
 				"error": err.Error(),
@@ -296,10 +300,14 @@ func (dh *DeploymentHandler) UpdateIngressDeployment(c *gin.Context) {
 		correlationID,
 		body.EnvironmentId,
 		deploymentId,
-		mapper.MapHostsFromRequest(body.IngressHosts),
+		mapper.MapIngressHostInputsFromRequest(body.IngressHosts),
 	)
 
 	if err != nil {
+		if errors.Is(err, value.ErrInvalidIngressHostPrefix) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		if errors.Is(err, value.ErrIngressHostAlreadyExists) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{
 				"error": err.Error(),
