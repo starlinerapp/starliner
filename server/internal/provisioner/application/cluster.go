@@ -45,10 +45,11 @@ func NewClusterApplication(
 }
 
 func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) {
-	time.Sleep(5 * time.Second)
-	ca.publishNotification(c.Id, "failed", fmt.Sprintf("Failed to provision cluster %s", c.Name))
-	log.Printf("AAAAAAAAAAAAAAAAA Failed to ")
-	return
+	//TODO remove this at the end
+	//time.Sleep(5 * time.Second)
+	//ca.publishProvisionedFailure(c.Id, "forced failure for testing")
+	//log.Printf("AAAAAAAAAAAAAAAAA Failed to ")
+	//return
 
 	ctx := context.Background()
 
@@ -69,7 +70,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to generate ed25519 keypair: %v\n", err)
 		log.Printf("failed to generate ed25519 keypair: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "Failed to generate keypair for cluster provisioning")
+		ca.publishProvisionedFailure(c.Id, "failed to generate keypair")
 		return
 	}
 
@@ -80,7 +81,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to normalize cluster name: %v\n", err)
 		log.Printf("failed to normalize cluster name: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "Failed to normalize cluster name")
+		ca.publishProvisionedFailure(c.Id, "failed to normalize cluster name")
 		return
 	}
 
@@ -92,7 +93,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to provision server: %v\n", err)
 		log.Printf("failed to provision server: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "Failed to provision server")
+		ca.publishProvisionedFailure(c.Id, "failed to provision server")
 		ca.HandleDeleteCluster(&value.DeleteCluster{
 			Id:                     c.Id,
 			ProvisioningId:         provisioningId,
@@ -108,7 +109,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to encode private key to PEM: %v\n", err)
 		log.Printf("failed to encode private key to PEM: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "Failed to encode private key")
+		ca.publishProvisionedFailure(c.Id, "failed to encode private key")
 		ca.HandleDeleteCluster(&value.DeleteCluster{
 			Id:                     c.Id,
 			ProvisioningId:         provisioningId,
@@ -120,7 +121,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err := ca.ssh.WaitForSSH(ip, "root", pemBytes, 30*time.Second); err != nil {
 		appendStatus("==> ERROR: SSH not available: %v\n", err)
 		log.Printf("SSH not available: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "SSH not available on provisioned server")
+		ca.publishProvisionedFailure(c.Id, "SSH not available on provisioned server")
 		return
 	}
 	appendStatus("==> SSH is ready\n")
@@ -131,17 +132,15 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to install k3s: %v\n", err)
 		log.Printf("Failed to install k3s: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "Failed to install K3s")
+		ca.publishProvisionedFailure(c.Id, "failed to install K3s")
 		return
 	}
 	appendStatus("==> K3s installed\n")
 
 	kubeconfigBase64 := base64.StdEncoding.EncodeToString([]byte(kubeconfig))
 
-	ca.publishNotification(c.Id, "success", fmt.Sprintf("Cluster %s provisioned successfully", c.Name))
-
-	err = ca.queue.PublishClusterCreated(&value.ClusterCreated{
-		Id:               c.Id,
+	err = ca.queue.PublishClusterProvisionedSuccess(&value.ClusterProvisionedSuccess{
+		ClusterId:        c.Id,
 		ProvisioningId:   provisioningId,
 		IPv4Address:      ip,
 		PublicKey:        pubKeyStr,
@@ -149,7 +148,6 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		KubeconfigBase64: kubeconfigBase64,
 		Logs:             logBuf.String(),
 	})
-
 	if err != nil {
 		appendStatus("==> ERROR: failed to publish cluster created event: %v\n", err)
 		log.Printf("failed to publish event: %v\n", err)
@@ -173,30 +171,34 @@ func (ca *ClusterApplication) HandleDeleteCluster(c *value.DeleteCluster) {
 	if err := ca.provision.DeleteServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId); err != nil {
 		appendStatus("==> ERROR: failed to delete server: %v\n", err)
 		log.Printf("failed to delete server: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "Failed to delete server")
+		ca.publishDeletedFailure(c.Id, "failed to delete server")
 		return
 	}
 	appendStatus("==> Server deleted\n")
 
-	if err := ca.queue.PublishClusterDeleted(&value.ClusterDeleted{
-		Id: c.Id,
+	if err := ca.queue.PublishClusterDeletedSuccess(&value.ClusterDeletedSuccess{
+		ClusterId: c.Id,
 	}); err != nil {
-		appendStatus("==> ERROR: failed to publish cluster deleted event: %v\n", err)
-		log.Printf("failed to publish cluster deleted event: %v\n", err)
-		ca.publishNotification(c.Id, "failed", "Failed to publish cluster deleted event")
-	} else {
-		ca.publishNotification(c.Id, "success", "Cluster deleted successfully")
+		appendStatus("==> ERROR: failed to publish cluster deleted success: %v\n", err)
+		log.Printf("failed to publish cluster deleted success: %v\n", err)
 	}
 }
 
-func (ca *ClusterApplication) publishNotification(clusterId int64, status string, message string) {
-	err := ca.queue.PublishClusterNotification(&value.ClusterNotification{
+func (ca *ClusterApplication) publishProvisionedFailure(clusterId int64, reason string) {
+	if err := ca.queue.PublishClusterProvisionedFailure(&value.ClusterProvisionedFailure{
 		ClusterId: clusterId,
-		Status:    status,
-		Message:   message,
-	})
-	if err != nil {
-		log.Printf("failed to publish cluster notification: %v\n", err)
+		Reason:    reason,
+	}); err != nil {
+		log.Printf("failed to publish cluster provisioned failure: %v\n", err)
+	}
+}
+
+func (ca *ClusterApplication) publishDeletedFailure(clusterId int64, reason string) {
+	if err := ca.queue.PublishClusterDeletedFailure(&value.ClusterDeletedFailure{
+		ClusterId: clusterId,
+		Reason:    reason,
+	}); err != nil {
+		log.Printf("failed to publish cluster deleted failure: %v\n", err)
 	}
 }
 
@@ -233,13 +235,14 @@ func (ca *ClusterApplication) HandleReconcileCluster(c *value.ReconcileCluster) 
 	if err := ca.provision.DestroyServer(ctx, c.Id, c.ProvisioningCredential, c.ProvisioningId); err != nil {
 		appendStatus("==> ERROR: failed to destroy server stack: %v\n", err)
 		log.Printf("failed to destroy server stack: %v\n", err)
+		ca.publishDeletedFailure(c.Id, "failed to destroy server stack during reconciliation")
 		return
 	}
 	appendStatus("==> Server stack destroyed\n")
 	log.Printf("reconcile finished: cluster %d server destroyed\n", c.Id)
 
-	if err := ca.queue.PublishClusterDeleted(&value.ClusterDeleted{Id: c.Id}); err != nil {
-		appendStatus("==> ERROR: failed to publish cluster deleted event: %v\n", err)
-		log.Printf("failed to publish cluster deleted event: %v\n", err)
+	if err := ca.queue.PublishClusterDeletedSuccess(&value.ClusterDeletedSuccess{ClusterId: c.Id}); err != nil {
+		appendStatus("==> ERROR: failed to publish cluster deleted success: %v\n", err)
+		log.Printf("failed to publish cluster deleted success: %v\n", err)
 	}
 }

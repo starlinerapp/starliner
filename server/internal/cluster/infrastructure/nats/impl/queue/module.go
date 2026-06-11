@@ -22,13 +22,18 @@ var Module = fx.Module(
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{
 			DeployDatabase,
-			DatabaseDeployed,
 			DeployIngress,
 			EnableIngressTLS,
 			DeleteDeployment,
-			DeploymentDeleted,
-			DeploymentNotification,
 			DeploymentStatusLogsCompleted,
+			DatabaseDeployedSuccess,
+			DatabaseDeployedFailure,
+			ImageDeployedSuccess,
+			ImageDeployedFailure,
+			IngressDeployedSuccess,
+			IngressDeployedFailure,
+			DeploymentDeletedSuccess,
+			DeploymentDeletedFailure,
 		})
 	}),
 )

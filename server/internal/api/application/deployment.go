@@ -1312,7 +1312,7 @@ func (da *DeploymentApplication) OpenTTY(
 	return da.grpcClusterClient.OpenTTY(ctx, deployment.Namespace, normalizedDeploymentName, kubeconfigBase64, stdin, stdout, sizes)
 }
 
-func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.DatabaseDeployment) {
+func (da *DeploymentApplication) HandleDatabaseDeployedSuccess(c *coreValue.DatabaseDeployedSuccess) {
 	ctx := context.Background()
 
 	encryptedPassword, err := da.crypto.Encrypt(c.Password)
@@ -1320,11 +1320,16 @@ func (da *DeploymentApplication) HandleDatabaseDeploymentCreated(c *coreValue.Da
 		log.Printf("failed to encrypt database password: %v\n", err)
 		return
 	}
-
 	err = da.deploymentRepository.UpdateDatabaseDeploymentCredentials(ctx, c.DbName, c.DeploymentId, c.Username, encryptedPassword)
 	if err != nil {
 		log.Printf("failed to update database deployment credentials: %v\n", err)
 	}
+
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "success", fmt.Sprintf("Database %s deployed successfully", c.DeploymentName))
+}
+
+func (da *DeploymentApplication) HandleDatabaseDeployedFailure(c *coreValue.DatabaseDeployedFailure) {
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "failed", fmt.Sprintf("Failed to deploy database %s", c.DeploymentName))
 }
 
 func (da *DeploymentApplication) HandleDeploymentStatusLogsCompleted(c *coreValue.DeploymentStatusLogsCompleted) {
@@ -1336,12 +1341,32 @@ func (da *DeploymentApplication) HandleDeploymentStatusLogsCompleted(c *coreValu
 	}
 }
 
-func (da *DeploymentApplication) HandleDeploymentDeleted(c *coreValue.DeploymentDeleted) {
+func (da *DeploymentApplication) HandleDeploymentDeletedSuccess(c *coreValue.DeploymentDeletedSuccess) {
 	ctx := context.Background()
-	err := da.deploymentRepository.SoftDeleteDeployment(ctx, c.DeploymentId)
-	if err != nil {
+	if err := da.deploymentRepository.SoftDeleteDeployment(ctx, c.DeploymentId); err != nil {
 		log.Printf("failed to soft delete deployment from database: %v\n", err)
 	}
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "success", fmt.Sprintf("Deleted deployment: %s", c.DeploymentName))
+}
+
+func (da *DeploymentApplication) HandleDeploymentDeletedFailure(c *coreValue.DeploymentDeletedFailure) {
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "failed", fmt.Sprintf("Failed to delete service: %s", c.DeploymentName))
+}
+
+func (da *DeploymentApplication) HandleImageDeployedSuccess(c *coreValue.ImageDeployedSuccess) {
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "success", fmt.Sprintf("Successfully deployed image: %s", c.ImageName))
+}
+
+func (da *DeploymentApplication) HandleImageDeployedFailure(c *coreValue.ImageDeployedFailure) {
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "failed", fmt.Sprintf("Failed to deploy image: %s", c.ImageName))
+}
+
+func (da *DeploymentApplication) HandleIngressDeployedSuccess(c *coreValue.IngressDeployedSuccess) {
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "success", fmt.Sprintf("Successfully deployed ingress: %s", c.DeploymentName))
+}
+
+func (da *DeploymentApplication) HandleIngressDeployedFailure(c *coreValue.IngressDeployedFailure) {
+	da.broadcastEnvironmentNotification(c.CorrelationId, c.DeploymentId, "failed", fmt.Sprintf("Failed to deploy ingress: %s", c.DeploymentName))
 }
 
 func (da *DeploymentApplication) GetDeploymentEnvironmentId(deploymentId int64) (*int64, error) {
@@ -1407,15 +1432,16 @@ func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValu
 	}
 }
 
-func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {
+func (da *DeploymentApplication) HandleBuildSucceeded(b *coreValue.BuildSucceeded) {
 	ctx := context.Background()
-	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatus(b.BuildStatus), b.CommitHash, b.ImageName, b.Logs)
+	commitHash := b.CommitHash
+	imageName := b.ImageName
+	err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatusSuccess, &commitHash, &imageName, b.Logs)
 	if err != nil {
 		log.Printf("failed to update build status: %v\n", err)
 	}
-	if b.BuildStatus == coreValue.BuildStatusFailed {
-		return
-	}
+
+	da.broadcastEnvironmentNotification(b.CorrelationId, b.DeploymentId, "success", fmt.Sprintf("Successfully built image: %s", b.ImageName))
 
 	cluster, err := da.deploymentRepository.GetDeploymentCluster(ctx, b.DeploymentId)
 	if err != nil {
@@ -1479,21 +1505,46 @@ func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildComplete
 		log.Printf("failed to normalize deployment name: %v\n", err)
 	}
 
+	var corrPtr *string
+	if b.CorrelationId != "" {
+		corr := b.CorrelationId
+		corrPtr = &corr
+	}
+
 	err = da.queue.PublishDeployImage(&coreValue.ImageDeployment{
 		DeploymentId:          b.DeploymentId,
-		CorrelationId:         b.CorrelationId,
+		CorrelationId:         corrPtr,
 		DeploymentName:        normalizedDeploymentName,
 		Namespace:             deployment.Namespace,
 		KubeconfigBase64:      kubeconfigBase64,
 		ImageRegistryUrl:      da.config.ImageRegistryUrl,
 		ImageRegistryUsername: da.config.ImageRegistryUsername,
 		ImageRegistryPassword: da.config.ImageRegistryPassword,
-		ImageName:             *b.ImageName,
-		ImageTag:              *b.Tag,
+		ImageName:             b.ImageName,
+		ImageTag:              b.Tag,
 		Port:                  deploymentPort,
 		EnvVars:               coreEnvs,
 	})
 	if err != nil {
 		log.Printf("failed to publish: %v\n", err)
 	}
+}
+
+func (da *DeploymentApplication) HandleBuildFailed(b *coreValue.BuildFailed) {
+	ctx := context.Background()
+	if err := da.buildRepository.UpdateBuild(ctx, b.BuildId, value.BuildStatusFailed, nil, nil, b.Logs); err != nil {
+		log.Printf("failed to update build status: %v\n", err)
+	}
+
+	var message string
+	switch b.Stage {
+	case coreValue.BuildFailureStageClone:
+		message = fmt.Sprintf("Failed to clone repository for: %s", b.GitUrl)
+	case coreValue.BuildFailureStageBuild:
+		message = fmt.Sprintf("Failed to build image: %s", b.ImageName)
+	default:
+		message = fmt.Sprintf("Build failed: %s", b.ImageName)
+	}
+
+	da.broadcastEnvironmentNotification(b.CorrelationId, b.DeploymentId, "failed", message)
 }

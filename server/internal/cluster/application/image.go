@@ -1,7 +1,6 @@
 package application
 
 import (
-	"fmt"
 	"log"
 
 	"starliner.app/internal/cluster/domain/port"
@@ -9,18 +8,19 @@ import (
 )
 
 type ImageApplication struct {
-	deploy   port.Deploy
-	queue    port.Queue
-	notifier *Notifier
+	deploy port.Deploy
+	queue  port.Queue
 }
 
 func NewImageApplication(deploy port.Deploy, queue port.Queue) *ImageApplication {
-	notifier := NewNotifier(queue)
-	return &ImageApplication{deploy: deploy, queue: queue, notifier: notifier}
+	return &ImageApplication{deploy: deploy, queue: queue}
 }
 
 func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
-	if a.CorrelationId == nil {
+	correlationId := ""
+	if a.CorrelationId != nil {
+		correlationId = *a.CorrelationId
+	} else {
 		log.Printf("missing correlation id for image deployment %d\n", a.DeploymentId)
 	}
 
@@ -50,8 +50,21 @@ func (ia *ImageApplication) HandleDeployImage(a *value.ImageDeployment) {
 	err := ia.deploy.DeployImage(args)
 	if err != nil {
 		log.Printf("failed to deploy application: %v\n", err)
-		ia.notifier.publishNotification(a.DeploymentId, *a.CorrelationId, "failed", fmt.Sprintf("Failed to deploy image: %s", a.ImageName))
+		if pubErr := ia.queue.PublishImageDeployedFailure(&value.ImageDeployedFailure{
+			CorrelationId: correlationId,
+			DeploymentId:  a.DeploymentId,
+			ImageName:     a.ImageName,
+		}); pubErr != nil {
+			log.Printf("failed to publish image deployed failure: %v\n", pubErr)
+		}
 		return
 	}
-	ia.notifier.publishNotification(a.DeploymentId, *a.CorrelationId, "success", fmt.Sprintf("Successfully deployed image: %s", a.ImageName))
+
+	if pubErr := ia.queue.PublishImageDeployedSuccess(&value.ImageDeployedSuccess{
+		CorrelationId: correlationId,
+		DeploymentId:  a.DeploymentId,
+		ImageName:     a.ImageName,
+	}); pubErr != nil {
+		log.Printf("failed to publish image deployed success: %v\n", pubErr)
+	}
 }

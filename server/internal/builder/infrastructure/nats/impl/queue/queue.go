@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	BuildTriggered    jetstream.Subject = "build.triggered"
-	BuildCompleted    jetstream.Subject = "build.completed"
-	BuildNotification jetstream.Subject = "build.notification"
+	BuildTriggered jetstream.Subject = "build.triggered"
+	BuildSucceeded jetstream.Subject = "build.succeeded"
+	BuildFailed    jetstream.Subject = "build.failed"
 )
 
 type Queue struct {
@@ -43,20 +43,20 @@ func (q *Queue) SubscribeToBuildTriggered(handler func(build *value.TriggerBuild
 	})
 }
 
-func (q *Queue) PublishBuildCompleted(build *value.BuildCompleted) error {
+func (q *Queue) PublishBuildSucceeded(build *value.BuildSucceeded) error {
 	data, err := json.Marshal(build)
 	if err != nil {
 		return fmt.Errorf("failed to marshal: %v", err)
 	}
 
-	return q.publisher.Publish(BuildCompleted, "*", data)
+	return q.publisher.Publish(BuildSucceeded, strconv.FormatInt(build.BuildId, 10), data)
 }
 
-func (q *Queue) PublishBuildNotification(notification *value.EnvironmentNotification) error {
-	data, err := json.Marshal(notification)
+func (q *Queue) PublishBuildFailed(build *value.BuildFailed) error {
+	data, err := json.Marshal(build)
 	if err != nil {
 		return fmt.Errorf("failed to marshal: %v", err)
 	}
 
-	return q.publisher.Publish(BuildNotification, strconv.FormatInt(notification.DeploymentId, 10), data)
+	return q.publisher.Publish(BuildFailed, strconv.FormatInt(build.BuildId, 10), data)
 }

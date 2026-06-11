@@ -280,14 +280,14 @@ func (ca *ClusterApplication) StreamProvisioningLogs(
 	return nil
 }
 
-func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) {
+func (ca *ClusterApplication) HandleClusterProvisionedSuccess(c *coreValue.ClusterProvisionedSuccess) {
 	ctx := context.Background()
-	err := ca.clusterRepository.UpdateClusterPulumiStackId(ctx, c.Id, &c.ProvisioningId)
+	err := ca.clusterRepository.UpdateClusterPulumiStackId(ctx, c.ClusterId, &c.ProvisioningId)
 	if err != nil {
 		fmt.Printf("failed to persist provisioning id: %v\n", err)
 	}
 
-	err = ca.clusterRepository.UpdateClusterIPv4Address(ctx, c.Id, &c.IPv4Address)
+	err = ca.clusterRepository.UpdateClusterIPv4Address(ctx, c.ClusterId, &c.IPv4Address)
 	if err != nil {
 		fmt.Printf("Failed to persist cluster ip address: %v\n", err)
 	}
@@ -296,7 +296,7 @@ func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) 
 	if err != nil {
 		log.Printf("failed to encrypt private key: %v\n", err)
 	}
-	err = ca.clusterRepository.UpdateClusterPublicPrivateKey(ctx, c.Id, &c.PublicKey, &encryptedPrivKeyStr)
+	err = ca.clusterRepository.UpdateClusterPublicPrivateKey(ctx, c.ClusterId, &c.PublicKey, &encryptedPrivKeyStr)
 	if err != nil {
 		fmt.Printf("failed to persist cluster public private key: %v\n", err)
 	}
@@ -305,20 +305,33 @@ func (ca *ClusterApplication) HandleClusterCreated(c *coreValue.ClusterCreated) 
 	if err != nil {
 		log.Printf("failed to encrypt kubeconfig: %v\n", err)
 	}
-	err = ca.clusterRepository.UpdateClusterKubeconfig(ctx, c.Id, &encryptedKubeconfig)
+	err = ca.clusterRepository.UpdateClusterKubeconfig(ctx, c.ClusterId, &encryptedKubeconfig)
 	if err != nil {
 		fmt.Printf("Failed to persist kubeconfig: %v\n", err)
 	}
 
-	err = ca.clusterRepository.UpdateClusterStatus(ctx, c.Id, entity.ClusterRunning)
+	err = ca.clusterRepository.UpdateClusterStatus(ctx, c.ClusterId, entity.ClusterRunning)
 	if err != nil {
 		fmt.Printf("Failed to update cluster status: %v\n", err)
 	}
 
-	err = ca.clusterRepository.UpdateClusterLogs(ctx, c.Id, c.Logs)
+	err = ca.clusterRepository.UpdateClusterLogs(ctx, c.ClusterId, c.Logs)
 	if err != nil {
 		log.Printf("failed to persist cluster provisioning logs: %v\n", err)
 	}
+
+	clusterName := ca.resolveClusterName(ctx, c.ClusterId)
+	ca.broadcastClusterNotification(ctx, c.ClusterId, "success", fmt.Sprintf("Cluster %s provisioned successfully", clusterName))
+}
+
+func (ca *ClusterApplication) HandleClusterProvisionedFailure(c *coreValue.ClusterProvisionedFailure) {
+	ctx := context.Background()
+	clusterName := ca.resolveClusterName(ctx, c.ClusterId)
+	message := fmt.Sprintf("Failed to provision cluster %s", clusterName)
+	if c.Reason != "" {
+		message = fmt.Sprintf("%s: %s", message, c.Reason)
+	}
+	ca.broadcastClusterNotification(ctx, c.ClusterId, "failed", message)
 }
 
 func (ca *ClusterApplication) tearDownClusterProjects(ctx context.Context, clusterId int64) error {
@@ -353,17 +366,32 @@ func (ca *ClusterApplication) tearDownClusterProjects(ctx context.Context, clust
 	return ca.projectRepository.DeleteProjectsByClusterId(ctx, clusterId)
 }
 
-func (ca *ClusterApplication) HandleClusterDeleted(c *coreValue.ClusterDeleted) {
+func (ca *ClusterApplication) HandleClusterDeletedSuccess(c *coreValue.ClusterDeletedSuccess) {
 	ctx := context.Background()
-	if err := ca.tearDownClusterProjects(ctx, c.Id); err != nil {
-		log.Printf("failed to tear down cluster %d projects: %v\n", c.Id, err)
+
+	clusterName := ca.resolveClusterName(ctx, c.ClusterId)
+
+	if err := ca.tearDownClusterProjects(ctx, c.ClusterId); err != nil {
+		log.Printf("failed to tear down cluster %d projects: %v\n", c.ClusterId, err)
+		ca.broadcastClusterNotification(ctx, c.ClusterId, "failed", fmt.Sprintf("Failed to clean up cluster %s after deletion", clusterName))
 		return
 	}
 
-	err := ca.clusterRepository.DeleteCluster(ctx, c.Id)
-	if err != nil {
-		log.Printf("failed to delete cluster %d from database: %v\n", c.Id, err)
+	if err := ca.clusterRepository.DeleteCluster(ctx, c.ClusterId); err != nil {
+		log.Printf("failed to delete cluster %d from database: %v\n", c.ClusterId, err)
 	}
+
+	ca.broadcastClusterNotification(ctx, c.ClusterId, "success", fmt.Sprintf("Cluster %s deleted successfully", clusterName))
+}
+
+func (ca *ClusterApplication) HandleClusterDeletedFailure(c *coreValue.ClusterDeletedFailure) {
+	ctx := context.Background()
+	clusterName := ca.resolveClusterName(ctx, c.ClusterId)
+	message := fmt.Sprintf("Failed to delete cluster %s", clusterName)
+	if c.Reason != "" {
+		message = fmt.Sprintf("%s: %s", message, c.Reason)
+	}
+	ca.broadcastClusterNotification(ctx, c.ClusterId, "failed", message)
 }
 
 func (ca *ClusterApplication) HandleReconcileClusterRequest(req *coreValue.ReconcileClusterRequest) {
@@ -413,12 +441,25 @@ func (ca *ClusterApplication) HandleReconcileClusterRequest(req *coreValue.Recon
 	log.Printf("reconcile queued for cluster %d (provisioning id %q)\n", req.ClusterId, req.ProvisioningId)
 }
 
-func (ca *ClusterApplication) HandleClusterNotification(notification *coreValue.ClusterNotification) {
-	ownerUserId, err := ca.GetClusterOrgOwnerId(context.Background(), notification.ClusterId)
+func (ca *ClusterApplication) resolveClusterName(ctx context.Context, clusterId int64) string {
+	cluster, err := ca.clusterRepository.GetCluster(ctx, clusterId)
+	if err != nil || cluster == nil {
+		log.Printf("failed to resolve cluster name for %d: %v", clusterId, err)
+		return strconv.FormatInt(clusterId, 10)
+	}
+	return cluster.Name
+}
+
+func (ca *ClusterApplication) broadcastClusterNotification(ctx context.Context, clusterId int64, status string, message string) {
+	ownerUserId, err := ca.GetClusterOrgOwnerId(ctx, clusterId)
 	if err != nil {
-		log.Printf("failed to get org owner for cluster %d: %v", notification.ClusterId, err)
+		log.Printf("failed to get org owner for cluster %d: %v", clusterId, err)
 		return
 	}
 
-	ca.userNotificationHub.Broadcast(ownerUserId, notification)
+	ca.userNotificationHub.Broadcast(ownerUserId, &coreValue.ClusterNotification{
+		ClusterId: clusterId,
+		Status:    status,
+		Message:   message,
+	})
 }

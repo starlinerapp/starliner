@@ -22,12 +22,34 @@ var Module = fx.Module(
 		},
 	),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered, BuildCompleted, BuildNotification})
+		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered, BuildSucceeded, BuildFailed})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{CreateCluster, ClusterCreated, DeleteCluster, ReconcileCluster, ClusterDeleted, ClusterNotification})
+		return jetstream.EnsureStream(js, Clusters, []jetstream.Subject{
+			CreateCluster,
+			DeleteCluster,
+			ReconcileCluster,
+			ClusterProvisionedSuccess,
+			ClusterProvisionedFailure,
+			ClusterDeletedSuccess,
+			ClusterDeletedFailure,
+		})
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
-		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{DeployIngress, DeployImage, DeployDatabase, DatabaseDeployed, DeleteDeployment, DeploymentDeleted, DeploymentStatusLogsCompleted, DeploymentNotification})
+		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{
+			DeployIngress,
+			DeployImage,
+			DeployDatabase,
+			DeleteDeployment,
+			DeploymentStatusLogsCompleted,
+			DatabaseDeployedSuccess,
+			DatabaseDeployedFailure,
+			ImageDeployedSuccess,
+			ImageDeployedFailure,
+			IngressDeployedSuccess,
+			IngressDeployedFailure,
+			DeploymentDeletedSuccess,
+			DeploymentDeletedFailure,
+		})
 	}),
 )

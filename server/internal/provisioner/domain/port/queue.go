@@ -7,7 +7,9 @@ type Queue interface {
 	SubscribeToDeleteCluster(handler func(cluster *value.DeleteCluster)) error
 	SubscribeToReconcileCluster(handler func(cluster *value.ReconcileCluster)) error
 
-	PublishClusterCreated(cluster *value.ClusterCreated) error
-	PublishClusterDeleted(cluster *value.ClusterDeleted) error
-	PublishClusterNotification(notification *value.ClusterNotification) error
+	PublishClusterProvisionedSuccess(event *value.ClusterProvisionedSuccess) error
+	PublishClusterProvisionedFailure(event *value.ClusterProvisionedFailure) error
+
+	PublishClusterDeletedSuccess(event *value.ClusterDeletedSuccess) error
+	PublishClusterDeletedFailure(event *value.ClusterDeletedFailure) error
 }

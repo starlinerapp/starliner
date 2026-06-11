@@ -1,7 +1,6 @@
 package application
 
 import (
-	"fmt"
 	"log"
 
 	"starliner.app/internal/cluster/domain/port"
@@ -9,22 +8,22 @@ import (
 )
 
 type DeploymentApplication struct {
-	deploy   port.Deploy
-	queue    port.Queue
-	notifier *Notifier
+	deploy port.Deploy
+	queue  port.Queue
 }
 
 func NewDeploymentApplication(deploy port.Deploy, queue port.Queue) *DeploymentApplication {
-	notifier := NewNotifier(queue)
 	return &DeploymentApplication{
-		deploy:   deploy,
-		queue:    queue,
-		notifier: notifier,
+		deploy: deploy,
+		queue:  queue,
 	}
 }
 
 func (da *DeploymentApplication) HandleDeleteDeployment(d *value.Deployment) {
-	if d.CorrelationId == nil {
+	correlationId := ""
+	if d.CorrelationId != nil {
+		correlationId = *d.CorrelationId
+	} else {
 		log.Printf("missing correlation id for deployment %d\n", d.DeploymentId)
 	}
 
@@ -32,16 +31,22 @@ func (da *DeploymentApplication) HandleDeleteDeployment(d *value.Deployment) {
 	err := da.deploy.DeleteDeployment(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to delete helm chart: %v\n", err)
-		da.notifier.publishNotification(d.DeploymentId, *d.CorrelationId, "failed", fmt.Sprintf("Failed to delete service: %s", d.DeploymentName))
+		if pubErr := da.queue.PublishDeploymentDeletedFailure(&value.DeploymentDeletedFailure{
+			CorrelationId:  correlationId,
+			DeploymentId:   d.DeploymentId,
+			DeploymentName: d.DeploymentName,
+		}); pubErr != nil {
+			log.Printf("failed to publish deployment deleted failure: %v\n", pubErr)
+		}
 		return
 	}
 	log.Println("successfully deleted deployment")
-	da.notifier.publishNotification(d.DeploymentId, *d.CorrelationId, "success", fmt.Sprintf("Deleted deployment: %s", d.DeploymentName))
 
-	err = da.queue.PublishDeploymentDeleted(&value.DeploymentDeleted{
-		DeploymentId: d.DeploymentId,
-	})
-	if err != nil {
-		log.Printf("failed to publish event: %v\n", err)
+	if pubErr := da.queue.PublishDeploymentDeletedSuccess(&value.DeploymentDeletedSuccess{
+		CorrelationId:  correlationId,
+		DeploymentId:   d.DeploymentId,
+		DeploymentName: d.DeploymentName,
+	}); pubErr != nil {
+		log.Printf("failed to publish deployment deleted success: %v\n", pubErr)
 	}
 }

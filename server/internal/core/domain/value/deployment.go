@@ -22,13 +22,6 @@ type ImageDeployment struct {
 	EnvVars               []*EnvVar
 }
 
-type DatabaseDeployment struct {
-	DeploymentId int64
-	DbName       string
-	Username     string
-	Password     string
-}
-
 type Deployment struct {
 	Namespace        string
 	DeploymentId     int64
@@ -70,11 +63,58 @@ type IngressDeployment struct {
 	AccumulatedLogs  string
 }
 
-type DeploymentDeleted struct {
-	DeploymentId int64
-}
-
 type DeploymentStatusLogsCompleted struct {
 	DeploymentId int64
 	Logs         string
+}
+
+type DatabaseDeployedSuccess struct {
+	CorrelationId  string `json:"correlationId"`
+	DeploymentId   int64  `json:"deploymentId"`
+	DeploymentName string `json:"deploymentName"`
+	DbName         string `json:"dbName"`
+	Username       string `json:"username"`
+	Password       string `json:"password"`
+}
+
+type DatabaseDeployedFailure struct {
+	CorrelationId  string `json:"correlationId"`
+	DeploymentId   int64  `json:"deploymentId"`
+	DeploymentName string `json:"deploymentName"`
+}
+
+type ImageDeployedSuccess struct {
+	CorrelationId string `json:"correlationId"`
+	DeploymentId  int64  `json:"deploymentId"`
+	ImageName     string `json:"imageName"`
+}
+
+type ImageDeployedFailure struct {
+	CorrelationId string `json:"correlationId"`
+	DeploymentId  int64  `json:"deploymentId"`
+	ImageName     string `json:"imageName"`
+}
+
+type IngressDeployedSuccess struct {
+	CorrelationId  string `json:"correlationId"`
+	DeploymentId   int64  `json:"deploymentId"`
+	DeploymentName string `json:"deploymentName"`
+}
+
+type IngressDeployedFailure struct {
+	CorrelationId  string `json:"correlationId"`
+	DeploymentId   int64  `json:"deploymentId"`
+	DeploymentName string `json:"deploymentName"`
+}
+
+type DeploymentDeletedSuccess struct {
+	CorrelationId  string `json:"correlationId"`
+	DeploymentId   int64  `json:"deploymentId"`
+	DeploymentName string `json:"deploymentName"`
+}
+
+type DeploymentDeletedFailure struct {
+	CorrelationId  string `json:"correlationId"`
+	DeploymentId   int64  `json:"deploymentId"`
+	DeploymentName string `json:"deploymentName"`
 }

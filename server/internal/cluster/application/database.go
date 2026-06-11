@@ -1,7 +1,6 @@
 package application
 
 import (
-	"fmt"
 	"log"
 
 	"starliner.app/internal/cluster/domain/port"
@@ -10,12 +9,11 @@ import (
 )
 
 type DatabaseApplication struct {
-	deploy   port.Deploy
-	health   port.Health
-	queue    port.Queue
-	pubsub   port.Pubsub
-	crypto   corePort.Crypto
-	notifier *Notifier
+	deploy port.Deploy
+	health port.Health
+	queue  port.Queue
+	pubsub port.Pubsub
+	crypto corePort.Crypto
 }
 
 func NewDatabaseApplication(
@@ -25,20 +23,20 @@ func NewDatabaseApplication(
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
 ) *DatabaseApplication {
-
-	notifier := NewNotifier(queue)
 	return &DatabaseApplication{
-		deploy:   deploy,
-		health:   health,
-		queue:    queue,
-		pubsub:   pubsub,
-		crypto:   crypto,
-		notifier: notifier,
+		deploy: deploy,
+		health: health,
+		queue:  queue,
+		pubsub: pubsub,
+		crypto: crypto,
 	}
 }
 
 func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
-	if d.CorrelationId == nil {
+	correlationId := ""
+	if d.CorrelationId != nil {
+		correlationId = *d.CorrelationId
+	} else {
 		log.Printf("missing correlation id for DB deployment %d\n", d.DeploymentId)
 	}
 
@@ -46,19 +44,24 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 	err := da.deploy.DeployPostgres(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy database: %v\n", err)
-		da.notifier.publishNotification(d.DeploymentId, *d.CorrelationId, "failed", fmt.Sprintf("Failed to deploy database %s", d.DeploymentName))
+		if pubErr := da.queue.PublishDatabaseDeployedFailure(&value.DatabaseDeployedFailure{
+			CorrelationId:  correlationId,
+			DeploymentId:   d.DeploymentId,
+			DeploymentName: d.DeploymentName,
+		}); pubErr != nil {
+			log.Printf("failed to publish database deployed failure: %v\n", pubErr)
+		}
 		return
 	}
 
-	err = da.queue.PublishDatabaseDeployed(&value.DatabaseDeployment{
-		DeploymentId: d.DeploymentId,
-		DbName:       "postgres",
-		Username:     "postgres",
-		Password:     "postgres",
-	})
-	if err != nil {
-		log.Printf("failed to publish event: %v\n", err)
+	if pubErr := da.queue.PublishDatabaseDeployedSuccess(&value.DatabaseDeployedSuccess{
+		CorrelationId:  correlationId,
+		DeploymentId:   d.DeploymentId,
+		DeploymentName: d.DeploymentName,
+		DbName:         "postgres",
+		Username:       "postgres",
+		Password:       "postgres",
+	}); pubErr != nil {
+		log.Printf("failed to publish database deployed success: %v\n", pubErr)
 	}
-
-	da.notifier.publishNotification(d.DeploymentId, *d.CorrelationId, "success", fmt.Sprintf("Database %s deployed successfully", d.DeploymentName))
 }
