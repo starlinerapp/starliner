@@ -54,6 +54,7 @@ func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
 		return
 	}
 
+	// TODO unique password / username
 	if pubErr := da.queue.PublishDatabaseDeployedSuccess(&value.DatabaseDeployedSuccess{
 		CorrelationId:  correlationId,
 		DeploymentId:   d.DeploymentId,

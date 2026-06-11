@@ -99,11 +99,12 @@ export const environmentRouter = {
     .subscription(async function* ({ input, ctx, signal }) {
       const userId = ctx.user?.id;
 
-      let correlationId = await cache.get(userId);
+      const correlationCacheKey = `user:${userId}`;
+      let correlationId = await cache.get(correlationCacheKey);
 
       if (!correlationId) {
         correlationId = randomUUID();
-        await cache.set(`user:${userId}`, correlationId, 60 * 60 * 60);
+        await cache.set(correlationCacheKey, correlationId, 60 * 60 * 60);
       }
 
       let response: AxiosResponse<Readable> | undefined;

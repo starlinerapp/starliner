@@ -4,18 +4,18 @@ import * as React from "react";
 const SvgCheckCircle = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
     fill="none"
     stroke="currentColor"
-    strokeWidth={1.5}
-    className="check-circle_svg__size-6"
-    viewBox="0 0 24 24"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    className="check-circle_svg__lucide check-circle_svg__lucide-circle-check-icon check-circle_svg__lucide-circle-check"
     {...props}
   >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
-    />
+    <circle cx={12} cy={12} r={10} />
+    <path d="m9 12 2 2 4-4" />
   </svg>
 );
 export default SvgCheckCircle;

@@ -68,6 +68,7 @@ type DeploymentStatusLogsCompleted struct {
 	Logs         string
 }
 
+// DatabaseDeployedSuccess TODO: store the password in a keystore before passing down the queue, so the password never touches the JetStream log
 type DatabaseDeployedSuccess struct {
 	CorrelationId  string `json:"correlationId"`
 	DeploymentId   int64  `json:"deploymentId"`

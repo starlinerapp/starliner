@@ -36,6 +36,7 @@ func (p *PubSub) Subscribe(ctx context.Context, channel string) (port.Subscripti
 		for {
 			select {
 			case <-ctx.Done():
+				_ = sub.Close()
 				return
 			case msg, ok := <-ch:
 				if !ok {

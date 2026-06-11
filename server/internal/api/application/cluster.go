@@ -379,6 +379,7 @@ func (ca *ClusterApplication) HandleClusterDeletedSuccess(c *coreValue.ClusterDe
 
 	if err := ca.clusterRepository.DeleteCluster(ctx, c.ClusterId); err != nil {
 		log.Printf("failed to delete cluster %d from database: %v\n", c.ClusterId, err)
+		return
 	}
 
 	ca.broadcastClusterNotification(ctx, c.ClusterId, "success", fmt.Sprintf("Cluster %s deleted successfully", clusterName))
