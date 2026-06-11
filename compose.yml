@@ -112,6 +112,8 @@ services:
         condition: service_healthy
       s3:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "9090:9090"
       - "40000:40000"
