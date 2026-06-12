@@ -190,7 +190,7 @@ export default function LogsViewer({ logs, resetKey }: LogsViewerProps) {
             disabled={isAtTop}
             aria-label="Scroll to top"
             className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-md border border-mauve-6 bg-white text-mauve-12 shadow-md transition-opacity cursor-pointer",
+              "flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-mauve-6 bg-white text-mauve-12 shadow-md transition-opacity",
               isAtTop
                 ? "cursor-default opacity-40"
                 : "opacity-100 hover:bg-mauve-1",
@@ -204,7 +204,7 @@ export default function LogsViewer({ logs, resetKey }: LogsViewerProps) {
             disabled={isAtBottom}
             aria-label="Scroll to bottom"
             className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-md border border-mauve-6 bg-white text-mauve-12 shadow-md transition-opacity cursor-pointer",
+              "flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-mauve-6 bg-white text-mauve-12 shadow-md transition-opacity",
               isAtBottom
                 ? "cursor-default opacity-40"
                 : "opacity-100 hover:bg-mauve-1",
