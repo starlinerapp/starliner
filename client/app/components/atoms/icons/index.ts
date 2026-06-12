@@ -1,6 +1,7 @@
 export { default as ArrowRight } from "./ArrowRight";
 export { default as ChevronDown } from "./ChevronDown";
 export { default as ChevronRight } from "./ChevronRight";
+export { default as ChevronUp } from "./ChevronUp";
 export { default as CodeBracket } from "./CodeBracket";
 export { default as Cog } from "./Cog";
 export { default as Cross } from "./Cross";
