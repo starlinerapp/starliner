@@ -25,6 +25,7 @@ import (
 type GitHubApplication struct {
 	gitHub                port.GitHub
 	queue                 port.Queue
+	registry              port.Registry
 	crypto                corePort.Crypto
 	deploymentRepository  interfaces.DeploymentRepository
 	projectRepository     interfaces.ProjectRepository
@@ -43,6 +44,7 @@ type GitHubApplication struct {
 func NewGitHubApplication(
 	gitHub port.GitHub,
 	queue port.Queue,
+	registry port.Registry,
 	crypto corePort.Crypto,
 	deploymentRepository interfaces.DeploymentRepository,
 	projectRepository interfaces.ProjectRepository,
@@ -60,6 +62,7 @@ func NewGitHubApplication(
 	return &GitHubApplication{
 		gitHub:                gitHub,
 		queue:                 queue,
+		registry:              registry,
 		crypto:                crypto,
 		deploymentRepository:  deploymentRepository,
 		projectRepository:     projectRepository,
@@ -270,6 +273,14 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
+		imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+		registryPushToken, err := ga.registry.GetRepositoryPushToken(ctx, imageName)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
 		coreArgs := make([]*coreValue.Arg, len(deployment.Args))
 		for i, a := range deployment.Args {
 			coreArgs[i] = &coreValue.Arg{
@@ -279,15 +290,16 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 		}
 
 		err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-			BuildId:        b.Id,
-			DeploymentId:   newDeployment.Id,
-			ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
-			GitUrl:         deployment.GitUrl,
-			BranchName:     branch,
-			AccessToken:    accessToken,
-			RootDirectory:  deployment.ProjectRepositoryPath,
-			DockerfilePath: deployment.DockerfilePath,
-			Args:           coreArgs,
+			BuildId:           b.Id,
+			DeploymentId:      newDeployment.Id,
+			ImageName:         imageName,
+			GitUrl:            deployment.GitUrl,
+			BranchName:        branch,
+			AccessToken:       accessToken,
+			RegistryPushToken: registryPushToken,
+			RootDirectory:     deployment.ProjectRepositoryPath,
+			DockerfilePath:    deployment.DockerfilePath,
+			Args:              coreArgs,
 		})
 		if err != nil {
 			errs = append(errs, err)
@@ -534,6 +546,14 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				continue
 			}
 
+			imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+			registryPushToken, err := ga.registry.GetRepositoryPushToken(ctx, imageName)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+
 			coreArgs := make([]*coreValue.Arg, len(d.Args))
 			for i, a := range d.Args {
 				coreArgs[i] = &coreValue.Arg{
@@ -543,15 +563,16 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			}
 
 			err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-				BuildId:        b.Id,
-				DeploymentId:   d.Id,
-				ImageName:      fmt.Sprintf("%s/%s", newEnv.Namespace, normalizedServiceName),
-				GitUrl:         d.GitUrl,
-				BranchName:     event.SourceBranch,
-				AccessToken:    accessToken,
-				RootDirectory:  d.ProjectRepositoryPath,
-				DockerfilePath: d.DockerfilePath,
-				Args:           coreArgs,
+				BuildId:           b.Id,
+				DeploymentId:      d.Id,
+				ImageName:         imageName,
+				GitUrl:            d.GitUrl,
+				BranchName:        event.SourceBranch,
+				AccessToken:       accessToken,
+				RegistryPushToken: registryPushToken,
+				RootDirectory:     d.ProjectRepositoryPath,
+				DockerfilePath:    d.DockerfilePath,
+				Args:              coreArgs,
 			})
 			if err != nil {
 				errs = append(errs, err)
