@@ -13,14 +13,7 @@ RUN go mod download
 
 COPY ../../../server .
 
-ENTRYPOINT ["air", \
-  "--build.cmd=go build -gcflags='all=-N -l' -o ./build/api ./cmd/api/main.go", \
-  "--build.bin=./build/api", \
-  "--build.delay=1000", \
-  "--build.send_interrupt=true", \
-  "--build.kill_delay=2000", \
-  "--build.full_bin=dlv exec --accept-multiclient --headless --continue --log --listen=:40000 --api-version=2 ./build/api --" \
-]
+ENTRYPOINT ["air", "-c", "/config/air.toml"]
 
 FROM golang:1.26-alpine AS builder
 

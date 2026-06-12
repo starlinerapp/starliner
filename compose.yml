@@ -146,6 +146,7 @@ services:
       DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
     volumes:
       - ./server:/app
+      - ./.docker/server/api/air.toml:/config/air.toml:ro
     networks:
       - shared
     labels:
@@ -180,6 +181,7 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
+      - ./.docker/server/builder/air.toml:/config/air.toml:ro
     networks:
       - shared
 
@@ -205,6 +207,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
+      - ./.docker/server/cluster/air.toml:/config/air.toml:ro
     networks:
       - shared
 
@@ -233,6 +236,7 @@ services:
         condition: service_healthy
     volumes:
       - ./server:/app
+      - ./.docker/server/provisioner/air.toml:/config/air.toml:ro
     networks:
       - shared
 
