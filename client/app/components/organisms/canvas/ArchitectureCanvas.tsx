@@ -20,6 +20,7 @@ import DatabaseNode from "~/components/atoms/nodes/DatabaseNode";
 import GitNode from "~/components/atoms/nodes/GitNode";
 import ImageNode from "~/components/atoms/nodes/ImageNode";
 import IngressNode from "~/components/atoms/nodes/IngressNode";
+import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
 import getElkLayout from "~/service/reactflow/getElkLayout";
 import {
   buildEdgePairs,
@@ -27,7 +28,6 @@ import {
   makeBaseNode,
 } from "~/service/reactflow/helpers";
 import { useTRPC } from "~/utils/trpc/react";
-import type { ResponseEnvironment } from "../../../server/api/clients/server/generated";
 
 interface ArchitectureCanvasProps {
   environment: ResponseEnvironment;

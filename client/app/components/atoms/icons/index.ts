@@ -1,4 +1,5 @@
 export { default as ArrowRight } from "./ArrowRight";
+export { default as CheckCircle } from "./CheckCircle";
 export { default as ChevronDown } from "./ChevronDown";
 export { default as ChevronRight } from "./ChevronRight";
 export { default as CodeBracket } from "./CodeBracket";

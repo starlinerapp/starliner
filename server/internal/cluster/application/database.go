@@ -33,19 +33,36 @@ func NewDatabaseApplication(
 }
 
 func (da *DatabaseApplication) HandleDeployDatabase(d *value.Deployment) {
+	correlationId := ""
+	if d.CorrelationId != nil {
+		correlationId = *d.CorrelationId
+	} else {
+		log.Printf("missing correlation id for DB deployment %d\n", d.DeploymentId)
+	}
+
 	releaseName := d.DeploymentName
 	err := da.deploy.DeployPostgres(d.Namespace, releaseName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to deploy database: %v\n", err)
+		if pubErr := da.queue.PublishDatabaseDeployedFailure(&value.DatabaseDeployedFailure{
+			CorrelationId:  correlationId,
+			DeploymentId:   d.DeploymentId,
+			DeploymentName: d.DeploymentName,
+		}); pubErr != nil {
+			log.Printf("failed to publish database deployed failure: %v\n", pubErr)
+		}
+		return
 	}
 
-	err = da.queue.PublishDatabaseDeployed(&value.DatabaseDeployment{
-		DeploymentId: d.DeploymentId,
-		DbName:       "postgres",
-		Username:     "postgres",
-		Password:     "postgres",
-	})
-	if err != nil {
-		log.Printf("failed to publish event: %v\n", err)
+	// TODO unique password / username
+	if pubErr := da.queue.PublishDatabaseDeployedSuccess(&value.DatabaseDeployedSuccess{
+		CorrelationId:  correlationId,
+		DeploymentId:   d.DeploymentId,
+		DeploymentName: d.DeploymentName,
+		DbName:         "postgres",
+		Username:       "postgres",
+		Password:       "postgres",
+	}); pubErr != nil {
+		log.Printf("failed to publish database deployed success: %v\n", pubErr)
 	}
 }

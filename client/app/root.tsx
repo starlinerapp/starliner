@@ -12,6 +12,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import * as ToastPrimitive from "@radix-ui/react-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TRPCReactProvider } from "~/utils/trpc/react";
 
@@ -73,7 +74,10 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCReactProvider>
-        <Outlet />
+        <ToastPrimitive.Provider>
+          <Outlet />
+          <ToastPrimitive.Viewport className="fixed right-4 bottom-4 z-50 flex w-80 max-w-full flex-col gap-2 outline-none" />
+        </ToastPrimitive.Provider>
       </TRPCReactProvider>
     </QueryClientProvider>
   );

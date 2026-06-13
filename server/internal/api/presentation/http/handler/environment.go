@@ -9,14 +9,16 @@ import (
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
+	"starliner.app/internal/api/presentation/http/sse"
 )
 
 type EnvironmentHandler struct {
 	environmentApplication *application.EnvironmentApplication
+	notificationHub        *sse.EnvironmentNotificationHub
 }
 
-func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplication) *EnvironmentHandler {
-	return &EnvironmentHandler{environmentApplication: environmentApplication}
+func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplication, notificationHub *sse.EnvironmentNotificationHub) *EnvironmentHandler {
+	return &EnvironmentHandler{environmentApplication: environmentApplication, notificationHub: notificationHub}
 }
 
 // CreateEnvironment FindAll godoc
@@ -185,4 +187,55 @@ func (eh *EnvironmentHandler) UpdateEnvironmentConnectedBranch(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+// StreamEnvironmentNotifications godoc
+// @Summary Stream environment notifications
+// @State core
+// @Tags environment
+// @ID streamEnvironmentNotifications
+// @Param X-User-ID header string true "User ID"
+// @Param X-Correlation-ID header string true "Correlation ID"
+// @Param id path int true "Environment ID"
+// @Product text/event-stream
+// @Success 200
+// @Header 200 {string} Content-Type "text/event-stream"
+// @Header 200 {string} Cache-Control "no-cache"
+// @Header 200 {string} Connection "keep-alive"
+// @Router /environments/{id}/notifications [get]
+func (eh *EnvironmentHandler) StreamEnvironmentNotifications(c *gin.Context) {
+	correlationId := c.GetHeader("X-Correlation-ID")
+	if correlationId == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "missing X-Correlation-ID header"})
+		return
+	}
+
+	environmentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid environment id"})
+		return
+	}
+
+	sw, ok := sse.NewWriter(c.Writer)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "streaming not supported"})
+		return
+	}
+
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+
+	ch := eh.notificationHub.Subscribe(correlationId, environmentId)
+	defer eh.notificationHub.Unsubscribe(correlationId, environmentId, ch)
+
+	ctx := c.Request.Context()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case notification := <-ch:
+			eh.notificationHub.WriteNotification(sw, notification)
+		}
+	}
 }

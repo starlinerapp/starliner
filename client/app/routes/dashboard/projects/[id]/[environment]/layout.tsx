@@ -4,6 +4,7 @@ import { Outlet, useLocation, useParams } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
+import EnvironmentNotificationListener from "~/components/organisms/notifications/EnvironmentNotificationListener";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { useTRPC } from "~/utils/trpc/react";
 
@@ -118,28 +119,36 @@ export default function ProjectLayout() {
   ];
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="bg-violet-1">
-        {isProjectsLoading || isEnvironmentBuildsLoading ? (
-          <div className="px-4 pt-4">
-            <Skeleton className="h-7 w-32" />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 px-4 pt-4">
-            <h1 className="font-bold text-mauve-12 text-xl">
-              {currentProject?.name}
-            </h1>
-            <ManageEnvironments
-              organization={organization}
-              project={currentProject}
-            />
-          </div>
-        )}
-        <LinkNavigationBar items={navigationBarItems} />
+    <>
+      {currentEnvironment?.id && (
+        <EnvironmentNotificationListener
+          environmentId={currentEnvironment?.id}
+        />
+      )}
+
+      <div className="flex h-full flex-col">
+        <div className="bg-violet-1">
+          {isProjectsLoading || isEnvironmentBuildsLoading ? (
+            <div className="px-4 pt-4">
+              <Skeleton className="h-7 w-32" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 px-4 pt-4">
+              <h1 className="font-bold text-mauve-12 text-xl">
+                {currentProject?.name}
+              </h1>
+              <ManageEnvironments
+                organization={organization}
+                project={currentProject}
+              />
+            </div>
+          )}
+          <LinkNavigationBar items={navigationBarItems} />
+        </div>
+        <div className="h-[calc(100vh-90px)] overflow-y-auto">
+          <Outlet />
+        </div>
       </div>
-      <div className="h-[calc(100vh-90px)] overflow-y-auto">
-        <Outlet />
-      </div>
-    </div>
+    </>
   );
 }

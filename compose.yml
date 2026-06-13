@@ -75,6 +75,9 @@ services:
       context: .
       dockerfile: .docker/client/Dockerfile
       target: development-dependencies-env
+    depends_on:
+      redis:
+        condition: service_healthy
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
@@ -86,6 +89,8 @@ services:
       AUTH_URL: ${AUTH_URL:-http://auth:3000}
       AUTH_PUBLIC_URL: ${AUTH_PUBLIC_URL:-https://auth.dev.starliner.app}
       GITHUB_APP_NAME: ${GITHUB_APP_NAME:-dev-starliner-app}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
       SENTRY_DSN_CLIENT: ${SENTRY_DSN_CLIENT}
     volumes:
       - ./client:/app
@@ -109,6 +114,8 @@ services:
       db:
         condition: service_healthy
       s3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "9090:9090"
@@ -143,6 +150,8 @@ services:
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
       SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
       DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
     volumes:
       - ./server:/app

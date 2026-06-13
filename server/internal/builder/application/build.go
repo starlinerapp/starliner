@@ -40,6 +40,11 @@ func NewBuildApplication(
 func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	ctx := context.Background()
 
+	correlationId := ""
+	if build.CorrelationId != nil {
+		correlationId = *build.CorrelationId
+	}
+
 	publishLogLine := func(line string) {
 		if ba.logPublisher == nil {
 			return
@@ -60,18 +65,17 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		}
 	}()
 
-	publishCompleted := func(commitHash, tag *string, imageName *string, logs string, status value.BuildStatus) {
-		if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
-			BuildId:          build.BuildId,
-			DeploymentId:     build.DeploymentId,
-			ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
-			ImageName:        imageName,
-			CommitHash:       commitHash,
-			Tag:              commitHash,
-			Logs:             logs,
-			BuildStatus:      status,
+	publishFailed := func(stage value.BuildFailureStage, logs string) {
+		if err := ba.queue.PublishBuildFailed(&value.BuildFailed{
+			CorrelationId: correlationId,
+			BuildId:       build.BuildId,
+			DeploymentId:  build.DeploymentId,
+			ImageName:     build.ImageName,
+			GitUrl:        build.GitUrl,
+			Stage:         stage,
+			Logs:          logs,
 		}); err != nil {
-			log.Printf("failed to publish: %v", err)
+			log.Printf("failed to publish build failed: %v", err)
 		}
 	}
 
@@ -79,7 +83,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	if err != nil {
 		msg := fmt.Sprintf("failed to clone repository: %v", err)
 		publishLogLine(msg + "\n")
-		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
+		publishFailed(value.BuildFailureStageClone, msg)
 		return
 	}
 
@@ -94,14 +98,24 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	tag := imagePath + ":" + commitHash
 
 	logs, err := ba.docker.BuildAndPublish(ctx, build.BuildId, projectDir, build.DockerfilePath, tag, build.Args)
-
-	status := value.BuildStatusSuccess
 	if err != nil {
 		msg := fmt.Sprintf("✗ %v", err)
 		publishLogLine(msg + "\n")
 		logs += msg + "\n"
-		status = value.BuildStatusFailed
+		publishFailed(value.BuildFailureStageBuild, logs)
+		return
 	}
 
-	publishCompleted(&commitHash, &tag, &imagePath, logs, status)
+	if err := ba.queue.PublishBuildSucceeded(&value.BuildSucceeded{
+		CorrelationId:    correlationId,
+		BuildId:          build.BuildId,
+		DeploymentId:     build.DeploymentId,
+		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
+		ImageName:        imagePath,
+		CommitHash:       commitHash,
+		Tag:              tag,
+		Logs:             logs,
+	}); err != nil {
+		log.Printf("failed to publish build succeeded: %v", err)
+	}
 }

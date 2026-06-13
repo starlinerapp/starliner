@@ -3,20 +3,24 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"log"
+	"strconv"
+
+	"github.com/nats-io/nats.go"
 	"starliner.app/internal/core/domain/value"
 	"starliner.app/internal/core/infrastructure/nats/jetstream"
 	"starliner.app/internal/provisioner/domain/port"
-	"strconv"
 )
 
 const (
 	CreateCluster    jetstream.Subject = "create.cluster"
-	ClusterCreated   jetstream.Subject = "cluster.created"
 	DeleteCluster    jetstream.Subject = "delete.cluster"
 	ReconcileCluster jetstream.Subject = "reconcile.cluster"
-	ClusterDeleted   jetstream.Subject = "cluster.deleted"
+
+	ClusterProvisionedSuccess jetstream.Subject = "cluster.provisioned.success"
+	ClusterProvisionedFailure jetstream.Subject = "cluster.provisioned.failure"
+	ClusterDeletedSuccess     jetstream.Subject = "cluster.deleted.success"
+	ClusterDeletedFailure     jetstream.Subject = "cluster.deleted.failure"
 )
 
 type Queue struct {
@@ -41,22 +45,6 @@ func (q *Queue) SubscribeToCreateCluster(handler func(cluster *value.ProvisionCl
 	})
 }
 
-func (q *Queue) PublishClusterCreated(cluster *value.ClusterCreated) error {
-	data, err := json.Marshal(cluster)
-	if err != nil {
-		return fmt.Errorf("failed to marshal: %w", err)
-	}
-	return q.publisher.Publish(ClusterCreated, strconv.FormatInt(cluster.Id, 10), data)
-}
-
-func (q *Queue) PublishClusterDeleted(cluster *value.ClusterDeleted) error {
-	data, err := json.Marshal(cluster)
-	if err != nil {
-		return fmt.Errorf("failed to marshal: %w", err)
-	}
-	return q.publisher.Publish(ClusterDeleted, strconv.FormatInt(cluster.Id, 10), data)
-}
-
 func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *value.DeleteCluster)) error {
 	return q.subscriber.Subscribe(DeleteCluster, "*", "deleteCluster", func(cluster []byte) {
 		var c value.DeleteCluster
@@ -76,4 +64,36 @@ func (q *Queue) SubscribeToReconcileCluster(handler func(cluster *value.Reconcil
 		}
 		handler(&c)
 	})
+}
+
+func (q *Queue) PublishClusterProvisionedSuccess(event *value.ClusterProvisionedSuccess) error {
+	data, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterProvisionedSuccess, strconv.FormatInt(event.ClusterId, 10), data)
+}
+
+func (q *Queue) PublishClusterProvisionedFailure(event *value.ClusterProvisionedFailure) error {
+	data, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterProvisionedFailure, strconv.FormatInt(event.ClusterId, 10), data)
+}
+
+func (q *Queue) PublishClusterDeletedSuccess(event *value.ClusterDeletedSuccess) error {
+	data, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterDeletedSuccess, strconv.FormatInt(event.ClusterId, 10), data)
+}
+
+func (q *Queue) PublishClusterDeletedFailure(event *value.ClusterDeletedFailure) error {
+	data, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterDeletedFailure, strconv.FormatInt(event.ClusterId, 10), data)
 }

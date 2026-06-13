@@ -493,3 +493,27 @@ func (ea *EnvironmentApplication) triggerDuplicateGitDeploy(
 		EnvVars:               coreEnvs,
 	})
 }
+
+func (da *DeploymentApplication) broadcastEnvironmentNotification(correlationId string, deploymentId int64, status string, message string) {
+	if correlationId == "" {
+		log.Printf("missing correlation id for notification on deployment %d", deploymentId)
+		return
+	}
+
+	environmentId, err := da.GetDeploymentEnvironmentId(deploymentId)
+	if err != nil {
+		log.Printf("failed to get environment id for deployment %d: %v", deploymentId, err)
+		return
+	}
+	if environmentId == nil {
+		log.Printf("deployment %d has no environment id", deploymentId)
+		return
+	}
+
+	da.notificationHub.Broadcast(correlationId, *environmentId, &coreValue.EnvironmentNotification{
+		CorrelationId: correlationId,
+		DeploymentId:  deploymentId,
+		Status:        status,
+		Message:       message,
+	})
+}

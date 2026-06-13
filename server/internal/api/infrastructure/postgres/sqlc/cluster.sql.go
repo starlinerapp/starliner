@@ -87,6 +87,20 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 	return i, err
 }
 
+const getClusterOrgOwnerId = `-- name: GetClusterOrgOwnerId :one
+SELECT organizations.owner_id
+FROM clusters
+         INNER JOIN organizations ON organizations.id = clusters.organization_id
+WHERE clusters.id = $1
+`
+
+func (q *Queries) GetClusterOrgOwnerId(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getClusterOrgOwnerId, id)
+	var owner_id int64
+	err := row.Scan(&owner_id)
+	return owner_id, err
+}
+
 const getDeploymentCluster = `-- name: GetDeploymentCluster :one
 SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
 FROM clusters

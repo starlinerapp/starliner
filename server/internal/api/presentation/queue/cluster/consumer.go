@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+
 	"go.uber.org/fx"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/port"
@@ -35,24 +36,60 @@ func NewConsumer(
 }
 
 func (c *Consumer) Start() error {
-	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterCreated", func() error {
-		return c.queue.SubscribeToClusterCreated(c.clusterApplication.HandleClusterCreated)
+	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterProvisionedSuccess", func() error {
+		return c.queue.SubscribeToClusterProvisionedSuccess(c.clusterApplication.HandleClusterProvisionedSuccess)
 	})
 
-	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterDeleted", func() error {
-		return c.queue.SubscribeToClusterDeleted(c.clusterApplication.HandleClusterDeleted)
+	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterProvisionedFailure", func() error {
+		return c.queue.SubscribeToClusterProvisionedFailure(c.clusterApplication.HandleClusterProvisionedFailure)
 	})
 
-	go concurrent.WithRecovery(context.Background(), "SubscribeToBuildCompleted", func() error {
-		return c.queue.SubscribeToBuildCompleted(c.deploymentApplication.HandleBuildCompleted)
+	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterDeletedSuccess", func() error {
+		return c.queue.SubscribeToClusterDeletedSuccess(c.clusterApplication.HandleClusterDeletedSuccess)
 	})
 
-	go concurrent.WithRecovery(context.Background(), "SubscribeToDatabaseDeploymentCreated", func() error {
-		return c.queue.SubscribeToDatabaseDeploymentCreated(c.deploymentApplication.HandleDatabaseDeploymentCreated)
+	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterDeletedFailure", func() error {
+		return c.queue.SubscribeToClusterDeletedFailure(c.clusterApplication.HandleClusterDeletedFailure)
 	})
 
-	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentDeleted", func() error {
-		return c.queue.SubscribeToDeploymentDeleted(c.deploymentApplication.HandleDeploymentDeleted)
+	go concurrent.WithRecovery(context.Background(), "SubscribeToBuildSucceeded", func() error {
+		return c.queue.SubscribeToBuildSucceeded(c.deploymentApplication.HandleBuildSucceeded)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToBuildFailed", func() error {
+		return c.queue.SubscribeToBuildFailed(c.deploymentApplication.HandleBuildFailed)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDatabaseDeployedSuccess", func() error {
+		return c.queue.SubscribeToDatabaseDeployedSuccess(c.deploymentApplication.HandleDatabaseDeployedSuccess)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDatabaseDeployedFailure", func() error {
+		return c.queue.SubscribeToDatabaseDeployedFailure(c.deploymentApplication.HandleDatabaseDeployedFailure)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToImageDeployedSuccess", func() error {
+		return c.queue.SubscribeToImageDeployedSuccess(c.deploymentApplication.HandleImageDeployedSuccess)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToImageDeployedFailure", func() error {
+		return c.queue.SubscribeToImageDeployedFailure(c.deploymentApplication.HandleImageDeployedFailure)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToIngressDeployedSuccess", func() error {
+		return c.queue.SubscribeToIngressDeployedSuccess(c.deploymentApplication.HandleIngressDeployedSuccess)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToIngressDeployedFailure", func() error {
+		return c.queue.SubscribeToIngressDeployedFailure(c.deploymentApplication.HandleIngressDeployedFailure)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentDeletedSuccess", func() error {
+		return c.queue.SubscribeToDeploymentDeletedSuccess(c.deploymentApplication.HandleDeploymentDeletedSuccess)
+	})
+
+	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentDeletedFailure", func() error {
+		return c.queue.SubscribeToDeploymentDeletedFailure(c.deploymentApplication.HandleDeploymentDeletedFailure)
 	})
 
 	go concurrent.WithRecovery(context.Background(), "SubscribeToDeploymentStatusLogsCompleted", func() error {

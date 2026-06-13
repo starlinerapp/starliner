@@ -6,6 +6,8 @@ const envSchema = z.object({
   SERVER_BASE_URL: z.string(),
   SERVER_BASIC_AUTH_USER: z.string(),
   SERVER_BASIC_AUTH_PASSWORD: z.string(),
+  REDIS_ADDR: z.string(),
+  REDIS_PASSWORD: z.string(),
   DEPLOYMENT_DOMAIN: z.string(),
   ENVIRONMENT: z.string(),
 });

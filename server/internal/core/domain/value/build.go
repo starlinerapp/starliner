@@ -8,6 +8,7 @@ type Arg struct {
 type TriggerBuild struct {
 	BuildId        int64
 	DeploymentId   int64
+	CorrelationId  *string
 	ImageName      string
 	GitUrl         string
 	BranchName     string
@@ -15,6 +16,33 @@ type TriggerBuild struct {
 	RootDirectory  string
 	DockerfilePath string
 	Args           []*Arg
+}
+
+type BuildFailureStage string
+
+const (
+	BuildFailureStageClone BuildFailureStage = "clone"
+	BuildFailureStageBuild BuildFailureStage = "build"
+)
+
+type BuildSucceeded struct {
+	CorrelationId    string `json:"correlationId"`
+	BuildId          int64  `json:"buildId"`
+	DeploymentId     int64  `json:"deploymentId"`
+	ImageRegistryUrl string `json:"imageRegistryUrl"`
+	ImageName        string `json:"imageName"`
+	CommitHash       string `json:"commitHash"`
+	Tag              string `json:"tag"`
+	Logs             string `json:"logs"`
+}
+type BuildFailed struct {
+	CorrelationId string            `json:"correlationId"`
+	BuildId       int64             `json:"buildId"`
+	DeploymentId  int64             `json:"deploymentId"`
+	ImageName     string            `json:"imageName"`
+	GitUrl        string            `json:"gitUrl"`
+	Stage         BuildFailureStage `json:"stage"`
+	Logs          string            `json:"logs"`
 }
 
 type BuildStatus string
@@ -25,17 +53,6 @@ const (
 	BuildStatusSuccess  BuildStatus = "success"
 	BuildStatusFailed   BuildStatus = "failure"
 )
-
-type BuildCompleted struct {
-	BuildId          int64
-	DeploymentId     int64
-	ImageRegistryUrl string
-	BuildStatus      BuildStatus
-	ImageName        *string
-	CommitHash       *string
-	Tag              *string
-	Logs             string
-}
 
 type BuildLogChunk struct {
 	BuildId int64
