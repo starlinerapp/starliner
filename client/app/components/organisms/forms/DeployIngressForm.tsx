@@ -13,7 +13,6 @@ import { ArrowRight, ChevronDown, Minus, Plus } from "~/components/atoms/icons";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import {
-  buildFullIngressHost,
   getIngressHostSuffix,
   isValidIngressHostPrefix,
   parseIngressHostPrefix,
@@ -37,6 +36,7 @@ export interface IngressFormInput {
 
 interface DeployIngressFormProps {
   deploymentEnvironment: string;
+  deploymentDomain: string;
   defaultValues?: IngressFormInput;
   onSubmit: (data: IngressFormInput) => Promise<void>;
   resetOnSuccess?: boolean;
@@ -47,6 +47,7 @@ const emptyHostEntry: Host = { name: "", paths: [emptyPathEntry] };
 
 export default function DeployIngressForm({
   deploymentEnvironment,
+  deploymentDomain,
   defaultValues,
   onSubmit,
   resetOnSuccess = false,
@@ -56,6 +57,7 @@ export default function DeployIngressForm({
   const hostSuffix = getIngressHostSuffix(
     organization.slug,
     deploymentEnvironment,
+    deploymentDomain,
   );
 
   const parsedDefaultValues = useMemo(() => {
@@ -70,10 +72,16 @@ export default function DeployIngressForm({
           host.name,
           organization.slug,
           deploymentEnvironment,
+          deploymentDomain,
         ),
       })),
     };
-  }, [defaultValues, organization.slug, deploymentEnvironment]);
+  }, [
+    defaultValues,
+    organization.slug,
+    deploymentEnvironment,
+    deploymentDomain,
+  ]);
 
   const {
     control,
@@ -117,11 +125,7 @@ export default function DeployIngressForm({
       await onSubmit({
         hosts: data.hosts.map((host) => ({
           ...host,
-          name: buildFullIngressHost(
-            host.name,
-            organization.slug,
-            deploymentEnvironment,
-          ),
+          name: host.name.trim().toLowerCase(),
         })),
       });
       if (resetOnSuccess) {

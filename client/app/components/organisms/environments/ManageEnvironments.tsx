@@ -98,7 +98,7 @@ export default function ManageEnvironments({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="flex cursor-pointer items-center gap-1.5 rounded-md border-[1px] border-violet-10 px-2 text-sm">
+          <div className="flex cursor-pointer items-center gap-1.5 rounded-md border border-violet-10 px-2 text-sm">
             <h1>{currentEnvironment?.name}</h1>
             <ChevronDown height={15} width={15} />
           </div>
@@ -167,7 +167,7 @@ export default function ManageEnvironments({
                     id="creation-mode-duplicate"
                     type="radio"
                     value="duplicate"
-                    className="mt-[3px]"
+                    className="mt-0.75"
                     {...register("creationMode")}
                   />
                   <div className="flex w-full flex-col gap-2">
@@ -208,7 +208,7 @@ export default function ManageEnvironments({
                     id="creation-mode-empty"
                     type="radio"
                     value="empty"
-                    className="mt-[3px]"
+                    className="mt-0.75"
                     {...register("creationMode")}
                   />
                   <div className="flex w-full flex-col gap-2">

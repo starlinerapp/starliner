@@ -18,20 +18,8 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "a11y": {
-        "noSvgWithoutTitle": "off"
-      },
-      "suspicious": {
-        "noArrayIndexKey": "off"
-      },
-      "correctness": {
-        "useExhaustiveDependencies": "off"
-      },
       "style": {
         "noNonNullAssertion": "off"
-      },
-      "nursery": {
-        "useSortedClasses": "error"
       }
     }
   },

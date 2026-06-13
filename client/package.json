@@ -12,9 +12,9 @@
     "lint:fix": "biome check --write .",
     "test": "vitest",
     "test:run": "vitest run",
-    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons && npm run fmt",
-    "openapi:generate:server": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/clients/server/generated && biome format --write app/server/api/clients/server/generated",
-    "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated && rm /tmp/auth-openapi.json && biome format --write app/server/api/clients/auth/generated"
+    "icons": "npx @svgr/cli --out-dir app/components/atoms/icons --typescript --no-prettier -- assets/icons && npm run lint:fix",
+    "openapi:generate:server": "openapi-generator-cli generate -i '../server/cmd/api/core/docs/core_core_swagger.yaml' -g typescript-axios -o app/server/api/clients/server/generated --global-property apiDocs=false,modelDocs=false && npm run lint:fix",
+    "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated --global-property apiDocs=false,modelDocs=false && rm /tmp/auth-openapi.json && npm run lint:fix"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -60,6 +60,7 @@
     "superjson": "^2.2.2",
     "tailwind-merge": "^3.5.0",
     "throttle-debounce": "^5.0.2",
+    "tw-animate-css": "^1.4.0",
     "zod": "^4.1.5"
   },
   "devDependencies": {
@@ -75,17 +76,17 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/throttle-debounce": "^5.0.2",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.1",
     "jsdom": "^29.1.1",
     "msw": "^2.14.6",
     "tailwindcss": "^4.1.12",
     "tsx": "^4.20.5",
     "typescript": "^5.8.3",
-    "vite": "^6.3.3",
+    "vite": "^8.0.16",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.1.6"
   },
   "overrides": {
-    "esbuild": "^0.27.3"
+    "esbuild": "^0.28.1"
   }
 }

@@ -1,10 +1,15 @@
-import * as Popover from "@radix-ui/react-popover";
 import { useMutation } from "@tanstack/react-query";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { useState } from "react";
 import { useLocation, useMatch, useNavigate } from "react-router";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import { Database, EllipsisVertical, Trash } from "~/components/atoms/icons";
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/atoms/popover/Popover";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { cn } from "~/utils/cn";
 import { useTRPC } from "~/utils/trpc/react";
@@ -37,9 +42,9 @@ export default function DatabaseNode({
       <Handle
         type="target"
         position={Position.Left}
-        className="!border-mauve-8 !h-3 !w-3 !border-1 !bg-white"
+        className="border! h-3! w-3! border-mauve-8! bg-white!"
       />
-      <div className="database-node flex w-[350px] flex-col gap-2 rounded-md border-1 border-mauve-6 bg-mauve-2 p-2 shadow-md">
+      <div className="database-node flex w-87.5 flex-col gap-2 rounded-md border border-mauve-6 bg-mauve-2 p-2 shadow-md">
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
             <Database className="w-5" />
@@ -51,7 +56,7 @@ export default function DatabaseNode({
           />
         </div>
         <div>
-          <div className="flex justify-between rounded-t-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-md">
+          <div className="flex justify-between rounded-t-md border border-mauve-6 bg-gray-2 p-2 text-sm shadow-md">
             <p>Status</p>
             <span className="flex items-center gap-1.5">
               <span
@@ -63,7 +68,7 @@ export default function DatabaseNode({
               <p>{data.status}</p>
             </span>
           </div>
-          <div className="-mt-1.5 flex flex-col gap-2 rounded-md border-1 border-mauve-6 bg-white-a12 p-2 text-sm shadow-sm">
+          <div className="-mt-1.5 flex flex-col gap-2 rounded-md border border-mauve-6 bg-white-a12 p-2 text-sm shadow-sm">
             <span className="flex justify-between">
               <p>Username</p>
               {!data.username ? (
@@ -154,38 +159,32 @@ function DatabaseContextMenu({
   }
 
   return (
-    <Popover.Root>
-      <Popover.Trigger
+    <Popover>
+      <PopoverTrigger
         className="flex h-7 w-7 cursor-pointer rounded-md p-1 hover:bg-gray-4"
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         <EllipsisVertical className="w-6" />
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          side="bottom"
-          align="start"
-          className="m-2 rounded-md border border-gray-6 bg-white shadow-md"
-        >
-          <div className="flex min-w-[120px] flex-col p-0.5">
-            <Popover.Close asChild>
-              <button
-                type="button"
-                className="flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-mauve-11 text-sm hover:bg-gray-3"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClicked();
-                }}
-              >
-                <Trash className="w-5" />
-                <p>Delete</p>
-              </button>
-            </Popover.Close>
-          </div>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+      </PopoverTrigger>
+      <PopoverContent side="bottom" align="start" sideOffset={4}>
+        <div className="flex min-w-30 flex-col p-0.5">
+          <PopoverClose asChild>
+            <button
+              type="button"
+              className="flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-mauve-11 text-sm hover:bg-gray-3"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClicked();
+              }}
+            >
+              <Trash className="w-5" />
+              <p>Delete</p>
+            </button>
+          </PopoverClose>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

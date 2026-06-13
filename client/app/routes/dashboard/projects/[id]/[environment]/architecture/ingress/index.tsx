@@ -3,17 +3,20 @@ import { useLoaderData } from "react-router";
 import DeployIngressForm, {
   type IngressFormInput,
 } from "~/components/organisms/forms/DeployIngressForm";
+import { serverEnv } from "~/env.server";
 import { useEnvironment } from "~/routes/dashboard/projects/[id]/[environment]/architecture/layout";
 import { useTRPC } from "~/utils/trpc/react";
 
 export function loader() {
   return {
-    deploymentEnvironment: process.env.ENVIRONMENT ?? "",
+    deploymentEnvironment: serverEnv.ENVIRONMENT,
+    deploymentDomain: serverEnv.DEPLOYMENT_DOMAIN,
   };
 }
 
 export default function Index() {
-  const { deploymentEnvironment } = useLoaderData<typeof loader>();
+  const { deploymentEnvironment, deploymentDomain } =
+    useLoaderData<typeof loader>();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const createIngressMutation = useMutation(
@@ -26,7 +29,7 @@ export default function Index() {
       {
         id: currentEnvironment.id,
         ingressHosts: data.hosts.map((h) => ({
-          host: h.name,
+          prefix: h.name,
           paths: h.paths.map((p) => ({
             path: p.path,
             pathType: p.pathType as "Prefix" | "Exact",
@@ -49,6 +52,7 @@ export default function Index() {
   return (
     <DeployIngressForm
       deploymentEnvironment={deploymentEnvironment}
+      deploymentDomain={deploymentDomain}
       resetOnSuccess={true}
       onSubmit={onSubmit}
     />

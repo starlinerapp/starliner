@@ -65,8 +65,8 @@ type IngressPath struct {
 }
 
 type IngressHost struct {
-	Host  string        `json:"host" binding:"required"`
-	Paths []IngressPath `json:"paths" binding:"required"`
+	Prefix string        `json:"prefix" binding:"required"`
+	Paths  []IngressPath `json:"paths" binding:"required"`
 }
 
 type DeployIngress struct {

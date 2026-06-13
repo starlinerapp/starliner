@@ -191,15 +191,15 @@ definitions:
     type: object
   request.IngressHost:
     properties:
-      host:
-        type: string
       paths:
         items:
           $ref: '#/definitions/request.IngressPath'
         type: array
+      prefix:
+        type: string
     required:
-    - host
     - paths
+    - prefix
     type: object
   request.IngressPath:
     properties:
@@ -870,12 +870,20 @@ definitions:
         type: string
       serverType:
         type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/response.ClusterStatus'
+        enum:
+        - pending
+        - running
+        - deleted
       teamId:
         type: integer
     required:
     - clusterId
     - clusterName
     - serverType
+    - status
     - teamId
     type: object
   response.TeamRepo:

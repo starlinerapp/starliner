@@ -7,6 +7,7 @@ type TeamCluster struct {
 	ClusterId   int64
 	ClusterName string
 	ServerType  string
+	Status      ClusterStatus
 }
 
 func NewTeamCluster(tc *entity.TeamCluster) *TeamCluster {
@@ -15,6 +16,7 @@ func NewTeamCluster(tc *entity.TeamCluster) *TeamCluster {
 		ClusterId:   tc.ClusterId,
 		ClusterName: tc.ClusterName,
 		ServerType:  tc.ServerType,
+		Status:      mapStatus(tc.Status),
 	}
 }
 

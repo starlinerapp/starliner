@@ -5,8 +5,8 @@ import (
 	"starliner.app/internal/api/presentation/http/dto/request"
 )
 
-func MapHostsFromRequest(hosts []request.IngressHost) []*value.IngressHost {
-	out := make([]*value.IngressHost, 0, len(hosts))
+func MapIngressHostInputsFromRequest(hosts []request.IngressHost) []*value.IngressHostInput {
+	out := make([]*value.IngressHostInput, 0, len(hosts))
 	for _, h := range hosts {
 		paths := make([]*value.IngressPath, 0, len(h.Paths))
 		for _, p := range h.Paths {
@@ -16,9 +16,9 @@ func MapHostsFromRequest(hosts []request.IngressHost) []*value.IngressHost {
 				ServiceName: p.ServiceName,
 			})
 		}
-		out = append(out, &value.IngressHost{
-			Host:  h.Host,
-			Paths: paths,
+		out = append(out, &value.IngressHostInput{
+			Prefix: h.Prefix,
+			Paths:  paths,
 		})
 	}
 	return out

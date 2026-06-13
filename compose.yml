@@ -19,6 +19,12 @@ services:
       - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=600s"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entrypoint=metrics"
+      - "--metrics.prometheus.addentrypointslabels=true"
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addserviceslabels=true"
+      - "--entrypoints.metrics.address=:8082"
     ports:
       - "80:80"
       - "443:443"
@@ -72,6 +78,7 @@ services:
     command: sh -c "npm run dev -- --host 0.0.0.0"
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-local}
+      DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
       CLIENT_BASE_URL: ${CLIENT_BASE_URL:-https://dev.starliner.app}
       SERVER_BASE_URL: ${SERVER_BASE_URL:-server-api:9090}
       SERVER_BASIC_AUTH_USER: ${SERVER_BASIC_AUTH_USER:-test}
@@ -136,8 +143,10 @@ services:
       IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
       SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
+      DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
     volumes:
       - ./server:/app
+      - ./.docker/server/api/air.toml:/config/air.toml:ro
     networks:
       - shared
     labels:
@@ -172,6 +181,7 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
+      - ./.docker/server/builder/air.toml:/config/air.toml:ro
     networks:
       - shared
 
@@ -197,6 +207,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
+      - ./.docker/server/cluster/air.toml:/config/air.toml:ro
     networks:
       - shared
 
@@ -225,6 +236,7 @@ services:
         condition: service_healthy
     volumes:
       - ./server:/app
+      - ./.docker/server/provisioner/air.toml:/config/air.toml:ro
     networks:
       - shared
 

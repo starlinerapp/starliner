@@ -2477,18 +2477,18 @@ const docTemplatecoreCore = `{
         "request.IngressHost": {
             "type": "object",
             "required": [
-                "host",
-                "paths"
+                "paths",
+                "prefix"
             ],
             "properties": {
-                "host": {
-                    "type": "string"
-                },
                 "paths": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/request.IngressPath"
                     }
+                },
+                "prefix": {
+                    "type": "string"
                 }
             }
         },
@@ -3459,6 +3459,7 @@ const docTemplatecoreCore = `{
                 "clusterId",
                 "clusterName",
                 "serverType",
+                "status",
                 "teamId"
             ],
             "properties": {
@@ -3470,6 +3471,18 @@ const docTemplatecoreCore = `{
                 },
                 "serverType": {
                     "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "running",
+                        "deleted"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.ClusterStatus"
+                        }
+                    ]
                 },
                 "teamId": {
                     "type": "integer"

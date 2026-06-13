@@ -12,6 +12,7 @@ type ProjectApplication struct {
 	normalizerService     *coreService.NormalizerService
 	organizationService   *service.OrganizationService
 	teamService           *service.TeamService
+	clusterService        *service.ClusterService
 	projectRepository     interfaces.ProjectRepository
 	environmentRepository interfaces.EnvironmentRepository
 	environmentService    *service.EnvironmentService
@@ -21,6 +22,7 @@ func NewProjectApplication(
 	normalizerService *coreService.NormalizerService,
 	organizationService *service.OrganizationService,
 	teamService *service.TeamService,
+	clusterService *service.ClusterService,
 	projectRepository interfaces.ProjectRepository,
 	environmentRepository interfaces.EnvironmentRepository,
 	environmentService *service.EnvironmentService,
@@ -29,6 +31,7 @@ func NewProjectApplication(
 		normalizerService:     normalizerService,
 		organizationService:   organizationService,
 		teamService:           teamService,
+		clusterService:        clusterService,
 		projectRepository:     projectRepository,
 		environmentRepository: environmentRepository,
 		environmentService:    environmentService,
@@ -38,6 +41,10 @@ func NewProjectApplication(
 func (pa *ProjectApplication) CreateProject(ctx context.Context, name string, clusterId int64, userId int64, teamId int64) (*value.Project, error) {
 	err := pa.teamService.ValidateUserAndClusterInTeam(ctx, userId, teamId, clusterId)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := pa.clusterService.ValidateClusterReady(ctx, clusterId); err != nil {
 		return nil, err
 	}
 

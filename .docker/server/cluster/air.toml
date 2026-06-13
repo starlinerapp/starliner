@@ -1,0 +1,34 @@
+root = "."
+tmp_dir = "build"
+
+env_files = [".env"]
+
+[build]
+cmd = "go build -gcflags='all=-N -l' -o ./build/cluster ./cmd/cluster/main.go"
+bin = "./build/cluster"
+full_bin = "dlv exec --accept-multiclient --headless --continue --log --listen=:40002 --api-version=2 ./build/cluster --"
+include_ext = ["go", "tpl", "tmpl", "html", "yaml", "yml"]
+include_dir = ["cmd/cluster", "internal/cluster", "internal/core"]
+include_file = ["go.mod", "go.sum"]
+exclude_dir = ["build", "tmp"]
+exclude_regex = ["_test\\.go"]
+delay = 1000
+send_interrupt = true
+kill_delay = 2000
+stop_on_error = true
+
+[log]
+time = false
+
+[color]
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[misc]
+clean_on_exit = false
+
+[screen]
+clear_on_rebuild = true
+keep_scroll = true

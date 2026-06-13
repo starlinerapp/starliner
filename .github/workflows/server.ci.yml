@@ -6,8 +6,8 @@ on:
 
 jobs:
   server-lint:
-    if: '! github.event.pull_request.draft'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
+    runs-on: [self-hosted, linux]
 
     steps:
       - name: Checkout code
@@ -17,22 +17,15 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: "1.26.4"
+          cache-dependency-path: server/go.sum
 
       - name: Install pgFormatter 5.9
         run: |
-          sudo apt-get update
-          sudo apt-get install -y perl make
-
           version=5.9
           curl -fsSL "https://github.com/darold/pgFormatter/archive/refs/tags/v${version}.tar.gz" -o pgformatter.tar.gz
           tar xzf pgformatter.tar.gz
-
-          cd "pgFormatter-${version}"
-          perl Makefile.PL
-          make
-          sudo make install
-
-          pg_format --version
+          echo "$PWD/pgFormatter-${version}" >> "$GITHUB_PATH"
+          "$PWD/pgFormatter-${version}/pg_format" --version
 
       - name: Check SQL formatting
         run: |

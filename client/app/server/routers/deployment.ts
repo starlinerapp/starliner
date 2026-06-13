@@ -12,7 +12,7 @@ const ingressPathSchema = z.object({
 });
 
 const ingressHostSchema = z.object({
-  host: z.string(),
+  prefix: z.string(),
   paths: z.array(ingressPathSchema),
 });
 

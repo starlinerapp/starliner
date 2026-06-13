@@ -2468,18 +2468,18 @@
         "request.IngressHost": {
             "type": "object",
             "required": [
-                "host",
-                "paths"
+                "paths",
+                "prefix"
             ],
             "properties": {
-                "host": {
-                    "type": "string"
-                },
                 "paths": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/request.IngressPath"
                     }
+                },
+                "prefix": {
+                    "type": "string"
                 }
             }
         },
@@ -3450,6 +3450,7 @@
                 "clusterId",
                 "clusterName",
                 "serverType",
+                "status",
                 "teamId"
             ],
             "properties": {
@@ -3461,6 +3462,18 @@
                 },
                 "serverType": {
                     "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "running",
+                        "deleted"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.ClusterStatus"
+                        }
+                    ]
                 },
                 "teamId": {
                     "type": "integer"
