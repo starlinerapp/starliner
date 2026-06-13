@@ -42,6 +42,7 @@ func (c *Docker) BuildAndPublish(
 	projectDir string,
 	dockerfilePath string,
 	imageTag string,
+	registryPushToken string,
 	args []*value.Arg,
 ) (string, error) {
 	bkClient, err := client.New(ctx, "tcp://buildkit:1234")
@@ -101,15 +102,16 @@ func (c *Docker) BuildAndPublish(
 		frontendAttrs["build-arg:"+a.Name] = a.Value
 	}
 
+	if registryPushToken == "" {
+		return "", fmt.Errorf("registry push token is required")
+	}
+
 	registryUrl := c.config.ImageRegistryUrl
-	username := c.config.ImageRegistryUsername
-	password := c.config.ImageRegistryPassword
 
 	dockerConfig := &configfile.ConfigFile{
 		AuthConfigs: map[string]types.AuthConfig{
 			registryUrl: {
-				Username: username,
-				Password: password,
+				RegistryToken: registryPushToken,
 			},
 		},
 	}

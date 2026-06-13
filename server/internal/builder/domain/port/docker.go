@@ -13,6 +13,7 @@ type Docker interface {
 		projectDir,
 		dockerfilePath string,
 		imageTag string,
+		registryPushToken string,
 		args []*value.Arg,
 	) (string, error)
 }
