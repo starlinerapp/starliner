@@ -151,11 +151,6 @@ export default function Layout() {
                     title: "API Keys",
                     href: `/${slug}/settings/cluster/api-keys`,
                   },
-                  {
-                    id: "runners",
-                    title: "Runners",
-                    href: `/${slug}/settings/cluster/runners`,
-                  },
                 ],
               },
               {
