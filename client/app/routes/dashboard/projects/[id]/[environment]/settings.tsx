@@ -118,7 +118,7 @@ export default function ProjectSettings() {
                 <h2 className="text-mauve-12">PR Environments</h2>
                 <p className="text-mauve-11 text-xs">
                   Automatically created by Starliner when a pull request is
-                  opened and up when the PR is closed.
+                  opened and cleaned up when the PR is closed.
                 </p>
               </div>
 
