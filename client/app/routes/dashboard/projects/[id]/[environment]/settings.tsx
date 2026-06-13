@@ -109,7 +109,7 @@ export default function ProjectSettings() {
     <>
       <div className="w-full space-y-4 p-4">
         <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
+          <div className="flex h-14 items-center rounded-t-md border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
             Project Settings
           </div>
           <div className="flex items-center justify-between border-mauve-6 px-4 py-2">
@@ -137,7 +137,7 @@ export default function ProjectSettings() {
         </div>
 
         <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
+          <div className="flex h-14 items-center rounded-t-md border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
             Environment Settings
           </div>
           <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
@@ -161,7 +161,7 @@ export default function ProjectSettings() {
         </div>
 
         <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
+          <div className="flex h-14 items-center rounded-t-md border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
             Danger Zone
           </div>
           <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">

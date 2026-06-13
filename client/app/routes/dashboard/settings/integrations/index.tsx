@@ -39,7 +39,7 @@ export default function GitHubIntegration() {
       />
       <div className="flex flex-col px-4 py-4">
         <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
+          <div className="flex h-14 items-center rounded-t-md border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
             Integrations
           </div>
           <form onSubmit={() => {}}>

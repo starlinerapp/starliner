@@ -124,7 +124,7 @@ export function RepositoryAccess({
   return (
     <div className="w-full">
       <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-        <div className="flex h-14 items-center justify-between border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
+        <div className="flex h-14 items-center justify-between rounded-t-md border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
           <p>Repositories</p>
           {organization.isOwner && (
             <Dialog

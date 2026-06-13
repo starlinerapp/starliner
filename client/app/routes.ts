@@ -114,6 +114,7 @@ export default [
         ]),
         ...prefix("cluster", [
           route("api-keys", "routes/dashboard/settings/cluster/apiKeys.tsx"),
+          route("runners", "routes/dashboard/settings/cluster/runners.tsx"),
         ]),
         ...prefix("integrations", [
           index("routes/dashboard/settings/integrations/index.tsx"),
