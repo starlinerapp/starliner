@@ -111,7 +111,7 @@ func (c *Docker) BuildAndPublish(
 	dockerConfig := &configfile.ConfigFile{
 		AuthConfigs: map[string]types.AuthConfig{
 			registryUrl: {
-				IdentityToken: registryPushToken,
+				RegistryToken: registryPushToken,
 			},
 		},
 	}
