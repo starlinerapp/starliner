@@ -38,54 +38,56 @@ export default function GitHubIntegration() {
         ]}
       />
       <div className="flex flex-col px-4 py-4">
-        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
+        <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+          <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
             Integrations
           </div>
           <form onSubmit={() => {}}>
-            <div className="flex items-center justify-between gap-2 px-4 py-2">
-              <div className="flex items-center gap-3">
-                <GithubLogo className="h-7 w-7 invert" />
-                <div>
-                  <h2 className="text-mauve-12">GitHub App</h2>
-                  {isLoading ? (
-                    <div className="flex items-center gap-1.5">
-                      <Skeleton className="h-2 w-2 rounded-full" />
-                      <Skeleton className="h-5 w-20" />
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      <div
-                        className={cn(
-                          "h-2 w-2 rounded-full",
-                          githubApp ? "bg-violet-10" : "bg-gray-10",
-                        )}
-                      ></div>
-                      <p
-                        className={cn(
-                          "text-mauve-11 text-sm",
-                          githubApp && "text-violet-11",
-                        )}
-                      >
-                        {githubApp ? "Installed" : "Not installed"}
-                      </p>
-                    </div>
-                  )}
+            <div className="mx-1 mb-1 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+              <div className="flex h-14 items-center justify-between gap-2 px-4">
+                <div className="flex items-center gap-3">
+                  <GithubLogo className="h-7 w-7 invert" />
+                  <div>
+                    <h2 className="text-mauve-12">GitHub App</h2>
+                    {isLoading ? (
+                      <div className="flex items-center gap-1.5">
+                        <Skeleton className="h-2 w-2 rounded-full" />
+                        <Skeleton className="h-5 w-20" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <div
+                          className={cn(
+                            "h-2 w-2 rounded-full",
+                            githubApp ? "bg-violet-10" : "bg-gray-10",
+                          )}
+                        ></div>
+                        <p
+                          className={cn(
+                            "text-mauve-11 text-sm",
+                            githubApp && "text-violet-11",
+                          )}
+                        >
+                          {githubApp ? "Installed" : "Not installed"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
+                {isLoading ? (
+                  <Skeleton className="h-9 w-38 rounded-md" />
+                ) : githubApp && location ? (
+                  <ConfigureGitHubApp
+                    githubAppName={githubAppName}
+                    redirectTo={location.pathname}
+                  />
+                ) : (
+                  <InstallGitHubApp
+                    githubAppName={githubAppName}
+                    redirectTo={location.pathname}
+                  />
+                )}
               </div>
-              {isLoading ? (
-                <Skeleton className="h-9 w-38 rounded-md" />
-              ) : githubApp && location ? (
-                <ConfigureGitHubApp
-                  githubAppName={githubAppName}
-                  redirectTo={location.pathname}
-                />
-              ) : (
-                <InstallGitHubApp
-                  githubAppName={githubAppName}
-                  redirectTo={location.pathname}
-                />
-              )}
             </div>
           </form>
         </div>

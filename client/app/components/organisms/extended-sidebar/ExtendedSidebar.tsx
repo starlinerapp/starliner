@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import type React from "react";
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router";
@@ -74,21 +73,29 @@ function CollapsibleGroup({ group }: { group: SidebarGroup }) {
         )}
       >
         <span className="truncate">{group.title}</span>
-        <motion.div
-          animate={{ rotate: isOpen ? 0 : -90 }}
-          transition={{ duration: 0.1, ease: "easeInOut" }}
-          className="shrink-0"
+        <div
+          className={cn(
+            "shrink-0 transition-transform duration-200 ease-in-out",
+            isOpen ? "rotate-0" : "-rotate-90",
+          )}
         >
           <ChevronDown className="h-4 w-4 stroke-2" />
-        </motion.div>
-      </button>
-      {isOpen && (
-        <div className="flex flex-col gap-0.5 pl-3">
-          {group.children.map((item) => (
-            <SidebarLink key={item.href} item={item} />
-          ))}
         </div>
-      )}
+      </button>
+      <div
+        className={cn(
+          "grid transition-[grid-template-rows] duration-200 ease-in-out",
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex flex-col gap-0.5 pl-3">
+            {group.children.map((item) => (
+              <SidebarLink key={item.href} item={item} />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
