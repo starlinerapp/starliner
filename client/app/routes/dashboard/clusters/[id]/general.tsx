@@ -73,6 +73,7 @@ export default function General() {
     clusterData?.id &&
       (clusterData.status === "pending" || clusterData.status === "running"),
   );
+  const splitLayout = isLoading || showBottomPanel;
 
   return (
     <ResizablePanelGroup
@@ -80,7 +81,7 @@ export default function General() {
       className="h-full w-full [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:transition-[flex-grow,flex-basis] [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:duration-200 [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:ease-in-out"
     >
       <ResizablePanel
-        defaultSize={showBottomPanel ? 55 : 100}
+        defaultSize={splitLayout ? 55 : 100}
         className="h-full overflow-auto"
       >
         <div className="w-full p-4">
@@ -167,7 +168,7 @@ export default function General() {
         </div>
       </ResizablePanel>
 
-      {showBottomPanel && clusterData && (
+      {splitLayout && (
         <>
           <ResizableHandle />
 
@@ -177,7 +178,10 @@ export default function General() {
             maxSize={85}
             className="border-mauve-6 border-t"
           >
-            <BottomBar clusterId={clusterData.id} status={clusterData.status} />
+            <BottomBar
+              clusterId={clusterData?.id ?? Number(id)}
+              status={clusterData?.status ?? "pending"}
+            />
           </ResizablePanel>
         </>
       )}
