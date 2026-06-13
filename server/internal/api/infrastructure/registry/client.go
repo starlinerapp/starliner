@@ -142,7 +142,7 @@ func (c *Client) ping(ctx context.Context, manager challenge.Manager, endpoint s
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode != http.StatusUnauthorized {
