@@ -85,31 +85,33 @@ export default function Settings() {
           />
         )}
         <div className="w-full pt-4 shadow-xs">
-          <div className="rounded-md border border-mauve-6 text-sm">
-            <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
+          <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+            <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
               Danger Zone
             </div>
-            <div className="flex items-center justify-between px-4 py-2">
-              <div>
-                <p className="font-bold text-md">Delete this Cluster</p>
-                <p className="text-mauve-11 text-xs">
-                  Once you delete a cluster, there is no going back. Please be
-                  certain.
-                </p>
+            <div className="mx-1 mb-1 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+              <div className="flex items-center justify-between gap-2 px-4 py-2">
+                <div>
+                  <h2 className="text-mauve-12">Delete this Cluster</h2>
+                  <p className="text-mauve-11 text-xs">
+                    Once you delete a cluster, there is no going back. Please be
+                    certain.
+                  </p>
+                </div>
+                <Button
+                  className="w-36"
+                  intent="danger"
+                  disabled={
+                    !isCredentialValid ||
+                    clusterData?.status === "pending" ||
+                    clusterData?.status === "deleted"
+                  }
+                  size="sm"
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  Delete this Cluster
+                </Button>
               </div>
-              <Button
-                className="w-36"
-                intent="danger"
-                disabled={
-                  !isCredentialValid ||
-                  clusterData?.status === "pending" ||
-                  clusterData?.status === "deleted"
-                }
-                size="sm"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                Delete this Cluster
-              </Button>
             </div>
           </div>
         </div>

@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
-import type { ImperativePanelHandle } from "react-resizable-panels";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import Button from "~/components/atoms/button/Button";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
@@ -55,21 +54,6 @@ export default function General() {
     navigate,
   ]);
 
-  const bottomPanelRef = useRef<ImperativePanelHandle>(null);
-
-  useEffect(() => {
-    if (clusterData?.status !== "pending" && clusterData?.status !== "running")
-      return;
-
-    const panel = bottomPanelRef.current;
-    if (!panel) return;
-
-    const currentSize = panel.getSize();
-    if (currentSize < 10) {
-      panel.resize(45);
-    }
-  }, [clusterData?.status]);
-
   type LiveIndicatorType = "warning" | "success" | "error";
   const liveIndicatorStatusMap: Record<string, LiveIndicatorType> = {
     pending: "warning",
@@ -85,107 +69,118 @@ export default function General() {
     deleted: "Deleting",
   };
   const status = statusMap[clusterData?.status ?? "pending"];
+  const showBottomPanel = Boolean(
+    clusterData?.id &&
+      (clusterData.status === "pending" || clusterData.status === "running"),
+  );
 
   return (
-    <ResizablePanelGroup direction="vertical" className="h-full w-full">
-      <ResizablePanel defaultSize={70} className="h-full overflow-auto">
+    <ResizablePanelGroup
+      direction="vertical"
+      className="h-full w-full [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:transition-[flex-grow,flex-basis] [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:duration-200 [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:ease-in-out"
+    >
+      <ResizablePanel
+        defaultSize={showBottomPanel ? 55 : 100}
+        className="h-full overflow-auto"
+      >
         <div className="w-full p-4">
-          <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-            <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
+          <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+            <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
               Details
             </div>
-            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
-              <div>
-                <h1 className="text-mauve-12">Status</h1>
+            <div className="mx-1 mb-1 divide-y divide-mauve-6 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+              <div className="flex items-center justify-between gap-2 px-4 py-2">
+                <div>
+                  <h2 className="text-mauve-12">Status</h2>
+                </div>
+                {isLoading ? (
+                  <Skeleton className="h-5 w-24" />
+                ) : (
+                  <span className="flex items-center gap-3">
+                    <LiveIndicator type={liveIndicatorType} />
+                    <p className="pr-2 text-mauve-11 capitalize">{status}</p>
+                  </span>
+                )}
               </div>
-              {isLoading ? (
-                <Skeleton className="h-5 w-24" />
-              ) : (
-                <span className="flex items-center gap-3">
-                  <LiveIndicator type={liveIndicatorType} />
-                  <p className="pr-2 text-mauve-11 capitalize">{status}</p>
-                </span>
-              )}
-            </div>
-            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
-              <div>
-                <h1 className="text-mauve-12">Server Type</h1>
+              <div className="flex items-center justify-between gap-2 px-4 py-2">
+                <div>
+                  <h2 className="text-mauve-12">Server Type</h2>
+                </div>
+                {isLoading ? (
+                  <Skeleton className="h-5 w-24" />
+                ) : (
+                  <CopyToClipboard
+                    className="text-mauve-11"
+                    text={clusterData?.serverType ?? ""}
+                  />
+                )}
               </div>
-              {isLoading ? (
-                <Skeleton className="h-5 w-24" />
-              ) : (
-                <CopyToClipboard
-                  className="text-mauve-11"
-                  text={clusterData?.serverType ?? ""}
-                />
-              )}
-            </div>
-            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
-              <div>
-                <h1 className="text-mauve-12">IPv4 Address</h1>
+              <div className="flex items-center justify-between gap-2 px-4 py-2">
+                <div>
+                  <h2 className="text-mauve-12">IPv4 Address</h2>
+                </div>
+                {isLoading || clusterData?.status === "pending" ? (
+                  <Skeleton className="h-5 w-32" />
+                ) : (
+                  <CopyToClipboard
+                    className="text-mauve-11"
+                    text={clusterData?.ipv4Address ?? ""}
+                  />
+                )}
               </div>
-              {isLoading || clusterData?.status === "pending" ? (
-                <Skeleton className="h-5 w-32" />
-              ) : (
-                <CopyToClipboard
-                  className="text-mauve-11"
-                  text={clusterData?.ipv4Address ?? ""}
-                />
-              )}
-            </div>
-            <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
-              <div>
-                <h1 className="text-mauve-12">User</h1>
+              <div className="flex items-center justify-between gap-2 px-4 py-2">
+                <div>
+                  <h2 className="text-mauve-12">User</h2>
+                </div>
+                {isLoading || clusterData?.status === "pending" ? (
+                  <Skeleton className="h-5 w-14" />
+                ) : (
+                  <CopyToClipboard
+                    className="text-mauve-11"
+                    text={clusterData?.user ?? ""}
+                  />
+                )}
               </div>
-              {isLoading || clusterData?.status === "pending" ? (
-                <Skeleton className="h-5 w-14" />
-              ) : (
-                <CopyToClipboard
-                  className="text-mauve-11"
-                  text={clusterData?.user ?? ""}
-                />
-              )}
-            </div>
-            <div className="flex items-center justify-between px-4 py-2">
-              <div>
-                <h1 className="text-mauve-12">SSH Key</h1>
-                <p className="text-mauve-11 text-xs">
-                  You can use the SSH key to access the cluster.
-                </p>
+              <div className="flex items-center justify-between gap-2 px-4 py-2">
+                <div>
+                  <h2 className="text-mauve-12">SSH Key</h2>
+                  <p className="text-mauve-11 text-xs">
+                    You can use the SSH key to access the cluster.
+                  </p>
+                </div>
+                {isLoading || clusterData?.status === "pending" ? (
+                  <Skeleton className="h-9.5 w-32" />
+                ) : (
+                  <a
+                    href={`/clusters/${id}/resources/private-key`}
+                    download="private-key.pem"
+                  >
+                    <Button intent="secondary" className="w-32">
+                      <Download width={18} strokeWidth={2} />
+                      Download
+                    </Button>
+                  </a>
+                )}
               </div>
-              {isLoading || clusterData?.status === "pending" ? (
-                <Skeleton className="h-9.5 w-32" />
-              ) : (
-                <a
-                  href={`/clusters/${id}/resources/private-key`}
-                  download="private-key.pem"
-                >
-                  <Button intent="secondary" className="w-32">
-                    <Download width={18} strokeWidth={2} />
-                    Download
-                  </Button>
-                </a>
-              )}
             </div>
           </div>
         </div>
       </ResizablePanel>
 
-      <ResizableHandle />
+      {showBottomPanel && clusterData && (
+        <>
+          <ResizableHandle />
 
-      {clusterData?.id &&
-        (clusterData.status === "pending" ||
-          clusterData.status === "running") && (
           <ResizablePanel
-            ref={bottomPanelRef}
-            defaultSize={85}
+            defaultSize={45}
             minSize={4}
             maxSize={85}
             className="border-mauve-6 border-t"
           >
             <BottomBar clusterId={clusterData.id} status={clusterData.status} />
           </ResizablePanel>
-        )}
+        </>
+      )}
     </ResizablePanelGroup>
   );
 }

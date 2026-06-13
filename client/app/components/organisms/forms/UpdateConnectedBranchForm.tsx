@@ -67,10 +67,10 @@ export default function UpdateConnectedBranchForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex items-center justify-between px-4 py-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="contents">
+      <div className="flex h-14 items-center justify-between gap-2 px-4">
         <div className="flex flex-col">
-          <p className="font-bold text-md">Connected Branch</p>
+          <h2 className="text-mauve-12">Connected Branch</h2>
           <p className="text-mauve-11 text-xs">
             Changes made to this GitHub branch will be automatically redeployed.
           </p>

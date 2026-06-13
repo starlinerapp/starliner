@@ -84,7 +84,7 @@ export default function LinkNavigationBar({ items }: NavigationBarProps) {
       ))}
 
       <motion.div
-        className="absolute bottom-0 h-[3px] rounded-md bg-violet-11"
+        className="absolute bottom-0 h-0.75 rounded-md bg-violet-11"
         animate={{ left: activeRect.left, width: activeRect.width }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       />
