@@ -81,17 +81,6 @@ func (cs *ClusterService) requestReconcile(ctx context.Context, req *coreValue.R
 		return
 	}
 
-	key := fmt.Sprintf(clusterReconcileKeyFmt, req.ClusterId)
-	allowed, err := cs.acquireLimiter.TryAcquire(ctx, key, clusterReconcileCooldown)
-	if err != nil {
-		log.Printf("reconcile cooldown check failed for cluster %d: %v\n", req.ClusterId, err)
-		return
-	}
-	if !allowed {
-		log.Printf("reconcile skipped: cluster %d (cooldown)\n", req.ClusterId)
-		return
-	}
-
 	cluster, err := cs.clusterRepository.GetCluster(ctx, req.ClusterId)
 	if err != nil {
 		log.Printf("reconcile skipped: cluster %d: %v\n", req.ClusterId, err)
@@ -105,6 +94,17 @@ func (cs *ClusterService) requestReconcile(ctx context.Context, req *coreValue.R
 
 	if cluster.ProvisioningId == nil || *cluster.ProvisioningId != req.ProvisioningId {
 		log.Printf("reconcile skipped: cluster %d provisioning id mismatch\n", req.ClusterId)
+		return
+	}
+
+	key := fmt.Sprintf(clusterReconcileKeyFmt, req.ClusterId)
+	allowed, err := cs.acquireLimiter.TryAcquire(ctx, key, clusterReconcileCooldown)
+	if err != nil {
+		log.Printf("reconcile cooldown check failed for cluster %d: %v\n", req.ClusterId, err)
+		return
+	}
+	if !allowed {
+		log.Printf("reconcile skipped: cluster %d (cooldown)\n", req.ClusterId)
 		return
 	}
 
