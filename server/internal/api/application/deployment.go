@@ -1384,25 +1384,19 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				deployment.ProvisioningId = *d.ProvisioningId
 			}
 
-			err = da.requestDeploymentHealth(ctx, deployment)
+			health, err := da.grpcClusterClient.GetHealthStatus(ctx, deployment)
 			if err != nil {
 				log.Printf("failed to get deployment status: %v\n", err)
+				return
+			}
+
+			err = da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
+			if err != nil {
+				log.Printf("failed to update deployment status: %v\n", err)
 			}
 		}(d)
 	}
 	return nil
-}
-
-func (da *DeploymentApplication) requestDeploymentHealth(
-	ctx context.Context,
-	deployment *coreValue.Deployment,
-) error {
-	health, err := da.grpcClusterClient.GetHealthStatus(ctx, deployment)
-	if err != nil {
-		return err
-	}
-
-	return da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
 }
 
 func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {
