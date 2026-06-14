@@ -108,102 +108,108 @@ export default function ProjectSettings() {
   return (
     <>
       <div className="w-full space-y-4 p-4">
-        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
+        <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+          <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
             Project Settings
           </div>
-          <div className="flex items-center justify-between border-mauve-6 px-4 py-2">
-            <div className="flex flex-col">
-              <p className="font-bold text-md">PR Environments</p>
-              <p className="text-mauve-11 text-xs">
-                Automatically created by Starliner when a pull request is opened
-                and up when the PR is closed.
-              </p>
-            </div>
+          <div className="mx-1 mb-1 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+            <div className="flex h-14 items-center justify-between gap-2 px-4">
+              <div className="flex flex-col">
+                <h2 className="text-mauve-12">PR Environments</h2>
+                <p className="text-mauve-11 text-xs">
+                  Automatically created by Starliner when a pull request is
+                  opened and cleaned up when the PR is closed.
+                </p>
+              </div>
 
-            {isPreviewEnvEnabledLoading ? (
-              <Skeleton className="h-6.25 w-10.5 rounded-full" />
-            ) : (
-              <Switch
-                checked={previewEnvEnabled?.enabled ?? false}
-                disabled={togglePreviewEnvMutation.isPending}
-                onCheckedChange={(checked) => {
-                  setPendingCheckedValue(checked);
-                  setShowPreviewEnvDialog(true);
-                }}
-              />
-            )}
+              {isPreviewEnvEnabledLoading ? (
+                <Skeleton className="h-6.25 w-10.5 rounded-full" />
+              ) : (
+                <Switch
+                  checked={previewEnvEnabled?.enabled ?? false}
+                  disabled={togglePreviewEnvMutation.isPending}
+                  onCheckedChange={(checked) => {
+                    setPendingCheckedValue(checked);
+                    setShowPreviewEnvDialog(true);
+                  }}
+                />
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
+        <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+          <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
             Environment Settings
           </div>
-          <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
-            <div className="flex flex-col">
-              <p className="font-bold text-md">Assigned Cluster</p>
-              <p className="text-mauve-11 text-xs">
-                The Cluster this project is running on.
-              </p>
+          <div className="mx-1 mb-1 divide-y divide-mauve-6 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+            <div className="flex h-14 items-center justify-between gap-2 px-4">
+              <div className="flex flex-col">
+                <h2 className="text-mauve-12">Assigned Cluster</h2>
+                <p className="text-mauve-11 text-xs">
+                  The Cluster this project is running on.
+                </p>
+              </div>
+              {isClusterDataLoading ? (
+                <Skeleton className="h-9.5 w-1/2" />
+              ) : (
+                <input
+                  className="w-1/2 cursor-not-allowed rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:text-mauve-11"
+                  value={clusterData?.clusterName}
+                  disabled
+                />
+              )}
             </div>
-            {isClusterDataLoading ? (
-              <Skeleton className="h-9.5 w-1/2" />
-            ) : (
-              <input
-                className="w-1/2 cursor-not-allowed rounded-md border border-mauve-6 p-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] disabled:text-mauve-11"
-                value={clusterData?.clusterName}
-                disabled
-              />
-            )}
+            <UpdateConnectedBranchForm />
           </div>
-          <UpdateConnectedBranchForm />
         </div>
 
-        <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-          <div className="flex h-14 items-center border-mauve-6 border-b bg-gray-2 px-4 text-mauve-12 text-xs uppercase">
+        <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+          <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
             Danger Zone
           </div>
-          <div className="flex items-center justify-between border-mauve-6 border-b px-4 py-2">
-            <div>
-              <p className="font-bold text-md">Delete this Environment</p>
-              <p className="text-mauve-11 text-xs">
-                Once you delete an environment, there is no going back. Please
-                be certain.
-              </p>
+          <div className="mx-1 mb-1 divide-y divide-mauve-6 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+            <div className="flex h-14 items-center justify-between gap-2 px-4">
+              <div>
+                <h2 className="text-mauve-12">Delete this Environment</h2>
+                <p className="text-mauve-11 text-xs">
+                  Once you delete an environment, there is no going back. Please
+                  be certain.
+                </p>
+              </div>
+              <Button
+                className="w-48"
+                intent="danger"
+                disabled={
+                  deleteEnvironmentMutation.isPending ||
+                  environmentId == null ||
+                  isClusterDataLoading ||
+                  environmentSlug === "production"
+                }
+                size="sm"
+                onClick={() => setShowDeleteEnvDialog(true)}
+              >
+                Delete this Environment
+              </Button>
             </div>
-            <Button
-              className="w-48"
-              intent="danger"
-              disabled={
-                deleteEnvironmentMutation.isPending ||
-                environmentId == null ||
-                isClusterDataLoading ||
-                environmentSlug === "production"
-              }
-              size="sm"
-              onClick={() => setShowDeleteEnvDialog(true)}
-            >
-              Delete this Environment
-            </Button>
-          </div>
-          <div className="flex items-center justify-between border-mauve-6 px-4 py-2">
-            <div>
-              <p className="font-bold text-md">Delete this Project</p>
-              <p className="text-mauve-11 text-xs">
-                Deleting the project will delete all environments and
-                deployments associated with it.
-              </p>
+            <div className="flex h-14 items-center justify-between gap-2 px-4">
+              <div>
+                <h2 className="text-mauve-12">Delete this Project</h2>
+                <p className="text-mauve-11 text-xs">
+                  Deleting the project will delete all environments and
+                  deployments associated with it.
+                </p>
+              </div>
+              <Button
+                className="w-38"
+                intent="danger"
+                disabled={isClusterDataLoading}
+                size="sm"
+                onClick={() => setShowDeleteProjectDialog(true)}
+              >
+                Delete this Project
+              </Button>
             </div>
-            <Button
-              className="w-38"
-              intent="danger"
-              disabled={isClusterDataLoading}
-              size="sm"
-              onClick={() => setShowDeleteProjectDialog(true)}
-            >
-              Delete this Project
-            </Button>
           </div>
         </div>
       </div>

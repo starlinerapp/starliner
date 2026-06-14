@@ -1,5 +1,9 @@
-import * as Popover from "@radix-ui/react-popover";
 import { useNavigate } from "react-router";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/atoms/popover/Popover";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { getAuthClient } from "~/utils/auth/client";
 
@@ -43,48 +47,47 @@ export default function Avatar() {
   }
 
   return (
-    <Popover.Root>
-      <Popover.Trigger className="flex h-full w-full cursor-pointer items-center justify-center rounded-md border-1 border-white hover:border-gray-4 hover:bg-gray-4 data-[state=open]:border-gray-4 data-[state=open]:bg-gray-4">
+    <Popover>
+      <PopoverTrigger className="flex h-full w-full cursor-pointer items-center justify-center rounded-md border-1 border-white hover:border-gray-4 hover:bg-gray-4 data-[state=open]:border-gray-4 data-[state=open]:bg-gray-4">
         {isSessionPending ? (
           <Skeleton className="h-8 w-8 rounded-full" />
         ) : (
           <AvatarIcon name={username} profilePicture={profilePicture} />
         )}
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          side="right"
-          align="start"
-          className="m-2 rounded-md border border-gray-6 bg-white shadow-md"
-        >
-          <div className="flex min-w-[175px] flex-col p-1">
-            <div className="flex gap-2 p-1">
-              <AvatarIcon name={username} profilePicture={profilePicture} />
-              <div className="flex flex-col">
-                <p className="font-bold text-gray-12 text-xs">
-                  {session?.user.name}
-                </p>
-                <p className="text-gray-11 text-xs">{session?.user.email}</p>
-              </div>
+      </PopoverTrigger>
+      <PopoverContent
+        side="right"
+        align="end"
+        sideOffset={4}
+        collisionPadding={8}
+      >
+        <div className="flex min-w-[175px] flex-col p-1">
+          <div className="flex gap-2 p-1">
+            <AvatarIcon name={username} profilePicture={profilePicture} />
+            <div className="flex flex-col">
+              <p className="font-bold text-gray-12 text-xs">
+                {session?.user.name}
+              </p>
+              <p className="text-gray-11 text-xs">{session?.user.email}</p>
             </div>
-            <a
-              href="https://docs.starliner.dev"
-              rel="noreferrer"
-              target="_blank"
-              className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
-            >
-              <p>Documentation</p>
-            </a>
-            <button
-              type="button"
-              className="flex cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
-              onClick={handleSignOutClicked}
-            >
-              <p>Sign Out</p>
-            </button>
           </div>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+          <a
+            href="https://docs.starliner.dev"
+            rel="noreferrer"
+            target="_blank"
+            className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
+          >
+            <p>Documentation</p>
+          </a>
+          <button
+            type="button"
+            className="flex cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
+            onClick={handleSignOutClicked}
+          >
+            <p>Sign Out</p>
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
