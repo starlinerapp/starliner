@@ -3,7 +3,10 @@ package handler
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"starliner.app/internal/cluster/application"
+	"starliner.app/internal/cluster/infrastructure/k8s"
 	"starliner.app/internal/core/domain/value"
 	v1 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
@@ -35,7 +38,10 @@ func (h *HealthHandler) GetHealthStatus(
 
 	health, err := h.statusApplication.GetHealthStatus(ctx, deployment)
 	if err != nil {
-		return nil, err
+		if k8s.IsClusterUnreachable(err) {
+			return nil, status.Error(codes.Unavailable, value.ErrClusterUnreachable.Error())
+		}
+		return nil, status.Errorf(codes.Internal, "check pods health: %v", err)
 	}
 
 	return &v1.GetHealthStatusResponse{

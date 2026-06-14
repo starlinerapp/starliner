@@ -24,6 +24,7 @@ type DeploymentApplication struct {
 	config                 *conf.Config
 	environmentService     *service.EnvironmentService
 	deploymentService      *service.DeploymentService
+	clusterService         *service.ClusterService
 	parserService          *service.ParserService
 	resolverService        *service.ResolverService
 	normalizerService      *coreService.NormalizerService
@@ -52,6 +53,7 @@ func NewDeploymentApplication(
 	githubAppRepository interfaces.GithubAppRepository,
 	gitHub port.GitHub,
 	grpcClusterClient port.ClusterClient,
+	clusterService *service.ClusterService,
 	queue port.Queue,
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
@@ -69,6 +71,7 @@ func NewDeploymentApplication(
 		githubAppRepository:    githubAppRepository,
 		gitHub:                 gitHub,
 		grpcClusterClient:      grpcClusterClient,
+		clusterService:         clusterService,
 		queue:                  queue,
 		crypto:                 crypto,
 	}
@@ -1386,6 +1389,7 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 
 			health, err := da.grpcClusterClient.GetHealthStatus(ctx, deployment)
 			if err != nil {
+				da.clusterService.ReconcileIfUnreachable(ctx, err, deployment)
 				log.Printf("failed to get deployment status: %v\n", err)
 				return
 			}

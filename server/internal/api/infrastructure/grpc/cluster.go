@@ -7,7 +7,9 @@ import (
 	"io"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
@@ -269,6 +271,9 @@ func (c *ClusterClient) GetHealthStatus(
 		ProvisioningId:   deployment.ProvisioningId,
 	})
 	if err != nil {
+		if status.Code(err) == codes.Unavailable {
+			return nil, fmt.Errorf("%w", coreValue.ErrClusterUnreachable)
+		}
 		return nil, err
 	}
 

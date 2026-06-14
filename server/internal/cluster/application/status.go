@@ -2,36 +2,18 @@ package application
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"time"
 
 	"starliner.app/internal/cluster/domain/port"
-	"starliner.app/internal/cluster/infrastructure/k8s"
-	coreport "starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
-const (
-	clusterReconcileCooldown = 10 * time.Minute
-	clusterReconcileKeyFmt   = "starliner:cluster:reconcile:%d"
-)
-
 type StatusApplication struct {
-	health         port.Health
-	pubsub         port.Pubsub
-	acquireLimiter coreport.AcquireLimiter
+	health port.Health
 }
 
-func NewStatusApplication(
-	health port.Health,
-	pubsub port.Pubsub,
-	acquireLimiter coreport.AcquireLimiter,
-) *StatusApplication {
+func NewStatusApplication(health port.Health) *StatusApplication {
 	return &StatusApplication{
-		health:         health,
-		pubsub:         pubsub,
-		acquireLimiter: acquireLimiter,
+		health: health,
 	}
 }
 
@@ -41,19 +23,6 @@ func (sa *StatusApplication) GetHealthStatus(
 ) (*value.HealthStatus, error) {
 	health, err := sa.health.CheckPodsHealthy(d.Namespace, d.DeploymentName, d.KubeconfigBase64)
 	if err != nil {
-		log.Printf("failed to check pods health: %v\n", err)
-		if k8s.IsClusterUnreachable(err) {
-			if d.ClusterId == 0 || d.ProvisioningId == "" {
-				log.Printf(
-					"reconcile not triggered: deployment %d missing cluster metadata (clusterId=%d provisioningId=%q)\n",
-					d.DeploymentId,
-					d.ClusterId,
-					d.ProvisioningId,
-				)
-			} else {
-				sa.RequestClusterReconcile(d)
-			}
-		}
 		return nil, err
 	}
 
@@ -61,35 +30,4 @@ func (sa *StatusApplication) GetHealthStatus(
 		Health: value.Health(health.Health),
 		Status: health.Status,
 	}, nil
-}
-
-func (sa *StatusApplication) RequestClusterReconcile(d *value.Deployment) {
-	ctx := context.Background()
-	key := fmt.Sprintf(clusterReconcileKeyFmt, d.ClusterId)
-
-	allowed, err := sa.acquireLimiter.TryAcquire(ctx, key, clusterReconcileCooldown)
-	if err != nil {
-		log.Printf("reconcile cooldown check failed for cluster %d: %v\n", d.ClusterId, err)
-		return
-	}
-	if !allowed {
-		log.Printf("reconcile skipped: cluster %d (cooldown)\n", d.ClusterId)
-		return
-	}
-
-	err = sa.pubsub.PublishReconcileClusterRequest(&value.ReconcileClusterRequest{
-		ClusterId:      d.ClusterId,
-		OrganizationId: d.OrganizationId,
-		ProvisioningId: d.ProvisioningId,
-	})
-	if err != nil {
-		log.Printf("failed to publish reconcile cluster request: %v\n", err)
-		return
-	}
-	log.Printf(
-		"reconcile requested: cluster %d deployment %d namespace %q\n",
-		d.ClusterId,
-		d.DeploymentId,
-		d.Namespace,
-	)
 }

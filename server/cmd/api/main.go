@@ -9,15 +9,14 @@ import (
 	"starliner.app/internal/api/infrastructure/email"
 	"starliner.app/internal/api/infrastructure/github"
 	"starliner.app/internal/api/infrastructure/grpc"
-	"starliner.app/internal/api/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
 	"starliner.app/internal/api/infrastructure/postgres"
 	"starliner.app/internal/api/presentation/http"
-	clusterpubsub "starliner.app/internal/api/presentation/pubsub/cluster"
 	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
 	"starliner.app/internal/api/presentation/scheduler"
 	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
+	"starliner.app/internal/core/infrastructure/redis"
 	"starliner.app/internal/core/infrastructure/s3"
 	"starliner.app/internal/core/infrastructure/sentry"
 )
@@ -27,7 +26,7 @@ func main() {
 		conf.Module,
 		postgres.Module,
 		queue.Module,
-		pubsub.Module,
+		redis.Module,
 		s3.Module,
 		crypto.Module,
 		grpc.Module,
@@ -39,7 +38,6 @@ func main() {
 		application.Module,
 		http.Module,
 		clusterqueue.Module,
-		clusterpubsub.Module,
 		scheduler.Module,
 		sentry.Module("api"),
 	).Run()
