@@ -76,9 +76,6 @@ type GetHealthStatusRequest struct {
 	Namespace        string                 `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	DeploymentName   string                 `protobuf:"bytes,3,opt,name=deployment_name,json=deploymentName,proto3" json:"deployment_name,omitempty"`
 	KubeconfigBase64 string                 `protobuf:"bytes,4,opt,name=kubeconfig_base64,json=kubeconfigBase64,proto3" json:"kubeconfig_base64,omitempty"`
-	ClusterId        int64                  `protobuf:"varint,5,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	OrganizationId   int64                  `protobuf:"varint,6,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	ProvisioningId   string                 `protobuf:"bytes,7,opt,name=provisioning_id,json=provisioningId,proto3" json:"provisioning_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -137,27 +134,6 @@ func (x *GetHealthStatusRequest) GetDeploymentName() string {
 func (x *GetHealthStatusRequest) GetKubeconfigBase64() string {
 	if x != nil {
 		return x.KubeconfigBase64
-	}
-	return ""
-}
-
-func (x *GetHealthStatusRequest) GetClusterId() int64 {
-	if x != nil {
-		return x.ClusterId
-	}
-	return 0
-}
-
-func (x *GetHealthStatusRequest) GetOrganizationId() int64 {
-	if x != nil {
-		return x.OrganizationId
-	}
-	return 0
-}
-
-func (x *GetHealthStatusRequest) GetProvisioningId() string {
-	if x != nil {
-		return x.ProvisioningId
 	}
 	return ""
 }
@@ -226,16 +202,12 @@ var File_internal_core_infrastructure_grpc_proto_v1_health_proto protoreflect.Fi
 
 const file_internal_core_infrastructure_grpc_proto_v1_health_proto_rawDesc = "" +
 	"\n" +
-	"7internal/core/infrastructure/grpc/proto/v1/health.proto\x12\bproto.v1\"\xa2\x02\n" +
+	"7internal/core/infrastructure/grpc/proto/v1/health.proto\x12\bproto.v1\"\xb1\x01\n" +
 	"\x16GetHealthStatusRequest\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\x03R\fdeploymentId\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12'\n" +
 	"\x0fdeployment_name\x18\x03 \x01(\tR\x0edeploymentName\x12+\n" +
-	"\x11kubeconfig_base64\x18\x04 \x01(\tR\x10kubeconfigBase64\x12\x1d\n" +
-	"\n" +
-	"cluster_id\x18\x05 \x01(\x03R\tclusterId\x12'\n" +
-	"\x0forganization_id\x18\x06 \x01(\x03R\x0eorganizationId\x12'\n" +
-	"\x0fprovisioning_id\x18\a \x01(\tR\x0eprovisioningId\"\x80\x01\n" +
+	"\x11kubeconfig_base64\x18\x04 \x01(\tR\x10kubeconfigBase64\"\x80\x01\n" +
 	"\x17GetHealthStatusResponse\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\x03R\fdeploymentId\x12(\n" +
 	"\x06health\x18\x02 \x01(\x0e2\x10.proto.v1.HealthR\x06health\x12\x16\n" +

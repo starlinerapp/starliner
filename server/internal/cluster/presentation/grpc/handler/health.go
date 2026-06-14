@@ -26,17 +26,12 @@ func (h *HealthHandler) GetHealthStatus(
 	ctx context.Context,
 	req *v1.GetHealthStatusRequest,
 ) (*v1.GetHealthStatusResponse, error) {
-	deployment := &value.Deployment{
-		DeploymentId:     req.GetDeploymentId(),
-		Namespace:        req.GetNamespace(),
-		DeploymentName:   req.GetDeploymentName(),
-		KubeconfigBase64: req.GetKubeconfigBase64(),
-		ClusterId:        req.GetClusterId(),
-		OrganizationId:   req.GetOrganizationId(),
-		ProvisioningId:   req.GetProvisioningId(),
-	}
-
-	health, err := h.statusApplication.GetHealthStatus(ctx, deployment)
+	health, err := h.statusApplication.GetHealthStatus(
+		ctx,
+		req.GetNamespace(),
+		req.GetDeploymentName(),
+		req.GetKubeconfigBase64(),
+	)
 	if err != nil {
 		if k8s.IsClusterUnreachable(err) {
 			return nil, status.Error(codes.Unavailable, value.ErrClusterUnreachable.Error())

@@ -1407,7 +1407,13 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				deployment.ProvisioningId = *d.ProvisioningId
 			}
 
-			health, err := da.grpcClusterClient.GetHealthStatus(ctx, deployment)
+			health, err := da.grpcClusterClient.GetHealthStatus(
+				ctx,
+				deployment.DeploymentId,
+				deployment.Namespace,
+				deployment.DeploymentName,
+				deployment.KubeconfigBase64,
+			)
 			if err != nil {
 				da.clusterService.ReconcileIfUnreachable(ctx, err, deployment)
 				log.Printf("failed to get deployment status: %v\n", err)

@@ -15,9 +15,6 @@ message GetHealthStatusRequest {
   string namespace = 2;
   string deployment_name = 3;
   string kubeconfig_base64 = 4;
-  int64 cluster_id = 5;
-  int64 organization_id = 6;
-  string provisioning_id = 7;
 }
 
 message GetHealthStatusResponse {

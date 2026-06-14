@@ -55,7 +55,13 @@ type ClusterClient interface {
 		sizes <-chan TerminalSize,
 	) error
 
-	GetHealthStatus(ctx context.Context, deployment *coreValue.Deployment) (*coreValue.HealthStatus, error)
+	GetHealthStatus(
+		ctx context.Context,
+		deploymentId int64,
+		namespace string,
+		deploymentName string,
+		kubeconfigBase64 string,
+	) (*coreValue.HealthStatus, error)
 }
 
 type ProvisionerClient interface {

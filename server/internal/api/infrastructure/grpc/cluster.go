@@ -260,19 +260,19 @@ func (c *ClusterClient) OpenTTY(
 
 func (c *ClusterClient) GetHealthStatus(
 	ctx context.Context,
-	deployment *coreValue.Deployment,
+	deploymentId int64,
+	namespace string,
+	deploymentName string,
+	kubeconfigBase64 string,
 ) (*coreValue.HealthStatus, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	resp, err := c.healthServiceClient.GetHealthStatus(ctx, &v2.GetHealthStatusRequest{
-		DeploymentId:     deployment.DeploymentId,
-		Namespace:        deployment.Namespace,
-		DeploymentName:   deployment.DeploymentName,
-		KubeconfigBase64: deployment.KubeconfigBase64,
-		ClusterId:        deployment.ClusterId,
-		OrganizationId:   deployment.OrganizationId,
-		ProvisioningId:   deployment.ProvisioningId,
+		DeploymentId:     deploymentId,
+		Namespace:        namespace,
+		DeploymentName:   deploymentName,
+		KubeconfigBase64: kubeconfigBase64,
 	})
 	if err != nil {
 		if status.Code(err) == codes.Unavailable {
