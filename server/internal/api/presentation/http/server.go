@@ -37,6 +37,7 @@ func NewServer(
 	githubAppHandler *handler.GithubAppHandler,
 	webhookHandler *handler.WebhookHandler,
 	internalHandler *handler.InternalHandler,
+	runnerHandler *handler.RunnerHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery(), sentrygin.New(sentrygin.Options{Repanic: true}), middleware.WithErrorReporting())
@@ -74,6 +75,7 @@ func NewServer(
 		organizationRoutes.POST("/:id/teams/join", teamHandler.JoinTeam)
 		organizationRoutes.GET("/:id/members", organizationHandler.GetOrganizationMembers)
 		organizationRoutes.DELETE("/:id/members", organizationHandler.RemoveOrganizationMember)
+		organizationRoutes.POST("/:id/runners", runnerHandler.CreateRunner)
 	}
 
 	inviteRoutes := engine.Group("/invites")

@@ -1,13 +1,17 @@
-import { useMemo } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import { ChevronDown } from "~/components/atoms/icons";
+import Skeleton from "~/components/atoms/skeleton/Skeleton";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import { cn } from "~/utils/cn";
+import { useTRPC } from "~/utils/trpc/react";
 
 const RUNNER_REPO_URL = "https://github.com/starlinerapp/runner";
 const RUNNER_VERSION = "v0.0.1";
 const RUNNER_PACKAGE = `runner-${RUNNER_VERSION}-linux-amd64.tar`;
 const RUNNER_DIR = `runner-${RUNNER_VERSION}-linux-amd64`;
 const RUNNER_DOWNLOAD_URL = `${RUNNER_REPO_URL}/releases/download/${RUNNER_VERSION}/${RUNNER_PACKAGE}`;
-const RUNNER_TOKEN = "AIOCFPV54MZ3MPTM77HFGCTKFWNJS";
 
 type RunnerImage = "macos" | "linux" | "windows";
 
@@ -30,17 +34,33 @@ $ cd ${RUNNER_DIR}
 $ ./runner install`;
 }
 
-function getConfigureScript() {
+function getConfigureScript(token: string) {
   return `# Register the runner with your organization
-$ ./runner register --token ${RUNNER_TOKEN}
+$ ./runner register --token ${token}
 
 # Start the runner
 $ ./runner run`;
 }
 
 export default function NewRunnerDialog() {
+  const trpc = useTRPC();
+  const organization = useOrganizationContext();
+  const createRunnerMutation = useMutation(
+    trpc.runner.createRunner.mutationOptions(),
+  );
+
+  useEffect(() => {
+    createRunnerMutation.mutate({ organizationId: organization.id });
+  }, [organization.id]);
+
   const downloadScript = useMemo(() => getDownloadScript(), []);
-  const configureScript = useMemo(() => getConfigureScript(), []);
+  const configureScript = useMemo(
+    () =>
+      createRunnerMutation.data
+        ? getConfigureScript(createRunnerMutation.data.token)
+        : "",
+    [createRunnerMutation.data],
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -61,6 +81,10 @@ export default function NewRunnerDialog() {
           infrastructure.
         </p>
       </div>
+
+      {createRunnerMutation.isError && (
+        <ErrorBanner text="Failed to create runner registration token. Please try again." />
+      )}
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -95,7 +119,16 @@ export default function NewRunnerDialog() {
 
         <div className="flex flex-col gap-2">
           <p className="font-semibold text-mauve-12 text-sm">Configure</p>
-          <ScriptBlock script={configureScript} />
+          {createRunnerMutation.isPending ? (
+            <Skeleton className="h-30 w-full rounded-md" />
+          ) : (
+            <>
+              <p className="text-mauve-11 text-xs">
+                Copy this registration token now. It will not be shown again.
+              </p>
+              <ScriptBlock script={configureScript} />
+            </>
+          )}
         </div>
       </div>
     </div>

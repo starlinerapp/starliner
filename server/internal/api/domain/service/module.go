@@ -14,5 +14,6 @@ var Module = fx.Module(
 		NewClusterService,
 		NewParserService,
 		NewResolverService,
+		NewTokenService,
 	),
 )

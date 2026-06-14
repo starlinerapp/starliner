@@ -1493,6 +1493,42 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "/organizations/{id}/runners": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "runner"
+                ],
+                "summary": "Create self-hosted runner registration",
+                "operationId": "createRunner",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.CreateRunner"
+                        }
+                    }
+                }
+            }
+        },
         "/organizations/{id}/settings/credential/hetzner": {
             "get": {
                 "tags": [
@@ -2828,6 +2864,25 @@ const docTemplatecoreCore = `{
                 "ClusterStatusRunning",
                 "ClusterStatusDeleted"
             ]
+        },
+        "response.CreateRunner": {
+            "type": "object",
+            "required": [
+                "expires_at",
+                "id",
+                "token"
+            ],
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
         },
         "response.DatabaseDeployment": {
             "type": "object",

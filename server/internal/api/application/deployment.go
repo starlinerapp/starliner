@@ -21,22 +21,22 @@ import (
 )
 
 type DeploymentApplication struct {
-	config                *conf.Config
-	environmentService    *service.EnvironmentService
-	deploymentService     *service.DeploymentService
-	parserService         *service.ParserService
-	resolverService       *service.ResolverService
-	normalizerService     *coreService.NormalizerService
+	config                 *conf.Config
+	environmentService     *service.EnvironmentService
+	deploymentService      *service.DeploymentService
+	parserService          *service.ParserService
+	resolverService        *service.ResolverService
+	normalizerService      *coreService.NormalizerService
 	environmentRepository  interfaces.EnvironmentRepository
 	organizationRepository interfaces.OrganizationRepository
 	deploymentRepository   interfaces.DeploymentRepository
-	buildRepository       interfaces.BuildRepository
-	githubAppRepository   interfaces.GithubAppRepository
-	gitHub                port.GitHub
-	grpcClusterClient     port.ClusterClient
-	queue                 port.Queue
-	pubsub                port.Pubsub
-	crypto                corePort.Crypto
+	buildRepository        interfaces.BuildRepository
+	githubAppRepository    interfaces.GithubAppRepository
+	gitHub                 port.GitHub
+	grpcClusterClient      port.ClusterClient
+	queue                  port.Queue
+	pubsub                 port.Pubsub
+	crypto                 corePort.Crypto
 }
 
 func NewDeploymentApplication(
@@ -58,22 +58,22 @@ func NewDeploymentApplication(
 	crypto corePort.Crypto,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
-		config:                config,
-		environmentService:    environmentService,
-		deploymentService:     deploymentService,
-		parserService:         parserService,
-		resolverService:       resolverService,
-		normalizerService:     normalizerService,
+		config:                 config,
+		environmentService:     environmentService,
+		deploymentService:      deploymentService,
+		parserService:          parserService,
+		resolverService:        resolverService,
+		normalizerService:      normalizerService,
 		environmentRepository:  environmentRepository,
 		organizationRepository: organizationRepository,
 		deploymentRepository:   deploymentRepository,
-		buildRepository:       buildRepository,
-		githubAppRepository:   githubAppRepository,
-		gitHub:                gitHub,
-		grpcClusterClient:     grpcClusterClient,
-		queue:                 queue,
-		pubsub:                pubsub,
-		crypto:                crypto,
+		buildRepository:        buildRepository,
+		githubAppRepository:    githubAppRepository,
+		gitHub:                 gitHub,
+		grpcClusterClient:      grpcClusterClient,
+		queue:                  queue,
+		pubsub:                 pubsub,
+		crypto:                 crypto,
 	}
 }
 
@@ -974,7 +974,6 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 
 	return ingressDeployment.Id, nil
 }
-
 
 func (da *DeploymentApplication) redeployIngressDeployment(
 	ctx context.Context,

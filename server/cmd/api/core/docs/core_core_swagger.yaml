@@ -428,6 +428,19 @@ definitions:
     - ClusterStatusPending
     - ClusterStatusRunning
     - ClusterStatusDeleted
+  response.CreateRunner:
+    properties:
+      expires_at:
+        type: string
+      id:
+        type: integer
+      token:
+        type: string
+    required:
+    - expires_at
+    - id
+    - token
+    type: object
   response.DatabaseDeployment:
     properties:
       database:
@@ -1908,6 +1921,30 @@ paths:
       summary: Get Organization Projects
       tags:
       - organization
+  /organizations/{id}/runners:
+    post:
+      operationId: createRunner
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.CreateRunner'
+      summary: Create self-hosted runner registration
+      tags:
+      - runner
   /organizations/{id}/settings/credential/hetzner:
     get:
       operationId: getHetznerCredential
