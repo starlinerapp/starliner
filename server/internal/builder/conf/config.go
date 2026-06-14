@@ -7,13 +7,13 @@ import (
 )
 
 type Config struct {
-	S3EndpointUrl         string `mapstructure:"S3_ENDPOINT_URL" validate:"required"`
-	NatsUrl               string `mapstructure:"NATS_URL" validate:"required"`
-	AWSAccessKeyId        string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
-	AWSSecretAccessKey    string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
-	ImageRegistryUrl string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
-	SentryDSN        string `mapstructure:"SENTRY_DSN_SERVER"`
-	Environment           string `mapstructure:"ENVIRONMENT"`
+	S3EndpointUrl      string `mapstructure:"S3_ENDPOINT_URL" validate:"required"`
+	NatsUrl            string `mapstructure:"NATS_URL" validate:"required"`
+	AWSAccessKeyId     string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
+	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
+	ImageRegistryUrl   string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
+	SentryDSN          string `mapstructure:"SENTRY_DSN_SERVER"`
+	Environment        string `mapstructure:"ENVIRONMENT"`
 }
 
 func LoadConfig() (*Config, error) {
