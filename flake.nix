@@ -56,7 +56,7 @@
             fi
           }
           _nix_install_go_tool swag    "github.com/swaggo/swag/cmd/swag@v1.16.6"
-          _nix_install_go_tool arch-go "github.com/arch-go/arch-go/v2@latest"
+          _nix_install_go_tool arch-go "github.com/arch-go/arch-go/v2@v2.1.2"
           unset -f _nix_install_go_tool
         '';
 
