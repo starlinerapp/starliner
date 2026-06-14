@@ -148,7 +148,7 @@ func (da *DeploymentApplication) DeployFromGit(
 
 	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
 
-	registryPushToken, err := da.registry.GetRepositoryPushToken(ctx, imageName)
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 
 	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
 
-	registryPushToken, err := da.registry.GetRepositoryPushToken(ctx, imageName)
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
 	if err != nil {
 		return 0, err
 	}

@@ -275,7 +275,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 
 		imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
 
-		registryPushToken, err := ga.registry.GetRepositoryPushToken(ctx, imageName)
+		registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -546,9 +546,9 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				continue
 			}
 
-			imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+			imageName := fmt.Sprintf("%s/%s", newEnv.Namespace, normalizedServiceName)
 
-			registryPushToken, err := ga.registry.GetRepositoryPushToken(ctx, imageName)
+			registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
 			if err != nil {
 				errs = append(errs, err)
 				continue

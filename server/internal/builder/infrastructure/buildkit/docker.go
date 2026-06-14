@@ -45,6 +45,10 @@ func (c *Docker) BuildAndPublish(
 	registryPushToken string,
 	args []*value.Arg,
 ) (string, error) {
+	if registryPushToken == "" {
+		return "", fmt.Errorf("registry push token is required")
+	}
+
 	bkClient, err := client.New(ctx, "tcp://buildkit:1234")
 	if err != nil {
 		return "", fmt.Errorf("failed to connect to buildkit: %w", err)
@@ -100,10 +104,6 @@ func (c *Docker) BuildAndPublish(
 			continue
 		}
 		frontendAttrs["build-arg:"+a.Name] = a.Value
-	}
-
-	if registryPushToken == "" {
-		return "", fmt.Errorf("registry push token is required")
 	}
 
 	registryUrl := c.config.ImageRegistryUrl

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/docker/distribution/registry/client/auth"
 	"github.com/docker/distribution/registry/client/auth/challenge"
@@ -35,13 +36,21 @@ func (s *staticCredentialStore) RefreshToken(*url.URL, string) string {
 func (s *staticCredentialStore) SetRefreshToken(*url.URL, string, string) {}
 
 func NewClient(cfg *conf.Config) port.Registry {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.ResponseHeaderTimeout = 10 * time.Second
+
 	return &Client{
-		cfg:        cfg,
-		httpClient: http.DefaultClient,
+		cfg: cfg,
+		httpClient: &http.Client{
+			Transport:     transport,
+			CheckRedirect: nil,
+			Jar:           nil,
+			Timeout:       15 * time.Second,
+		},
 	}
 }
 
-func (c *Client) GetRepositoryPushToken(ctx context.Context, repository string) (string, error) {
+func (c *Client) GetRegistryPushToken(ctx context.Context, repository string) (string, error) {
 	if repository == "" {
 		return "", fmt.Errorf("repository is required")
 	}
