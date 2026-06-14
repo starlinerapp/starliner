@@ -37,6 +37,7 @@ type DeploymentApplication struct {
 	queue                  port.Queue
 	pubsub                 port.Pubsub
 	crypto                 corePort.Crypto
+	registry               port.Registry
 }
 
 func NewDeploymentApplication(
@@ -56,6 +57,7 @@ func NewDeploymentApplication(
 	queue port.Queue,
 	pubsub port.Pubsub,
 	crypto corePort.Crypto,
+	registry port.Registry,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		config:                 config,
@@ -74,6 +76,7 @@ func NewDeploymentApplication(
 		queue:                  queue,
 		pubsub:                 pubsub,
 		crypto:                 crypto,
+		registry:               registry,
 	}
 }
 
@@ -108,6 +111,18 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
+	if err != nil {
+		return err
+	}
+
+	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
+	if err != nil {
+		return err
+	}
+
 	d, err := da.deploymentRepository.CreateGitDeployment(
 		ctx,
 		environmentId,
@@ -124,11 +139,6 @@ func (da *DeploymentApplication) DeployFromGit(
 	}
 
 	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
-	if err != nil {
-		return err
-	}
-
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
 	if err != nil {
 		return err
 	}
@@ -152,15 +162,16 @@ func (da *DeploymentApplication) DeployFromGit(
 	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		BuildId:        b.Id,
-		DeploymentId:   d.Id,
-		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
-		GitUrl:         gitUrl,
-		BranchName:     env.ConnectedBranch,
-		AccessToken:    accessToken,
-		RootDirectory:  projectRepositoryPath,
-		DockerfilePath: dockerfilePath,
-		Args:           coreArgs,
+		BuildId:           b.Id,
+		DeploymentId:      d.Id,
+		ImageName:         imageName,
+		GitUrl:            gitUrl,
+		BranchName:        env.ConnectedBranch,
+		AccessToken:       accessToken,
+		RegistryPushToken: registryPushToken,
+		RootDirectory:     projectRepositoryPath,
+		DockerfilePath:    dockerfilePath,
+		Args:              coreArgs,
 	})
 }
 
@@ -206,12 +217,19 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return 0, err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
 	if err != nil {
 		return 0, err
 	}
 
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
+	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
+	if err != nil {
+		return 0, err
+	}
+
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
 	if err != nil {
 		return 0, err
 	}
@@ -220,6 +238,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	if err != nil {
 		return 0, err
 	}
+
 	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
 	if err != nil {
 		return 0, err
@@ -234,15 +253,16 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	}
 
 	err = da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		BuildId:        b.Id,
-		DeploymentId:   d.Id,
-		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
-		AccessToken:    accessToken,
-		GitUrl:         d.GitUrl,
-		BranchName:     env.ConnectedBranch,
-		RootDirectory:  projectRepositoryPath,
-		DockerfilePath: dockerfilePath,
-		Args:           coreArgs,
+		BuildId:           b.Id,
+		DeploymentId:      d.Id,
+		ImageName:         imageName,
+		AccessToken:       accessToken,
+		RegistryPushToken: registryPushToken,
+		GitUrl:            d.GitUrl,
+		BranchName:        env.ConnectedBranch,
+		RootDirectory:     projectRepositoryPath,
+		DockerfilePath:    dockerfilePath,
+		Args:              coreArgs,
 	})
 	if err != nil {
 		return 0, err
