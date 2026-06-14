@@ -7,4 +7,3 @@ ALTER TABLE deployments
 ALTER TABLE deployments
   DROP COLUMN IF EXISTS status_logs_complete,
   DROP COLUMN IF EXISTS status_logs;
-

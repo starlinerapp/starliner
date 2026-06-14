@@ -7,4 +7,3 @@ ALTER TABLE teams
 ALTER TABLE teams
   ADD COLUMN name VARCHAR(255) NOT NULL DEFAULT '',
   DROP CONSTRAINT teams_organization_id_slug_key;
-

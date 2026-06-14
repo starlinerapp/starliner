@@ -1,6 +1,10 @@
 -- +goose Up
 CREATE TABLE team_clusters (
-  team_id BIGINT NOT NULL REFERENCES teams (id) ON DELETE CASCADE, cluster_id BIGINT NOT NULL REFERENCES clusters (id) ON DELETE CASCADE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (team_id, cluster_id)
+  team_id BIGINT NOT NULL REFERENCES teams (id) ON DELETE CASCADE,
+  cluster_id BIGINT NOT NULL REFERENCES clusters (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (team_id, cluster_id)
 );
 
 CREATE TRIGGER trigger_team_clusters_updated_at
@@ -12,4 +16,3 @@ CREATE TRIGGER trigger_team_clusters_updated_at
 DROP TRIGGER IF EXISTS trigger_team_clusters_updated_at ON team_clusters;
 
 DROP TABLE team_clusters;
-

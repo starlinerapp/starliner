@@ -1,29 +1,48 @@
 -- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
   INSERT INTO deployments (
-    name, port, environment_id)
+    name,
+    port,
+    environment_id)
   VALUES (
-    $1, $2, $3)
+    $1,
+    $2,
+    $3)
 RETURNING *
-), new_database_deployment AS (
+),
+new_database_deployment AS (
   INSERT INTO database_deployments (
     deployment_id)
   SELECT id
   FROM new_deployment
   RETURNING *
 )
-SELECT d.id AS deployment_id, d.name, d.port, d.environment_id, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.environment_id,
+  db.username,
+  db.password
 FROM new_deployment d
   INNER JOIN new_database_deployment db ON d.id = db.deployment_id;
 
 -- name: UpdateDatabaseDeploymentCredentials :exec
 UPDATE
   database_deployments
-SET DATABASE = @database, username = @username, password = @password
+SET DATABASE = @database,
+  username = @username,
+  password = @password
 WHERE deployment_id = @deployment_id;
 
 -- name: GetUserEnvironmentDatabaseDeployments :many
-SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.status,
+  d.environment_id,
+  db.database,
+  db.username,
+  db.password
 FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -36,7 +55,14 @@ WHERE environment_id = $1
 ORDER BY d.id DESC;
 
 -- name: GetEnvironmentDatabaseDeployments :many
-SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.status,
+  d.environment_id,
+  db.database,
+  db.username,
+  db.password
 FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -45,7 +71,14 @@ WHERE environment_id = $1
 ORDER BY d.id DESC;
 
 -- name: GetUserDatabaseDeploymentById :one
-SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.status,
+  d.environment_id,
+  db.database,
+  db.username,
+  db.password
 FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -55,4 +88,3 @@ FROM deployments d
 WHERE d.id = @deployment_id
   AND team_members.user_id = @user_id
   AND d.deleted_at IS NULL;
-

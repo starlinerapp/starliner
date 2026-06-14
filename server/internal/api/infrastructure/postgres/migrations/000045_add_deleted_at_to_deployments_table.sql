@@ -10,4 +10,3 @@ DROP INDEX IF EXISTS idx_deployments_deleted_at;
 
 ALTER TABLE deployments
   DROP COLUMN IF EXISTS deleted_at;
-

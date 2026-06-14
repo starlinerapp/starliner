@@ -1,6 +1,11 @@
 -- +goose Up
 CREATE TABLE organizations (
-  id BIGSERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL UNIQUE, slug VARCHAR(255) NOT NULL UNIQUE, owner_id BIGINT NOT NULL REFERENCES users (id) ON DELETE RESTRICT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  slug VARCHAR(255) NOT NULL UNIQUE,
+  owner_id BIGINT NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TRIGGER trigger_organizations_updated_at
@@ -12,4 +17,3 @@ CREATE TRIGGER trigger_organizations_updated_at
 DROP TRIGGER IF EXISTS trigger_organizations_updated_at ON organizations;
 
 DROP TABLE organizations;
-

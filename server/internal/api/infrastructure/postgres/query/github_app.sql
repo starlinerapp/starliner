@@ -1,8 +1,10 @@
 -- name: CreateGithubApp :one
 INSERT INTO github_apps (
-  installation_id, organization_id)
+  installation_id,
+  organization_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 RETURNING *;
 
 -- name: GetOrganizationGithubApp :one
@@ -22,4 +24,3 @@ WHERE e.id = $1;
 -- name: DeleteGithubAppByInstallationId :exec
 DELETE FROM github_apps
 WHERE installation_id = $1;
-
