@@ -111,6 +111,18 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
+	if err != nil {
+		return err
+	}
+
+	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
+	if err != nil {
+		return err
+	}
+
 	d, err := da.deploymentRepository.CreateGitDeployment(
 		ctx,
 		environmentId,
@@ -131,24 +143,12 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
-	if err != nil {
-		return err
-	}
-
 	ghApp, err := da.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentId)
 	if err != nil {
 		return err
 	}
 
 	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-	if err != nil {
-		return err
-	}
-
-	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
-
-	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
 	if err != nil {
 		return err
 	}
@@ -217,12 +217,19 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return 0, err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
 	if err != nil {
 		return 0, err
 	}
 
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
+	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
+	if err != nil {
+		return 0, err
+	}
+
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
 	if err != nil {
 		return 0, err
 	}
@@ -231,14 +238,8 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	if err != nil {
 		return 0, err
 	}
+
 	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-	if err != nil {
-		return 0, err
-	}
-
-	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
-
-	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
 	if err != nil {
 		return 0, err
 	}

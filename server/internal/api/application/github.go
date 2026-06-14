@@ -217,6 +217,20 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
+		normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(deployment.Name)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+		registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
 		envs := gitEntityEnvVarsToValue(deployment.EnvVars)
 		args := gitEntityArgsToValue(deployment.Args)
 
@@ -252,12 +266,6 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(deployment.Name)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
 		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentID)
 		if err != nil {
 			errs = append(errs, err)
@@ -268,14 +276,6 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 		}
 
 		accessToken, err := ga.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
-
-		registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -519,13 +519,21 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 
 		gitDeployments := deployments.GitDeployments
 		for _, d := range gitDeployments {
-			b, err := ga.buildRepository.CreateBuild(ctx, d.Id, "push")
+			normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
 			if err != nil {
 				errs = append(errs, err)
 				continue
 			}
 
-			normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
+			imageName := fmt.Sprintf("%s/%s", newEnv.Namespace, normalizedServiceName)
+
+			registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+
+			b, err := ga.buildRepository.CreateBuild(ctx, d.Id, "push")
 			if err != nil {
 				errs = append(errs, err)
 				continue
@@ -541,14 +549,6 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			}
 
 			accessToken, err := ga.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			imageName := fmt.Sprintf("%s/%s", newEnv.Namespace, normalizedServiceName)
-
-			registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
 			if err != nil {
 				errs = append(errs, err)
 				continue
