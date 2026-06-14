@@ -23,11 +23,11 @@ func NewHealth() port.Health {
 	return &Health{}
 }
 
-func (h *Health) CheckPodsHealthy(namespace string, releaseName string, kubeconfigBase64 string) (*value.HealthStatus, error) {
+func (h *Health) CheckPodsHealthy(ctx context.Context, namespace string, releaseName string, kubeconfigBase64 string) (*value.HealthStatus, error) {
 	var status *value.HealthStatus
 
 	err := kubeconfig.WithTempKubeConfig(kubeconfigBase64, func(kubeconfigPath string) error {
-		ctx, cancel := context.WithTimeout(context.Background(), healthCheckTimeout)
+		ctx, cancel := context.WithTimeout(ctx, healthCheckTimeout)
 		defer cancel()
 
 		config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)

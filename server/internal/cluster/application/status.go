@@ -18,10 +18,10 @@ func NewStatusApplication(health port.Health) *StatusApplication {
 }
 
 func (sa *StatusApplication) GetHealthStatus(
-	_ context.Context,
+	ctx context.Context,
 	d *value.Deployment,
 ) (*value.HealthStatus, error) {
-	health, err := sa.health.CheckPodsHealthy(d.Namespace, d.DeploymentName, d.KubeconfigBase64)
+	health, err := sa.health.CheckPodsHealthy(ctx, d.Namespace, d.DeploymentName, d.KubeconfigBase64)
 	if err != nil {
 		return nil, err
 	}
