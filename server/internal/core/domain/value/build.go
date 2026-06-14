@@ -6,15 +6,16 @@ type Arg struct {
 }
 
 type TriggerBuild struct {
-	BuildId        int64
-	DeploymentId   int64
-	ImageName      string
-	GitUrl         string
-	BranchName     string
-	AccessToken    string
-	RootDirectory  string
-	DockerfilePath string
-	Args           []*Arg
+	BuildId           int64
+	DeploymentId      int64
+	ImageName         string
+	GitUrl            string
+	BranchName        string
+	AccessToken       string
+	RegistryPushToken string
+	RootDirectory     string
+	DockerfilePath    string
+	Args              []*Arg
 }
 
 type BuildStatus string

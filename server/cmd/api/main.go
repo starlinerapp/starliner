@@ -12,6 +12,7 @@ import (
 	"starliner.app/internal/api/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
 	"starliner.app/internal/api/infrastructure/postgres"
+	"starliner.app/internal/api/infrastructure/registry"
 	"starliner.app/internal/api/presentation/http"
 	clusterpubsub "starliner.app/internal/api/presentation/pubsub/cluster"
 	healthpubsub "starliner.app/internal/api/presentation/pubsub/health"
@@ -44,5 +45,6 @@ func main() {
 		clusterpubsub.Module,
 		scheduler.Module,
 		sentry.Module("api"),
+		registry.Module,
 	).Run()
 }
