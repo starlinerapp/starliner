@@ -24,6 +24,7 @@ type DeploymentApplication struct {
 	config                 *conf.Config
 	environmentService     *service.EnvironmentService
 	deploymentService      *service.DeploymentService
+	clusterService         *service.ClusterService
 	parserService          *service.ParserService
 	resolverService        *service.ResolverService
 	normalizerService      *coreService.NormalizerService
@@ -35,7 +36,6 @@ type DeploymentApplication struct {
 	gitHub                 port.GitHub
 	grpcClusterClient      port.ClusterClient
 	queue                  port.Queue
-	pubsub                 port.Pubsub
 	crypto                 corePort.Crypto
 	registry               port.Registry
 }
@@ -54,8 +54,8 @@ func NewDeploymentApplication(
 	githubAppRepository interfaces.GithubAppRepository,
 	gitHub port.GitHub,
 	grpcClusterClient port.ClusterClient,
+	clusterService *service.ClusterService,
 	queue port.Queue,
-	pubsub port.Pubsub,
 	crypto corePort.Crypto,
 	registry port.Registry,
 ) *DeploymentApplication {
@@ -73,8 +73,8 @@ func NewDeploymentApplication(
 		githubAppRepository:    githubAppRepository,
 		gitHub:                 gitHub,
 		grpcClusterClient:      grpcClusterClient,
+		clusterService:         clusterService,
 		queue:                  queue,
-		pubsub:                 pubsub,
 		crypto:                 crypto,
 		registry:               registry,
 	}
@@ -1407,21 +1407,26 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				deployment.ProvisioningId = *d.ProvisioningId
 			}
 
-			err = da.pubsub.PublishDeploymentStatusRequest(deployment)
+			health, err := da.grpcClusterClient.GetHealthStatus(
+				ctx,
+				deployment.DeploymentId,
+				deployment.Namespace,
+				deployment.DeploymentName,
+				deployment.KubeconfigBase64,
+			)
 			if err != nil {
-				log.Printf("failed to publish: %v\n", err)
+				da.clusterService.ReconcileIfUnreachable(ctx, err, deployment)
+				log.Printf("failed to get deployment status: %v\n", err)
+				return
+			}
+
+			err = da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
+			if err != nil {
+				log.Printf("failed to update deployment status: %v\n", err)
 			}
 		}(d)
 	}
 	return nil
-}
-
-func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValue.HealthStatus) {
-	ctx := context.Background()
-	err := da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
-	if err != nil {
-		log.Printf("failed to update deployment status: %v\n", err)
-	}
 }
 
 func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {

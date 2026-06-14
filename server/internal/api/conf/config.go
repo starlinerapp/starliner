@@ -37,6 +37,8 @@ type Config struct {
 	SentryDSN               string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment             string `mapstructure:"ENVIRONMENT"`
 	DeploymentDomain        string `mapstructure:"DEPLOYMENT_DOMAIN" validate:"required"`
+	RedisAddr               string `mapstructure:"REDIS_ADDR" validate:"required"`
+	RedisPassword           string `mapstructure:"REDIS_PASSWORD" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -99,4 +101,12 @@ func (c *Config) GetEnvironment() string {
 
 func (c *Config) GetDeploymentDomain() string {
 	return c.DeploymentDomain
+}
+
+func (c *Config) GetRedisAddr() string {
+	return c.RedisAddr
+}
+
+func (c *Config) GetRedisPassword() string {
+	return c.RedisPassword
 }

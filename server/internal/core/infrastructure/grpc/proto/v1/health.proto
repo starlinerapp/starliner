@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
+
+enum Health {
+  HEALTH_UNSPECIFIED = 0;
+  HEALTH_HEALTHY = 1;
+  HEALTH_UNHEALTHY = 2;
+}
+
+message GetHealthStatusRequest {
+  int64 deployment_id = 1;
+  string namespace = 2;
+  string deployment_name = 3;
+  string kubeconfig_base64 = 4;
+}
+
+message GetHealthStatusResponse {
+  int64 deployment_id = 1;
+  Health health = 2;
+  string status = 3;
+}
+
+service HealthService {
+  rpc GetHealthStatus(GetHealthStatusRequest) returns (GetHealthStatusResponse);
+}
