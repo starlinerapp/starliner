@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -261,6 +262,9 @@ func (c *ClusterClient) GetHealthStatus(
 	ctx context.Context,
 	deployment *coreValue.Deployment,
 ) (*coreValue.HealthStatus, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	resp, err := c.healthServiceClient.GetHealthStatus(ctx, &v2.GetHealthStatusRequest{
 		DeploymentId:     deployment.DeploymentId,
 		Namespace:        deployment.Namespace,
