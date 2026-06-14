@@ -35,10 +35,10 @@ export default function Logs({ deployment }: LogsProps) {
   );
 
   useEffect(() => {
-    if (deployment) {
+    if (deployment?.id) {
       setLogs([]);
     }
-  }, [deployment]);
+  }, [deployment?.id]);
 
   return (
     <>

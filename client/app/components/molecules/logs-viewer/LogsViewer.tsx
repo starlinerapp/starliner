@@ -70,7 +70,7 @@ export default function LogsViewer({ logs, resetKey }: LogsViewerProps) {
     }
 
     if (autoFollowRef.current) {
-      el.scrollTop = el.scrollHeight;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }
     updateButtonState(el);
   }, [filteredLogs]);
