@@ -93,7 +93,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 	imagePath := path.Join(ba.cfg.ImageRegistryUrl, build.ImageName)
 	tag := imagePath + ":" + commitHash
 
-	logs, err := ba.docker.BuildAndPublish(ctx, build.BuildId, projectDir, build.DockerfilePath, tag, build.Args)
+	logs, err := ba.docker.BuildAndPublish(ctx, build.BuildId, projectDir, build.DockerfilePath, tag, build.RegistryPushToken, build.Args)
 
 	status := value.BuildStatusSuccess
 	if err != nil {

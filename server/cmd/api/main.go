@@ -11,6 +11,7 @@ import (
 	"starliner.app/internal/api/infrastructure/grpc"
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
 	"starliner.app/internal/api/infrastructure/postgres"
+	"starliner.app/internal/api/infrastructure/registry"
 	"starliner.app/internal/api/presentation/http"
 	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
 	"starliner.app/internal/api/presentation/scheduler"
@@ -40,5 +41,6 @@ func main() {
 		clusterqueue.Module,
 		scheduler.Module,
 		sentry.Module("api"),
+		registry.Module,
 	).Run()
 }
