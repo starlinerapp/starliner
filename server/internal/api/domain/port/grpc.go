@@ -3,6 +3,8 @@ package port
 import (
 	"context"
 	"io"
+
+	coreValue "starliner.app/internal/core/domain/value"
 )
 
 type TerminalSize struct {
@@ -52,6 +54,8 @@ type ClusterClient interface {
 		stdout io.Writer,
 		sizes <-chan TerminalSize,
 	) error
+
+	GetHealthStatus(ctx context.Context, deployment *coreValue.Deployment) (*coreValue.HealthStatus, error)
 }
 
 type ProvisionerClient interface {

@@ -11,6 +11,7 @@ import (
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
+	coreValue "starliner.app/internal/core/domain/value"
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
@@ -19,6 +20,7 @@ type ClusterClient struct {
 	deploymentStatusLogServiceClient        v2.DeploymentStatusLogServiceClient
 	ingressDeploymentStatusLogServiceClient v2.IngressDeploymentStatusLogServiceClient
 	ttyServiceClient                        v2.TTYServiceClient
+	healthServiceClient                     v2.HealthServiceClient
 }
 
 func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
@@ -32,6 +34,7 @@ func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
 		deploymentStatusLogServiceClient:        v2.NewDeploymentStatusLogServiceClient(conn),
 		ttyServiceClient:                        v2.NewTTYServiceClient(conn),
 		ingressDeploymentStatusLogServiceClient: v2.NewIngressDeploymentStatusLogServiceClient(conn),
+		healthServiceClient:                     v2.NewHealthServiceClient(conn),
 	}, nil
 }
 
@@ -250,4 +253,39 @@ func (c *ClusterClient) OpenTTY(
 		return nil
 	}
 	return err
+}
+
+func (c *ClusterClient) GetHealthStatus(
+	ctx context.Context,
+	deployment *coreValue.Deployment,
+) (*coreValue.HealthStatus, error) {
+	resp, err := c.healthServiceClient.GetHealthStatus(ctx, &v2.GetHealthStatusRequest{
+		DeploymentId:     deployment.DeploymentId,
+		Namespace:        deployment.Namespace,
+		DeploymentName:   deployment.DeploymentName,
+		KubeconfigBase64: deployment.KubeconfigBase64,
+		ClusterId:        deployment.ClusterId,
+		OrganizationId:   deployment.OrganizationId,
+		ProvisioningId:   deployment.ProvisioningId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &coreValue.HealthStatus{
+		DeploymentId: resp.GetDeploymentId(),
+		Health:       healthFromProto(resp.GetHealth()),
+		Status:       resp.GetStatus(),
+	}, nil
+}
+
+func healthFromProto(health v2.Health) coreValue.Health {
+	switch health {
+	case v2.Health_HEALTH_HEALTHY:
+		return coreValue.Healthy
+	case v2.Health_HEALTH_UNHEALTHY:
+		return coreValue.Unhealthy
+	default:
+		return coreValue.Unhealthy
+	}
 }

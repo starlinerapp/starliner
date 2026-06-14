@@ -35,9 +35,11 @@ func NewStatusApplication(
 	}
 }
 
-func (sa *StatusApplication) HandleRequestDeploymentStatus(d *value.Deployment) {
-	releaseName := d.DeploymentName
-	health, err := sa.health.CheckPodsHealthy(d.Namespace, releaseName, d.KubeconfigBase64)
+func (sa *StatusApplication) GetHealthStatus(
+	_ context.Context,
+	d *value.Deployment,
+) (*value.HealthStatus, error) {
+	health, err := sa.health.CheckPodsHealthy(d.Namespace, d.DeploymentName, d.KubeconfigBase64)
 	if err != nil {
 		log.Printf("failed to check pods health: %v\n", err)
 		if k8s.IsClusterUnreachable(err) {
@@ -52,17 +54,13 @@ func (sa *StatusApplication) HandleRequestDeploymentStatus(d *value.Deployment) 
 				sa.RequestClusterReconcile(d)
 			}
 		}
-		return
+		return nil, err
 	}
 
-	err = sa.pubsub.PublishDeploymentStatusResponse(&value.HealthStatus{
-		DeploymentId: d.DeploymentId,
-		Health:       value.Health(health.Health),
-		Status:       health.Status,
-	})
-	if err != nil {
-		log.Printf("failed to publish deployment status: %v\n", err)
-	}
+	return &value.HealthStatus{
+		Health: value.Health(health.Health),
+		Status: health.Status,
+	}, nil
 }
 
 func (sa *StatusApplication) RequestClusterReconcile(d *value.Deployment) {
