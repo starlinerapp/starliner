@@ -1,7 +1,11 @@
 package port
 
-import "starliner.app/internal/cluster/domain/value"
+import (
+	"context"
+
+	"starliner.app/internal/cluster/domain/value"
+)
 
 type Health interface {
-	CheckPodsHealthy(namespace string, releaseName string, kubeconfigBase64 string) (*value.HealthStatus, error)
+	CheckPodsHealthy(ctx context.Context, namespace string, releaseName string, kubeconfigBase64 string) (*value.HealthStatus, error)
 }

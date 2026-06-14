@@ -5,12 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"starliner.app/internal/api/conf"
 	"starliner.app/internal/api/domain/port"
 	"starliner.app/internal/api/domain/value"
+	coreValue "starliner.app/internal/core/domain/value"
 	v2 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
@@ -19,6 +23,7 @@ type ClusterClient struct {
 	deploymentStatusLogServiceClient        v2.DeploymentStatusLogServiceClient
 	ingressDeploymentStatusLogServiceClient v2.IngressDeploymentStatusLogServiceClient
 	ttyServiceClient                        v2.TTYServiceClient
+	healthServiceClient                     v2.HealthServiceClient
 }
 
 func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
@@ -32,6 +37,7 @@ func NewClusterClient(cfg *conf.Config) (port.ClusterClient, error) {
 		deploymentStatusLogServiceClient:        v2.NewDeploymentStatusLogServiceClient(conn),
 		ttyServiceClient:                        v2.NewTTYServiceClient(conn),
 		ingressDeploymentStatusLogServiceClient: v2.NewIngressDeploymentStatusLogServiceClient(conn),
+		healthServiceClient:                     v2.NewHealthServiceClient(conn),
 	}, nil
 }
 
@@ -250,4 +256,45 @@ func (c *ClusterClient) OpenTTY(
 		return nil
 	}
 	return err
+}
+
+func (c *ClusterClient) GetHealthStatus(
+	ctx context.Context,
+	deploymentId int64,
+	namespace string,
+	deploymentName string,
+	kubeconfigBase64 string,
+) (*coreValue.HealthStatus, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	resp, err := c.healthServiceClient.GetHealthStatus(ctx, &v2.GetHealthStatusRequest{
+		DeploymentId:     deploymentId,
+		Namespace:        namespace,
+		DeploymentName:   deploymentName,
+		KubeconfigBase64: kubeconfigBase64,
+	})
+	if err != nil {
+		if status.Code(err) == codes.Unavailable {
+			return nil, fmt.Errorf("%w", coreValue.ErrClusterUnreachable)
+		}
+		return nil, err
+	}
+
+	return &coreValue.HealthStatus{
+		DeploymentId: resp.GetDeploymentId(),
+		Health:       healthFromProto(resp.GetHealth()),
+		Status:       resp.GetStatus(),
+	}, nil
+}
+
+func healthFromProto(health v2.Health) coreValue.Health {
+	switch health {
+	case v2.Health_HEALTH_HEALTHY:
+		return coreValue.Healthy
+	case v2.Health_HEALTH_UNHEALTHY:
+		return coreValue.Unhealthy
+	default:
+		return coreValue.Unhealthy
+	}
 }

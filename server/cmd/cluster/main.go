@@ -7,10 +7,8 @@ import (
 	"starliner.app/internal/cluster/infrastructure/dns"
 	"starliner.app/internal/cluster/infrastructure/helm"
 	"starliner.app/internal/cluster/infrastructure/k8s"
-	"starliner.app/internal/cluster/infrastructure/nats/impl/pubsub"
 	"starliner.app/internal/cluster/infrastructure/nats/impl/queue"
 	"starliner.app/internal/cluster/presentation/grpc"
-	sub "starliner.app/internal/cluster/presentation/pubsub"
 	clusterqueue "starliner.app/internal/cluster/presentation/queue"
 	"starliner.app/internal/core/infrastructure/crypto"
 	"starliner.app/internal/core/infrastructure/redis"
@@ -26,10 +24,8 @@ func main() {
 		dns.Module,
 		k8s.Module,
 		queue.Module,
-		pubsub.Module,
 		application.Module,
 		clusterqueue.Module,
-		sub.Module,
 		grpc.Module,
 		sentry.Module("cluster"),
 	).Run()

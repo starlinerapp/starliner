@@ -12,7 +12,6 @@ type DatabaseApplication struct {
 	deploy port.Deploy
 	health port.Health
 	queue  port.Queue
-	pubsub port.Pubsub
 	crypto corePort.Crypto
 }
 
@@ -20,14 +19,12 @@ func NewDatabaseApplication(
 	deploy port.Deploy,
 	health port.Health,
 	queue port.Queue,
-	pubsub port.Pubsub,
 	crypto corePort.Crypto,
 ) *DatabaseApplication {
 	return &DatabaseApplication{
 		deploy: deploy,
 		health: health,
 		queue:  queue,
-		pubsub: pubsub,
 		crypto: crypto,
 	}
 }
