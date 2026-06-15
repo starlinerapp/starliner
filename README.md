@@ -12,7 +12,26 @@ Repository structure:
 - the **.docker** folder contains the Docker Files for all supporting services.
 
 ## Local Development
-You can run the project locally in a few steps using Docker Compose.
+You can run the project locally in a few steps using Docker Compose. Services run in Docker; host-side tooling (codegen, lint, formatting) is provided by a Nix dev shell.
+
+### Nix Dev Shell
+
+**Prerequisites**
+- [Nix](https://nixos.org/download/) with flakes enabled
+- [direnv](https://direnv.net/) (optional, recommended) and [nix-direnv](https://github.com/nix-community/nix-direnv) for automatic shell activation
+
+**Enter the shell**
+
+With direnv (recommended):
+```bash
+direnv allow
+```
+The shell activates automatically when you `cd` into the repository (via `.envrc`).
+
+Or manually:
+```bash
+nix develop
+```
 
 ### SSL Certificates
 Generate a self-signed ssh certificate using the following command and add it to your trust store.
