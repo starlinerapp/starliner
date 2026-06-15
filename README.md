@@ -1,6 +1,7 @@
 # Starliner
 Repository structure:
 - the **client** folder contains the React Router frontend & backend.
+- the **auth** folder contains the authentication service (Better Auth).
 - the **server** folder contains the backend services and core platform logic. It is organized into several key modules:
   - **cmd** contains the application entrypoints for the different services.
   - **internal** contains the main application code, organized by service:
