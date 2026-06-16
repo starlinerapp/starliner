@@ -1,6 +1,11 @@
 -- +goose Up
 CREATE TABLE github_apps (
-  id BIGSERIAL PRIMARY KEY, installation_id BIGINT NOT NULL, organization_id BIGINT NOT NULL REFERENCES organizations (id) ON DELETE CASCADE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), CONSTRAINT github_apps_organization_id_key UNIQUE (organization_id)
+  id BIGSERIAL PRIMARY KEY,
+  installation_id BIGINT NOT NULL,
+  organization_id BIGINT NOT NULL REFERENCES organizations (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT github_apps_organization_id_key UNIQUE (organization_id)
 );
 
 CREATE TRIGGER trigger_github_apps_updated_at
@@ -12,4 +17,3 @@ CREATE TRIGGER trigger_github_apps_updated_at
 DROP TRIGGER IF EXISTS trigger_github_apps_updated_at ON github_apps;
 
 DROP TABLE github_apps;
-

@@ -13,4 +13,3 @@ SET status_logs_complete = CASE WHEN COALESCE(status_logs, '') != '' THEN
   ELSE
     FALSE
   END;
-

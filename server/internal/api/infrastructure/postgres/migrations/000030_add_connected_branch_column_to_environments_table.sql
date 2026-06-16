@@ -5,4 +5,3 @@ ALTER TABLE environments
 -- +goose Down
 ALTER TABLE environments
   DROP COLUMN connected_branch;
-

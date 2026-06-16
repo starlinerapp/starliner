@@ -5,4 +5,3 @@ ALTER TABLE builds
 -- +goose Down
 ALTER TABLE builds
   DROP COLUMN image_name;
-

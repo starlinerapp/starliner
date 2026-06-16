@@ -1,12 +1,23 @@
 -- name: CreateProject :one
 INSERT INTO projects (
-  name, team_id, cluster_id)
+  name,
+  team_id,
+  cluster_id)
 VALUES (
-  $1, $2, $3)
+  $1,
+  $2,
+  $3)
 RETURNING *;
 
 -- name: GetProject :many
-SELECT projects.id AS id, projects.name AS name, projects.team_id AS team_id, teams.slug AS team_slug, projects.cluster_id AS cluster_id, environments.id AS environment_id, environments.name AS environment_name, environments.slug AS environment_slug
+SELECT projects.id AS id,
+  projects.name AS name,
+  projects.team_id AS team_id,
+  teams.slug AS team_slug,
+  projects.cluster_id AS cluster_id,
+  environments.id AS environment_id,
+  environments.name AS environment_name,
+  environments.slug AS environment_slug
 FROM projects
   INNER JOIN teams ON projects.team_id = teams.id
   INNER JOIN team_members ON teams.id = team_members.team_id
@@ -15,7 +26,14 @@ WHERE projects.id = $1
   AND team_members.user_id = $2;
 
 -- name: GetUserProjects :many
-SELECT projects.id AS id, projects.name AS name, projects.team_id AS team_id, teams.slug AS team_slug, environments.id AS environment_id, environments.name AS environment_name, environments.slug AS environment_slug, environments.created_at AS created_at
+SELECT projects.id AS id,
+  projects.name AS name,
+  projects.team_id AS team_id,
+  teams.slug AS team_slug,
+  environments.id AS environment_id,
+  environments.name AS environment_name,
+  environments.slug AS environment_slug,
+  environments.created_at AS created_at
 FROM projects
   INNER JOIN teams ON projects.team_id = teams.id
   INNER JOIN team_members ON teams.id = team_members.team_id
@@ -32,7 +50,8 @@ WHERE t.organization_id = o.id
   AND o.owner_id = $2;
 
 -- name: GetProjectCluster :one
-SELECT c.id, c.name
+SELECT c.id,
+  c.name
 FROM projects p
   INNER JOIN clusters c ON p.cluster_id = c.id
   INNER JOIN teams t ON p.team_id = t.id
@@ -102,4 +121,3 @@ WHERE p.cluster_id = $1;
 -- name: DeleteProjectsByClusterId :exec
 DELETE FROM projects
 WHERE cluster_id = $1;
-

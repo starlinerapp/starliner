@@ -1,6 +1,11 @@
 -- +goose Up
 CREATE TABLE environments (
-  id BIGSERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, project_id BIGINT NOT NULL REFERENCES projects (id) ON DELETE CASCADE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL,
+  project_id BIGINT NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TRIGGER trigger_environments_updated_at
@@ -12,4 +17,3 @@ CREATE TRIGGER trigger_environments_updated_at
 DROP TRIGGER IF EXISTS trigger_environments_updated_at ON environments;
 
 DROP TABLE environments;
-

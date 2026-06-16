@@ -5,4 +5,3 @@ ALTER TABLE organization_invites
 -- +goose Down
 ALTER TABLE organization_invites
   DROP COLUMN email;
-

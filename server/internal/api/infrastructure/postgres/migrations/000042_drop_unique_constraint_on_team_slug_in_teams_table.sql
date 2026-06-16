@@ -5,4 +5,3 @@ ALTER TABLE teams
 -- +goose Down
 ALTER TABLE teams
   ADD CONSTRAINT teams_slug_key UNIQUE (slug);
-
