@@ -1,6 +1,6 @@
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useEffect, useState } from "react";
-import LogsViewer from "~/components/molecules/logs-viewer/LogsViewer";
+import LogsConsole from "~/components/molecules/logs-viewer/LogsConsole";
 import type {
   ResponseDatabaseDeployment,
   ResponseGitDeployment,
@@ -47,7 +47,7 @@ export default function Logs({ deployment }: LogsProps) {
           No deployment selected. Select one to view logs.
         </p>
       ) : (
-        <LogsViewer logs={logs} resetKey={deployment.id} />
+        <LogsConsole logs={logs} resetKey={deployment.id} />
       )}
     </>
   );

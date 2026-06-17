@@ -8,7 +8,7 @@ import {
 } from "~/components/atoms/icons";
 import { cn } from "~/utils/cn";
 
-interface LogsViewerProps {
+interface LogsConsoleProps {
   logs: string[];
   resetKey?: string | number;
 }
@@ -16,7 +16,7 @@ interface LogsViewerProps {
 const BOTTOM_THRESHOLD_PX = 32;
 const TOP_THRESHOLD_PX = 32;
 
-export default function LogsViewer({ logs, resetKey }: LogsViewerProps) {
+export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
   const [search, setSearch] = useState("");
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
@@ -163,7 +163,7 @@ export default function LogsViewer({ logs, resetKey }: LogsViewerProps) {
             type="button"
             onClick={() => setSearch("")}
             aria-label="Clear search"
-            className="absolute top-1/2 right-2 -translate-y-1/2 text-mauve-11 hover:text-mauve-12"
+            className="absolute top-1/2 right-2 -translate-y-1/2 text-mauve-11 cursor-pointer rounded-md p-1 hover:bg-gray-4"
           >
             <Cross className="h-3.5 w-3.5" />
           </button>
@@ -183,7 +183,7 @@ export default function LogsViewer({ logs, resetKey }: LogsViewerProps) {
             ))}
           </pre>
         </div>
-        <div className="absolute right-3 bottom-3 mr-4 flex flex-col gap-1.5">
+        <div className="absolute right-8 bottom-1 flex flex-col gap-1.5">
           <button
             type="button"
             onClick={scrollToTop}

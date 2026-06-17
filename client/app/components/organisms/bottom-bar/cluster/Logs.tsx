@@ -1,6 +1,6 @@
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useEffect, useState } from "react";
-import LogsViewer from "~/components/molecules/logs-viewer/LogsViewer";
+import LogsConsole from "~/components/molecules/logs-viewer/LogsConsole";
 import { useTRPC } from "~/utils/trpc/react";
 
 interface LogsProps {
@@ -33,7 +33,7 @@ export default function Logs({ clusterId }: LogsProps) {
       {!clusterId ? (
         <p className="text-mauve-11">No cluster selected.</p>
       ) : (
-        <LogsViewer logs={logs} resetKey={clusterId} />
+        <LogsConsole logs={logs} resetKey={clusterId} />
       )}
     </>
   );
