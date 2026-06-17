@@ -1,10 +1,21 @@
 -- +goose Up
 CREATE TYPE cluster_status AS ENUM (
-  'pending', 'running', 'deleted'
+  'pending',
+  'running',
+  'deleted'
 );
 
 CREATE TABLE clusters (
-  id BIGSERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL UNIQUE, ipv4_address VARCHAR(255), public_key TEXT, private_key TEXT, organization_id BIGINT NOT NULL REFERENCES organizations (id), provisioning_id TEXT, status cluster_status NOT NULL DEFAULT 'pending', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  ipv4_address VARCHAR(255),
+  public_key TEXT,
+  private_key TEXT,
+  organization_id BIGINT NOT NULL REFERENCES organizations (id),
+  provisioning_id TEXT,
+  status cluster_status NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TRIGGER trigger_clusters_updated_at
@@ -18,4 +29,3 @@ DROP TRIGGER IF EXISTS trigger_clusters_updated_at ON clusters;
 DROP TABLE clusters;
 
 DROP TYPE IF EXISTS cluster_status;
-

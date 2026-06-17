@@ -1,6 +1,11 @@
 -- +goose Up
 CREATE TABLE projects (
-  id BIGSERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, organization_id BIGINT NOT NULL REFERENCES organizations (id) ON DELETE CASCADE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE (NAME, organization_id)
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  organization_id BIGINT NOT NULL REFERENCES organizations (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (NAME, organization_id)
 );
 
 CREATE TRIGGER trigger_projects_updated_at
@@ -12,4 +17,3 @@ CREATE TRIGGER trigger_projects_updated_at
 DROP TRIGGER IF EXISTS trigger_projects_updated_at ON projects;
 
 DROP TABLE projects;
-

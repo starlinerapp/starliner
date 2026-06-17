@@ -5,3 +5,5 @@
 .docker/seaweedfs/*
 
 .env
+
+.direnv/

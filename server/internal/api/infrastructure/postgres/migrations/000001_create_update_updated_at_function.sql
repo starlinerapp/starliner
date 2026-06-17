@@ -13,4 +13,3 @@ LANGUAGE plpgsql;
 -- +goose StatementEnd
 -- +goose Down
 DROP FUNCTION IF EXISTS update_updated_at_column ();
-
