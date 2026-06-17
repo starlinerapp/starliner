@@ -111,4 +111,3 @@ SELECT organizations.owner_id
 FROM clusters
   INNER JOIN organizations ON organizations.id = clusters.organization_id
 WHERE clusters.id = $1;
-
