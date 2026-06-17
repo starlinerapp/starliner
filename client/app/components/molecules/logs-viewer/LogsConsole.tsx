@@ -163,7 +163,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
             type="button"
             onClick={() => setSearch("")}
             aria-label="Clear search"
-            className="absolute top-1/2 right-2 -translate-y-1/2 text-mauve-11 cursor-pointer rounded-md p-1 hover:bg-gray-4"
+            className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-mauve-11 hover:bg-gray-4"
           >
             <Cross className="h-3.5 w-3.5" />
           </button>
