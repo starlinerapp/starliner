@@ -12,8 +12,8 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import * as ToastPrimitive from "@radix-ui/react-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastProvider } from "~/components/atoms/toast/ToastProvider";
 import { TRPCReactProvider } from "~/utils/trpc/react";
 
 function envScript(env: { SENTRY_DSN_CLIENT: string; ENVIRONMENT: string }) {
@@ -74,10 +74,9 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCReactProvider>
-        <ToastPrimitive.Provider>
+        <ToastProvider>
           <Outlet />
-          <ToastPrimitive.Viewport className="fixed right-4 bottom-4 z-50 flex w-80 max-w-full flex-col gap-2 outline-none" />
-        </ToastPrimitive.Provider>
+        </ToastProvider>
       </TRPCReactProvider>
     </QueryClientProvider>
   );

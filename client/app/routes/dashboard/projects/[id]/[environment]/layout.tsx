@@ -4,8 +4,8 @@ import { Outlet, useLocation, useParams } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
-import EnvironmentNotificationListener from "~/components/organisms/notifications/EnvironmentNotificationListener";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useEnvironmentDeploymentNotifications } from "~/hooks/useEnvironmentDeploymentNotifications";
 import { useTRPC } from "~/utils/trpc/react";
 
 export default function ProjectLayout() {
@@ -31,6 +31,8 @@ export default function ProjectLayout() {
     () => currentProject?.environments.find((e) => e.slug === environment),
     [currentProject, environment],
   );
+
+  useEnvironmentDeploymentNotifications(currentEnvironment?.id);
 
   const { data: environmentBuilds, isLoading: isEnvironmentBuildsLoading } =
     useQuery({
@@ -120,12 +122,6 @@ export default function ProjectLayout() {
 
   return (
     <>
-      {currentEnvironment?.id && (
-        <EnvironmentNotificationListener
-          environmentId={currentEnvironment?.id}
-        />
-      )}
-
       <div className="flex h-full flex-col">
         <div className="bg-violet-1">
           {isProjectsLoading || isEnvironmentBuildsLoading ? (

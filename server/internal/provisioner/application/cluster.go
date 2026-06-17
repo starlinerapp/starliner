@@ -46,10 +46,10 @@ func NewClusterApplication(
 
 func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) {
 	//TODO remove this at the end
-	//time.Sleep(5 * time.Second)
-	//ca.publishProvisionedFailure(c.Id, "forced failure for testing")
-	//log.Printf("AAAAAAAAAAAAAAAAA Failed to ")
-	//return
+	time.Sleep(5 * time.Second)
+	ca.publishProvisionedFailure(c.Id, "forced failure for testing")
+	log.Printf("AAAAAAAAAAAAAAAAA Failed to ")
+	return
 
 	ctx := context.Background()
 

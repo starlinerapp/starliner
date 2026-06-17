@@ -394,3 +394,26 @@ func (ca *ClusterApplication) HandleClusterDeletedFailure(c *coreValue.ClusterDe
 	}
 	ca.broadcastClusterNotification(ctx, c.ClusterId, "failed", message)
 }
+
+func (ca *ClusterApplication) resolveClusterName(ctx context.Context, clusterId int64) string {
+	cluster, err := ca.clusterRepository.GetCluster(ctx, clusterId)
+	if err != nil || cluster == nil {
+		log.Printf("failed to resolve cluster name for %d: %v", clusterId, err)
+		return strconv.FormatInt(clusterId, 10)
+	}
+	return cluster.Name
+}
+
+func (ca *ClusterApplication) broadcastClusterNotification(ctx context.Context, clusterId int64, status string, message string) {
+	ownerUserId, err := ca.GetClusterOrgOwnerId(ctx, clusterId)
+	if err != nil {
+		log.Printf("failed to get org owner for cluster %d: %v", clusterId, err)
+		return
+	}
+
+	ca.userNotificationHub.Broadcast(ownerUserId, &coreValue.ClusterNotification{
+		ClusterId: clusterId,
+		Status:    status,
+		Message:   message,
+	})
+}

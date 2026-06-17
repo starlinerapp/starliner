@@ -8,9 +8,9 @@ import {
 } from "react-router";
 import { Cog, InboxStack, Servers } from "~/components/atoms/icons";
 import ExtendedSidebar from "~/components/organisms/extended-sidebar/ExtendedSidebar";
-import GlobalNotificationListener from "~/components/organisms/notifications/GlobalNotificationListener";
 import Sidebar from "~/components/organisms/sidebar/Sidebar";
 import { OrganizationProvider } from "~/contexts/OrganizationContext";
+import { useGlobalNotifications } from "~/hooks/useGlobalNotifications";
 import { auth } from "~/utils/auth/server";
 import { useTRPC } from "~/utils/trpc/react";
 import { caller } from "~/utils/trpc/server";
@@ -55,6 +55,8 @@ export default function Layout() {
 
   const location = useLocation();
   const { slug } = useParams<{ slug: string }>();
+
+  useGlobalNotifications(organization.id);
 
   const trpc = useTRPC();
   const { data: projects, isLoading: isProjectsLoading } = useQuery(
@@ -191,7 +193,6 @@ export default function Layout() {
           <Outlet />
         </ExtendedSidebar>
       </Sidebar>
-      <GlobalNotificationListener organizationId={organization.id} />
     </OrganizationProvider>
   );
 }

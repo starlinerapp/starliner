@@ -153,8 +153,6 @@ services:
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
       DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
-      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
       - ./.docker/server/api/air.toml:/config/air.toml:ro

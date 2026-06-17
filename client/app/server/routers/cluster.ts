@@ -1,8 +1,7 @@
-import type { Readable } from "node:stream";
-import type { AxiosResponse } from "axios";
 import { z } from "zod";
 import { clusterApiFactory } from "~/server/api/clients/server";
 import type { RequestCreateClusterServerTypeEnum } from "~/server/api/clients/server/generated";
+import { streamSse } from "~/server/services/sse";
 import { protectedProcedure } from "~/server/trpc";
 
 export const clusterRouter = {
@@ -59,46 +58,16 @@ export const clusterRouter = {
     .subscription(async function* ({ input, ctx, signal }) {
       const userId = ctx.user?.id;
 
-      let response: AxiosResponse<Readable> | undefined;
-      try {
-        // @ts-expect-error OpenAPI doesn't support SSE
-        response = await clusterApiFactory.streamClusterProvisioningLogs(
-          userId,
-          input.clusterId,
-          { responseType: "stream", signal },
-        );
-
-        signal?.addEventListener("abort", () => {
-          response?.data?.destroy();
-        });
-
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        // @ts-expect-error OpenAPI doesn't support SSE
-        for await (const chunk of response.data) {
-          if (signal?.aborted) {
-            break;
-          }
-
-          buffer += decoder.decode(chunk, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              yield line.slice(6).trim();
-            }
-          }
-        }
-      } catch (err) {
-        if (signal?.aborted) {
-          return;
-        }
-
-        throw err;
-      } finally {
-        response?.data.destroy();
-      }
+      yield* streamSse(
+        () =>
+          // @ts-expect-error OpenAPI doesn't support SSE
+          clusterApiFactory.streamClusterProvisioningLogs(
+            userId,
+            input.clusterId,
+            { responseType: "stream", signal },
+          ),
+        signal,
+        { trim: true },
+      );
     }),
 };

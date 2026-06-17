@@ -29,7 +29,6 @@ func main() {
 		queue.Module,
 		redis.Module,
 		s3.Module,
-		redis.Module,
 		crypto.Module,
 		grpc.Module,
 		email.Module,
