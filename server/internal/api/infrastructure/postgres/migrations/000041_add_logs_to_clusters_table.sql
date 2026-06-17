@@ -5,4 +5,3 @@ ALTER TABLE clusters
 -- +goose Down
 ALTER TABLE clusters
   DROP COLUMN logs;
-

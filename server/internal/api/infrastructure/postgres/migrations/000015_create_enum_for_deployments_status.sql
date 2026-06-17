@@ -1,6 +1,7 @@
 -- +goose Up
 CREATE TYPE deployment_status AS ENUM (
-  'healthy', 'unhealthy'
+  'healthy',
+  'unhealthy'
 );
 
 UPDATE
@@ -27,4 +28,3 @@ ALTER TABLE deployments
   USING status::TEXT;
 
 DROP TYPE deployment_status;
-

@@ -26,8 +26,6 @@ var Module = fx.Module(
 		},
 		func(cfg *Config) conf.SentryConfig { return cfg },
 		func(cfg *Config) conf.EnvironmentConfig { return cfg },
-		func(cfg *Config) conf.RedisConfig {
-			return cfg
-		},
+		func(cfg *Config) conf.RedisConfig { return cfg },
 	),
 )

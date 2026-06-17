@@ -153,8 +153,11 @@ services:
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
       DEPLOYMENT_DOMAIN: ${DEPLOYMENT_DOMAIN:-starliner.cloud}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
+      - ./.docker/server/api/air.toml:/config/air.toml:ro
     networks:
       - shared
     labels:
@@ -183,12 +186,11 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
-      IMAGE_REGISTRY_USERNAME: ${IMAGE_REGISTRY_USERNAME:-server}
-      IMAGE_REGISTRY_PASSWORD: ${IMAGE_REGISTRY_PASSWORD}
       SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
       - ./server:/app
+      - ./.docker/server/builder/air.toml:/config/air.toml:ro
     networks:
       - shared
 
@@ -214,6 +216,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
     volumes:
       - ./server:/app
+      - ./.docker/server/cluster/air.toml:/config/air.toml:ro
     networks:
       - shared
 
@@ -242,6 +245,7 @@ services:
         condition: service_healthy
     volumes:
       - ./server:/app
+      - ./.docker/server/provisioner/air.toml:/config/air.toml:ro
     networks:
       - shared
 

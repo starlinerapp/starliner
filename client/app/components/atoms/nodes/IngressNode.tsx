@@ -1,10 +1,15 @@
-import * as Popover from "@radix-ui/react-popover";
 import { useMutation } from "@tanstack/react-query";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { useState } from "react";
 import { useLocation, useMatch, useNavigate } from "react-router";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import { EllipsisVertical, Shuffle, Trash } from "~/components/atoms/icons";
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/atoms/popover/Popover";
 import type { ResponseIngressHost } from "~/server/api/clients/server/generated";
 import { cn } from "~/utils/cn";
 import { useTRPC } from "~/utils/trpc/react";
@@ -154,38 +159,32 @@ function IngressContextMenu({
   }
 
   return (
-    <Popover.Root>
-      <Popover.Trigger
+    <Popover>
+      <PopoverTrigger
         className="flex h-7 w-7 cursor-pointer rounded-md p-1 hover:bg-gray-4"
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         <EllipsisVertical className="w-6" />
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          side="bottom"
-          align="start"
-          className="m-2 rounded-md border border-gray-6 bg-white shadow-md"
-        >
-          <div className="flex min-w-[120px] flex-col p-0.5">
-            <Popover.Close asChild>
-              <button
-                type="button"
-                className="flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-mauve-11 text-sm hover:bg-gray-3"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClicked();
-                }}
-              >
-                <Trash className="w-5" />
-                <p>Delete</p>
-              </button>
-            </Popover.Close>
-          </div>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+      </PopoverTrigger>
+      <PopoverContent side="bottom" align="start" sideOffset={4}>
+        <div className="flex min-w-[120px] flex-col p-0.5">
+          <PopoverClose asChild>
+            <button
+              type="button"
+              className="flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-mauve-11 text-sm hover:bg-gray-3"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClicked();
+              }}
+            >
+              <Trash className="w-5" />
+              <p>Delete</p>
+            </button>
+          </PopoverClose>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

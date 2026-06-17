@@ -94,6 +94,7 @@ export default function Layout() {
   const [minPanelWidth, setMinPanelWidth] = useState<number | undefined>(
     undefined,
   );
+  const isBottomPanelExpanded = Boolean(deploymentId);
 
   useEffect(() => {
     if (!navBarRef.current) return;
@@ -117,9 +118,12 @@ export default function Layout() {
       <ResizablePanel defaultSize={70} className="h-full">
         <ResizablePanelGroup
           direction="vertical"
-          className="h-full w-full border-mauve-6 border-r-1"
+          className="h-full w-full border-mauve-6 border-r [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:transition-[flex-grow,flex-basis] [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:duration-200 [&:not(:has([data-resize-handle-state=drag]))_[data-slot=resizable-panel]]:ease-in-out"
         >
-          <ResizablePanel defaultSize={70} className="h-full">
+          <ResizablePanel
+            defaultSize={isBottomPanelExpanded ? 55 : 97}
+            className="h-full"
+          >
             {currentEnvironment && (
               <ReactFlowProvider>
                 <ArchitectureCanvas environment={currentEnvironment} />
@@ -133,8 +137,8 @@ export default function Layout() {
             minSize={4}
             maxSize={85}
             ref={bottomPanelRef}
-            defaultSize={3}
-            className="border-mauve-6 border-t-1"
+            defaultSize={isBottomPanelExpanded ? 45 : 3}
+            className="border-mauve-6 border-t"
           >
             <BottomBar
               deployment={currentDeployment}

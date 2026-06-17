@@ -42,38 +42,30 @@ export default function TeamDangerZone({ teamId }: TeamDangerZoneProps) {
 
   return (
     <>
-      <div className="overflow-hidden rounded-md border border-mauve-6 text-sm shadow-xs">
-        <table className="w-full table-fixed border-collapse">
-          <thead className="h-14">
-            <tr className="border-mauve-6 border-b bg-gray-2">
-              <th className="w-[40%] px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
-                Danger Zone
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="flex justify-between px-4 py-2">
-                <span>
-                  <p className="font-bold text-md">Delete this Team</p>
-                  <p className="text-mauve-11 text-xs">
-                    Once you delete a team, there is no going back. Please be
-                    certain.
-                  </p>
-                </span>
-                <Button
-                  className="w-36"
-                  intent="danger"
-                  size="sm"
-                  disabled={deleteTeamMutation.isPending}
-                  onClick={handleDeleteTeam}
-                >
-                  Delete this Team
-                </Button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+        <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
+          Danger Zone
+        </div>
+        <div className="mx-1 mb-1 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+          <div className="flex h-14 items-center justify-between gap-2 px-4">
+            <div>
+              <h2 className="text-mauve-12">Delete this Team</h2>
+              <p className="text-mauve-11 text-xs">
+                Once you delete a team, there is no going back. Please be
+                certain.
+              </p>
+            </div>
+            <Button
+              className="w-36"
+              intent="danger"
+              size="sm"
+              disabled={deleteTeamMutation.isPending}
+              onClick={handleDeleteTeam}
+            >
+              Delete this Team
+            </Button>
+          </div>
+        </div>
       </div>
 
       <DestructiveDialog

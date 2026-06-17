@@ -9,7 +9,8 @@ WHERE deployments.id = @deployment_id
   AND team_members.user_id = @user_id;
 
 -- name: GetDeploymentWithNamespace :one
-SELECT deployments.*, environments.namespace
+SELECT deployments.*,
+  environments.namespace
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
 WHERE deployments.id = $1;
@@ -41,7 +42,8 @@ WHERE d.id = @deployment_id
 -- name: SetDeploymentStatusLogs :exec
 UPDATE
   deployments
-SET status_logs = @logs, rollout_status = @rollout_status
+SET status_logs = @logs,
+  rollout_status = @rollout_status
 WHERE id = @deployment_id;
 
 -- name: SoftDeleteDeployment :exec
@@ -59,10 +61,14 @@ WHERE environment_id = $1
   AND deleted_at IS NULL;
 
 -- name: GetDeploymentsWithKubeconfig :many
-SELECT deployments.*, c.kubeconfig, environments.namespace, c.id AS cluster_id, c.provisioning_id, c.organization_id
+SELECT deployments.*,
+  c.kubeconfig,
+  environments.namespace,
+  c.id AS cluster_id,
+  c.provisioning_id,
+  c.organization_id
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
   INNER JOIN projects ON environments.project_id = projects.id
   INNER JOIN clusters c ON c.id = projects.cluster_id
 WHERE deployments.deleted_at IS NULL;
-

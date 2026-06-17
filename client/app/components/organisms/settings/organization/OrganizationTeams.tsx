@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
@@ -62,83 +62,48 @@ export default function OrganizationTeams() {
     );
   }
 
-  const columnCount = organization.isOwner ? 3 : 2;
-
   return (
     <div className="flex flex-col">
-      <div className="overflow-hidden rounded-md border border-mauve-6 text-sm shadow-xs">
-        <table className="w-full border-collapse">
-          <thead className="h-14">
-            <tr className="border-mauve-6 border-b bg-gray-2">
-              <th className="w-1/2 px-4 py-3 text-left font-bold text-mauve-12 text-xs uppercase">
-                Teams
-              </th>
-              <th className="w-1/2 px-4 py-3"></th>
-              {organization.isOwner && (
-                <th className="w-[20%] px-4">
-                  <Button
-                    className="w-28 text-xs"
-                    intent="secondary"
-                    onClick={() => setShowCreateDialog(true)}
-                  >
-                    Create Team
-                  </Button>
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {isTeamsLoading ? (
-              Array.from({ length: 2 }).map((_, i) => (
-                <tr key={i} className="border-mauve-6 border-b last:border-b-0">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="h-9 w-9 rounded-md" />
-                      <span className="flex flex-col gap-1">
-                        <Skeleton className="h-3.5 w-24" />
-                        <Skeleton className="h-3.5 w-20" />
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3" />
-                  {organization.isOwner && <td className="px-4 py-3" />}
-                </tr>
-              ))
-            ) : teamsData?.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columnCount}
-                  className="px-4 py-3 text-mauve-11 text-sm"
-                >
-                  No teams yet.
-                </td>
-              </tr>
-            ) : (
-              teamsData?.map((team) => (
-                <tr
-                  key={team.id}
-                  className="cursor-pointer border-mauve-6 border-b last:border-b-0 hover:bg-gray-2"
-                  onClick={() =>
-                    navigate(`/${slug}/settings/organization/teams/${team.id}`)
-                  }
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-violet-9 text-base text-white">
-                        {team.slug.substring(0, 1)?.toUpperCase()}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-violet-11">#{team.slug}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3" />
-                  {organization.isOwner && <td />}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+        <div className="flex h-14 items-center justify-between rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
+          Teams
+          {organization.isOwner && (
+            <Button
+              className="w-28 text-xs"
+              intent="secondary"
+              onClick={() => setShowCreateDialog(true)}
+            >
+              Create Team
+            </Button>
+          )}
+        </div>
+        <div className="mx-1 mb-1 divide-y divide-mauve-6 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+          {isTeamsLoading ? (
+            Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="flex h-14 items-center gap-3 px-4">
+                <Skeleton className="h-9 w-9 rounded-md" />
+                <Skeleton className="h-3.5 w-24" />
+              </div>
+            ))
+          ) : teamsData?.length === 0 ? (
+            <div className="flex h-14 items-center px-4 text-mauve-11 text-sm">
+              No teams yet.
+            </div>
+          ) : (
+            teamsData?.map((team) => (
+              <Link
+                key={team.id}
+                to={`/${slug}/settings/organization/teams/${team.id}`}
+                className="flex h-14 cursor-pointer items-center gap-3 px-4 hover:bg-gray-1"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-violet-9 text-base text-white">
+                  {team.slug.substring(0, 1)?.toUpperCase()}
+                </div>
+                <span className="text-violet-11">#{team.slug}</span>
+              </Link>
+            ))
+          )}
+        </div>
       </div>
       {organization.isOwner && (
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>

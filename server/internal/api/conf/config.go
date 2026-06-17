@@ -111,3 +111,11 @@ func (c *Config) GetRedisPassword() string {
 func (c *Config) GetDeploymentDomain() string {
 	return c.DeploymentDomain
 }
+
+func (c *Config) GetRedisAddr() string {
+	return c.RedisAddr
+}
+
+func (c *Config) GetRedisPassword() string {
+	return c.RedisPassword
+}

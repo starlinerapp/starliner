@@ -1,9 +1,17 @@
-import * as HoverCard from "@radix-ui/react-hover-card";
-import * as Popover from "@radix-ui/react-popover";
 import { useQuery } from "@tanstack/react-query";
 import React, { useMemo } from "react";
 import { Link, useParams } from "react-router";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "~/components/atoms/hover-card/HoverCard";
 import { ChevronRight, Plus } from "~/components/atoms/icons";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/atoms/popover/Popover";
 import { cn } from "~/utils/cn";
 import { useTRPC } from "~/utils/trpc/react";
 
@@ -49,90 +57,87 @@ export default function OrganizationBadge() {
   );
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger className="flex h-11 w-11 items-center justify-center self-center rounded-md border border-white hover:border-gray-4 hover:bg-violet-3 data-[state=open]:border-gray-4 data-[state=open]:bg-violet-3">
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger className="flex h-11 w-11 items-center justify-center self-center rounded-md border border-white hover:border-gray-4 hover:bg-violet-3 data-[state=open]:border-gray-4 data-[state=open]:bg-violet-3">
         <OrganizationIcon name={currentOrganization?.name ?? ""} />
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          side="right"
-          align="start"
-          className="m-2 rounded-md border border-gray-6 bg-white shadow-md"
-        >
-          <div className="flex min-w-[180px] flex-col p-1">
-            <div className="flex gap-2.5 p-1">
-              <OrganizationIcon
-                name={currentOrganization?.name ?? ""}
-                className="h-9 w-9"
-              />
-              <div className="flex flex-col justify-between">
-                <p className="font-bold text-gray-12 text-sm">
-                  {currentOrganization?.name ?? ""}
-                </p>
-                <p className="text-gray-11 text-xs">
-                  {projects?.length ?? 0}{" "}
-                  {projects?.length === 1 ? "Project" : "Projects"}
-                </p>
-              </div>
+      </PopoverTrigger>
+      <PopoverContent
+        side="right"
+        align="end"
+        sideOffset={4}
+        collisionPadding={12}
+      >
+        <div className="flex min-w-45 flex-col p-1">
+          <div className="flex gap-2.5 p-1">
+            <OrganizationIcon
+              name={currentOrganization?.name ?? ""}
+              className="h-9 w-9"
+            />
+            <div className="flex flex-col justify-between">
+              <p className="font-bold text-gray-12 text-sm">
+                {currentOrganization?.name ?? ""}
+              </p>
+              <p className="text-gray-11 text-xs">
+                {projects?.length ?? 0}{" "}
+                {projects?.length === 1 ? "Project" : "Projects"}
+              </p>
             </div>
-            <Link
-              to={`/${currentOrganization?.slug}/settings/organization/members`}
-              className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
-              onClick={() => setOpen(false)}
-            >
-              <p>Organization Settings</p>
-            </Link>
-            <Link
-              to={`/${currentOrganization?.slug}/projects`}
-              className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
-              onClick={() => setOpen(false)}
-            >
-              <p>Projects</p>
-            </Link>
-            <HoverCard.Root openDelay={0} closeDelay={100}>
-              <HoverCard.Trigger className="flex cursor-pointer flex-row items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-gray-3">
-                <p>Switch Organization</p>
-                <ChevronRight width={12} strokeWidth={2.5} />
-              </HoverCard.Trigger>
-              <HoverCard.Portal>
-                <HoverCard.Content
-                  side="right"
-                  align="start"
-                  sideOffset={-8}
-                  alignOffset={-8}
-                  className="m-2 cursor-pointer rounded-md border border-gray-6 bg-white shadow-md"
-                >
-                  <div className="flex min-w-[160px] flex-col p-1">
-                    {otherOrganizations.map((organization) => (
-                      <Link
-                        to={`/${organization.slug}`}
-                        key={organization.slug}
-                        className="flex items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
-                        onClick={() => setOpen(false)}
-                      >
-                        {organization.name}
-                      </Link>
-                    ))}
-                    {otherOrganizations.length > 0 && (
-                      <hr className="my-1 border-gray-4" />
-                    )}
-                    <Link
-                      className="flex flex-row items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
-                      to="/organizations/new"
-                      target="_blank"
-                      onClick={() => setOpen(false)}
-                    >
-                      <p className="flex items-center gap-1 text-xs">
-                        <Plus width={15} strokeWidth={2} /> New organization
-                      </p>
-                    </Link>
-                  </div>
-                </HoverCard.Content>
-              </HoverCard.Portal>
-            </HoverCard.Root>
           </div>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+          <Link
+            to={`/${currentOrganization?.slug}/settings/organization/members`}
+            className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
+            onClick={() => setOpen(false)}
+          >
+            <p>Organization Settings</p>
+          </Link>
+          <Link
+            to={`/${currentOrganization?.slug}/projects`}
+            className="flex flex-row items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
+            onClick={() => setOpen(false)}
+          >
+            <p>Projects</p>
+          </Link>
+          <HoverCard openDelay={0} closeDelay={100}>
+            <HoverCardTrigger className="flex cursor-pointer flex-row items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-gray-3">
+              <p>Switch Organization</p>
+              <ChevronRight width={12} strokeWidth={2.5} />
+            </HoverCardTrigger>
+            <HoverCardContent
+              side="right"
+              align="start"
+              sideOffset={-2}
+              alignOffset={-2}
+              className="cursor-pointer"
+            >
+              <div className="flex min-w-40 flex-col p-1">
+                {otherOrganizations.map((organization) => (
+                  <Link
+                    to={`/${organization.slug}`}
+                    key={organization.slug}
+                    className="flex items-center gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
+                    onClick={() => setOpen(false)}
+                  >
+                    {organization.name}
+                  </Link>
+                ))}
+                {otherOrganizations.length > 0 && (
+                  <hr className="my-1 border-gray-4" />
+                )}
+                <Link
+                  className="flex flex-row items-center justify-between gap-2 rounded-md p-2 text-xs hover:bg-gray-3"
+                  to="/organizations/new"
+                  target="_blank"
+                  onClick={() => setOpen(false)}
+                >
+                  <p className="flex items-center gap-1 text-xs">
+                    <Plus width={15} strokeWidth={2} /> New organization
+                  </p>
+                </Link>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

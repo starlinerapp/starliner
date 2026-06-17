@@ -1,5 +1,7 @@
 package value
 
+import "errors"
+
 type ServerType string
 
 const (
@@ -55,4 +57,10 @@ type ClusterDeletedSuccess struct {
 type ClusterDeletedFailure struct {
 	ClusterId int64  `json:"clusterId"`
 	Reason    string `json:"reason"`
+}
+
+var ErrClusterUnreachable = errors.New("cluster unreachable")
+
+func IsClusterUnreachable(err error) bool {
+	return errors.Is(err, ErrClusterUnreachable)
 }

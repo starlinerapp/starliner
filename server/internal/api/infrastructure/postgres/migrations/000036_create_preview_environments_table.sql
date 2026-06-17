@@ -1,6 +1,12 @@
 -- +goose Up
 CREATE TABLE preview_environments (
-  environment_id BIGINT NOT NULL REFERENCES environments (id) ON DELETE CASCADE, github_repository_id BIGINT NOT NULL, pr_number BIGINT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), CONSTRAINT preview_environments_github_repository_id_pr_number_key UNIQUE (github_repository_id, pr_number)
+  environment_id BIGINT NOT NULL REFERENCES environments (id) ON DELETE CASCADE,
+  github_repository_id BIGINT NOT NULL,
+  pr_number BIGINT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT preview_environments_github_repository_id_pr_number_key UNIQUE
+    (github_repository_id, pr_number)
 );
 
 CREATE TRIGGER trigger_preview_environments_updated_at
@@ -12,4 +18,3 @@ CREATE TRIGGER trigger_preview_environments_updated_at
 DROP TRIGGER trigger_preview_environments_updated_at ON preview_environments;
 
 DROP TABLE preview_environments;
-

@@ -1,8 +1,10 @@
 -- name: CreateTeam :one
 INSERT INTO teams (
-  slug, organization_id)
+  slug,
+  organization_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 RETURNING *;
 
 -- name: DeleteTeam :exec
@@ -17,7 +19,8 @@ WHERE teams.organization_id = $1
   AND team_members.user_id = $2;
 
 -- name: GetTeamMembers :many
-SELECT users.id, users.better_auth_id
+SELECT users.id,
+  users.better_auth_id
 FROM team_members
   INNER JOIN users ON team_members.user_id = users.id
 WHERE team_members.team_id = $1;
@@ -30,11 +33,14 @@ WHERE slug = $1
 
 -- name: AddTeamMember :exec
 INSERT INTO team_members (
-  team_id, user_id)
+  team_id,
+  user_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 ON CONFLICT (
-  team_id, user_id)
+  team_id,
+  user_id)
   DO NOTHING;
 
 -- name: RemoveTeamMember :exec
@@ -72,11 +78,18 @@ WHERE id = $1
 
 -- name: AssignRepoToTeam :exec
 INSERT INTO team_repositories (
-  team_id, github_repo_id, repo_name, github_app_id)
+  team_id,
+  github_repo_id,
+  repo_name,
+  github_app_id)
 VALUES (
-  $1, $2, $3, $4)
+  $1,
+  $2,
+  $3,
+  $4)
 ON CONFLICT (
-  team_id, github_repo_id)
+  team_id,
+  github_repo_id)
   DO NOTHING;
 
 -- name: DeleteAllTeamRepositories :exec
@@ -84,7 +97,8 @@ DELETE FROM team_repositories
 WHERE team_id = $1;
 
 -- name: GetTeamRepositories :many
-SELECT github_repo_id, repo_name
+SELECT github_repo_id,
+  repo_name
 FROM team_repositories
 WHERE team_id = $1;
 
@@ -103,11 +117,14 @@ WHERE team_clusters.team_id = $1;
 
 -- name: AssignTeamCluster :exec
 INSERT INTO team_clusters (
-  team_id, cluster_id)
+  team_id,
+  cluster_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 ON CONFLICT (
-  team_id, cluster_id)
+  team_id,
+  cluster_id)
   DO NOTHING;
 
 -- name: DeleteAllTeamClusters :exec
@@ -120,4 +137,3 @@ FROM team_clusters
   INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
 WHERE team_clusters.team_id = $1
   AND team_clusters.cluster_id = $2;
-

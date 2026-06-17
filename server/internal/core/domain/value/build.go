@@ -13,6 +13,7 @@ type TriggerBuild struct {
 	GitUrl         string
 	BranchName     string
 	AccessToken    string
+	RegistryPushToken string
 	RootDirectory  string
 	DockerfilePath string
 	Args           []*Arg

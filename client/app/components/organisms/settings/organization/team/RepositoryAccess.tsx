@@ -123,8 +123,8 @@ export function RepositoryAccess({
 
   return (
     <div className="w-full">
-      <div className="rounded-md border border-mauve-6 text-sm shadow-xs">
-        <div className="flex h-14 items-center justify-between border-mauve-6 border-b bg-gray-2 px-4 font-bold text-mauve-12 text-xs uppercase">
+      <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
+        <div className="flex h-14 items-center justify-between rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
           <p>Repositories</p>
           {organization.isOwner && (
             <Dialog
@@ -215,44 +215,44 @@ export function RepositoryAccess({
             </Dialog>
           )}
         </div>
-        {isGithubAppLoading ? (
-          <div className="flex flex-col gap-2 px-4 py-3">
-            <Skeleton className="h-5 w-48" />
-          </div>
-        ) : !githubApp ? (
-          <div className="flex flex-col gap-4 px-4 py-3">
-            <div className="flex flex-col gap-1">
+        <div className="mx-1 mb-1 divide-y divide-mauve-6 overflow-hidden rounded-md border border-mauve-6 bg-white shadow-xs">
+          {isGithubAppLoading ? (
+            <div className="flex h-14 items-center px-4">
+              <Skeleton className="h-5 w-48" />
+            </div>
+          ) : !githubApp ? (
+            <div className="flex flex-col gap-4 px-4 py-3">
               <p className="text-mauve-11 text-sm">
                 Install the GitHub App to assign repositories to this team.
               </p>
+              {organization.isOwner && (
+                <InstallGitHubApp
+                  githubAppName={githubAppName}
+                  redirectTo={location.pathname}
+                />
+              )}
             </div>
-            {organization.isOwner && (
-              <InstallGitHubApp
-                githubAppName={githubAppName}
-                redirectTo={location.pathname}
-              />
-            )}
-          </div>
-        ) : isTeamReposLoading ? (
-          <div className="flex flex-col gap-2 px-4 py-3">
-            <Skeleton className="h-5 w-48" />
-          </div>
-        ) : teamRepos?.length === 0 ? (
-          <p className="px-4 py-3 text-mauve-11 text-sm">
-            No repositories assigned.
-          </p>
-        ) : (
-          teamRepos?.map((repo) => (
-            <div
-              key={repo.githubRepoId}
-              className="min-w-0 border-mauve-6 border-b px-4 py-3 text-mauve-12 text-sm last:border-b-0"
-            >
-              <span className="block truncate" title={repo.repoName}>
-                {repo.repoName}
-              </span>
+          ) : isTeamReposLoading ? (
+            <div className="flex h-14 items-center px-4">
+              <Skeleton className="h-5 w-48" />
             </div>
-          ))
-        )}
+          ) : teamRepos?.length === 0 ? (
+            <div className="flex h-14 items-center px-4 text-mauve-11 text-sm">
+              No repositories assigned.
+            </div>
+          ) : (
+            teamRepos?.map((repo) => (
+              <div
+                key={repo.githubRepoId}
+                className="flex h-14 min-w-0 items-center px-4 text-mauve-12 text-sm"
+              >
+                <span className="block truncate" title={repo.repoName}>
+                  {repo.repoName}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

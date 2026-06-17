@@ -41,17 +41,26 @@ function BottomBarComponent({ deployment, showTerminal }: BottomBarProps) {
         onSelect={setSelected}
       />
       {activeTab === "Logs" ? (
-        <div className="flex min-h-0 flex-1 flex-col p-4">
+        <div
+          key="logs"
+          className="fade-in-0 zoom-in-95 flex min-h-0 flex-1 animate-in flex-col p-4 duration-200"
+        >
           <Logs deployment={deployment} />
         </div>
       ) : deployment && showTerminal ? (
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div
+          key="terminal"
+          className="fade-in-0 zoom-in-95 flex min-h-0 flex-1 animate-in flex-col duration-200"
+        >
           <TerminalClient
             webSocketUrl={`wss://${window.location.host}/ws/deployments/${deployment.id}`}
           />
         </div>
       ) : (
-        <p className="p-4 text-mauve-11">
+        <p
+          key="terminal-unavailable"
+          className="fade-in-0 zoom-in-95 animate-in p-4 text-mauve-11 duration-200"
+        >
           No deployment selected. Select one to connect to the terminal.
         </p>
       )}
