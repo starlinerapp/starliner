@@ -2,5 +2,6 @@ keyword-case = 2
 function-case = 2
 type-case = 2
 spaces = 2
-wrap-after = 100
+wrap-after = 1
 comma-break = 1
+wrap-limit = 88

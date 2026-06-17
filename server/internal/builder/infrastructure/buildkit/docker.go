@@ -42,8 +42,13 @@ func (c *Docker) BuildAndPublish(
 	projectDir string,
 	dockerfilePath string,
 	imageTag string,
+	registryPushToken string,
 	args []*value.Arg,
 ) (string, error) {
+	if registryPushToken == "" {
+		return "", fmt.Errorf("registry push token is required")
+	}
+
 	bkClient, err := client.New(ctx, "tcp://buildkit:1234")
 	if err != nil {
 		return "", fmt.Errorf("failed to connect to buildkit: %w", err)
@@ -102,14 +107,11 @@ func (c *Docker) BuildAndPublish(
 	}
 
 	registryUrl := c.config.ImageRegistryUrl
-	username := c.config.ImageRegistryUsername
-	password := c.config.ImageRegistryPassword
 
 	dockerConfig := &configfile.ConfigFile{
 		AuthConfigs: map[string]types.AuthConfig{
 			registryUrl: {
-				Username: username,
-				Password: password,
+				RegistryToken: registryPushToken,
 			},
 		},
 	}

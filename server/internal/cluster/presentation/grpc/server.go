@@ -22,6 +22,7 @@ func NewServer(
 	logsHandler *handler.LogsHandler,
 	deploymentStatusLogHandler *handler.DeploymentStatusLogHandler,
 	ttyHandler *handler.TtyHandler,
+	healthHandler *handler.HealthHandler,
 ) *Server {
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(recoveryUnaryInterceptor),
@@ -33,6 +34,7 @@ func NewServer(
 	pb.RegisterDeploymentStatusLogServiceServer(server, deploymentStatusLogHandler)
 	pb.RegisterIngressDeploymentStatusLogServiceServer(server, deploymentStatusLogHandler)
 	pb.RegisterTTYServiceServer(server, ttyHandler)
+	pb.RegisterHealthServiceServer(server, healthHandler)
 
 	return &Server{server: server}
 }

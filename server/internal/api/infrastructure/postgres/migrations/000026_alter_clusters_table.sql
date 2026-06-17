@@ -17,4 +17,3 @@ ALTER TABLE clusters
 
 ALTER TABLE clusters
   DROP COLUMN IF EXISTS "user";
-

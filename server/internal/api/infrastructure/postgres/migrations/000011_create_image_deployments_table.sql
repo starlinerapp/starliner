@@ -1,6 +1,10 @@
 -- +goose Up
 CREATE TABLE image_deployments (
-  deployment_id BIGINT PRIMARY KEY REFERENCES deployments (id) ON DELETE CASCADE, name VARCHAR(255) NOT NULL, tag VARCHAR(255) NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  deployment_id BIGINT PRIMARY KEY REFERENCES deployments (id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  tag VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TRIGGER trigger_image_deployments_updated_at
@@ -12,4 +16,3 @@ CREATE TRIGGER trigger_image_deployments_updated_at
 DROP TRIGGER IF EXISTS trigger_image_deployments_updated_at ON image_deployments;
 
 DROP TABLE image_deployments;
-

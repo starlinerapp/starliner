@@ -9,4 +9,3 @@ RETURNING *;
 SELECT *
 FROM "users"
 WHERE better_auth_id = $1;
-

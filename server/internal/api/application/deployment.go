@@ -21,22 +21,23 @@ import (
 )
 
 type DeploymentApplication struct {
-	config                *conf.Config
-	environmentService    *service.EnvironmentService
-	deploymentService     *service.DeploymentService
-	parserService         *service.ParserService
-	resolverService       *service.ResolverService
-	normalizerService     *coreService.NormalizerService
+	config                 *conf.Config
+	environmentService     *service.EnvironmentService
+	deploymentService      *service.DeploymentService
+	clusterService         *service.ClusterService
+	parserService          *service.ParserService
+	resolverService        *service.ResolverService
+	normalizerService      *coreService.NormalizerService
 	environmentRepository  interfaces.EnvironmentRepository
 	organizationRepository interfaces.OrganizationRepository
 	deploymentRepository   interfaces.DeploymentRepository
-	buildRepository       interfaces.BuildRepository
-	githubAppRepository   interfaces.GithubAppRepository
-	gitHub                port.GitHub
-	grpcClusterClient     port.ClusterClient
-	queue                 port.Queue
-	pubsub                port.Pubsub
-	crypto                corePort.Crypto
+	buildRepository        interfaces.BuildRepository
+	githubAppRepository    interfaces.GithubAppRepository
+	gitHub                 port.GitHub
+	grpcClusterClient      port.ClusterClient
+	queue                  port.Queue
+	crypto                 corePort.Crypto
+	registry               port.Registry
 }
 
 func NewDeploymentApplication(
@@ -53,27 +54,29 @@ func NewDeploymentApplication(
 	githubAppRepository interfaces.GithubAppRepository,
 	gitHub port.GitHub,
 	grpcClusterClient port.ClusterClient,
+	clusterService *service.ClusterService,
 	queue port.Queue,
-	pubsub port.Pubsub,
 	crypto corePort.Crypto,
+	registry port.Registry,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
-		config:                config,
-		environmentService:    environmentService,
-		deploymentService:     deploymentService,
-		parserService:         parserService,
-		resolverService:       resolverService,
-		normalizerService:     normalizerService,
+		config:                 config,
+		environmentService:     environmentService,
+		deploymentService:      deploymentService,
+		parserService:          parserService,
+		resolverService:        resolverService,
+		normalizerService:      normalizerService,
 		environmentRepository:  environmentRepository,
 		organizationRepository: organizationRepository,
 		deploymentRepository:   deploymentRepository,
-		buildRepository:       buildRepository,
-		githubAppRepository:   githubAppRepository,
-		gitHub:                gitHub,
-		grpcClusterClient:     grpcClusterClient,
-		queue:                 queue,
-		pubsub:                pubsub,
-		crypto:                crypto,
+		buildRepository:        buildRepository,
+		githubAppRepository:    githubAppRepository,
+		gitHub:                 gitHub,
+		grpcClusterClient:      grpcClusterClient,
+		clusterService:         clusterService,
+		queue:                  queue,
+		crypto:                 crypto,
+		registry:               registry,
 	}
 }
 
@@ -108,6 +111,18 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
+	if err != nil {
+		return err
+	}
+
+	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
+	if err != nil {
+		return err
+	}
+
 	d, err := da.deploymentRepository.CreateGitDeployment(
 		ctx,
 		environmentId,
@@ -124,11 +139,6 @@ func (da *DeploymentApplication) DeployFromGit(
 	}
 
 	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
-	if err != nil {
-		return err
-	}
-
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
 	if err != nil {
 		return err
 	}
@@ -152,15 +162,16 @@ func (da *DeploymentApplication) DeployFromGit(
 	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		BuildId:        b.Id,
-		DeploymentId:   d.Id,
-		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
-		GitUrl:         gitUrl,
-		BranchName:     env.ConnectedBranch,
-		AccessToken:    accessToken,
-		RootDirectory:  projectRepositoryPath,
-		DockerfilePath: dockerfilePath,
-		Args:           coreArgs,
+		BuildId:           b.Id,
+		DeploymentId:      d.Id,
+		ImageName:         imageName,
+		GitUrl:            gitUrl,
+		BranchName:        env.ConnectedBranch,
+		AccessToken:       accessToken,
+		RegistryPushToken: registryPushToken,
+		RootDirectory:     projectRepositoryPath,
+		DockerfilePath:    dockerfilePath,
+		Args:              coreArgs,
 	})
 }
 
@@ -206,12 +217,19 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return 0, err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
+	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
 	if err != nil {
 		return 0, err
 	}
 
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
+	imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+
+	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
+	if err != nil {
+		return 0, err
+	}
+
+	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
 	if err != nil {
 		return 0, err
 	}
@@ -220,6 +238,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	if err != nil {
 		return 0, err
 	}
+
 	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
 	if err != nil {
 		return 0, err
@@ -234,15 +253,16 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	}
 
 	err = da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		BuildId:        b.Id,
-		DeploymentId:   d.Id,
-		ImageName:      fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName),
-		AccessToken:    accessToken,
-		GitUrl:         d.GitUrl,
-		BranchName:     env.ConnectedBranch,
-		RootDirectory:  projectRepositoryPath,
-		DockerfilePath: dockerfilePath,
-		Args:           coreArgs,
+		BuildId:           b.Id,
+		DeploymentId:      d.Id,
+		ImageName:         imageName,
+		AccessToken:       accessToken,
+		RegistryPushToken: registryPushToken,
+		GitUrl:            d.GitUrl,
+		BranchName:        env.ConnectedBranch,
+		RootDirectory:     projectRepositoryPath,
+		DockerfilePath:    dockerfilePath,
+		Args:              coreArgs,
 	})
 	if err != nil {
 		return 0, err
@@ -975,7 +995,6 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 	return ingressDeployment.Id, nil
 }
 
-
 func (da *DeploymentApplication) redeployIngressDeployment(
 	ctx context.Context,
 	deploymentId int64,
@@ -1388,21 +1407,26 @@ func (da *DeploymentApplication) RequestDeploymentStatus() error {
 				deployment.ProvisioningId = *d.ProvisioningId
 			}
 
-			err = da.pubsub.PublishDeploymentStatusRequest(deployment)
+			health, err := da.grpcClusterClient.GetHealthStatus(
+				ctx,
+				deployment.DeploymentId,
+				deployment.Namespace,
+				deployment.DeploymentName,
+				deployment.KubeconfigBase64,
+			)
 			if err != nil {
-				log.Printf("failed to publish: %v\n", err)
+				da.clusterService.ReconcileIfUnreachable(ctx, err, deployment)
+				log.Printf("failed to get deployment status: %v\n", err)
+				return
+			}
+
+			err = da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
+			if err != nil {
+				log.Printf("failed to update deployment status: %v\n", err)
 			}
 		}(d)
 	}
 	return nil
-}
-
-func (da *DeploymentApplication) HandleDeploymentStatusResponse(health *coreValue.HealthStatus) {
-	ctx := context.Background()
-	err := da.deploymentRepository.UpdateDeploymentStatus(ctx, health.DeploymentId, string(health.Health))
-	if err != nil {
-		log.Printf("failed to update deployment status: %v\n", err)
-	}
 }
 
 func (da *DeploymentApplication) HandleBuildCompleted(b *coreValue.BuildCompleted) {

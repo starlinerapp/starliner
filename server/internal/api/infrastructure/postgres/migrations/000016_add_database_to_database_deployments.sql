@@ -5,4 +5,3 @@ ALTER TABLE database_deployments
 -- +goose Down
 ALTER TABLE database_deployments
   DROP COLUMN DATABASE;
-

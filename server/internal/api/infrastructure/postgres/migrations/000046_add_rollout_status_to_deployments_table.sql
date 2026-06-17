@@ -3,7 +3,8 @@ ALTER TABLE deployments
   ADD COLUMN rollout_status TEXT NOT NULL DEFAULT 'pending';
 
 ALTER TABLE deployments
-  ADD CONSTRAINT deployments_rollout_status_check CHECK (rollout_status IN ('pending', 'success', 'failure'));
+  ADD CONSTRAINT deployments_rollout_status_check CHECK (rollout_status IN
+    ('pending', 'success', 'failure'));
 
 UPDATE
   deployments
@@ -25,4 +26,3 @@ ALTER TABLE deployments
 
 ALTER TABLE deployments
   DROP COLUMN IF EXISTS rollout_status;
-

@@ -3,6 +3,8 @@ package port
 import (
 	"context"
 	"io"
+
+	coreValue "starliner.app/internal/core/domain/value"
 )
 
 type TerminalSize struct {
@@ -52,6 +54,14 @@ type ClusterClient interface {
 		stdout io.Writer,
 		sizes <-chan TerminalSize,
 	) error
+
+	GetHealthStatus(
+		ctx context.Context,
+		deploymentId int64,
+		namespace string,
+		deploymentName string,
+		kubeconfigBase64 string,
+	) (*coreValue.HealthStatus, error)
 }
 
 type ProvisionerClient interface {

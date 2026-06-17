@@ -13,4 +13,3 @@ WHERE username IS NULL
 ALTER TABLE database_deployments
   ALTER COLUMN username SET NOT NULL,
   ALTER COLUMN PASSWORD SET NOT NULL;
-

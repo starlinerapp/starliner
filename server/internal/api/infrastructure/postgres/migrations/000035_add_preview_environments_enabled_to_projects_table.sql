@@ -5,4 +5,3 @@ ALTER TABLE projects
 -- +goose Down
 ALTER TABLE projects
   DROP COLUMN preview_environments_enabled;
-
