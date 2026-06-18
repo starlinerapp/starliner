@@ -20,7 +20,8 @@ func (q *Queries) DeleteEnvVarsByDeploymentId(ctx context.Context, deploymentID 
 }
 
 const getDeploymentEnvironmentVars = `-- name: GetDeploymentEnvironmentVars :many
-SELECT ev.name, ev.value
+SELECT ev.name,
+  ev.value
 FROM deployment_environment_vars ev
 WHERE ev.deployment_id = $1
 `

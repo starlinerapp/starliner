@@ -2,7 +2,7 @@
 
 .docker/traefik/certs/*
 
-.docker/seaweedfs/*
+.docker/rustfs/data/*
 
 .env
 
