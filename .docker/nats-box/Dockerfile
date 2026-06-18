@@ -1,1 +1,0 @@
-FROM natsio/nats-box:0.19.2
