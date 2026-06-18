@@ -15,7 +15,6 @@ import (
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
-	"starliner.app/internal/api/presentation/http/sse"
 	corePort "starliner.app/internal/core/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
 )
@@ -32,7 +31,7 @@ type ClusterApplication struct {
 	crypto                 corePort.Crypto
 	queue                  port.Queue
 	grpcProvisionerClient  port.ProvisionerClient
-	userNotificationHub    *sse.UserNotificationHub
+	userNotificationHub    port.UserNotificationPublisher
 }
 
 func NewClusterApplication(
@@ -47,7 +46,7 @@ func NewClusterApplication(
 	crypto corePort.Crypto,
 	queue port.Queue,
 	grpcProvisionerClient port.ProvisionerClient,
-	userNotificationHub *sse.UserNotificationHub,
+	userNotificationHub port.UserNotificationPublisher,
 ) *ClusterApplication {
 	return &ClusterApplication{
 		clusterRepository:      clusterRepository,
@@ -121,10 +120,6 @@ func (ca *ClusterApplication) GetCluster(ctx context.Context, id int64) (*value.
 	}
 
 	return value.NewCluster(cluster), nil
-}
-
-func (ca *ClusterApplication) GetClusterOrgOwnerId(ctx context.Context, clusterId int64) (int64, error) {
-	return ca.clusterRepository.GetClusterOrgOwnerId(ctx, clusterId)
 }
 
 func (ca *ClusterApplication) GetUserCluster(ctx context.Context, userId int64, id int64) (*value.Cluster, error) {
@@ -405,7 +400,7 @@ func (ca *ClusterApplication) resolveClusterName(ctx context.Context, clusterId 
 }
 
 func (ca *ClusterApplication) broadcastClusterNotification(ctx context.Context, clusterId int64, status string, message string) {
-	ownerUserId, err := ca.GetClusterOrgOwnerId(ctx, clusterId)
+	ownerUserId, err := ca.clusterRepository.GetClusterOrgOwnerId(ctx, clusterId)
 	if err != nil {
 		log.Printf("failed to get org owner for cluster %d: %v", clusterId, err)
 		return

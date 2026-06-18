@@ -1,4 +1,4 @@
-package sse
+package notification
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"go.uber.org/fx"
+	apiport "starliner.app/internal/api/domain/port"
 	"starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
@@ -55,7 +56,7 @@ func NewUserNotificationHub(lc fx.Lifecycle, ps port.PubSub) *UserNotificationHu
 	return h
 }
 
-func (h *UserNotificationHub) Subscribe(userId int64) chan *value.ClusterNotification {
+func (h *UserNotificationHub) Subscribe(userId int64) apiport.UserNotificationSubscription {
 	ch := make(chan *value.ClusterNotification, 16)
 	h.mu.Lock()
 	if h.clients[userId] == nil {
@@ -63,10 +64,10 @@ func (h *UserNotificationHub) Subscribe(userId int64) chan *value.ClusterNotific
 	}
 	h.clients[userId][ch] = struct{}{}
 	h.mu.Unlock()
-	return ch
+	return &userSubscription{hub: h, userId: userId, ch: ch}
 }
 
-func (h *UserNotificationHub) Unsubscribe(userId int64, ch chan *value.ClusterNotification) {
+func (h *UserNotificationHub) unsubscribe(userId int64, ch chan *value.ClusterNotification) {
 	h.mu.Lock()
 	if subs, ok := h.clients[userId]; ok {
 		delete(subs, ch)
@@ -75,7 +76,6 @@ func (h *UserNotificationHub) Unsubscribe(userId int64, ch chan *value.ClusterNo
 		}
 	}
 	h.mu.Unlock()
-	close(ch)
 }
 
 func (h *UserNotificationHub) Broadcast(userId int64, notification *value.ClusterNotification) {
@@ -135,13 +135,4 @@ func (h *UserNotificationHub) deliverLocal(userId int64, notification *value.Clu
 			log.Printf("dropping notification for slow client on user %d", userId)
 		}
 	}
-}
-
-func (h *UserNotificationHub) WriteNotification(w *Writer, notification *value.ClusterNotification) {
-	data, err := json.Marshal(notification)
-	if err != nil {
-		log.Printf("failed to marshal user notification: %v", err)
-		return
-	}
-	_, _ = w.Write(data)
 }

@@ -2,7 +2,9 @@ package sse
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -39,6 +41,15 @@ func (s *Writer) Write(p []byte) (n int, err error) {
 	}
 	s.flusher.Flush()
 	return len(p), nil
+}
+
+func (s *Writer) WriteJSON(v any) {
+	data, err := json.Marshal(v)
+	if err != nil {
+		log.Printf("failed to marshal sse payload: %v", err)
+		return
+	}
+	_, _ = s.Write(data)
 }
 
 func (s *Writer) WriteError(err error) {

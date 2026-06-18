@@ -5,19 +5,20 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/sse"
 )
 
 type NotificationsHandler struct {
-	userNotificationHub *sse.UserNotificationHub
+	notificationApplication *application.NotificationApplication
 }
 
 func NewNotificationsHandler(
-	userNotificationHub *sse.UserNotificationHub,
+	notificationApplication *application.NotificationApplication,
 ) *NotificationsHandler {
 	return &NotificationsHandler{
-		userNotificationHub: userNotificationHub,
+		notificationApplication: notificationApplication,
 	}
 }
 
@@ -53,16 +54,16 @@ func (nh *NotificationsHandler) StreamGlobalNotifications(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
 
-	ch := nh.userNotificationHub.Subscribe(currentUser.Id)
-	defer nh.userNotificationHub.Unsubscribe(currentUser.Id, ch)
+	sub := nh.notificationApplication.SubscribeUser(currentUser.Id)
+	defer sub.Close()
 
 	ctx := c.Request.Context()
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case notification := <-ch:
-			nh.userNotificationHub.WriteNotification(sw, notification)
+		case notification := <-sub.Notifications():
+			sw.WriteJSON(notification)
 		}
 	}
 }

@@ -16,7 +16,6 @@ import (
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
-	"starliner.app/internal/api/presentation/http/sse"
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
 	coreValue "starliner.app/internal/core/domain/value"
@@ -40,7 +39,7 @@ type DeploymentApplication struct {
 	queue                  port.Queue
 	crypto                 corePort.Crypto
 	registry               port.Registry
-	notificationHub        *sse.EnvironmentNotificationHub
+	notificationHub        port.EnvironmentNotificationPublisher
 }
 
 func NewDeploymentApplication(
@@ -61,7 +60,7 @@ func NewDeploymentApplication(
 	queue port.Queue,
 	crypto corePort.Crypto,
 	registry port.Registry,
-	notificationHub *sse.EnvironmentNotificationHub,
+	notificationHub port.EnvironmentNotificationPublisher,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		config:                 config,
@@ -168,17 +167,17 @@ func (da *DeploymentApplication) DeployFromGit(
 	}
 
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		BuildId:        b.Id,
-		DeploymentId:   d.Id,
-		CorrelationId:  &correlationId,
-		ImageName:      imageName,
-		GitUrl:         gitUrl,
-		BranchName:     env.ConnectedBranch,
-		AccessToken:    accessToken,
+		BuildId:           b.Id,
+		DeploymentId:      d.Id,
+		CorrelationId:     &correlationId,
+		ImageName:         imageName,
+		GitUrl:            gitUrl,
+		BranchName:        env.ConnectedBranch,
+		AccessToken:       accessToken,
 		RegistryPushToken: registryPushToken,
-		RootDirectory:  projectRepositoryPath,
-		DockerfilePath: dockerfilePath,
-		Args:           coreArgs,
+		RootDirectory:     projectRepositoryPath,
+		DockerfilePath:    dockerfilePath,
+		Args:              coreArgs,
 	})
 }
 
@@ -263,7 +262,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	err = da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:           b.Id,
 		DeploymentId:      d.Id,
-		CorrelationId:  &correlationId,
+		CorrelationId:     &correlationId,
 		ImageName:         imageName,
 		AccessToken:       accessToken,
 		RegistryPushToken: registryPushToken,

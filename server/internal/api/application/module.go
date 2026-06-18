@@ -13,6 +13,7 @@ var Module = fx.Module(
 		NewOrganizationApplication,
 		NewClusterApplication,
 		NewDeploymentApplication,
+		NewNotificationApplication,
 		NewBuildApplication,
 		NewTeamApplication,
 		NewGitHubApplication,

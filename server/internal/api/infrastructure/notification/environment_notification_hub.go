@@ -1,4 +1,4 @@
-package sse
+package notification
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"go.uber.org/fx"
+	apiport "starliner.app/internal/api/domain/port"
 	"starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
@@ -61,7 +62,7 @@ func NewEnvironmentNotificationHub(lc fx.Lifecycle, ps port.PubSub) *Environment
 	return h
 }
 
-func (h *EnvironmentNotificationHub) Subscribe(correlationId string, environmentId int64) chan *value.EnvironmentNotification {
+func (h *EnvironmentNotificationHub) Subscribe(correlationId string, environmentId int64) apiport.EnvironmentNotificationSubscription {
 	key := environmentKey{correlationId: correlationId, environmentId: environmentId}
 	ch := make(chan *value.EnvironmentNotification, 16)
 	h.mu.Lock()
@@ -70,11 +71,10 @@ func (h *EnvironmentNotificationHub) Subscribe(correlationId string, environment
 	}
 	h.clients[key][ch] = struct{}{}
 	h.mu.Unlock()
-	return ch
+	return &environmentSubscription{hub: h, key: key, ch: ch}
 }
 
-func (h *EnvironmentNotificationHub) Unsubscribe(correlationId string, environmentId int64, ch chan *value.EnvironmentNotification) {
-	key := environmentKey{correlationId: correlationId, environmentId: environmentId}
+func (h *EnvironmentNotificationHub) unsubscribe(key environmentKey, ch chan *value.EnvironmentNotification) {
 	h.mu.Lock()
 	if subs, ok := h.clients[key]; ok {
 		delete(subs, ch)
@@ -83,7 +83,6 @@ func (h *EnvironmentNotificationHub) Unsubscribe(correlationId string, environme
 		}
 	}
 	h.mu.Unlock()
-	close(ch)
 }
 
 func (h *EnvironmentNotificationHub) Broadcast(correlationId string, environmentId int64, notification *value.EnvironmentNotification) {
@@ -146,13 +145,4 @@ func (h *EnvironmentNotificationHub) deliverLocal(correlationId string, environm
 			log.Printf("dropping notification for slow client on environment %d correlationId %s", environmentId, correlationId)
 		}
 	}
-}
-
-func (h *EnvironmentNotificationHub) WriteNotification(w *Writer, notification *value.EnvironmentNotification) {
-	data, err := json.Marshal(notification)
-	if err != nil {
-		log.Printf("failed to marshal notification: %v", err)
-		return
-	}
-	_, _ = w.Write(data)
 }

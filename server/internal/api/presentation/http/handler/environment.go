@@ -13,12 +13,12 @@ import (
 )
 
 type EnvironmentHandler struct {
-	environmentApplication *application.EnvironmentApplication
-	notificationHub        *sse.EnvironmentNotificationHub
+	environmentApplication  *application.EnvironmentApplication
+	notificationApplication *application.NotificationApplication
 }
 
-func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplication, notificationHub *sse.EnvironmentNotificationHub) *EnvironmentHandler {
-	return &EnvironmentHandler{environmentApplication: environmentApplication, notificationHub: notificationHub}
+func NewEnvironmentHandler(environmentApplication *application.EnvironmentApplication, notificationApplication *application.NotificationApplication) *EnvironmentHandler {
+	return &EnvironmentHandler{environmentApplication: environmentApplication, notificationApplication: notificationApplication}
 }
 
 // CreateEnvironment FindAll godoc
@@ -226,16 +226,16 @@ func (eh *EnvironmentHandler) StreamEnvironmentNotifications(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
 
-	ch := eh.notificationHub.Subscribe(correlationId, environmentId)
-	defer eh.notificationHub.Unsubscribe(correlationId, environmentId, ch)
+	sub := eh.notificationApplication.SubscribeEnvironment(correlationId, environmentId)
+	defer sub.Close()
 
 	ctx := c.Request.Context()
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case notification := <-ch:
-			eh.notificationHub.WriteNotification(sw, notification)
+		case notification := <-sub.Notifications():
+			sw.WriteJSON(notification)
 		}
 	}
 }
