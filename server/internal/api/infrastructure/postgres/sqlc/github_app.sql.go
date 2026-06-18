@@ -11,9 +11,11 @@ import (
 
 const createGithubApp = `-- name: CreateGithubApp :one
 INSERT INTO github_apps (
-  installation_id, organization_id)
+  installation_id,
+  organization_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 RETURNING id, installation_id, organization_id, created_at, updated_at
 `
 
