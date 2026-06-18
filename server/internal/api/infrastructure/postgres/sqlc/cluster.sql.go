@@ -15,9 +15,13 @@ import (
 
 const createCluster = `-- name: CreateCluster :one
 INSERT INTO clusters (
-  name, server_type, organization_id)
+  name,
+  server_type,
+  organization_id)
 VALUES (
-  $1, $2, $3)
+  $1,
+  $2,
+  $3)
 RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs
 `
 
@@ -119,12 +123,22 @@ func (q *Queries) GetDeploymentCluster(ctx context.Context, deploymentID int64) 
 }
 
 const getOrganizationClusters = `-- name: GetOrganizationClusters :many
-SELECT c.id, c.name, c.organization_id, c.server_type, c.created_at, COALESCE(ARRAY_AGG(t.slug ORDER BY t.slug) FILTER (WHERE t.slug IS NOT NULL), ARRAY[]::TEXT[])::TEXT[] AS team_slugs
+SELECT c.id,
+  c.name,
+  c.organization_id,
+  c.server_type,
+  c.created_at,
+  COALESCE(ARRAY_AGG(t.slug ORDER BY t.slug) FILTER (WHERE t.slug IS NOT NULL),
+    ARRAY[]::TEXT[])::TEXT[] AS team_slugs
 FROM clusters c
   LEFT JOIN team_clusters tc ON tc.cluster_id = c.id
   LEFT JOIN teams t ON t.id = tc.team_id
 WHERE c.organization_id = $1
-GROUP BY c.id, c.name, c.organization_id, c.server_type, c.created_at
+GROUP BY c.id,
+  c.name,
+  c.organization_id,
+  c.server_type,
+  c.created_at
 `
 
 type GetOrganizationClustersRow struct {
@@ -167,7 +181,16 @@ func (q *Queries) GetOrganizationClusters(ctx context.Context, organizationID in
 }
 
 const getUserCluster = `-- name: GetUserCluster :one
-SELECT c.id, c.name, c.user, c.ipv4_address, c.public_key, c.private_key, c.organization_id, c.status, c.provisioning_id, c.server_type
+SELECT c.id,
+  c.name,
+  c.user,
+  c.ipv4_address,
+  c.public_key,
+  c.private_key,
+  c.organization_id,
+  c.status,
+  c.provisioning_id,
+  c.server_type
 FROM clusters c
   LEFT JOIN organizations o ON c.organization_id = o.id
   LEFT JOIN organization_members om ON o.id = om.organization_id
@@ -303,7 +326,8 @@ func (q *Queries) UpdateClusterProvisioningId(ctx context.Context, arg UpdateClu
 const updateClusterPublicPrivateKeys = `-- name: UpdateClusterPublicPrivateKeys :exec
 UPDATE
   clusters
-SET public_key = $1, private_key = $2
+SET public_key = $1,
+  private_key = $2
 WHERE id = $3
 `
 

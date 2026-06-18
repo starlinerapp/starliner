@@ -15,11 +15,14 @@ import (
 
 const addOrganizationMember = `-- name: AddOrganizationMember :exec
 INSERT INTO organization_members (
-  organization_id, user_id)
+  organization_id,
+  user_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 ON CONFLICT (
-  organization_id, user_id)
+  organization_id,
+  user_id)
   DO NOTHING
 `
 
@@ -35,9 +38,13 @@ func (q *Queries) AddOrganizationMember(ctx context.Context, arg AddOrganization
 
 const createOrganization = `-- name: CreateOrganization :one
 INSERT INTO organizations (
-  name, slug, owner_id)
+  name,
+  slug,
+  owner_id)
 VALUES (
-  $1, $2, $3)
+  $1,
+  $2,
+  $3)
 RETURNING id, name, slug, owner_id, created_at, updated_at
 `
 
@@ -64,11 +71,23 @@ func (q *Queries) CreateOrganization(ctx context.Context, arg CreateOrganization
 const createOrganizationInvite = `-- name: CreateOrganizationInvite :one
 WITH new_invite AS (
   INSERT INTO organization_invites (
-    organization_id, email, expires_at, team_id)
+    organization_id,
+    email,
+    expires_at,
+    team_id)
   VALUES (
-    $1, $2, $3, $4)
+    $1,
+    $2,
+    $3,
+    $4)
 RETURNING id, organization_id, expires_at, created_at, email, team_id)
-SELECT new_invite.id, new_invite.organization_id, new_invite.expires_at, new_invite.created_at, new_invite.email, new_invite.team_id, organizations.name AS organization_name
+SELECT new_invite.id,
+  new_invite.organization_id,
+  new_invite.expires_at,
+  new_invite.created_at,
+  new_invite.email,
+  new_invite.team_id,
+  organizations.name AS organization_name
 FROM new_invite
   INNER JOIN organizations ON organizations.id = new_invite.organization_id
 `
@@ -131,7 +150,13 @@ func (q *Queries) GetOrganization(ctx context.Context, id int64) (Organization, 
 }
 
 const getOrganizationInviteById = `-- name: GetOrganizationInviteById :one
-SELECT organization_invites.id, organization_invites.organization_id, organization_invites.expires_at, organization_invites.created_at, organization_invites.email, organization_invites.team_id, organizations.name AS organization_name
+SELECT organization_invites.id,
+  organization_invites.organization_id,
+  organization_invites.expires_at,
+  organization_invites.created_at,
+  organization_invites.email,
+  organization_invites.team_id,
+  organizations.name AS organization_name
 FROM organization_invites
   INNER JOIN organizations ON organizations.id = organization_invites.organization_id
 WHERE organization_invites.id = $1
@@ -163,7 +188,8 @@ func (q *Queries) GetOrganizationInviteById(ctx context.Context, id uuid.UUID) (
 }
 
 const getOrganizationMembers = `-- name: GetOrganizationMembers :many
-SELECT users.id, users.better_auth_id
+SELECT users.id,
+  users.better_auth_id
 FROM users
   INNER JOIN organization_members ON organization_members.user_id = users.id
 WHERE organization_members.organization_id = $1
@@ -198,7 +224,9 @@ func (q *Queries) GetOrganizationMembers(ctx context.Context, organizationID int
 }
 
 const getOrganizationProvisioningCredential = `-- name: GetOrganizationProvisioningCredential :one
-SELECT pc.organization_id, pc.provider, pc.secret
+SELECT pc.organization_id,
+  pc.provider,
+  pc.secret
 FROM provisioning_credentials pc
 WHERE organization_id = $1
   AND provider = $2
@@ -277,11 +305,16 @@ func (q *Queries) RemoveOrganizationMember(ctx context.Context, arg RemoveOrgani
 
 const upsertProvisioningCredential = `-- name: UpsertProvisioningCredential :exec
 INSERT INTO provisioning_credentials (
-  organization_id, provider, secret)
+  organization_id,
+  provider,
+  secret)
 VALUES (
-  $1, $2, $3)
+  $1,
+  $2,
+  $3)
 ON CONFLICT (
-  organization_id, provider)
+  organization_id,
+  provider)
   DO UPDATE SET
     secret = EXCLUDED.secret
 `

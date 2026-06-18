@@ -22,8 +22,4 @@ export default defineConfig((config) => ({
   server: {
     allowedHosts: ["dev.starliner.app", "client"],
   },
-
-  optimizeDeps: {
-    exclude: ["@sentry/react-router"],
-  },
 }));
