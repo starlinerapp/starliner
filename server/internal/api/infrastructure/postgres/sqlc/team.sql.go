@@ -11,11 +11,14 @@ import (
 
 const addTeamMember = `-- name: AddTeamMember :exec
 INSERT INTO team_members (
-  team_id, user_id)
+  team_id,
+  user_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 ON CONFLICT (
-  team_id, user_id)
+  team_id,
+  user_id)
   DO NOTHING
 `
 
@@ -31,11 +34,18 @@ func (q *Queries) AddTeamMember(ctx context.Context, arg AddTeamMemberParams) er
 
 const assignRepoToTeam = `-- name: AssignRepoToTeam :exec
 INSERT INTO team_repositories (
-  team_id, github_repo_id, repo_name, github_app_id)
+  team_id,
+  github_repo_id,
+  repo_name,
+  github_app_id)
 VALUES (
-  $1, $2, $3, $4)
+  $1,
+  $2,
+  $3,
+  $4)
 ON CONFLICT (
-  team_id, github_repo_id)
+  team_id,
+  github_repo_id)
   DO NOTHING
 `
 
@@ -58,11 +68,14 @@ func (q *Queries) AssignRepoToTeam(ctx context.Context, arg AssignRepoToTeamPara
 
 const assignTeamCluster = `-- name: AssignTeamCluster :exec
 INSERT INTO team_clusters (
-  team_id, cluster_id)
+  team_id,
+  cluster_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 ON CONFLICT (
-  team_id, cluster_id)
+  team_id,
+  cluster_id)
   DO NOTHING
 `
 
@@ -78,9 +91,11 @@ func (q *Queries) AssignTeamCluster(ctx context.Context, arg AssignTeamClusterPa
 
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (
-  slug, organization_id)
+  slug,
+  organization_id)
 VALUES (
-  $1, $2)
+  $1,
+  $2)
 RETURNING id, slug, organization_id, created_at, updated_at
 `
 
@@ -297,7 +312,8 @@ func (q *Queries) GetTeamClusters(ctx context.Context, teamID int64) ([]Cluster,
 }
 
 const getTeamMembers = `-- name: GetTeamMembers :many
-SELECT users.id, users.better_auth_id
+SELECT users.id,
+  users.better_auth_id
 FROM team_members
   INNER JOIN users ON team_members.user_id = users.id
 WHERE team_members.team_id = $1
@@ -332,7 +348,8 @@ func (q *Queries) GetTeamMembers(ctx context.Context, teamID int64) ([]GetTeamMe
 }
 
 const getTeamRepositories = `-- name: GetTeamRepositories :many
-SELECT github_repo_id, repo_name
+SELECT github_repo_id,
+  repo_name
 FROM team_repositories
 WHERE team_id = $1
 `
