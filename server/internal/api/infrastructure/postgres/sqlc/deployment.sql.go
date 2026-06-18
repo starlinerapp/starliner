@@ -35,7 +35,8 @@ func (q *Queries) GetDeploymentStatusLogs(ctx context.Context, arg GetDeployment
 }
 
 const getDeploymentWithNamespace = `-- name: GetDeploymentWithNamespace :one
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.deleted_at, deployments.rollout_status, environments.namespace
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.deleted_at, deployments.rollout_status,
+  environments.namespace
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
 WHERE deployments.id = $1
@@ -75,7 +76,12 @@ func (q *Queries) GetDeploymentWithNamespace(ctx context.Context, id int64) (Get
 }
 
 const getDeploymentsWithKubeconfig = `-- name: GetDeploymentsWithKubeconfig :many
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.deleted_at, deployments.rollout_status, c.kubeconfig, environments.namespace, c.id AS cluster_id, c.provisioning_id, c.organization_id
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.deleted_at, deployments.rollout_status,
+  c.kubeconfig,
+  environments.namespace,
+  c.id AS cluster_id,
+  c.provisioning_id,
+  c.organization_id
 FROM deployments
   INNER JOIN environments ON deployments.environment_id = environments.id
   INNER JOIN projects ON environments.project_id = projects.id
@@ -208,7 +214,8 @@ func (q *Queries) GetUserDeployment(ctx context.Context, arg GetUserDeploymentPa
 const setDeploymentStatusLogs = `-- name: SetDeploymentStatusLogs :exec
 UPDATE
   deployments
-SET status_logs = $1, rollout_status = $2
+SET status_logs = $1,
+  rollout_status = $2
 WHERE id = $3
 `
 

@@ -13,18 +13,28 @@ import (
 const createDatabaseDeployment = `-- name: CreateDatabaseDeployment :one
 WITH new_deployment AS (
   INSERT INTO deployments (
-    name, port, environment_id)
+    name,
+    port,
+    environment_id)
   VALUES (
-    $1, $2, $3)
+    $1,
+    $2,
+    $3)
 RETURNING id, name, port, status, environment_id, created_at, updated_at, status_logs, deleted_at, rollout_status
-), new_database_deployment AS (
+),
+new_database_deployment AS (
   INSERT INTO database_deployments (
     deployment_id)
   SELECT id
   FROM new_deployment
   RETURNING deployment_id, username, password, created_at, updated_at, database
 )
-SELECT d.id AS deployment_id, d.name, d.port, d.environment_id, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.environment_id,
+  db.username,
+  db.password
 FROM new_deployment d
   INNER JOIN new_database_deployment db ON d.id = db.deployment_id
 `
@@ -59,7 +69,14 @@ func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDataba
 }
 
 const getEnvironmentDatabaseDeployments = `-- name: GetEnvironmentDatabaseDeployments :many
-SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.status,
+  d.environment_id,
+  db.database,
+  db.username,
+  db.password
 FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -112,7 +129,14 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, environ
 }
 
 const getUserDatabaseDeploymentById = `-- name: GetUserDatabaseDeploymentById :one
-SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.status,
+  d.environment_id,
+  db.database,
+  db.username,
+  db.password
 FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -157,7 +181,14 @@ func (q *Queries) GetUserDatabaseDeploymentById(ctx context.Context, arg GetUser
 }
 
 const getUserEnvironmentDatabaseDeployments = `-- name: GetUserEnvironmentDatabaseDeployments :many
-SELECT d.id AS deployment_id, d.name, d.port, d.status, d.environment_id, db.database, db.username, db.password
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.status,
+  d.environment_id,
+  db.database,
+  db.username,
+  db.password
 FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -221,7 +252,9 @@ func (q *Queries) GetUserEnvironmentDatabaseDeployments(ctx context.Context, arg
 const updateDatabaseDeploymentCredentials = `-- name: UpdateDatabaseDeploymentCredentials :exec
 UPDATE
   database_deployments
-SET DATABASE = $1, username = $2, password = $3
+SET DATABASE = $1,
+  username = $2,
+  password = $3
 WHERE deployment_id = $4
 `
 
