@@ -11,9 +11,15 @@ import (
 
 const createEnvironment = `-- name: CreateEnvironment :one
 INSERT INTO environments (
-  name, slug, namespace, project_id)
+  name,
+  slug,
+  namespace,
+  project_id)
 VALUES (
-  $1, $2, $3, $4)
+  $1,
+  $2,
+  $3,
+  $4)
 RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 `
 
@@ -47,9 +53,17 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 
 const createEnvironmentWithConnectedBranch = `-- name: CreateEnvironmentWithConnectedBranch :one
 INSERT INTO environments (
-  name, slug, namespace, project_id, connected_branch)
+  name,
+  slug,
+  namespace,
+  project_id,
+  connected_branch)
 VALUES (
-  $1, $2, $3, $4, $5)
+  $1,
+  $2,
+  $3,
+  $4,
+  $5)
 RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
 `
 
@@ -86,18 +100,38 @@ func (q *Queries) CreateEnvironmentWithConnectedBranch(ctx context.Context, arg 
 const createPreviewEnvironment = `-- name: CreatePreviewEnvironment :one
 WITH new_environment AS (
   INSERT INTO environments (
-    name, slug, namespace, project_id, connected_branch)
+    name,
+    slug,
+    namespace,
+    project_id,
+    connected_branch)
   VALUES (
-    $1, $2, $3, $4, $5)
+    $1,
+    $2,
+    $3,
+    $4,
+    $5)
 RETURNING id, name, slug, project_id, created_at, updated_at, namespace, connected_branch
-), new_preview_environments AS (
+),
+new_preview_environments AS (
   INSERT INTO preview_environments (
-    environment_id, github_repository_id, pr_number)
-  SELECT id, $6, $7
+    environment_id,
+    github_repository_id,
+    pr_number)
+  SELECT id,
+    $6,
+    $7
   FROM new_environment
   RETURNING environment_id, github_repository_id, pr_number, created_at, updated_at
 )
-SELECT e.id, e.name, e.slug, e.project_id, e.namespace, e.connected_branch, pe.github_repository_id, pe.pr_number
+SELECT e.id,
+  e.name,
+  e.slug,
+  e.project_id,
+  e.namespace,
+  e.connected_branch,
+  pe.github_repository_id,
+  pe.pr_number
 FROM new_environment e
   INNER JOIN new_preview_environments pe ON e.id = pe.environment_id
 `
