@@ -80,6 +80,50 @@ func (q *Queries) CreateRunnerRegistrationToken(ctx context.Context, arg CreateR
 	return i, err
 }
 
+const getOrganizationRunners = `-- name: GetOrganizationRunners :many
+SELECT
+  id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
+FROM
+  runners
+WHERE
+  organization_id = $1
+ORDER BY
+  created_at DESC
+`
+
+func (q *Queries) GetOrganizationRunners(ctx context.Context, organizationID sql.NullInt64) ([]Runner, error) {
+	rows, err := q.db.QueryContext(ctx, getOrganizationRunners, organizationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Runner
+	for rows.Next() {
+		var i Runner
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.Name,
+			&i.Status,
+			pq.Array(&i.Labels),
+			&i.MaxConcurrentJobs,
+			&i.DisabledAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateRunnerOnRegistration = `-- name: UpdateRunnerOnRegistration :one
 UPDATE
   runners

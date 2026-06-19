@@ -862,6 +862,37 @@ definitions:
     required:
     - message
     type: object
+  response.Runner:
+    properties:
+      created_at:
+        type: string
+      disabled_at:
+        type: string
+      id:
+        type: integer
+      labels:
+        items:
+          type: string
+        type: array
+      max_concurrent_jobs:
+        type: integer
+      name:
+        type: string
+      organization_id:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - created_at
+    - id
+    - labels
+    - max_concurrent_jobs
+    - organization_id
+    - status
+    - updated_at
+    type: object
   response.Team:
     properties:
       id:
@@ -1922,6 +1953,31 @@ paths:
       tags:
       - organization
   /organizations/{id}/runners:
+    get:
+      operationId: getOrganizationRunners
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.Runner'
+            type: array
+      summary: Get all registered runners for an organization
+      tags:
+      - runner
     post:
       operationId: createRunner
       parameters:

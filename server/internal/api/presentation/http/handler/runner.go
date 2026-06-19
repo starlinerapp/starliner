@@ -50,6 +50,34 @@ func (rh *RunnerHandler) CreateRunner(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.NewCreateRunner(result))
 }
 
+// GetOrganizationRunners godoc
+// @Summary Get all registered runners for an organization
+// @State core
+// @Tags runner
+// @ID getOrganizationRunners
+// @Produce json
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Success 200 {array} response.Runner
+// @Router /organizations/{id}/runners [get]
+func (rh *RunnerHandler) GetOrganizationRunners(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	runners, err := rh.runnerApplication.GetOrganizationRunners(c.Request.Context(), organizationId, currentUser.Id)
+	if err != nil {
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewRunners(runners))
+}
+
 // RegisterRunner godoc
 // @Summary Register self-hosted runner
 // @State runner

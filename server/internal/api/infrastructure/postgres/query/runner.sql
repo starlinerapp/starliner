@@ -35,3 +35,13 @@ SET name = $2,
   max_concurrent_jobs = $4
 WHERE id = $1
 RETURNING *;
+
+-- name: GetOrganizationRunners :many
+SELECT
+  *
+FROM
+  runners
+WHERE
+  organization_id = $1
+ORDER BY
+  created_at DESC;

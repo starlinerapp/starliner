@@ -21,4 +21,5 @@ type RunnerRepository interface {
 		labels []string,
 		maxConcurrentJobs int32,
 	) error
+	GetOrganizationRunners(ctx context.Context, organizationId int64) ([]*entity.Runner, error)
 }

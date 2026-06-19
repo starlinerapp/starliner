@@ -15,4 +15,16 @@ export const runnerRouter = {
         .createRunner(userId, input.organizationId)
         .then((res) => res.data);
     }),
+  getOrganizationRunners: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await runnerApiFactory
+        .getOrganizationRunners(userId, input.organizationId)
+        .then((res) => res.data);
+    }),
 };

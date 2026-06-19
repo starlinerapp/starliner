@@ -88,3 +88,21 @@ func (ra *RunnerApplication) RegisterRunner(
 
 	return nil
 }
+
+func (ra *RunnerApplication) GetOrganizationRunners(
+	ctx context.Context,
+	organizationId int64,
+	userId int64,
+) ([]*value.Runner, error) {
+	err := ra.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	runners, err := ra.runnerRepository.GetOrganizationRunners(ctx, organizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewRunners(runners), nil
+}

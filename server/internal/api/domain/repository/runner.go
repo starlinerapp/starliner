@@ -111,3 +111,30 @@ func (rr *RunnerRepository) RegisterRunner(
 
 	return tx.Commit()
 }
+
+func (rr *RunnerRepository) GetOrganizationRunners(
+	ctx context.Context,
+	organizationId int64,
+) ([]*entity.Runner, error) {
+	rows, err := rr.queries.GetOrganizationRunners(ctx, sql.NullInt64{Int64: organizationId, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+
+	runners := make([]*entity.Runner, len(rows))
+	for i, row := range rows {
+		runners[i] = &entity.Runner{
+			Id:                row.ID,
+			OrganizationId:    row.OrganizationID.Int64,
+			Name:              mapper.ToPtrFromNullString(row.Name),
+			Status:            row.Status,
+			Labels:            row.Labels,
+			MaxConcurrentJobs: row.MaxConcurrentJobs,
+			DisabledAt:        mapper.ToPtrFromNullTime(row.DisabledAt),
+			CreatedAt:         row.CreatedAt,
+			UpdatedAt:         row.UpdatedAt,
+		}
+	}
+
+	return runners, nil
+}
