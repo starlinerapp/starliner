@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -13,8 +13,8 @@ interface LogsConsoleProps {
   resetKey?: string | number;
 }
 
-const BOTTOM_THRESHOLD_PX = 32;
-const TOP_THRESHOLD_PX = 32;
+const AUTO_FOLLOW_THRESHOLD_PX = 32;
+const EDGE_THRESHOLD_PX = 2;
 
 export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
   const [search, setSearch] = useState("");
@@ -35,11 +35,11 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
     return logs.filter((line) => line.toLowerCase().includes(query));
   }, [logs, search]);
 
-  const updateButtonState = (el: HTMLDivElement) => {
+  const updateButtonState = useCallback((el: HTMLDivElement) => {
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    setIsAtBottom(distanceFromBottom <= BOTTOM_THRESHOLD_PX);
-    setIsAtTop(el.scrollTop <= TOP_THRESHOLD_PX);
-  };
+    setIsAtBottom(distanceFromBottom <= EDGE_THRESHOLD_PX);
+    setIsAtTop(el.scrollTop <= EDGE_THRESHOLD_PX);
+  }, []);
 
   useEffect(() => {
     hasLoadedInitial.current = false;
@@ -73,7 +73,24 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
       el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }
     updateButtonState(el);
-  }, [filteredLogs]);
+  }, [filteredLogs, updateButtonState]);
+
+  useEffect(() => {
+    const el = logsScrollRef.current;
+    if (!el) {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      if (autoFollowRef.current) {
+        el.scrollTop = el.scrollHeight;
+      }
+      updateButtonState(el);
+    });
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleScroll = () => {
     const el = logsScrollRef.current;
@@ -89,7 +106,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
     const distanceFromBottom = el.scrollHeight - curr - el.clientHeight;
     if (curr < prev - 1) {
       autoFollowRef.current = false;
-    } else if (distanceFromBottom <= BOTTOM_THRESHOLD_PX) {
+    } else if (distanceFromBottom <= AUTO_FOLLOW_THRESHOLD_PX) {
       autoFollowRef.current = true;
     }
   };
