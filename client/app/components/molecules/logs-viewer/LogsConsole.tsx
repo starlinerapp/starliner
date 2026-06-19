@@ -90,7 +90,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
     observer.observe(el);
 
     return () => observer.disconnect();
-  }, []);
+  }, [updateButtonState]);
 
   const handleScroll = () => {
     const el = logsScrollRef.current;
