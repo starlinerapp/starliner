@@ -82,6 +82,14 @@ FROM environments
   INNER JOIN clusters ON projects.cluster_id = clusters.id
 WHERE environments.id = $1;
 
+-- name: GetEnvironmentOrganization :one
+SELECT organizations.*
+FROM environments
+  INNER JOIN projects ON projects.id = environments.project_id
+  INNER JOIN teams ON teams.id = projects.team_id
+  INNER JOIN organizations ON organizations.id = teams.organization_id
+WHERE environments.id = $1;
+
 -- name: GetEnvironmentAuthorizedUsers :many
 SELECT tm.user_id
 FROM environments
