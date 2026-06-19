@@ -1,9 +1,19 @@
 definitions:
   request.RegisterRunner:
     properties:
+      labels:
+        items:
+          type: string
+        type: array
+      maxConcurrentJobs:
+        type: integer
+      name:
+        type: string
       token:
         type: string
     required:
+    - maxConcurrentJobs
+    - name
     - token
     type: object
   response.Root:

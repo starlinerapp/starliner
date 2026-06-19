@@ -66,7 +66,13 @@ func (rh *RunnerHandler) RegisterRunner(c *gin.Context) {
 		return
 	}
 
-	err := rh.runnerApplication.RegisterRunner(c.Request.Context(), body.Token)
+	err := rh.runnerApplication.RegisterRunner(
+		c.Request.Context(),
+		body.Token,
+		body.Name,
+		body.Labels,
+		body.MaxConcurrentJobs,
+	)
 	if err != nil {
 		if errors.Is(err, value.ErrInvalidRunnerRegistrationToken) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})

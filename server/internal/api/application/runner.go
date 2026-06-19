@@ -68,8 +68,17 @@ func (ra *RunnerApplication) CreateRunner(
 func (ra *RunnerApplication) RegisterRunner(
 	ctx context.Context,
 	token string,
+	name string,
+	labels []string,
+	maxConcurrentJobs int32,
 ) error {
-	err := ra.runnerRepository.UseRunnerRegistrationToken(ctx, ra.tokenService.HashToken(token))
+	err := ra.runnerRepository.RegisterRunner(
+		ctx,
+		ra.tokenService.HashToken(token),
+		name,
+		labels,
+		maxConcurrentJobs,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return value.ErrInvalidRunnerRegistrationToken

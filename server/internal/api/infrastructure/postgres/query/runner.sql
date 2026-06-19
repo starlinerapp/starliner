@@ -19,9 +19,19 @@ VALUES (
 RETURNING *;
 
 -- name: UseRunnerRegistrationToken :one
-UPDATE runner_registration_tokens
+UPDATE
+  runner_registration_tokens
 SET used_at = NOW()
 WHERE token_hash = $1
   AND used_at IS NULL
   AND expires_at > NOW()
+RETURNING *;
+
+-- name: UpdateRunnerOnRegistration :one
+UPDATE
+  runners
+SET name = $2,
+  labels = $3,
+  max_concurrent_jobs = $4
+WHERE id = $1
 RETURNING *;

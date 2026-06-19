@@ -73,12 +73,41 @@ func (rr *RunnerRepository) CreateRunnerWithRegistrationToken(
 	}, nil
 }
 
-func (rr *RunnerRepository) UseRunnerRegistrationToken(
+func (rr *RunnerRepository) RegisterRunner(
 	ctx context.Context,
 	tokenHash string,
+	name string,
+	labels []string,
+	maxConcurrentJobs int32,
 ) error {
-	if _, err := rr.queries.UseRunnerRegistrationToken(ctx, tokenHash); err != nil {
+	tx, err := rr.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
 		return err
 	}
-	return nil
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	qtx := rr.queries.WithTx(tx)
+
+	regToken, err := qtx.UseRunnerRegistrationToken(ctx, tokenHash)
+	if err != nil {
+		return err
+	}
+
+	if !regToken.RunnerID.Valid {
+		return sql.ErrNoRows
+	}
+
+	_, err = qtx.UpdateRunnerOnRegistration(ctx, sqlc.UpdateRunnerOnRegistrationParams{
+		ID:                regToken.RunnerID.Int64,
+		Name:              sql.NullString{String: name, Valid: true},
+		Labels:            labels,
+		MaxConcurrentJobs: maxConcurrentJobs,
+	})
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

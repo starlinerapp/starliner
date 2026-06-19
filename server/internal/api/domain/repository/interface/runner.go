@@ -14,8 +14,11 @@ type RunnerRepository interface {
 		tokenHash string,
 		expiresAt time.Time,
 	) (*entity.Runner, error)
-	UseRunnerRegistrationToken(
+	RegisterRunner(
 		ctx context.Context,
 		tokenHash string,
+		name string,
+		labels []string,
+		maxConcurrentJobs int32,
 	) error
 }

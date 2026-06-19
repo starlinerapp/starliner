@@ -65,9 +65,23 @@
         "request.RegisterRunner": {
             "type": "object",
             "required": [
+                "maxConcurrentJobs",
+                "name",
                 "token"
             ],
             "properties": {
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "maxConcurrentJobs": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
                 "token": {
                     "type": "string"
                 }
