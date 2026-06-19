@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
-	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/presentation/http/sse"
 )
 
@@ -36,7 +35,11 @@ func NewNotificationsHandler(
 // @Header 200 {string} Connection "keep-alive"
 // @Router /notifications [get]
 func (nh *NotificationsHandler) StreamGlobalNotifications(c *gin.Context) {
-	currentUser := c.MustGet("user").(*value.User)
+	correlationId := c.GetHeader("X-Correlation-ID")
+	if correlationId == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "missing X-Correlation-ID header"})
+		return
+	}
 
 	_, err := strconv.ParseInt(c.Query("organizationId"), 10, 64)
 	if err != nil {
@@ -54,7 +57,7 @@ func (nh *NotificationsHandler) StreamGlobalNotifications(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
 
-	sub := nh.notificationApplication.SubscribeUser(currentUser.Id)
+	sub := nh.notificationApplication.SubscribeGlobal(correlationId)
 	defer sub.Close()
 
 	ctx := c.Request.Context()

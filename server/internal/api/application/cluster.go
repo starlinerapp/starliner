@@ -31,7 +31,7 @@ type ClusterApplication struct {
 	crypto                 corePort.Crypto
 	queue                  port.Queue
 	grpcProvisionerClient  port.ProvisionerClient
-	userNotificationHub    port.UserNotificationPublisher
+	notifier               port.NotificationPublisher
 }
 
 func NewClusterApplication(
@@ -46,7 +46,7 @@ func NewClusterApplication(
 	crypto corePort.Crypto,
 	queue port.Queue,
 	grpcProvisionerClient port.ProvisionerClient,
-	userNotificationHub port.UserNotificationPublisher,
+	notifier port.NotificationPublisher,
 ) *ClusterApplication {
 	return &ClusterApplication{
 		clusterRepository:      clusterRepository,
@@ -60,11 +60,11 @@ func NewClusterApplication(
 		crypto:                 crypto,
 		queue:                  queue,
 		grpcProvisionerClient:  grpcProvisionerClient,
-		userNotificationHub:    userNotificationHub,
+		notifier:               notifier,
 	}
 }
 
-func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, name string, serverType string, organizationId int64, teamId int64) (*value.Cluster, error) {
+func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, correlationId string, name string, serverType string, organizationId int64, teamId int64) (*value.Cluster, error) {
 	if err := ca.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId); err != nil {
 		return nil, err
 	}
@@ -105,6 +105,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		ServerType:             coreValue.ServerType(cluster.ServerType),
 		OrganizationName:       strconv.FormatInt(cluster.OrganizationId, 10),
 		ProvisioningCredential: decrypted,
+		CorrelationId:          correlationId,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
@@ -160,7 +161,7 @@ func (ca *ClusterApplication) GetClusterPrivateKey(ctx context.Context, id int64
 	return pemBytes, nil
 }
 
-func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, clusterId int64) error {
+func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, correlationId string, clusterId int64) error {
 	cluster, err := ca.clusterRepository.GetUserCluster(ctx, userId, clusterId)
 	if err != nil {
 		return err
@@ -185,6 +186,7 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 		Id:                     cluster.Id,
 		ProvisioningId:         *cluster.ProvisioningId,
 		ProvisioningCredential: decrypted,
+		CorrelationId:          correlationId,
 	})
 	if err != nil {
 		log.Printf("error publishing: %v", err)
@@ -316,7 +318,7 @@ func (ca *ClusterApplication) HandleClusterProvisionedSuccess(c *coreValue.Clust
 	}
 
 	clusterName := ca.resolveClusterName(ctx, c.ClusterId)
-	ca.broadcastClusterNotification(ctx, c.ClusterId, "success", fmt.Sprintf("Cluster %s provisioned successfully", clusterName))
+	ca.publishClusterNotification(c.CorrelationId, c.ClusterId, "success", fmt.Sprintf("Cluster %s provisioned successfully", clusterName))
 }
 
 func (ca *ClusterApplication) HandleClusterProvisionedFailure(c *coreValue.ClusterProvisionedFailure) {
@@ -326,7 +328,7 @@ func (ca *ClusterApplication) HandleClusterProvisionedFailure(c *coreValue.Clust
 	if c.Reason != "" {
 		message = fmt.Sprintf("%s: %s", message, c.Reason)
 	}
-	ca.broadcastClusterNotification(ctx, c.ClusterId, "failed", message)
+	ca.publishClusterNotification(c.CorrelationId, c.ClusterId, "failed", message)
 }
 
 func (ca *ClusterApplication) tearDownClusterProjects(ctx context.Context, clusterId int64) error {
@@ -368,7 +370,7 @@ func (ca *ClusterApplication) HandleClusterDeletedSuccess(c *coreValue.ClusterDe
 
 	if err := ca.tearDownClusterProjects(ctx, c.ClusterId); err != nil {
 		log.Printf("failed to tear down cluster %d projects: %v\n", c.ClusterId, err)
-		ca.broadcastClusterNotification(ctx, c.ClusterId, "failed", fmt.Sprintf("Failed to clean up cluster %s after deletion", clusterName))
+		ca.publishClusterNotification(c.CorrelationId, c.ClusterId, "failed", fmt.Sprintf("Failed to clean up cluster %s after deletion", clusterName))
 		return
 	}
 
@@ -377,7 +379,7 @@ func (ca *ClusterApplication) HandleClusterDeletedSuccess(c *coreValue.ClusterDe
 		return
 	}
 
-	ca.broadcastClusterNotification(ctx, c.ClusterId, "success", fmt.Sprintf("Cluster %s deleted successfully", clusterName))
+	ca.publishClusterNotification(c.CorrelationId, c.ClusterId, "success", fmt.Sprintf("Cluster %s deleted successfully", clusterName))
 }
 
 func (ca *ClusterApplication) HandleClusterDeletedFailure(c *coreValue.ClusterDeletedFailure) {
@@ -387,7 +389,7 @@ func (ca *ClusterApplication) HandleClusterDeletedFailure(c *coreValue.ClusterDe
 	if c.Reason != "" {
 		message = fmt.Sprintf("%s: %s", message, c.Reason)
 	}
-	ca.broadcastClusterNotification(ctx, c.ClusterId, "failed", message)
+	ca.publishClusterNotification(c.CorrelationId, c.ClusterId, "failed", message)
 }
 
 func (ca *ClusterApplication) resolveClusterName(ctx context.Context, clusterId int64) string {
@@ -399,16 +401,14 @@ func (ca *ClusterApplication) resolveClusterName(ctx context.Context, clusterId 
 	return cluster.Name
 }
 
-func (ca *ClusterApplication) broadcastClusterNotification(ctx context.Context, clusterId int64, status string, message string) {
-	ownerUserId, err := ca.clusterRepository.GetClusterOrgOwnerId(ctx, clusterId)
-	if err != nil {
-		log.Printf("failed to get org owner for cluster %d: %v", clusterId, err)
+func (ca *ClusterApplication) publishClusterNotification(correlationId string, clusterId int64, status string, message string) {
+	if correlationId == "" {
 		return
 	}
-
-	ca.userNotificationHub.Broadcast(ownerUserId, &coreValue.ClusterNotification{
-		ClusterId: clusterId,
-		Status:    status,
-		Message:   message,
+	ca.notifier.Publish(correlationTopic(correlationId), &coreValue.Notification{
+		Kind:       coreValue.NotificationKindCluster,
+		Status:     status,
+		Message:    message,
+		ResourceId: &clusterId,
 	})
 }

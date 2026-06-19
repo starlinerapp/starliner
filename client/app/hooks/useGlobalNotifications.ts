@@ -12,11 +12,7 @@ export function useGlobalNotifications(organizationId: number) {
       trpc.notifications.streamGlobalNotifications.subscriptionOptions(
         { organizationId },
         {
-          onData: (data: {
-            organizationId: number;
-            status: string;
-            message: string;
-          }) => {
+          onData: (data: { status: string; message: string }) => {
             if (data.status === "success") {
               toast.success(data.message);
             } else if (data.status === "failed") {

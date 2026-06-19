@@ -510,10 +510,11 @@ func (da *DeploymentApplication) broadcastEnvironmentNotification(correlationId 
 		return
 	}
 
-	da.notificationHub.Broadcast(correlationId, *environmentId, &coreValue.EnvironmentNotification{
-		CorrelationId: correlationId,
-		DeploymentId:  deploymentId,
-		Status:        status,
-		Message:       message,
+	deploymentRef := deploymentId
+	da.notifier.Publish(environmentTopic(correlationId, *environmentId), &coreValue.Notification{
+		Kind:       coreValue.NotificationKindDeployment,
+		Status:     status,
+		Message:    message,
+		ResourceId: &deploymentRef,
 	})
 }

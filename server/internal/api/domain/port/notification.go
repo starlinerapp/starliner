@@ -1,29 +1,28 @@
 package port
 
-import coreValue "starliner.app/internal/core/domain/value"
+import (
+	"context"
 
-type UserNotificationPublisher interface {
-	Broadcast(userId int64, notification *coreValue.ClusterNotification)
+	coreValue "starliner.app/internal/core/domain/value"
+)
+
+type NotificationPublisher interface {
+	Publish(topic string, notification *coreValue.Notification)
 }
 
-type EnvironmentNotificationPublisher interface {
-	Broadcast(correlationId string, environmentId int64, notification *coreValue.EnvironmentNotification)
+type NotificationConsumer interface {
+	Consume(ctx context.Context, handle func(topic string, notification *coreValue.Notification)) error
 }
 
-type UserNotificationSubscriber interface {
-	Subscribe(userId int64) UserNotificationSubscription
+type NotificationSubscriber interface {
+	Subscribe(topics ...string) NotificationSubscription
 }
 
-type EnvironmentNotificationSubscriber interface {
-	Subscribe(correlationId string, environmentId int64) EnvironmentNotificationSubscription
+type NotificationDelivery interface {
+	Deliver(topic string, notification *coreValue.Notification)
 }
 
-type UserNotificationSubscription interface {
-	Notifications() <-chan *coreValue.ClusterNotification
-	Close()
-}
-
-type EnvironmentNotificationSubscription interface {
-	Notifications() <-chan *coreValue.EnvironmentNotification
+type NotificationSubscription interface {
+	Notifications() <-chan *coreValue.Notification
 	Close()
 }

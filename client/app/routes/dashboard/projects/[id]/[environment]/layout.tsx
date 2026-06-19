@@ -121,7 +121,6 @@ export default function ProjectLayout() {
   ];
 
   return (
-    <>
       <div className="flex h-full flex-col">
         <div className="bg-violet-1">
           {isProjectsLoading || isEnvironmentBuildsLoading ? (
@@ -145,6 +144,5 @@ export default function ProjectLayout() {
           <Outlet />
         </div>
       </div>
-    </>
   );
 }

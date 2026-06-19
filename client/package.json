@@ -17,6 +17,7 @@
     "openapi:generate:auth": "curl -k https://auth.dev.starliner.app/docs -o /tmp/auth-openapi.json && openapi-generator-cli generate -i /tmp/auth-openapi.json -g typescript-axios -o app/server/api/clients/auth/generated --global-property apiDocs=false,modelDocs=false && rm /tmp/auth-openapi.json && npm run lint:fix"
   },
   "dependencies": {
+    "@openapitools/openapi-generator-cli": "^2.35.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-hover-card": "^1.1.15",

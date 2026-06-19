@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { clusterApiFactory } from "~/server/api/clients/server";
 import type { RequestCreateClusterServerTypeEnum } from "~/server/api/clients/server/generated";
+import { cache } from "~/server/services/cache";
 import { streamSse } from "~/server/services/sse";
 import { protectedProcedure } from "~/server/trpc";
 
@@ -16,13 +17,18 @@ export const clusterRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
       return await clusterApiFactory
-        .createCluster(userId, {
-          name: input.name,
-          serverType: input.serverType as RequestCreateClusterServerTypeEnum,
-          organizationId: input.organizationId,
-          teamId: input.teamId,
-        })
+        .createCluster(
+          userId,
+          {
+            name: input.name,
+            serverType: input.serverType as RequestCreateClusterServerTypeEnum,
+            organizationId: input.organizationId,
+            teamId: input.teamId,
+          },
+          { headers: { "X-Correlation-ID": correlationId } },
+        )
         .then((res) => res.data);
     }),
   getCluster: protectedProcedure
@@ -45,8 +51,11 @@ export const clusterRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
+      const correlationId = (await cache.get(`user:${userId}`)) || "";
       return await clusterApiFactory
-        .deleteCluster(userId, input.id)
+        .deleteCluster(userId, input.id, {
+          headers: { "X-Correlation-ID": correlationId },
+        })
         .then((res) => res.data);
     }),
   streamProvisioningLogs: protectedProcedure

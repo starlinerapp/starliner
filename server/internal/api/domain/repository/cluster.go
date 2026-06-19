@@ -40,6 +40,7 @@ func (cr *ClusterRepository) GetCluster(ctx context.Context, clusterId int64) (*
 	}, nil
 }
 
+// TODO delete this no usage
 func (cr *ClusterRepository) GetClusterOrgOwnerId(ctx context.Context, clusterId int64) (int64, error) {
 	return cr.queries.GetClusterOrgOwnerId(ctx, clusterId)
 }

@@ -39,7 +39,7 @@ type DeploymentApplication struct {
 	queue                  port.Queue
 	crypto                 corePort.Crypto
 	registry               port.Registry
-	notificationHub        port.EnvironmentNotificationPublisher
+	notifier               port.NotificationPublisher
 }
 
 func NewDeploymentApplication(
@@ -60,7 +60,7 @@ func NewDeploymentApplication(
 	queue port.Queue,
 	crypto corePort.Crypto,
 	registry port.Registry,
-	notificationHub port.EnvironmentNotificationPublisher,
+	notifier port.NotificationPublisher,
 ) *DeploymentApplication {
 	return &DeploymentApplication{
 		config:                 config,
@@ -80,7 +80,7 @@ func NewDeploymentApplication(
 		queue:                  queue,
 		crypto:                 crypto,
 		registry:               registry,
-		notificationHub:        notificationHub,
+		notifier:               notifier,
 	}
 }
 

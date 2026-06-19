@@ -1,14 +1,15 @@
 package value
 
-type EnvironmentNotification struct {
-	CorrelationId string `json:"correlationId"`
-	DeploymentId  int64  `json:"deploymentId"`
-	Status        string `json:"status"`
-	Message       string `json:"message"`
-}
+type NotificationKind string
 
-type ClusterNotification struct {
-	ClusterId int64  `json:"clusterId"`
-	Status    string `json:"status"`
-	Message   string `json:"message"`
+const (
+	NotificationKindCluster    NotificationKind = "cluster"
+	NotificationKindDeployment NotificationKind = "deployment"
+)
+
+type Notification struct {
+	Kind       NotificationKind `json:"kind"`
+	Status     string           `json:"status"`
+	Message    string           `json:"message"`
+	ResourceId *int64           `json:"resourceId,omitempty"`
 }

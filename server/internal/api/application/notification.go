@@ -1,26 +1,31 @@
 package application
 
-import "starliner.app/internal/api/domain/port"
+import (
+	"fmt"
+
+	"starliner.app/internal/api/domain/port"
+)
+
+func correlationTopic(correlationId string) string {
+	return "corr:" + correlationId
+}
+
+func environmentTopic(correlationId string, environmentId int64) string {
+	return fmt.Sprintf("corr:%s:env:%d", correlationId, environmentId)
+}
 
 type NotificationApplication struct {
-	userNotifications        port.UserNotificationSubscriber
-	environmentNotifications port.EnvironmentNotificationSubscriber
+	notifications port.NotificationSubscriber
 }
 
-func NewNotificationApplication(
-	userNotifications port.UserNotificationSubscriber,
-	environmentNotifications port.EnvironmentNotificationSubscriber,
-) *NotificationApplication {
-	return &NotificationApplication{
-		userNotifications:        userNotifications,
-		environmentNotifications: environmentNotifications,
-	}
+func NewNotificationApplication(notifications port.NotificationSubscriber) *NotificationApplication {
+	return &NotificationApplication{notifications: notifications}
 }
 
-func (na *NotificationApplication) SubscribeUser(userId int64) port.UserNotificationSubscription {
-	return na.userNotifications.Subscribe(userId)
+func (na *NotificationApplication) SubscribeGlobal(correlationId string) port.NotificationSubscription {
+	return na.notifications.Subscribe(correlationTopic(correlationId))
 }
 
-func (na *NotificationApplication) SubscribeEnvironment(correlationId string, environmentId int64) port.EnvironmentNotificationSubscription {
-	return na.environmentNotifications.Subscribe(correlationId, environmentId)
+func (na *NotificationApplication) SubscribeEnvironment(correlationId string, environmentId int64) port.NotificationSubscription {
+	return na.notifications.Subscribe(environmentTopic(correlationId, environmentId))
 }

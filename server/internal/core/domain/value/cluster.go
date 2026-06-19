@@ -15,12 +15,14 @@ type ProvisionCluster struct {
 	ServerType             ServerType
 	OrganizationName       string
 	ProvisioningCredential string
+	CorrelationId          string
 }
 
 type DeleteCluster struct {
 	Id                     int64
 	ProvisioningId         string
 	ProvisioningCredential string
+	CorrelationId          string
 }
 
 type ReconcileCluster struct {
@@ -43,20 +45,24 @@ type ClusterProvisionedSuccess struct {
 	PrivateKey       string `json:"privateKey"`
 	KubeconfigBase64 string `json:"kubeconfigBase64"`
 	Logs             string `json:"logs"`
+	CorrelationId    string `json:"correlationId"`
 }
 
 type ClusterProvisionedFailure struct {
-	ClusterId int64  `json:"clusterId"`
-	Reason    string `json:"reason"`
+	ClusterId     int64  `json:"clusterId"`
+	Reason        string `json:"reason"`
+	CorrelationId string `json:"correlationId"`
 }
 
 type ClusterDeletedSuccess struct {
-	ClusterId int64 `json:"clusterId"`
+	ClusterId     int64  `json:"clusterId"`
+	CorrelationId string `json:"correlationId"`
 }
 
 type ClusterDeletedFailure struct {
-	ClusterId int64  `json:"clusterId"`
-	Reason    string `json:"reason"`
+	ClusterId     int64  `json:"clusterId"`
+	Reason        string `json:"reason"`
+	CorrelationId string `json:"correlationId"`
 }
 
 var ErrClusterUnreachable = errors.New("cluster unreachable")
