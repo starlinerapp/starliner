@@ -17,6 +17,9 @@ swag-auth: ## Generate swagger docs for auth api
 swag-core: ## Generate swagger docs for core api
 	swag init --state core --instanceName core -g ./cmd/api/core/main.go -o ./cmd/api/core/docs --parseInternal
 
+swag-runner: ## Generate swagger docs for runner api
+	swag init --state runner --instanceName runner -g ./cmd/api/runner/main.go -o ./cmd/api/runner/docs --parseInternal
+
 proto: ## Generate Go code from protobufs
 	protoc \
 		--go_out=. --go_opt=paths=source_relative $(shell find ./internal/core/infrastructure/grpc/proto/v1 -name "*.proto") \

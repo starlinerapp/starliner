@@ -14,4 +14,8 @@ type RunnerRepository interface {
 		tokenHash string,
 		expiresAt time.Time,
 	) (*entity.Runner, error)
+	UseRunnerRegistrationToken(
+		ctx context.Context,
+		tokenHash string,
+	) error
 }

@@ -72,3 +72,13 @@ func (rr *RunnerRepository) CreateRunnerWithRegistrationToken(
 		UpdatedAt:         runner.UpdatedAt,
 	}, nil
 }
+
+func (rr *RunnerRepository) UseRunnerRegistrationToken(
+	ctx context.Context,
+	tokenHash string,
+) error {
+	if _, err := rr.queries.UseRunnerRegistrationToken(ctx, tokenHash); err != nil {
+		return err
+	}
+	return nil
+}

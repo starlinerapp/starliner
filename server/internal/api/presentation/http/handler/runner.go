@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
+	"starliner.app/internal/api/presentation/http/dto/request"
 	"starliner.app/internal/api/presentation/http/dto/response"
 )
 
@@ -46,4 +48,35 @@ func (rh *RunnerHandler) CreateRunner(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response.NewCreateRunner(result))
+}
+
+// RegisterRunner godoc
+// @Summary Register self-hosted runner
+// @State runner
+// @Tags runner
+// @ID registerRunner
+// @Produce json
+// @Param data body request.RegisterRunner true "Register Runner"
+// @Success 201
+// @Router /api/runners/register [post]
+func (rh *RunnerHandler) RegisterRunner(c *gin.Context) {
+	var body request.RegisterRunner
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err := rh.runnerApplication.RegisterRunner(c.Request.Context(), body.Token)
+	if err != nil {
+		if errors.Is(err, value.ErrInvalidRunnerRegistrationToken) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusCreated)
 }

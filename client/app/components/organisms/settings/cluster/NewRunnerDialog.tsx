@@ -31,15 +31,15 @@ $ curl -LO ${RUNNER_DOWNLOAD_URL}
 
 $ tar xf ${RUNNER_PACKAGE}
 $ cd ${RUNNER_DIR}
-$ ./runner install`;
+$ ./runner install --baseUrl https://starliner.app/api`;
 }
 
 function getConfigureScript(token: string) {
   return `# Register the runner with your organization
-$ ./runner register --token ${token}
+$ runner register --token ${token}
 
 # Start the runner
-$ ./runner run`;
+$ runner run`;
 }
 
 export default function NewRunnerDialog() {

@@ -13,6 +13,7 @@ import (
 	"go.uber.org/fx"
 	_ "starliner.app/cmd/api/auth/docs"
 	_ "starliner.app/cmd/api/core/docs"
+	_ "starliner.app/cmd/api/runner/docs"
 	"starliner.app/internal/api/presentation/http/handler"
 	"starliner.app/internal/api/presentation/http/middleware"
 )
@@ -44,10 +45,16 @@ func NewServer(
 
 	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
 	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
+	engine.GET("/swagger/runner/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("runner")))
 
 	webhookRoutes := engine.Group("/webhooks")
 	{
 		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)
+	}
+
+	apiRoutes := engine.Group("/api")
+	{
+		apiRoutes.POST("/runners/register", runnerHandler.RegisterRunner)
 	}
 
 	authEmailRoutes := engine.Group("/auth")

@@ -73,3 +73,28 @@ func (q *Queries) CreateRunnerRegistrationToken(ctx context.Context, arg CreateR
 	)
 	return i, err
 }
+
+const useRunnerRegistrationToken = `-- name: UseRunnerRegistrationToken :one
+UPDATE runner_registration_tokens
+SET used_at = NOW()
+WHERE token_hash = $1
+  AND used_at IS NULL
+  AND expires_at > NOW()
+RETURNING id, organization_id, token_hash, expires_at, used_at, runner_id, created_at, updated_at
+`
+
+func (q *Queries) UseRunnerRegistrationToken(ctx context.Context, tokenHash string) (RunnerRegistrationToken, error) {
+	row := q.db.QueryRowContext(ctx, useRunnerRegistrationToken, tokenHash)
+	var i RunnerRegistrationToken
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.TokenHash,
+		&i.ExpiresAt,
+		&i.UsedAt,
+		&i.RunnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

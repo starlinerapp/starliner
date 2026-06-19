@@ -141,9 +141,7 @@ export default [
     route("/organizations/invite/:inviteId", "routes/organizations/invite.tsx"),
   ]),
 
-  ...prefix("api", [
-    // tRPC routes
-    route("trpc/*", "routes/api/trpc.ts"),
-  ]),
+  // tRPC routes
+  route("trpc/*", "routes/trpc.ts"),
   route("*", "routes/404.tsx"),
 ] satisfies RouteConfig;

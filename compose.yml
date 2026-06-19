@@ -7,6 +7,8 @@ services:
       dockerfile: .docker/traefik/Dockerfile
     restart: unless-stopped
     command:
+      - "--log.level=INFO"
+      - "--accesslog=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=shared"
@@ -155,7 +157,7 @@ services:
       - shared
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && PathPrefix(`/webhooks/`)
+      - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && (PathPrefix(`/webhooks/`) || PathPrefix(`/api/`))
       - traefik.http.routers.webhooks.entrypoints=websecure
       - traefik.http.routers.webhooks.tls=true
       - traefik.http.routers.webhooks.priority=100

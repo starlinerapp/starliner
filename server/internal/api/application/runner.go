@@ -2,6 +2,8 @@ package application
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"time"
 
 	interfaces "starliner.app/internal/api/domain/repository/interface"
@@ -61,4 +63,19 @@ func (ra *RunnerApplication) CreateRunner(
 		Token:     token,
 		ExpiresAt: expiresAt,
 	}, nil
+}
+
+func (ra *RunnerApplication) RegisterRunner(
+	ctx context.Context,
+	token string,
+) error {
+	err := ra.runnerRepository.UseRunnerRegistrationToken(ctx, ra.tokenService.HashToken(token))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return value.ErrInvalidRunnerRegistrationToken
+		}
+		return err
+	}
+
+	return nil
 }

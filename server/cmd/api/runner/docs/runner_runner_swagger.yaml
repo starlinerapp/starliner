@@ -1,0 +1,59 @@
+definitions:
+  request.RegisterRunner:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  response.Root:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+info:
+  contact: {}
+  title: Starliner Runner API
+  version: "1.0"
+paths:
+  /:
+    get:
+      operationId: getRoot
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Root'
+      summary: Get root
+      tags:
+      - root
+  /api/runners/register:
+    post:
+      operationId: registerRunner
+      parameters:
+      - description: Register Runner
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRunner'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: Register self-hosted runner
+      tags:
+      - runner
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

@@ -56,11 +56,11 @@ const links = [
     condition: (op) => op.type === "subscription",
     true: httpSubscriptionLink({
       transformer: superjson,
-      url: "/api/trpc",
+      url: "/trpc",
     }),
     false: httpBatchStreamLink({
       transformer: superjson,
-      url: "/api/trpc",
+      url: "/trpc",
       maxURLLength: 2083,
     }),
   }),
