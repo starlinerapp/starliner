@@ -173,6 +173,20 @@ func (er *EnvironmentRepository) GetEnvironmentCluster(ctx context.Context, envi
 	}, nil
 }
 
+func (er *EnvironmentRepository) GetEnvironmentOrganization(ctx context.Context, environmentId int64) (*entity.Organization, error) {
+	organization, err := er.queries.GetEnvironmentOrganization(ctx, environmentId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Organization{
+		Id:      organization.ID,
+		Name:    organization.Name,
+		Slug:    organization.Slug,
+		OwnerId: organization.OwnerID,
+	}, nil
+}
+
 func (er *EnvironmentRepository) GetEnvironmentById(ctx context.Context, environmentId int64) (*entity.Environment, error) {
 	env, err := er.queries.GetEnvironmentById(ctx, environmentId)
 	if err != nil {
