@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@custom-variant arrows-fit (@container (min-height: 72px));
+
 @font-face {
   font-family: "Rubik";
   src: url("../assets/fonts/Rubik-Regular.ttf");

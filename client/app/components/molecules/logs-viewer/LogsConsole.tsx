@@ -169,7 +169,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
           </button>
         )}
       </div>
-      <div className="relative min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1 [container-type:size]">
         <div
           ref={logsScrollRef}
           onScroll={handleScroll}
@@ -183,7 +183,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
             ))}
           </pre>
         </div>
-        <div className="absolute right-8 bottom-1 flex flex-col gap-1.5">
+        <div className="absolute right-4 bottom-1 hidden flex-col gap-1.5 arrows-fit:flex">
           <button
             type="button"
             onClick={scrollToTop}
