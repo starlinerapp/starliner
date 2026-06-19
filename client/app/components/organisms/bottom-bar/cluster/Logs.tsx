@@ -1,6 +1,6 @@
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { useEffect, useState } from "react";
-import LogsConsole from "~/components/molecules/logs-viewer/LogsConsole";
+import LogsConsole from "~/components/molecules/logs-console/LogsConsole";
 import { useTRPC } from "~/utils/trpc/react";
 
 interface LogsProps {

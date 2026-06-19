@@ -200,7 +200,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
             ))}
           </pre>
         </div>
-        <div className="absolute right-4 bottom-1 arrows-fit:flex hidden flex-col gap-1.5">
+        <div className="absolute right-4 bottom-1 scroll-controls-fit:flex hidden flex-col gap-1.5">
           <button
             type="button"
             onClick={scrollToTop}
