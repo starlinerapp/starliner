@@ -288,6 +288,29 @@ func (q *Queries) GetEnvironmentCluster(ctx context.Context, id int64) (Cluster,
 	return i, err
 }
 
+const getEnvironmentOrganization = `-- name: GetEnvironmentOrganization :one
+SELECT organizations.id, organizations.name, organizations.slug, organizations.owner_id, organizations.created_at, organizations.updated_at
+FROM environments
+  INNER JOIN projects ON projects.id = environments.project_id
+  INNER JOIN teams ON teams.id = projects.team_id
+  INNER JOIN organizations ON organizations.id = teams.organization_id
+WHERE environments.id = $1
+`
+
+func (q *Queries) GetEnvironmentOrganization(ctx context.Context, id int64) (Organization, error) {
+	row := q.db.QueryRowContext(ctx, getEnvironmentOrganization, id)
+	var i Organization
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getEnvironmentProject = `-- name: GetEnvironmentProject :one
 SELECT p.id, p.name, p.team_id, p.created_at, p.updated_at, p.cluster_id, p.preview_environments_enabled
 FROM projects p

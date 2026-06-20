@@ -223,7 +223,13 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		imageName := fmt.Sprintf("%s/%s", env.Namespace, normalizedServiceName)
+		organization, err := ga.environmentRepository.GetEnvironmentOrganization(ctx, environmentID)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		imageName := fmt.Sprintf("%s/%s/%s", organization.Slug, env.Namespace, normalizedServiceName)
 
 		registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
 		if err != nil {
@@ -525,7 +531,13 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 				continue
 			}
 
-			imageName := fmt.Sprintf("%s/%s", newEnv.Namespace, normalizedServiceName)
+			organization, err := ga.environmentRepository.GetEnvironmentOrganization(ctx, newEnv.Id)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+
+			imageName := fmt.Sprintf("%s/%s/%s", organization.Slug, newEnv.Namespace, normalizedServiceName)
 
 			registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
 			if err != nil {
