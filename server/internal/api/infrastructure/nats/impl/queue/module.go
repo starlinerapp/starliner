@@ -11,6 +11,7 @@ const (
 	Builds      jetstream.Stream = "builds"
 	Clusters    jetstream.Stream = "clusters"
 	Deployments jetstream.Stream = "deployments"
+	Runners     jetstream.Stream = "runners"
 )
 
 var Module = fx.Module(
@@ -29,5 +30,8 @@ var Module = fx.Module(
 	}),
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{DeployIngress, DeployImage, DeployDatabase, DatabaseDeployed, DeleteDeployment, DeploymentDeleted, DeploymentStatusLogsCompleted})
+	}),
+	fx.Invoke(func(js nats.JetStreamContext) error {
+		return jetstream.EnsureStream(js, Runners, []jetstream.Subject{RunnerStatusChanged})
 	}),
 )

@@ -154,3 +154,14 @@ func (rr *RunnerRepository) GetRunnerIdByRegistrationToken(
 
 	return runnerID.Int64, nil
 }
+
+func (rr *RunnerRepository) UpdateRunnerStatus(
+	ctx context.Context,
+	runnerId int64,
+	status string,
+) error {
+	return rr.queries.UpdateRunnerStatus(ctx, sqlc.UpdateRunnerStatusParams{
+		ID:     runnerId,
+		Status: status,
+	})
+}

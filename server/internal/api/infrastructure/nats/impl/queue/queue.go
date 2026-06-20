@@ -26,6 +26,7 @@ const (
 	DeleteDeployment              jetstream.Subject = "delete.deployment"
 	DeploymentDeleted             jetstream.Subject = "deployment.deleted"
 	DeploymentStatusLogsCompleted jetstream.Subject = "deployment.status_logs.completed"
+	RunnerStatusChanged           jetstream.Subject = "runner.status_changed"
 )
 
 type Queue struct {
@@ -170,5 +171,16 @@ func (q *Queue) SubscribeToBuildCompleted(handler func(build *value.BuildComplet
 			log.Printf("failed to unmarshal: %v", err)
 		}
 		handler(&b)
+	})
+}
+
+func (q *Queue) SubscribeToRunnerStatusChanged(handler func(status *value.RunnerStatusChanged)) error {
+	return q.subscriber.Subscribe(RunnerStatusChanged, "*", "runnerStatusChanged", func(msg []byte) {
+		var status value.RunnerStatusChanged
+		if err := json.Unmarshal(msg, &status); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+			return
+		}
+		handler(&status)
 	})
 }

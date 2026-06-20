@@ -37,20 +37,19 @@ WHERE id = $1
 RETURNING *;
 
 -- name: GetOrganizationRunners :many
-SELECT
-  *
-FROM
-  runners
-WHERE
-  organization_id = $1
-ORDER BY
-  created_at DESC;
+SELECT *
+FROM runners
+WHERE organization_id = $1
+ORDER BY created_at DESC;
 
 -- name: GetRunnerIdByRegistrationToken :one
-SELECT
-  runner_id
-FROM
-  runner_registration_tokens
-WHERE
-  token_hash = $1
+SELECT runner_id
+FROM runner_registration_tokens
+WHERE token_hash = $1
   AND runner_id IS NOT NULL;
+
+-- name: UpdateRunnerStatus :exec
+UPDATE
+  runners
+SET status = $2
+WHERE id = $1;

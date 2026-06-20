@@ -10,6 +10,7 @@ import (
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
 	"starliner.app/internal/builder/presentation/grpc"
 	builderqueue "starliner.app/internal/builder/presentation/queue"
+	"starliner.app/internal/builder/presentation/scheduler"
 	"starliner.app/internal/core/infrastructure/redis"
 	"starliner.app/internal/core/infrastructure/s3"
 	"starliner.app/internal/core/infrastructure/sentry"
@@ -27,6 +28,7 @@ func main() {
 		docker.Module,
 		application.Module,
 		builderqueue.Module,
+		scheduler.Module,
 		sentry.Module("builder"),
 	).Run()
 }

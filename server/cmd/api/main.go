@@ -15,6 +15,7 @@ import (
 	grpcClient "starliner.app/internal/api/presentation/grpc"
 	"starliner.app/internal/api/presentation/http"
 	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
+	runnerqueue "starliner.app/internal/api/presentation/queue/runner"
 	"starliner.app/internal/api/presentation/scheduler"
 	coreService "starliner.app/internal/core/domain/service"
 	"starliner.app/internal/core/infrastructure/crypto"
@@ -41,6 +42,7 @@ func main() {
 		http.Module,
 		grpcClient.Module,
 		clusterqueue.Module,
+		runnerqueue.Module,
 		scheduler.Module,
 		sentry.Module("api"),
 		registry.Module,

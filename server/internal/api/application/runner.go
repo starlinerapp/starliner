@@ -9,6 +9,7 @@ import (
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
+	coreValue "starliner.app/internal/core/domain/value"
 )
 
 const runnerRegistrationTokenTTL = time.Hour
@@ -120,4 +121,11 @@ func (ra *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) 
 	}
 
 	return runnerId, nil
+}
+
+func (ra *RunnerApplication) HandleRunnerStatusChanged(
+	ctx context.Context,
+	status *coreValue.RunnerStatusChanged,
+) error {
+	return ra.runnerRepository.UpdateRunnerStatus(ctx, status.RunnerId, string(status.Status))
 }

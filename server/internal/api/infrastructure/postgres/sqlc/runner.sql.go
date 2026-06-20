@@ -205,3 +205,22 @@ func (q *Queries) GetRunnerIdByRegistrationToken(ctx context.Context, tokenHash 
 	err := row.Scan(&runnerID)
 	return runnerID, err
 }
+
+const updateRunnerStatus = `-- name: UpdateRunnerStatus :exec
+UPDATE
+  runners
+SET
+  status = $2
+WHERE
+  id = $1
+`
+
+type UpdateRunnerStatusParams struct {
+	ID     int64
+	Status string
+}
+
+func (q *Queries) UpdateRunnerStatus(ctx context.Context, arg UpdateRunnerStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateRunnerStatus, arg.ID, arg.Status)
+	return err
+}
