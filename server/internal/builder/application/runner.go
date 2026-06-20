@@ -9,12 +9,12 @@ import (
 )
 
 type RunnerApplication struct {
-	runnerAuthClient port.RunnerAuthClient
+	authClient port.AuthClient
 }
 
-func NewRunnerApplication(runnerAuthClient port.RunnerAuthClient) *RunnerApplication {
+func NewRunnerApplication(authClient port.AuthClient) *RunnerApplication {
 	return &RunnerApplication{
-		runnerAuthClient: runnerAuthClient,
+		authClient: authClient,
 	}
 }
 
@@ -23,7 +23,7 @@ func (a *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) (
 		return 0, status.Error(codes.Unauthenticated, "missing runner token")
 	}
 
-	runnerId, err := a.runnerAuthClient.ResolveRunnerId(ctx, token)
+	runnerId, err := a.authClient.ResolveRunnerId(ctx, token)
 	if err != nil {
 		if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
 			return 0, status.Error(codes.Unauthenticated, st.Message())

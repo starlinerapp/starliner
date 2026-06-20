@@ -31,7 +31,7 @@ $ curl -LO ${RUNNER_DOWNLOAD_URL}
 
 $ tar xf ${RUNNER_PACKAGE}
 $ cd ${RUNNER_DIR}
-$ ./runner install --baseUrl https://starliner.app/api`;
+$ ./runner install --baseUrl https://starliner.app`;
 }
 
 function getConfigureScript(token: string) {
@@ -39,7 +39,7 @@ function getConfigureScript(token: string) {
 $ runner register --token ${token}
 
 # Start the runner
-$ runner run`;
+$ runner start`;
 }
 
 export default function NewRunnerDialog() {

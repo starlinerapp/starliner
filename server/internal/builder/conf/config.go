@@ -13,6 +13,8 @@ type Config struct {
 	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 	ImageRegistryUrl   string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
 	ApiGrpcEndpoint    string `mapstructure:"API_GRPC_ENDPOINT" validate:"required"`
+	RedisAddr          string `mapstructure:"REDIS_ADDR" validate:"required"`
+	RedisPassword      string `mapstructure:"REDIS_PASSWORD" validate:"required"`
 	SentryDSN          string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment        string `mapstructure:"ENVIRONMENT"`
 }
@@ -69,4 +71,12 @@ func (c *Config) GetSentryDSN() string {
 
 func (c *Config) GetEnvironment() string {
 	return c.Environment
+}
+
+func (c *Config) GetRedisAddr() string {
+	return c.RedisAddr
+}
+
+func (c *Config) GetRedisPassword() string {
+	return c.RedisPassword
 }

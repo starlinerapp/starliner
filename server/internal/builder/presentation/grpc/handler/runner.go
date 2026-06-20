@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"starliner.app/internal/builder/application"
 	v1 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
@@ -57,7 +58,22 @@ func (h *RunnerHandler) Connect(
 
 		switch payload := msg.GetPayload().(type) {
 		case *v1.RunnerMessage_Heartbeat:
-			return h.heartbeatApplication.AcknowledgeHeartbeat(stream.Context(), runnerId)
+			heartbeatInterval, err := h.heartbeatApplication.AcknowledgeHeartbeat(stream.Context(), runnerId)
+			if err != nil {
+				return status.Errorf(codes.Internal, "acknowledge heartbeat: %v", err)
+			}
+
+			err = stream.Send(&v1.SchedulerMessage{
+				Payload: &v1.SchedulerMessage_HeartbeatAck{
+					HeartbeatAck: &v1.HeartbeatAck{
+						Sequence: payload.Heartbeat.GetSequence(),
+						LeaseTtl: durationpb.New(heartbeatInterval),
+					},
+				},
+			})
+			if err != nil {
+				return status.Errorf(codes.Unavailable, "send heartbeat ack: %v", err)
+			}
 		default:
 			return status.Errorf(codes.InvalidArgument, "unsupported message type %T", payload)
 		}

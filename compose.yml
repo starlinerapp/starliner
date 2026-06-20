@@ -170,9 +170,6 @@ services:
       context: .
       dockerfile: .docker/server/builder/Dockerfile
       target: dev
-    depends_on:
-      s3:
-        condition: service_healthy
     ports:
       - "40001:40001"
       - "57500:57500"
@@ -183,8 +180,15 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
       API_GRPC_ENDPOINT: ${API_GRPC_ENDPOINT:-server-api:57200}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
       SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
+    depends_on:
+      s3:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./server:/app
       - ./.docker/server/builder/air.toml:/config/air.toml:ro
