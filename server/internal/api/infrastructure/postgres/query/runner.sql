@@ -45,3 +45,12 @@ WHERE
   organization_id = $1
 ORDER BY
   created_at DESC;
+
+-- name: GetRunnerIdByRegistrationToken :one
+SELECT
+  runner_id
+FROM
+  runner_registration_tokens
+WHERE
+  token_hash = $1
+  AND runner_id IS NOT NULL;

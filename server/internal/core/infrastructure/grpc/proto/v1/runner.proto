@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
+
+import "google/protobuf/duration.proto";
+
+service RunnerSchedulerService {
+  rpc Connect(stream RunnerMessage) returns (stream SchedulerMessage);
+}
+
+message RunnerMessage {
+  oneof payload {
+    RunnerHeartbeat heartbeat = 1;
+  }
+}
+
+message SchedulerMessage {
+  oneof payload {
+    HeartbeatAck heartbeat_ack = 1;
+  }
+}
+
+message RunnerHeartbeat {
+  uint64 sequence = 1;
+}
+
+message HeartbeatAck {
+  uint64 sequence = 1;
+  google.protobuf.Duration lease_ttl = 2;
+}

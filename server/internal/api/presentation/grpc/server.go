@@ -8,8 +8,8 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"starliner.app/internal/builder/conf"
-	"starliner.app/internal/builder/presentation/grpc/handler"
+	"starliner.app/internal/api/conf"
+	"starliner.app/internal/api/presentation/grpc/handler"
 	pb "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
@@ -20,29 +20,27 @@ type Server struct {
 
 func NewServer(
 	cfg *conf.Config,
-	h *handler.BuildLogHandler,
-	runnerHandler *handler.RunnerHandler,
+	runnerAuthHandler *handler.RunnerHandler,
 ) *Server {
 	s := grpc.NewServer()
 	reflection.Register(s)
-	pb.RegisterBuildLogServiceServer(s, h)
-	pb.RegisterRunnerSchedulerServiceServer(s, runnerHandler)
+	pb.RegisterRunnerAuthServiceServer(s, runnerAuthHandler)
 	return &Server{cfg: cfg, server: s}
 }
 
 func RegisterServer(lc fx.Lifecycle, s *Server) {
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
-			lis, err := net.Listen("tcp", ":57500")
+			lis, err := net.Listen("tcp", ":57200")
 			if err != nil {
 				return err
 			}
 			go func() {
 				if err := s.server.Serve(lis); err != nil {
-					log.Printf("builder gRPC server: %v", err)
+					log.Printf("api gRPC server: %v", err)
 				}
 			}()
-			log.Printf("Server listening on port 57500")
+			log.Printf("Server listening on port 57200")
 			return nil
 		},
 		OnStop: func(_ context.Context) error {

@@ -116,6 +116,7 @@ services:
         condition: service_healthy
     ports:
       - "9090:9090"
+      - "57200:57200"
       - "40000:40000"
     environment:
       DB_HOST: ${DB_HOST:-db}
@@ -181,6 +182,7 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
+      API_GRPC_ENDPOINT: ${API_GRPC_ENDPOINT:-server-api:57200}
       SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
     volumes:
@@ -188,6 +190,15 @@ services:
       - ./.docker/server/builder/air.toml:/config/air.toml:ro
     networks:
       - shared
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.runner-scheduler.rule=Host(`dev.starliner.app`) && PathPrefix(`/proto.v1.RunnerSchedulerService`)
+      - traefik.http.routers.runner-scheduler.entrypoints=websecure
+      - traefik.http.routers.runner-scheduler.tls=true
+      - traefik.http.routers.runner-scheduler.priority=110
+      - traefik.http.routers.runner-scheduler.service=runner-scheduler
+      - traefik.http.services.runner-scheduler.loadbalancer.server.port=57500
+      - traefik.http.services.runner-scheduler.loadbalancer.server.scheme=h2c
 
   server-cluster:
     restart: unless-stopped

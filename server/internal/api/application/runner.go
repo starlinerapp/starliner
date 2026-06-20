@@ -106,3 +106,18 @@ func (ra *RunnerApplication) GetOrganizationRunners(
 
 	return value.NewRunners(runners), nil
 }
+
+func (ra *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) (int64, error) {
+	runnerId, err := ra.runnerRepository.GetRunnerIdByRegistrationToken(
+		ctx,
+		ra.tokenService.HashToken(token),
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, value.ErrInvalidRunnerRegistrationToken
+		}
+		return 0, err
+	}
+
+	return runnerId, nil
+}

@@ -6,6 +6,7 @@ import (
 	"starliner.app/internal/builder/conf"
 	docker "starliner.app/internal/builder/infrastructure/buildkit"
 	"starliner.app/internal/builder/infrastructure/git"
+	buildergrpc "starliner.app/internal/builder/infrastructure/grpc"
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
 	"starliner.app/internal/builder/presentation/grpc"
 	builderqueue "starliner.app/internal/builder/presentation/queue"
@@ -18,6 +19,7 @@ func main() {
 		conf.Module,
 		s3.Module,
 		queue.Module,
+		buildergrpc.Module,
 		grpc.Module,
 		git.Module,
 		docker.Module,

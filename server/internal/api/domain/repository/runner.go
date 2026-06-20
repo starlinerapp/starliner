@@ -138,3 +138,19 @@ func (rr *RunnerRepository) GetOrganizationRunners(
 
 	return runners, nil
 }
+
+func (rr *RunnerRepository) GetRunnerIdByRegistrationToken(
+	ctx context.Context,
+	tokenHash string,
+) (int64, error) {
+	runnerID, err := rr.queries.GetRunnerIdByRegistrationToken(ctx, tokenHash)
+	if err != nil {
+		return 0, err
+	}
+
+	if !runnerID.Valid {
+		return 0, sql.ErrNoRows
+	}
+
+	return runnerID.Int64, nil
+}

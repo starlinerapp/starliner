@@ -12,6 +12,7 @@ type Config struct {
 	AWSAccessKeyId     string `mapstructure:"AWS_ACCESS_KEY_ID" validate:"required"`
 	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY" validate:"required"`
 	ImageRegistryUrl   string `mapstructure:"IMAGE_REGISTRY_URL" validate:"required"`
+	ApiGrpcEndpoint    string `mapstructure:"API_GRPC_ENDPOINT" validate:"required"`
 	SentryDSN          string `mapstructure:"SENTRY_DSN_SERVER"`
 	Environment        string `mapstructure:"ENVIRONMENT"`
 }

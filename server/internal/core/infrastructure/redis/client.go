@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -72,4 +73,8 @@ func (c *Client) ReadStream(ctx context.Context, name string, lastId string) ([]
 	}
 
 	return entries, nil
+}
+
+func (c *Client) MarkAlive(ctx context.Context, key string, ttl time.Duration) error {
+	return c.client.Set(ctx, fmt.Sprintf("live:%s", key), "1", ttl).Err()
 }

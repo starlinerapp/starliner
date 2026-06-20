@@ -188,3 +188,20 @@ func (q *Queries) UseRunnerRegistrationToken(ctx context.Context, tokenHash stri
 	)
 	return i, err
 }
+
+const getRunnerIdByRegistrationToken = `-- name: GetRunnerIdByRegistrationToken :one
+SELECT
+  runner_id
+FROM
+  runner_registration_tokens
+WHERE
+  token_hash = $1
+  AND runner_id IS NOT NULL
+`
+
+func (q *Queries) GetRunnerIdByRegistrationToken(ctx context.Context, tokenHash string) (sql.NullInt64, error) {
+	row := q.db.QueryRowContext(ctx, getRunnerIdByRegistrationToken, tokenHash)
+	var runnerID sql.NullInt64
+	err := row.Scan(&runnerID)
+	return runnerID, err
+}
