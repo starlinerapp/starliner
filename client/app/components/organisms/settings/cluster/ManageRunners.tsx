@@ -155,7 +155,7 @@ export default function ManageRunners() {
             ))
           ) : registeredRunners.length === 0 ? (
             <div className="flex h-14 items-center px-4 text-mauve-11 text-sm">
-              No runners yet.
+              You don't have any runners yet.
             </div>
           ) : (
             registeredRunners.map((runner) => (

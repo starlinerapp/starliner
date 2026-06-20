@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Button from "~/components/atoms/button/Button";
 import { ChevronDown } from "~/components/atoms/icons";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
@@ -49,9 +50,7 @@ export default function NewRunnerDialog() {
     trpc.runner.createRunner.mutationOptions(),
   );
 
-  useEffect(() => {
-    createRunnerMutation.mutate({ organizationId: organization.id });
-  }, [organization.id]);
+  const token = createRunnerMutation.data?.token;
 
   const downloadScript = useMemo(() => {
     const baseUrl = window.ENV.CLIENT_BASE_URL;
@@ -62,12 +61,13 @@ export default function NewRunnerDialog() {
   }, []);
 
   const configureScript = useMemo(
-    () =>
-      createRunnerMutation.data
-        ? getConfigureScript(createRunnerMutation.data.token)
-        : "",
-    [createRunnerMutation.data],
+    () => (token ? getConfigureScript(token) : ""),
+    [token],
   );
+
+  function handleGenerateToken() {
+    createRunnerMutation.mutate({ organizationId: organization.id });
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -126,16 +126,22 @@ export default function NewRunnerDialog() {
 
         <div className="flex flex-col gap-2">
           <p className="font-semibold text-mauve-12 text-sm">Configure</p>
-          {createRunnerMutation.isPending ? (
-            <Skeleton className="h-30 w-full rounded-md" />
-          ) : (
-            <>
-              <p className="text-mauve-11 text-xs">
-                Copy this registration token now. It will not be shown again.
-              </p>
-              <ScriptBlock script={configureScript} />
-            </>
+          <p className="text-mauve-11 text-xs">
+            Copy this registration token now. It will not be shown again.
+          </p>
+          {!token && !createRunnerMutation.isPending && (
+            <Button
+              className="self-start text-xs"
+              intent="secondary"
+              onClick={handleGenerateToken}
+            >
+              Generate registration token
+            </Button>
           )}
+          {createRunnerMutation.isPending && (
+            <Skeleton className="h-30 w-full rounded-md" />
+          )}
+          {token && <ScriptBlock script={configureScript} />}
         </div>
       </div>
     </div>
