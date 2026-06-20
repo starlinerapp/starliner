@@ -37,6 +37,7 @@ dependenciesRules:
       internal:
         - "starliner.app/cmd/api/auth/docs"
         - "starliner.app/cmd/api/core/docs"
+        - "starliner.app/cmd/api/runner/docs"
         - "starliner.app/internal/api.**"
         - "starliner.app/internal/core.**"
 
