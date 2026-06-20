@@ -12,7 +12,6 @@ import (
 	builderqueue "starliner.app/internal/builder/presentation/queue"
 	"starliner.app/internal/builder/presentation/scheduler"
 	"starliner.app/internal/core/infrastructure/redis"
-	"starliner.app/internal/core/infrastructure/s3"
 	"starliner.app/internal/core/infrastructure/sentry"
 )
 
@@ -20,7 +19,6 @@ func main() {
 	fx.New(
 		conf.Module,
 		redis.Module,
-		s3.Module,
 		queue.Module,
 		buildergrpc.Module,
 		grpc.Module,

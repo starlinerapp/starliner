@@ -15,9 +15,6 @@ var Module = fx.Module(
 			}
 			return cfg
 		},
-		func(cfg *Config) conf.S3Config {
-			return cfg
-		},
 		func(cfg *Config) conf.NatsConfig {
 			return cfg
 		},
