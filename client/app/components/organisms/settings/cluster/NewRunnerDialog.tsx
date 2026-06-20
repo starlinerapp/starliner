@@ -25,13 +25,13 @@ const RUNNER_IMAGE_OPTIONS: {
   { value: "windows", label: "Windows", disabled: true },
 ];
 
-function getDownloadScript() {
+function getDownloadScript(baseUrl: string) {
   return `# Download the runner bundle
 $ curl -LO ${RUNNER_DOWNLOAD_URL}
 
 $ tar xf ${RUNNER_PACKAGE}
 $ cd ${RUNNER_DIR}
-$ ./runner install --baseUrl https://starliner.app`;
+$ ./runner install --baseUrl ${baseUrl.replace(/\/$/, "")}`;
 }
 
 function getConfigureScript(token: string) {
@@ -53,7 +53,14 @@ export default function NewRunnerDialog() {
     createRunnerMutation.mutate({ organizationId: organization.id });
   }, [organization.id]);
 
-  const downloadScript = useMemo(() => getDownloadScript(), []);
+  const downloadScript = useMemo(() => {
+    const baseUrl = window.ENV.CLIENT_BASE_URL;
+    if (!baseUrl) {
+      throw new Error("CLIENT_BASE_URL is not set");
+    }
+    return getDownloadScript(baseUrl);
+  }, []);
+
   const configureScript = useMemo(
     () =>
       createRunnerMutation.data

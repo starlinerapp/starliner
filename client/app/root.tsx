@@ -15,7 +15,7 @@ import "./app.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TRPCReactProvider } from "~/utils/trpc/react";
 
-function envScript(env: { SENTRY_DSN_CLIENT: string; ENVIRONMENT: string }) {
+function envScript(env: Window["ENV"]) {
   return `window.ENV = ${JSON.stringify(env).replace(/</g, "\\u003c")};`;
 }
 
@@ -25,6 +25,7 @@ export function loader() {
       SENTRY_DSN_CLIENT: process.env.SENTRY_DSN_CLIENT ?? "",
       ENVIRONMENT: process.env.ENVIRONMENT ?? "",
       AUTH_PUBLIC_URL: process.env.AUTH_PUBLIC_URL ?? "",
+      CLIENT_BASE_URL: process.env.CLIENT_BASE_URL ?? "",
     } satisfies Window["ENV"],
   };
 }
