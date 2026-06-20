@@ -333,18 +333,6 @@ services:
     networks:
       - shared
 
-  buildkit:
-    build:
-      context: .
-      dockerfile: .docker/buildkit/Dockerfile
-    privileged: true
-    restart: unless-stopped
-    volumes:
-      - ./.docker/buildkit/buildkitd.toml:/etc/buildkit/buildkitd.toml:ro
-      - buildkit-data:/var/lib/buildkit
-    networks:
-      - shared
-
   redis:
     build:
       context: .
@@ -384,7 +372,6 @@ volumes:
   redis-data:
   nats-data:
   registry-data:
-  buildkit-data:
 
 networks:
   shared:

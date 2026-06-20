@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"starliner.app/internal/builder/application"
+	"starliner.app/internal/builder/domain/value"
 	v1 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
@@ -37,10 +38,13 @@ func (h *RunnerHandler) Connect(
 ) error {
 	token := tokenFromContext(stream.Context())
 
-	runnerId, err := h.runnerApplication.ResolveRunnerId(stream.Context(), token)
+	resolved, err := h.runnerApplication.ResolveRunner(stream.Context(), token)
 	if err != nil {
 		return err
 	}
+
+	runnerId := resolved.Id
+	organizationId := resolved.OrganizationId
 
 	for {
 		msg, err := stream.Recv()
@@ -58,10 +62,24 @@ func (h *RunnerHandler) Connect(
 
 		switch payload := msg.GetPayload().(type) {
 		case *v1.RunnerMessage_Heartbeat:
-			heartbeatInterval, err := h.heartbeatApplication.AcknowledgeHeartbeat(stream.Context(), runnerId)
+			heartbeat := payload.Heartbeat
+			if heartbeat == nil {
+				return status.Error(codes.InvalidArgument, "missing heartbeat payload")
+			}
+
+			heartbeatInterval, err := h.heartbeatApplication.AcknowledgeHeartbeat(
+				stream.Context(),
+				runnerId,
+				organizationId,
+				heartbeat.GetMaxConcurrentJobs(),
+				heartbeat.GetActiveJobs(),
+			)
 			if err != nil {
-				if errors.Is(err, application.ErrRunnerDeleted) {
+				if errors.Is(err, value.ErrRunnerDeleted) {
 					return status.Error(codes.FailedPrecondition, "runner deleted")
+				}
+				if errors.Is(err, value.ErrInvalidRunnerCapacity) {
+					return status.Error(codes.InvalidArgument, err.Error())
 				}
 				return status.Errorf(codes.Internal, "acknowledge heartbeat: %v", err)
 			}
@@ -69,7 +87,7 @@ func (h *RunnerHandler) Connect(
 			err = stream.Send(&v1.SchedulerMessage{
 				Payload: &v1.SchedulerMessage_HeartbeatAck{
 					HeartbeatAck: &v1.HeartbeatAck{
-						Sequence: payload.Heartbeat.GetSequence(),
+						Sequence: heartbeat.GetSequence(),
 						LeaseTtl: durationpb.New(heartbeatInterval),
 					},
 				},

@@ -23,6 +23,8 @@ type RunnerRepository interface {
 	) error
 	GetOrganizationRunners(ctx context.Context, organizationId int64) ([]*entity.Runner, error)
 	GetRunnerIdByRegistrationToken(ctx context.Context, tokenHash string) (int64, error)
+	ResolveRunnerByRegistrationToken(ctx context.Context, tokenHash string) (int64, int64, error)
+	GetRunnerById(ctx context.Context, runnerId int64) (*entity.Runner, error)
 	UpdateRunnerStatus(ctx context.Context, runnerId int64, status string) error
 	GetRunnerByOrganization(ctx context.Context, runnerId int64, organizationId int64) (*entity.Runner, error)
 	DeleteRunner(ctx context.Context, runnerId int64, organizationId int64) error

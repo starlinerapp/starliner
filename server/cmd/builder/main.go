@@ -4,6 +4,7 @@ import (
 	"go.uber.org/fx"
 	"starliner.app/internal/builder/application"
 	"starliner.app/internal/builder/conf"
+	"starliner.app/internal/builder/domain/service"
 	docker "starliner.app/internal/builder/infrastructure/buildkit"
 	"starliner.app/internal/builder/infrastructure/git"
 	buildergrpc "starliner.app/internal/builder/infrastructure/grpc"
@@ -25,6 +26,7 @@ func main() {
 		git.Module,
 		docker.Module,
 		application.Module,
+		service.Module,
 		builderqueue.Module,
 		scheduler.Module,
 		sentry.Module("builder"),

@@ -139,6 +139,37 @@ func (rr *RunnerRepository) GetOrganizationRunners(
 	return runners, nil
 }
 
+func (rr *RunnerRepository) GetRunnerById(
+	ctx context.Context,
+	runnerId int64,
+) (*entity.Runner, error) {
+	row, err := rr.queries.GetRunnerById(ctx, runnerId)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapRunnerRow(row), nil
+}
+
+func mapRunnerRow(row sqlc.Runner) *entity.Runner {
+	orgID := int64(0)
+	if row.OrganizationID.Valid {
+		orgID = row.OrganizationID.Int64
+	}
+
+	return &entity.Runner{
+		Id:                row.ID,
+		OrganizationId:    orgID,
+		Name:              mapper.ToPtrFromNullString(row.Name),
+		Status:            row.Status,
+		Labels:            row.Labels,
+		MaxConcurrentJobs: row.MaxConcurrentJobs,
+		DisabledAt:        mapper.ToPtrFromNullTime(row.DisabledAt),
+		CreatedAt:         row.CreatedAt,
+		UpdatedAt:         row.UpdatedAt,
+	}
+}
+
 func (rr *RunnerRepository) GetRunnerIdByRegistrationToken(
 	ctx context.Context,
 	tokenHash string,
@@ -153,6 +184,27 @@ func (rr *RunnerRepository) GetRunnerIdByRegistrationToken(
 	}
 
 	return runnerID.Int64, nil
+}
+
+func (rr *RunnerRepository) ResolveRunnerByRegistrationToken(
+	ctx context.Context,
+	tokenHash string,
+) (int64, int64, error) {
+	row, err := rr.queries.ResolveRunnerByRegistrationToken(ctx, tokenHash)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	if !row.RunnerID.Valid {
+		return 0, 0, sql.ErrNoRows
+	}
+
+	orgID := int64(0)
+	if row.OrganizationID.Valid {
+		orgID = row.OrganizationID.Int64
+	}
+
+	return row.RunnerID.Int64, orgID, nil
 }
 
 func (rr *RunnerRepository) UpdateRunnerStatus(

@@ -155,10 +155,12 @@ type SchedulerMessage_HeartbeatAck struct {
 func (*SchedulerMessage_HeartbeatAck) isSchedulerMessage_Payload() {}
 
 type RunnerHeartbeat struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Sequence      uint64                 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Sequence          uint64                 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	MaxConcurrentJobs int32                  `protobuf:"varint,2,opt,name=max_concurrent_jobs,json=maxConcurrentJobs,proto3" json:"max_concurrent_jobs,omitempty"`
+	ActiveJobs        int32                  `protobuf:"varint,3,opt,name=active_jobs,json=activeJobs,proto3" json:"active_jobs,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *RunnerHeartbeat) Reset() {
@@ -194,6 +196,20 @@ func (*RunnerHeartbeat) Descriptor() ([]byte, []int) {
 func (x *RunnerHeartbeat) GetSequence() uint64 {
 	if x != nil {
 		return x.Sequence
+	}
+	return 0
+}
+
+func (x *RunnerHeartbeat) GetMaxConcurrentJobs() int32 {
+	if x != nil {
+		return x.MaxConcurrentJobs
+	}
+	return 0
+}
+
+func (x *RunnerHeartbeat) GetActiveJobs() int32 {
+	if x != nil {
+		return x.ActiveJobs
 	}
 	return 0
 }
@@ -260,9 +276,12 @@ const file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDesc = "" 
 	"\apayload\"\\\n" +
 	"\x10SchedulerMessage\x12=\n" +
 	"\rheartbeat_ack\x18\x01 \x01(\v2\x16.proto.v1.HeartbeatAckH\x00R\fheartbeatAckB\t\n" +
-	"\apayload\"-\n" +
+	"\apayload\"~\n" +
 	"\x0fRunnerHeartbeat\x12\x1a\n" +
-	"\bsequence\x18\x01 \x01(\x04R\bsequence\"b\n" +
+	"\bsequence\x18\x01 \x01(\x04R\bsequence\x12.\n" +
+	"\x13max_concurrent_jobs\x18\x02 \x01(\x05R\x11maxConcurrentJobs\x12\x1f\n" +
+	"\vactive_jobs\x18\x03 \x01(\x05R\n" +
+	"activeJobs\"b\n" +
 	"\fHeartbeatAck\x12\x1a\n" +
 	"\bsequence\x18\x01 \x01(\x04R\bsequence\x126\n" +
 	"\tlease_ttl\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\bleaseTtl2\\\n" +

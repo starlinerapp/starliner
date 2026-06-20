@@ -2,6 +2,11 @@ package port
 
 import "context"
 
+type ResolvedRunner struct {
+	Id             int64
+	OrganizationId int64
+}
+
 type AuthClient interface {
-	ResolveRunnerId(ctx context.Context, token string) (int64, error)
+	ResolveRunner(ctx context.Context, token string) (*ResolvedRunner, error)
 }

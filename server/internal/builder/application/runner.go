@@ -10,33 +10,42 @@ import (
 )
 
 type RunnerApplication struct {
-	authClient    port.AuthClient
-	livenessStore corePort.LivenessStore
+	authClient  port.AuthClient
+	runnerStore corePort.RunnerStore
 }
 
-func NewRunnerApplication(authClient port.AuthClient, livenessStore corePort.LivenessStore) *RunnerApplication {
+func NewRunnerApplication(authClient port.AuthClient, runnerStore corePort.RunnerStore) *RunnerApplication {
 	return &RunnerApplication{
-		authClient:    authClient,
-		livenessStore: livenessStore,
+		authClient:  authClient,
+		runnerStore: runnerStore,
 	}
 }
 
-func (a *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) (int64, error) {
+func (a *RunnerApplication) ResolveRunner(ctx context.Context, token string) (*port.ResolvedRunner, error) {
 	if token == "" {
-		return 0, status.Error(codes.Unauthenticated, "missing runner token")
+		return nil, status.Error(codes.Unauthenticated, "missing runner token")
 	}
 
-	runnerId, err := a.authClient.ResolveRunnerId(ctx, token)
+	runner, err := a.authClient.ResolveRunner(ctx, token)
 	if err != nil {
 		if st, ok := status.FromError(err); ok && st.Code() == codes.Unauthenticated {
-			return 0, status.Error(codes.Unauthenticated, st.Message())
+			return nil, status.Error(codes.Unauthenticated, st.Message())
 		}
-		return 0, status.Errorf(codes.Unavailable, "resolve runner id: %v", err)
+		return nil, status.Errorf(codes.Unavailable, "resolve runner: %v", err)
 	}
 
-	return runnerId, nil
+	if runner.OrganizationId == 0 {
+		return nil, status.Error(codes.FailedPrecondition, "runner organization id is missing")
+	}
+
+	return runner, nil
 }
 
 func (a *RunnerApplication) HandleRunnerDeleted(ctx context.Context, runnerId int64) error {
-	return a.livenessStore.RemoveMonitoredRunner(ctx, runnerId)
+	state, err := a.runnerStore.GetRunner(ctx, runnerId)
+	if err != nil {
+		return err
+	}
+
+	return a.runnerStore.MarkDeleted(ctx, runnerId, state.OrganizationId)
 }

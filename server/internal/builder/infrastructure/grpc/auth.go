@@ -25,13 +25,16 @@ func NewAuthClient(cfg *conf.Config) (port.AuthClient, error) {
 	}, nil
 }
 
-func (c *AuthClient) ResolveRunnerId(ctx context.Context, token string) (int64, error) {
+func (c *AuthClient) ResolveRunner(ctx context.Context, token string) (*port.ResolvedRunner, error) {
 	resp, err := c.client.ResolveRunnerId(ctx, &v1.ResolveRunnerIdRequest{Token: token})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return resp.GetRunnerId(), nil
+	return &port.ResolvedRunner{
+		Id:             resp.GetRunnerId(),
+		OrganizationId: resp.GetOrganizationId(),
+	}, nil
 }
 
 var _ port.AuthClient = (*AuthClient)(nil)

@@ -2,19 +2,10 @@ package redis
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 	"starliner.app/internal/core/domain/port"
-)
-
-const (
-	monitoredRunnersKey = "runners:monitored"
-	runnerStatusKeyFmt  = "runner:%d:status"
-	runnerDeletedKeyFmt = "runner:%d:deleted"
 )
 
 type Client struct {
@@ -83,72 +74,5 @@ func (c *Client) ReadStream(ctx context.Context, name string, lastId string) ([]
 	return entries, nil
 }
 
-func (c *Client) MarkAlive(ctx context.Context, key string, ttl time.Duration) error {
-	return c.client.Set(ctx, fmt.Sprintf("live:%s", key), "1", ttl).Err()
-}
-
-func (c *Client) IsAlive(ctx context.Context, key string) (bool, error) {
-	count, err := c.client.Exists(ctx, fmt.Sprintf("live:%s", key)).Result()
-	if err != nil {
-		return false, err
-	}
-
-	return count > 0, nil
-}
-
-func (c *Client) AddMonitoredRunner(ctx context.Context, runnerId int64) error {
-	return c.client.SAdd(ctx, monitoredRunnersKey, runnerId).Err()
-}
-
-func (c *Client) RemoveMonitoredRunner(ctx context.Context, runnerId int64) error {
-	pipe := c.client.Pipeline()
-	pipe.SRem(ctx, monitoredRunnersKey, runnerId)
-	pipe.Del(ctx, fmt.Sprintf(runnerStatusKeyFmt, runnerId))
-	pipe.Del(ctx, fmt.Sprintf("live:runner:%d", runnerId))
-	pipe.Set(ctx, fmt.Sprintf(runnerDeletedKeyFmt, runnerId), "1", 0)
-	_, err := pipe.Exec(ctx)
-	return err
-}
-
-func (c *Client) IsRunnerDeleted(ctx context.Context, runnerId int64) (bool, error) {
-	count, err := c.client.Exists(ctx, fmt.Sprintf(runnerDeletedKeyFmt, runnerId)).Result()
-	if err != nil {
-		return false, err
-	}
-
-	return count > 0, nil
-}
-
-func (c *Client) ListMonitoredRunners(ctx context.Context) ([]int64, error) {
-	members, err := c.client.SMembers(ctx, monitoredRunnersKey).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	runnerIds := make([]int64, 0, len(members))
-	for _, member := range members {
-		runnerId, err := strconv.ParseInt(member, 10, 64)
-		if err != nil {
-			continue
-		}
-		runnerIds = append(runnerIds, runnerId)
-	}
-
-	return runnerIds, nil
-}
-
-func (c *Client) GetRunnerStatus(ctx context.Context, runnerId int64) (string, error) {
-	status, err := c.client.Get(ctx, fmt.Sprintf(runnerStatusKeyFmt, runnerId)).Result()
-	if errors.Is(err, redis.Nil) {
-		return "", nil
-	}
-	if err != nil {
-		return "", err
-	}
-
-	return status, nil
-}
-
-func (c *Client) SetRunnerStatus(ctx context.Context, runnerId int64, status string) error {
-	return c.client.Set(ctx, fmt.Sprintf(runnerStatusKeyFmt, runnerId), status, 0).Err()
-}
+var _ port.KVStore = (*Client)(nil)
+var _ port.AcquireLimiter = (*Client)(nil)

@@ -48,10 +48,23 @@ FROM runner_registration_tokens
 WHERE token_hash = $1
   AND runner_id IS NOT NULL;
 
+-- name: ResolveRunnerByRegistrationToken :one
+SELECT t.runner_id,
+  t.organization_id AS organization_id
+FROM runner_registration_tokens t
+  INNER JOIN runners r ON r.id = t.runner_id
+WHERE t.token_hash = $1
+  AND t.runner_id IS NOT NULL;
+
 -- name: UpdateRunnerStatus :exec
 UPDATE
   runners
 SET status = $2
+WHERE id = $1;
+
+-- name: GetRunnerById :one
+SELECT *
+FROM runners
 WHERE id = $1;
 
 -- name: GetRunnerByOrganization :one

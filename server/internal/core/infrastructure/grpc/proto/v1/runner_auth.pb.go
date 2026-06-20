@@ -66,10 +66,11 @@ func (x *ResolveRunnerIdRequest) GetToken() string {
 }
 
 type ResolveRunnerIdResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RunnerId      int64                  `protobuf:"varint,1,opt,name=runner_id,json=runnerId,proto3" json:"runner_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	RunnerId       int64                  `protobuf:"varint,1,opt,name=runner_id,json=runnerId,proto3" json:"runner_id,omitempty"`
+	OrganizationId int64                  `protobuf:"varint,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ResolveRunnerIdResponse) Reset() {
@@ -109,15 +110,23 @@ func (x *ResolveRunnerIdResponse) GetRunnerId() int64 {
 	return 0
 }
 
+func (x *ResolveRunnerIdResponse) GetOrganizationId() int64 {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return 0
+}
+
 var File_internal_core_infrastructure_grpc_proto_v1_runner_auth_proto protoreflect.FileDescriptor
 
 const file_internal_core_infrastructure_grpc_proto_v1_runner_auth_proto_rawDesc = "" +
 	"\n" +
 	"<internal/core/infrastructure/grpc/proto/v1/runner_auth.proto\x12\bproto.v1\".\n" +
 	"\x16ResolveRunnerIdRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"6\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"_\n" +
 	"\x17ResolveRunnerIdResponse\x12\x1b\n" +
-	"\trunner_id\x18\x01 \x01(\x03R\brunnerId2k\n" +
+	"\trunner_id\x18\x01 \x01(\x03R\brunnerId\x12'\n" +
+	"\x0forganization_id\x18\x02 \x01(\x03R\x0eorganizationId2k\n" +
 	"\x11RunnerAuthService\x12V\n" +
 	"\x0fResolveRunnerId\x12 .proto.v1.ResolveRunnerIdRequest\x1a!.proto.v1.ResolveRunnerIdResponseB:Z8starliner.app/internal/core/infrastructure/grpc/proto/v1b\x06proto3"
 

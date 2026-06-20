@@ -14,4 +14,5 @@ message ResolveRunnerIdRequest {
 
 message ResolveRunnerIdResponse {
   int64 runner_id = 1;
+  int64 organization_id = 2;
 }

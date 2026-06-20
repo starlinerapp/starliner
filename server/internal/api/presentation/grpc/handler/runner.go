@@ -26,7 +26,7 @@ func (h *RunnerHandler) ResolveRunnerId(
 	ctx context.Context,
 	req *v1.ResolveRunnerIdRequest,
 ) (*v1.ResolveRunnerIdResponse, error) {
-	runnerId, err := h.runnerApplication.ResolveRunnerId(ctx, req.GetToken())
+	runnerId, organizationId, err := h.runnerApplication.ResolveRunnerId(ctx, req.GetToken())
 	if err != nil {
 		if errors.Is(err, value.ErrInvalidRunnerRegistrationToken) {
 			return nil, status.Error(codes.Unauthenticated, err.Error())
@@ -35,6 +35,7 @@ func (h *RunnerHandler) ResolveRunnerId(
 	}
 
 	return &v1.ResolveRunnerIdResponse{
-		RunnerId: runnerId,
+		RunnerId:       runnerId,
+		OrganizationId: organizationId,
 	}, nil
 }

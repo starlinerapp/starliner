@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -10,15 +11,17 @@ import (
 
 	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/domain/port"
+	"starliner.app/internal/builder/domain/service"
 	"starliner.app/internal/core/domain/value"
 )
 
 type BuildApplication struct {
-	cfg          *conf.Config
-	git          port.Git
-	docker       port.Docker
-	queue        port.Queue
-	logPublisher port.LogPublisher
+	cfg           *conf.Config
+	git           port.Git
+	docker        port.Docker
+	queue         port.Queue
+	logPublisher  port.LogPublisher
+	runnerService *service.RunnerService
 }
 
 func NewBuildApplication(
@@ -27,13 +30,15 @@ func NewBuildApplication(
 	docker port.Docker,
 	queue port.Queue,
 	logPublisher port.LogPublisher,
+	runnerService *service.RunnerService,
 ) *BuildApplication {
 	return &BuildApplication{
-		cfg:          cfg,
-		git:          git,
-		docker:       docker,
-		queue:        queue,
-		logPublisher: logPublisher,
+		cfg:           cfg,
+		git:           git,
+		docker:        docker,
+		queue:         queue,
+		logPublisher:  logPublisher,
+		runnerService: runnerService,
 	}
 }
 
@@ -74,6 +79,19 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 			log.Printf("failed to publish: %v", err)
 		}
 	}
+
+	runnerId, err := ba.runnerService.SelectRunner(ctx, build.OrganizationId)
+	if err != nil {
+		msg := "no eligible runner available for organization"
+		if !errors.Is(err, service.ErrNoEligibleRunner) {
+			msg = fmt.Sprintf("select runner: %v", err)
+		}
+		publishLogLine(msg + "\n")
+		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
+		return
+	}
+
+	log.Printf("selected runner %d for build %d", runnerId, build.BuildId)
 
 	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.BranchName, build.AccessToken)
 	if err != nil {

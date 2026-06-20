@@ -2,70 +2,79 @@ package application
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"time"
 
 	"starliner.app/internal/builder/domain/port"
+	"starliner.app/internal/builder/domain/value"
 	corePort "starliner.app/internal/core/domain/port"
-	"starliner.app/internal/core/domain/value"
+	coreValue "starliner.app/internal/core/domain/value"
 )
 
-var ErrRunnerDeleted = errors.New("runner deleted")
-
 type HeartbeatApplication struct {
-	livenessStore     corePort.LivenessStore
+	runnerStore       corePort.RunnerStore
 	queue             port.Queue
 	LeaseTTL          time.Duration
 	HeartbeatInterval time.Duration
 }
 
 func NewHeartbeatApplication(
-	livenessStore corePort.LivenessStore,
+	runnerStore corePort.RunnerStore,
 	queue port.Queue,
 ) *HeartbeatApplication {
 	leaseTTL := 10 * time.Second
 
 	return &HeartbeatApplication{
-		livenessStore:     livenessStore,
+		runnerStore:       runnerStore,
 		queue:             queue,
 		LeaseTTL:          leaseTTL,
 		HeartbeatInterval: leaseTTL / 2,
 	}
 }
 
-func (a *HeartbeatApplication) AcknowledgeHeartbeat(ctx context.Context, runnerId int64) (time.Duration, error) {
-	deleted, err := a.livenessStore.IsRunnerDeleted(ctx, runnerId)
+func (a *HeartbeatApplication) AcknowledgeHeartbeat(
+	ctx context.Context,
+	runnerId int64,
+	organizationId int64,
+	maxConcurrentJobs int32,
+	activeJobs int32,
+) (time.Duration, error) {
+	if err := validateRunnerCapacity(maxConcurrentJobs, activeJobs); err != nil {
+		return 0, err
+	}
+
+	deleted, err := a.runnerStore.IsRunnerDeleted(ctx, runnerId)
 	if err != nil {
 		return 0, err
 	}
 	if deleted {
-		return 0, ErrRunnerDeleted
+		return 0, value.ErrRunnerDeleted
 	}
 
-	key := fmt.Sprintf("runner:%d", runnerId)
-
-	status, err := a.livenessStore.GetRunnerStatus(ctx, runnerId)
+	state, err := a.runnerStore.GetRunner(ctx, runnerId)
 	if err != nil {
 		return 0, err
 	}
 
-	if err := a.livenessStore.MarkAlive(ctx, key, a.LeaseTTL); err != nil {
+	status := coreValue.RunnerStatusOffline
+	if state != nil && state.Status != "" {
+		status = state.Status
+	}
+
+	nextState := corePort.RunnerRuntimeState{
+		OrganizationId:    organizationId,
+		Status:            coreValue.RunnerStatusOnline,
+		MaxConcurrentJobs: maxConcurrentJobs,
+		ActiveJobs:        activeJobs,
+	}
+
+	if err := a.runnerStore.UpsertHeartbeat(ctx, runnerId, nextState, a.LeaseTTL); err != nil {
 		return 0, err
 	}
 
-	if err := a.livenessStore.AddMonitoredRunner(ctx, runnerId); err != nil {
-		return 0, err
-	}
-
-	if status != string(value.RunnerStatusOnline) {
-		if err := a.livenessStore.SetRunnerStatus(ctx, runnerId, string(value.RunnerStatusOnline)); err != nil {
-			return 0, err
-		}
-
-		if err := a.queue.PublishRunnerStatusChanged(&value.RunnerStatusChanged{
+	if status != coreValue.RunnerStatusOnline {
+		if err := a.queue.PublishRunnerStatusChanged(&coreValue.RunnerStatusChanged{
 			RunnerId: runnerId,
-			Status:   value.RunnerStatusOnline,
+			Status:   coreValue.RunnerStatusOnline,
 		}); err != nil {
 			return 0, err
 		}
@@ -75,40 +84,52 @@ func (a *HeartbeatApplication) AcknowledgeHeartbeat(ctx context.Context, runnerI
 }
 
 func (a *HeartbeatApplication) CheckMissedHeartbeats(ctx context.Context) error {
-	runnerIds, err := a.livenessStore.ListMonitoredRunners(ctx)
+	runnerIds, err := a.runnerStore.ListMonitoredRunners(ctx)
 	if err != nil {
 		return err
 	}
 
 	for _, runnerId := range runnerIds {
-		status, err := a.livenessStore.GetRunnerStatus(ctx, runnerId)
+		state, err := a.runnerStore.GetRunner(ctx, runnerId)
 		if err != nil {
 			return err
 		}
-
-		if status != string(value.RunnerStatusOnline) {
+		if state == nil || state.Status != coreValue.RunnerStatusOnline {
 			continue
 		}
 
-		alive, err := a.livenessStore.IsAlive(ctx, fmt.Sprintf("runner:%d", runnerId))
+		alive, err := a.runnerStore.IsRunnerAlive(ctx, runnerId)
 		if err != nil {
 			return err
 		}
-
 		if alive {
 			continue
 		}
 
-		if err := a.livenessStore.SetRunnerStatus(ctx, runnerId, string(value.RunnerStatusOffline)); err != nil {
+		if err := a.runnerStore.SetRunnerStatus(ctx, runnerId, coreValue.RunnerStatusOffline); err != nil {
 			return err
 		}
 
-		if err := a.queue.PublishRunnerStatusChanged(&value.RunnerStatusChanged{
+		if err := a.queue.PublishRunnerStatusChanged(&coreValue.RunnerStatusChanged{
 			RunnerId: runnerId,
-			Status:   value.RunnerStatusOffline,
+			Status:   coreValue.RunnerStatusOffline,
 		}); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func validateRunnerCapacity(maxConcurrentJobs int32, activeJobs int32) error {
+	if maxConcurrentJobs <= 0 {
+		return value.ErrInvalidRunnerCapacity
+	}
+	if activeJobs < 0 {
+		return value.ErrInvalidRunnerCapacity
+	}
+	if activeJobs > maxConcurrentJobs {
+		return value.ErrInvalidRunnerCapacity
 	}
 
 	return nil

@@ -8,6 +8,7 @@ type Arg struct {
 type TriggerBuild struct {
 	BuildId           int64
 	DeploymentId      int64
+	OrganizationId    int64
 	ImageName         string
 	GitUrl            string
 	BranchName        string

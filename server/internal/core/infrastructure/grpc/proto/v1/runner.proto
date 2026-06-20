@@ -24,6 +24,8 @@ message SchedulerMessage {
 
 message RunnerHeartbeat {
   uint64 sequence = 1;
+  int32 max_concurrent_jobs = 2;
+  int32 active_jobs = 3;
 }
 
 message HeartbeatAck {

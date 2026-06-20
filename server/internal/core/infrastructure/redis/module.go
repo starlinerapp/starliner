@@ -12,6 +12,6 @@ var Module = fx.Module(
 		NewClient,
 		func(c *Client) port.KVStore { return c },
 		func(c *Client) port.AcquireLimiter { return c },
-		func(c *Client) port.LivenessStore { return c },
+		func(c *Client) port.RunnerStore { return c },
 	),
 )

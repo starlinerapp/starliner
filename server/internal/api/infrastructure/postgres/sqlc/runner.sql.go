@@ -80,15 +80,27 @@ func (q *Queries) CreateRunnerRegistrationToken(ctx context.Context, arg CreateR
 	return i, err
 }
 
+const deleteRunner = `-- name: DeleteRunner :exec
+DELETE FROM runners
+WHERE id = $1
+  AND organization_id = $2
+`
+
+type DeleteRunnerParams struct {
+	ID             int64
+	OrganizationID sql.NullInt64
+}
+
+func (q *Queries) DeleteRunner(ctx context.Context, arg DeleteRunnerParams) error {
+	_, err := q.db.ExecContext(ctx, deleteRunner, arg.ID, arg.OrganizationID)
+	return err
+}
+
 const getOrganizationRunners = `-- name: GetOrganizationRunners :many
-SELECT
-  id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
-FROM
-  runners
-WHERE
-  organization_id = $1
-ORDER BY
-  created_at DESC
+SELECT id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
+FROM runners
+WHERE organization_id = $1
+ORDER BY created_at DESC
 `
 
 func (q *Queries) GetOrganizationRunners(ctx context.Context, organizationID sql.NullInt64) ([]Runner, error) {
@@ -122,6 +134,93 @@ func (q *Queries) GetOrganizationRunners(ctx context.Context, organizationID sql
 		return nil, err
 	}
 	return items, nil
+}
+
+const getRunnerById = `-- name: GetRunnerById :one
+SELECT id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
+FROM runners
+WHERE id = $1
+`
+
+func (q *Queries) GetRunnerById(ctx context.Context, id int64) (Runner, error) {
+	row := q.db.QueryRowContext(ctx, getRunnerById, id)
+	var i Runner
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.Name,
+		&i.Status,
+		pq.Array(&i.Labels),
+		&i.MaxConcurrentJobs,
+		&i.DisabledAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getRunnerByOrganization = `-- name: GetRunnerByOrganization :one
+SELECT id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
+FROM runners
+WHERE id = $1
+  AND organization_id = $2
+`
+
+type GetRunnerByOrganizationParams struct {
+	ID             int64
+	OrganizationID sql.NullInt64
+}
+
+func (q *Queries) GetRunnerByOrganization(ctx context.Context, arg GetRunnerByOrganizationParams) (Runner, error) {
+	row := q.db.QueryRowContext(ctx, getRunnerByOrganization, arg.ID, arg.OrganizationID)
+	var i Runner
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.Name,
+		&i.Status,
+		pq.Array(&i.Labels),
+		&i.MaxConcurrentJobs,
+		&i.DisabledAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getRunnerIdByRegistrationToken = `-- name: GetRunnerIdByRegistrationToken :one
+SELECT runner_id
+FROM runner_registration_tokens
+WHERE token_hash = $1
+  AND runner_id IS NOT NULL
+`
+
+func (q *Queries) GetRunnerIdByRegistrationToken(ctx context.Context, tokenHash string) (sql.NullInt64, error) {
+	row := q.db.QueryRowContext(ctx, getRunnerIdByRegistrationToken, tokenHash)
+	var runner_id sql.NullInt64
+	err := row.Scan(&runner_id)
+	return runner_id, err
+}
+
+const resolveRunnerByRegistrationToken = `-- name: ResolveRunnerByRegistrationToken :one
+SELECT
+  t.runner_id, t.organization_id AS organization_id
+FROM runner_registration_tokens t
+  INNER JOIN runners r ON r.id = t.runner_id
+WHERE t.token_hash = $1
+  AND t.runner_id IS NOT NULL
+`
+
+type ResolveRunnerByRegistrationTokenRow struct {
+	RunnerID       sql.NullInt64
+	OrganizationID sql.NullInt64
+}
+
+func (q *Queries) ResolveRunnerByRegistrationToken(ctx context.Context, tokenHash string) (ResolveRunnerByRegistrationTokenRow, error) {
+	row := q.db.QueryRowContext(ctx, resolveRunnerByRegistrationToken, tokenHash)
+	var i ResolveRunnerByRegistrationTokenRow
+	err := row.Scan(&i.RunnerID, &i.OrganizationID)
+	return i, err
 }
 
 const updateRunnerOnRegistration = `-- name: UpdateRunnerOnRegistration :one
@@ -163,6 +262,23 @@ func (q *Queries) UpdateRunnerOnRegistration(ctx context.Context, arg UpdateRunn
 	return i, err
 }
 
+const updateRunnerStatus = `-- name: UpdateRunnerStatus :exec
+UPDATE
+  runners
+SET status = $2
+WHERE id = $1
+`
+
+type UpdateRunnerStatusParams struct {
+	ID     int64
+	Status string
+}
+
+func (q *Queries) UpdateRunnerStatus(ctx context.Context, arg UpdateRunnerStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateRunnerStatus, arg.ID, arg.Status)
+	return err
+}
+
 const useRunnerRegistrationToken = `-- name: UseRunnerRegistrationToken :one
 UPDATE
   runner_registration_tokens
@@ -187,85 +303,4 @@ func (q *Queries) UseRunnerRegistrationToken(ctx context.Context, tokenHash stri
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const getRunnerIdByRegistrationToken = `-- name: GetRunnerIdByRegistrationToken :one
-SELECT
-  runner_id
-FROM
-  runner_registration_tokens
-WHERE
-  token_hash = $1
-  AND runner_id IS NOT NULL
-`
-
-func (q *Queries) GetRunnerIdByRegistrationToken(ctx context.Context, tokenHash string) (sql.NullInt64, error) {
-	row := q.db.QueryRowContext(ctx, getRunnerIdByRegistrationToken, tokenHash)
-	var runnerID sql.NullInt64
-	err := row.Scan(&runnerID)
-	return runnerID, err
-}
-
-const updateRunnerStatus = `-- name: UpdateRunnerStatus :exec
-UPDATE
-  runners
-SET
-  status = $2
-WHERE
-  id = $1
-`
-
-type UpdateRunnerStatusParams struct {
-	ID     int64
-	Status string
-}
-
-func (q *Queries) UpdateRunnerStatus(ctx context.Context, arg UpdateRunnerStatusParams) error {
-	_, err := q.db.ExecContext(ctx, updateRunnerStatus, arg.ID, arg.Status)
-	return err
-}
-
-const getRunnerByOrganization = `-- name: GetRunnerByOrganization :one
-SELECT id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
-FROM runners
-WHERE id = $1
-  AND organization_id = $2
-`
-
-type GetRunnerByOrganizationParams struct {
-	ID             int64
-	OrganizationID sql.NullInt64
-}
-
-func (q *Queries) GetRunnerByOrganization(ctx context.Context, arg GetRunnerByOrganizationParams) (Runner, error) {
-	row := q.db.QueryRowContext(ctx, getRunnerByOrganization, arg.ID, arg.OrganizationID)
-	var i Runner
-	err := row.Scan(
-		&i.ID,
-		&i.OrganizationID,
-		&i.Name,
-		&i.Status,
-		pq.Array(&i.Labels),
-		&i.MaxConcurrentJobs,
-		&i.DisabledAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const deleteRunner = `-- name: DeleteRunner :exec
-DELETE FROM runners
-WHERE id = $1
-  AND organization_id = $2
-`
-
-type DeleteRunnerParams struct {
-	ID             int64
-	OrganizationID sql.NullInt64
-}
-
-func (q *Queries) DeleteRunner(ctx context.Context, arg DeleteRunnerParams) error {
-	_, err := q.db.ExecContext(ctx, deleteRunner, arg.ID, arg.OrganizationID)
-	return err
 }
