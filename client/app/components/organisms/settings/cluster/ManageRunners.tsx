@@ -1,7 +1,14 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
+import { EllipsisVertical, Trash } from "~/components/atoms/icons";
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/atoms/popover/Popover";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import NewRunnerDialog from "~/components/organisms/settings/cluster/NewRunnerDialog";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
@@ -24,6 +31,76 @@ function RunnerStatus({ status }: { status: string }) {
   );
 }
 
+interface RunnerContextMenuProps {
+  organizationId: number;
+  runnerId: number;
+  setIsDeleting: (v: boolean) => void;
+}
+
+function RunnerContextMenu({
+  organizationId,
+  runnerId,
+  setIsDeleting,
+}: RunnerContextMenuProps) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const deleteRunnerMutation = useMutation(
+    trpc.runner.deleteRunner.mutationOptions(),
+  );
+
+  function handleDeleteClicked() {
+    setIsDeleting(true);
+    deleteRunnerMutation.mutate(
+      {
+        organizationId,
+        runnerId,
+      },
+      {
+        onSuccess: () => {
+          void queryClient.invalidateQueries({
+            queryKey: trpc.runner.getOrganizationRunners.queryKey({
+              organizationId,
+            }),
+          });
+        },
+        onError: () => {
+          setIsDeleting(false);
+        },
+      },
+    );
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger
+        className="flex h-7 w-7 cursor-pointer rounded-md p-1 hover:bg-gray-4"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <EllipsisVertical className="w-6" />
+      </PopoverTrigger>
+      <PopoverContent side="bottom" align="end" sideOffset={4}>
+        <div className="flex min-w-30 flex-col p-0.5">
+          <PopoverClose asChild>
+            <button
+              type="button"
+              className="flex w-full cursor-pointer flex-row items-center gap-2 rounded-md p-2 text-mauve-11 text-sm hover:bg-gray-3"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClicked();
+              }}
+            >
+              <Trash className="w-5" />
+              <p>Delete</p>
+            </button>
+          </PopoverClose>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function ManageRunners() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -31,9 +108,10 @@ export default function ManageRunners() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const { data: runnersData, isLoading: isRunnersLoading } = useQuery(
-    trpc.runner.getOrganizationRunners.queryOptions({
-      organizationId: organization.id,
-    }),
+    trpc.runner.getOrganizationRunners.queryOptions(
+      { organizationId: organization.id },
+      { refetchInterval: 5000 },
+    ),
   );
 
   const registeredRunners = runnersData?.filter((runner) => runner.name) ?? [];
@@ -81,32 +159,12 @@ export default function ManageRunners() {
             </div>
           ) : (
             registeredRunners.map((runner) => (
-              <div
+              <RunnerRow
                 key={runner.id}
-                className="flex h-14 items-center gap-3 px-4"
-              >
-                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-violet-9 text-base text-white">
-                  {runner.name?.substring(0, 1)?.toUpperCase()}
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="truncate font-medium text-mauve-12 text-sm">
-                    {runner.name}
-                  </span>
-                  {runner.labels.length > 0 && (
-                    <div className="flex max-w-full flex-wrap gap-0.5 self-start">
-                      {runner.labels.map((label) => (
-                        <span
-                          key={label}
-                          className="max-w-40 truncate rounded-md border border-mauve-6 px-1 text-mauve-11 text-xs"
-                        >
-                          {label}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <RunnerStatus status={runner.status} />
-              </div>
+                runner={runner}
+                canDelete={organization.isOwner}
+                organizationId={organization.id}
+              />
             ))
           )}
         </div>
@@ -117,6 +175,59 @@ export default function ManageRunners() {
             <NewRunnerDialog />
           </DialogContent>
         </Dialog>
+      )}
+    </div>
+  );
+}
+
+interface RunnerRowProps {
+  runner: {
+    id: number;
+    name?: string | null;
+    labels: string[];
+    status: string;
+  };
+  canDelete: boolean;
+  organizationId: number;
+}
+
+function RunnerRow({ runner, canDelete, organizationId }: RunnerRowProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  return (
+    <div
+      className={cn(
+        "flex h-14 items-center gap-3 px-4",
+        isDeleting && "pointer-events-none opacity-50",
+      )}
+    >
+      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-violet-9 text-base text-white">
+        {runner.name?.substring(0, 1)?.toUpperCase()}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate font-medium text-mauve-12 text-sm">
+          {runner.name}
+        </span>
+        {runner.labels.length > 0 && (
+          <div className="flex max-w-full flex-wrap gap-0.5 self-start">
+            {runner.labels.map((label) => (
+              <span
+                key={label}
+                className="max-w-40 truncate rounded-md border border-mauve-6 px-1 text-mauve-11 text-xs"
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <RunnerStatus status={runner.status} />
+      {canDelete && (
+        <RunnerContextMenu
+          organizationId={organizationId}
+          runnerId={runner.id}
+          setIsDeleting={setIsDeleting}
+        />
       )}
     </div>
   );

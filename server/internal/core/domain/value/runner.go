@@ -11,3 +11,7 @@ type RunnerStatusChanged struct {
 	RunnerId int64        `json:"runner_id"`
 	Status   RunnerStatus `json:"status"`
 }
+
+type RunnerDeleted struct {
+	RunnerId int64 `json:"runner_id"`
+}

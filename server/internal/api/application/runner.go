@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"time"
 
+	"starliner.app/internal/api/domain/port"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/service"
 	"starliner.app/internal/api/domain/value"
@@ -18,17 +20,20 @@ type RunnerApplication struct {
 	runnerRepository    interfaces.RunnerRepository
 	organizationService *service.OrganizationService
 	tokenService        *service.TokenService
+	queue               port.Queue
 }
 
 func NewRunnerApplication(
 	runnerRepository interfaces.RunnerRepository,
 	organizationService *service.OrganizationService,
 	tokenService *service.TokenService,
+	queue port.Queue,
 ) *RunnerApplication {
 	return &RunnerApplication{
 		runnerRepository:    runnerRepository,
 		organizationService: organizationService,
 		tokenService:        tokenService,
+		queue:               queue,
 	}
 }
 
@@ -128,4 +133,35 @@ func (ra *RunnerApplication) HandleRunnerStatusChanged(
 	status *coreValue.RunnerStatusChanged,
 ) error {
 	return ra.runnerRepository.UpdateRunnerStatus(ctx, status.RunnerId, string(status.Status))
+}
+
+func (ra *RunnerApplication) DeleteRunner(
+	ctx context.Context,
+	organizationId int64,
+	runnerId int64,
+	userId int64,
+) error {
+	err := ra.organizationService.ValidateUserOrgOwner(ctx, organizationId, userId)
+	if err != nil {
+		return err
+	}
+
+	_, err = ra.runnerRepository.GetRunnerByOrganization(ctx, runnerId, organizationId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return sql.ErrNoRows
+		}
+		return err
+	}
+
+	if err := ra.runnerRepository.DeleteRunner(ctx, runnerId, organizationId); err != nil {
+		return err
+	}
+
+	err = ra.queue.PublishRunnerDeleted(&coreValue.RunnerDeleted{RunnerId: runnerId})
+	if err != nil {
+		log.Printf("error publishing runner deleted: %v", err)
+	}
+
+	return nil
 }

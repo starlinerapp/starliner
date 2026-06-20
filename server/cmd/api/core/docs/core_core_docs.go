@@ -1566,6 +1566,46 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "/organizations/{id}/runners/{runnerId}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "runner"
+                ],
+                "summary": "Delete self-hosted runner",
+                "operationId": "deleteRunner",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Runner ID",
+                        "name": "runnerId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/organizations/{id}/settings/credential/hetzner": {
             "get": {
                 "tags": [

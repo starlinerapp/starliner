@@ -17,6 +17,7 @@ const (
 	BuildTriggered      jetstream.Subject = "build.triggered"
 	BuildCompleted      jetstream.Subject = "build.completed"
 	RunnerStatusChanged jetstream.Subject = "runner.status_changed"
+	RunnerDeleted       jetstream.Subject = "runner.deleted"
 )
 
 type Queue struct {
@@ -59,4 +60,15 @@ func (q *Queue) PublishRunnerStatusChanged(status *value.RunnerStatusChanged) er
 	}
 
 	return q.publisher.Publish(RunnerStatusChanged, strconv.FormatInt(status.RunnerId, 10), data)
+}
+
+func (q *Queue) SubscribeToRunnerDeleted(handler func(runner *value.RunnerDeleted)) error {
+	return q.subscriber.Subscribe(RunnerDeleted, "*", "runnerDeleted", func(msg []byte) {
+		var runner value.RunnerDeleted
+		if err := json.Unmarshal(msg, &runner); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+			return
+		}
+		handler(&runner)
+	})
 }

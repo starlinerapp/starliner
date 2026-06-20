@@ -84,6 +84,7 @@ func NewServer(
 		organizationRoutes.DELETE("/:id/members", organizationHandler.RemoveOrganizationMember)
 		organizationRoutes.POST("/:id/runners", runnerHandler.CreateRunner)
 		organizationRoutes.GET("/:id/runners", runnerHandler.GetOrganizationRunners)
+		organizationRoutes.DELETE("/:id/runners/:runnerId", runnerHandler.DeleteRunner)
 	}
 
 	inviteRoutes := engine.Group("/invites")

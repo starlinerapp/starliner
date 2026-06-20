@@ -8637,6 +8637,62 @@ export const RunnerApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Delete self-hosted runner
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {number} runnerId Runner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteRunner: async (
+      xUserID: string,
+      id: number,
+      runnerId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deleteRunner", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("deleteRunner", "id", id);
+      // verify required parameter 'runnerId' is not null or undefined
+      assertParamExists("deleteRunner", "runnerId", runnerId);
+      const localVarPath = `/organizations/{id}/runners/{runnerId}`
+        .replace(`{${"id"}}`, encodeURIComponent(String(id)))
+        .replace(`{${"runnerId"}}`, encodeURIComponent(String(runnerId)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get all registered runners for an organization
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -8736,6 +8792,42 @@ export const RunnerApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Delete self-hosted runner
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {number} runnerId Runner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteRunner(
+      xUserID: string,
+      id: number,
+      runnerId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRunner(
+        xUserID,
+        id,
+        runnerId,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["RunnerApi.deleteRunner"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get all registered runners for an organization
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -8804,6 +8896,25 @@ export const RunnerApiFactory = function (
     },
     /**
      *
+     * @summary Delete self-hosted runner
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {number} runnerId Runner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteRunner(
+      xUserID: string,
+      id: number,
+      runnerId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deleteRunner(xUserID, id, runnerId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get all registered runners for an organization
      * @param {string} xUserID User ID
      * @param {number} id Organization ID
@@ -8845,6 +8956,27 @@ export class RunnerApi extends BaseAPI {
   ) {
     return RunnerApiFp(this.configuration)
       .createRunner(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Delete self-hosted runner
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {number} runnerId Runner ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof RunnerApi
+   */
+  public deleteRunner(
+    xUserID: string,
+    id: number,
+    runnerId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return RunnerApiFp(this.configuration)
+      .deleteRunner(xUserID, id, runnerId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

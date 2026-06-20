@@ -6,15 +6,18 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"starliner.app/internal/builder/domain/port"
+	corePort "starliner.app/internal/core/domain/port"
 )
 
 type RunnerApplication struct {
-	authClient port.AuthClient
+	authClient    port.AuthClient
+	livenessStore corePort.LivenessStore
 }
 
-func NewRunnerApplication(authClient port.AuthClient) *RunnerApplication {
+func NewRunnerApplication(authClient port.AuthClient, livenessStore corePort.LivenessStore) *RunnerApplication {
 	return &RunnerApplication{
-		authClient: authClient,
+		authClient:    authClient,
+		livenessStore: livenessStore,
 	}
 }
 
@@ -32,4 +35,8 @@ func (a *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) (
 	}
 
 	return runnerId, nil
+}
+
+func (a *RunnerApplication) HandleRunnerDeleted(ctx context.Context, runnerId int64) error {
+	return a.livenessStore.RemoveMonitoredRunner(ctx, runnerId)
 }

@@ -53,3 +53,14 @@ UPDATE
   runners
 SET status = $2
 WHERE id = $1;
+
+-- name: GetRunnerByOrganization :one
+SELECT *
+FROM runners
+WHERE id = $1
+  AND organization_id = $2;
+
+-- name: DeleteRunner :exec
+DELETE FROM runners
+WHERE id = $1
+  AND organization_id = $2;

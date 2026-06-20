@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"database/sql"
+
 	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
@@ -76,6 +78,51 @@ func (rh *RunnerHandler) GetOrganizationRunners(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.NewRunners(runners))
+}
+
+// DeleteRunner godoc
+// @Summary Delete self-hosted runner
+// @State core
+// @Tags runner
+// @ID deleteRunner
+// @Produce json
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Organization ID"
+// @Param runnerId path int true "Runner ID"
+// @Success 200
+// @Router /organizations/{id}/runners/{runnerId} [delete]
+func (rh *RunnerHandler) DeleteRunner(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	organizationId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	runnerId, err := strconv.ParseInt(c.Param("runnerId"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	err = rh.runnerApplication.DeleteRunner(
+		c.Request.Context(),
+		organizationId,
+		runnerId,
+		currentUser.Id,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Runner not found"})
+			return
+		}
+
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 // RegisterRunner godoc

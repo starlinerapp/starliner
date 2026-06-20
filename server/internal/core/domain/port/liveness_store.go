@@ -10,6 +10,7 @@ type LivenessStore interface {
 	IsAlive(ctx context.Context, key string) (bool, error)
 	AddMonitoredRunner(ctx context.Context, runnerId int64) error
 	ListMonitoredRunners(ctx context.Context) ([]int64, error)
+	RemoveMonitoredRunner(ctx context.Context, runnerId int64) error
 	GetRunnerStatus(ctx context.Context, runnerId int64) (string, error)
 	SetRunnerStatus(ctx context.Context, runnerId int64, status string) error
 }

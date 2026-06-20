@@ -165,3 +165,40 @@ func (rr *RunnerRepository) UpdateRunnerStatus(
 		Status: status,
 	})
 }
+
+func (rr *RunnerRepository) GetRunnerByOrganization(
+	ctx context.Context,
+	runnerId int64,
+	organizationId int64,
+) (*entity.Runner, error) {
+	row, err := rr.queries.GetRunnerByOrganization(ctx, sqlc.GetRunnerByOrganizationParams{
+		ID:             runnerId,
+		OrganizationID: sql.NullInt64{Int64: organizationId, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Runner{
+		Id:                row.ID,
+		OrganizationId:    row.OrganizationID.Int64,
+		Name:              mapper.ToPtrFromNullString(row.Name),
+		Status:            row.Status,
+		Labels:            row.Labels,
+		MaxConcurrentJobs: row.MaxConcurrentJobs,
+		DisabledAt:        mapper.ToPtrFromNullTime(row.DisabledAt),
+		CreatedAt:         row.CreatedAt,
+		UpdatedAt:         row.UpdatedAt,
+	}, nil
+}
+
+func (rr *RunnerRepository) DeleteRunner(
+	ctx context.Context,
+	runnerId int64,
+	organizationId int64,
+) error {
+	return rr.queries.DeleteRunner(ctx, sqlc.DeleteRunnerParams{
+		ID:             runnerId,
+		OrganizationID: sql.NullInt64{Int64: organizationId, Valid: true},
+	})
+}

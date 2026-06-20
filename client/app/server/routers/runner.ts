@@ -27,4 +27,17 @@ export const runnerRouter = {
         .getOrganizationRunners(userId, input.organizationId)
         .then((res) => res.data);
     }),
+  deleteRunner: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        runnerId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await runnerApiFactory
+        .deleteRunner(userId, input.organizationId, input.runnerId)
+        .then((res) => res.data);
+    }),
 };

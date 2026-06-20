@@ -99,6 +99,15 @@ func (c *Client) AddMonitoredRunner(ctx context.Context, runnerId int64) error {
 	return c.client.SAdd(ctx, monitoredRunnersKey, runnerId).Err()
 }
 
+func (c *Client) RemoveMonitoredRunner(ctx context.Context, runnerId int64) error {
+	pipe := c.client.Pipeline()
+	pipe.SRem(ctx, monitoredRunnersKey, runnerId)
+	pipe.Del(ctx, fmt.Sprintf(runnerStatusKeyFmt, runnerId))
+	pipe.Del(ctx, fmt.Sprintf("live:runner:%d", runnerId))
+	_, err := pipe.Exec(ctx)
+	return err
+}
+
 func (c *Client) ListMonitoredRunners(ctx context.Context) ([]int64, error) {
 	members, err := c.client.SMembers(ctx, monitoredRunnersKey).Result()
 	if err != nil {

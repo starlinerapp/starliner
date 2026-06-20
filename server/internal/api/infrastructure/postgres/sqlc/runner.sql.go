@@ -224,3 +224,48 @@ func (q *Queries) UpdateRunnerStatus(ctx context.Context, arg UpdateRunnerStatus
 	_, err := q.db.ExecContext(ctx, updateRunnerStatus, arg.ID, arg.Status)
 	return err
 }
+
+const getRunnerByOrganization = `-- name: GetRunnerByOrganization :one
+SELECT id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
+FROM runners
+WHERE id = $1
+  AND organization_id = $2
+`
+
+type GetRunnerByOrganizationParams struct {
+	ID             int64
+	OrganizationID sql.NullInt64
+}
+
+func (q *Queries) GetRunnerByOrganization(ctx context.Context, arg GetRunnerByOrganizationParams) (Runner, error) {
+	row := q.db.QueryRowContext(ctx, getRunnerByOrganization, arg.ID, arg.OrganizationID)
+	var i Runner
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.Name,
+		&i.Status,
+		pq.Array(&i.Labels),
+		&i.MaxConcurrentJobs,
+		&i.DisabledAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteRunner = `-- name: DeleteRunner :exec
+DELETE FROM runners
+WHERE id = $1
+  AND organization_id = $2
+`
+
+type DeleteRunnerParams struct {
+	ID             int64
+	OrganizationID sql.NullInt64
+}
+
+func (q *Queries) DeleteRunner(ctx context.Context, arg DeleteRunnerParams) error {
+	_, err := q.db.ExecContext(ctx, deleteRunner, arg.ID, arg.OrganizationID)
+	return err
+}

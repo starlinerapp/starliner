@@ -27,6 +27,7 @@ const (
 	DeploymentDeleted             jetstream.Subject = "deployment.deleted"
 	DeploymentStatusLogsCompleted jetstream.Subject = "deployment.status_logs.completed"
 	RunnerStatusChanged           jetstream.Subject = "runner.status_changed"
+	RunnerDeleted                 jetstream.Subject = "runner.deleted"
 )
 
 type Queue struct {
@@ -183,4 +184,13 @@ func (q *Queue) SubscribeToRunnerStatusChanged(handler func(status *value.Runner
 		}
 		handler(&status)
 	})
+}
+
+func (q *Queue) PublishRunnerDeleted(runner *value.RunnerDeleted) error {
+	data, err := json.Marshal(runner)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+
+	return q.publisher.Publish(RunnerDeleted, strconv.FormatInt(runner.RunnerId, 10), data)
 }
