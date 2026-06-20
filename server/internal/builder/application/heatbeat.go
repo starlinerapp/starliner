@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 	corePort "starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
+
+var ErrRunnerDeleted = errors.New("runner deleted")
 
 type HeartbeatApplication struct {
 	livenessStore     corePort.LivenessStore
@@ -32,6 +35,14 @@ func NewHeartbeatApplication(
 }
 
 func (a *HeartbeatApplication) AcknowledgeHeartbeat(ctx context.Context, runnerId int64) (time.Duration, error) {
+	deleted, err := a.livenessStore.IsRunnerDeleted(ctx, runnerId)
+	if err != nil {
+		return 0, err
+	}
+	if deleted {
+		return 0, ErrRunnerDeleted
+	}
+
 	key := fmt.Sprintf("runner:%d", runnerId)
 
 	status, err := a.livenessStore.GetRunnerStatus(ctx, runnerId)

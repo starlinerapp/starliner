@@ -60,6 +60,9 @@ func (h *RunnerHandler) Connect(
 		case *v1.RunnerMessage_Heartbeat:
 			heartbeatInterval, err := h.heartbeatApplication.AcknowledgeHeartbeat(stream.Context(), runnerId)
 			if err != nil {
+				if errors.Is(err, application.ErrRunnerDeleted) {
+					return status.Error(codes.FailedPrecondition, "runner deleted")
+				}
 				return status.Errorf(codes.Internal, "acknowledge heartbeat: %v", err)
 			}
 

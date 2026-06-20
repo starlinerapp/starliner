@@ -14,6 +14,7 @@ import (
 const (
 	monitoredRunnersKey = "runners:monitored"
 	runnerStatusKeyFmt  = "runner:%d:status"
+	runnerDeletedKeyFmt = "runner:%d:deleted"
 )
 
 type Client struct {
@@ -104,8 +105,18 @@ func (c *Client) RemoveMonitoredRunner(ctx context.Context, runnerId int64) erro
 	pipe.SRem(ctx, monitoredRunnersKey, runnerId)
 	pipe.Del(ctx, fmt.Sprintf(runnerStatusKeyFmt, runnerId))
 	pipe.Del(ctx, fmt.Sprintf("live:runner:%d", runnerId))
+	pipe.Set(ctx, fmt.Sprintf(runnerDeletedKeyFmt, runnerId), "1", 0)
 	_, err := pipe.Exec(ctx)
 	return err
+}
+
+func (c *Client) IsRunnerDeleted(ctx context.Context, runnerId int64) (bool, error) {
+	count, err := c.client.Exists(ctx, fmt.Sprintf(runnerDeletedKeyFmt, runnerId)).Result()
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }
 
 func (c *Client) ListMonitoredRunners(ctx context.Context) ([]int64, error) {
