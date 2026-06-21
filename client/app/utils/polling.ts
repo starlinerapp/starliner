@@ -10,7 +10,9 @@ export function shouldPollEnvironmentBuilds(
     return false;
   }
 
-  const shouldPoll = builds.some((build) => isEnvironmentBuildInProgress(build));
+  const shouldPoll = builds.some((build) =>
+    isEnvironmentBuildInProgress(build),
+  );
 
   return shouldPoll ? 1000 : false;
 }

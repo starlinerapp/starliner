@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { type AxiosResponse, isAxiosError } from "axios";
 import { z } from "zod";
 import { deploymentApiFactory } from "~/server/api/clients/server";
+import { appendSseDataLines } from "~/server/services/sse";
 import { protectedProcedure } from "~/server/trpc";
 
 const ingressPathSchema = z.object({
@@ -350,6 +351,45 @@ export const deploymentRouter = {
         }
 
         throw err;
+      } finally {
+        response?.data.destroy();
+      }
+    }),
+  getDeploymentStatusLogs: protectedProcedure
+    .input(
+      z.object({
+        deploymentId: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+
+      let response: AxiosResponse<Readable> | undefined;
+      try {
+        // @ts-expect-error OpenAPI doesn't support SSE
+        response = await deploymentApiFactory.streamDeploymentStatusLogs(
+          userId,
+          input.deploymentId,
+          { responseType: "stream" },
+        );
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+        const logLines: string[] = [];
+
+        // @ts-expect-error OpenAPI doesn't support SSE
+        for await (const chunk of response.data) {
+          buffer += decoder.decode(chunk, { stream: true });
+          buffer = appendSseDataLines(buffer, (payload) => {
+            logLines.push(payload);
+          });
+        }
+
+        buffer = appendSseDataLines(`${buffer}\n`, (payload) => {
+          logLines.push(payload);
+        });
+
+        return logLines;
       } finally {
         response?.data.destroy();
       }

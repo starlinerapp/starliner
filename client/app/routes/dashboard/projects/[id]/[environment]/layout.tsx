@@ -1,12 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useMemo } from "react";
-import { Outlet, useLocation, useParams } from "react-router";
+import { Outlet, useLocation, useOutletContext, useParams } from "react-router";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import type { ResponseGitDeploymentBuild } from "~/server/api/clients/server/generated";
 import { shouldPollEnvironmentBuilds } from "~/utils/polling";
 import { useTRPC } from "~/utils/trpc/react";
+
+export type EnvironmentLayoutContext = {
+  environmentBuilds: ResponseGitDeploymentBuild[] | undefined;
+  isEnvironmentBuildsLoading: boolean;
+};
+
+export function useEnvironmentLayoutContext() {
+  return useOutletContext<EnvironmentLayoutContext>();
+}
 
 export default function ProjectLayout() {
   const { slug, id, environment } = useParams<{
@@ -139,7 +149,12 @@ export default function ProjectLayout() {
         <LinkNavigationBar items={navigationBarItems} />
       </div>
       <div className="h-[calc(100vh-90px)] overflow-y-auto">
-        <Outlet />
+        <Outlet
+          context={{
+            environmentBuilds,
+            isEnvironmentBuildsLoading,
+          }}
+        />
       </div>
     </div>
   );
