@@ -44,3 +44,28 @@ type BuildLogChunk struct {
 	Data    []byte
 	End     bool
 }
+
+type RunnerBuildJob struct {
+	RunnerId          int64
+	BuildId           int64
+	DeploymentId      int64
+	ImageName         string
+	ImageRegistryUrl  string
+	GitUrl            string
+	BranchName        string
+	AccessToken       string
+	RegistryPushToken string
+	RootDirectory     string
+	DockerfilePath    string
+	Args              []*Arg
+}
+
+type RunnerBuildResult struct {
+	BuildId      int64
+	DeploymentId int64
+	CommitHash   string
+	Tag          string
+	ImageName    string
+	Logs         string
+	Status       BuildStatus
+}

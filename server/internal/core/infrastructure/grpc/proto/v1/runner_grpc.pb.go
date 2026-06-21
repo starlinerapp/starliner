@@ -19,98 +19,276 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RunnerSchedulerService_Connect_FullMethodName = "/proto.v1.RunnerSchedulerService/Connect"
+	RunnerHeartbeatService_StreamHeartbeats_FullMethodName = "/proto.v1.RunnerHeartbeatService/StreamHeartbeats"
 )
 
-// RunnerSchedulerServiceClient is the client API for RunnerSchedulerService service.
+// RunnerHeartbeatServiceClient is the client API for RunnerHeartbeatService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type RunnerSchedulerServiceClient interface {
-	Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[RunnerMessage, SchedulerMessage], error)
+type RunnerHeartbeatServiceClient interface {
+	StreamHeartbeats(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[HeartbeatMessage, HeartbeatAckMessage], error)
 }
 
-type runnerSchedulerServiceClient struct {
+type runnerHeartbeatServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewRunnerSchedulerServiceClient(cc grpc.ClientConnInterface) RunnerSchedulerServiceClient {
-	return &runnerSchedulerServiceClient{cc}
+func NewRunnerHeartbeatServiceClient(cc grpc.ClientConnInterface) RunnerHeartbeatServiceClient {
+	return &runnerHeartbeatServiceClient{cc}
 }
 
-func (c *runnerSchedulerServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[RunnerMessage, SchedulerMessage], error) {
+func (c *runnerHeartbeatServiceClient) StreamHeartbeats(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[HeartbeatMessage, HeartbeatAckMessage], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &RunnerSchedulerService_ServiceDesc.Streams[0], RunnerSchedulerService_Connect_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &RunnerHeartbeatService_ServiceDesc.Streams[0], RunnerHeartbeatService_StreamHeartbeats_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[RunnerMessage, SchedulerMessage]{ClientStream: stream}
+	x := &grpc.GenericClientStream[HeartbeatMessage, HeartbeatAckMessage]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type RunnerSchedulerService_ConnectClient = grpc.BidiStreamingClient[RunnerMessage, SchedulerMessage]
+type RunnerHeartbeatService_StreamHeartbeatsClient = grpc.BidiStreamingClient[HeartbeatMessage, HeartbeatAckMessage]
 
-// RunnerSchedulerServiceServer is the server API for RunnerSchedulerService service.
-// All implementations must embed UnimplementedRunnerSchedulerServiceServer
+// RunnerHeartbeatServiceServer is the server API for RunnerHeartbeatService service.
+// All implementations must embed UnimplementedRunnerHeartbeatServiceServer
 // for forward compatibility.
-type RunnerSchedulerServiceServer interface {
-	Connect(grpc.BidiStreamingServer[RunnerMessage, SchedulerMessage]) error
-	mustEmbedUnimplementedRunnerSchedulerServiceServer()
+type RunnerHeartbeatServiceServer interface {
+	StreamHeartbeats(grpc.BidiStreamingServer[HeartbeatMessage, HeartbeatAckMessage]) error
+	mustEmbedUnimplementedRunnerHeartbeatServiceServer()
 }
 
-// UnimplementedRunnerSchedulerServiceServer must be embedded to have
+// UnimplementedRunnerHeartbeatServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedRunnerSchedulerServiceServer struct{}
+type UnimplementedRunnerHeartbeatServiceServer struct{}
 
-func (UnimplementedRunnerSchedulerServiceServer) Connect(grpc.BidiStreamingServer[RunnerMessage, SchedulerMessage]) error {
-	return status.Error(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedRunnerHeartbeatServiceServer) StreamHeartbeats(grpc.BidiStreamingServer[HeartbeatMessage, HeartbeatAckMessage]) error {
+	return status.Error(codes.Unimplemented, "method StreamHeartbeats not implemented")
 }
-func (UnimplementedRunnerSchedulerServiceServer) mustEmbedUnimplementedRunnerSchedulerServiceServer() {
+func (UnimplementedRunnerHeartbeatServiceServer) mustEmbedUnimplementedRunnerHeartbeatServiceServer() {
 }
-func (UnimplementedRunnerSchedulerServiceServer) testEmbeddedByValue() {}
+func (UnimplementedRunnerHeartbeatServiceServer) testEmbeddedByValue() {}
 
-// UnsafeRunnerSchedulerServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to RunnerSchedulerServiceServer will
+// UnsafeRunnerHeartbeatServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RunnerHeartbeatServiceServer will
 // result in compilation errors.
-type UnsafeRunnerSchedulerServiceServer interface {
-	mustEmbedUnimplementedRunnerSchedulerServiceServer()
+type UnsafeRunnerHeartbeatServiceServer interface {
+	mustEmbedUnimplementedRunnerHeartbeatServiceServer()
 }
 
-func RegisterRunnerSchedulerServiceServer(s grpc.ServiceRegistrar, srv RunnerSchedulerServiceServer) {
-	// If the following call panics, it indicates UnimplementedRunnerSchedulerServiceServer was
+func RegisterRunnerHeartbeatServiceServer(s grpc.ServiceRegistrar, srv RunnerHeartbeatServiceServer) {
+	// If the following call panics, it indicates UnimplementedRunnerHeartbeatServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&RunnerSchedulerService_ServiceDesc, srv)
+	s.RegisterService(&RunnerHeartbeatService_ServiceDesc, srv)
 }
 
-func _RunnerSchedulerService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(RunnerSchedulerServiceServer).Connect(&grpc.GenericServerStream[RunnerMessage, SchedulerMessage]{ServerStream: stream})
+func _RunnerHeartbeatService_StreamHeartbeats_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(RunnerHeartbeatServiceServer).StreamHeartbeats(&grpc.GenericServerStream[HeartbeatMessage, HeartbeatAckMessage]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type RunnerSchedulerService_ConnectServer = grpc.BidiStreamingServer[RunnerMessage, SchedulerMessage]
+type RunnerHeartbeatService_StreamHeartbeatsServer = grpc.BidiStreamingServer[HeartbeatMessage, HeartbeatAckMessage]
 
-// RunnerSchedulerService_ServiceDesc is the grpc.ServiceDesc for RunnerSchedulerService service.
+// RunnerHeartbeatService_ServiceDesc is the grpc.ServiceDesc for RunnerHeartbeatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var RunnerSchedulerService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.v1.RunnerSchedulerService",
-	HandlerType: (*RunnerSchedulerServiceServer)(nil),
+var RunnerHeartbeatService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.v1.RunnerHeartbeatService",
+	HandlerType: (*RunnerHeartbeatServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Connect",
-			Handler:       _RunnerSchedulerService_Connect_Handler,
+			StreamName:    "StreamHeartbeats",
+			Handler:       _RunnerHeartbeatService_StreamHeartbeats_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},
+	Metadata: "internal/core/infrastructure/grpc/proto/v1/runner.proto",
+}
+
+const (
+	RunnerJobService_ClaimJob_FullMethodName          = "/proto.v1.RunnerJobService/ClaimJob"
+	RunnerJobService_ReportBuildLog_FullMethodName    = "/proto.v1.RunnerJobService/ReportBuildLog"
+	RunnerJobService_ReportBuildResult_FullMethodName = "/proto.v1.RunnerJobService/ReportBuildResult"
+)
+
+// RunnerJobServiceClient is the client API for RunnerJobService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type RunnerJobServiceClient interface {
+	ClaimJob(ctx context.Context, in *ClaimJobRequest, opts ...grpc.CallOption) (*ClaimJobResponse, error)
+	ReportBuildLog(ctx context.Context, in *ReportBuildLogRequest, opts ...grpc.CallOption) (*ReportBuildLogResponse, error)
+	ReportBuildResult(ctx context.Context, in *ReportBuildResultRequest, opts ...grpc.CallOption) (*ReportBuildResultResponse, error)
+}
+
+type runnerJobServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewRunnerJobServiceClient(cc grpc.ClientConnInterface) RunnerJobServiceClient {
+	return &runnerJobServiceClient{cc}
+}
+
+func (c *runnerJobServiceClient) ClaimJob(ctx context.Context, in *ClaimJobRequest, opts ...grpc.CallOption) (*ClaimJobResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimJobResponse)
+	err := c.cc.Invoke(ctx, RunnerJobService_ClaimJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *runnerJobServiceClient) ReportBuildLog(ctx context.Context, in *ReportBuildLogRequest, opts ...grpc.CallOption) (*ReportBuildLogResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReportBuildLogResponse)
+	err := c.cc.Invoke(ctx, RunnerJobService_ReportBuildLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *runnerJobServiceClient) ReportBuildResult(ctx context.Context, in *ReportBuildResultRequest, opts ...grpc.CallOption) (*ReportBuildResultResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReportBuildResultResponse)
+	err := c.cc.Invoke(ctx, RunnerJobService_ReportBuildResult_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// RunnerJobServiceServer is the server API for RunnerJobService service.
+// All implementations must embed UnimplementedRunnerJobServiceServer
+// for forward compatibility.
+type RunnerJobServiceServer interface {
+	ClaimJob(context.Context, *ClaimJobRequest) (*ClaimJobResponse, error)
+	ReportBuildLog(context.Context, *ReportBuildLogRequest) (*ReportBuildLogResponse, error)
+	ReportBuildResult(context.Context, *ReportBuildResultRequest) (*ReportBuildResultResponse, error)
+	mustEmbedUnimplementedRunnerJobServiceServer()
+}
+
+// UnimplementedRunnerJobServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedRunnerJobServiceServer struct{}
+
+func (UnimplementedRunnerJobServiceServer) ClaimJob(context.Context, *ClaimJobRequest) (*ClaimJobResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ClaimJob not implemented")
+}
+func (UnimplementedRunnerJobServiceServer) ReportBuildLog(context.Context, *ReportBuildLogRequest) (*ReportBuildLogResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReportBuildLog not implemented")
+}
+func (UnimplementedRunnerJobServiceServer) ReportBuildResult(context.Context, *ReportBuildResultRequest) (*ReportBuildResultResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReportBuildResult not implemented")
+}
+func (UnimplementedRunnerJobServiceServer) mustEmbedUnimplementedRunnerJobServiceServer() {}
+func (UnimplementedRunnerJobServiceServer) testEmbeddedByValue()                          {}
+
+// UnsafeRunnerJobServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RunnerJobServiceServer will
+// result in compilation errors.
+type UnsafeRunnerJobServiceServer interface {
+	mustEmbedUnimplementedRunnerJobServiceServer()
+}
+
+func RegisterRunnerJobServiceServer(s grpc.ServiceRegistrar, srv RunnerJobServiceServer) {
+	// If the following call panics, it indicates UnimplementedRunnerJobServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&RunnerJobService_ServiceDesc, srv)
+}
+
+func _RunnerJobService_ClaimJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimJobRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnerJobServiceServer).ClaimJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnerJobService_ClaimJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnerJobServiceServer).ClaimJob(ctx, req.(*ClaimJobRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RunnerJobService_ReportBuildLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportBuildLogRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnerJobServiceServer).ReportBuildLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnerJobService_ReportBuildLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnerJobServiceServer).ReportBuildLog(ctx, req.(*ReportBuildLogRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RunnerJobService_ReportBuildResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportBuildResultRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnerJobServiceServer).ReportBuildResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnerJobService_ReportBuildResult_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnerJobServiceServer).ReportBuildResult(ctx, req.(*ReportBuildResultRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// RunnerJobService_ServiceDesc is the grpc.ServiceDesc for RunnerJobService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var RunnerJobService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.v1.RunnerJobService",
+	HandlerType: (*RunnerJobServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ClaimJob",
+			Handler:    _RunnerJobService_ClaimJob_Handler,
+		},
+		{
+			MethodName: "ReportBuildLog",
+			Handler:    _RunnerJobService_ReportBuildLog_Handler,
+		},
+		{
+			MethodName: "ReportBuildResult",
+			Handler:    _RunnerJobService_ReportBuildResult_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "internal/core/infrastructure/grpc/proto/v1/runner.proto",
 }

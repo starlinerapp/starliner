@@ -15,5 +15,6 @@ var Module = fx.Module(
 		NewBuildApplication,
 		NewHeartbeatApplication,
 		NewRunnerApplication,
+		NewRunnerJobApplication,
 	),
 )

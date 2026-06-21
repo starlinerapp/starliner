@@ -22,30 +22,77 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RunnerMessage struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Payload:
-	//
-	//	*RunnerMessage_Heartbeat
-	Payload       isRunnerMessage_Payload `protobuf_oneof:"payload"`
+type BuildStatus int32
+
+const (
+	BuildStatus_BUILD_STATUS_UNSPECIFIED BuildStatus = 0
+	BuildStatus_BUILD_STATUS_SUCCESS     BuildStatus = 1
+	BuildStatus_BUILD_STATUS_FAILED      BuildStatus = 2
+)
+
+// Enum value maps for BuildStatus.
+var (
+	BuildStatus_name = map[int32]string{
+		0: "BUILD_STATUS_UNSPECIFIED",
+		1: "BUILD_STATUS_SUCCESS",
+		2: "BUILD_STATUS_FAILED",
+	}
+	BuildStatus_value = map[string]int32{
+		"BUILD_STATUS_UNSPECIFIED": 0,
+		"BUILD_STATUS_SUCCESS":     1,
+		"BUILD_STATUS_FAILED":      2,
+	}
+)
+
+func (x BuildStatus) Enum() *BuildStatus {
+	p := new(BuildStatus)
+	*p = x
+	return p
+}
+
+func (x BuildStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BuildStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_enumTypes[0].Descriptor()
+}
+
+func (BuildStatus) Type() protoreflect.EnumType {
+	return &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_enumTypes[0]
+}
+
+func (x BuildStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BuildStatus.Descriptor instead.
+func (BuildStatus) EnumDescriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{0}
+}
+
+type BuildArg struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RunnerMessage) Reset() {
-	*x = RunnerMessage{}
+func (x *BuildArg) Reset() {
+	*x = BuildArg{}
 	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RunnerMessage) String() string {
+func (x *BuildArg) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RunnerMessage) ProtoMessage() {}
+func (*BuildArg) ProtoMessage() {}
 
-func (x *RunnerMessage) ProtoReflect() protoreflect.Message {
+func (x *BuildArg) ProtoReflect() protoreflect.Message {
 	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,62 +104,632 @@ func (x *RunnerMessage) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RunnerMessage.ProtoReflect.Descriptor instead.
-func (*RunnerMessage) Descriptor() ([]byte, []int) {
+// Deprecated: Use BuildArg.ProtoReflect.Descriptor instead.
+func (*BuildArg) Descriptor() ([]byte, []int) {
 	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RunnerMessage) GetPayload() isRunnerMessage_Payload {
+func (x *BuildArg) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BuildArg) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+type BuildJob struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	BuildId           int64                  `protobuf:"varint,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	DeploymentId      int64                  `protobuf:"varint,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	ImageName         string                 `protobuf:"bytes,3,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"`
+	ImageRegistryUrl  string                 `protobuf:"bytes,4,opt,name=image_registry_url,json=imageRegistryUrl,proto3" json:"image_registry_url,omitempty"`
+	GitUrl            string                 `protobuf:"bytes,5,opt,name=git_url,json=gitUrl,proto3" json:"git_url,omitempty"`
+	BranchName        string                 `protobuf:"bytes,6,opt,name=branch_name,json=branchName,proto3" json:"branch_name,omitempty"`
+	AccessToken       string                 `protobuf:"bytes,7,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RegistryPushToken string                 `protobuf:"bytes,8,opt,name=registry_push_token,json=registryPushToken,proto3" json:"registry_push_token,omitempty"`
+	RootDirectory     string                 `protobuf:"bytes,9,opt,name=root_directory,json=rootDirectory,proto3" json:"root_directory,omitempty"`
+	DockerfilePath    string                 `protobuf:"bytes,10,opt,name=dockerfile_path,json=dockerfilePath,proto3" json:"dockerfile_path,omitempty"`
+	Args              []*BuildArg            `protobuf:"bytes,11,rep,name=args,proto3" json:"args,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *BuildJob) Reset() {
+	*x = BuildJob{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BuildJob) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BuildJob) ProtoMessage() {}
+
+func (x *BuildJob) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BuildJob.ProtoReflect.Descriptor instead.
+func (*BuildJob) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *BuildJob) GetBuildId() int64 {
+	if x != nil {
+		return x.BuildId
+	}
+	return 0
+}
+
+func (x *BuildJob) GetDeploymentId() int64 {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return 0
+}
+
+func (x *BuildJob) GetImageName() string {
+	if x != nil {
+		return x.ImageName
+	}
+	return ""
+}
+
+func (x *BuildJob) GetImageRegistryUrl() string {
+	if x != nil {
+		return x.ImageRegistryUrl
+	}
+	return ""
+}
+
+func (x *BuildJob) GetGitUrl() string {
+	if x != nil {
+		return x.GitUrl
+	}
+	return ""
+}
+
+func (x *BuildJob) GetBranchName() string {
+	if x != nil {
+		return x.BranchName
+	}
+	return ""
+}
+
+func (x *BuildJob) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *BuildJob) GetRegistryPushToken() string {
+	if x != nil {
+		return x.RegistryPushToken
+	}
+	return ""
+}
+
+func (x *BuildJob) GetRootDirectory() string {
+	if x != nil {
+		return x.RootDirectory
+	}
+	return ""
+}
+
+func (x *BuildJob) GetDockerfilePath() string {
+	if x != nil {
+		return x.DockerfilePath
+	}
+	return ""
+}
+
+func (x *BuildJob) GetArgs() []*BuildArg {
+	if x != nil {
+		return x.Args
+	}
+	return nil
+}
+
+type BuildLogChunk struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BuildId       int64                  `protobuf:"varint,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BuildLogChunk) Reset() {
+	*x = BuildLogChunk{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BuildLogChunk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BuildLogChunk) ProtoMessage() {}
+
+func (x *BuildLogChunk) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BuildLogChunk.ProtoReflect.Descriptor instead.
+func (*BuildLogChunk) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BuildLogChunk) GetBuildId() int64 {
+	if x != nil {
+		return x.BuildId
+	}
+	return 0
+}
+
+func (x *BuildLogChunk) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type BuildResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BuildId       int64                  `protobuf:"varint,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	DeploymentId  int64                  `protobuf:"varint,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	CommitHash    string                 `protobuf:"bytes,3,opt,name=commit_hash,json=commitHash,proto3" json:"commit_hash,omitempty"`
+	Tag           string                 `protobuf:"bytes,4,opt,name=tag,proto3" json:"tag,omitempty"`
+	ImageName     string                 `protobuf:"bytes,5,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"`
+	Logs          string                 `protobuf:"bytes,6,opt,name=logs,proto3" json:"logs,omitempty"`
+	Status        BuildStatus            `protobuf:"varint,7,opt,name=status,proto3,enum=proto.v1.BuildStatus" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BuildResult) Reset() {
+	*x = BuildResult{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BuildResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BuildResult) ProtoMessage() {}
+
+func (x *BuildResult) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BuildResult.ProtoReflect.Descriptor instead.
+func (*BuildResult) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *BuildResult) GetBuildId() int64 {
+	if x != nil {
+		return x.BuildId
+	}
+	return 0
+}
+
+func (x *BuildResult) GetDeploymentId() int64 {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return 0
+}
+
+func (x *BuildResult) GetCommitHash() string {
+	if x != nil {
+		return x.CommitHash
+	}
+	return ""
+}
+
+func (x *BuildResult) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *BuildResult) GetImageName() string {
+	if x != nil {
+		return x.ImageName
+	}
+	return ""
+}
+
+func (x *BuildResult) GetLogs() string {
+	if x != nil {
+		return x.Logs
+	}
+	return ""
+}
+
+func (x *BuildResult) GetStatus() BuildStatus {
+	if x != nil {
+		return x.Status
+	}
+	return BuildStatus_BUILD_STATUS_UNSPECIFIED
+}
+
+type ClaimJobRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClaimJobRequest) Reset() {
+	*x = ClaimJobRequest{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClaimJobRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClaimJobRequest) ProtoMessage() {}
+
+func (x *ClaimJobRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClaimJobRequest.ProtoReflect.Descriptor instead.
+func (*ClaimJobRequest) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{4}
+}
+
+type ClaimJobResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Job           *BuildJob              `protobuf:"bytes,1,opt,name=job,proto3" json:"job,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClaimJobResponse) Reset() {
+	*x = ClaimJobResponse{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClaimJobResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClaimJobResponse) ProtoMessage() {}
+
+func (x *ClaimJobResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClaimJobResponse.ProtoReflect.Descriptor instead.
+func (*ClaimJobResponse) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ClaimJobResponse) GetJob() *BuildJob {
+	if x != nil {
+		return x.Job
+	}
+	return nil
+}
+
+type ReportBuildLogRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BuildId       int64                  `protobuf:"varint,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportBuildLogRequest) Reset() {
+	*x = ReportBuildLogRequest{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportBuildLogRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportBuildLogRequest) ProtoMessage() {}
+
+func (x *ReportBuildLogRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportBuildLogRequest.ProtoReflect.Descriptor instead.
+func (*ReportBuildLogRequest) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ReportBuildLogRequest) GetBuildId() int64 {
+	if x != nil {
+		return x.BuildId
+	}
+	return 0
+}
+
+func (x *ReportBuildLogRequest) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type ReportBuildLogResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportBuildLogResponse) Reset() {
+	*x = ReportBuildLogResponse{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportBuildLogResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportBuildLogResponse) ProtoMessage() {}
+
+func (x *ReportBuildLogResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportBuildLogResponse.ProtoReflect.Descriptor instead.
+func (*ReportBuildLogResponse) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{7}
+}
+
+type ReportBuildResultRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        *BuildResult           `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportBuildResultRequest) Reset() {
+	*x = ReportBuildResultRequest{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportBuildResultRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportBuildResultRequest) ProtoMessage() {}
+
+func (x *ReportBuildResultRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportBuildResultRequest.ProtoReflect.Descriptor instead.
+func (*ReportBuildResultRequest) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ReportBuildResultRequest) GetResult() *BuildResult {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+type ReportBuildResultResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportBuildResultResponse) Reset() {
+	*x = ReportBuildResultResponse{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportBuildResultResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportBuildResultResponse) ProtoMessage() {}
+
+func (x *ReportBuildResultResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportBuildResultResponse.ProtoReflect.Descriptor instead.
+func (*ReportBuildResultResponse) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{9}
+}
+
+type HeartbeatMessage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*HeartbeatMessage_Heartbeat
+	Payload       isHeartbeatMessage_Payload `protobuf_oneof:"payload"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HeartbeatMessage) Reset() {
+	*x = HeartbeatMessage{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HeartbeatMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HeartbeatMessage) ProtoMessage() {}
+
+func (x *HeartbeatMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HeartbeatMessage.ProtoReflect.Descriptor instead.
+func (*HeartbeatMessage) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *HeartbeatMessage) GetPayload() isHeartbeatMessage_Payload {
 	if x != nil {
 		return x.Payload
 	}
 	return nil
 }
 
-func (x *RunnerMessage) GetHeartbeat() *RunnerHeartbeat {
+func (x *HeartbeatMessage) GetHeartbeat() *RunnerHeartbeat {
 	if x != nil {
-		if x, ok := x.Payload.(*RunnerMessage_Heartbeat); ok {
+		if x, ok := x.Payload.(*HeartbeatMessage_Heartbeat); ok {
 			return x.Heartbeat
 		}
 	}
 	return nil
 }
 
-type isRunnerMessage_Payload interface {
-	isRunnerMessage_Payload()
+type isHeartbeatMessage_Payload interface {
+	isHeartbeatMessage_Payload()
 }
 
-type RunnerMessage_Heartbeat struct {
+type HeartbeatMessage_Heartbeat struct {
 	Heartbeat *RunnerHeartbeat `protobuf:"bytes,1,opt,name=heartbeat,proto3,oneof"`
 }
 
-func (*RunnerMessage_Heartbeat) isRunnerMessage_Payload() {}
+func (*HeartbeatMessage_Heartbeat) isHeartbeatMessage_Payload() {}
 
-type SchedulerMessage struct {
+type HeartbeatAckMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Payload:
 	//
-	//	*SchedulerMessage_HeartbeatAck
-	Payload       isSchedulerMessage_Payload `protobuf_oneof:"payload"`
+	//	*HeartbeatAckMessage_HeartbeatAck
+	Payload       isHeartbeatAckMessage_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SchedulerMessage) Reset() {
-	*x = SchedulerMessage{}
-	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[1]
+func (x *HeartbeatAckMessage) Reset() {
+	*x = HeartbeatAckMessage{}
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SchedulerMessage) String() string {
+func (x *HeartbeatAckMessage) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SchedulerMessage) ProtoMessage() {}
+func (*HeartbeatAckMessage) ProtoMessage() {}
 
-func (x *SchedulerMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[1]
+func (x *HeartbeatAckMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,36 +740,36 @@ func (x *SchedulerMessage) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SchedulerMessage.ProtoReflect.Descriptor instead.
-func (*SchedulerMessage) Descriptor() ([]byte, []int) {
-	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use HeartbeatAckMessage.ProtoReflect.Descriptor instead.
+func (*HeartbeatAckMessage) Descriptor() ([]byte, []int) {
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *SchedulerMessage) GetPayload() isSchedulerMessage_Payload {
+func (x *HeartbeatAckMessage) GetPayload() isHeartbeatAckMessage_Payload {
 	if x != nil {
 		return x.Payload
 	}
 	return nil
 }
 
-func (x *SchedulerMessage) GetHeartbeatAck() *HeartbeatAck {
+func (x *HeartbeatAckMessage) GetHeartbeatAck() *HeartbeatAck {
 	if x != nil {
-		if x, ok := x.Payload.(*SchedulerMessage_HeartbeatAck); ok {
+		if x, ok := x.Payload.(*HeartbeatAckMessage_HeartbeatAck); ok {
 			return x.HeartbeatAck
 		}
 	}
 	return nil
 }
 
-type isSchedulerMessage_Payload interface {
-	isSchedulerMessage_Payload()
+type isHeartbeatAckMessage_Payload interface {
+	isHeartbeatAckMessage_Payload()
 }
 
-type SchedulerMessage_HeartbeatAck struct {
+type HeartbeatAckMessage_HeartbeatAck struct {
 	HeartbeatAck *HeartbeatAck `protobuf:"bytes,1,opt,name=heartbeat_ack,json=heartbeatAck,proto3,oneof"`
 }
 
-func (*SchedulerMessage_HeartbeatAck) isSchedulerMessage_Payload() {}
+func (*HeartbeatAckMessage_HeartbeatAck) isHeartbeatAckMessage_Payload() {}
 
 type RunnerHeartbeat struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
@@ -165,7 +782,7 @@ type RunnerHeartbeat struct {
 
 func (x *RunnerHeartbeat) Reset() {
 	*x = RunnerHeartbeat{}
-	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[2]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -177,7 +794,7 @@ func (x *RunnerHeartbeat) String() string {
 func (*RunnerHeartbeat) ProtoMessage() {}
 
 func (x *RunnerHeartbeat) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[2]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -190,7 +807,7 @@ func (x *RunnerHeartbeat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunnerHeartbeat.ProtoReflect.Descriptor instead.
 func (*RunnerHeartbeat) Descriptor() ([]byte, []int) {
-	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{2}
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RunnerHeartbeat) GetSequence() uint64 {
@@ -224,7 +841,7 @@ type HeartbeatAck struct {
 
 func (x *HeartbeatAck) Reset() {
 	*x = HeartbeatAck{}
-	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[3]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -236,7 +853,7 @@ func (x *HeartbeatAck) String() string {
 func (*HeartbeatAck) ProtoMessage() {}
 
 func (x *HeartbeatAck) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[3]
+	mi := &file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -249,7 +866,7 @@ func (x *HeartbeatAck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeartbeatAck.ProtoReflect.Descriptor instead.
 func (*HeartbeatAck) Descriptor() ([]byte, []int) {
-	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{3}
+	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *HeartbeatAck) GetSequence() uint64 {
@@ -270,11 +887,52 @@ var File_internal_core_infrastructure_grpc_proto_v1_runner_proto protoreflect.Fi
 
 const file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDesc = "" +
 	"\n" +
-	"7internal/core/infrastructure/grpc/proto/v1/runner.proto\x12\bproto.v1\x1a\x1egoogle/protobuf/duration.proto\"U\n" +
-	"\rRunnerMessage\x129\n" +
+	"7internal/core/infrastructure/grpc/proto/v1/runner.proto\x12\bproto.v1\x1a\x1egoogle/protobuf/duration.proto\"4\n" +
+	"\bBuildArg\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\x9c\x03\n" +
+	"\bBuildJob\x12\x19\n" +
+	"\bbuild_id\x18\x01 \x01(\x03R\abuildId\x12#\n" +
+	"\rdeployment_id\x18\x02 \x01(\x03R\fdeploymentId\x12\x1d\n" +
+	"\n" +
+	"image_name\x18\x03 \x01(\tR\timageName\x12,\n" +
+	"\x12image_registry_url\x18\x04 \x01(\tR\x10imageRegistryUrl\x12\x17\n" +
+	"\agit_url\x18\x05 \x01(\tR\x06gitUrl\x12\x1f\n" +
+	"\vbranch_name\x18\x06 \x01(\tR\n" +
+	"branchName\x12!\n" +
+	"\faccess_token\x18\a \x01(\tR\vaccessToken\x12.\n" +
+	"\x13registry_push_token\x18\b \x01(\tR\x11registryPushToken\x12%\n" +
+	"\x0eroot_directory\x18\t \x01(\tR\rrootDirectory\x12'\n" +
+	"\x0fdockerfile_path\x18\n" +
+	" \x01(\tR\x0edockerfilePath\x12&\n" +
+	"\x04args\x18\v \x03(\v2\x12.proto.v1.BuildArgR\x04args\">\n" +
+	"\rBuildLogChunk\x12\x19\n" +
+	"\bbuild_id\x18\x01 \x01(\x03R\abuildId\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data\"\xe2\x01\n" +
+	"\vBuildResult\x12\x19\n" +
+	"\bbuild_id\x18\x01 \x01(\x03R\abuildId\x12#\n" +
+	"\rdeployment_id\x18\x02 \x01(\x03R\fdeploymentId\x12\x1f\n" +
+	"\vcommit_hash\x18\x03 \x01(\tR\n" +
+	"commitHash\x12\x10\n" +
+	"\x03tag\x18\x04 \x01(\tR\x03tag\x12\x1d\n" +
+	"\n" +
+	"image_name\x18\x05 \x01(\tR\timageName\x12\x12\n" +
+	"\x04logs\x18\x06 \x01(\tR\x04logs\x12-\n" +
+	"\x06status\x18\a \x01(\x0e2\x15.proto.v1.BuildStatusR\x06status\"\x11\n" +
+	"\x0fClaimJobRequest\"8\n" +
+	"\x10ClaimJobResponse\x12$\n" +
+	"\x03job\x18\x01 \x01(\v2\x12.proto.v1.BuildJobR\x03job\"F\n" +
+	"\x15ReportBuildLogRequest\x12\x19\n" +
+	"\bbuild_id\x18\x01 \x01(\x03R\abuildId\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data\"\x18\n" +
+	"\x16ReportBuildLogResponse\"I\n" +
+	"\x18ReportBuildResultRequest\x12-\n" +
+	"\x06result\x18\x01 \x01(\v2\x15.proto.v1.BuildResultR\x06result\"\x1b\n" +
+	"\x19ReportBuildResultResponse\"X\n" +
+	"\x10HeartbeatMessage\x129\n" +
 	"\theartbeat\x18\x01 \x01(\v2\x19.proto.v1.RunnerHeartbeatH\x00R\theartbeatB\t\n" +
-	"\apayload\"\\\n" +
-	"\x10SchedulerMessage\x12=\n" +
+	"\apayload\"_\n" +
+	"\x13HeartbeatAckMessage\x12=\n" +
 	"\rheartbeat_ack\x18\x01 \x01(\v2\x16.proto.v1.HeartbeatAckH\x00R\fheartbeatAckB\t\n" +
 	"\apayload\"~\n" +
 	"\x0fRunnerHeartbeat\x12\x1a\n" +
@@ -284,9 +942,17 @@ const file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDesc = "" 
 	"activeJobs\"b\n" +
 	"\fHeartbeatAck\x12\x1a\n" +
 	"\bsequence\x18\x01 \x01(\x04R\bsequence\x126\n" +
-	"\tlease_ttl\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\bleaseTtl2\\\n" +
-	"\x16RunnerSchedulerService\x12B\n" +
-	"\aConnect\x12\x17.proto.v1.RunnerMessage\x1a\x1a.proto.v1.SchedulerMessage(\x010\x01B:Z8starliner.app/internal/core/infrastructure/grpc/proto/v1b\x06proto3"
+	"\tlease_ttl\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\bleaseTtl*^\n" +
+	"\vBuildStatus\x12\x1c\n" +
+	"\x18BUILD_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14BUILD_STATUS_SUCCESS\x10\x01\x12\x17\n" +
+	"\x13BUILD_STATUS_FAILED\x10\x022k\n" +
+	"\x16RunnerHeartbeatService\x12Q\n" +
+	"\x10StreamHeartbeats\x12\x1a.proto.v1.HeartbeatMessage\x1a\x1d.proto.v1.HeartbeatAckMessage(\x010\x012\x88\x02\n" +
+	"\x10RunnerJobService\x12A\n" +
+	"\bClaimJob\x12\x19.proto.v1.ClaimJobRequest\x1a\x1a.proto.v1.ClaimJobResponse\x12S\n" +
+	"\x0eReportBuildLog\x12\x1f.proto.v1.ReportBuildLogRequest\x1a .proto.v1.ReportBuildLogResponse\x12\\\n" +
+	"\x11ReportBuildResult\x12\".proto.v1.ReportBuildResultRequest\x1a#.proto.v1.ReportBuildResultResponseB:Z8starliner.app/internal/core/infrastructure/grpc/proto/v1b\x06proto3"
 
 var (
 	file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescOnce sync.Once
@@ -300,25 +966,47 @@ func file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescGZIP() 
 	return file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDescData
 }
 
-var file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_internal_core_infrastructure_grpc_proto_v1_runner_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_internal_core_infrastructure_grpc_proto_v1_runner_proto_goTypes = []any{
-	(*RunnerMessage)(nil),       // 0: proto.v1.RunnerMessage
-	(*SchedulerMessage)(nil),    // 1: proto.v1.SchedulerMessage
-	(*RunnerHeartbeat)(nil),     // 2: proto.v1.RunnerHeartbeat
-	(*HeartbeatAck)(nil),        // 3: proto.v1.HeartbeatAck
-	(*durationpb.Duration)(nil), // 4: google.protobuf.Duration
+	(BuildStatus)(0),                  // 0: proto.v1.BuildStatus
+	(*BuildArg)(nil),                  // 1: proto.v1.BuildArg
+	(*BuildJob)(nil),                  // 2: proto.v1.BuildJob
+	(*BuildLogChunk)(nil),             // 3: proto.v1.BuildLogChunk
+	(*BuildResult)(nil),               // 4: proto.v1.BuildResult
+	(*ClaimJobRequest)(nil),           // 5: proto.v1.ClaimJobRequest
+	(*ClaimJobResponse)(nil),          // 6: proto.v1.ClaimJobResponse
+	(*ReportBuildLogRequest)(nil),     // 7: proto.v1.ReportBuildLogRequest
+	(*ReportBuildLogResponse)(nil),    // 8: proto.v1.ReportBuildLogResponse
+	(*ReportBuildResultRequest)(nil),  // 9: proto.v1.ReportBuildResultRequest
+	(*ReportBuildResultResponse)(nil), // 10: proto.v1.ReportBuildResultResponse
+	(*HeartbeatMessage)(nil),          // 11: proto.v1.HeartbeatMessage
+	(*HeartbeatAckMessage)(nil),       // 12: proto.v1.HeartbeatAckMessage
+	(*RunnerHeartbeat)(nil),           // 13: proto.v1.RunnerHeartbeat
+	(*HeartbeatAck)(nil),              // 14: proto.v1.HeartbeatAck
+	(*durationpb.Duration)(nil),       // 15: google.protobuf.Duration
 }
 var file_internal_core_infrastructure_grpc_proto_v1_runner_proto_depIdxs = []int32{
-	2, // 0: proto.v1.RunnerMessage.heartbeat:type_name -> proto.v1.RunnerHeartbeat
-	3, // 1: proto.v1.SchedulerMessage.heartbeat_ack:type_name -> proto.v1.HeartbeatAck
-	4, // 2: proto.v1.HeartbeatAck.lease_ttl:type_name -> google.protobuf.Duration
-	0, // 3: proto.v1.RunnerSchedulerService.Connect:input_type -> proto.v1.RunnerMessage
-	1, // 4: proto.v1.RunnerSchedulerService.Connect:output_type -> proto.v1.SchedulerMessage
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1,  // 0: proto.v1.BuildJob.args:type_name -> proto.v1.BuildArg
+	0,  // 1: proto.v1.BuildResult.status:type_name -> proto.v1.BuildStatus
+	2,  // 2: proto.v1.ClaimJobResponse.job:type_name -> proto.v1.BuildJob
+	4,  // 3: proto.v1.ReportBuildResultRequest.result:type_name -> proto.v1.BuildResult
+	13, // 4: proto.v1.HeartbeatMessage.heartbeat:type_name -> proto.v1.RunnerHeartbeat
+	14, // 5: proto.v1.HeartbeatAckMessage.heartbeat_ack:type_name -> proto.v1.HeartbeatAck
+	15, // 6: proto.v1.HeartbeatAck.lease_ttl:type_name -> google.protobuf.Duration
+	11, // 7: proto.v1.RunnerHeartbeatService.StreamHeartbeats:input_type -> proto.v1.HeartbeatMessage
+	5,  // 8: proto.v1.RunnerJobService.ClaimJob:input_type -> proto.v1.ClaimJobRequest
+	7,  // 9: proto.v1.RunnerJobService.ReportBuildLog:input_type -> proto.v1.ReportBuildLogRequest
+	9,  // 10: proto.v1.RunnerJobService.ReportBuildResult:input_type -> proto.v1.ReportBuildResultRequest
+	12, // 11: proto.v1.RunnerHeartbeatService.StreamHeartbeats:output_type -> proto.v1.HeartbeatAckMessage
+	6,  // 12: proto.v1.RunnerJobService.ClaimJob:output_type -> proto.v1.ClaimJobResponse
+	8,  // 13: proto.v1.RunnerJobService.ReportBuildLog:output_type -> proto.v1.ReportBuildLogResponse
+	10, // 14: proto.v1.RunnerJobService.ReportBuildResult:output_type -> proto.v1.ReportBuildResultResponse
+	11, // [11:15] is the sub-list for method output_type
+	7,  // [7:11] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_internal_core_infrastructure_grpc_proto_v1_runner_proto_init() }
@@ -326,24 +1014,25 @@ func file_internal_core_infrastructure_grpc_proto_v1_runner_proto_init() {
 	if File_internal_core_infrastructure_grpc_proto_v1_runner_proto != nil {
 		return
 	}
-	file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[0].OneofWrappers = []any{
-		(*RunnerMessage_Heartbeat)(nil),
+	file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[10].OneofWrappers = []any{
+		(*HeartbeatMessage_Heartbeat)(nil),
 	}
-	file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[1].OneofWrappers = []any{
-		(*SchedulerMessage_HeartbeatAck)(nil),
+	file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes[11].OneofWrappers = []any{
+		(*HeartbeatAckMessage_HeartbeatAck)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDesc), len(file_internal_core_infrastructure_grpc_proto_v1_runner_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   14,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_internal_core_infrastructure_grpc_proto_v1_runner_proto_goTypes,
 		DependencyIndexes: file_internal_core_infrastructure_grpc_proto_v1_runner_proto_depIdxs,
+		EnumInfos:         file_internal_core_infrastructure_grpc_proto_v1_runner_proto_enumTypes,
 		MessageInfos:      file_internal_core_infrastructure_grpc_proto_v1_runner_proto_msgTypes,
 	}.Build()
 	File_internal_core_infrastructure_grpc_proto_v1_runner_proto = out.File

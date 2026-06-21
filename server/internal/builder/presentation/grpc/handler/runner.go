@@ -18,7 +18,7 @@ import (
 const runnerTokenMetadataKey = "authorization"
 
 type RunnerHandler struct {
-	v1.UnimplementedRunnerSchedulerServiceServer
+	v1.UnimplementedRunnerHeartbeatServiceServer
 	runnerApplication    *application.RunnerApplication
 	heartbeatApplication *application.HeartbeatApplication
 }
@@ -33,8 +33,8 @@ func NewRunnerHandler(
 	}
 }
 
-func (h *RunnerHandler) Connect(
-	stream grpc.BidiStreamingServer[v1.RunnerMessage, v1.SchedulerMessage],
+func (h *RunnerHandler) StreamHeartbeats(
+	stream grpc.BidiStreamingServer[v1.HeartbeatMessage, v1.HeartbeatAckMessage],
 ) error {
 	token := tokenFromContext(stream.Context())
 
@@ -53,50 +53,44 @@ func (h *RunnerHandler) Connect(
 		}
 
 		if err != nil {
-			return status.Errorf(codes.Unavailable, "receive runner message %v", err)
+			return status.Errorf(codes.Unavailable, "receive heartbeat: %v", err)
 		}
 
 		if msg == nil {
 			continue
 		}
 
-		switch payload := msg.GetPayload().(type) {
-		case *v1.RunnerMessage_Heartbeat:
-			heartbeat := payload.Heartbeat
-			if heartbeat == nil {
-				return status.Error(codes.InvalidArgument, "missing heartbeat payload")
-			}
+		heartbeat := msg.GetHeartbeat()
+		if heartbeat == nil {
+			return status.Error(codes.InvalidArgument, "missing heartbeat payload")
+		}
 
-			heartbeatInterval, err := h.heartbeatApplication.AcknowledgeHeartbeat(
-				stream.Context(),
-				runnerId,
-				organizationId,
-				heartbeat.GetMaxConcurrentJobs(),
-				heartbeat.GetActiveJobs(),
-			)
-			if err != nil {
-				if errors.Is(err, value.ErrRunnerDeleted) {
-					return status.Error(codes.FailedPrecondition, "runner deleted")
-				}
-				if errors.Is(err, value.ErrInvalidRunnerCapacity) {
-					return status.Error(codes.InvalidArgument, err.Error())
-				}
-				return status.Errorf(codes.Internal, "acknowledge heartbeat: %v", err)
+		heartbeatInterval, err := h.heartbeatApplication.AcknowledgeHeartbeat(
+			stream.Context(),
+			runnerId,
+			organizationId,
+			heartbeat.GetMaxConcurrentJobs(),
+			heartbeat.GetActiveJobs(),
+		)
+		if err != nil {
+			if errors.Is(err, value.ErrRunnerDeleted) {
+				return status.Error(codes.FailedPrecondition, "runner deleted")
 			}
+			if errors.Is(err, value.ErrInvalidRunnerCapacity) {
+				return status.Error(codes.InvalidArgument, err.Error())
+			}
+			return status.Errorf(codes.Internal, "acknowledge heartbeat: %v", err)
+		}
 
-			err = stream.Send(&v1.SchedulerMessage{
-				Payload: &v1.SchedulerMessage_HeartbeatAck{
-					HeartbeatAck: &v1.HeartbeatAck{
-						Sequence: heartbeat.GetSequence(),
-						LeaseTtl: durationpb.New(heartbeatInterval),
-					},
+		if err := stream.Send(&v1.HeartbeatAckMessage{
+			Payload: &v1.HeartbeatAckMessage_HeartbeatAck{
+				HeartbeatAck: &v1.HeartbeatAck{
+					Sequence: heartbeat.GetSequence(),
+					LeaseTtl: durationpb.New(heartbeatInterval),
 				},
-			})
-			if err != nil {
-				return status.Errorf(codes.Unavailable, "send heartbeat ack: %v", err)
-			}
-		default:
-			return status.Errorf(codes.InvalidArgument, "unsupported message type %T", payload)
+			},
+		}); err != nil {
+			return status.Errorf(codes.Unavailable, "send heartbeat ack: %v", err)
 		}
 	}
 }

@@ -191,13 +191,13 @@ services:
       - shared
     labels:
       - traefik.enable=true
-      - traefik.http.routers.runner-scheduler.rule=Host(`dev.starliner.app`) && PathPrefix(`/proto.v1.RunnerSchedulerService`)
-      - traefik.http.routers.runner-scheduler.entrypoints=websecure
-      - traefik.http.routers.runner-scheduler.tls=true
-      - traefik.http.routers.runner-scheduler.priority=110
-      - traefik.http.routers.runner-scheduler.service=runner-scheduler
-      - traefik.http.services.runner-scheduler.loadbalancer.server.port=57500
-      - traefik.http.services.runner-scheduler.loadbalancer.server.scheme=h2c
+      - traefik.http.routers.runner-grpc.rule=Host(`dev.starliner.app`) && PathPrefix(`/proto.v1.Runner`)
+      - traefik.http.routers.runner-grpc.entrypoints=websecure
+      - traefik.http.routers.runner-grpc.tls=true
+      - traefik.http.routers.runner-grpc.priority=110
+      - traefik.http.routers.runner-grpc.service=runner-grpc
+      - traefik.http.services.runner-grpc.loadbalancer.server.port=57500
+      - traefik.http.services.runner-grpc.loadbalancer.server.scheme=h2c
 
   server-cluster:
     restart: unless-stopped

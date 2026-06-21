@@ -53,5 +53,9 @@ func (c *Consumer) Start() error {
 		})
 	})
 
+	go concurrent.WithRecovery(context.Background(), "SubscribeToRunnerJobResults", func() error {
+		return c.queue.SubscribeToRunnerJobResults(c.buildApplication.HandleRunnerJobResult)
+	})
+
 	return nil
 }

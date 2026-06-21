@@ -5,8 +5,6 @@ import (
 	"starliner.app/internal/builder/application"
 	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/domain/service"
-	docker "starliner.app/internal/builder/infrastructure/buildkit"
-	"starliner.app/internal/builder/infrastructure/git"
 	buildergrpc "starliner.app/internal/builder/infrastructure/grpc"
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
 	"starliner.app/internal/builder/presentation/grpc"
@@ -23,8 +21,6 @@ func main() {
 		queue.Module,
 		buildergrpc.Module,
 		grpc.Module,
-		git.Module,
-		docker.Module,
 		application.Module,
 		service.Module,
 		builderqueue.Module,

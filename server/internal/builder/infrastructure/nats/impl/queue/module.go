@@ -26,4 +26,7 @@ var Module = fx.Module(
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return jetstream.EnsureStream(js, Runners, []jetstream.Subject{RunnerStatusChanged, RunnerDeleted})
 	}),
+	fx.Invoke(func(js nats.JetStreamContext) error {
+		return jetstream.EnsureStream(js, RunnerJobsStream, []jetstream.Subject{RunnerJob, RunnerJobResult})
+	}),
 )
