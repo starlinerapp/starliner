@@ -5,6 +5,7 @@ import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { shouldPollEnvironmentBuilds } from "~/utils/polling";
 import { useTRPC } from "~/utils/trpc/react";
 
 export default function ProjectLayout() {
@@ -39,7 +40,7 @@ export default function ProjectLayout() {
       enabled: !!currentEnvironment,
       refetchOnWindowFocus: "always",
       refetchOnMount: "always",
-      refetchInterval: 2000,
+      refetchInterval: (query) => shouldPollEnvironmentBuilds(query.state.data),
     });
 
   const projectEnvironmentKey = useMemo(() => {

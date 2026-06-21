@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useParams } from "react-router";
 import DeploymentCard from "~/components/organisms/deployment-card/DeploymentCard";
+import { shouldPollEnvironmentBuilds } from "~/utils/polling";
 import { useTRPC } from "~/utils/trpc/react";
 
 export default function Builds() {
@@ -27,18 +28,7 @@ export default function Builds() {
     enabled: !!currentEnvironment,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
-    refetchInterval: (query) => {
-      const builds = query.state.data;
-      if (!builds) return false;
-      const shouldPoll = builds?.some(
-        (build) =>
-          build.status === "building" ||
-          build.status === "queued" ||
-          (build.status === "success" &&
-            build.deploymentRolloutStatus === "pending"),
-      );
-      return shouldPoll ? 1000 : false;
-    },
+    refetchInterval: (query) => shouldPollEnvironmentBuilds(query.state.data),
   });
 
   if (!isLoading && environmentBuilds?.length === 0)
