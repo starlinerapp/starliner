@@ -2,6 +2,12 @@ name: Build Images
 
 on:
   workflow_dispatch:
+    inputs:
+      infrastructure_branch:
+        description: "Infrastructure branch to deploy"
+        required: true
+        default: main
+        type: string
   push:
     branches:
       - main
@@ -9,6 +15,7 @@ on:
 env:
   IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && 'develop' || 'latest' }}
   ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && 'staging' || 'production' }}
+  INFRASTRUCTURE_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.infrastructure_branch || 'main' }}
 jobs:
   build-auth:
     runs-on: [self-hosted, linux]
@@ -190,4 +197,4 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           repository: 'starlinerapp/infrastructure'
           event-type: deploy_new_images
-          client-payload: '{"environment": "${{ env.ENVIRONMENT }}"}'
+          client-payload: '{"environment": "${{ env.ENVIRONMENT }}", "infrastructure_branch": "${{ env.INFRASTRUCTURE_BRANCH }}"}'
