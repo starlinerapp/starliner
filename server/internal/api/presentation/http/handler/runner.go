@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"database/sql"
-
 	"github.com/gin-gonic/gin"
 	"starliner.app/internal/api/application"
 	"starliner.app/internal/api/domain/value"
@@ -112,7 +110,7 @@ func (rh *RunnerHandler) DeleteRunner(c *gin.Context) {
 		currentUser.Id,
 	)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, value.ErrRunnerNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Runner not found"})
 			return
 		}

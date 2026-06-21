@@ -17,7 +17,7 @@ export function shouldPollEnvironmentBuilds(
   return shouldPoll ? 1000 : false;
 }
 
-export function isEnvironmentBuildInProgress(
+function isEnvironmentBuildInProgress(
   build: EnvironmentBuildPollState,
 ): boolean {
   if (

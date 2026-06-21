@@ -8,6 +8,7 @@ import (
 )
 
 var ErrInvalidRunnerRegistrationToken = errors.New("invalid runner registration token")
+var ErrRunnerNotFound = errors.New("runner not found")
 
 type CreateRunnerResult struct {
 	Id        int64

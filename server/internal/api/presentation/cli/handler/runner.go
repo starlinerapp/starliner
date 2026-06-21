@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"starliner.app/internal/api/application"
+	"starliner.app/internal/api/domain/value"
 )
 
 type RunnerHandler struct {
@@ -120,7 +120,7 @@ func (h *RunnerHandler) newDeleteGlobalCmd() *cobra.Command {
 			}
 
 			if err := h.runnerApplication.DeleteGlobalRunner(cmd.Context(), runnerId); err != nil {
-				if errors.Is(err, sql.ErrNoRows) {
+				if errors.Is(err, value.ErrRunnerNotFound) {
 					return fmt.Errorf("global runner %d not found", runnerId)
 				}
 				return err

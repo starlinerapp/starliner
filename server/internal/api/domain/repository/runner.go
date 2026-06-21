@@ -3,10 +3,12 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"starliner.app/internal/api/domain/entity"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
+	"starliner.app/internal/api/domain/value"
 	"starliner.app/internal/api/infrastructure/postgres/mapper"
 	"starliner.app/internal/api/infrastructure/postgres/sqlc"
 )
@@ -84,11 +86,14 @@ func (rr *RunnerRepository) RegisterRunner(
 
 	regToken, err := qtx.UseRunnerRegistrationToken(ctx, tokenHash)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return value.ErrInvalidRunnerRegistrationToken
+		}
 		return err
 	}
 
 	if !regToken.RunnerID.Valid {
-		return sql.ErrNoRows
+		return value.ErrInvalidRunnerRegistrationToken
 	}
 
 	_, err = qtx.UpdateRunnerOnRegistration(ctx, sqlc.UpdateRunnerOnRegistrationParams{
@@ -141,6 +146,9 @@ func (rr *RunnerRepository) GetRunnerById(
 ) (*entity.Runner, error) {
 	row, err := rr.queries.GetRunnerById(ctx, runnerId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, value.ErrRunnerNotFound
+		}
 		return nil, err
 	}
 
@@ -167,11 +175,14 @@ func (rr *RunnerRepository) GetRunnerIdByRegistrationToken(
 ) (int64, error) {
 	runnerID, err := rr.queries.GetRunnerIdByRegistrationToken(ctx, tokenHash)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, value.ErrInvalidRunnerRegistrationToken
+		}
 		return 0, err
 	}
 
 	if !runnerID.Valid {
-		return 0, sql.ErrNoRows
+		return 0, value.ErrInvalidRunnerRegistrationToken
 	}
 
 	return runnerID.Int64, nil
@@ -183,11 +194,14 @@ func (rr *RunnerRepository) ResolveRunnerByRegistrationToken(
 ) (int64, *int64, error) {
 	row, err := rr.queries.ResolveRunnerByRegistrationToken(ctx, tokenHash)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil, value.ErrInvalidRunnerRegistrationToken
+		}
 		return 0, nil, err
 	}
 
 	if !row.RunnerID.Valid {
-		return 0, nil, sql.ErrNoRows
+		return 0, nil, value.ErrInvalidRunnerRegistrationToken
 	}
 
 	return row.RunnerID.Int64, mapper.ToPtrFromNullInt64(row.OrganizationID), nil
@@ -214,6 +228,9 @@ func (rr *RunnerRepository) GetRunnerByOrganization(
 		OrganizationID: sql.NullInt64{Int64: organizationId, Valid: true},
 	})
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, value.ErrRunnerNotFound
+		}
 		return nil, err
 	}
 
@@ -232,5 +249,14 @@ func (rr *RunnerRepository) DeleteRunner(
 }
 
 func (rr *RunnerRepository) DeleteGlobalRunner(ctx context.Context, runnerId int64) error {
+	runner, err := rr.GetRunnerById(ctx, runnerId)
+	if err != nil {
+		return err
+	}
+
+	if runner.OrganizationId != nil {
+		return value.ErrRunnerNotFound
+	}
+
 	return rr.queries.DeleteGlobalRunner(ctx, runnerId)
 }

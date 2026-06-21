@@ -2,8 +2,6 @@ package application
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"log"
 	"time"
 
@@ -86,9 +84,6 @@ func (ra *RunnerApplication) RegisterRunner(
 		maxConcurrentJobs,
 	)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return value.ErrInvalidRunnerRegistrationToken
-		}
 		return err
 	}
 
@@ -126,9 +121,6 @@ func (ra *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) 
 		ra.tokenService.HashToken(token),
 	)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 0, nil, value.ErrInvalidRunnerRegistrationToken
-		}
 		return 0, nil, err
 	}
 
@@ -170,21 +162,11 @@ func (ra *RunnerApplication) ListGlobalRunners(ctx context.Context) ([]*value.Ru
 }
 
 func (ra *RunnerApplication) DeleteGlobalRunner(ctx context.Context, runnerId int64) error {
-	runner, err := ra.runnerRepository.GetRunnerById(ctx, runnerId)
-	if err != nil {
-		return err
-	}
-
-	if runner.OrganizationId != nil {
-		return sql.ErrNoRows
-	}
-
 	if err := ra.runnerRepository.DeleteGlobalRunner(ctx, runnerId); err != nil {
 		return err
 	}
 
-	err = ra.queue.PublishRunnerDeleted(&coreValue.RunnerDeleted{RunnerId: runnerId})
-	if err != nil {
+	if err := ra.queue.PublishRunnerDeleted(&coreValue.RunnerDeleted{RunnerId: runnerId}); err != nil {
 		log.Printf("error publishing runner deleted: %v", err)
 	}
 
@@ -211,9 +193,6 @@ func (ra *RunnerApplication) DeleteRunner(
 
 	_, err = ra.runnerRepository.GetRunnerByOrganization(ctx, runnerId, organizationId)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return sql.ErrNoRows
-		}
 		return err
 	}
 
