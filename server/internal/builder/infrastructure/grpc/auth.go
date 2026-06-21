@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -10,8 +11,11 @@ import (
 	v1 "starliner.app/internal/core/infrastructure/grpc/proto/v1"
 )
 
+const defaultResolveRunnerTimeout = 5 * time.Second
+
 type AuthClient struct {
-	client v1.RunnerAuthServiceClient
+	client  v1.RunnerAuthServiceClient
+	timeout time.Duration
 }
 
 func NewAuthClient(cfg *conf.Config) (port.AuthClient, error) {
@@ -21,11 +25,15 @@ func NewAuthClient(cfg *conf.Config) (port.AuthClient, error) {
 	}
 
 	return &AuthClient{
-		client: v1.NewRunnerAuthServiceClient(conn),
+		client:  v1.NewRunnerAuthServiceClient(conn),
+		timeout: defaultResolveRunnerTimeout,
 	}, nil
 }
 
 func (c *AuthClient) ResolveRunner(ctx context.Context, token string) (*port.ResolvedRunner, error) {
+	ctx, cancel := context.WithTimeout(ctx, c.timeout)
+	defer cancel()
+
 	resp, err := c.client.ResolveRunnerId(ctx, &v1.ResolveRunnerIdRequest{Token: token})
 	if err != nil {
 		return nil, err

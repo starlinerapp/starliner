@@ -5,7 +5,7 @@ threshold:
 dependenciesRules:
   - package: "starliner.app/cmd/cli.**"
     shouldOnlyDependsOn:
-      - internal:
+      internal:
         - "starliner.app/internal/api.**"
         - "starliner.app/internal/core.**"
 

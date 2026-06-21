@@ -42,7 +42,7 @@ func (rh *RunnerHandler) CreateRunner(c *gin.Context) {
 		return
 	}
 
-	result, err := rh.runnerApplication.CreateRunner(c, organizationId, currentUser.Id)
+	result, err := rh.runnerApplication.CreateRunner(c.Request.Context(), organizationId, currentUser.Id)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

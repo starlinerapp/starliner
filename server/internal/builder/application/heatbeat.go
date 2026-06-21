@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"starliner.app/internal/builder/domain/port"
@@ -92,7 +93,8 @@ func (a *HeartbeatApplication) CheckMissedHeartbeats(ctx context.Context) error 
 	for _, runnerId := range runnerIds {
 		state, err := a.runnerStore.GetRunner(ctx, runnerId)
 		if err != nil {
-			return err
+			log.Printf("failed to get runner %d status: %v", runnerId, err)
+			continue
 		}
 		if state == nil || state.Status != coreValue.RunnerStatusOnline {
 			continue
@@ -100,21 +102,23 @@ func (a *HeartbeatApplication) CheckMissedHeartbeats(ctx context.Context) error 
 
 		alive, err := a.runnerStore.IsRunnerAlive(ctx, runnerId)
 		if err != nil {
-			return err
+			log.Printf("failed to check runner %d alive status: %v", runnerId, err)
+			continue
 		}
 		if alive {
 			continue
 		}
 
 		if err := a.runnerStore.SetRunnerStatus(ctx, runnerId, coreValue.RunnerStatusOffline); err != nil {
-			return err
+			log.Printf("failed to set runner %d offline: %v", runnerId, err)
+			continue
 		}
 
 		if err := a.queue.PublishRunnerStatusChanged(&coreValue.RunnerStatusChanged{
 			RunnerId: runnerId,
 			Status:   coreValue.RunnerStatusOffline,
 		}); err != nil {
-			return err
+			log.Printf("failed to publish runner %d status change: %v", runnerId, err)
 		}
 	}
 
