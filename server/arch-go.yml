@@ -3,6 +3,12 @@ threshold:
   compliance: 100
   coverage: 100
 dependenciesRules:
+  - package: "starliner.app/cmd/cli.**"
+    shouldOnlyDependsOn:
+      - internal:
+          - "starliner.app/internal/api.**"
+          - "starliner.app/internal/core.**"
+
   - package: "starliner.app/cmd/api.**"
     shouldOnlyDependsOn:
       internal:
