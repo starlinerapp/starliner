@@ -39,8 +39,8 @@ function getConfigureScript(token: string) {
   return `# Register the runner with your organization
 $ sudo runner register --token ${token}
 
-# Start the runner
-$ sudo runner start`;
+# Enable and start the runner service
+$ sudo systemctl enable --now starliner-runner`;
 }
 
 export default function NewRunnerDialog() {
