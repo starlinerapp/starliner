@@ -37,10 +37,10 @@ $ ./runner install --baseUrl ${baseUrl.replace(/\/$/, "")}`;
 
 function getConfigureScript(token: string) {
   return `# Register the runner with your organization
-$ runner register --token ${token}
+$ sudo runner register --token ${token}
 
 # Start the runner
-$ runner start`;
+$ sudo runner start`;
 }
 
 export default function NewRunnerDialog() {
