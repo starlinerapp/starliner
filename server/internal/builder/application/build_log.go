@@ -35,7 +35,7 @@ func (a *BuildLogApplication) StreamBuildLogs(ctx context.Context, buildId int64
 			_ = pw.Close()
 		}()
 
-		streamName := buildLogStream(buildId)
+		streamName := fmt.Sprintf("build:%d:logs", buildId)
 		lastID := "0"
 
 		for {
@@ -95,7 +95,7 @@ func (a *BuildLogApplication) PublishLogChunk(buildId int64, data []byte) error 
 
 	return a.streams.AppendToStream(
 		context.Background(),
-		buildLogStream(buildId),
+		fmt.Sprintf("build:%d:logs", buildId),
 		map[string][]byte{
 			"data": data,
 		},
@@ -104,15 +104,11 @@ func (a *BuildLogApplication) PublishLogChunk(buildId int64, data []byte) error 
 
 func (a *BuildLogApplication) PublishLogEnd(buildId int64) error {
 	ctx := context.Background()
-	streamName := buildLogStream(buildId)
+	streamName := fmt.Sprintf("build:%d:logs", buildId)
 
 	return a.streams.AppendToStream(ctx, streamName, map[string][]byte{
 		"end": []byte("1"),
 	})
-}
-
-func buildLogStream(buildId int64) string {
-	return fmt.Sprintf("build:%d:logs", buildId)
 }
 
 func isBuildLogStreamNotReady(err error) bool {

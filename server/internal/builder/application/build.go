@@ -81,25 +81,23 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		return
 	}
 
-	if ba.dispatchLimiter != nil {
-		acquired, err := ba.dispatchLimiter.TryAcquire(
-			ctx,
-			fmt.Sprintf("build:dispatch:%d", build.BuildId),
-			buildDispatchLockTTL,
-		)
-		if err != nil {
-			msg := fmt.Sprintf("claim build dispatch lock: %v", err)
-			publishLogLine(msg + "\n")
-			if ba.logPublisher != nil {
-				_ = ba.logPublisher.PublishLogEnd(build.BuildId)
-			}
-			publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
-			return
+	acquired, err := ba.dispatchLimiter.TryAcquire(
+		ctx,
+		fmt.Sprintf("build:dispatch:%d", build.BuildId),
+		buildDispatchLockTTL,
+	)
+	if err != nil {
+		msg := fmt.Sprintf("claim build dispatch lock: %v", err)
+		publishLogLine(msg + "\n")
+		if ba.logPublisher != nil {
+			_ = ba.logPublisher.PublishLogEnd(build.BuildId)
 		}
-		if !acquired {
-			log.Printf("build %d already dispatched, skipping duplicate trigger", build.BuildId)
-			return
-		}
+		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
+		return
+	}
+	if !acquired {
+		log.Printf("build %d already dispatched, skipping duplicate trigger", build.BuildId)
+		return
 	}
 
 	job := &value.RunnerBuildJob{
