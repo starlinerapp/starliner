@@ -4,7 +4,7 @@ import "context"
 
 type ResolvedRunner struct {
 	Id             int64
-	OrganizationId int64
+	OrganizationId *int64
 }
 
 type AuthClient interface {

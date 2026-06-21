@@ -80,6 +80,17 @@ func (q *Queries) CreateRunnerRegistrationToken(ctx context.Context, arg CreateR
 	return i, err
 }
 
+const deleteGlobalRunner = `-- name: DeleteGlobalRunner :exec
+DELETE FROM runners
+WHERE id = $1
+  AND organization_id IS NULL
+`
+
+func (q *Queries) DeleteGlobalRunner(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteGlobalRunner, id)
+	return err
+}
+
 const deleteRunner = `-- name: DeleteRunner :exec
 DELETE FROM runners
 WHERE id = $1
@@ -94,6 +105,46 @@ type DeleteRunnerParams struct {
 func (q *Queries) DeleteRunner(ctx context.Context, arg DeleteRunnerParams) error {
 	_, err := q.db.ExecContext(ctx, deleteRunner, arg.ID, arg.OrganizationID)
 	return err
+}
+
+const getGlobalRunners = `-- name: GetGlobalRunners :many
+SELECT id, organization_id, name, status, labels, max_concurrent_jobs, disabled_at, created_at, updated_at
+FROM runners
+WHERE organization_id IS NULL
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetGlobalRunners(ctx context.Context) ([]Runner, error) {
+	rows, err := q.db.QueryContext(ctx, getGlobalRunners)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Runner
+	for rows.Next() {
+		var i Runner
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrganizationID,
+			&i.Name,
+			&i.Status,
+			pq.Array(&i.Labels),
+			&i.MaxConcurrentJobs,
+			&i.DisabledAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOrganizationRunners = `-- name: GetOrganizationRunners :many
@@ -203,8 +254,8 @@ func (q *Queries) GetRunnerIdByRegistrationToken(ctx context.Context, tokenHash 
 }
 
 const resolveRunnerByRegistrationToken = `-- name: ResolveRunnerByRegistrationToken :one
-SELECT
-  t.runner_id, t.organization_id AS organization_id
+SELECT t.runner_id,
+  t.organization_id AS organization_id
 FROM runner_registration_tokens t
   INNER JOIN runners r ON r.id = t.runner_id
 WHERE t.token_hash = $1

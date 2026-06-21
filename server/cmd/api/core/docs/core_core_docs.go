@@ -3573,7 +3573,6 @@ const docTemplatecoreCore = `{
                 "id",
                 "labels",
                 "max_concurrent_jobs",
-                "organization_id",
                 "status",
                 "updated_at"
             ],
@@ -3586,6 +3585,9 @@ const docTemplatecoreCore = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "is_global": {
+                    "type": "boolean"
                 },
                 "labels": {
                     "type": "array",

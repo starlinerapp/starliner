@@ -68,7 +68,7 @@ func (x *ResolveRunnerIdRequest) GetToken() string {
 type ResolveRunnerIdResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	RunnerId       int64                  `protobuf:"varint,1,opt,name=runner_id,json=runnerId,proto3" json:"runner_id,omitempty"`
-	OrganizationId int64                  `protobuf:"varint,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	OrganizationId *int64                 `protobuf:"varint,2,opt,name=organization_id,json=organizationId,proto3,oneof" json:"organization_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -111,8 +111,8 @@ func (x *ResolveRunnerIdResponse) GetRunnerId() int64 {
 }
 
 func (x *ResolveRunnerIdResponse) GetOrganizationId() int64 {
-	if x != nil {
-		return x.OrganizationId
+	if x != nil && x.OrganizationId != nil {
+		return *x.OrganizationId
 	}
 	return 0
 }
@@ -123,10 +123,11 @@ const file_internal_core_infrastructure_grpc_proto_v1_runner_auth_proto_rawDesc 
 	"\n" +
 	"<internal/core/infrastructure/grpc/proto/v1/runner_auth.proto\x12\bproto.v1\".\n" +
 	"\x16ResolveRunnerIdRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"_\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"x\n" +
 	"\x17ResolveRunnerIdResponse\x12\x1b\n" +
-	"\trunner_id\x18\x01 \x01(\x03R\brunnerId\x12'\n" +
-	"\x0forganization_id\x18\x02 \x01(\x03R\x0eorganizationId2k\n" +
+	"\trunner_id\x18\x01 \x01(\x03R\brunnerId\x12,\n" +
+	"\x0forganization_id\x18\x02 \x01(\x03H\x00R\x0eorganizationId\x88\x01\x01B\x12\n" +
+	"\x10_organization_id2k\n" +
 	"\x11RunnerAuthService\x12V\n" +
 	"\x0fResolveRunnerId\x12 .proto.v1.ResolveRunnerIdRequest\x1a!.proto.v1.ResolveRunnerIdResponseB:Z8starliner.app/internal/core/infrastructure/grpc/proto/v1b\x06proto3"
 
@@ -162,6 +163,7 @@ func file_internal_core_infrastructure_grpc_proto_v1_runner_auth_proto_init() {
 	if File_internal_core_infrastructure_grpc_proto_v1_runner_auth_proto != nil {
 		return
 	}
+	file_internal_core_infrastructure_grpc_proto_v1_runner_auth_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

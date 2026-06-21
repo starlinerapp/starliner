@@ -12,6 +12,7 @@ import (
 
 const (
 	monitoredRunnersKey   = "runners:monitored"
+	runnersGlobalKey      = "runners:global"
 	runnerKeyFmt          = "runner:%d"
 	runnerLiveKeyFmt      = "live:runner:%d"
 	runnerDeletedKeyFmt   = "runner:%d:deleted"
@@ -33,15 +34,17 @@ func (c *Client) UpsertHeartbeat(
 
 	pipe := c.client.Pipeline()
 	pipe.HSet(ctx, runnerKey, map[string]any{
-		runnerFieldOrgID:      state.OrganizationId,
+		runnerFieldOrgID:      organizationIDToRedis(state.OrganizationId),
 		runnerFieldStatus:     string(state.Status),
 		runnerFieldMaxJobs:    state.MaxConcurrentJobs,
 		runnerFieldActiveJobs: state.ActiveJobs,
 	})
 	pipe.Set(ctx, liveKey, "1", leaseTTL)
 	pipe.SAdd(ctx, monitoredRunnersKey, runnerId)
-	if state.OrganizationId > 0 {
-		pipe.SAdd(ctx, fmt.Sprintf(runnersOrgKeyFmt, state.OrganizationId), runnerId)
+	if state.OrganizationId != nil {
+		pipe.SAdd(ctx, fmt.Sprintf(runnersOrgKeyFmt, *state.OrganizationId), runnerId)
+	} else {
+		pipe.SAdd(ctx, runnersGlobalKey, runnerId)
 	}
 	_, err := pipe.Exec(ctx)
 	return err
@@ -56,7 +59,7 @@ func (c *Client) GetRunner(ctx context.Context, runnerId int64) (*port.RunnerRun
 		return nil, nil
 	}
 
-	orgID, err := strconv.ParseInt(values[runnerFieldOrgID], 10, 64)
+	orgID, err := organizationIDFromRedis(values[runnerFieldOrgID])
 	if err != nil {
 		return nil, fmt.Errorf("parse org_id: %w", err)
 	}
@@ -101,6 +104,10 @@ func (c *Client) ListOrgRunners(ctx context.Context, orgId int64) ([]int64, erro
 	return parseRunnerSet(c.client.SMembers(ctx, fmt.Sprintf(runnersOrgKeyFmt, orgId)).Result())
 }
 
+func (c *Client) ListGlobalRunners(ctx context.Context) ([]int64, error) {
+	return parseRunnerSet(c.client.SMembers(ctx, runnersGlobalKey).Result())
+}
+
 func (c *Client) ListMonitoredRunners(ctx context.Context) ([]int64, error) {
 	return parseRunnerSet(c.client.SMembers(ctx, monitoredRunnersKey).Result())
 }
@@ -109,10 +116,17 @@ func (c *Client) SetRunnerStatus(ctx context.Context, runnerId int64, status val
 	return c.client.HSet(ctx, fmt.Sprintf(runnerKeyFmt, runnerId), runnerFieldStatus, string(status)).Err()
 }
 
-func (c *Client) MarkDeleted(ctx context.Context, runnerId int64, orgId int64) error {
+func (c *Client) MarkDeleted(ctx context.Context, runnerId int64, state *port.RunnerRuntimeState) error {
+	var orgId *int64
+	if state != nil {
+		orgId = state.OrganizationId
+	}
+
 	pipe := c.client.Pipeline()
-	if orgId > 0 {
-		pipe.SRem(ctx, fmt.Sprintf(runnersOrgKeyFmt, orgId), runnerId)
+	if orgId != nil {
+		pipe.SRem(ctx, fmt.Sprintf(runnersOrgKeyFmt, *orgId), runnerId)
+	} else {
+		pipe.SRem(ctx, runnersGlobalKey, runnerId)
 	}
 	pipe.SRem(ctx, monitoredRunnersKey, runnerId)
 	pipe.Del(ctx, fmt.Sprintf(runnerKeyFmt, runnerId))
@@ -120,6 +134,27 @@ func (c *Client) MarkDeleted(ctx context.Context, runnerId int64, orgId int64) e
 	pipe.Set(ctx, fmt.Sprintf(runnerDeletedKeyFmt, runnerId), "1", 0)
 	_, err := pipe.Exec(ctx)
 	return err
+}
+
+func organizationIDToRedis(organizationId *int64) string {
+	if organizationId == nil {
+		return ""
+	}
+
+	return strconv.FormatInt(*organizationId, 10)
+}
+
+func organizationIDFromRedis(raw string) (*int64, error) {
+	if raw == "" {
+		return nil, nil
+	}
+
+	orgID, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	return &orgID, nil
 }
 
 func parseRunnerSet(members []string, err error) ([]int64, error) {

@@ -4,7 +4,7 @@ import "time"
 
 type Runner struct {
 	Id                int64
-	OrganizationId    int64
+	OrganizationId    *int64
 	Name              *string
 	Status            string
 	Labels            []string

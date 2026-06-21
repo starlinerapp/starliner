@@ -77,3 +77,14 @@ WHERE id = $1
 DELETE FROM runners
 WHERE id = $1
   AND organization_id = $2;
+
+-- name: GetGlobalRunners :many
+SELECT *
+FROM runners
+WHERE organization_id IS NULL
+ORDER BY created_at DESC;
+
+-- name: DeleteGlobalRunner :exec
+DELETE FROM runners
+WHERE id = $1
+  AND organization_id IS NULL;

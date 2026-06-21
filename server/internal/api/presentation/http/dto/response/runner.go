@@ -22,7 +22,8 @@ func NewCreateRunner(result *value.CreateRunnerResult) CreateRunner {
 
 type Runner struct {
 	Id                int64      `json:"id" binding:"required"`
-	OrganizationId    int64      `json:"organization_id" binding:"required"`
+	OrganizationId    *int64     `json:"organization_id"`
+	IsGlobal          bool       `json:"is_global"`
 	Name              *string    `json:"name"`
 	Status            string     `json:"status" binding:"required"`
 	Labels            []string   `json:"labels" binding:"required"`
@@ -36,6 +37,7 @@ func NewRunner(runner *value.Runner) Runner {
 	return Runner{
 		Id:                runner.Id,
 		OrganizationId:    runner.OrganizationId,
+		IsGlobal:          runner.IsGlobal,
 		Name:              runner.Name,
 		Status:            runner.Status,
 		Labels:            runner.Labels,

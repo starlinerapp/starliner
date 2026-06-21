@@ -10,7 +10,7 @@ import (
 type RunnerRepository interface {
 	CreateRunnerWithRegistrationToken(
 		ctx context.Context,
-		organizationId int64,
+		organizationId *int64,
 		tokenHash string,
 		expiresAt time.Time,
 	) (*entity.Runner, error)
@@ -22,10 +22,12 @@ type RunnerRepository interface {
 		maxConcurrentJobs int32,
 	) error
 	GetOrganizationRunners(ctx context.Context, organizationId int64) ([]*entity.Runner, error)
+	GetGlobalRunners(ctx context.Context) ([]*entity.Runner, error)
 	GetRunnerIdByRegistrationToken(ctx context.Context, tokenHash string) (int64, error)
-	ResolveRunnerByRegistrationToken(ctx context.Context, tokenHash string) (int64, int64, error)
+	ResolveRunnerByRegistrationToken(ctx context.Context, tokenHash string) (int64, *int64, error)
 	GetRunnerById(ctx context.Context, runnerId int64) (*entity.Runner, error)
 	UpdateRunnerStatus(ctx context.Context, runnerId int64, status string) error
 	GetRunnerByOrganization(ctx context.Context, runnerId int64, organizationId int64) (*entity.Runner, error)
 	DeleteRunner(ctx context.Context, runnerId int64, organizationId int64) error
+	DeleteGlobalRunner(ctx context.Context, runnerId int64) error
 }

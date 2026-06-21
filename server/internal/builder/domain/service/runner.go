@@ -21,9 +21,35 @@ func NewRunnerService(runnerStore corePort.RunnerStore) *RunnerService {
 }
 
 func (s *RunnerService) SelectRunner(ctx context.Context, organizationId int64) (int64, error) {
-	runnerIds, err := s.runnerStore.ListOrgRunners(ctx, organizationId)
+	runnerId, err := s.selectBestRunner(ctx, s.runnerStore.ListOrgRunners, organizationId)
 	if err != nil {
 		return 0, err
+	}
+	if runnerId != nil {
+		return *runnerId, nil
+	}
+
+	runnerId, err = s.selectBestRunner(ctx, func(ctx context.Context, _ int64) ([]int64, error) {
+		return s.runnerStore.ListGlobalRunners(ctx)
+	}, 0)
+	if err != nil {
+		return 0, err
+	}
+	if runnerId != nil {
+		return *runnerId, nil
+	}
+
+	return 0, ErrNoEligibleRunner
+}
+
+func (s *RunnerService) selectBestRunner(
+	ctx context.Context,
+	listRunners func(context.Context, int64) ([]int64, error),
+	scopeId int64,
+) (*int64, error) {
+	runnerIds, err := listRunners(ctx, scopeId)
+	if err != nil {
+		return nil, err
 	}
 
 	var (
@@ -35,7 +61,7 @@ func (s *RunnerService) SelectRunner(ctx context.Context, organizationId int64) 
 	for _, runnerId := range runnerIds {
 		state, ok, err := s.eligibleRunner(ctx, runnerId)
 		if err != nil {
-			return 0, err
+			return nil, err
 		}
 		if !ok {
 			continue
@@ -50,10 +76,10 @@ func (s *RunnerService) SelectRunner(ctx context.Context, organizationId int64) 
 	}
 
 	if !found {
-		return 0, ErrNoEligibleRunner
+		return nil, nil
 	}
 
-	return selectedID, nil
+	return &selectedID, nil
 }
 
 func (s *RunnerService) eligibleRunner(

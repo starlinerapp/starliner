@@ -56,7 +56,7 @@ func (ra *RunnerApplication) CreateRunner(
 
 	runner, err := ra.runnerRepository.CreateRunnerWithRegistrationToken(
 		ctx,
-		organizationId,
+		&organizationId,
 		ra.tokenService.HashToken(token),
 		expiresAt,
 	)
@@ -110,22 +110,85 @@ func (ra *RunnerApplication) GetOrganizationRunners(
 		return nil, err
 	}
 
-	return value.NewRunners(runners), nil
+	globalRunners, err := ra.runnerRepository.GetGlobalRunners(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	allRunners := append(runners, globalRunners...)
+
+	return value.NewRunners(allRunners), nil
 }
 
-func (ra *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) (int64, int64, error) {
+func (ra *RunnerApplication) ResolveRunnerId(ctx context.Context, token string) (int64, *int64, error) {
 	runnerId, organizationId, err := ra.runnerRepository.ResolveRunnerByRegistrationToken(
 		ctx,
 		ra.tokenService.HashToken(token),
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, 0, value.ErrInvalidRunnerRegistrationToken
+			return 0, nil, value.ErrInvalidRunnerRegistrationToken
 		}
-		return 0, 0, err
+		return 0, nil, err
 	}
 
 	return runnerId, organizationId, nil
+}
+
+func (ra *RunnerApplication) CreateGlobalRunner(ctx context.Context) (*value.CreateRunnerResult, error) {
+	token, err := ra.tokenService.GenerateToken()
+	if err != nil {
+		return nil, err
+	}
+
+	expiresAt := time.Now().Add(runnerRegistrationTokenTTL)
+
+	runner, err := ra.runnerRepository.CreateRunnerWithRegistrationToken(
+		ctx,
+		nil,
+		ra.tokenService.HashToken(token),
+		expiresAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &value.CreateRunnerResult{
+		Id:        runner.Id,
+		Token:     token,
+		ExpiresAt: expiresAt,
+	}, nil
+}
+
+func (ra *RunnerApplication) ListGlobalRunners(ctx context.Context) ([]*value.Runner, error) {
+	runners, err := ra.runnerRepository.GetGlobalRunners(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return value.NewRunners(runners), nil
+}
+
+func (ra *RunnerApplication) DeleteGlobalRunner(ctx context.Context, runnerId int64) error {
+	runner, err := ra.runnerRepository.GetRunnerById(ctx, runnerId)
+	if err != nil {
+		return err
+	}
+
+	if runner.OrganizationId != nil {
+		return sql.ErrNoRows
+	}
+
+	if err := ra.runnerRepository.DeleteGlobalRunner(ctx, runnerId); err != nil {
+		return err
+	}
+
+	err = ra.queue.PublishRunnerDeleted(&coreValue.RunnerDeleted{RunnerId: runnerId})
+	if err != nil {
+		log.Printf("error publishing runner deleted: %v", err)
+	}
+
+	return nil
 }
 
 func (ra *RunnerApplication) HandleRunnerStatusChanged(

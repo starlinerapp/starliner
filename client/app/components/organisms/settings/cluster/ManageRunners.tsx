@@ -186,6 +186,7 @@ interface RunnerRowProps {
     name?: string | null;
     labels: string[];
     status: string;
+    is_global?: boolean;
   };
   canDelete: boolean;
   organizationId: number;
@@ -193,6 +194,7 @@ interface RunnerRowProps {
 
 function RunnerRow({ runner, canDelete, organizationId }: RunnerRowProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const showDelete = canDelete && !runner.is_global;
 
   return (
     <div
@@ -222,7 +224,7 @@ function RunnerRow({ runner, canDelete, organizationId }: RunnerRowProps) {
         )}
       </div>
       <RunnerStatus status={runner.status} />
-      {canDelete && (
+      {showDelete && (
         <RunnerContextMenu
           organizationId={organizationId}
           runnerId={runner.id}

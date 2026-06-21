@@ -1666,6 +1666,12 @@ export interface ResponseRunner {
   id: number;
   /**
    *
+   * @type {boolean}
+   * @memberof ResponseRunner
+   */
+  is_global?: boolean;
+  /**
+   *
    * @type {Array<string>}
    * @memberof ResponseRunner
    */
@@ -1687,7 +1693,7 @@ export interface ResponseRunner {
    * @type {number}
    * @memberof ResponseRunner
    */
-  organization_id: number;
+  organization_id?: number;
   /**
    *
    * @type {string}

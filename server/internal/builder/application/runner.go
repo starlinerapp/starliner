@@ -34,10 +34,6 @@ func (a *RunnerApplication) ResolveRunner(ctx context.Context, token string) (*p
 		return nil, status.Errorf(codes.Unavailable, "resolve runner: %v", err)
 	}
 
-	if runner.OrganizationId == 0 {
-		return nil, status.Error(codes.FailedPrecondition, "runner organization id is missing")
-	}
-
 	return runner, nil
 }
 
@@ -47,5 +43,5 @@ func (a *RunnerApplication) HandleRunnerDeleted(ctx context.Context, runnerId in
 		return err
 	}
 
-	return a.runnerStore.MarkDeleted(ctx, runnerId, state.OrganizationId)
+	return a.runnerStore.MarkDeleted(ctx, runnerId, state)
 }

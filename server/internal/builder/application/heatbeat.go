@@ -34,7 +34,7 @@ func NewHeartbeatApplication(
 func (a *HeartbeatApplication) AcknowledgeHeartbeat(
 	ctx context.Context,
 	runnerId int64,
-	organizationId int64,
+	organizationId *int64,
 	maxConcurrentJobs int32,
 	activeJobs int32,
 ) (time.Duration, error) {

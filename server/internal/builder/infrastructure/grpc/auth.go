@@ -33,7 +33,7 @@ func (c *AuthClient) ResolveRunner(ctx context.Context, token string) (*port.Res
 
 	return &port.ResolvedRunner{
 		Id:             resp.GetRunnerId(),
-		OrganizationId: resp.GetOrganizationId(),
+		OrganizationId: resp.OrganizationId,
 	}, nil
 }
 

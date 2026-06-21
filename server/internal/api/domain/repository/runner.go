@@ -27,7 +27,7 @@ func NewRunnerRepository(db *sql.DB, queries *sqlc.Queries) interfaces.RunnerRep
 
 func (rr *RunnerRepository) CreateRunnerWithRegistrationToken(
 	ctx context.Context,
-	organizationId int64,
+	organizationId *int64,
 	tokenHash string,
 	expiresAt time.Time,
 ) (*entity.Runner, error) {
@@ -41,13 +41,15 @@ func (rr *RunnerRepository) CreateRunnerWithRegistrationToken(
 
 	qtx := rr.queries.WithTx(tx)
 
-	runner, err := qtx.CreateRunner(ctx, sql.NullInt64{Int64: organizationId, Valid: true})
+	orgID := mapper.ToNullInt64FromPtr(organizationId)
+
+	runner, err := qtx.CreateRunner(ctx, orgID)
 	if err != nil {
 		return nil, err
 	}
 
 	_, err = qtx.CreateRunnerRegistrationToken(ctx, sqlc.CreateRunnerRegistrationTokenParams{
-		OrganizationID: sql.NullInt64{Int64: organizationId, Valid: true},
+		OrganizationID: orgID,
 		TokenHash:      tokenHash,
 		ExpiresAt:      expiresAt,
 		RunnerID:       sql.NullInt64{Int64: runner.ID, Valid: true},
@@ -60,17 +62,7 @@ func (rr *RunnerRepository) CreateRunnerWithRegistrationToken(
 		return nil, err
 	}
 
-	return &entity.Runner{
-		Id:                runner.ID,
-		OrganizationId:    runner.OrganizationID.Int64,
-		Name:              mapper.ToPtrFromNullString(runner.Name),
-		Status:            runner.Status,
-		Labels:            runner.Labels,
-		MaxConcurrentJobs: runner.MaxConcurrentJobs,
-		DisabledAt:        mapper.ToPtrFromNullTime(runner.DisabledAt),
-		CreatedAt:         runner.CreatedAt,
-		UpdatedAt:         runner.UpdatedAt,
-	}, nil
+	return mapRunnerRow(runner), nil
 }
 
 func (rr *RunnerRepository) RegisterRunner(
@@ -123,17 +115,21 @@ func (rr *RunnerRepository) GetOrganizationRunners(
 
 	runners := make([]*entity.Runner, len(rows))
 	for i, row := range rows {
-		runners[i] = &entity.Runner{
-			Id:                row.ID,
-			OrganizationId:    row.OrganizationID.Int64,
-			Name:              mapper.ToPtrFromNullString(row.Name),
-			Status:            row.Status,
-			Labels:            row.Labels,
-			MaxConcurrentJobs: row.MaxConcurrentJobs,
-			DisabledAt:        mapper.ToPtrFromNullTime(row.DisabledAt),
-			CreatedAt:         row.CreatedAt,
-			UpdatedAt:         row.UpdatedAt,
-		}
+		runners[i] = mapRunnerRow(row)
+	}
+
+	return runners, nil
+}
+
+func (rr *RunnerRepository) GetGlobalRunners(ctx context.Context) ([]*entity.Runner, error) {
+	rows, err := rr.queries.GetGlobalRunners(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	runners := make([]*entity.Runner, len(rows))
+	for i, row := range rows {
+		runners[i] = mapRunnerRow(row)
 	}
 
 	return runners, nil
@@ -152,14 +148,9 @@ func (rr *RunnerRepository) GetRunnerById(
 }
 
 func mapRunnerRow(row sqlc.Runner) *entity.Runner {
-	orgID := int64(0)
-	if row.OrganizationID.Valid {
-		orgID = row.OrganizationID.Int64
-	}
-
 	return &entity.Runner{
 		Id:                row.ID,
-		OrganizationId:    orgID,
+		OrganizationId:    mapper.ToPtrFromNullInt64(row.OrganizationID),
 		Name:              mapper.ToPtrFromNullString(row.Name),
 		Status:            row.Status,
 		Labels:            row.Labels,
@@ -189,22 +180,17 @@ func (rr *RunnerRepository) GetRunnerIdByRegistrationToken(
 func (rr *RunnerRepository) ResolveRunnerByRegistrationToken(
 	ctx context.Context,
 	tokenHash string,
-) (int64, int64, error) {
+) (int64, *int64, error) {
 	row, err := rr.queries.ResolveRunnerByRegistrationToken(ctx, tokenHash)
 	if err != nil {
-		return 0, 0, err
+		return 0, nil, err
 	}
 
 	if !row.RunnerID.Valid {
-		return 0, 0, sql.ErrNoRows
+		return 0, nil, sql.ErrNoRows
 	}
 
-	orgID := int64(0)
-	if row.OrganizationID.Valid {
-		orgID = row.OrganizationID.Int64
-	}
-
-	return row.RunnerID.Int64, orgID, nil
+	return row.RunnerID.Int64, mapper.ToPtrFromNullInt64(row.OrganizationID), nil
 }
 
 func (rr *RunnerRepository) UpdateRunnerStatus(
@@ -231,17 +217,7 @@ func (rr *RunnerRepository) GetRunnerByOrganization(
 		return nil, err
 	}
 
-	return &entity.Runner{
-		Id:                row.ID,
-		OrganizationId:    row.OrganizationID.Int64,
-		Name:              mapper.ToPtrFromNullString(row.Name),
-		Status:            row.Status,
-		Labels:            row.Labels,
-		MaxConcurrentJobs: row.MaxConcurrentJobs,
-		DisabledAt:        mapper.ToPtrFromNullTime(row.DisabledAt),
-		CreatedAt:         row.CreatedAt,
-		UpdatedAt:         row.UpdatedAt,
-	}, nil
+	return mapRunnerRow(row), nil
 }
 
 func (rr *RunnerRepository) DeleteRunner(
@@ -253,4 +229,8 @@ func (rr *RunnerRepository) DeleteRunner(
 		ID:             runnerId,
 		OrganizationID: sql.NullInt64{Int64: organizationId, Valid: true},
 	})
+}
+
+func (rr *RunnerRepository) DeleteGlobalRunner(ctx context.Context, runnerId int64) error {
+	return rr.queries.DeleteGlobalRunner(ctx, runnerId)
 }

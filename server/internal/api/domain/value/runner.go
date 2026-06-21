@@ -17,7 +17,8 @@ type CreateRunnerResult struct {
 
 type Runner struct {
 	Id                int64
-	OrganizationId    int64
+	OrganizationId    *int64
+	IsGlobal          bool
 	Name              *string
 	Status            string
 	Labels            []string
@@ -31,6 +32,7 @@ func NewRunner(r *entity.Runner) *Runner {
 	return &Runner{
 		Id:                r.Id,
 		OrganizationId:    r.OrganizationId,
+		IsGlobal:          r.OrganizationId == nil,
 		Name:              r.Name,
 		Status:            r.Status,
 		Labels:            r.Labels,
