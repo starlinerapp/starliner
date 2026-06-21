@@ -48,10 +48,18 @@ func (h *RunnerHandler) newCreateGlobalCmd() *cobra.Command {
 			}
 
 			out := cmd.OutOrStdout()
-			fmt.Fprintf(out, "Created global runner id=%d\n", result.Id)
-			fmt.Fprintf(out, "Registration token (shown once, expires at %s):\n", result.ExpiresAt.Format("2006-01-02 15:04:05 MST"))
-			fmt.Fprintln(out, result.Token)
-			fmt.Fprintln(out, "Register with: sudo runner register --token <token>")
+			if _, err := fmt.Fprintf(out, "Created global runner id=%d\n", result.Id); err != nil {
+				return err
+			}
+			if _, err := fmt.Fprintf(out, "Registration token (shown once, expires at %s):\n", result.ExpiresAt.Format("2006-01-02 15:04:05 MST")); err != nil {
+				return err
+			}
+			if _, err := fmt.Fprintln(out, result.Token); err != nil {
+				return err
+			}
+			if _, err := fmt.Fprintln(out, "Register with: sudo runner register --token <token>"); err != nil {
+				return err
+			}
 
 			return nil
 		},
@@ -73,18 +81,24 @@ func (h *RunnerHandler) newListGlobalCmd() *cobra.Command {
 
 			out := cmd.OutOrStdout()
 			if len(runners) == 0 {
-				fmt.Fprintln(out, "No global runners found.")
+				if _, err := fmt.Fprintln(out, "No global runners found."); err != nil {
+					return err
+				}
 				return nil
 			}
 
 			w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-			fmt.Fprintln(w, "ID\tNAME\tSTATUS\tLABELS\tMAX JOBS")
+			if _, err := fmt.Fprintln(w, "ID\tNAME\tSTATUS\tLABELS\tMAX JOBS"); err != nil {
+				return err
+			}
 			for _, runner := range runners {
 				name := ""
 				if runner.Name != nil {
 					name = *runner.Name
 				}
-				fmt.Fprintf(w, "%d\t%s\t%s\t%v\t%d\n", runner.Id, name, runner.Status, runner.Labels, runner.MaxConcurrentJobs)
+				if _, err := fmt.Fprintf(w, "%d\t%s\t%s\t%v\t%d\n", runner.Id, name, runner.Status, runner.Labels, runner.MaxConcurrentJobs); err != nil {
+					return err
+				}
 			}
 
 			return w.Flush()
@@ -112,7 +126,9 @@ func (h *RunnerHandler) newDeleteGlobalCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Deleted global runner id=%d\n", runnerId)
+			if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Deleted global runner id=%d\n", runnerId); err != nil {
+				return err
+			}
 			return nil
 		},
 	}
