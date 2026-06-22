@@ -24,7 +24,7 @@ func NewRunnerHandler(runnerApplication *application.RunnerApplication) *RunnerH
 func (h *RunnerHandler) NewRunnerCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "runner",
-		Short: "Manage self-hosted runners",
+		Short: "Manage global runners",
 	}
 
 	cmd.AddCommand(
