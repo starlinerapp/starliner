@@ -307,6 +307,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Deploy Database",
                         "name": "data",
                         "in": "body",
@@ -335,6 +342,13 @@ const docTemplatecoreCore = `{
                         "type": "string",
                         "description": "User ID",
                         "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
                         "in": "header",
                         "required": true
                     },
@@ -381,6 +395,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Deploy from Git",
                         "name": "data",
                         "in": "body",
@@ -409,6 +430,13 @@ const docTemplatecoreCore = `{
                         "type": "string",
                         "description": "User ID",
                         "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
                         "in": "header",
                         "required": true
                     },
@@ -455,6 +483,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Deploy Image",
                         "name": "data",
                         "in": "body",
@@ -483,6 +518,13 @@ const docTemplatecoreCore = `{
                         "type": "string",
                         "description": "User ID",
                         "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
                         "in": "header",
                         "required": true
                     },
@@ -529,6 +571,13 @@ const docTemplatecoreCore = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Deploy Ingress",
                         "name": "data",
                         "in": "body",
@@ -557,6 +606,13 @@ const docTemplatecoreCore = `{
                         "type": "string",
                         "description": "User ID",
                         "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
                         "in": "header",
                         "required": true
                     },
@@ -599,6 +655,13 @@ const docTemplatecoreCore = `{
                         "type": "string",
                         "description": "User ID",
                         "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
                         "in": "header",
                         "required": true
                     },
@@ -904,6 +967,57 @@ const docTemplatecoreCore = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Deployments"
+                        }
+                    }
+                }
+            }
+        },
+        "/environments/{id}/notifications": {
+            "get": {
+                "tags": [
+                    "environment"
+                ],
+                "summary": "Stream environment notifications",
+                "operationId": "streamEnvironmentNotifications",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Correlation ID",
+                        "name": "X-Correlation-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Environment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
                         }
                     }
                 }
@@ -1242,6 +1356,50 @@ const docTemplatecoreCore = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications": {
+            "get": {
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Stream global notifications",
+                "operationId": "streamGlobalNotifications",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "Cache-Control": {
+                                "type": "string",
+                                "description": "no-cache"
+                            },
+                            "Connection": {
+                                "type": "string",
+                                "description": "keep-alive"
+                            },
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "text/event-stream"
+                            }
                         }
                     }
                 }

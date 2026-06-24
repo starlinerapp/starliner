@@ -13,6 +13,7 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastProvider } from "~/components/atoms/toast/ToastProvider";
 import { TRPCReactProvider } from "~/utils/trpc/react";
 
 function envScript(env: { SENTRY_DSN_CLIENT: string; ENVIRONMENT: string }) {
@@ -73,7 +74,9 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCReactProvider>
-        <Outlet />
+        <ToastProvider>
+          <Outlet />
+        </ToastProvider>
       </TRPCReactProvider>
     </QueryClientProvider>
   );

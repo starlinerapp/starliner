@@ -105,3 +105,9 @@ FROM clusters c
   LEFT JOIN organization_members om ON o.id = om.organization_id
 WHERE c.id = @cluster_id
   AND om.user_id = @user_id;
+
+-- name: GetClusterOrgOwnerId :one
+SELECT organizations.owner_id
+FROM clusters
+  INNER JOIN organizations ON organizations.id = clusters.organization_id
+WHERE clusters.id = $1;

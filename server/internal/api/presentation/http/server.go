@@ -37,6 +37,7 @@ func NewServer(
 	githubAppHandler *handler.GithubAppHandler,
 	webhookHandler *handler.WebhookHandler,
 	internalHandler *handler.InternalHandler,
+	notificationHandler *handler.NotificationsHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery(), sentrygin.New(sentrygin.Options{Repanic: true}), middleware.WithErrorReporting())
@@ -101,6 +102,7 @@ func NewServer(
 		environmentRoutes.GET("/:id/builds", environmentHandler.GetEnvironmentBuilds)
 		environmentRoutes.GET("/:id/branch", environmentHandler.GetEnvironmentConnectedBranch)
 		environmentRoutes.PUT("/:id/branch", environmentHandler.UpdateEnvironmentConnectedBranch)
+		environmentRoutes.GET("/:id/notifications", environmentHandler.StreamEnvironmentNotifications)
 	}
 
 	clusterRoutes := engine.Group("/clusters")
@@ -110,6 +112,12 @@ func NewServer(
 		clusterRoutes.GET("/:id/private-key", clusterHandler.GetClusterPrivateKey)
 		clusterRoutes.GET("/:id/provisioning/logs/stream", clusterHandler.StreamProvisioningLogs)
 		clusterRoutes.DELETE("/:id", clusterHandler.DeleteCluster)
+	}
+
+	notificationsRoutes := engine.Group("/notifications")
+	{
+		notificationsRoutes.GET("", notificationHandler.StreamGlobalNotifications)
+
 	}
 
 	deploymentRoutes := engine.Group("/deployments")

@@ -1,5 +1,8 @@
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { environmentApiFactory } from "~/server/api/clients/server";
+import { cache } from "~/server/services/cache";
+import { streamSseJson } from "~/server/services/sse";
 import { protectedProcedure } from "~/server/trpc";
 
 export const environmentRouter = {
@@ -85,5 +88,34 @@ export const environmentRouter = {
           branch: input.branchName,
         })
         .then((res) => res.data);
+    }),
+  streamDeploymentNotifications: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .subscription(async function* ({ input, ctx, signal }) {
+      const userId = ctx.user?.id;
+
+      const correlationCacheKey = `user:${userId}`;
+      let correlationId = await cache.get(correlationCacheKey);
+
+      if (!correlationId) {
+        correlationId = randomUUID();
+        await cache.set(correlationCacheKey, correlationId, 60 * 60 * 60);
+      }
+
+      yield* streamSseJson(
+        () =>
+          // @ts-expect-error OpenAPI doesn't support SSE
+          environmentApiFactory.streamEnvironmentNotifications(
+            userId,
+            correlationId,
+            input.id,
+            { responseType: "stream", signal },
+          ),
+        signal,
+      );
     }),
 };

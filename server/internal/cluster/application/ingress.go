@@ -15,8 +15,8 @@ const ingressDNSTimeout = 10 * time.Minute
 
 type IngressApplication struct {
 	deploy       port.Deploy
-	dns          port.DNS
 	queue        port.Queue
+	dns          port.DNS
 	logPublisher port.LogPublisher
 }
 
@@ -35,6 +35,13 @@ func NewIngressApplication(
 }
 
 func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
+	correlationId := ""
+	if i.CorrelationId != nil {
+		correlationId = *i.CorrelationId
+	} else {
+		log.Printf("missing correlation id for ingress deployment %d\n", i.DeploymentId)
+	}
+
 	releaseName := i.DeploymentName
 	hosts := toPortIngressHosts(i.IngressHosts)
 
@@ -50,6 +57,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 
 	if i.ExpectedIP == "" {
 		appendStatus("==> ERROR: failed to deploy ExternalDNS: IP Address is not set\n")
+		ia.publishIngressFailure(correlationId, i.DeploymentId, i.DeploymentName)
 		ia.publishDeploymentCompleted(i, logBuf.String())
 		return
 	}
@@ -62,6 +70,7 @@ func (ia *IngressApplication) HandleDeployIngress(i *value.IngressDeployment) {
 		args.TLSEnabled = false
 		if err := ia.deploy.DeployIngress(args); err != nil {
 			appendStatus("==> ERROR: failed to deploy ingress: %v\n", err)
+			ia.publishIngressFailure(correlationId, i.DeploymentId, i.DeploymentName)
 			ia.publishDeploymentCompleted(i, logBuf.String())
 			return
 		}
@@ -80,6 +89,11 @@ func (ia *IngressApplication) HandleEnableIngressTLS(i *value.IngressDeployment)
 }
 
 func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
+	correlationId := ""
+	if i.CorrelationId != nil {
+		correlationId = *i.CorrelationId
+	}
+
 	releaseName := i.DeploymentName
 	hosts := toPortIngressHosts(i.IngressHosts)
 	hostnames := ingressHostnames(&i)
@@ -97,6 +111,7 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 
 	if i.ExpectedIP == "" {
 		appendStatus("==> ERROR: failed to deploy ExternalDNS: IP Address is not set\n")
+		ia.publishIngressFailure(correlationId, i.DeploymentId, i.DeploymentName)
 		ia.publishDeploymentCompleted(&i, logBuf.String())
 		return
 	}
@@ -123,11 +138,33 @@ func (ia *IngressApplication) enableIngressTLS(i value.IngressDeployment) {
 	args.TLSEnabled = true
 	if err := ia.deploy.DeployIngress(args); err != nil {
 		appendStatus("==> ERROR: failed to deploy ingress: %v\n", err)
+		ia.publishIngressFailure(correlationId, i.DeploymentId, i.DeploymentName)
 		ia.publishDeploymentCompleted(&i, logBuf.String())
 		return
 	}
 	appendStatus("==> Ingress deployed successfully\n")
+	ia.publishIngressSuccess(correlationId, i.DeploymentId, i.DeploymentName)
 	ia.publishDeploymentCompleted(&i, logBuf.String())
+}
+
+func (ia *IngressApplication) publishIngressSuccess(correlationId string, deploymentId int64, deploymentName string) {
+	if err := ia.queue.PublishIngressDeployedSuccess(&value.IngressDeployedSuccess{
+		CorrelationId:  correlationId,
+		DeploymentId:   deploymentId,
+		DeploymentName: deploymentName,
+	}); err != nil {
+		log.Printf("failed to publish ingress deployed success: %v\n", err)
+	}
+}
+
+func (ia *IngressApplication) publishIngressFailure(correlationId string, deploymentId int64, deploymentName string) {
+	if err := ia.queue.PublishIngressDeployedFailure(&value.IngressDeployedFailure{
+		CorrelationId:  correlationId,
+		DeploymentId:   deploymentId,
+		DeploymentName: deploymentName,
+	}); err != nil {
+		log.Printf("failed to publish ingress deployed failure: %v\n", err)
+	}
 }
 
 func (ia *IngressApplication) appendStatus(

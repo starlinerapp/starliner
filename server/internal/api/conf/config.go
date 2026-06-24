@@ -1,9 +1,10 @@
 package conf
 
 import (
+	"reflect"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
-	"reflect"
 )
 
 type Config struct {
@@ -99,14 +100,14 @@ func (c *Config) GetEnvironment() string {
 	return c.Environment
 }
 
-func (c *Config) GetDeploymentDomain() string {
-	return c.DeploymentDomain
-}
-
 func (c *Config) GetRedisAddr() string {
 	return c.RedisAddr
 }
 
 func (c *Config) GetRedisPassword() string {
 	return c.RedisPassword
+}
+
+func (c *Config) GetDeploymentDomain() string {
+	return c.DeploymentDomain
 }

@@ -5,6 +5,7 @@ import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import ManageEnvironments from "~/components/organisms/environments/ManageEnvironments";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
+import { useEnvironmentDeploymentNotifications } from "~/hooks/useEnvironmentDeploymentNotifications";
 import { useTRPC } from "~/utils/trpc/react";
 
 export default function ProjectLayout() {
@@ -30,6 +31,8 @@ export default function ProjectLayout() {
     () => currentProject?.environments.find((e) => e.slug === environment),
     [currentProject, environment],
   );
+
+  useEnvironmentDeploymentNotifications(currentEnvironment?.id);
 
   const { data: environmentBuilds, isLoading: isEnvironmentBuildsLoading } =
     useQuery({
@@ -118,28 +121,28 @@ export default function ProjectLayout() {
   ];
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="bg-violet-1">
-        {isProjectsLoading || isEnvironmentBuildsLoading ? (
-          <div className="px-4 pt-4">
-            <Skeleton className="h-7 w-32" />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 px-4 pt-4">
-            <h1 className="font-bold text-mauve-12 text-xl">
-              {currentProject?.name}
-            </h1>
-            <ManageEnvironments
-              organization={organization}
-              project={currentProject}
-            />
-          </div>
-        )}
-        <LinkNavigationBar items={navigationBarItems} />
+      <div className="flex h-full flex-col">
+        <div className="bg-violet-1">
+          {isProjectsLoading || isEnvironmentBuildsLoading ? (
+            <div className="px-4 pt-4">
+              <Skeleton className="h-7 w-32" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 px-4 pt-4">
+              <h1 className="font-bold text-mauve-12 text-xl">
+                {currentProject?.name}
+              </h1>
+              <ManageEnvironments
+                organization={organization}
+                project={currentProject}
+              />
+            </div>
+          )}
+          <LinkNavigationBar items={navigationBarItems} />
+        </div>
+        <div className="h-[calc(100vh-90px)] overflow-y-auto">
+          <Outlet />
+        </div>
       </div>
-      <div className="h-[calc(100vh-90px)] overflow-y-auto">
-        <Outlet />
-      </div>
-    </div>
   );
 }

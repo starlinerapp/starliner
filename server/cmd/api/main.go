@@ -10,9 +10,11 @@ import (
 	"starliner.app/internal/api/infrastructure/github"
 	"starliner.app/internal/api/infrastructure/grpc"
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
+	"starliner.app/internal/api/infrastructure/notification"
 	"starliner.app/internal/api/infrastructure/postgres"
 	"starliner.app/internal/api/infrastructure/registry"
 	"starliner.app/internal/api/presentation/http"
+	notificationconsumer "starliner.app/internal/api/presentation/notification"
 	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
 	"starliner.app/internal/api/presentation/scheduler"
 	coreService "starliner.app/internal/core/domain/service"
@@ -37,6 +39,8 @@ func main() {
 		coreService.Module,
 		service.Module,
 		application.Module,
+		notification.Module,
+		notificationconsumer.Module,
 		http.Module,
 		clusterqueue.Module,
 		scheduler.Module,

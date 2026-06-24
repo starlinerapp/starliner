@@ -23,12 +23,19 @@ var Module = fx.Module(
 		return jetstream.EnsureStream(js, Deployments, []jetstream.Subject{
 			DeployImage,
 			DeployDatabase,
-			DatabaseDeployed,
+			DeployImage,
 			DeployIngress,
 			EnableIngressTLS,
 			DeleteDeployment,
-			DeploymentDeleted,
 			DeploymentStatusLogsCompleted,
+			DatabaseDeployedSuccess,
+			DatabaseDeployedFailure,
+			ImageDeployedSuccess,
+			ImageDeployedFailure,
+			IngressDeployedSuccess,
+			IngressDeployedFailure,
+			DeploymentDeletedSuccess,
+			DeploymentDeletedFailure,
 		})
 	}),
 )

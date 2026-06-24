@@ -41,12 +41,13 @@ func NewClusterHandler(clusterApplication *application.ClusterApplication, organ
 // @Router /clusters [post]
 func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationId := c.GetHeader("X-Correlation-ID")
 	var cluster request.CreateCluster
 	if err := c.BindJSON(&cluster); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	newCluster, err := ch.clusterApplication.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.ServerType, cluster.OrganizationID, cluster.TeamID)
+	newCluster, err := ch.clusterApplication.CreateCluster(c.Request.Context(), currentUser.Id, correlationId, cluster.Name, cluster.ServerType, cluster.OrganizationID, cluster.TeamID)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -129,13 +130,14 @@ func (ch *ClusterHandler) GetClusterPrivateKey(c *gin.Context) {
 // @Router /clusters/{id} [delete]
 func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
+	correlationId := c.GetHeader("X-Correlation-ID")
 	clusterId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	err = ch.clusterApplication.DeleteCluster(c.Request.Context(), currentUser.Id, clusterId)
+	err = ch.clusterApplication.DeleteCluster(c.Request.Context(), currentUser.Id, correlationId, clusterId)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

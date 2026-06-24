@@ -8,6 +8,7 @@ import {
   EnvironmentApiFactory,
   GithubApiFactory,
   GithubappApiFactory,
+  NotificationsApiFactory,
   OrganizationApiFactory,
   ProjectApiFactory,
   RootApiFactory,
@@ -80,6 +81,12 @@ export const githubApiFactory = GithubApiFactory(
 );
 
 export const githubappApiFactory = GithubappApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const notificationsApiFactory = NotificationsApiFactory(
   configuration,
   undefined,
   axiosInstance,

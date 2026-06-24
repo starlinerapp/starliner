@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 )
 
@@ -23,6 +24,11 @@ type ClusterRepository interface {
 		ctx context.Context,
 		clusterId int64,
 	) (*entity.Cluster, error)
+
+	GetClusterOrgOwnerId(
+		ctx context.Context,
+		clusterId int64,
+	) (int64, error)
 
 	DeleteCluster(
 		ctx context.Context,
