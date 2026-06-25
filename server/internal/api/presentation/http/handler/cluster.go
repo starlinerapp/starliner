@@ -145,6 +145,34 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// RetryCluster FindAll godoc
+// @Summary Retry Cluster
+// @State core
+// @Tags cluster
+// @ID retryCluster
+// @Param X-User-ID header string true "User ID"
+// @Param id path int true "Cluster ID"
+// @Product JSON
+// @Success 200 {object} response.Cluster
+// @Router /clusters/{id}/retry [post]
+func (ch *ClusterHandler) RetryCluster(c *gin.Context) {
+	currentUser := c.MustGet("user").(*value.User)
+	clusterId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	newCluster, err := ch.clusterApplication.RetryCluster(c.Request.Context(), currentUser.Id, clusterId)
+	if err != nil {
+		_ = c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.NewCluster(newCluster))
+}
+
 // StreamProvisioningLogs FindAll godoc
 // @Summary Stream cluster provisioning logs
 // @State core

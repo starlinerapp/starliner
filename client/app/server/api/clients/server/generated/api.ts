@@ -815,6 +815,7 @@ export const ResponseClusterStatus = {
   ClusterStatusPending: "pending",
   ClusterStatusRunning: "running",
   ClusterStatusDeleted: "deleted",
+  ClusterStatusFailed: "failed",
 } as const;
 
 export type ResponseClusterStatus =
@@ -2252,6 +2253,59 @@ export const ClusterApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Retry Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    retryCluster: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("retryCluster", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("retryCluster", "id", id);
+      const localVarPath = `/clusters/{id}/retry`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Stream cluster provisioning logs
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
@@ -2454,6 +2508,42 @@ export const ClusterApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Retry Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async retryCluster(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseCluster>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.retryCluster(
+        xUserID,
+        id,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["ClusterApi.retryCluster"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Stream cluster provisioning logs
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
@@ -2570,6 +2660,23 @@ export const ClusterApiFactory = function (
     },
     /**
      *
+     * @summary Retry Cluster
+     * @param {string} xUserID User ID
+     * @param {number} id Cluster ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    retryCluster(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseCluster> {
+      return localVarFp
+        .retryCluster(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Stream cluster provisioning logs
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
@@ -2668,6 +2775,25 @@ export class ClusterApi extends BaseAPI {
   ) {
     return ClusterApiFp(this.configuration)
       .getClusterPrivateKey(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Retry Cluster
+   * @param {string} xUserID User ID
+   * @param {number} id Cluster ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClusterApi
+   */
+  public retryCluster(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ClusterApiFp(this.configuration)
+      .retryCluster(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

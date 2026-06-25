@@ -113,7 +113,8 @@ WHERE teams.organization_id = $1
 SELECT clusters.*
 FROM clusters
   INNER JOIN team_clusters ON clusters.id = team_clusters.cluster_id
-WHERE team_clusters.team_id = $1;
+WHERE team_clusters.team_id = $1
+  AND clusters.deleted_at IS NULL;
 
 -- name: AssignTeamCluster :exec
 INSERT INTO team_clusters (
@@ -136,4 +137,5 @@ SELECT clusters.*
 FROM team_clusters
   INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
 WHERE team_clusters.team_id = $1
-  AND team_clusters.cluster_id = $2;
+  AND team_clusters.cluster_id = $2
+  AND clusters.deleted_at IS NULL;

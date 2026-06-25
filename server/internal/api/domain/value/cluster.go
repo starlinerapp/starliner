@@ -12,6 +12,7 @@ const (
 	ClusterStatusPending ClusterStatus = "pending"
 	ClusterStatusRunning ClusterStatus = "running"
 	ClusterStatusDeleted ClusterStatus = "deleted"
+	ClusterStatusFailed  ClusterStatus = "failed"
 )
 
 type ServerType string
@@ -63,6 +64,8 @@ func mapStatus(s entity.ClusterStatus) ClusterStatus {
 		return ClusterStatusRunning
 	case entity.ClusterDeleted:
 		return ClusterStatusDeleted
+	case entity.ClusterFailed:
+		return ClusterStatusFailed
 	default:
 		return "unknown"
 	}

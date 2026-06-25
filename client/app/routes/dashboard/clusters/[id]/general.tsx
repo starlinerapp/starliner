@@ -1,6 +1,7 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
+import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
 import Button from "~/components/atoms/button/Button";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import { Download } from "~/components/atoms/icons";
@@ -34,8 +35,21 @@ export default function General() {
     ),
   );
 
+  const retryClusterMutation = useMutation(
+    trpc.cluster.retryCluster.mutationOptions({
+      onSuccess: async (newCluster) => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.organization.getOrganizationClusters.queryKey({
+            id: organization.id,
+          }),
+        });
+        navigate(`/${slug}/clusters/${newCluster.id}/general`);
+      },
+    }),
+  );
+
   useEffect(() => {
-    if (error) {
+    if (error && !retryClusterMutation.isPending) {
       (async () => {
         await queryClient.invalidateQueries({
           queryKey: trpc.organization.getOrganizationClusters.queryKey({
@@ -49,6 +63,7 @@ export default function General() {
     error,
     slug,
     organization.id,
+    retryClusterMutation.isPending,
     trpc.organization.getOrganizationClusters.queryKey,
     queryClient.invalidateQueries,
     navigate,
@@ -59,6 +74,7 @@ export default function General() {
     pending: "warning",
     running: "success",
     deleted: "error",
+    failed: "error",
   };
   const liveIndicatorType =
     liveIndicatorStatusMap[clusterData?.status ?? "pending"];
@@ -67,11 +83,14 @@ export default function General() {
     pending: "Creating",
     running: "Live",
     deleted: "Deleting",
+    failed: "Failed",
   };
   const status = statusMap[clusterData?.status ?? "pending"];
   const showBottomPanel = Boolean(
     clusterData?.id &&
-      (clusterData.status === "pending" || clusterData.status === "running"),
+      (clusterData.status === "pending" ||
+        clusterData.status === "running" ||
+        clusterData.status === "failed"),
   );
   const splitLayout = isLoading || showBottomPanel;
 
@@ -85,6 +104,22 @@ export default function General() {
         className="h-full overflow-auto"
       >
         <div className="w-full p-4">
+          {clusterData?.status === "failed" && (
+            <ErrorBanner
+              text="Provisioning failed"
+              description="The cluster could not be provisioned. You can retry or check logs for details."
+              className="mb-4"
+            >
+              <Button
+                intent="secondary"
+                className="ml-auto shrink-0"
+                disabled={retryClusterMutation.isPending}
+                onClick={() => retryClusterMutation.mutate({ id: Number(id) })}
+              >
+                {retryClusterMutation.isPending ? "Retrying…" : "Retry"}
+              </Button>
+            </ErrorBanner>
+          )}
           <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
             <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
               Details

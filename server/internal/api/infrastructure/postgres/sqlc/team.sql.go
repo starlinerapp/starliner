@@ -232,11 +232,12 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, arg GetTeamBySlugParams) (T
 }
 
 const getTeamCluster = `-- name: GetTeamCluster :one
-SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs, clusters.deleted_at
 FROM team_clusters
   INNER JOIN clusters ON clusters.id = team_clusters.cluster_id
 WHERE team_clusters.team_id = $1
   AND team_clusters.cluster_id = $2
+  AND clusters.deleted_at IS NULL
 `
 
 type GetTeamClusterParams struct {
@@ -262,15 +263,17 @@ func (q *Queries) GetTeamCluster(ctx context.Context, arg GetTeamClusterParams) 
 		&i.ServerType,
 		&i.User,
 		&i.Logs,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getTeamClusters = `-- name: GetTeamClusters :many
-SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs, clusters.deleted_at
 FROM clusters
   INNER JOIN team_clusters ON clusters.id = team_clusters.cluster_id
 WHERE team_clusters.team_id = $1
+  AND clusters.deleted_at IS NULL
 `
 
 func (q *Queries) GetTeamClusters(ctx context.Context, teamID int64) ([]Cluster, error) {
@@ -297,6 +300,7 @@ func (q *Queries) GetTeamClusters(ctx context.Context, teamID int64) ([]Cluster,
 			&i.ServerType,
 			&i.User,
 			&i.Logs,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

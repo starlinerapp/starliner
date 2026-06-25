@@ -45,7 +45,12 @@ func NewClusterApplication(
 }
 
 func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) {
+
 	ctx := context.Background()
+
+	log.Printf("============================= FORCES FAIL\n")
+	ca.handleProvisionFailure(ctx, c, "provisioningId", "logBuf.String()")
+	return
 
 	var logBuf strings.Builder
 
@@ -64,6 +69,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to generate ed25519 keypair: %v\n", err)
 		log.Printf("failed to generate ed25519 keypair: %v\n", err)
+		ca.handleProvisionFailure(ctx, c, "", logBuf.String())
 		return
 	}
 
@@ -74,6 +80,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to normalize cluster name: %v\n", err)
 		log.Printf("failed to normalize cluster name: %v\n", err)
+		ca.handleProvisionFailure(ctx, c, "", logBuf.String())
 		return
 	}
 
@@ -85,11 +92,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to provision server: %v\n", err)
 		log.Printf("failed to provision server: %v\n", err)
-		ca.HandleDeleteCluster(&value.DeleteCluster{
-			Id:                     c.Id,
-			ProvisioningId:         provisioningId,
-			ProvisioningCredential: c.ProvisioningCredential,
-		})
+		ca.handleProvisionFailure(ctx, c, provisioningId, logBuf.String())
 		return
 	}
 	appendStatus("==> Server provisioned at %s\n", ip)
@@ -100,17 +103,18 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to encode private key to PEM: %v\n", err)
 		log.Printf("failed to encode private key to PEM: %v\n", err)
-		ca.HandleDeleteCluster(&value.DeleteCluster{
-			Id:                     c.Id,
-			ProvisioningId:         provisioningId,
-			ProvisioningCredential: c.ProvisioningCredential,
-		})
+		ca.handleProvisionFailure(ctx, c, provisioningId, logBuf.String())
 		return
 	}
+
+	//log.Printf("============================= FORCES FAIL\n")
+	//ca.handleProvisionFailure(ctx, c, provisioningId, logBuf.String())
+	//return
 
 	if err := ca.ssh.WaitForSSH(ip, "root", pemBytes, 30*time.Second); err != nil {
 		appendStatus("==> ERROR: SSH not available: %v\n", err)
 		log.Printf("SSH not available: %v\n", err)
+		ca.handleProvisionFailure(ctx, c, provisioningId, logBuf.String())
 		return
 	}
 	appendStatus("==> SSH is ready\n")
@@ -121,6 +125,7 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to install k3s: %v\n", err)
 		log.Printf("Failed to install k3s: %v\n", err)
+		ca.handleProvisionFailure(ctx, c, provisioningId, logBuf.String())
 		return
 	}
 	appendStatus("==> K3s installed\n")
@@ -140,6 +145,21 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 	if err != nil {
 		appendStatus("==> ERROR: failed to publish cluster created event: %v\n", err)
 		log.Printf("failed to publish event: %v\n", err)
+	}
+}
+
+func (ca *ClusterApplication) handleProvisionFailure(ctx context.Context, c *value.ProvisionCluster, provisioningId string, logs string) {
+	if provisioningId != "" {
+		if err := ca.provision.DeleteServer(ctx, c.Id, c.ProvisioningCredential, provisioningId); err != nil {
+			log.Printf("failed to delete server during provision failure cleanup: %v\n", err)
+		}
+	}
+
+	if err := ca.queue.PublishClusterProvisioningFailed(&value.ClusterProvisioningFailed{
+		Id:   c.Id,
+		Logs: logs,
+	}); err != nil {
+		log.Printf("failed to publish cluster provisioning failed event: %v\n", err)
 	}
 }
 

@@ -24,16 +24,30 @@ FROM clusters c
   LEFT JOIN organizations o ON c.organization_id = o.id
   LEFT JOIN organization_members om ON o.id = om.organization_id
 WHERE om.user_id = $1
-  AND c.id = $2;
+  AND c.id = $2
+  AND c.deleted_at IS NULL;
 
 -- name: GetCluster :one
 SELECT *
 FROM clusters
-WHERE id = $1;
+WHERE id = $1
+  AND deleted_at IS NULL;
 
 -- name: DeleteCluster :exec
 DELETE FROM clusters
 WHERE id = $1;
+
+-- name: SoftDeleteCluster :exec
+UPDATE
+  clusters
+SET deleted_at = NOW()
+WHERE id = $1
+  AND deleted_at IS NULL;
+
+-- name: GetClusterTeamId :one
+SELECT team_id
+FROM team_clusters
+WHERE cluster_id = $1;
 
 -- name: GetOrganizationClusters :many
 SELECT c.id,
@@ -47,6 +61,7 @@ FROM clusters c
   LEFT JOIN team_clusters tc ON tc.cluster_id = c.id
   LEFT JOIN teams t ON t.id = tc.team_id
 WHERE c.organization_id = $1
+  AND c.deleted_at IS NULL
 GROUP BY c.id,
   c.name,
   c.organization_id,

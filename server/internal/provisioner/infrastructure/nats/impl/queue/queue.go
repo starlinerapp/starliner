@@ -17,6 +17,8 @@ const (
 	DeleteCluster    jetstream.Subject = "delete.cluster"
 	ReconcileCluster jetstream.Subject = "reconcile.cluster"
 	ClusterDeleted   jetstream.Subject = "cluster.deleted"
+
+	ClusterProvisioningFailed jetstream.Subject = "cluster.provisioning.failed"
 )
 
 type Queue struct {
@@ -55,6 +57,14 @@ func (q *Queue) PublishClusterDeleted(cluster *value.ClusterDeleted) error {
 		return fmt.Errorf("failed to marshal: %w", err)
 	}
 	return q.publisher.Publish(ClusterDeleted, strconv.FormatInt(cluster.Id, 10), data)
+}
+
+func (q *Queue) PublishClusterProvisioningFailed(cluster *value.ClusterProvisioningFailed) error {
+	data, err := json.Marshal(cluster)
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	return q.publisher.Publish(ClusterProvisioningFailed, strconv.FormatInt(cluster.Id, 10), data)
 }
 
 func (q *Queue) SubscribeToDeleteCluster(handler func(cluster *value.DeleteCluster)) error {

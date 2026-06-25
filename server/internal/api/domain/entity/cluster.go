@@ -8,6 +8,7 @@ const (
 	ClusterPending ClusterStatus = "pending"
 	ClusterRunning ClusterStatus = "running"
 	ClusterDeleted ClusterStatus = "deleted"
+	ClusterFailed  ClusterStatus = "failed"
 )
 
 type ServerType string

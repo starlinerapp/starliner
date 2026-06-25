@@ -22,7 +22,7 @@ VALUES (
   $1,
   $2,
   $3)
-RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs
+RETURNING id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs, deleted_at
 `
 
 type CreateClusterParams struct {
@@ -49,6 +49,7 @@ func (q *Queries) CreateCluster(ctx context.Context, arg CreateClusterParams) (C
 		&i.ServerType,
 		&i.User,
 		&i.Logs,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -64,9 +65,10 @@ func (q *Queries) DeleteCluster(ctx context.Context, id int64) error {
 }
 
 const getCluster = `-- name: GetCluster :one
-SELECT id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs
+SELECT id, name, ipv4_address, public_key, private_key, organization_id, provisioning_id, status, created_at, updated_at, kubeconfig, server_type, "user", logs, deleted_at
 FROM clusters
 WHERE id = $1
+  AND deleted_at IS NULL
 `
 
 func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
@@ -87,12 +89,26 @@ func (q *Queries) GetCluster(ctx context.Context, id int64) (Cluster, error) {
 		&i.ServerType,
 		&i.User,
 		&i.Logs,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
+const getClusterTeamId = `-- name: GetClusterTeamId :one
+SELECT team_id
+FROM team_clusters
+WHERE cluster_id = $1
+`
+
+func (q *Queries) GetClusterTeamId(ctx context.Context, clusterID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getClusterTeamId, clusterID)
+	var team_id int64
+	err := row.Scan(&team_id)
+	return team_id, err
+}
+
 const getDeploymentCluster = `-- name: GetDeploymentCluster :one
-SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs
+SELECT clusters.id, clusters.name, clusters.ipv4_address, clusters.public_key, clusters.private_key, clusters.organization_id, clusters.provisioning_id, clusters.status, clusters.created_at, clusters.updated_at, clusters.kubeconfig, clusters.server_type, clusters."user", clusters.logs, clusters.deleted_at
 FROM clusters
   INNER JOIN projects ON projects.cluster_id = clusters.id
   INNER JOIN environments ON environments.project_id = projects.id
@@ -118,6 +134,7 @@ func (q *Queries) GetDeploymentCluster(ctx context.Context, deploymentID int64) 
 		&i.ServerType,
 		&i.User,
 		&i.Logs,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -134,6 +151,7 @@ FROM clusters c
   LEFT JOIN team_clusters tc ON tc.cluster_id = c.id
   LEFT JOIN teams t ON t.id = tc.team_id
 WHERE c.organization_id = $1
+  AND c.deleted_at IS NULL
 GROUP BY c.id,
   c.name,
   c.organization_id,
@@ -196,6 +214,7 @@ FROM clusters c
   LEFT JOIN organization_members om ON o.id = om.organization_id
 WHERE om.user_id = $1
   AND c.id = $2
+  AND c.deleted_at IS NULL
 `
 
 type GetUserClusterParams struct {
@@ -253,6 +272,19 @@ func (q *Queries) GetUserClusterProvisioningLogs(ctx context.Context, arg GetUse
 	var logs sql.NullString
 	err := row.Scan(&logs)
 	return logs, err
+}
+
+const softDeleteCluster = `-- name: SoftDeleteCluster :exec
+UPDATE
+  clusters
+SET deleted_at = NOW()
+WHERE id = $1
+  AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteCluster(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, softDeleteCluster, id)
+	return err
 }
 
 const updateClusterIPv4Address = `-- name: UpdateClusterIPv4Address :exec

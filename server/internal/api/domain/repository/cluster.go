@@ -124,6 +124,20 @@ func (cr *ClusterRepository) DeleteCluster(
 	return cr.queries.DeleteCluster(ctx, id)
 }
 
+func (cr *ClusterRepository) SoftDeleteCluster(
+	ctx context.Context,
+	id int64,
+) error {
+	return cr.queries.SoftDeleteCluster(ctx, id)
+}
+
+func (cr *ClusterRepository) GetClusterTeamId(
+	ctx context.Context,
+	clusterId int64,
+) (int64, error) {
+	return cr.queries.GetClusterTeamId(ctx, clusterId)
+}
+
 func (cr *ClusterRepository) UpdateClusterStatus(
 	ctx context.Context,
 	id int64,

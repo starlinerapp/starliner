@@ -46,11 +46,12 @@ export default function Settings() {
             id: organization.id,
           }),
         });
-        navigate(`clusters/all`);
+        navigate(`/${slug}/clusters/all`);
       })();
     }
   }, [
     error,
+    slug,
     trpc.organization.getOrganizationClusters.queryKey,
     queryClient.invalidateQueries,
     organization.id,

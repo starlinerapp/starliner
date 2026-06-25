@@ -10,6 +10,7 @@ interface ErrorBannerLinkOutProps {
 
 interface ErrorBannerProps {
   text: string;
+  description?: string;
   linkOut?: ErrorBannerLinkOutProps;
   children?: React.ReactNode;
   className?: string;
@@ -17,6 +18,7 @@ interface ErrorBannerProps {
 
 export default function ErrorBanner({
   text,
+  description,
   linkOut,
   children,
   className,
@@ -31,8 +33,13 @@ export default function ErrorBanner({
       <div className="flex w-11 items-center justify-center rounded-l-sm bg-red-9">
         <ExclamationTriangle width={18} strokeWidth={2} />
       </div>
-      <div className="flex items-center gap-2 p-2.5">
-        <p className="font-light text-sm">{text}</p>
+      <div className="flex grow items-center gap-2 p-2.5">
+        <div className="flex flex-col">
+          <p className="font-light text-sm">{text}</p>
+          {description && (
+            <p className="font-light text-mauve-11 text-xs">{description}</p>
+          )}
+        </div>
         {children}
         {linkOut && (
           <span className="flex items-center gap-1">

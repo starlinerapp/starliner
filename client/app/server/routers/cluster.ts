@@ -50,6 +50,18 @@ export const clusterRouter = {
         .deleteCluster(userId, input.id)
         .then((res) => res.data);
     }),
+  retryCluster: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await clusterApiFactory
+        .retryCluster(userId, input.id)
+        .then((res) => res.data);
+    }),
   streamProvisioningLogs: protectedProcedure
     .input(
       z.object({

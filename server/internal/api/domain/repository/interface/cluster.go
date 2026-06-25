@@ -29,6 +29,16 @@ type ClusterRepository interface {
 		id int64,
 	) error
 
+	SoftDeleteCluster(
+		ctx context.Context,
+		id int64,
+	) error
+
+	GetClusterTeamId(
+		ctx context.Context,
+		clusterId int64,
+	) (int64, error)
+
 	UpdateClusterPublicPrivateKey(
 		ctx context.Context,
 		id int64,

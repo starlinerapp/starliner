@@ -109,6 +109,7 @@ func NewServer(
 		clusterRoutes.GET("/:id", clusterHandler.GetCluster)
 		clusterRoutes.GET("/:id/private-key", clusterHandler.GetClusterPrivateKey)
 		clusterRoutes.GET("/:id/provisioning/logs/stream", clusterHandler.StreamProvisioningLogs)
+		clusterRoutes.POST("/:id/retry", clusterHandler.RetryCluster)
 		clusterRoutes.DELETE("/:id", clusterHandler.DeleteCluster)
 	}
 

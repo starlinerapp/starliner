@@ -49,6 +49,11 @@ type ClusterDeleted struct {
 	Id int64
 }
 
+type ClusterProvisioningFailed struct {
+	Id   int64
+	Logs string
+}
+
 var ErrClusterUnreachable = errors.New("cluster unreachable")
 
 func IsClusterUnreachable(err error) bool {
