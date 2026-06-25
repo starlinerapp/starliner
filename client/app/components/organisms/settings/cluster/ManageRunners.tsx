@@ -19,10 +19,10 @@ function RunnerStatus({ status }: { status: string }) {
   const isOnline = status === "online";
 
   return (
-    <span className="flex items-center gap-1.5 text-mauve-11 text-sm capitalize">
+    <span className="flex w-16 shrink-0 items-center gap-1.5 text-mauve-11 text-sm capitalize">
       <span
         className={cn(
-          "size-2 rounded-full",
+          "size-2 shrink-0 rounded-full",
           isOnline ? "bg-grass-9" : "bg-mauve-8",
         )}
       />
@@ -223,14 +223,18 @@ function RunnerRow({ runner, canDelete, organizationId }: RunnerRowProps) {
           </div>
         )}
       </div>
-      <RunnerStatus status={runner.status} />
-      {showDelete && (
-        <RunnerContextMenu
-          organizationId={organizationId}
-          runnerId={runner.id}
-          setIsDeleting={setIsDeleting}
-        />
-      )}
+      <div className="flex shrink-0 items-center gap-3">
+        <RunnerStatus status={runner.status} />
+        <div className="flex w-7 shrink-0 justify-center">
+          {showDelete && (
+            <RunnerContextMenu
+              organizationId={organizationId}
+              runnerId={runner.id}
+              setIsDeleting={setIsDeleting}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
