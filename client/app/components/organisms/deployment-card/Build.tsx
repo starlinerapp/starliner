@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { Hammer } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -6,11 +7,10 @@ import { useTRPC } from "~/utils/trpc/react";
 
 interface BuildTabProps {
   isActive: boolean;
-  hasLogs: boolean;
   onSelect: () => void;
 }
 
-export function BuildTab({ isActive, hasLogs, onSelect }: BuildTabProps) {
+export function BuildTab({ isActive, onSelect }: BuildTabProps) {
   return (
     <div className="relative">
       <div className="absolute top-1/2 -right-1 h-2 w-2 -translate-y-1/2 rounded-full bg-mauve-8" />
@@ -19,25 +19,23 @@ export function BuildTab({ isActive, hasLogs, onSelect }: BuildTabProps) {
         onClick={onSelect}
         className={cn(
           "relative z-10 flex cursor-pointer items-center gap-1.5 rounded-md border bg-white px-4 py-0.5 hover:bg-mauve-2",
-          !hasLogs && "border-mauve-6 text-mauve-8",
-          hasLogs && isActive && "border-violet-9 bg-violet-3 text-violet-9",
-          hasLogs && !isActive && "border-mauve-9 text-mauve-9",
+          isActive
+            ? "border-violet-9 bg-violet-3 text-violet-9"
+            : "border-mauve-6 text-mauve-9",
         )}
       >
         <div
           className={cn(
             "flex rounded-full border-[1.5px] p-0.5",
-            !hasLogs && "border-mauve-8",
-            hasLogs && isActive && "border-violet-9",
-            hasLogs && !isActive && "border-mauve-9",
+            isActive ? "border-violet-9" : "border-mauve-9",
           )}
         >
           <Hammer
             className={cn(
               "h-2 w-2",
-              !hasLogs && "fill-mauve-8",
-              hasLogs && isActive && "fill-violet-9 stroke-violet-9",
-              hasLogs && !isActive && "fill-mauve-9 stroke-mauve-9",
+              isActive
+                ? "fill-violet-9 stroke-violet-9"
+                : "fill-mauve-9 stroke-mauve-9",
             )}
           />
         </div>
@@ -49,18 +47,23 @@ export function BuildTab({ isActive, hasLogs, onSelect }: BuildTabProps) {
 
 interface BuildLogsProps {
   buildId: number;
+  buildStatus: string;
+  enabled?: boolean;
   followScroll?: boolean;
-  onHasLogsChange?: (hasLogs: boolean) => void;
 }
 
 export function BuildLogs({
   buildId,
+  buildStatus,
+  enabled = true,
   followScroll = false,
-  onHasLogsChange,
 }: BuildLogsProps) {
   const trpc = useTRPC();
   const [logs, setLogs] = useState<string[]>([]);
   const tailRef = useRef<HTMLSpanElement>(null);
+
+  const isLive = buildStatus === "queued" || buildStatus === "building";
+  const isComplete = buildStatus === "success" || buildStatus === "failure";
 
   useEffect(() => {
     setLogs([]);
@@ -70,6 +73,7 @@ export function BuildLogs({
     trpc.build.streamBuildLogs.subscriptionOptions(
       { buildId },
       {
+        enabled: enabled && isLive,
         onData: (chunk) => {
           setLogs((prev) => [...prev, chunk]);
         },
@@ -77,9 +81,16 @@ export function BuildLogs({
     ),
   );
 
-  useEffect(() => {
-    onHasLogsChange?.(logs.length > 0);
-  }, [logs, onHasLogsChange]);
+  const { data: completedLogs } = useQuery({
+    ...trpc.build.getBuildLogs.queryOptions({ id: buildId }),
+    enabled: enabled && isComplete,
+  });
+
+  const displayedLogs = isLive
+    ? logs
+    : completedLogs?.logs
+      ? completedLogs.logs.split("\n")
+      : [];
 
   useEffect(() => {
     if (!followScroll || !tailRef.current) {
@@ -87,11 +98,11 @@ export function BuildLogs({
     }
 
     tailRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [logs, followScroll]);
+  }, [displayedLogs, followScroll]);
 
   return (
     <div className="whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
-      {logs.map((line, i) => (
+      {displayedLogs.map((line, i) => (
         <span key={i} className="block">
           {line}
         </span>

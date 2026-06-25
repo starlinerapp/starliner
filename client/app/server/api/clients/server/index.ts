@@ -11,6 +11,7 @@ import {
   OrganizationApiFactory,
   ProjectApiFactory,
   RootApiFactory,
+  RunnerApiFactory,
   TeamApiFactory,
   UserApiFactory,
 } from "./generated";
@@ -68,6 +69,12 @@ export const buildApiFactory = BuildApiFactory(
 );
 
 export const teamsApiFactory = TeamApiFactory(
+  configuration,
+  undefined,
+  axiosInstance,
+);
+
+export const runnerApiFactory = RunnerApiFactory(
   configuration,
   undefined,
   axiosInstance,

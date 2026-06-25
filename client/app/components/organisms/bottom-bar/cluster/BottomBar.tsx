@@ -24,26 +24,17 @@ export default function BottomBar({ clusterId, status }: BottomBarProps) {
         onSelect={setSelected}
       />
       {selected === "Logs" ? (
-        <div
-          key="logs"
-          className="fade-in-0 zoom-in-95 flex min-h-0 flex-1 animate-in flex-col p-4 duration-200"
-        >
+        <div key="logs" className="flex min-h-0 flex-1 flex-col p-4">
           <Logs clusterId={clusterId} />
         </div>
       ) : status === "running" ? (
-        <div
-          key="terminal"
-          className="fade-in-0 zoom-in-95 flex min-h-0 flex-1 animate-in flex-col duration-200"
-        >
+        <div key="terminal" className="flex min-h-0 flex-1 flex-col">
           <TerminalClient
             webSocketUrl={`wss://${window.location.host}/ws/clusters/${clusterId}`}
           />
         </div>
       ) : (
-        <p
-          key="terminal-unavailable"
-          className="fade-in-0 zoom-in-95 animate-in p-4 text-mauve-11 duration-200"
-        >
+        <p key="terminal-unavailable" className="p-4 text-mauve-11">
           Terminal is available once the cluster is running.
         </p>
       )}

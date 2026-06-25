@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	Builds jetstream.Stream = "builds"
+	Builds  jetstream.Stream = "builds"
+	Runners jetstream.Stream = "runners"
 )
 
 var Module = fx.Module(
@@ -21,5 +22,11 @@ var Module = fx.Module(
 	),
 	fx.Invoke(func(js nats.JetStreamContext) error {
 		return jetstream.EnsureStream(js, Builds, []jetstream.Subject{BuildTriggered, BuildCompleted})
+	}),
+	fx.Invoke(func(js nats.JetStreamContext) error {
+		return jetstream.EnsureStream(js, Runners, []jetstream.Subject{RunnerStatusChanged, RunnerDeleted})
+	}),
+	fx.Invoke(func(js nats.JetStreamContext) error {
+		return jetstream.EnsureStream(js, RunnerJobsStream, []jetstream.Subject{RunnerJob, RunnerJobResult})
 	}),
 )

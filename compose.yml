@@ -7,6 +7,8 @@ services:
       dockerfile: .docker/traefik/Dockerfile
     restart: unless-stopped
     command:
+      - "--log.level=INFO"
+      - "--accesslog=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=shared"
@@ -114,6 +116,7 @@ services:
         condition: service_healthy
     ports:
       - "9090:9090"
+      - "57200:57200"
       - "40000:40000"
     environment:
       DB_HOST: ${DB_HOST:-db}
@@ -155,7 +158,7 @@ services:
       - shared
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && PathPrefix(`/webhooks/`)
+      - traefik.http.routers.webhooks.rule=Host(`dev.starliner.app`) && (PathPrefix(`/webhooks/`) || PathPrefix(`/api/`))
       - traefik.http.routers.webhooks.entrypoints=websecure
       - traefik.http.routers.webhooks.tls=true
       - traefik.http.routers.webhooks.priority=100
@@ -167,25 +170,34 @@ services:
       context: .
       dockerfile: .docker/server/builder/Dockerfile
       target: dev
-    depends_on:
-      s3:
-        condition: service_healthy
     ports:
       - "40001:40001"
       - "57500:57500"
     environment:
-      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://s3:8333}
       NATS_URL: ${NATS_URL:-http://nats:4222}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-access-key-123}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-secret-key-123}
       IMAGE_REGISTRY_URL: ${IMAGE_REGISTRY_URL:-registry.staging.starliner.app}
+      API_GRPC_ENDPOINT: ${API_GRPC_ENDPOINT:-server-api:57200}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
       SENTRY_DSN_SERVER: ${SENTRY_DSN_SERVER}
       ENVIRONMENT: ${ENVIRONMENT:-dev}
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - ./server:/app
       - ./.docker/server/builder/air.toml:/config/air.toml:ro
     networks:
       - shared
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.runner-grpc.rule=Host(`dev.starliner.app`) && PathPrefix(`/proto.v1.Runner`)
+      - traefik.http.routers.runner-grpc.entrypoints=websecure
+      - traefik.http.routers.runner-grpc.tls=true
+      - traefik.http.routers.runner-grpc.priority=110
+      - traefik.http.routers.runner-grpc.service=runner-grpc
+      - traefik.http.services.runner-grpc.loadbalancer.server.port=57500
+      - traefik.http.services.runner-grpc.loadbalancer.server.scheme=h2c
 
   server-cluster:
     restart: unless-stopped
@@ -321,18 +333,6 @@ services:
     networks:
       - shared
 
-  buildkit:
-    build:
-      context: .
-      dockerfile: .docker/buildkit/Dockerfile
-    privileged: true
-    restart: unless-stopped
-    volumes:
-      - ./.docker/buildkit/buildkitd.toml:/etc/buildkit/buildkitd.toml:ro
-      - buildkit-data:/var/lib/buildkit
-    networks:
-      - shared
-
   redis:
     build:
       context: .
@@ -372,7 +372,6 @@ volumes:
   redis-data:
   nats-data:
   registry-data:
-  buildkit-data:
 
 networks:
   shared:

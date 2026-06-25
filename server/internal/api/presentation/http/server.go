@@ -13,6 +13,7 @@ import (
 	"go.uber.org/fx"
 	_ "starliner.app/cmd/api/auth/docs"
 	_ "starliner.app/cmd/api/core/docs"
+	_ "starliner.app/cmd/api/runner/docs"
 	"starliner.app/internal/api/presentation/http/handler"
 	"starliner.app/internal/api/presentation/http/middleware"
 )
@@ -37,16 +38,23 @@ func NewServer(
 	githubAppHandler *handler.GithubAppHandler,
 	webhookHandler *handler.WebhookHandler,
 	internalHandler *handler.InternalHandler,
+	runnerHandler *handler.RunnerHandler,
 ) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery(), sentrygin.New(sentrygin.Options{Repanic: true}), middleware.WithErrorReporting())
 
 	engine.GET("/swagger/core/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("core")))
 	engine.GET("/swagger/auth/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("auth")))
+	engine.GET("/swagger/runner/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("runner")))
 
 	webhookRoutes := engine.Group("/webhooks")
 	{
 		webhookRoutes.POST("/github", webhookHandler.HandleGithubWebhook)
+	}
+
+	apiRoutes := engine.Group("/api")
+	{
+		apiRoutes.POST("/runners/register", runnerHandler.RegisterRunner)
 	}
 
 	authEmailRoutes := engine.Group("/auth")
@@ -74,6 +82,9 @@ func NewServer(
 		organizationRoutes.POST("/:id/teams/join", teamHandler.JoinTeam)
 		organizationRoutes.GET("/:id/members", organizationHandler.GetOrganizationMembers)
 		organizationRoutes.DELETE("/:id/members", organizationHandler.RemoveOrganizationMember)
+		organizationRoutes.POST("/:id/runners", runnerHandler.CreateRunner)
+		organizationRoutes.GET("/:id/runners", runnerHandler.GetOrganizationRunners)
+		organizationRoutes.DELETE("/:id/runners/:runnerId", runnerHandler.DeleteRunner)
 	}
 
 	inviteRoutes := engine.Group("/invites")

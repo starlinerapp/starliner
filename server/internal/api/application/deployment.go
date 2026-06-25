@@ -169,6 +169,7 @@ func (da *DeploymentApplication) DeployFromGit(
 	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:           b.Id,
 		DeploymentId:      d.Id,
+		OrganizationId:    organization.Id,
 		ImageName:         imageName,
 		GitUrl:            gitUrl,
 		BranchName:        env.ConnectedBranch,
@@ -265,6 +266,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	err = da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 		BuildId:           b.Id,
 		DeploymentId:      d.Id,
+		OrganizationId:    organization.Id,
 		ImageName:         imageName,
 		AccessToken:       accessToken,
 		RegistryPushToken: registryPushToken,

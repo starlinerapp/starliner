@@ -4,25 +4,27 @@ import (
 	"go.uber.org/fx"
 	"starliner.app/internal/builder/application"
 	"starliner.app/internal/builder/conf"
-	docker "starliner.app/internal/builder/infrastructure/buildkit"
-	"starliner.app/internal/builder/infrastructure/git"
+	"starliner.app/internal/builder/domain/service"
+	grpcClient "starliner.app/internal/builder/infrastructure/grpc"
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
-	"starliner.app/internal/builder/presentation/grpc"
+	grpcServer "starliner.app/internal/builder/presentation/grpc"
 	builderqueue "starliner.app/internal/builder/presentation/queue"
-	"starliner.app/internal/core/infrastructure/s3"
+	"starliner.app/internal/builder/presentation/scheduler"
+	"starliner.app/internal/core/infrastructure/redis"
 	"starliner.app/internal/core/infrastructure/sentry"
 )
 
 func main() {
 	fx.New(
 		conf.Module,
-		s3.Module,
+		redis.Module,
 		queue.Module,
-		grpc.Module,
-		git.Module,
-		docker.Module,
+		grpcClient.Module,
 		application.Module,
+		service.Module,
+		grpcServer.Module,
 		builderqueue.Module,
+		scheduler.Module,
 		sentry.Module("builder"),
 	).Run()
 }

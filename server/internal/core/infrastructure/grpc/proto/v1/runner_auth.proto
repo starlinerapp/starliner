@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "starliner.app/internal/core/infrastructure/grpc/proto/v1";
+
+service RunnerAuthService {
+  rpc ResolveRunnerId(ResolveRunnerIdRequest) returns (ResolveRunnerIdResponse);
+}
+
+message ResolveRunnerIdRequest {
+  string token = 1;
+}
+
+message ResolveRunnerIdResponse {
+  int64 runner_id = 1;
+  optional int64 organization_id = 2;
+}

@@ -298,6 +298,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 		err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 			BuildId:           b.Id,
 			DeploymentId:      newDeployment.Id,
+			OrganizationId:    organization.Id,
 			ImageName:         imageName,
 			GitUrl:            deployment.GitUrl,
 			BranchName:        branch,
@@ -577,6 +578,7 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
 				BuildId:           b.Id,
 				DeploymentId:      d.Id,
+				OrganizationId:    organization.Id,
 				ImageName:         imageName,
 				GitUrl:            d.GitUrl,
 				BranchName:        event.SourceBranch,

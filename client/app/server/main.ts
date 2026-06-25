@@ -7,6 +7,7 @@ import { githubAppRouter } from "~/server/routers/githubapp";
 import { organizationRouter } from "~/server/routers/organization";
 import { projectRouter } from "~/server/routers/project";
 import { rootRouter } from "~/server/routers/root";
+import { runnerRouter } from "~/server/routers/runner";
 import { teamRouter } from "~/server/routers/team";
 import { userRouter } from "~/server/routers/user";
 import { createTRPCRouter } from "~/server/trpc";
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
   deployment: deploymentRouter,
   build: buildRouter,
   team: teamRouter,
+  runner: runnerRouter,
   github: githubRouter,
   githubApp: githubAppRouter,
 });

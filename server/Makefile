@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: deps deps-cleancache swag proto format lint fix security upgrade help
+.PHONY: deps deps-cleancache swag-auth swag-core swag-runner proto format lint fix security upgrade help
 
 GOCMD=go
 
@@ -16,6 +16,9 @@ swag-auth: ## Generate swagger docs for auth api
 
 swag-core: ## Generate swagger docs for core api
 	swag init --state core --instanceName core -g ./cmd/api/core/main.go -o ./cmd/api/core/docs --parseInternal
+
+swag-runner: ## Generate swagger docs for runner api
+	swag init --state runner --instanceName runner -g ./cmd/api/runner/main.go -o ./cmd/api/runner/docs --parseInternal
 
 proto: ## Generate Go code from protobufs
 	protoc \
