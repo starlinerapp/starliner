@@ -24,7 +24,7 @@ func RegisterCron(lc fx.Lifecycle, cr *Cron) {
 }
 
 func (c *Cron) StartCron() error {
-	err := c.scheduler.Schedule(context.Background(), func() error {
+	err := c.scheduler.Schedule("0 3 * * *", func() error {
 		return c.organizationApplication.CleanUpOldInvites(context.Background())
 	})
 	if err != nil {

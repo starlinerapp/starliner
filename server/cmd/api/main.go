@@ -12,7 +12,7 @@ import (
 	"starliner.app/internal/api/infrastructure/nats/impl/queue"
 	"starliner.app/internal/api/infrastructure/postgres"
 	"starliner.app/internal/api/infrastructure/registry"
-	presentationcron "starliner.app/internal/api/presentation/cron"
+	"starliner.app/internal/api/presentation/cron"
 	grpcServer "starliner.app/internal/api/presentation/grpc"
 	"starliner.app/internal/api/presentation/http"
 	clusterqueue "starliner.app/internal/api/presentation/queue/cluster"
@@ -47,6 +47,6 @@ func main() {
 		scheduler.Module,
 		sentry.Module("api"),
 		registry.Module,
-		presentationcron.Module,
+		cron.Module,
 	).Run()
 }
