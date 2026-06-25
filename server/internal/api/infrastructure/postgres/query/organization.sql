@@ -101,3 +101,7 @@ SELECT users.id,
 FROM users
   INNER JOIN organization_members ON organization_members.user_id = users.id
 WHERE organization_members.organization_id = $1;
+
+-- name: CleanUpOldInvites :exec
+DELETE FROM organization_invites
+WHERE expires_at < NOW() - INTERVAL '30 days';

@@ -319,3 +319,7 @@ func (oa *OrganizationApplication) RemoveOrganizationMember(ctx context.Context,
 
 	return oa.organizationRepository.RemoveOrganizationMember(ctx, organizationID, userID)
 }
+
+func (oa *OrganizationApplication) CleanUpOldInvites(ctx context.Context) error {
+	return oa.organizationRepository.CleanUpOldInvites(ctx)
+}

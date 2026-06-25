@@ -258,3 +258,7 @@ func (or *OrganizationRepository) GetOrganizationMembers(ctx context.Context, or
 	}
 	return users, nil
 }
+
+func (or *OrganizationRepository) CleanUpOldInvites(ctx context.Context) error {
+	return or.queries.CleanUpOldInvites(ctx)
+}

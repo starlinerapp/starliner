@@ -25,4 +25,5 @@ type OrganizationRepository interface {
 	CreateOrganizationInvite(ctx context.Context, organizationID int64, toEmail string, expiresAt time.Time, teamID *int64) (*entity.OrganizationInvite, error)
 	GetOrganizationInviteById(ctx context.Context, inviteId string) (*entity.OrganizationInvite, error)
 	GetOrganizationMembers(ctx context.Context, organizationID int64) ([]*entity.User, error)
+	CleanUpOldInvites(ctx context.Context) error
 }
