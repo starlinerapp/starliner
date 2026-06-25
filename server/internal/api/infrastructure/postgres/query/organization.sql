@@ -103,5 +103,5 @@ FROM users
 WHERE organization_members.organization_id = $1;
 
 -- name: CleanUpOldInvites :exec
-DELETE from organization_invites
+DELETE FROM organization_invites
 WHERE expires_at < NOW() - INTERVAL '30 days';
