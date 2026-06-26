@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { Hammer } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import LogsConsole from "~/components/molecules/logs-console/LogsConsole";
 import { cn } from "~/utils/cn";
 import { useTRPC } from "~/utils/trpc/react";
 
@@ -49,18 +50,15 @@ interface BuildLogsProps {
   buildId: number;
   buildStatus: string;
   enabled?: boolean;
-  followScroll?: boolean;
 }
 
 export function BuildLogs({
   buildId,
   buildStatus,
   enabled = true,
-  followScroll = false,
 }: BuildLogsProps) {
   const trpc = useTRPC();
   const [logs, setLogs] = useState<string[]>([]);
-  const tailRef = useRef<HTMLSpanElement>(null);
 
   const isLive = buildStatus === "queued" || buildStatus === "building";
   const isComplete = buildStatus === "success" || buildStatus === "failure";
@@ -92,22 +90,5 @@ export function BuildLogs({
       ? completedLogs.logs.split("\n")
       : [];
 
-  useEffect(() => {
-    if (!followScroll || !tailRef.current) {
-      return;
-    }
-
-    tailRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [displayedLogs, followScroll]);
-
-  return (
-    <div className="whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
-      {displayedLogs.map((line, i) => (
-        <span key={i} className="block">
-          {line}
-        </span>
-      ))}
-      <span ref={tailRef} className="block h-px" aria-hidden />
-    </div>
-  );
+  return <LogsConsole logs={displayedLogs} resetKey={buildId} />;
 }

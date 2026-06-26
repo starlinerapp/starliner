@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@trpc/tanstack-react-query";
 import { Play } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import LogsConsole from "~/components/molecules/logs-console/LogsConsole";
 import { cn } from "~/utils/cn";
 import { useTRPC } from "~/utils/trpc/react";
 
@@ -51,7 +52,6 @@ interface DeploymentLogsProps {
   deploymentRolloutStatus: string;
   isDeployOnly?: boolean;
   enabled?: boolean;
-  followScroll?: boolean;
 }
 
 export function DeploymentLogs({
@@ -60,11 +60,9 @@ export function DeploymentLogs({
   deploymentRolloutStatus,
   isDeployOnly = false,
   enabled = true,
-  followScroll = false,
 }: DeploymentLogsProps) {
   const trpc = useTRPC();
   const [lines, setLines] = useState<string[]>([]);
-  const tailRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setLines([]);
@@ -103,14 +101,6 @@ export function DeploymentLogs({
 
   const displayedLines = isDeploying ? lines : (completedLogLines ?? []);
 
-  useEffect(() => {
-    if (!followScroll || !tailRef.current) {
-      return;
-    }
-
-    tailRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [displayedLines, followScroll]);
-
   if (buildFailed) {
     return (
       <pre className="whitespace-pre-wrap text-mauve-11 text-sm">
@@ -119,18 +109,5 @@ export function DeploymentLogs({
     );
   }
 
-  return (
-    <div className="whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
-      {displayedLines.map((line, i) =>
-        line === "" ? (
-          <span key={i} className="block h-4" aria-hidden />
-        ) : (
-          <span key={i} className="block">
-            {line}
-          </span>
-        ),
-      )}
-      <span ref={tailRef} className="block h-px" aria-hidden />
-    </div>
-  );
+  return <LogsConsole logs={displayedLines} resetKey={deploymentId} />;
 }
