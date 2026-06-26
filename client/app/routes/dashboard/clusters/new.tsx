@@ -106,7 +106,10 @@ export default function NewCluster() {
         {createClusterMutation.isError && (
           <Banner
             intent="error"
-            text={createClusterMutation.error.message}
+            text={
+              createClusterMutation.error.message.charAt(0).toUpperCase() +
+              createClusterMutation.error.message.slice(1)
+            }
             className="my-2"
           />
         )}

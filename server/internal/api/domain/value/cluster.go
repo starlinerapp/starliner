@@ -7,7 +7,7 @@ import (
 	"starliner.app/internal/api/domain/entity"
 )
 
-var ErrClusterNameAlreadyExists = errors.New("A cluster with this name already exists in the organization")
+var ErrClusterNameAlreadyExists = errors.New("a cluster with this name already exists in the organization")
 
 type ClusterStatus string
 
