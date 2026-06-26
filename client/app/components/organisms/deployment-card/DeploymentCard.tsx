@@ -1,13 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { Check, GitMerge, X } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronRight } from "~/components/atoms/icons";
 import { Spinner } from "~/components/atoms/spinner/Spinner";
 import {
@@ -16,7 +10,6 @@ import {
 } from "~/components/organisms/deployment-card/Deployment";
 import { cn } from "~/utils/cn";
 import { BuildLogs, BuildTab } from "./Build";
-import { scrollContainerToTop } from "./scroll";
 
 interface LogsCardProps {
   isCollapsed?: boolean;
@@ -47,12 +40,10 @@ export default function DeploymentCard({
     source === "duplicate" ||
     (source === "manual" && status === "success" && !commitHash);
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
-  const [spacerReady, setSpacerReady] = useState(!collapsed);
   const [activePhase, setActivePhase] = useState<"build" | "deploy">(
     isDeployOnly ? "deploy" : "build",
   );
   const previousStatusRef = useRef(status);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const isBuilding =
     !isDeployOnly && (status === "queued" || status === "building");
@@ -67,15 +58,6 @@ export default function DeploymentCard({
     : status === "failure" || deploymentRolloutStatus === "failure";
   const showSpinner = isBuilding || isDeploying;
 
-  const scrollToPhase = useCallback((behavior: ScrollBehavior = "smooth") => {
-    const container = scrollContainerRef.current;
-    if (!container) {
-      return;
-    }
-
-    scrollContainerToTop(container, behavior);
-  }, []);
-
   const expandCard = useCallback(() => {
     setIsCollapsed(false);
   }, []);
@@ -83,27 +65,6 @@ export default function DeploymentCard({
   const toggleCollapsed = useCallback(() => {
     setIsCollapsed((prev) => !prev);
   }, []);
-
-  useEffect(() => {
-    if (isCollapsed) {
-      setSpacerReady(false);
-      return;
-    }
-
-    const timeout = window.setTimeout(
-      () => setSpacerReady(true),
-      EXPAND_TRANSITION_MS,
-    );
-    return () => window.clearTimeout(timeout);
-  }, [isCollapsed]);
-
-  useLayoutEffect(() => {
-    if (isCollapsed || !spacerReady) {
-      return;
-    }
-
-    scrollToPhase("smooth");
-  }, [activePhase, isCollapsed, spacerReady, scrollToPhase]);
 
   useEffect(() => {
     const previousStatus = previousStatusRef.current;
@@ -215,11 +176,16 @@ export default function DeploymentCard({
           style={{ transitionDuration: `${EXPAND_TRANSITION_MS}ms` }}
         >
           <div className="min-h-0 overflow-hidden">
-            <div
-              ref={scrollContainerRef}
-              className="overflow-anchor-none max-h-125 overflow-y-auto scroll-smooth rounded-b-md border-t border-t-mauve-6 bg-gray-2 p-4"
-            >
-              <div className={cn(activePhase === "deploy" && "hidden")}>
+            <div className="relative h-125 overflow-hidden rounded-b-md border-t border-t-mauve-6 bg-gray-2">
+              <motion.div
+                className="absolute inset-0 p-4"
+                initial={false}
+                animate={{ opacity: activePhase === "build" ? 1 : 0 }}
+                transition={{ duration: 0.1, ease: "easeInOut" }}
+                style={{
+                  pointerEvents: activePhase === "build" ? "auto" : "none",
+                }}
+              >
                 {isDeployOnly ? (
                   <pre className="whitespace-pre-wrap text-mauve-11 text-sm">
                     Build step skipped
@@ -229,16 +195,17 @@ export default function DeploymentCard({
                     buildId={buildId}
                     buildStatus={status}
                     enabled={!isCollapsed}
-                    followScroll={activePhase === "build" && isBuilding}
                   />
                 )}
-              </div>
-              <div
-                className={cn(
-                  !isBuilding &&
-                    activePhase === "build" &&
-                    "mt-4 border-mauve-6 border-t pt-4",
-                )}
+              </motion.div>
+              <motion.div
+                className="absolute inset-0 p-4"
+                initial={false}
+                animate={{ opacity: activePhase === "deploy" ? 1 : 0 }}
+                transition={{ duration: 0.1, ease: "easeInOut" }}
+                style={{
+                  pointerEvents: activePhase === "deploy" ? "auto" : "none",
+                }}
               >
                 <DeploymentLogs
                   deploymentId={deploymentId}
@@ -246,9 +213,8 @@ export default function DeploymentCard({
                   deploymentRolloutStatus={deploymentRolloutStatus}
                   isDeployOnly={isDeployOnly}
                   enabled={!isCollapsed}
-                  followScroll={activePhase === "deploy" && isDeploying}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>

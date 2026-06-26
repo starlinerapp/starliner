@@ -169,7 +169,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
       <div className="relative shrink-0">
         <MagnifyingGlass className="absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2 text-mauve-11" />
         <input
-          className="w-full rounded-md border border-mauve-6 p-2 pr-7 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
+          className="w-full rounded-md border border-mauve-6 bg-white p-2 pr-7 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
           type="text"
           placeholder="Search logs"
           value={search}
