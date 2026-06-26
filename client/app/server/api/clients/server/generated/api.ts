@@ -824,6 +824,31 @@ export type ResponseClusterStatus =
 /**
  *
  * @export
+ * @interface ResponseCreateRunner
+ */
+export interface ResponseCreateRunner {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseCreateRunner
+   */
+  expires_at: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseCreateRunner
+   */
+  id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseCreateRunner
+   */
+  token: string;
+}
+/**
+ *
+ * @export
  * @interface ResponseDatabaseDeployment
  */
 export interface ResponseDatabaseDeployment {
@@ -1615,6 +1640,73 @@ export interface ResponseRoot {
    * @memberof ResponseRoot
    */
   message: string;
+}
+/**
+ *
+ * @export
+ * @interface ResponseRunner
+ */
+export interface ResponseRunner {
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRunner
+   */
+  created_at: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRunner
+   */
+  disabled_at?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseRunner
+   */
+  id: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof ResponseRunner
+   */
+  is_global?: boolean;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof ResponseRunner
+   */
+  labels: Array<string>;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseRunner
+   */
+  max_concurrent_jobs: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRunner
+   */
+  name?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof ResponseRunner
+   */
+  organization_id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRunner
+   */
+  status: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRunner
+   */
+  updated_at: string;
 }
 /**
  *
@@ -8610,6 +8702,432 @@ export class RootApi extends BaseAPI {
   public getRoot(xUserID: string, options?: RawAxiosRequestConfig) {
     return RootApiFp(this.configuration)
       .getRoot(xUserID, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * RunnerApi - axios parameter creator
+ * @export
+ */
+export const RunnerApiAxiosParamCreator = function (
+  configuration?: Configuration,
+) {
+  return {
+    /**
+     *
+     * @summary Create self-hosted runner registration
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createRunner: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("createRunner", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("createRunner", "id", id);
+      const localVarPath = `/organizations/{id}/runners`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Delete self-hosted runner
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {number} runnerId Runner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteRunner: async (
+      xUserID: string,
+      id: number,
+      runnerId: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("deleteRunner", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("deleteRunner", "id", id);
+      // verify required parameter 'runnerId' is not null or undefined
+      assertParamExists("deleteRunner", "runnerId", runnerId);
+      const localVarPath = `/organizations/{id}/runners/{runnerId}`
+        .replace(`{${"id"}}`, encodeURIComponent(String(id)))
+        .replace(`{${"runnerId"}}`, encodeURIComponent(String(runnerId)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @summary Get all registered runners for an organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getOrganizationRunners: async (
+      xUserID: string,
+      id: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getOrganizationRunners", "xUserID", xUserID);
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists("getOrganizationRunners", "id", id);
+      const localVarPath = `/organizations/{id}/runners`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * RunnerApi - functional programming interface
+ * @export
+ */
+export const RunnerApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = RunnerApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @summary Create self-hosted runner registration
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async createRunner(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ResponseCreateRunner>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createRunner(
+        xUserID,
+        id,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["RunnerApi.createRunner"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Delete self-hosted runner
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {number} runnerId Runner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteRunner(
+      xUserID: string,
+      id: number,
+      runnerId: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRunner(
+        xUserID,
+        id,
+        runnerId,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["RunnerApi.deleteRunner"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @summary Get all registered runners for an organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getOrganizationRunners(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<Array<ResponseRunner>>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getOrganizationRunners(
+          xUserID,
+          id,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["RunnerApi.getOrganizationRunners"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * RunnerApi - factory interface
+ * @export
+ */
+export const RunnerApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
+  const localVarFp = RunnerApiFp(configuration);
+  return {
+    /**
+     *
+     * @summary Create self-hosted runner registration
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createRunner(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ResponseCreateRunner> {
+      return localVarFp
+        .createRunner(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Delete self-hosted runner
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {number} runnerId Runner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteRunner(
+      xUserID: string,
+      id: number,
+      runnerId: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deleteRunner(xUserID, id, runnerId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Get all registered runners for an organization
+     * @param {string} xUserID User ID
+     * @param {number} id Organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getOrganizationRunners(
+      xUserID: string,
+      id: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<ResponseRunner>> {
+      return localVarFp
+        .getOrganizationRunners(xUserID, id, options)
+        .then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * RunnerApi - object-oriented interface
+ * @export
+ * @class RunnerApi
+ * @extends {BaseAPI}
+ */
+export class RunnerApi extends BaseAPI {
+  /**
+   *
+   * @summary Create self-hosted runner registration
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof RunnerApi
+   */
+  public createRunner(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return RunnerApiFp(this.configuration)
+      .createRunner(xUserID, id, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Delete self-hosted runner
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {number} runnerId Runner ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof RunnerApi
+   */
+  public deleteRunner(
+    xUserID: string,
+    id: number,
+    runnerId: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return RunnerApiFp(this.configuration)
+      .deleteRunner(xUserID, id, runnerId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get all registered runners for an organization
+   * @param {string} xUserID User ID
+   * @param {number} id Organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof RunnerApi
+   */
+  public getOrganizationRunners(
+    xUserID: string,
+    id: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return RunnerApiFp(this.configuration)
+      .getOrganizationRunners(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

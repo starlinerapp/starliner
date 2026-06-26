@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -122,10 +121,10 @@ func (ca *ClusterApplication) GetCluster(ctx context.Context, id int64) (*value.
 func (ca *ClusterApplication) GetUserCluster(ctx context.Context, userId int64, id int64) (*value.Cluster, error) {
 	cluster, err := ca.clusterRepository.GetUserCluster(ctx, userId, id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
 		return nil, err
+	}
+	if cluster == nil {
+		return nil, nil
 	}
 	return value.NewCluster(cluster), nil
 }

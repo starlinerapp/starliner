@@ -21,10 +21,14 @@ type Server struct {
 func NewServer(
 	cfg *conf.Config,
 	h *handler.BuildLogHandler,
+	runnerHandler *handler.RunnerHandler,
+	runnerJobHandler *handler.RunnerJobHandler,
 ) *Server {
 	s := grpc.NewServer()
 	reflection.Register(s)
 	pb.RegisterBuildLogServiceServer(s, h)
+	pb.RegisterRunnerHeartbeatServiceServer(s, runnerHandler)
+	pb.RegisterRunnerJobServiceServer(s, runnerJobHandler)
 	return &Server{cfg: cfg, server: s}
 }
 

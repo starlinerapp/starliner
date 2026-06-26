@@ -1,1 +1,0 @@
-FROM moby/buildkit:latest

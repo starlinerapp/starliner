@@ -2,38 +2,41 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
-	"os"
-	"path"
-	"path/filepath"
+	"time"
 
 	"starliner.app/internal/builder/conf"
 	"starliner.app/internal/builder/domain/port"
+	"starliner.app/internal/builder/domain/service"
+	corePort "starliner.app/internal/core/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
+const buildDispatchLockTTL = 24 * time.Hour
+
 type BuildApplication struct {
-	cfg          *conf.Config
-	git          port.Git
-	docker       port.Docker
-	queue        port.Queue
-	logPublisher port.LogPublisher
+	cfg             *conf.Config
+	queue           port.Queue
+	logPublisher    port.LogPublisher
+	runnerService   *service.RunnerService
+	dispatchLimiter corePort.AcquireLimiter
 }
 
 func NewBuildApplication(
 	cfg *conf.Config,
-	git port.Git,
-	docker port.Docker,
 	queue port.Queue,
 	logPublisher port.LogPublisher,
+	runnerService *service.RunnerService,
+	dispatchLimiter corePort.AcquireLimiter,
 ) *BuildApplication {
 	return &BuildApplication{
-		cfg:          cfg,
-		git:          git,
-		docker:       docker,
-		queue:        queue,
-		logPublisher: logPublisher,
+		cfg:             cfg,
+		queue:           queue,
+		logPublisher:    logPublisher,
+		runnerService:   runnerService,
+		dispatchLimiter: dispatchLimiter,
 	}
 }
 
@@ -48,17 +51,6 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 			log.Printf("failed to publish log chunk: %v", err)
 		}
 	}
-
-	// Always emit an end marker before BuildCompleted so that any active
-	// log subscribers can release their connection.
-	defer func() {
-		if ba.logPublisher == nil {
-			return
-		}
-		if err := ba.logPublisher.PublishLogEnd(build.BuildId); err != nil {
-			log.Printf("failed to publish log end: %v", err)
-		}
-	}()
 
 	publishCompleted := func(commitHash, tag *string, imageName *string, logs string, status value.BuildStatus) {
 		if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
@@ -75,33 +67,96 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		}
 	}
 
-	tmpDir, commitHash, err := ba.git.CloneRepository(build.GitUrl, build.BranchName, build.AccessToken)
+	runnerId, err := ba.runnerService.SelectRunner(ctx, build.OrganizationId)
 	if err != nil {
-		msg := fmt.Sprintf("failed to clone repository: %v", err)
+		msg := "no eligible runner available for organization"
+		if !errors.Is(err, service.ErrNoEligibleRunner) {
+			msg = fmt.Sprintf("select runner: %v", err)
+		}
 		publishLogLine(msg + "\n")
+		if ba.logPublisher != nil {
+			_ = ba.logPublisher.PublishLogEnd(build.BuildId)
+		}
 		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
 		return
 	}
 
-	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			log.Printf("failed to remove directory: %v", err)
-		}
-	}()
-
-	projectDir := filepath.Join(tmpDir, build.RootDirectory)
-	imagePath := path.Join(ba.cfg.ImageRegistryUrl, build.ImageName)
-	tag := imagePath + ":" + commitHash
-
-	logs, err := ba.docker.BuildAndPublish(ctx, build.BuildId, projectDir, build.DockerfilePath, tag, build.RegistryPushToken, build.Args)
-
-	status := value.BuildStatusSuccess
+	acquired, err := ba.dispatchLimiter.TryAcquire(
+		ctx,
+		fmt.Sprintf("build:dispatch:%d", build.BuildId),
+		buildDispatchLockTTL,
+	)
 	if err != nil {
-		msg := fmt.Sprintf("✗ %v", err)
+		msg := fmt.Sprintf("claim build dispatch lock: %v", err)
 		publishLogLine(msg + "\n")
-		logs += msg + "\n"
-		status = value.BuildStatusFailed
+		if ba.logPublisher != nil {
+			_ = ba.logPublisher.PublishLogEnd(build.BuildId)
+		}
+		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
+		return
+	}
+	if !acquired {
+		log.Printf("build %d already dispatched, skipping duplicate trigger", build.BuildId)
+		return
 	}
 
-	publishCompleted(&commitHash, &tag, &imagePath, logs, status)
+	job := &value.RunnerBuildJob{
+		RunnerId:          runnerId,
+		BuildId:           build.BuildId,
+		DeploymentId:      build.DeploymentId,
+		ImageName:         build.ImageName,
+		ImageRegistryUrl:  ba.cfg.ImageRegistryUrl,
+		GitUrl:            build.GitUrl,
+		BranchName:        build.BranchName,
+		AccessToken:       build.AccessToken,
+		RegistryPushToken: build.RegistryPushToken,
+		RootDirectory:     build.RootDirectory,
+		DockerfilePath:    build.DockerfilePath,
+		Args:              build.Args,
+	}
+
+	if err := ba.queue.PublishRunnerJob(job); err != nil {
+		msg := fmt.Sprintf("enqueue build for runner: %v", err)
+		publishLogLine(msg + "\n")
+		if ba.logPublisher != nil {
+			_ = ba.logPublisher.PublishLogEnd(build.BuildId)
+		}
+		publishCompleted(nil, nil, nil, msg, value.BuildStatusFailed)
+		return
+	}
+
+	log.Printf("enqueued build %d for runner %d", build.BuildId, runnerId)
+}
+
+func (ba *BuildApplication) HandleRunnerJobResult(result *value.RunnerBuildResult) {
+	if result == nil {
+		return
+	}
+
+	if ba.logPublisher != nil {
+		if err := ba.logPublisher.PublishLogEnd(result.BuildId); err != nil {
+			log.Printf("failed to publish log end: %v", err)
+		}
+	}
+
+	var commitHash, imageName *string
+	if result.CommitHash != "" {
+		commitHash = &result.CommitHash
+	}
+	if result.ImageName != "" {
+		imageName = &result.ImageName
+	}
+
+	if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
+		BuildId:          result.BuildId,
+		DeploymentId:     result.DeploymentId,
+		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
+		ImageName:        imageName,
+		CommitHash:       commitHash,
+		Tag:              commitHash,
+		Logs:             result.Logs,
+		BuildStatus:      result.Status,
+	}); err != nil {
+		log.Printf("failed to publish build completed: %v", err)
+	}
 }

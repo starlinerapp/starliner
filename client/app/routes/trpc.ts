@@ -13,7 +13,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 function handleRequest(args: LoaderFunctionArgs | ActionFunctionArgs) {
   return fetchRequestHandler({
-    endpoint: "/api/trpc",
+    endpoint: "/trpc",
     req: args.request,
     router: appRouter,
     createContext: () =>

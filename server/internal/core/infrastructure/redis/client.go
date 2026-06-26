@@ -73,3 +73,6 @@ func (c *Client) ReadStream(ctx context.Context, name string, lastId string) ([]
 
 	return entries, nil
 }
+
+var _ port.KVStore = (*Client)(nil)
+var _ port.AcquireLimiter = (*Client)(nil)

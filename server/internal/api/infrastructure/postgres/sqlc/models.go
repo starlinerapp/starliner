@@ -376,6 +376,29 @@ type ProvisioningCredential struct {
 	UpdatedAt      time.Time
 }
 
+type Runner struct {
+	ID                int64
+	OrganizationID    sql.NullInt64
+	Name              sql.NullString
+	Status            string
+	Labels            []string
+	MaxConcurrentJobs int32
+	DisabledAt        sql.NullTime
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type RunnerRegistrationToken struct {
+	ID             int64
+	OrganizationID sql.NullInt64
+	TokenHash      string
+	ExpiresAt      time.Time
+	UsedAt         sql.NullTime
+	RunnerID       sql.NullInt64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type Team struct {
 	ID             int64
 	Slug           string

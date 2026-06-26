@@ -36,6 +36,16 @@ func (q *Queries) AddOrganizationMember(ctx context.Context, arg AddOrganization
 	return err
 }
 
+const cleanUpOldInvites = `-- name: CleanUpOldInvites :exec
+DELETE from organization_invites
+WHERE expires_at < NOW() - INTERVAL '30 days'
+`
+
+func (q *Queries) CleanUpOldInvites(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, cleanUpOldInvites)
+	return err
+}
+
 const createOrganization = `-- name: CreateOrganization :one
 INSERT INTO organizations (
   name,

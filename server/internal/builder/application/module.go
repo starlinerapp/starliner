@@ -13,5 +13,8 @@ var Module = fx.Module(
 			return ba
 		},
 		NewBuildApplication,
+		NewHeartbeatApplication,
+		NewRunnerApplication,
+		NewRunnerJobApplication,
 	),
 )

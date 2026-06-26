@@ -25,4 +25,8 @@ type Queue interface {
 	PublishDeployIngress(deployment *value.IngressDeployment) error
 
 	SubscribeToDeploymentStatusLogsCompleted(handler func(completed *value.DeploymentStatusLogsCompleted)) error
+
+	SubscribeToRunnerStatusChanged(handler func(status *value.RunnerStatusChanged)) error
+
+	PublishRunnerDeleted(runner *value.RunnerDeleted) error
 }

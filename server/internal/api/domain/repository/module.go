@@ -16,5 +16,6 @@ var Module = fx.Module(
 		NewBuildRepository,
 		NewTeamRepository,
 		NewGithubAppRepository,
+		NewRunnerRepository,
 	),
 )

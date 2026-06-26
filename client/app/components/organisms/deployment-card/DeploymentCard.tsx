@@ -51,8 +51,6 @@ export default function DeploymentCard({
   const [activePhase, setActivePhase] = useState<"build" | "deploy">(
     isDeployOnly ? "deploy" : "build",
   );
-  const [hasBuildLogs, setHasBuildLogs] = useState(false);
-  const [hasDeployLogs, setHasDeployLogs] = useState(false);
   const previousStatusRef = useRef(status);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -200,13 +198,11 @@ export default function DeploymentCard({
           <div className="relative flex items-center">
             <BuildTab
               isActive={!isCollapsed && activePhase === "build"}
-              hasLogs={!isDeployOnly && hasBuildLogs}
               onSelect={selectBuild}
             />
             <div className="h-px w-4 bg-mauve-8" />
             <DeploymentTab
               isActive={!isCollapsed && activePhase === "deploy"}
-              hasLogs={hasDeployLogs}
               onSelect={selectDeploy}
             />
           </div>
@@ -231,8 +227,9 @@ export default function DeploymentCard({
                 ) : (
                   <BuildLogs
                     buildId={buildId}
+                    buildStatus={status}
+                    enabled={!isCollapsed}
                     followScroll={activePhase === "build" && isBuilding}
-                    onHasLogsChange={setHasBuildLogs}
                   />
                 )}
               </div>
@@ -246,8 +243,10 @@ export default function DeploymentCard({
                 <DeploymentLogs
                   deploymentId={deploymentId}
                   buildStatus={status}
+                  deploymentRolloutStatus={deploymentRolloutStatus}
+                  isDeployOnly={isDeployOnly}
+                  enabled={!isCollapsed}
                   followScroll={activePhase === "deploy" && isDeploying}
-                  onHasLogsChange={setHasDeployLogs}
                 />
               </div>
             </div>
