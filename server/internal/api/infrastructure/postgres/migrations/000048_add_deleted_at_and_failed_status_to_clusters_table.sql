@@ -1,6 +1,7 @@
 -- +goose NO TRANSACTION
 -- +goose Up
-ALTER TYPE cluster_status ADD VALUE IF NOT EXISTS 'failed';
+ALTER TYPE cluster_status
+  ADD VALUE IF NOT EXISTS 'failed';
 
 ALTER TABLE clusters
   ADD COLUMN deleted_at TIMESTAMPTZ;
