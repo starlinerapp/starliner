@@ -49,11 +49,33 @@ export default function ManageEnvironments({
   const createEnvironmentMutation = useMutation(
     trpc.environment.createEnvironment.mutationOptions({
       onSuccess: async (data) => {
-        await queryClient.invalidateQueries({
-          queryKey: trpc.organization.getUserProjects.queryKey({
+        const projectId = project?.id ?? Number(id);
+
+        queryClient.setQueryData(
+          trpc.organization.getUserProjects.queryKey({
             id: organization.id,
           }),
-        });
+          (old) => {
+            if (!old) return old;
+            return old.map((p) =>
+              p.id === projectId
+                ? { ...p, environments: [...p.environments, data] }
+                : p,
+            );
+          },
+        );
+
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: trpc.organization.getUserProjects.queryKey({
+              id: organization.id,
+            }),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: trpc.project.getProject.queryKey({ id: projectId }),
+          }),
+        ]);
+
         navigate(`/${slug}/projects/${id}/${data.slug}/architecture/git`);
       },
     }),
@@ -224,6 +246,7 @@ export default function ManageEnvironments({
               <Button
                 intent="secondary"
                 className="w-24"
+                type="button"
                 onClick={() => {
                   reset();
                   setEnvironmentDialogOpen(false);
