@@ -48,10 +48,6 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 
 	ctx := context.Background()
 
-	log.Printf("============================= FORCES FAIL\n")
-	ca.handleProvisionFailure(ctx, c, "provisioningId", "logBuf.String()")
-	return
-
 	var logBuf strings.Builder
 
 	appendStatus := func(format string, args ...any) {
@@ -106,10 +102,6 @@ func (ca *ClusterApplication) HandleProvisionCluster(c *value.ProvisionCluster) 
 		ca.handleProvisionFailure(ctx, c, provisioningId, logBuf.String())
 		return
 	}
-
-	//log.Printf("============================= FORCES FAIL\n")
-	//ca.handleProvisionFailure(ctx, c, provisioningId, logBuf.String())
-	//return
 
 	if err := ca.ssh.WaitForSSH(ip, "root", pemBytes, 30*time.Second); err != nil {
 		appendStatus("==> ERROR: SSH not available: %v\n", err)
