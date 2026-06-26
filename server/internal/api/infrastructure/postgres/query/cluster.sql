@@ -33,6 +33,14 @@ FROM clusters
 WHERE id = $1
   AND deleted_at IS NULL;
 
+-- name: ClusterNameExistsInOrganization :one
+SELECT EXISTS (
+    SELECT 1
+    FROM clusters
+    WHERE name = $1
+      AND organization_id = $2
+      AND deleted_at IS NULL);
+
 -- name: DeleteCluster :exec
 DELETE FROM clusters
 WHERE id = $1;

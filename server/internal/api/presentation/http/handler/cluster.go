@@ -49,6 +49,10 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 	newCluster, err := ch.clusterApplication.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.ServerType, cluster.OrganizationID, cluster.TeamID)
 	if err != nil {
 		_ = c.Error(err)
+		if errors.Is(err, value.ErrClusterNameAlreadyExists) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": value.ErrClusterNameAlreadyExists.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}

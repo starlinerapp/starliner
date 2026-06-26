@@ -103,6 +103,13 @@ export default function NewCluster() {
             className="my-2"
           />
         )}
+        {createClusterMutation.isError && (
+          <Banner
+            intent="error"
+            text={createClusterMutation.error.message}
+            className="my-2"
+          />
+        )}
         <div className="text-mauve-11 text-sm">
           <p>
             A cluster is an isolated environment with its own compute resources,

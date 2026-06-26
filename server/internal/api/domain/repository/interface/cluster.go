@@ -24,6 +24,12 @@ type ClusterRepository interface {
 		clusterId int64,
 	) (*entity.Cluster, error)
 
+	ClusterNameExistsInOrganization(
+		ctx context.Context,
+		name string,
+		organizationId int64,
+	) (bool, error)
+
 	DeleteCluster(
 		ctx context.Context,
 		id int64,

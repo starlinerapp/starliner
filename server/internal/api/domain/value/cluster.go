@@ -1,10 +1,13 @@
 package value
 
 import (
+	"errors"
 	"time"
 
 	"starliner.app/internal/api/domain/entity"
 )
+
+var ErrClusterNameAlreadyExists = errors.New("A cluster with this name already exists in the organization")
 
 type ClusterStatus string
 

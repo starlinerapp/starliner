@@ -37,7 +37,7 @@ func (q *Queries) AddOrganizationMember(ctx context.Context, arg AddOrganization
 }
 
 const cleanUpOldInvites = `-- name: CleanUpOldInvites :exec
-DELETE from organization_invites
+DELETE FROM organization_invites
 WHERE expires_at < NOW() - INTERVAL '30 days'
 `
 

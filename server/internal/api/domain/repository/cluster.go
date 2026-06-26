@@ -68,6 +68,17 @@ func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, c
 	}, nil
 }
 
+func (cr *ClusterRepository) ClusterNameExistsInOrganization(
+	ctx context.Context,
+	name string,
+	organizationId int64,
+) (bool, error) {
+	return cr.queries.ClusterNameExistsInOrganization(ctx, sqlc.ClusterNameExistsInOrganizationParams{
+		Name:           name,
+		OrganizationID: organizationId,
+	})
+}
+
 func (cr *ClusterRepository) CreateCluster(
 	ctx context.Context,
 	name string,
