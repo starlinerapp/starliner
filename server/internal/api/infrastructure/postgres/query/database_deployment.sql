@@ -31,7 +31,7 @@ UPDATE
   database_deployments
 SET DATABASE = @database,
   username = @username,
-  password = @password
+  PASSWORD = @password
 WHERE deployment_id = @deployment_id;
 
 -- name: GetEnvironmentDatabaseDeployments :many

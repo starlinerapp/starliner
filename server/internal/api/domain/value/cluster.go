@@ -1,10 +1,13 @@
 package value
 
 import (
+	"errors"
 	"time"
 
 	"starliner.app/internal/api/domain/entity"
 )
+
+var ErrClusterNameAlreadyExists = errors.New("cluster name already exists")
 
 type ClusterStatus string
 
@@ -12,6 +15,7 @@ const (
 	ClusterStatusPending ClusterStatus = "pending"
 	ClusterStatusRunning ClusterStatus = "running"
 	ClusterStatusDeleted ClusterStatus = "deleted"
+	ClusterStatusFailed  ClusterStatus = "failed"
 )
 
 type ServerType string
@@ -63,6 +67,8 @@ func mapStatus(s entity.ClusterStatus) ClusterStatus {
 		return ClusterStatusRunning
 	case entity.ClusterDeleted:
 		return ClusterStatusDeleted
+	case entity.ClusterFailed:
+		return ClusterStatusFailed
 	default:
 		return "unknown"
 	}

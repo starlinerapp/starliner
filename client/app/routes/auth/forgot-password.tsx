@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { NavLink, useSearchParams } from "react-router";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { getAuthClient } from "~/utils/auth/client";
@@ -59,7 +59,7 @@ export default function ForgotPassword() {
         Enter your account email and we’ll send you a link to set a new
         password.
       </p>
-      {error && <ErrorBanner text={error} />}
+      {error && <Banner intent="error" text={error} />}
       {submitted ? (
         <p className="text-mauve-12">
           If an account exists for that address, you’ll get an email with reset

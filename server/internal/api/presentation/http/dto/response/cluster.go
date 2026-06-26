@@ -12,12 +12,13 @@ const (
 	ClusterStatusPending ClusterStatus = "pending"
 	ClusterStatusRunning ClusterStatus = "running"
 	ClusterStatusDeleted ClusterStatus = "deleted"
+	ClusterStatusFailed  ClusterStatus = "failed"
 )
 
 type Cluster struct {
 	Id             int64         `json:"id" binding:"required"`
 	Name           string        `json:"name" binding:"required"`
-	Status         ClusterStatus `json:"status" binding:"required,oneof=pending running deleted"`
+	Status         ClusterStatus `json:"status" binding:"required,oneof=pending running deleted failed"`
 	TeamSlugs      []string      `json:"teamSlugs" binding:"required"`
 	User           string        `json:"user" binding:"required"`
 	IPv4Address    *string       `json:"ipv4Address" binding:"required"`

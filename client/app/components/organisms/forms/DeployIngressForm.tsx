@@ -7,7 +7,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, ChevronDown, Minus, Plus } from "~/components/atoms/icons";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
@@ -150,7 +150,7 @@ export default function DeployIngressForm({
 
       {error && (
         <div>
-          <ErrorBanner text={error} />
+          <Banner intent="error" text={error} />
         </div>
       )}
 

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { NavLink, useSearchParams } from "react-router";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
-import SuccessBanner from "~/components/atoms/banner/SuccessBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import {
   ArrowRight,
@@ -72,8 +71,8 @@ export default function SignUp() {
         </NavLink>
       </p>
       <h1 className="font-medium text-xl">Sign up for Starliner</h1>
-      {error && <ErrorBanner text={error} />}
-      {success && <SuccessBanner text={success} />}
+      {error && <Banner intent="error" text={error} />}
+      {success && <Banner intent="success" text={success} />}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
           <label htmlFor="username" className="text-sm">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, ChevronRight } from "~/components/atoms/icons";
 import { getAuthClient } from "~/utils/auth/client";
@@ -102,7 +102,7 @@ export default function ResetPassword() {
       <p className="-mt-1 text-mauve-11 text-sm">
         Choose a new password for your account.
       </p>
-      {error && <ErrorBanner text={error} />}
+      {error && <Banner intent="error" text={error} />}
       <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
         <span className="flex flex-col gap-1">
           <label htmlFor="password" className="text-sm">

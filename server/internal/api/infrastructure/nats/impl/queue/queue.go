@@ -19,6 +19,7 @@ const (
 	DeleteCluster                 jetstream.Subject = "delete.cluster"
 	ReconcileCluster              jetstream.Subject = "reconcile.cluster"
 	ClusterDeleted                jetstream.Subject = "cluster.deleted"
+	ClusterProvisioningFailed     jetstream.Subject = "cluster.provisioning.failed"
 	DeployImage                   jetstream.Subject = "deploy.image"
 	DeployDatabase                jetstream.Subject = "deploy.database"
 	DatabaseDeployed              jetstream.Subject = "database.deployed"
@@ -73,6 +74,16 @@ func (q *Queue) SubscribeToClusterCreated(handler func(cluster *value.ClusterCre
 func (q *Queue) SubscribeToClusterDeleted(handler func(cluster *value.ClusterDeleted)) error {
 	return q.subscriber.Subscribe(ClusterDeleted, "*", "clusterDeleted", func(msg []byte) {
 		var c value.ClusterDeleted
+		if err := json.Unmarshal(msg, &c); err != nil {
+			log.Printf("failed to unmarshal: %v", err)
+		}
+		handler(&c)
+	})
+}
+
+func (q *Queue) SubscribeToClusterProvisioningFailed(handler func(cluster *value.ClusterProvisioningFailed)) error {
+	return q.subscriber.Subscribe(ClusterProvisioningFailed, "*", "clusterProvisioningFailed", func(msg []byte) {
+		var c value.ClusterProvisioningFailed
 		if err := json.Unmarshal(msg, &c); err != nil {
 			log.Printf("failed to unmarshal: %v", err)
 		}

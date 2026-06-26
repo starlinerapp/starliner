@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ChevronRight } from "~/components/atoms/icons";
 import { getAuthClient } from "~/utils/auth/client";
@@ -72,7 +72,7 @@ export default function AcceptInvite() {
     <div className="flex w-125 flex-col gap-4">
       <h1 className="font-medium text-xl">Join {invite.organizationName}</h1>
       {error && (
-        <ErrorBanner text={error}>
+        <Banner intent="error" text={error}>
           {!emailMatches && (
             <button
               className="cursor-pointer font-light text-sm underline"
@@ -82,7 +82,7 @@ export default function AcceptInvite() {
               Logout
             </button>
           )}
-        </ErrorBanner>
+        </Banner>
       )}
       <p className="text-mauve-11 text-sm">
         You&#39;ve been invited to join {invite.organizationName}. Click the

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AvatarIcon } from "~/components/atoms/avatar/Avatar";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
@@ -186,7 +186,10 @@ export default function Members() {
               </p>
             </div>
             {removeMemberMutation.isError && (
-              <ErrorBanner text={removeMemberMutation.error.message} />
+              <Banner
+                intent="error"
+                text={removeMemberMutation.error.message}
+              />
             )}
             <div className="flex justify-end gap-2">
               <Button

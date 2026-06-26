@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import {
   ArrowRight,
@@ -97,7 +97,7 @@ export default function Login() {
       </p>
       <h1 className="font-medium text-xl">Sign in to Starliner</h1>
       {error && (
-        <ErrorBanner text={error}>
+        <Banner intent="error" text={error}>
           {unverifiedEmail && (
             <button
               className="text-sm underline enabled:cursor-pointer enabled:hover:text-mauve-12"
@@ -110,7 +110,7 @@ export default function Login() {
               {isResending ? "Sending…" : "Resend verification email"}
             </button>
           )}
-        </ErrorBanner>
+        </Banner>
       )}
       <div className="flex flex-col gap-2">
         <SignInWithGitHub />

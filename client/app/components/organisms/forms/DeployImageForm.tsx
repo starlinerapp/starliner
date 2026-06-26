@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, Plus } from "~/components/atoms/icons";
 import { isEnvFile, parseEnvFile } from "~/service/envfile/envFile";
@@ -122,7 +122,7 @@ export default function DeployImageForm({
       </div>
       {error && (
         <div>
-          <ErrorBanner text={error} />
+          <Banner intent="error" text={error} />
         </div>
       )}
       <div className="flex flex-col gap-2">

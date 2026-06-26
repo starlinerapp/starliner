@@ -7,7 +7,7 @@ type TeamCluster struct {
 	ClusterID   int64         `json:"clusterId" binding:"required"`
 	ClusterName string        `json:"clusterName" binding:"required"`
 	ServerType  string        `json:"serverType" binding:"required"`
-	Status      ClusterStatus `json:"status" binding:"required,oneof=pending running deleted"`
+	Status      ClusterStatus `json:"status" binding:"required,oneof=pending running deleted failed"`
 }
 
 func NewTeamCluster(tc *value.TeamCluster) TeamCluster {

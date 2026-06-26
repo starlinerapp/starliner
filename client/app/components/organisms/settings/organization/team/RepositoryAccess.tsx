@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import {
   Dialog,
@@ -157,7 +157,10 @@ export function RepositoryAccess({
                       <Skeleton className="h-12 w-full" />
                     </div>
                   ) : allReposSorted.length === 0 ? (
-                    <WarningBanner text="Install the GitHub App to assign repositories to this team." />
+                    <Banner
+                      intent="warning"
+                      text="Install the GitHub App to assign repositories to this team."
+                    />
                   ) : (
                     <div className="flex max-h-[60vh] flex-col overflow-y-auto rounded-md border border-mauve-6 bg-mauve-2">
                       {allReposSorted.map((repo) => (

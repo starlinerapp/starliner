@@ -75,6 +75,18 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		return nil, errors.New("team does not belong to the specified organization")
 	}
 
+	isUnique, err := ca.clusterRepository.IsClusterNameUniqueInOrganization(ctx, name, organizationId)
+	if err != nil {
+		return nil, err
+	}
+	if !isUnique {
+		return nil, value.ErrClusterNameAlreadyExists
+	}
+
+	return ca.provisionCluster(ctx, name, serverType, organizationId, teamId)
+}
+
+func (ca *ClusterApplication) provisionCluster(ctx context.Context, name string, serverType string, organizationId int64, teamId int64) (*value.Cluster, error) {
 	cluster, err := ca.clusterRepository.CreateCluster(ctx, name, serverType, organizationId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to persist cluster in database: %v", err)
@@ -85,7 +97,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		return nil, err
 	}
 
-	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, organizationId, value.HetznerCredential)
+	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, cluster.OrganizationId, value.HetznerCredential)
 	if err != nil {
 		return nil, err
 	}
@@ -165,6 +177,11 @@ func (ca *ClusterApplication) DeleteCluster(ctx context.Context, userId int64, c
 	err = ca.clusterRepository.UpdateClusterStatus(ctx, clusterId, entity.ClusterDeleted)
 	if err != nil {
 		return err
+	}
+
+	if cluster.ProvisioningId == nil {
+		ca.HandleClusterDeleted(&coreValue.ClusterDeleted{Id: cluster.Id})
+		return nil
 	}
 
 	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, cluster.OrganizationId, value.HetznerCredential)
@@ -351,8 +368,46 @@ func (ca *ClusterApplication) HandleClusterDeleted(c *coreValue.ClusterDeleted) 
 		return
 	}
 
-	err := ca.clusterRepository.DeleteCluster(ctx, c.Id)
+	err := ca.clusterRepository.SoftDeleteCluster(ctx, c.Id)
 	if err != nil {
-		log.Printf("failed to delete cluster %d from database: %v\n", c.Id, err)
+		log.Printf("failed to soft delete cluster %d from database: %v\n", c.Id, err)
 	}
+}
+
+func (ca *ClusterApplication) HandleClusterProvisioningFailed(c *coreValue.ClusterProvisioningFailed) {
+	ctx := context.Background()
+
+	if err := ca.clusterRepository.UpdateClusterLogs(ctx, c.Id, c.Logs); err != nil {
+		log.Printf("failed to persist cluster provisioning logs: %v\n", err)
+	}
+
+	if err := ca.clusterRepository.UpdateClusterStatus(ctx, c.Id, entity.ClusterFailed); err != nil {
+		log.Printf("failed to update cluster %d status to failed: %v\n", c.Id, err)
+	}
+}
+
+func (ca *ClusterApplication) RetryCreateCluster(ctx context.Context, userId int64, clusterId int64) (*value.Cluster, error) {
+	oldCluster, err := ca.clusterRepository.GetUserCluster(ctx, userId, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := ca.organizationService.ValidateUserOrgOwner(ctx, oldCluster.OrganizationId, userId); err != nil {
+		return nil, err
+	}
+
+	if oldCluster.Status != entity.ClusterFailed {
+		return nil, errors.New("only failed clusters can be retried")
+	}
+
+	teamId, err := ca.clusterRepository.GetClusterTeamId(ctx, oldCluster.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := ca.clusterRepository.SoftDeleteCluster(ctx, oldCluster.Id); err != nil {
+		return nil, err
+	}
+
+	return ca.provisionCluster(ctx, oldCluster.Name, string(oldCluster.ServerType), oldCluster.OrganizationId, teamId)
 }

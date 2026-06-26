@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ChevronDown } from "~/components/atoms/icons";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
@@ -106,7 +106,8 @@ export default function NewProject() {
       <div className="flex flex-col gap-2 p-4">
         <h1 className="font-bold text-xl">New Project</h1>
         {!teamExists && !isLoading ? (
-          <WarningBanner
+          <Banner
+            intent="warning"
             text="You must join or create a team before creating projects."
             linkOut={{
               text: "Manage Teams",
@@ -117,7 +118,8 @@ export default function NewProject() {
         ) : null}
         {selectedTeamHasNoClusters ? (
           organization.isOwner ? (
-            <WarningBanner
+            <Banner
+              intent="warning"
               text="This team has no clusters assigned. Create or assign a cluster before creating projects."
               linkOut={{
                 text: "Create Cluster",
@@ -126,7 +128,8 @@ export default function NewProject() {
               className="my-2"
             />
           ) : (
-            <WarningBanner
+            <Banner
+              intent="warning"
               text="This team has no clusters assigned. Contact your admin to assign one before creating projects."
               className="my-2"
             />

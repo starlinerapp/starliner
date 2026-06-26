@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ChevronDown } from "~/components/atoms/icons";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
@@ -90,7 +90,10 @@ export default function NewRunnerDialog() {
       </div>
 
       {createRunnerMutation.isError && (
-        <ErrorBanner text="Failed to create runner registration token. Please try again." />
+        <Banner
+          intent="error"
+          text="Failed to create runner registration token. Please try again."
+        />
       )}
 
       <div className="flex flex-col gap-4">

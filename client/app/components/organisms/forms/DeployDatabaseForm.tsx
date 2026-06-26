@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight } from "~/components/atoms/icons";
 
@@ -49,7 +49,7 @@ export default function DeployDatabaseForm({
       </div>
       {error && (
         <div>
-          <ErrorBanner text={error} />
+          <Banner intent="error" text={error} />
         </div>
       )}
       <div className="flex flex-col gap-1">

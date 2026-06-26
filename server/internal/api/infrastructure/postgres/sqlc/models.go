@@ -63,6 +63,7 @@ const (
 	ClusterStatusPending ClusterStatus = "pending"
 	ClusterStatusRunning ClusterStatus = "running"
 	ClusterStatusDeleted ClusterStatus = "deleted"
+	ClusterStatusFailed  ClusterStatus = "failed"
 )
 
 func (e *ClusterStatus) Scan(src interface{}) error {
@@ -210,6 +211,7 @@ type Cluster struct {
 	ServerType     string
 	User           string
 	Logs           sql.NullString
+	DeletedAt      sql.NullTime
 }
 
 type DatabaseDeployment struct {

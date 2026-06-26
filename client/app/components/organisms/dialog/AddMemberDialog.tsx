@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import type React from "react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 import { Cross } from "~/components/atoms/icons";
@@ -191,7 +191,8 @@ export default function AddMemberDialog({
             </p>
           </div>
           {(validationError || sendInviteMutation.isError) && (
-            <ErrorBanner
+            <Banner
+              intent="error"
               text={
                 validationError ??
                 sendInviteMutation.error?.message ??

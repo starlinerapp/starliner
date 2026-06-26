@@ -43,6 +43,10 @@ func (c *Consumer) Start() error {
 		return c.queue.SubscribeToClusterDeleted(c.clusterApplication.HandleClusterDeleted)
 	})
 
+	go concurrent.WithRecovery(context.Background(), "SubscribeToClusterProvisioningFailed", func() error {
+		return c.queue.SubscribeToClusterProvisioningFailed(c.clusterApplication.HandleClusterProvisioningFailed)
+	})
+
 	go concurrent.WithRecovery(context.Background(), "SubscribeToBuildCompleted", func() error {
 		return c.queue.SubscribeToBuildCompleted(c.deploymentApplication.HandleBuildCompleted)
 	})

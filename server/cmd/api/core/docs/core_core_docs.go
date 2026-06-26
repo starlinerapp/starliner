@@ -291,6 +291,39 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "/clusters/{id}/retry": {
+            "post": {
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Retry Create Cluster",
+                "operationId": "retryCreateCluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cluster ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Cluster"
+                        }
+                    }
+                }
+            }
+        },
         "/deployments/databases": {
             "post": {
                 "tags": [
@@ -2910,7 +2943,8 @@ const docTemplatecoreCore = `{
                     "enum": [
                         "pending",
                         "running",
-                        "deleted"
+                        "deleted",
+                        "failed"
                     ],
                     "allOf": [
                         {
@@ -2934,12 +2968,14 @@ const docTemplatecoreCore = `{
             "enum": [
                 "pending",
                 "running",
-                "deleted"
+                "deleted",
+                "failed"
             ],
             "x-enum-varnames": [
                 "ClusterStatusPending",
                 "ClusterStatusRunning",
-                "ClusterStatusDeleted"
+                "ClusterStatusDeleted",
+                "ClusterStatusFailed"
             ]
         },
         "response.CreateRunner": {
@@ -3654,7 +3690,8 @@ const docTemplatecoreCore = `{
                     "enum": [
                         "pending",
                         "running",
-                        "deleted"
+                        "deleted",
+                        "failed"
                     ],
                     "allOf": [
                         {

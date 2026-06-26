@@ -1,5 +1,6 @@
 import type { Readable } from "node:stream";
-import type { AxiosResponse } from "axios";
+import { TRPCError } from "@trpc/server";
+import { type AxiosResponse, isAxiosError } from "axios";
 import { z } from "zod";
 import { clusterApiFactory } from "~/server/api/clients/server";
 import type { RequestCreateClusterServerTypeEnum } from "~/server/api/clients/server/generated";
@@ -17,14 +18,26 @@ export const clusterRouter = {
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
-      return await clusterApiFactory
-        .createCluster(userId, {
+      try {
+        const res = await clusterApiFactory.createCluster(userId, {
           name: input.name,
           serverType: input.serverType as RequestCreateClusterServerTypeEnum,
           organizationId: input.organizationId,
           teamId: input.teamId,
-        })
-        .then((res) => res.data);
+        });
+        return res.data;
+      } catch (err) {
+        if (isAxiosError(err) && err.response?.data?.error) {
+          throw new TRPCError({
+            code:
+              err.response.status === 409
+                ? "CONFLICT"
+                : "INTERNAL_SERVER_ERROR",
+            message: err.response.data.error,
+          });
+        }
+        throw err;
+      }
     }),
   getCluster: protectedProcedure
     .input(
@@ -48,6 +61,18 @@ export const clusterRouter = {
       const userId = ctx.user?.id;
       return await clusterApiFactory
         .deleteCluster(userId, input.id)
+        .then((res) => res.data);
+    }),
+  retryCreateCluster: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      return await clusterApiFactory
+        .retryCreateCluster(userId, input.id)
         .then((res) => res.data);
     }),
   streamProvisioningLogs: protectedProcedure
