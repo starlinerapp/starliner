@@ -11,6 +11,7 @@ import {
 import BottomBar from "~/components/organisms/bottom-bar/deployment/BottomBar";
 import ArchitectureCanvas from "~/components/organisms/canvas/ArchitectureCanvas";
 import LinkNavigationBar from "~/components/organisms/navigation-bar/LinkNavigationBar";
+import { useOrganizationContext } from "~/contexts/OrganizationContext";
 import type { ResponseEnvironment } from "~/server/api/clients/server/generated";
 import { useTRPC } from "~/utils/trpc/react";
 
@@ -22,6 +23,7 @@ type ContextType = {
 
 export default function Layout() {
   const trpc = useTRPC();
+  const organization = useOrganizationContext();
   const { slug, id, environment, deploymentId } = useParams<{
     slug: string;
     id: string;
@@ -29,8 +31,13 @@ export default function Layout() {
     deploymentId: string;
   }>();
 
-  const { data: project } = useQuery(
-    trpc.project.getProject.queryOptions({ id: Number(id) }),
+  const { data: projects } = useQuery(
+    trpc.organization.getUserProjects.queryOptions({ id: organization.id }),
+  );
+
+  const project = useMemo(
+    () => projects?.find((p) => p.id === Number(id)),
+    [projects, id],
   );
 
   const currentEnvironment = useMemo(
