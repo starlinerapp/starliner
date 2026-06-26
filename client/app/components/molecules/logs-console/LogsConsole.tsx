@@ -20,6 +20,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
   const [search, setSearch] = useState("");
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const logsScrollRef = useRef<HTMLDivElement>(null);
   const hasLoadedInitial = useRef(false);
@@ -39,6 +40,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     setIsAtBottom(distanceFromBottom <= EDGE_THRESHOLD_PX);
     setIsAtTop(el.scrollTop <= EDGE_THRESHOLD_PX);
+    setScrollbarWidth(el.offsetWidth - el.clientWidth);
   }, []);
 
   useEffect(() => {
@@ -166,7 +168,10 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col gap-2">
-      <div className="relative shrink-0">
+      <div
+        className="relative shrink-0"
+        style={{ marginInline: scrollbarWidth }}
+      >
         <MagnifyingGlass className="absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2 text-mauve-11" />
         <input
           className="w-full rounded-md border border-mauve-6 bg-white p-2 pr-7 pl-7 text-xs shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] placeholder:text-mauve-11"
@@ -190,7 +195,8 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
         <div
           ref={logsScrollRef}
           onScroll={handleScroll}
-          className="h-full min-h-0 w-full overflow-y-auto [overflow-anchor:none]"
+          style={{ paddingInlineStart: scrollbarWidth }}
+          className="h-full min-h-0 w-full overflow-y-auto [overflow-anchor:none] [scrollbar-gutter:stable]"
         >
           <pre className="w-full whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
             {filteredLogs.map((line, i) => (
@@ -200,7 +206,10 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
             ))}
           </pre>
         </div>
-        <div className="absolute right-4 bottom-1 scroll-controls-fit:flex hidden flex-col gap-1.5">
+        <div
+          className="absolute bottom-1 scroll-controls-fit:flex hidden flex-col gap-1.5"
+          style={{ right: scrollbarWidth + 8 }}
+        >
           <button
             type="button"
             onClick={scrollToTop}
