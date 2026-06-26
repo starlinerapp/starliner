@@ -65,7 +65,7 @@ export default function General() {
 
   const statusMap = {
     pending: "Creating",
-    running: "Live",
+    running: "Online",
     deleted: "Deleting",
   };
   const status = statusMap[clusterData?.status ?? "pending"];
@@ -97,7 +97,7 @@ export default function General() {
                 {isLoading ? (
                   <Skeleton className="h-5 w-24" />
                 ) : (
-                  <span className="flex items-center gap-3">
+                  <span className="flex items-center gap-2">
                     <LiveIndicator type={liveIndicatorType} />
                     <p className="pr-2 text-mauve-11 capitalize">{status}</p>
                   </span>

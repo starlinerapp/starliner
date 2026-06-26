@@ -224,6 +224,7 @@ export default function ManageEnvironments({
               <Button
                 intent="secondary"
                 className="w-24"
+                type="button"
                 onClick={() => {
                   reset();
                   setEnvironmentDialogOpen(false);
