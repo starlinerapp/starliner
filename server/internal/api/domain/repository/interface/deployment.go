@@ -78,7 +78,7 @@ type DeploymentRepository interface {
 
 	GetGitDeploymentArgs(ctx context.Context, deploymentId int64) ([]*entity.Arg, error)
 
-	GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error)
+	GetDeploymentById(ctx context.Context, deploymentId int64) (*entity.Deployment, error)
 
 	GetDeploymentWithNamespace(ctx context.Context, deploymentId int64) (*entity.Deployment, error)
 
@@ -96,7 +96,7 @@ type DeploymentRepository interface {
 
 	UpdateDeploymentStatus(ctx context.Context, deploymentId int64, status string) error
 
-	GetDeploymentStatusLogs(ctx context.Context, userId int64, deploymentId int64) (*entity.DeploymentStatusLogs, error)
+	GetDeploymentStatusLogs(ctx context.Context, deploymentId int64) (*entity.DeploymentStatusLogs, error)
 	SetDeploymentStatusLogs(ctx context.Context, deploymentId int64, logs string, rolloutStatus string) error
 
 	GetEnvironmentDeploymentByName(ctx context.Context, environmentId int64, serviceName string) (*entity.Deployment, error)
@@ -107,9 +107,9 @@ type DeploymentRepository interface {
 
 	GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]*entity.GitDeployment, error)
 
-	GetUserGitDeploymentById(ctx context.Context, userId int64, deploymentId int64) (*entity.GitDeployment, error)
+	GetGitDeploymentById(ctx context.Context, deploymentId int64) (*entity.GitDeployment, error)
 
-	GetUserImageDeploymentById(ctx context.Context, userId int64, deploymentId int64) (*entity.ImageDeployment, error)
+	GetImageDeploymentById(ctx context.Context, deploymentId int64) (*entity.ImageDeployment, error)
 
-	GetUserDatabaseDeploymentById(ctx context.Context, userId int64, deploymentId int64) (*entity.DatabaseDeployment, error)
+	GetDatabaseDeploymentById(ctx context.Context, deploymentId int64) (*entity.DatabaseDeployment, error)
 }

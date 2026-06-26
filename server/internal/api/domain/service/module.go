@@ -7,9 +7,11 @@ import (
 var Module = fx.Module(
 	"service",
 	fx.Provide(
+		NewBuildService,
 		NewOrganizationService,
 		NewEnvironmentService,
 		NewDeploymentService,
+		NewGitDeploymentService,
 		NewTeamService,
 		NewClusterService,
 		NewParserService,

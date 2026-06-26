@@ -6,30 +6,112 @@ import (
 	"fmt"
 	"strings"
 
+	"starliner.app/internal/api/domain/entity"
 	interfaces "starliner.app/internal/api/domain/repository/interface"
 	"starliner.app/internal/api/domain/value"
 )
 
 type DeploymentService struct {
 	deploymentRepository interfaces.DeploymentRepository
+	environmentService   *EnvironmentService
 }
 
-func NewDeploymentService(deploymentRepository interfaces.DeploymentRepository) *DeploymentService {
+func NewDeploymentService(
+	deploymentRepository interfaces.DeploymentRepository,
+	environmentService *EnvironmentService,
+) *DeploymentService {
 	return &DeploymentService{
 		deploymentRepository: deploymentRepository,
+		environmentService:   environmentService,
 	}
 }
 
 func (ds *DeploymentService) ValidateUserPermission(ctx context.Context, userId int64, deploymentId int64) error {
-	deployment, err := ds.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
+	_, err := ds.AuthorizeDeploymentAccess(ctx, userId, deploymentId)
+	return err
+}
+
+func (ds *DeploymentService) AuthorizeDeploymentAccess(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+) (*entity.Deployment, error) {
+	deployment, err := ds.deploymentRepository.GetDeploymentById(ctx, deploymentId)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if deployment == nil {
-		return errors.New("user not authorized")
+	if deployment == nil || deployment.EnvironmentId == nil {
+		return nil, errors.New("user not authorized")
 	}
 
-	return nil
+	if err := ds.environmentService.ValidateUserPermission(ctx, userId, *deployment.EnvironmentId); err != nil {
+		return nil, err
+	}
+
+	return deployment, nil
+}
+
+func (ds *DeploymentService) AuthorizeGitDeploymentAccess(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+	environmentId int64,
+) (*entity.GitDeployment, error) {
+	if err := ds.environmentService.ValidateUserPermission(ctx, userId, environmentId); err != nil {
+		return nil, err
+	}
+
+	deployment, err := ds.deploymentRepository.GetGitDeploymentById(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+	if deployment == nil || deployment.EnvironmentId == nil || *deployment.EnvironmentId != environmentId {
+		return nil, fmt.Errorf("git deployment not found")
+	}
+
+	return deployment, nil
+}
+
+func (ds *DeploymentService) AuthorizeImageDeploymentAccess(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+	environmentId int64,
+) (*entity.ImageDeployment, error) {
+	if err := ds.environmentService.ValidateUserPermission(ctx, userId, environmentId); err != nil {
+		return nil, err
+	}
+
+	deployment, err := ds.deploymentRepository.GetImageDeploymentById(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+	if deployment == nil || deployment.EnvironmentId == nil || *deployment.EnvironmentId != environmentId {
+		return nil, fmt.Errorf("image deployment not found")
+	}
+
+	return deployment, nil
+}
+
+func (ds *DeploymentService) AuthorizeDatabaseDeploymentAccess(
+	ctx context.Context,
+	userId int64,
+	deploymentId int64,
+	environmentId int64,
+) (*entity.DatabaseDeployment, error) {
+	if err := ds.environmentService.ValidateUserPermission(ctx, userId, environmentId); err != nil {
+		return nil, err
+	}
+
+	deployment, err := ds.deploymentRepository.GetDatabaseDeploymentById(ctx, deploymentId)
+	if err != nil {
+		return nil, err
+	}
+	if deployment == nil || deployment.EnvironmentId == nil || *deployment.EnvironmentId != environmentId {
+		return nil, fmt.Errorf("database deployment not found")
+	}
+
+	return deployment, nil
 }
 
 func (ds *DeploymentService) ValidateIngressHostsAvailable(

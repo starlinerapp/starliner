@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"starliner.app/internal/api/conf"
@@ -19,7 +18,6 @@ import (
 	"starliner.app/internal/api/domain/value"
 	corePort "starliner.app/internal/core/domain/port"
 	coreService "starliner.app/internal/core/domain/service"
-	coreValue "starliner.app/internal/core/domain/value"
 )
 
 type GitHubApplication struct {
@@ -36,6 +34,7 @@ type GitHubApplication struct {
 	parserService         *service.ParserService
 	resolverService       *service.ResolverService
 	environmentService    *service.EnvironmentService
+	gitDeploymentService  *service.GitDeploymentService
 	organizationService   *service.OrganizationService
 	normalizerService     *coreService.NormalizerService
 	cfg                   *conf.Config
@@ -55,6 +54,7 @@ func NewGitHubApplication(
 	parserService *service.ParserService,
 	resolverService *service.ResolverService,
 	environmentService *service.EnvironmentService,
+	gitDeploymentService *service.GitDeploymentService,
 	organizationService *service.OrganizationService,
 	normalizerService *coreService.NormalizerService,
 	cfg *conf.Config,
@@ -73,6 +73,7 @@ func NewGitHubApplication(
 		parserService:         parserService,
 		resolverService:       resolverService,
 		environmentService:    environmentService,
+		gitDeploymentService:  gitDeploymentService,
 		organizationService:   organizationService,
 		normalizerService:     normalizerService,
 		cfg:                   cfg,
@@ -200,15 +201,8 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			log.Printf("skipping deployment %d: nil environment id", deployment.Id)
 			continue
 		}
-		environmentID := *deployment.EnvironmentId
 
-		env, err := ga.environmentRepository.GetEnvironmentById(ctx, environmentID)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, environmentID)
+		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, *deployment.EnvironmentId)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -217,100 +211,8 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(deployment.Name)
-		if err != nil {
+		if err := ga.gitDeploymentService.RedeployAndBuildForPush(ctx, deployment, branch); err != nil {
 			errs = append(errs, err)
-			continue
-		}
-
-		organization, err := ga.environmentRepository.GetEnvironmentOrganization(ctx, environmentID)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		imageName := fmt.Sprintf("%s/%s/%s", organization.Slug, env.Namespace, normalizedServiceName)
-
-		registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		envs := gitEntityEnvVarsToValue(deployment.EnvVars)
-		args := gitEntityArgsToValue(deployment.Args)
-
-		if err := ga.deploymentRepository.SoftDeleteDeployment(ctx, deployment.Id); err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		newDeployment, err := ga.deploymentRepository.CreateGitDeployment(
-			ctx,
-			environmentID,
-			deployment.Name,
-			deployment.Port,
-			deployment.GitUrl,
-			deployment.ProjectRepositoryPath,
-			deployment.DockerfilePath,
-			envs,
-			args,
-		)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		if err := ga.deploymentRepository.RepointIngressPathsTargetDeployment(ctx, deployment.Id, newDeployment.Id); err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		b, err := ga.buildRepository.CreateBuild(ctx, newDeployment.Id, "push")
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentID)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-		if ghApp == nil {
-			continue
-		}
-
-		accessToken, err := ga.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		coreArgs := make([]*coreValue.Arg, len(deployment.Args))
-		for i, a := range deployment.Args {
-			coreArgs[i] = &coreValue.Arg{
-				Name:  a.Name,
-				Value: a.Value,
-			}
-		}
-
-		err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-			BuildId:           b.Id,
-			DeploymentId:      newDeployment.Id,
-			OrganizationId:    organization.Id,
-			ImageName:         imageName,
-			GitUrl:            deployment.GitUrl,
-			BranchName:        branch,
-			AccessToken:       accessToken,
-			RegistryPushToken: registryPushToken,
-			RootDirectory:     deployment.ProjectRepositoryPath,
-			DockerfilePath:    deployment.DockerfilePath,
-			Args:              coreArgs,
-		})
-		if err != nil {
-			errs = append(errs, err)
-			continue
 		}
 	}
 
@@ -362,236 +264,26 @@ func (ga *GitHubApplication) createPreviewEnvironment(ctx context.Context, event
 			errs = append(errs, err)
 			continue
 		}
-		newEnv, err := ga.environmentRepository.CreatePreviewEnvironment(
-			ctx,
-			previewEnvName,
-			namespace,
-			environmentSlug,
-			p.Id,
-			env.Id,
-			randomPrefix,
-			&event.SourceBranch,
-			event.RepositoryId,
-			event.PrNumber,
-		)
+		newEnv, err := ga.environmentService.CloneAndProvision(ctx, service.CloneSpec{
+			Name:              previewEnvName,
+			Namespace:         namespace,
+			Slug:              environmentSlug,
+			ProjectID:         p.Id,
+			SourceEnvironment: env.Id,
+			UniquePrefix:      randomPrefix,
+			ConnectedBranch:   &event.SourceBranch,
+			Preview: &entity.PreviewCloneMetadata{
+				GithubRepositoryId: event.RepositoryId,
+				PrNumber:           event.PrNumber,
+			},
+		}, service.ProvisionOptions{
+			GitStrategy: service.GitProvisionBuildFromBranch,
+			GitBranch:   event.SourceBranch,
+			PreviewURLs: &commentURLs,
+		})
 		if err != nil {
 			errs = append(errs, err)
 			continue
-		}
-		deployments, err := ga.getEnvironmentDeployments(ctx, newEnv.Id)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		cluster, err := ga.environmentRepository.GetEnvironmentCluster(ctx, env.Id)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-		if cluster.IPv4Address == nil || *cluster.IPv4Address == "" {
-			errs = append(errs, fmt.Errorf("cluster ipv4 address is not set"))
-			continue
-		}
-		kubeconfigBase64, err := ga.crypto.Decrypt(*cluster.Kubeconfig)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		ingressDeployments := deployments.Ingresses
-		for _, d := range ingressDeployments {
-			coreHosts := make([]coreValue.IngressHost, 0, len(d.IngressHosts))
-			for _, h := range d.IngressHosts {
-				if h.Host != "" {
-					commentURLs = append(commentURLs, "https://"+h.Host)
-				}
-
-				ch := coreValue.IngressHost{
-					Host: h.Host,
-				}
-				ch.Paths = make([]coreValue.IngressPath, 0, len(h.Paths))
-
-				for _, p := range h.Paths {
-					target, err := ga.environmentRepository.GetEnvironmentDeploymentByName(ctx, p.ServiceName, newEnv.Id)
-					if err != nil {
-						errs = append(errs, err)
-						continue
-					}
-
-					targetPort, err := strconv.Atoi(target.Port)
-					if err != nil {
-						errs = append(errs, err)
-						continue
-					}
-
-					normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(p.ServiceName)
-					if err != nil {
-						errs = append(errs, err)
-						continue
-					}
-
-					ch.Paths = append(ch.Paths, coreValue.IngressPath{
-						Path:        p.Path,
-						PathType:    coreValue.PathType(p.PathType),
-						ServiceName: normalizedServiceName,
-						ServicePort: targetPort,
-					})
-				}
-				coreHosts = append(coreHosts, ch)
-			}
-			err = createDeployOnlyBuild(ctx, ga.buildRepository, d.Id, value.BuildSourceDuplicate)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			err = ga.queue.PublishDeployIngress(&coreValue.IngressDeployment{
-				IngressHosts:     coreHosts,
-				DeploymentId:     d.Id,
-				DeploymentName:   d.ServiceName,
-				Namespace:        newEnv.Namespace,
-				KubeconfigBase64: kubeconfigBase64,
-				ExpectedIP:       *cluster.IPv4Address,
-			})
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-		}
-
-		databaseDeployments := deployments.Databases
-		for _, d := range databaseDeployments {
-			normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			err = createDeployOnlyBuild(ctx, ga.buildRepository, d.Id, value.BuildSourceDuplicate)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			err = ga.queue.PublishDeployDatabase(&coreValue.Deployment{
-				Namespace:        newEnv.Namespace,
-				DeploymentId:     d.Id,
-				DeploymentName:   normalizedServiceName,
-				KubeconfigBase64: kubeconfigBase64,
-			})
-			if err != nil {
-				log.Printf("error publishing: %v", err)
-			}
-		}
-
-		imageDeployments := deployments.Images
-		for _, d := range imageDeployments {
-			deploymentPort, err := strconv.Atoi(d.Port)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			coreEnvs := value.ToCoreEnvVars(d.EnvVars)
-
-			normalizedDeploymentName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			err = createDeployOnlyBuild(ctx, ga.buildRepository, d.Id, value.BuildSourceDuplicate)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			err = ga.queue.PublishDeployImage(&coreValue.ImageDeployment{
-				DeploymentId:          d.Id,
-				DeploymentName:        normalizedDeploymentName,
-				Namespace:             newEnv.Namespace,
-				KubeconfigBase64:      kubeconfigBase64,
-				ImageRegistryUrl:      ga.cfg.ImageRegistryUrl,
-				ImageRegistryUsername: ga.cfg.ImageRegistryUsername,
-				ImageRegistryPassword: ga.cfg.ImageRegistryPassword,
-				ImageName:             d.ImageName,
-				ImageTag:              d.Tag,
-				Port:                  deploymentPort,
-				VolumeSizeMiB:         d.VolumeSizeMiB,
-				VolumeMountPath:       d.VolumeMountPath,
-				EnvVars:               coreEnvs,
-			})
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-		}
-
-		gitDeployments := deployments.GitDeployments
-		for _, d := range gitDeployments {
-			normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			organization, err := ga.environmentRepository.GetEnvironmentOrganization(ctx, newEnv.Id)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			imageName := fmt.Sprintf("%s/%s/%s", organization.Slug, newEnv.Namespace, normalizedServiceName)
-
-			registryPushToken, err := ga.registry.GetRegistryPushToken(ctx, imageName)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			b, err := ga.buildRepository.CreateBuild(ctx, d.Id, "push")
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, newEnv.Id)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			if ghApp == nil {
-				continue
-			}
-
-			accessToken, err := ga.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-
-			coreArgs := make([]*coreValue.Arg, len(d.Args))
-			for i, a := range d.Args {
-				coreArgs[i] = &coreValue.Arg{
-					Name:  a.Name,
-					Value: a.Value,
-				}
-			}
-
-			err = ga.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-				BuildId:           b.Id,
-				DeploymentId:      d.Id,
-				OrganizationId:    organization.Id,
-				ImageName:         imageName,
-				GitUrl:            d.GitUrl,
-				BranchName:        event.SourceBranch,
-				AccessToken:       accessToken,
-				RegistryPushToken: registryPushToken,
-				RootDirectory:     d.ProjectRepositoryPath,
-				DockerfilePath:    d.DockerfilePath,
-				Args:              coreArgs,
-			})
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
 		}
 
 		ghApp, err := ga.githubAppRepository.GetEnvironmentGithubApp(ctx, newEnv.Id)
@@ -631,67 +323,15 @@ func (ga *GitHubApplication) deletePreviewEnvironment(ctx context.Context, event
 		return nil
 	}
 
-	deployments, err := ga.getEnvironmentDeployments(ctx, previewEnv.Id)
+	env, err := ga.environmentRepository.GetEnvironmentById(ctx, previewEnv.Id)
 	if err != nil {
 		return err
 	}
 
-	type deploymentEntry struct {
-		id          int64
-		serviceName string
+	if err := ga.environmentService.TearDownEnvironmentDeployments(ctx, env); err != nil {
+		return err
 	}
 
-	var allDeployments []deploymentEntry
-	for _, d := range deployments.Ingresses {
-		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
-	}
-	for _, d := range deployments.Images {
-		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
-	}
-	for _, d := range deployments.GitDeployments {
-		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
-	}
-	for _, d := range deployments.Databases {
-		allDeployments = append(allDeployments, deploymentEntry{d.Id, d.ServiceName})
-	}
-
-	for _, d := range allDeployments {
-		cluster, err := ga.deploymentRepository.GetDeploymentCluster(ctx, d.id)
-		if err != nil {
-			return err
-		}
-
-		env, err := ga.environmentRepository.GetEnvironmentById(ctx, previewEnv.Id)
-		if err != nil {
-			return err
-		}
-
-		if cluster.Kubeconfig == nil {
-			return fmt.Errorf("cluster kubeconfig is nil")
-		}
-		kubeconfigBase64, err := ga.crypto.Decrypt(*cluster.Kubeconfig)
-		if err != nil {
-			return err
-		}
-
-		normalizedDeploymentName, err := ga.normalizerService.FormatToDNS1123(d.serviceName)
-		if err != nil {
-			return err
-		}
-
-		if err = ga.deploymentRepository.SoftDeleteDeploymentVolume(ctx, d.id); err != nil {
-			return err
-		}
-
-		if err = ga.queue.PublishDeleteDeployment(&coreValue.Deployment{
-			DeploymentId:     d.id,
-			DeploymentName:   normalizedDeploymentName,
-			Namespace:        env.Namespace,
-			KubeconfigBase64: kubeconfigBase64,
-		}); err != nil {
-			log.Printf("error publishing: %v", err)
-		}
-	}
 	return ga.environmentRepository.DeleteEnvironment(ctx, previewEnv.Id)
 }
 
@@ -700,87 +340,6 @@ func (ga *GitHubApplication) deleteGitHubApp(ctx context.Context, event *value.G
 		return fmt.Errorf("installation id is nil")
 	}
 	return ga.githubAppRepository.DeleteGithubApp(ctx, *event.InstallationId)
-}
-
-func (ga *GitHubApplication) getEnvironmentDeployments(ctx context.Context, environmentId int64) (*value.Deployments, error) {
-	ingresses, err := ga.environmentRepository.GetEnvironmentIngressDeployments(ctx, environmentId)
-	if err != nil {
-		return nil, err
-	}
-
-	git, err := ga.environmentRepository.GetEnvironmentGitDeployments(ctx, environmentId)
-	if err != nil {
-		return nil, err
-	}
-
-	gitDeployments := make([]*value.GitDeployment, len(git))
-	for i, d := range git {
-		normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(d.Name)
-		if err != nil {
-			return nil, err
-		}
-
-		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
-		gitDeployments[i] = value.NewGitDeployment(d, internalEndpoint)
-	}
-
-	images, err := ga.environmentRepository.GetEnvironmentImageDeployments(ctx, environmentId)
-	if err != nil {
-		return nil, err
-	}
-
-	imageDeployments := make([]*value.ImageDeployment, len(images))
-	for i, d := range images {
-		normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
-		if err != nil {
-			return nil, err
-		}
-
-		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
-		imageDeployments[i] = value.NewImageDeployment(d, internalEndpoint)
-	}
-
-	databases, err := ga.environmentRepository.GetEnvironmentDatabaseDeployments(ctx, environmentId)
-	if err != nil {
-		return nil, err
-	}
-
-	databaseDeployments := make([]*value.DatabaseDeployment, len(databases))
-	for i, d := range databases {
-		var password *string
-
-		if d.Password != nil {
-			decrypted, err := ga.crypto.Decrypt(*d.Password)
-			if err != nil {
-				return nil, err
-			}
-			password = &decrypted
-		}
-
-		normalizedServiceName, err := ga.normalizerService.FormatToDNS1123(d.ServiceName)
-		if err != nil {
-			return nil, err
-		}
-
-		internalEndpoint := fmt.Sprintf("%s:%s", normalizedServiceName, d.Port)
-		databaseDeployments[i] = &value.DatabaseDeployment{
-			Id:               d.Id,
-			ServiceName:      d.ServiceName,
-			InternalEndpoint: internalEndpoint,
-			Status:           d.Status,
-			Database:         d.Database,
-			Username:         d.Username,
-			Password:         password,
-			Port:             d.Port,
-		}
-	}
-
-	return &value.Deployments{
-		Databases:      databaseDeployments,
-		Images:         imageDeployments,
-		Ingresses:      value.NewIngressDeployments(ingresses),
-		GitDeployments: gitDeployments,
-	}, nil
 }
 
 func buildPreviewEnvironmentComment(urls []string) (string, error) {
@@ -831,26 +390,4 @@ func (ga *GitHubApplication) GetFileContent(ctx context.Context, userId int64, o
 	}
 
 	return content, nil
-}
-
-func gitEntityEnvVarsToValue(envs []*entity.EnvVar) []*value.EnvVar {
-	result := make([]*value.EnvVar, len(envs))
-	for i, e := range envs {
-		result[i] = &value.EnvVar{
-			Name:  e.Name,
-			Value: e.Value,
-		}
-	}
-	return result
-}
-
-func gitEntityArgsToValue(args []*entity.Arg) []*value.Arg {
-	result := make([]*value.Arg, len(args))
-	for i, a := range args {
-		result[i] = &value.Arg{
-			Name:  a.Name,
-			Value: a.Value,
-		}
-	}
-	return result
 }

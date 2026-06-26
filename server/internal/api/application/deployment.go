@@ -24,6 +24,7 @@ type DeploymentApplication struct {
 	config                 *conf.Config
 	environmentService     *service.EnvironmentService
 	deploymentService      *service.DeploymentService
+	gitDeploymentService   *service.GitDeploymentService
 	clusterService         *service.ClusterService
 	parserService          *service.ParserService
 	resolverService        *service.ResolverService
@@ -31,6 +32,7 @@ type DeploymentApplication struct {
 	environmentRepository  interfaces.EnvironmentRepository
 	organizationRepository interfaces.OrganizationRepository
 	deploymentRepository   interfaces.DeploymentRepository
+	buildService           *service.BuildService
 	buildRepository        interfaces.BuildRepository
 	githubAppRepository    interfaces.GithubAppRepository
 	gitHub                 port.GitHub
@@ -44,12 +46,14 @@ func NewDeploymentApplication(
 	config *conf.Config,
 	environmentService *service.EnvironmentService,
 	deploymentService *service.DeploymentService,
+	gitDeploymentService *service.GitDeploymentService,
 	parserService *service.ParserService,
 	resolverService *service.ResolverService,
 	normalizerService *coreService.NormalizerService,
 	environmentRepository interfaces.EnvironmentRepository,
 	organizationRepository interfaces.OrganizationRepository,
 	deploymentRepository interfaces.DeploymentRepository,
+	buildService *service.BuildService,
 	buildRepository interfaces.BuildRepository,
 	githubAppRepository interfaces.GithubAppRepository,
 	gitHub port.GitHub,
@@ -63,12 +67,14 @@ func NewDeploymentApplication(
 		config:                 config,
 		environmentService:     environmentService,
 		deploymentService:      deploymentService,
+		gitDeploymentService:   gitDeploymentService,
 		parserService:          parserService,
 		resolverService:        resolverService,
 		normalizerService:      normalizerService,
 		environmentRepository:  environmentRepository,
 		organizationRepository: organizationRepository,
 		deploymentRepository:   deploymentRepository,
+		buildService:           buildService,
 		buildRepository:        buildRepository,
 		githubAppRepository:    githubAppRepository,
 		gitHub:                 gitHub,
@@ -111,23 +117,6 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(serviceName)
-	if err != nil {
-		return err
-	}
-
-	organization, err := da.environmentRepository.GetEnvironmentOrganization(ctx, environmentId)
-	if err != nil {
-		return err
-	}
-
-	imageName := fmt.Sprintf("%s/%s/%s", organization.Slug, env.Namespace, normalizedServiceName)
-
-	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
-	if err != nil {
-		return err
-	}
-
 	d, err := da.deploymentRepository.CreateGitDeployment(
 		ctx,
 		environmentId,
@@ -143,42 +132,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
-	if err != nil {
-		return err
-	}
-
-	ghApp, err := da.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentId)
-	if err != nil {
-		return err
-	}
-
-	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-	if err != nil {
-		return err
-	}
-
-	coreArgs := make([]*coreValue.Arg, len(args))
-	for i, a := range args {
-		coreArgs[i] = &coreValue.Arg{
-			Name:  a.Name,
-			Value: a.Value,
-		}
-	}
-
-	return da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		BuildId:           b.Id,
-		DeploymentId:      d.Id,
-		OrganizationId:    organization.Id,
-		ImageName:         imageName,
-		GitUrl:            gitUrl,
-		BranchName:        env.ConnectedBranch,
-		AccessToken:       accessToken,
-		RegistryPushToken: registryPushToken,
-		RootDirectory:     projectRepositoryPath,
-		DockerfilePath:    dockerfilePath,
-		Args:              coreArgs,
-	})
+	return da.gitDeploymentService.TriggerBuild(ctx, d, env.ConnectedBranch, "manual", args)
 }
 
 func (da *DeploymentApplication) UpdateDeployFromGit(
@@ -197,12 +151,9 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return 0, err
 	}
 
-	existing, err := da.deploymentRepository.GetUserGitDeploymentById(ctx, userId, deploymentId)
+	existing, err := da.deploymentService.AuthorizeGitDeploymentAccess(ctx, userId, deploymentId, environmentId)
 	if err != nil {
 		return 0, err
-	}
-	if existing.EnvironmentId == nil || *existing.EnvironmentId != environmentId {
-		return 0, fmt.Errorf("git deployment not found")
 	}
 
 	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
@@ -210,116 +161,22 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return 0, err
 	}
 
-	d, err := da.redeployGitDeployment(
-		ctx,
-		existing,
-		strconv.Itoa(port),
-		projectRepositoryPath,
-		dockerfilePath,
-		envs,
-		args,
-	)
-	if err != nil {
-		return 0, err
-	}
-
-	normalizedServiceName, err := da.normalizerService.FormatToDNS1123(d.Name)
-	if err != nil {
-		return 0, err
-	}
-
-	organization, err := da.environmentRepository.GetEnvironmentOrganization(ctx, environmentId)
-	if err != nil {
-		return 0, err
-	}
-
-	imageName := fmt.Sprintf("%s/%s/%s", organization.Slug, env.Namespace, normalizedServiceName)
-
-	registryPushToken, err := da.registry.GetRegistryPushToken(ctx, imageName)
-	if err != nil {
-		return 0, err
-	}
-
-	b, err := da.buildRepository.CreateBuild(ctx, d.Id, "manual")
-	if err != nil {
-		return 0, err
-	}
-
-	ghApp, err := da.githubAppRepository.GetEnvironmentGithubApp(ctx, environmentId)
-	if err != nil {
-		return 0, err
-	}
-
-	accessToken, err := da.gitHub.GetInstallationToken(ctx, ghApp.InstallationID)
-	if err != nil {
-		return 0, err
-	}
-
-	coreArgs := make([]*coreValue.Arg, len(args))
-	for i, a := range args {
-		coreArgs[i] = &coreValue.Arg{
-			Name:  a.Name,
-			Value: a.Value,
-		}
-	}
-
-	err = da.queue.PublishBuildTriggered(&coreValue.TriggerBuild{
-		BuildId:           b.Id,
-		DeploymentId:      d.Id,
-		OrganizationId:    organization.Id,
-		ImageName:         imageName,
-		AccessToken:       accessToken,
-		RegistryPushToken: registryPushToken,
-		GitUrl:            d.GitUrl,
-		BranchName:        env.ConnectedBranch,
-		RootDirectory:     projectRepositoryPath,
-		DockerfilePath:    dockerfilePath,
-		Args:              coreArgs,
+	d, err := da.gitDeploymentService.Redeploy(ctx, existing, service.RedeployGitConfig{
+		Port:                  strconv.Itoa(port),
+		ProjectRepositoryPath: projectRepositoryPath,
+		DockerfilePath:        dockerfilePath,
+		Envs:                  envs,
+		Args:                  args,
 	})
 	if err != nil {
 		return 0, err
 	}
 
+	if err := da.gitDeploymentService.TriggerBuild(ctx, d, env.ConnectedBranch, "manual", args); err != nil {
+		return 0, err
+	}
+
 	return d.Id, nil
-}
-
-func (da *DeploymentApplication) redeployGitDeployment(
-	ctx context.Context,
-	existing *entity.GitDeployment,
-	port string,
-	projectRepositoryPath string,
-	dockerfilePath string,
-	envs []*value.EnvVar,
-	args []*value.Arg,
-) (*entity.GitDeployment, error) {
-	if existing.EnvironmentId == nil {
-		return nil, fmt.Errorf("deployment %d has nil environment id", existing.Id)
-	}
-
-	if err := da.deploymentRepository.SoftDeleteDeployment(ctx, existing.Id); err != nil {
-		return nil, err
-	}
-
-	newDeployment, err := da.deploymentRepository.CreateGitDeployment(
-		ctx,
-		*existing.EnvironmentId,
-		existing.Name,
-		port,
-		existing.GitUrl,
-		projectRepositoryPath,
-		dockerfilePath,
-		envs,
-		args,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := da.deploymentRepository.RepointIngressPathsTargetDeployment(ctx, existing.Id, newDeployment.Id); err != nil {
-		return nil, err
-	}
-
-	return newDeployment, nil
 }
 
 func (da *DeploymentApplication) DeployImage(
@@ -377,7 +234,7 @@ func (da *DeploymentApplication) DeployImage(
 		return err
 	}
 
-	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	err = da.buildService.CreateDeployOnlyBuild(ctx, deployment.Id, value.BuildSourceManual)
 	if err != nil {
 		return err
 	}
@@ -455,12 +312,9 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		return 0, err
 	}
 
-	existing, err := da.deploymentRepository.GetUserImageDeploymentById(ctx, userId, deploymentId)
+	existing, err := da.deploymentService.AuthorizeImageDeploymentAccess(ctx, userId, deploymentId, environmentId)
 	if err != nil {
 		return 0, err
-	}
-	if existing.EnvironmentId == nil || *existing.EnvironmentId != environmentId {
-		return 0, fmt.Errorf("image deployment not found")
 	}
 
 	cluster, err := da.environmentRepository.GetEnvironmentCluster(ctx, environmentId)
@@ -485,7 +339,7 @@ func (da *DeploymentApplication) UpdateImageDeployment(
 		return 0, err
 	}
 
-	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	err = da.buildService.CreateDeployOnlyBuild(ctx, deployment.Id, value.BuildSourceManual)
 	if err != nil {
 		return 0, err
 	}
@@ -627,7 +481,7 @@ func (da *DeploymentApplication) DeployDatabase(
 		return err
 	}
 
-	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	err = da.buildService.CreateDeployOnlyBuild(ctx, deployment.Id, value.BuildSourceManual)
 	if err != nil {
 		return err
 	}
@@ -669,7 +523,7 @@ func (da *DeploymentApplication) UpdateDatabaseDeployment(
 		return 0, err
 	}
 
-	existing, err := da.deploymentRepository.GetUserDatabaseDeploymentById(ctx, userId, deploymentId)
+	existing, err := da.deploymentService.AuthorizeDatabaseDeploymentAccess(ctx, userId, deploymentId, environmentId)
 	if err != nil {
 		return 0, err
 	}
@@ -692,7 +546,7 @@ func (da *DeploymentApplication) UpdateDatabaseDeployment(
 		return 0, err
 	}
 
-	err = createDeployOnlyBuild(ctx, da.buildRepository, deployment.Id, value.BuildSourceManual)
+	err = da.buildService.CreateDeployOnlyBuild(ctx, deployment.Id, value.BuildSourceManual)
 	if err != nil {
 		return 0, err
 	}
@@ -799,7 +653,7 @@ func (da *DeploymentApplication) DeployIngress(
 		return err
 	}
 
-	err = createDeployOnlyBuild(ctx, da.buildRepository, ingressDeployment.Id, value.BuildSourceManual)
+	err = da.buildService.CreateDeployOnlyBuild(ctx, ingressDeployment.Id, value.BuildSourceManual)
 	if err != nil {
 		return err
 	}
@@ -892,7 +746,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		return 0, err
 	}
 
-	existing, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
+	existing, err := da.deploymentService.AuthorizeDeploymentAccess(ctx, userId, deploymentId)
 	if err != nil {
 		return 0, err
 	}
@@ -936,7 +790,7 @@ func (da *DeploymentApplication) UpdateIngressDeployment(
 		return 0, err
 	}
 
-	err = createDeployOnlyBuild(ctx, da.buildRepository, ingressDeployment.Id, value.BuildSourceManual)
+	err = da.buildService.CreateDeployOnlyBuild(ctx, ingressDeployment.Id, value.BuildSourceManual)
 	if err != nil {
 		return 0, err
 	}
@@ -1063,7 +917,7 @@ func (da *DeploymentApplication) DeleteDeployment(ctx context.Context, deploymen
 	if err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId); err != nil {
 		return err
 	}
-	deployment, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
+	deployment, err := da.deploymentService.AuthorizeDeploymentAccess(ctx, userId, deploymentId)
 	if err != nil {
 		return err
 	}
@@ -1162,17 +1016,17 @@ func (da *DeploymentApplication) StreamDeploymentStatusLogs(
 	deploymentId int64,
 	w io.Writer,
 ) error {
-	err := da.deploymentService.ValidateUserPermission(ctx, userId, deploymentId)
+	_, err := da.deploymentService.AuthorizeDeploymentAccess(ctx, userId, deploymentId)
 	if err != nil {
 		return err
 	}
 
-	deployment, err := da.deploymentRepository.GetUserDeployment(ctx, userId, deploymentId)
+	deployment, err := da.deploymentRepository.GetDeploymentWithNamespace(ctx, deploymentId)
 	if err != nil {
 		return err
 	}
 
-	stored, err := da.deploymentRepository.GetDeploymentStatusLogs(ctx, userId, deploymentId)
+	stored, err := da.deploymentRepository.GetDeploymentStatusLogs(ctx, deploymentId)
 	if err != nil {
 		return err
 	}
@@ -1255,27 +1109,6 @@ func rolloutStatusFromLogs(logs *string) string {
 		return "success"
 	}
 	return "pending"
-}
-
-func createDeployOnlyBuild(
-	ctx context.Context,
-	buildRepository interfaces.BuildRepository,
-	deploymentId int64,
-	source string,
-) error {
-	b, err := buildRepository.CreateBuild(ctx, deploymentId, source)
-	if err != nil {
-		return err
-	}
-
-	return buildRepository.UpdateBuild(
-		ctx,
-		b.Id,
-		value.BuildStatusSuccess,
-		nil,
-		nil,
-		"Build skipped",
-	)
 }
 
 func (da *DeploymentApplication) resolveDeploymentCommitHash(
