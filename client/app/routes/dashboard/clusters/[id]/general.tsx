@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { RotateCcw } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import Banner from "~/components/atoms/banner/Banner";
@@ -113,11 +114,12 @@ export default function General() {
             >
               <Button
                 intent="secondary"
-                className="ml-auto shrink-0"
+                className="ml-auto shrink-0 gap-1"
                 disabled={retryClusterMutation.isPending}
                 onClick={() => retryClusterMutation.mutate({ id: Number(id) })}
               >
-                {retryClusterMutation.isPending ? "Retrying…" : "Retry"}
+                <RotateCcw className="h-4 w-4" />
+                Retry
               </Button>
             </Banner>
           )}
