@@ -33,7 +33,7 @@ FROM clusters
 WHERE id = $1
   AND deleted_at IS NULL;
 
--- name: ClusterNameExistsInOrganization :one
+-- name: IsClusterNameUniqueInOrganization :one
 SELECT EXISTS (
     SELECT 1
     FROM clusters

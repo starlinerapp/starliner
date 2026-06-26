@@ -68,12 +68,12 @@ func (cr *ClusterRepository) GetUserCluster(ctx context.Context, userId int64, c
 	}, nil
 }
 
-func (cr *ClusterRepository) ClusterNameExistsInOrganization(
+func (cr *ClusterRepository) IsClusterNameUniqueInOrganization(
 	ctx context.Context,
 	name string,
 	organizationId int64,
 ) (bool, error) {
-	return cr.queries.ClusterNameExistsInOrganization(ctx, sqlc.ClusterNameExistsInOrganizationParams{
+	return cr.queries.IsClusterNameUniqueInOrganization(ctx, sqlc.IsClusterNameUniqueInOrganizationParams{
 		Name:           name,
 		OrganizationID: organizationId,
 	})

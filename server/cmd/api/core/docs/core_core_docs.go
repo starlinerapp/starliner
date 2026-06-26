@@ -296,8 +296,8 @@ const docTemplatecoreCore = `{
                 "tags": [
                     "cluster"
                 ],
-                "summary": "Retry Cluster",
-                "operationId": "retryCluster",
+                "summary": "Retry Create Cluster",
+                "operationId": "retryCreateCluster",
                 "parameters": [
                     {
                         "type": "string",

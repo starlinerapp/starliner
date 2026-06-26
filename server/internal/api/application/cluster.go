@@ -75,7 +75,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		return nil, errors.New("team does not belong to the specified organization")
 	}
 
-	exists, err := ca.clusterRepository.ClusterNameExistsInOrganization(ctx, name, organizationId)
+	exists, err := ca.clusterRepository.IsClusterNameUniqueInOrganization(ctx, name, organizationId)
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +386,7 @@ func (ca *ClusterApplication) HandleClusterProvisioningFailed(c *coreValue.Clust
 	}
 }
 
-func (ca *ClusterApplication) RetryCluster(ctx context.Context, userId int64, clusterId int64) (*value.Cluster, error) {
+func (ca *ClusterApplication) RetryCreateCluster(ctx context.Context, userId int64, clusterId int64) (*value.Cluster, error) {
 	oldCluster, err := ca.clusterRepository.GetUserCluster(ctx, userId, clusterId)
 	if err != nil {
 		return nil, err

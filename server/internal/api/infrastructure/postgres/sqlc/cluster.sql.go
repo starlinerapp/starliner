@@ -13,28 +13,6 @@ import (
 	"github.com/lib/pq"
 )
 
-const clusterNameExistsInOrganization = `-- name: ClusterNameExistsInOrganization :one
-SELECT EXISTS (
-  SELECT 1
-  FROM clusters
-  WHERE name = $1
-    AND organization_id = $2
-    AND deleted_at IS NULL
-)
-`
-
-type ClusterNameExistsInOrganizationParams struct {
-	Name           string
-	OrganizationID int64
-}
-
-func (q *Queries) ClusterNameExistsInOrganization(ctx context.Context, arg ClusterNameExistsInOrganizationParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, clusterNameExistsInOrganization, arg.Name, arg.OrganizationID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
 const createCluster = `-- name: CreateCluster :one
 INSERT INTO clusters (
   name,
@@ -294,6 +272,27 @@ func (q *Queries) GetUserClusterProvisioningLogs(ctx context.Context, arg GetUse
 	var logs sql.NullString
 	err := row.Scan(&logs)
 	return logs, err
+}
+
+const isClusterNameUniqueInOrganization = `-- name: IsClusterNameUniqueInOrganization :one
+SELECT EXISTS (
+    SELECT 1
+    FROM clusters
+    WHERE name = $1
+      AND organization_id = $2
+      AND deleted_at IS NULL)
+`
+
+type IsClusterNameUniqueInOrganizationParams struct {
+	Name           string
+	OrganizationID int64
+}
+
+func (q *Queries) IsClusterNameUniqueInOrganization(ctx context.Context, arg IsClusterNameUniqueInOrganizationParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isClusterNameUniqueInOrganization, arg.Name, arg.OrganizationID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const softDeleteCluster = `-- name: SoftDeleteCluster :exec

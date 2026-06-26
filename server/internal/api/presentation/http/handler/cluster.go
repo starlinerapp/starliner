@@ -48,11 +48,12 @@ func (ch *ClusterHandler) CreateCluster(c *gin.Context) {
 	}
 	newCluster, err := ch.clusterApplication.CreateCluster(c.Request.Context(), currentUser.Id, cluster.Name, cluster.ServerType, cluster.OrganizationID, cluster.TeamID)
 	if err != nil {
-		_ = c.Error(err)
 		if errors.Is(err, value.ErrClusterNameAlreadyExists) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": value.ErrClusterNameAlreadyExists.Error()})
 			return
 		}
+
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
@@ -149,17 +150,17 @@ func (ch *ClusterHandler) DeleteCluster(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// RetryCluster FindAll godoc
-// @Summary Retry Cluster
+// RetryCreateCluster FindAll godoc
+// @Summary Retry Create Cluster
 // @State core
 // @Tags cluster
-// @ID retryCluster
+// @ID retryCreateCluster
 // @Param X-User-ID header string true "User ID"
 // @Param id path int true "Cluster ID"
 // @Product JSON
 // @Success 200 {object} response.Cluster
 // @Router /clusters/{id}/retry [post]
-func (ch *ClusterHandler) RetryCluster(c *gin.Context) {
+func (ch *ClusterHandler) RetryCreateCluster(c *gin.Context) {
 	currentUser := c.MustGet("user").(*value.User)
 	clusterId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -167,7 +168,7 @@ func (ch *ClusterHandler) RetryCluster(c *gin.Context) {
 		return
 	}
 
-	newCluster, err := ch.clusterApplication.RetryCluster(c.Request.Context(), currentUser.Id, clusterId)
+	newCluster, err := ch.clusterApplication.RetryCreateCluster(c.Request.Context(), currentUser.Id, clusterId)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})

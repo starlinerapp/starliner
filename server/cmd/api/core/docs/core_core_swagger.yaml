@@ -1157,7 +1157,7 @@ paths:
       - cluster
   /clusters/{id}/retry:
     post:
-      operationId: retryCluster
+      operationId: retryCreateCluster
       parameters:
       - description: User ID
         in: header
@@ -1174,7 +1174,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.Cluster'
-      summary: Retry Cluster
+      summary: Retry Create Cluster
       tags:
       - cluster
   /deployments/{id}:

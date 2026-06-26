@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"starliner.app/internal/api/domain/entity"
 )
 
@@ -24,7 +25,7 @@ type ClusterRepository interface {
 		clusterId int64,
 	) (*entity.Cluster, error)
 
-	ClusterNameExistsInOrganization(
+	IsClusterNameUniqueInOrganization(
 		ctx context.Context,
 		name string,
 		organizationId int64,

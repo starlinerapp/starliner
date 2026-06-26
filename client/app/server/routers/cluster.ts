@@ -63,7 +63,7 @@ export const clusterRouter = {
         .deleteCluster(userId, input.id)
         .then((res) => res.data);
     }),
-  retryCluster: protectedProcedure
+  retryCreateCluster: protectedProcedure
     .input(
       z.object({
         id: z.number(),
@@ -72,7 +72,7 @@ export const clusterRouter = {
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user?.id;
       return await clusterApiFactory
-        .retryCluster(userId, input.id)
+        .retryCreateCluster(userId, input.id)
         .then((res) => res.data);
     }),
   streamProvisioningLogs: protectedProcedure

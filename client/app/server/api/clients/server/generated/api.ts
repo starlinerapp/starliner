@@ -2345,21 +2345,21 @@ export const ClusterApiAxiosParamCreator = function (
     },
     /**
      *
-     * @summary Retry Cluster
+     * @summary Retry Create Cluster
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    retryCluster: async (
+    retryCreateCluster: async (
       xUserID: string,
       id: number,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'xUserID' is not null or undefined
-      assertParamExists("retryCluster", "xUserID", xUserID);
+      assertParamExists("retryCreateCluster", "xUserID", xUserID);
       // verify required parameter 'id' is not null or undefined
-      assertParamExists("retryCluster", "id", id);
+      assertParamExists("retryCreateCluster", "id", id);
       const localVarPath = `/clusters/{id}/retry`.replace(
         `{${"id"}}`,
         encodeURIComponent(String(id)),
@@ -2600,13 +2600,13 @@ export const ClusterApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @summary Retry Cluster
+     * @summary Retry Create Cluster
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async retryCluster(
+    async retryCreateCluster(
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
@@ -2616,14 +2616,15 @@ export const ClusterApiFp = function (configuration?: Configuration) {
         basePath?: string,
       ) => AxiosPromise<ResponseCluster>
     > {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.retryCluster(
-        xUserID,
-        id,
-        options,
-      );
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.retryCreateCluster(
+          xUserID,
+          id,
+          options,
+        );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["ClusterApi.retryCluster"]?.[
+        operationServerMap["ClusterApi.retryCreateCluster"]?.[
           localVarOperationServerIndex
         ]?.url;
       return (axios, basePath) =>
@@ -2752,19 +2753,19 @@ export const ClusterApiFactory = function (
     },
     /**
      *
-     * @summary Retry Cluster
+     * @summary Retry Create Cluster
      * @param {string} xUserID User ID
      * @param {number} id Cluster ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    retryCluster(
+    retryCreateCluster(
       xUserID: string,
       id: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<ResponseCluster> {
       return localVarFp
-        .retryCluster(xUserID, id, options)
+        .retryCreateCluster(xUserID, id, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -2872,20 +2873,20 @@ export class ClusterApi extends BaseAPI {
 
   /**
    *
-   * @summary Retry Cluster
+   * @summary Retry Create Cluster
    * @param {string} xUserID User ID
    * @param {number} id Cluster ID
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof ClusterApi
    */
-  public retryCluster(
+  public retryCreateCluster(
     xUserID: string,
     id: number,
     options?: RawAxiosRequestConfig,
   ) {
     return ClusterApiFp(this.configuration)
-      .retryCluster(xUserID, id, options)
+      .retryCreateCluster(xUserID, id, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

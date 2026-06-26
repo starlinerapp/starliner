@@ -254,7 +254,7 @@ UPDATE
   database_deployments
 SET DATABASE = $1,
   username = $2,
-  password = $3
+  PASSWORD = $3
 WHERE deployment_id = $4
 `
 

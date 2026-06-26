@@ -36,8 +36,8 @@ export default function General() {
     ),
   );
 
-  const retryClusterMutation = useMutation(
-    trpc.cluster.retryCluster.mutationOptions({
+  const retryCreateClusterMutation = useMutation(
+    trpc.cluster.retryCreateCluster.mutationOptions({
       onSuccess: async (newCluster) => {
         await queryClient.invalidateQueries({
           queryKey: trpc.organization.getOrganizationClusters.queryKey({
@@ -50,7 +50,7 @@ export default function General() {
   );
 
   useEffect(() => {
-    if (error && !retryClusterMutation.isPending) {
+    if (error && !retryCreateClusterMutation.isPending) {
       (async () => {
         await queryClient.invalidateQueries({
           queryKey: trpc.organization.getOrganizationClusters.queryKey({
@@ -64,7 +64,7 @@ export default function General() {
     error,
     slug,
     organization.id,
-    retryClusterMutation.isPending,
+    retryCreateClusterMutation.isPending,
     trpc.organization.getOrganizationClusters.queryKey,
     queryClient.invalidateQueries,
     navigate,
@@ -115,8 +115,10 @@ export default function General() {
               <Button
                 intent="secondary"
                 className="ml-auto shrink-0 gap-1"
-                disabled={retryClusterMutation.isPending}
-                onClick={() => retryClusterMutation.mutate({ id: Number(id) })}
+                disabled={retryCreateClusterMutation.isPending}
+                onClick={() =>
+                  retryCreateClusterMutation.mutate({ id: Number(id) })
+                }
               >
                 <RotateCcw className="h-4 w-4" />
                 Retry
