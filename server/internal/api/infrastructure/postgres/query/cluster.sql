@@ -34,7 +34,7 @@ WHERE id = $1
   AND deleted_at IS NULL;
 
 -- name: IsClusterNameUniqueInOrganization :one
-SELECT EXISTS (
+SELECT NOT EXISTS (
     SELECT 1
     FROM clusters
     WHERE name = $1

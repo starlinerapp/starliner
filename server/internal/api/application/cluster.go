@@ -75,11 +75,11 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		return nil, errors.New("team does not belong to the specified organization")
 	}
 
-	exists, err := ca.clusterRepository.IsClusterNameUniqueInOrganization(ctx, name, organizationId)
+	isUnique, err := ca.clusterRepository.IsClusterNameUniqueInOrganization(ctx, name, organizationId)
 	if err != nil {
 		return nil, err
 	}
-	if exists {
+	if !isUnique {
 		return nil, value.ErrClusterNameAlreadyExists
 	}
 

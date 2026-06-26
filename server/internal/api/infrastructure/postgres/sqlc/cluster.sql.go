@@ -275,7 +275,7 @@ func (q *Queries) GetUserClusterProvisioningLogs(ctx context.Context, arg GetUse
 }
 
 const isClusterNameUniqueInOrganization = `-- name: IsClusterNameUniqueInOrganization :one
-SELECT EXISTS (
+SELECT NOT EXISTS (
     SELECT 1
     FROM clusters
     WHERE name = $1
@@ -290,9 +290,9 @@ type IsClusterNameUniqueInOrganizationParams struct {
 
 func (q *Queries) IsClusterNameUniqueInOrganization(ctx context.Context, arg IsClusterNameUniqueInOrganizationParams) (bool, error) {
 	row := q.db.QueryRowContext(ctx, isClusterNameUniqueInOrganization, arg.Name, arg.OrganizationID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
+	var not_exists bool
+	err := row.Scan(&not_exists)
+	return not_exists, err
 }
 
 const softDeleteCluster = `-- name: SoftDeleteCluster :exec
