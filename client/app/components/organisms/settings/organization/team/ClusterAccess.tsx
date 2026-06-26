@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import {
   Dialog,
@@ -134,7 +134,8 @@ export function ClusterAccess({ teamId }: { teamId: number }) {
                     <Skeleton className="h-12 w-full" />
                   </div>
                 ) : allClustersSorted.length === 0 ? (
-                  <WarningBanner
+                  <Banner
+                    intent="warning"
                     text="No clusters available to be assigned."
                     linkOut={{
                       text: "Create a cluster",

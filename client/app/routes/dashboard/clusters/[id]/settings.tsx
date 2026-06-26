@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import DestructiveDialog from "~/components/organisms/dialog/DestructiveDialog";
 import { useOrganizationContext } from "~/contexts/OrganizationContext";
@@ -76,7 +76,8 @@ export default function Settings() {
     <>
       <div className="w-full px-4">
         {isCredentialLoading ? null : isCredentialValid ? null : (
-          <WarningBanner
+          <Banner
+            intent="warning"
             text="You must enter your Hetzner API Key to delete the cluster."
             linkOut={{
               text: "API Keys",

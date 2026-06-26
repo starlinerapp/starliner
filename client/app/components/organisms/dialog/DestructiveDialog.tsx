@@ -1,4 +1,4 @@
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 
@@ -31,7 +31,7 @@ export default function DestructiveDialog({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <h1>{title}</h1>
-            <ErrorBanner text={bannerText} />
+            <Banner intent="error" text={bannerText} />
             <p className="text-mauve-11 text-sm">{description}</p>
           </div>
           <div className="flex justify-end gap-2">

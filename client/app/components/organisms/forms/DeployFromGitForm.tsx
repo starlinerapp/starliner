@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ArrowRight, ChevronDown, Plus } from "~/components/atoms/icons";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
@@ -269,7 +269,7 @@ export default function DeployFromGitForm({
         </div>
         {error && (
           <div>
-            <ErrorBanner text={error} />
+            <Banner intent="error" text={error} />
           </div>
         )}
         <div className="flex flex-col gap-2">

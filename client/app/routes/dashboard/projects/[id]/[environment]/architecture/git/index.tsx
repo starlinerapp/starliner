@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
 import DeployFromGitForm, {
   type DeployFromGitFormInput,
@@ -108,7 +108,8 @@ export default function Git() {
   return (
     <>
       {!githubApp ? (
-        <WarningBanner
+        <Banner
+          intent="warning"
           text="Install GitHub App to deploy from Git."
           linkOut={{
             text: "Settings",

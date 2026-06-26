@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import WarningBanner from "~/components/atoms/banner/WarningBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { ChevronDown } from "~/components/atoms/icons";
 import Breadcrumbs from "~/components/organisms/breadcrumbs/Breadcrumbs";
@@ -93,7 +93,8 @@ export default function NewCluster() {
       <div className="flex flex-col gap-2 p-4">
         <h1 className="font-bold text-xl">New Cluster</h1>
         {isCredentialLoading ? null : isCredentialValid ? null : (
-          <WarningBanner
+          <Banner
+            intent="warning"
             text="You must enter your Hetzner API Key to create a cluster."
             linkOut={{
               text: "API Keys",

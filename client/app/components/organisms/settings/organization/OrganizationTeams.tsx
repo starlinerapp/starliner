@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import { Dialog, DialogContent } from "~/components/atoms/dialog/Dialog";
 import Skeleton from "~/components/atoms/skeleton/Skeleton";
@@ -116,7 +116,10 @@ export default function OrganizationTeams() {
                 </p>
               </div>
               {createTeamMutation.isError && (
-                <ErrorBanner text={createTeamMutation.error.message} />
+                <Banner
+                  intent="error"
+                  text={createTeamMutation.error.message}
+                />
               )}
               <form
                 className="flex flex-col gap-3"

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import ErrorBanner from "~/components/atoms/banner/ErrorBanner";
+import Banner from "~/components/atoms/banner/Banner";
 import Button from "~/components/atoms/button/Button";
 import CopyToClipboard from "~/components/atoms/copy-to-clipboard/CopyToClipboard";
 import { Download } from "~/components/atoms/icons";
@@ -105,7 +105,8 @@ export default function General() {
       >
         <div className="w-full p-4">
           {clusterData?.status === "failed" && (
-            <ErrorBanner
+            <Banner
+              intent="error"
               text="Provisioning failed"
               description="The cluster could not be provisioned. You can retry or check logs for details."
               className="mb-4"
@@ -118,7 +119,7 @@ export default function General() {
               >
                 {retryClusterMutation.isPending ? "Retrying…" : "Retry"}
               </Button>
-            </ErrorBanner>
+            </Banner>
           )}
           <div className="rounded-md border border-mauve-6 bg-gray-2 text-sm shadow-xs">
             <div className="flex h-14 items-center rounded-t-md px-4 font-bold text-mauve-12 text-xs uppercase">
