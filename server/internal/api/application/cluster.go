@@ -75,6 +75,10 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		return nil, errors.New("team does not belong to the specified organization")
 	}
 
+	return ca.provisionCluster(ctx, name, serverType, organizationId, teamId)
+}
+
+func (ca *ClusterApplication) provisionCluster(ctx context.Context, name string, serverType string, organizationId int64, teamId int64) (*value.Cluster, error) {
 	cluster, err := ca.clusterRepository.CreateCluster(ctx, name, serverType, organizationId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to persist cluster in database: %v", err)
@@ -85,7 +89,7 @@ func (ca *ClusterApplication) CreateCluster(ctx context.Context, userId int64, n
 		return nil, err
 	}
 
-	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, organizationId, value.HetznerCredential)
+	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, cluster.OrganizationId, value.HetznerCredential)
 	if err != nil {
 		return nil, err
 	}
@@ -397,36 +401,5 @@ func (ca *ClusterApplication) RetryCluster(ctx context.Context, userId int64, cl
 		return nil, err
 	}
 
-	newCluster, err := ca.clusterRepository.CreateCluster(ctx, oldCluster.Name, string(oldCluster.ServerType), oldCluster.OrganizationId)
-	if err != nil {
-		return nil, fmt.Errorf("failed to persist cluster in database: %v", err)
-	}
-
-	if err := ca.teamRepository.AssignClusterToTeam(ctx, teamId, newCluster.Id); err != nil {
-		_ = ca.clusterRepository.DeleteCluster(ctx, newCluster.Id)
-		return nil, err
-	}
-
-	credential, err := ca.organizationRepository.GetOrganizationProvisioningCredential(ctx, newCluster.OrganizationId, value.HetznerCredential)
-	if err != nil {
-		return nil, err
-	}
-
-	decrypted, err := ca.crypto.Decrypt(credential.Secret)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ca.queue.PublishCreateCluster(&coreValue.ProvisionCluster{
-		Id:                     newCluster.Id,
-		Name:                   newCluster.Name,
-		ServerType:             coreValue.ServerType(newCluster.ServerType),
-		OrganizationName:       strconv.FormatInt(newCluster.OrganizationId, 10),
-		ProvisioningCredential: decrypted,
-	})
-	if err != nil {
-		log.Printf("error publishing: %v", err)
-	}
-
-	return value.NewCluster(newCluster), nil
+	return ca.provisionCluster(ctx, oldCluster.Name, string(oldCluster.ServerType), oldCluster.OrganizationId, teamId)
 }
