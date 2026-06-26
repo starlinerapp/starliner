@@ -7,6 +7,7 @@ import (
 	"starliner.app/internal/builder/domain/service"
 	grpcClient "starliner.app/internal/builder/infrastructure/grpc"
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
+	builderRedis "starliner.app/internal/builder/infrastructure/redis"
 	grpcServer "starliner.app/internal/builder/presentation/grpc"
 	builderqueue "starliner.app/internal/builder/presentation/queue"
 	"starliner.app/internal/builder/presentation/scheduler"
@@ -18,6 +19,7 @@ func main() {
 	fx.New(
 		conf.Module,
 		redis.Module,
+		builderRedis.Module,
 		queue.Module,
 		grpcClient.Module,
 		application.Module,

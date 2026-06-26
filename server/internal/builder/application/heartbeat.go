@@ -7,26 +7,28 @@ import (
 
 	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/builder/domain/value"
-	corePort "starliner.app/internal/core/domain/port"
 	coreValue "starliner.app/internal/core/domain/value"
 )
 
 type HeartbeatApplication struct {
-	runnerStore       corePort.RunnerStore
+	runnerStore       port.RunnerStore
 	queue             port.Queue
+	buildApplication  *BuildApplication
 	LeaseTTL          time.Duration
 	HeartbeatInterval time.Duration
 }
 
 func NewHeartbeatApplication(
-	runnerStore corePort.RunnerStore,
+	runnerStore port.RunnerStore,
 	queue port.Queue,
+	buildApplication *BuildApplication,
 ) *HeartbeatApplication {
 	leaseTTL := 10 * time.Second
 
 	return &HeartbeatApplication{
 		runnerStore:       runnerStore,
 		queue:             queue,
+		buildApplication:  buildApplication,
 		LeaseTTL:          leaseTTL,
 		HeartbeatInterval: leaseTTL / 2,
 	}
@@ -61,7 +63,7 @@ func (a *HeartbeatApplication) AcknowledgeHeartbeat(
 		status = state.Status
 	}
 
-	nextState := corePort.RunnerRuntimeState{
+	nextState := port.RunnerRuntimeState{
 		OrganizationId:    organizationId,
 		Status:            coreValue.RunnerStatusOnline,
 		MaxConcurrentJobs: maxConcurrentJobs,
@@ -119,7 +121,13 @@ func (a *HeartbeatApplication) CheckMissedHeartbeats(ctx context.Context) error 
 			Status:   coreValue.RunnerStatusOffline,
 		}); err != nil {
 			log.Printf("failed to publish runner %d status change: %v", runnerId, err)
+			continue
 		}
+
+		a.buildApplication.HandleRunnerStatusChanged(&coreValue.RunnerStatusChanged{
+			RunnerId: runnerId,
+			Status:   coreValue.RunnerStatusOffline,
+		})
 	}
 
 	return nil

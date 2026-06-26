@@ -10,8 +10,7 @@ var Module = fx.Module(
 	fx.Provide(
 		Connect,
 		NewClient,
-		func(c *Client) port.KVStore { return c },
-		func(c *Client) port.AcquireLimiter { return c },
-		func(c *Client) port.RunnerStore { return c },
+		func(c *Client) port.Stream { return c },
+		func(c *Client) port.Lease { return c },
 	),
 )

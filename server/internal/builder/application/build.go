@@ -14,14 +14,19 @@ import (
 	"starliner.app/internal/core/domain/value"
 )
 
-const buildDispatchLockTTL = 24 * time.Hour
+const (
+	buildDispatchLockTTL = 24 * time.Hour
+	buildCompleteLockTTL = 24 * time.Hour
+	runnerOfflineMessage = "build failed: runner went offline"
+)
 
 type BuildApplication struct {
-	cfg             *conf.Config
-	queue           port.Queue
-	logPublisher    port.LogPublisher
-	runnerService   *service.RunnerService
-	dispatchLimiter corePort.AcquireLimiter
+	cfg                *conf.Config
+	queue              port.Queue
+	logPublisher       port.LogPublisher
+	runnerService      *service.RunnerService
+	lease              corePort.Lease
+	buildDispatchStore port.BuildDispatchStore
 }
 
 func NewBuildApplication(
@@ -29,14 +34,16 @@ func NewBuildApplication(
 	queue port.Queue,
 	logPublisher port.LogPublisher,
 	runnerService *service.RunnerService,
-	dispatchLimiter corePort.AcquireLimiter,
+	lease corePort.Lease,
+	buildDispatchStore port.BuildDispatchStore,
 ) *BuildApplication {
 	return &BuildApplication{
-		cfg:             cfg,
-		queue:           queue,
-		logPublisher:    logPublisher,
-		runnerService:   runnerService,
-		dispatchLimiter: dispatchLimiter,
+		cfg:                cfg,
+		queue:              queue,
+		logPublisher:       logPublisher,
+		runnerService:      runnerService,
+		lease:              lease,
+		buildDispatchStore: buildDispatchStore,
 	}
 }
 
@@ -81,7 +88,7 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		return
 	}
 
-	acquired, err := ba.dispatchLimiter.TryAcquire(
+	acquired, err := ba.lease.TryLease(
 		ctx,
 		fmt.Sprintf("build:dispatch:%d", build.BuildId),
 		buildDispatchLockTTL,
@@ -125,12 +132,25 @@ func (ba *BuildApplication) HandleBuildTriggered(build *value.TriggerBuild) {
 		return
 	}
 
+	if err := ba.buildDispatchStore.Register(ctx, runnerId, build.BuildId, build.DeploymentId); err != nil {
+		log.Printf("failed to register dispatched build %d for runner %d: %v", build.BuildId, runnerId, err)
+	}
+
 	log.Printf("enqueued build %d for runner %d", build.BuildId, runnerId)
 }
 
 func (ba *BuildApplication) HandleRunnerJobResult(result *value.RunnerBuildResult) {
 	if result == nil {
 		return
+	}
+
+	ctx := context.Background()
+	if !ba.tryMarkBuildComplete(ctx, result.BuildId) {
+		return
+	}
+
+	if err := ba.buildDispatchStore.Unregister(ctx, result.BuildId); err != nil {
+		log.Printf("failed to unregister dispatched build %d: %v", result.BuildId, err)
 	}
 
 	if ba.logPublisher != nil {
@@ -159,4 +179,64 @@ func (ba *BuildApplication) HandleRunnerJobResult(result *value.RunnerBuildResul
 	}); err != nil {
 		log.Printf("failed to publish build completed: %v", err)
 	}
+}
+
+func (ba *BuildApplication) HandleRunnerStatusChanged(status *value.RunnerStatusChanged) {
+	if status == nil || status.Status != value.RunnerStatusOffline {
+		return
+	}
+
+	ctx := context.Background()
+	builds, err := ba.buildDispatchStore.ListByRunner(ctx, status.RunnerId)
+	if err != nil {
+		log.Printf("failed to list dispatched builds for runner %d: %v", status.RunnerId, err)
+		return
+	}
+
+	for _, build := range builds {
+		ba.failBuildForRunnerOffline(ctx, build.BuildId, build.DeploymentId)
+	}
+}
+
+func (ba *BuildApplication) failBuildForRunnerOffline(ctx context.Context, buildId int64, deploymentId int64) {
+	if !ba.tryMarkBuildComplete(ctx, buildId) {
+		return
+	}
+
+	if err := ba.buildDispatchStore.Unregister(ctx, buildId); err != nil {
+		log.Printf("failed to unregister dispatched build %d: %v", buildId, err)
+	}
+
+	if ba.logPublisher != nil {
+		if err := ba.logPublisher.PublishLogChunk(buildId, []byte(runnerOfflineMessage+"\n")); err != nil {
+			log.Printf("failed to publish log chunk: %v", err)
+		}
+		if err := ba.logPublisher.PublishLogEnd(buildId); err != nil {
+			log.Printf("failed to publish log end: %v", err)
+		}
+	}
+
+	if err := ba.queue.PublishBuildCompleted(&value.BuildCompleted{
+		BuildId:          buildId,
+		DeploymentId:     deploymentId,
+		ImageRegistryUrl: ba.cfg.ImageRegistryUrl,
+		BuildStatus:      value.BuildStatusFailed,
+		Logs:             runnerOfflineMessage,
+	}); err != nil {
+		log.Printf("failed to publish build completed: %v", err)
+	}
+}
+
+func (ba *BuildApplication) tryMarkBuildComplete(ctx context.Context, buildId int64) bool {
+	acquired, err := ba.lease.TryLease(
+		ctx,
+		fmt.Sprintf("build:complete:%d", buildId),
+		buildCompleteLockTTL,
+	)
+	if err != nil {
+		log.Printf("failed to claim build complete lock for build %d: %v", buildId, err)
+		return false
+	}
+
+	return acquired
 }

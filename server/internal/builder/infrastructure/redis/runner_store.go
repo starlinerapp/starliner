@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"starliner.app/internal/core/domain/port"
+	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
@@ -23,7 +23,7 @@ const (
 	runnerFieldActiveJobs = "active_jobs"
 )
 
-func (c *Client) UpsertHeartbeat(
+func (s *Store) UpsertHeartbeat(
 	ctx context.Context,
 	runnerId int64,
 	state port.RunnerRuntimeState,
@@ -32,7 +32,7 @@ func (c *Client) UpsertHeartbeat(
 	runnerKey := fmt.Sprintf(runnerKeyFmt, runnerId)
 	liveKey := fmt.Sprintf(runnerLiveKeyFmt, runnerId)
 
-	pipe := c.client.Pipeline()
+	pipe := s.client.Pipeline()
 	pipe.HSet(ctx, runnerKey, map[string]any{
 		runnerFieldOrgID:      organizationIDToRedis(state.OrganizationId),
 		runnerFieldStatus:     string(state.Status),
@@ -50,8 +50,8 @@ func (c *Client) UpsertHeartbeat(
 	return err
 }
 
-func (c *Client) GetRunner(ctx context.Context, runnerId int64) (*port.RunnerRuntimeState, error) {
-	values, err := c.client.HGetAll(ctx, fmt.Sprintf(runnerKeyFmt, runnerId)).Result()
+func (s *Store) GetRunner(ctx context.Context, runnerId int64) (*port.RunnerRuntimeState, error) {
+	values, err := s.client.HGetAll(ctx, fmt.Sprintf(runnerKeyFmt, runnerId)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +82,8 @@ func (c *Client) GetRunner(ctx context.Context, runnerId int64) (*port.RunnerRun
 	}, nil
 }
 
-func (c *Client) IsRunnerDeleted(ctx context.Context, runnerId int64) (bool, error) {
-	count, err := c.client.Exists(ctx, fmt.Sprintf(runnerDeletedKeyFmt, runnerId)).Result()
+func (s *Store) IsRunnerDeleted(ctx context.Context, runnerId int64) (bool, error) {
+	count, err := s.client.Exists(ctx, fmt.Sprintf(runnerDeletedKeyFmt, runnerId)).Result()
 	if err != nil {
 		return false, err
 	}
@@ -91,8 +91,8 @@ func (c *Client) IsRunnerDeleted(ctx context.Context, runnerId int64) (bool, err
 	return count > 0, nil
 }
 
-func (c *Client) IsRunnerAlive(ctx context.Context, runnerId int64) (bool, error) {
-	count, err := c.client.Exists(ctx, fmt.Sprintf(runnerLiveKeyFmt, runnerId)).Result()
+func (s *Store) IsRunnerAlive(ctx context.Context, runnerId int64) (bool, error) {
+	count, err := s.client.Exists(ctx, fmt.Sprintf(runnerLiveKeyFmt, runnerId)).Result()
 	if err != nil {
 		return false, err
 	}
@@ -100,29 +100,29 @@ func (c *Client) IsRunnerAlive(ctx context.Context, runnerId int64) (bool, error
 	return count > 0, nil
 }
 
-func (c *Client) ListOrgRunners(ctx context.Context, orgId int64) ([]int64, error) {
-	return parseRunnerSet(c.client.SMembers(ctx, fmt.Sprintf(runnersOrgKeyFmt, orgId)).Result())
+func (s *Store) ListOrgRunners(ctx context.Context, orgId int64) ([]int64, error) {
+	return parseRunnerSet(s.client.SMembers(ctx, fmt.Sprintf(runnersOrgKeyFmt, orgId)).Result())
 }
 
-func (c *Client) ListGlobalRunners(ctx context.Context) ([]int64, error) {
-	return parseRunnerSet(c.client.SMembers(ctx, runnersGlobalKey).Result())
+func (s *Store) ListGlobalRunners(ctx context.Context) ([]int64, error) {
+	return parseRunnerSet(s.client.SMembers(ctx, runnersGlobalKey).Result())
 }
 
-func (c *Client) ListMonitoredRunners(ctx context.Context) ([]int64, error) {
-	return parseRunnerSet(c.client.SMembers(ctx, monitoredRunnersKey).Result())
+func (s *Store) ListMonitoredRunners(ctx context.Context) ([]int64, error) {
+	return parseRunnerSet(s.client.SMembers(ctx, monitoredRunnersKey).Result())
 }
 
-func (c *Client) SetRunnerStatus(ctx context.Context, runnerId int64, status value.RunnerStatus) error {
-	return c.client.HSet(ctx, fmt.Sprintf(runnerKeyFmt, runnerId), runnerFieldStatus, string(status)).Err()
+func (s *Store) SetRunnerStatus(ctx context.Context, runnerId int64, status value.RunnerStatus) error {
+	return s.client.HSet(ctx, fmt.Sprintf(runnerKeyFmt, runnerId), runnerFieldStatus, string(status)).Err()
 }
 
-func (c *Client) MarkDeleted(ctx context.Context, runnerId int64, state *port.RunnerRuntimeState) error {
+func (s *Store) MarkDeleted(ctx context.Context, runnerId int64, state *port.RunnerRuntimeState) error {
 	var orgId *int64
 	if state != nil {
 		orgId = state.OrganizationId
 	}
 
-	pipe := c.client.Pipeline()
+	pipe := s.client.Pipeline()
 	if orgId != nil {
 		pipe.SRem(ctx, fmt.Sprintf(runnersOrgKeyFmt, *orgId), runnerId)
 	} else {
@@ -174,4 +174,4 @@ func parseRunnerSet(members []string, err error) ([]int64, error) {
 	return runnerIds, nil
 }
 
-var _ port.RunnerStore = (*Client)(nil)
+var _ port.RunnerStore = (*Store)(nil)
