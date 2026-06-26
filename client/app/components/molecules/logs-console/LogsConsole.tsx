@@ -1,3 +1,4 @@
+import Anser from "anser";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -32,7 +33,9 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
     if (!query) {
       return logs;
     }
-    return logs.filter((line) => line.toLowerCase().includes(query));
+    return logs.filter((line) =>
+      Anser.ansiToText(line).toLowerCase().includes(query),
+    );
   }, [logs, search]);
 
   const updateButtonState = useCallback((el: HTMLDivElement) => {
@@ -164,6 +167,19 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
     return parts;
   };
 
+  const renderLine = (line: string) =>
+    Anser.ansiToJson(line, { remove_empty: true }).map((chunk, j) => (
+      <span
+        key={j}
+        style={{
+          color: chunk.fg ? `rgb(${chunk.fg})` : undefined,
+          backgroundColor: chunk.bg ? `rgb(${chunk.bg})` : undefined,
+        }}
+      >
+        {highlightLine(chunk.content)}
+      </span>
+    ));
+
   return (
     <div className="flex h-full min-h-0 w-full flex-col gap-2">
       <div className="relative shrink-0">
@@ -195,7 +211,7 @@ export default function LogsConsole({ logs, resetKey }: LogsConsoleProps) {
           <pre className="w-full whitespace-pre-wrap break-all font-mono text-mauve-11 text-sm">
             {filteredLogs.map((line, i) => (
               <span key={i} className="block">
-                {highlightLine(line)}
+                {renderLine(line)}
               </span>
             ))}
           </pre>
