@@ -401,6 +401,7 @@ definitions:
         - pending
         - running
         - deleted
+        - failed
       teamSlugs:
         items:
           type: string
@@ -423,11 +424,13 @@ definitions:
     - pending
     - running
     - deleted
+    - failed
     type: string
     x-enum-varnames:
     - ClusterStatusPending
     - ClusterStatusRunning
     - ClusterStatusDeleted
+    - ClusterStatusFailed
   response.CreateRunner:
     properties:
       expires_at:
@@ -922,6 +925,7 @@ definitions:
         - pending
         - running
         - deleted
+        - failed
       teamId:
         type: integer
     required:
@@ -1149,6 +1153,28 @@ paths:
               description: text/event-stream
               type: string
       summary: Stream cluster provisioning logs
+      tags:
+      - cluster
+  /clusters/{id}/retry:
+    post:
+      operationId: retryCluster
+      parameters:
+      - description: User ID
+        in: header
+        name: X-User-ID
+        required: true
+        type: string
+      - description: Cluster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Cluster'
+      summary: Retry Cluster
       tags:
       - cluster
   /deployments/{id}:
