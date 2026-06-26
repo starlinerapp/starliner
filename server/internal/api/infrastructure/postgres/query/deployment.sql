@@ -1,12 +1,8 @@
--- name: GetUserDeployment :one
+-- name: GetDeploymentById :one
 SELECT deployments.*
 FROM deployments
-  INNER JOIN environments ON deployments.environment_id = environments.id
-  INNER JOIN projects ON environments.project_id = projects.id
-  INNER JOIN teams ON projects.team_id = teams.id
-  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE deployments.id = @deployment_id
-  AND team_members.user_id = @user_id;
+  AND deployments.deleted_at IS NULL;
 
 -- name: GetDeploymentWithNamespace :one
 SELECT deployments.*,
@@ -30,14 +26,11 @@ WHERE id = @id
   AND deleted_at IS NULL;
 
 -- name: GetDeploymentStatusLogs :one
-SELECT d.status_logs
+SELECT d.status_logs,
+  d.rollout_status
 FROM deployments d
-  INNER JOIN environments e ON d.environment_id = e.id
-  INNER JOIN projects ON e.project_id = projects.id
-  INNER JOIN teams ON teams.id = projects.team_id
-  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE d.id = @deployment_id
-  AND team_members.user_id = @user_id;
+  AND d.deleted_at IS NULL;
 
 -- name: SetDeploymentStatusLogs :exec
 UPDATE

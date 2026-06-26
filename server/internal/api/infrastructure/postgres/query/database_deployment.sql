@@ -34,26 +34,6 @@ SET DATABASE = @database,
   password = @password
 WHERE deployment_id = @deployment_id;
 
--- name: GetUserEnvironmentDatabaseDeployments :many
-SELECT d.id AS deployment_id,
-  d.name,
-  d.port,
-  d.status,
-  d.environment_id,
-  db.database,
-  db.username,
-  db.password
-FROM deployments d
-  INNER JOIN database_deployments db ON d.id = db.deployment_id
-  INNER JOIN environments ON d.environment_id = environments.id
-  INNER JOIN projects ON environments.project_id = projects.id
-  INNER JOIN teams ON projects.team_id = teams.id
-  INNER JOIN team_members ON team_members.team_id = teams.id
-WHERE environment_id = $1
-  AND team_members.user_id = $2
-  AND d.deleted_at IS NULL
-ORDER BY d.id DESC;
-
 -- name: GetEnvironmentDatabaseDeployments :many
 SELECT d.id AS deployment_id,
   d.name,
@@ -70,7 +50,7 @@ WHERE environment_id = $1
   AND d.deleted_at IS NULL
 ORDER BY d.id DESC;
 
--- name: GetUserDatabaseDeploymentById :one
+-- name: GetDatabaseDeploymentById :one
 SELECT d.id AS deployment_id,
   d.name,
   d.port,
@@ -81,10 +61,5 @@ SELECT d.id AS deployment_id,
   db.password
 FROM deployments d
   INNER JOIN database_deployments db ON d.id = db.deployment_id
-  INNER JOIN environments ON d.environment_id = environments.id
-  INNER JOIN projects ON environments.project_id = projects.id
-  INNER JOIN teams ON projects.team_id = teams.id
-  INNER JOIN team_members ON team_members.team_id = teams.id
 WHERE d.id = @deployment_id
-  AND team_members.user_id = @user_id
   AND d.deleted_at IS NULL;

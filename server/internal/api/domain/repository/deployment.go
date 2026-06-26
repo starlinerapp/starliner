@@ -447,12 +447,12 @@ func (dr *DeploymentRepository) UpdateDatabaseDeploymentCredentials(
 	})
 }
 
-func (dr *DeploymentRepository) GetUserDeployment(ctx context.Context, userId int64, deploymentId int64) (*entity.Deployment, error) {
-	res, err := dr.queries.GetUserDeployment(ctx, sqlc.GetUserDeploymentParams{
-		DeploymentID: deploymentId,
-		UserID:       userId,
-	})
+func (dr *DeploymentRepository) GetDeploymentById(ctx context.Context, deploymentId int64) (*entity.Deployment, error) {
+	res, err := dr.queries.GetDeploymentById(ctx, deploymentId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -587,19 +587,15 @@ func (dr *DeploymentRepository) UpdateDeploymentStatus(ctx context.Context, depl
 
 func (dr *DeploymentRepository) GetDeploymentStatusLogs(
 	ctx context.Context,
-	userId int64,
 	deploymentId int64,
 ) (*entity.DeploymentStatusLogs, error) {
-	row, err := dr.queries.GetDeploymentStatusLogs(ctx, sqlc.GetDeploymentStatusLogsParams{
-		DeploymentID: deploymentId,
-		UserID:       userId,
-	})
+	row, err := dr.queries.GetDeploymentStatusLogs(ctx, deploymentId)
 	if err != nil {
 		return nil, err
 	}
 
 	return &entity.DeploymentStatusLogs{
-		Logs: mapper.ToPtrFromNullString(row),
+		Logs: mapper.ToPtrFromNullString(row.StatusLogs),
 	}, nil
 }
 
@@ -705,18 +701,14 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 	return deployments, nil
 }
 
-func (dr *DeploymentRepository) GetUserGitDeploymentById(
+func (dr *DeploymentRepository) GetGitDeploymentById(
 	ctx context.Context,
-	userId int64,
 	deploymentId int64,
 ) (*entity.GitDeployment, error) {
-	row, err := dr.queries.GetUserGitDeploymentById(ctx, sqlc.GetUserGitDeploymentByIdParams{
-		DeploymentID: deploymentId,
-		UserID:       userId,
-	})
+	row, err := dr.queries.GetGitDeploymentById(ctx, deploymentId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("git deployment not found")
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -788,18 +780,14 @@ func (dr *DeploymentRepository) mapGitDeploymentRow(
 	}, nil
 }
 
-func (dr *DeploymentRepository) GetUserImageDeploymentById(
+func (dr *DeploymentRepository) GetImageDeploymentById(
 	ctx context.Context,
-	userId int64,
 	deploymentId int64,
 ) (*entity.ImageDeployment, error) {
-	row, err := dr.queries.GetUserImageDeploymentById(ctx, sqlc.GetUserImageDeploymentByIdParams{
-		DeploymentID: deploymentId,
-		UserID:       userId,
-	})
+	row, err := dr.queries.GetImageDeploymentById(ctx, deploymentId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("image deployment not found")
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -831,18 +819,14 @@ func (dr *DeploymentRepository) GetUserImageDeploymentById(
 	}, nil
 }
 
-func (dr *DeploymentRepository) GetUserDatabaseDeploymentById(
+func (dr *DeploymentRepository) GetDatabaseDeploymentById(
 	ctx context.Context,
-	userId int64,
 	deploymentId int64,
 ) (*entity.DatabaseDeployment, error) {
-	row, err := dr.queries.GetUserDatabaseDeploymentById(ctx, sqlc.GetUserDatabaseDeploymentByIdParams{
-		DeploymentID: deploymentId,
-		UserID:       userId,
-	})
+	row, err := dr.queries.GetDatabaseDeploymentById(ctx, deploymentId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("database deployment not found")
+			return nil, nil
 		}
 		return nil, err
 	}

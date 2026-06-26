@@ -11,27 +11,49 @@ import (
 	"time"
 )
 
-const getDeploymentStatusLogs = `-- name: GetDeploymentStatusLogs :one
-SELECT d.status_logs
-FROM deployments d
-  INNER JOIN environments e ON d.environment_id = e.id
-  INNER JOIN projects ON e.project_id = projects.id
-  INNER JOIN teams ON teams.id = projects.team_id
-  INNER JOIN team_members ON team_members.team_id = teams.id
-WHERE d.id = $1
-  AND team_members.user_id = $2
+const getDeploymentById = `-- name: GetDeploymentById :one
+SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.deleted_at, deployments.rollout_status
+FROM deployments
+WHERE deployments.id = $1
+  AND deployments.deleted_at IS NULL
 `
 
-type GetDeploymentStatusLogsParams struct {
-	DeploymentID int64
-	UserID       int64
+func (q *Queries) GetDeploymentById(ctx context.Context, deploymentID int64) (Deployment, error) {
+	row := q.db.QueryRowContext(ctx, getDeploymentById, deploymentID)
+	var i Deployment
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Port,
+		&i.Status,
+		&i.EnvironmentID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.StatusLogs,
+		&i.DeletedAt,
+		&i.RolloutStatus,
+	)
+	return i, err
 }
 
-func (q *Queries) GetDeploymentStatusLogs(ctx context.Context, arg GetDeploymentStatusLogsParams) (sql.NullString, error) {
-	row := q.db.QueryRowContext(ctx, getDeploymentStatusLogs, arg.DeploymentID, arg.UserID)
-	var status_logs sql.NullString
-	err := row.Scan(&status_logs)
-	return status_logs, err
+const getDeploymentStatusLogs = `-- name: GetDeploymentStatusLogs :one
+SELECT d.status_logs,
+  d.rollout_status
+FROM deployments d
+WHERE d.id = $1
+  AND d.deleted_at IS NULL
+`
+
+type GetDeploymentStatusLogsRow struct {
+	StatusLogs    sql.NullString
+	RolloutStatus string
+}
+
+func (q *Queries) GetDeploymentStatusLogs(ctx context.Context, deploymentID int64) (GetDeploymentStatusLogsRow, error) {
+	row := q.db.QueryRowContext(ctx, getDeploymentStatusLogs, deploymentID)
+	var i GetDeploymentStatusLogsRow
+	err := row.Scan(&i.StatusLogs, &i.RolloutStatus)
+	return i, err
 }
 
 const getDeploymentWithNamespace = `-- name: GetDeploymentWithNamespace :one
@@ -161,40 +183,6 @@ type GetEnvironmentDeploymentByNameParams struct {
 
 func (q *Queries) GetEnvironmentDeploymentByName(ctx context.Context, arg GetEnvironmentDeploymentByNameParams) (Deployment, error) {
 	row := q.db.QueryRowContext(ctx, getEnvironmentDeploymentByName, arg.Name, arg.EnvironmentID)
-	var i Deployment
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Port,
-		&i.Status,
-		&i.EnvironmentID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.StatusLogs,
-		&i.DeletedAt,
-		&i.RolloutStatus,
-	)
-	return i, err
-}
-
-const getUserDeployment = `-- name: GetUserDeployment :one
-SELECT deployments.id, deployments.name, deployments.port, deployments.status, deployments.environment_id, deployments.created_at, deployments.updated_at, deployments.status_logs, deployments.deleted_at, deployments.rollout_status
-FROM deployments
-  INNER JOIN environments ON deployments.environment_id = environments.id
-  INNER JOIN projects ON environments.project_id = projects.id
-  INNER JOIN teams ON projects.team_id = teams.id
-  INNER JOIN team_members ON team_members.team_id = teams.id
-WHERE deployments.id = $1
-  AND team_members.user_id = $2
-`
-
-type GetUserDeploymentParams struct {
-	DeploymentID int64
-	UserID       int64
-}
-
-func (q *Queries) GetUserDeployment(ctx context.Context, arg GetUserDeploymentParams) (Deployment, error) {
-	row := q.db.QueryRowContext(ctx, getUserDeployment, arg.DeploymentID, arg.UserID)
 	var i Deployment
 	err := row.Scan(
 		&i.ID,

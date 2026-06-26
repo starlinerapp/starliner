@@ -68,6 +68,48 @@ func (q *Queries) CreateDatabaseDeployment(ctx context.Context, arg CreateDataba
 	return i, err
 }
 
+const getDatabaseDeploymentById = `-- name: GetDatabaseDeploymentById :one
+SELECT d.id AS deployment_id,
+  d.name,
+  d.port,
+  d.status,
+  d.environment_id,
+  db.database,
+  db.username,
+  db.password
+FROM deployments d
+  INNER JOIN database_deployments db ON d.id = db.deployment_id
+WHERE d.id = $1
+  AND d.deleted_at IS NULL
+`
+
+type GetDatabaseDeploymentByIdRow struct {
+	DeploymentID  int64
+	Name          string
+	Port          string
+	Status        DeploymentStatus
+	EnvironmentID sql.NullInt64
+	Database      sql.NullString
+	Username      sql.NullString
+	Password      sql.NullString
+}
+
+func (q *Queries) GetDatabaseDeploymentById(ctx context.Context, deploymentID int64) (GetDatabaseDeploymentByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getDatabaseDeploymentById, deploymentID)
+	var i GetDatabaseDeploymentByIdRow
+	err := row.Scan(
+		&i.DeploymentID,
+		&i.Name,
+		&i.Port,
+		&i.Status,
+		&i.EnvironmentID,
+		&i.Database,
+		&i.Username,
+		&i.Password,
+	)
+	return i, err
+}
+
 const getEnvironmentDatabaseDeployments = `-- name: GetEnvironmentDatabaseDeployments :many
 SELECT d.id AS deployment_id,
   d.name,
@@ -105,127 +147,6 @@ func (q *Queries) GetEnvironmentDatabaseDeployments(ctx context.Context, environ
 	var items []GetEnvironmentDatabaseDeploymentsRow
 	for rows.Next() {
 		var i GetEnvironmentDatabaseDeploymentsRow
-		if err := rows.Scan(
-			&i.DeploymentID,
-			&i.Name,
-			&i.Port,
-			&i.Status,
-			&i.EnvironmentID,
-			&i.Database,
-			&i.Username,
-			&i.Password,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getUserDatabaseDeploymentById = `-- name: GetUserDatabaseDeploymentById :one
-SELECT d.id AS deployment_id,
-  d.name,
-  d.port,
-  d.status,
-  d.environment_id,
-  db.database,
-  db.username,
-  db.password
-FROM deployments d
-  INNER JOIN database_deployments db ON d.id = db.deployment_id
-  INNER JOIN environments ON d.environment_id = environments.id
-  INNER JOIN projects ON environments.project_id = projects.id
-  INNER JOIN teams ON projects.team_id = teams.id
-  INNER JOIN team_members ON team_members.team_id = teams.id
-WHERE d.id = $1
-  AND team_members.user_id = $2
-  AND d.deleted_at IS NULL
-`
-
-type GetUserDatabaseDeploymentByIdParams struct {
-	DeploymentID int64
-	UserID       int64
-}
-
-type GetUserDatabaseDeploymentByIdRow struct {
-	DeploymentID  int64
-	Name          string
-	Port          string
-	Status        DeploymentStatus
-	EnvironmentID sql.NullInt64
-	Database      sql.NullString
-	Username      sql.NullString
-	Password      sql.NullString
-}
-
-func (q *Queries) GetUserDatabaseDeploymentById(ctx context.Context, arg GetUserDatabaseDeploymentByIdParams) (GetUserDatabaseDeploymentByIdRow, error) {
-	row := q.db.QueryRowContext(ctx, getUserDatabaseDeploymentById, arg.DeploymentID, arg.UserID)
-	var i GetUserDatabaseDeploymentByIdRow
-	err := row.Scan(
-		&i.DeploymentID,
-		&i.Name,
-		&i.Port,
-		&i.Status,
-		&i.EnvironmentID,
-		&i.Database,
-		&i.Username,
-		&i.Password,
-	)
-	return i, err
-}
-
-const getUserEnvironmentDatabaseDeployments = `-- name: GetUserEnvironmentDatabaseDeployments :many
-SELECT d.id AS deployment_id,
-  d.name,
-  d.port,
-  d.status,
-  d.environment_id,
-  db.database,
-  db.username,
-  db.password
-FROM deployments d
-  INNER JOIN database_deployments db ON d.id = db.deployment_id
-  INNER JOIN environments ON d.environment_id = environments.id
-  INNER JOIN projects ON environments.project_id = projects.id
-  INNER JOIN teams ON projects.team_id = teams.id
-  INNER JOIN team_members ON team_members.team_id = teams.id
-WHERE environment_id = $1
-  AND team_members.user_id = $2
-  AND d.deleted_at IS NULL
-ORDER BY d.id DESC
-`
-
-type GetUserEnvironmentDatabaseDeploymentsParams struct {
-	EnvironmentID sql.NullInt64
-	UserID        int64
-}
-
-type GetUserEnvironmentDatabaseDeploymentsRow struct {
-	DeploymentID  int64
-	Name          string
-	Port          string
-	Status        DeploymentStatus
-	EnvironmentID sql.NullInt64
-	Database      sql.NullString
-	Username      sql.NullString
-	Password      sql.NullString
-}
-
-func (q *Queries) GetUserEnvironmentDatabaseDeployments(ctx context.Context, arg GetUserEnvironmentDatabaseDeploymentsParams) ([]GetUserEnvironmentDatabaseDeploymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUserEnvironmentDatabaseDeployments, arg.EnvironmentID, arg.UserID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetUserEnvironmentDatabaseDeploymentsRow
-	for rows.Next() {
-		var i GetUserEnvironmentDatabaseDeploymentsRow
 		if err := rows.Scan(
 			&i.DeploymentID,
 			&i.Name,
