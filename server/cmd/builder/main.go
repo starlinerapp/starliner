@@ -7,19 +7,19 @@ import (
 	"starliner.app/internal/builder/domain/service"
 	grpcClient "starliner.app/internal/builder/infrastructure/grpc"
 	"starliner.app/internal/builder/infrastructure/nats/impl/queue"
-	builderRedis "starliner.app/internal/builder/infrastructure/redis"
+	"starliner.app/internal/builder/infrastructure/redis"
 	grpcServer "starliner.app/internal/builder/presentation/grpc"
 	builderqueue "starliner.app/internal/builder/presentation/queue"
 	"starliner.app/internal/builder/presentation/scheduler"
-	"starliner.app/internal/core/infrastructure/redis"
+	redisClient "starliner.app/internal/core/infrastructure/redis"
 	"starliner.app/internal/core/infrastructure/sentry"
 )
 
 func main() {
 	fx.New(
 		conf.Module,
+		redisClient.Module,
 		redis.Module,
-		builderRedis.Module,
 		queue.Module,
 		grpcClient.Module,
 		application.Module,
