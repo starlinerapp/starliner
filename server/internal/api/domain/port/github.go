@@ -6,15 +6,16 @@ import (
 )
 
 type Repository struct {
-	Id          *int64
-	Name        *string
-	FullName    *string
-	Owner       *string
-	Description *string
-	CreatedAt   *time.Time
-	PushedAt    *time.Time
-	UpdatedAt   *time.Time
-	CloneURL    *string
+	Id            *int64
+	Name          *string
+	FullName      *string
+	Owner         *string
+	Description   *string
+	CreatedAt     *time.Time
+	PushedAt      *time.Time
+	UpdatedAt     *time.Time
+	CloneURL      *string
+	DefaultBranch *string
 }
 
 type RepositoryFile struct {
@@ -32,6 +33,12 @@ type GitEvent interface {
 
 type GitHub interface {
 	ListRepositories(ctx context.Context, installationId int64) ([]*Repository, error)
+	ListBranches(
+		ctx context.Context,
+		installationId int64,
+		owner string,
+		repository string,
+	) ([]string, error)
 	GetInstallationToken(ctx context.Context, installationId int64) (string, error)
 	ListRepositoryContents(
 		ctx context.Context,

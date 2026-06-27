@@ -49,6 +49,7 @@ func (er *EnvironmentRepository) DeleteEnvironment(ctx context.Context, environm
 	return er.queries.DeleteEnvironment(ctx, environmentId)
 }
 
+// TODO change the logic. here everydeployment is cloned with the same branch of the cloning env
 func (er *EnvironmentRepository) CloneEnvironment(
 	ctx context.Context,
 	name string,
@@ -114,7 +115,8 @@ func (er *EnvironmentRepository) CloneEnvironment(
 		newEnvNamespace = newEnv.Namespace
 	}
 
-	if err := er.copyDeployments(ctx, qtx, sourceEnvironmentId, newEnvID, uniqueIdentifier); err != nil {
+	//TODO this shouldnt be the case
+	if err := er.copyDeployments(ctx, qtx, sourceEnvironmentId, newEnvID, uniqueIdentifier, connectedBranch); err != nil {
 		return nil, err
 	}
 
@@ -227,6 +229,7 @@ func (er *EnvironmentRepository) GetEnvironmentGitDeployments(ctx context.Contex
 			Status:                string(r.Status),
 			EnvironmentId:         mapper.ToPtrFromNullInt64(r.EnvironmentID),
 			GitUrl:                r.Url,
+			ConnectedBranch:       r.ConnectedBranch,
 			ProjectRepositoryPath: r.ProjectPath,
 			DockerfilePath:        r.DockerfilePath,
 			EnvVars:               variables,
@@ -594,12 +597,14 @@ func (er *EnvironmentRepository) GetEnvironmentProject(ctx context.Context, envi
 	}, nil
 }
 
+// TODO same here fix logic
 func (er *EnvironmentRepository) copyDeployments(
 	ctx context.Context,
 	qtx *sqlc.Queries,
 	sourceEnvironmentId int64,
 	newEnvID int64,
 	uniqueIdentifier string,
+	connectedBranch *string,
 ) error {
 	databaseDeployments, err := qtx.GetEnvironmentDatabaseDeployments(ctx, mapper.ToNullInt64FromPtr(&sourceEnvironmentId))
 	if err != nil {
@@ -653,14 +658,21 @@ func (er *EnvironmentRepository) copyDeployments(
 	if err != nil {
 		return err
 	}
+
+	//TODO why would branch be nill in the first palce
 	for _, d := range gitDeployments {
+		branch := d.ConnectedBranch
+		if connectedBranch != nil {
+			branch = *connectedBranch
+		}
 		newDeployment, err := qtx.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
-			Name:           d.Name,
-			Port:           d.Port,
-			EnvironmentID:  mapper.ToNullInt64FromPtr(&newEnvID),
-			Url:            d.Url,
-			ProjectPath:    d.ProjectPath,
-			DockerfilePath: d.DockerfilePath,
+			Name:            d.Name,
+			Port:            d.Port,
+			EnvironmentID:   mapper.ToNullInt64FromPtr(&newEnvID),
+			Url:             d.Url,
+			ConnectedBranch: branch,
+			ProjectPath:     d.ProjectPath,
+			DockerfilePath:  d.DockerfilePath,
 		})
 		if err != nil {
 			return err

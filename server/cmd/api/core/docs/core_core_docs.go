@@ -1014,6 +1014,56 @@ const docTemplatecoreCore = `{
                 }
             }
         },
+        "/github/repositories/{organizationId}/{owner}/{repository}/branches": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get Repository Branches",
+                "operationId": "getRepositoryBranches",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository owner (user or org)",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository name",
+                        "name": "repository",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/github/repositories/{organizationId}/{owner}/{repository}/contents": {
             "get": {
                 "tags": [
@@ -2506,6 +2556,7 @@ const docTemplatecoreCore = `{
         "request.DeployFromGit": {
             "type": "object",
             "required": [
+                "connectedBranch",
                 "dockerfilePath",
                 "environmentId",
                 "envs",
@@ -2520,6 +2571,9 @@ const docTemplatecoreCore = `{
                     "items": {
                         "$ref": "#/definitions/request.Arg"
                     }
+                },
+                "connectedBranch": {
+                    "type": "string"
                 },
                 "dockerfilePath": {
                     "type": "string"
@@ -2778,6 +2832,7 @@ const docTemplatecoreCore = `{
         "request.UpdateDeployFromGit": {
             "type": "object",
             "required": [
+                "connectedBranch",
                 "dockerfilePath",
                 "environmentId",
                 "envs",
@@ -2790,6 +2845,9 @@ const docTemplatecoreCore = `{
                     "items": {
                         "$ref": "#/definitions/request.Arg"
                     }
+                },
+                "connectedBranch": {
+                    "type": "string"
                 },
                 "dockerfilePath": {
                     "type": "string"
@@ -3136,6 +3194,7 @@ const docTemplatecoreCore = `{
             "type": "object",
             "required": [
                 "args",
+                "connectedBranch",
                 "dockerfilePath",
                 "envVars",
                 "gitUrl",
@@ -3152,6 +3211,9 @@ const docTemplatecoreCore = `{
                     "items": {
                         "$ref": "#/definitions/response.Arg"
                     }
+                },
+                "connectedBranch": {
+                    "type": "string"
                 },
                 "dockerfilePath": {
                     "type": "string"
@@ -3535,6 +3597,9 @@ const docTemplatecoreCore = `{
                     "type": "string"
                 },
                 "created_at": {
+                    "type": "string"
+                },
+                "default_branch": {
                     "type": "string"
                 },
                 "description": {

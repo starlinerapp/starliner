@@ -93,6 +93,7 @@ func (da *DeploymentApplication) DeployFromGit(
 	serviceName string,
 	port int,
 	gitUrl string,
+	connectedBranch string,
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
@@ -112,17 +113,13 @@ func (da *DeploymentApplication) DeployFromGit(
 		return fmt.Errorf("%w: %s", value.ErrDeploymentNameAlreadyExists, serviceName)
 	}
 
-	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
-	if err != nil {
-		return err
-	}
-
 	d, err := da.deploymentRepository.CreateGitDeployment(
 		ctx,
 		environmentId,
 		serviceName,
 		strconv.Itoa(port),
 		gitUrl,
+		connectedBranch,
 		projectRepositoryPath,
 		dockerfilePath,
 		envs,
@@ -132,7 +129,7 @@ func (da *DeploymentApplication) DeployFromGit(
 		return err
 	}
 
-	return da.gitDeploymentService.TriggerBuild(ctx, d, env.ConnectedBranch, "manual", args)
+	return da.gitDeploymentService.TriggerBuild(ctx, d, connectedBranch, "manual", args)
 }
 
 func (da *DeploymentApplication) UpdateDeployFromGit(
@@ -141,6 +138,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 	environmentId int64,
 	deploymentId int64,
 	port int,
+	connectedBranch string,
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
@@ -156,13 +154,9 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return 0, err
 	}
 
-	env, err := da.environmentRepository.GetEnvironmentById(ctx, environmentId)
-	if err != nil {
-		return 0, err
-	}
-
 	d, err := da.gitDeploymentService.Redeploy(ctx, existing, service.RedeployGitConfig{
 		Port:                  strconv.Itoa(port),
+		ConnectedBranch:       connectedBranch,
 		ProjectRepositoryPath: projectRepositoryPath,
 		DockerfilePath:        dockerfilePath,
 		Envs:                  envs,
@@ -172,7 +166,7 @@ func (da *DeploymentApplication) UpdateDeployFromGit(
 		return 0, err
 	}
 
-	if err := da.gitDeploymentService.TriggerBuild(ctx, d, env.ConnectedBranch, "manual", args); err != nil {
+	if err := da.gitDeploymentService.TriggerBuild(ctx, d, connectedBranch, "manual", args); err != nil {
 		return 0, err
 	}
 

@@ -15,6 +15,7 @@ type DeployFromGit struct {
 	ServiceName           string   `json:"serviceName" binding:"required"`
 	Port                  int      `json:"port" binding:"required"`
 	GitUrl                string   `json:"gitUrl" binding:"required"`
+	ConnectedBranch       string   `json:"connectedBranch" binding:"required"`
 	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
 	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
 	Envs                  []EnvVar `json:"envs" binding:"required"`
@@ -24,6 +25,7 @@ type DeployFromGit struct {
 type UpdateDeployFromGit struct {
 	EnvironmentId         int64    `json:"environmentId" binding:"required"`
 	Port                  int      `json:"port" binding:"required"`
+	ConnectedBranch       string   `json:"connectedBranch" binding:"required"`
 	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
 	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
 	Envs                  []EnvVar `json:"envs" binding:"required"`

@@ -16,6 +16,7 @@ import { useTRPC } from "~/utils/trpc/react";
 
 export interface DeployFromGitFormInput {
   url: string;
+  branch: string;
   serviceName: string;
   dockerfilePath: string;
   projectDirectoryPath: string;
@@ -91,6 +92,7 @@ export default function DeployFromGitForm({
     required: true,
   });
   const urlInput = watch("url", "");
+  const branchInput = watch("branch", "");
   const serviceNameInput = watch("serviceName", "");
   const port = watch("port", null);
   const projectDirectoryPathInput = watch("projectDirectoryPath", "");
@@ -99,6 +101,15 @@ export default function DeployFromGitForm({
   const selectedRepository = useMemo(() => {
     return repositoriesData?.find((repo) => repo.clone_url === urlInput);
   }, [repositoriesData, urlInput]);
+
+  const { data: branchesData, isLoading: isBranchesLoading } = useQuery({
+    ...trpc.github.getRepositoryBranches.queryOptions({
+      organizationId: organization.id,
+      owner: selectedRepository?.owner ?? "",
+      repo: selectedRepository?.name ?? "",
+    }),
+    enabled: !!selectedRepository,
+  });
 
   const { data: envExampleContent } = useQuery({
     ...trpc.github.getRepositoryFileContent.queryOptions({
@@ -197,6 +208,7 @@ export default function DeployFromGitForm({
       if (resetOnSuccess) {
         reset({
           url: "",
+          branch: "",
           serviceName: "",
           dockerfilePath: "",
           projectDirectoryPath: "",
@@ -252,6 +264,7 @@ export default function DeployFromGitForm({
 
   const inputValid =
     urlInput &&
+    branchInput &&
     port &&
     serviceNameInput &&
     projectDirectoryPathInput &&
@@ -264,7 +277,7 @@ export default function DeployFromGitForm({
           <p>Select Git Repository</p>
           <p className="text-mauve-11 text-sm">
             Your service will automatically be redeployed when you push to the
-            main branch.
+            connected branch.
           </p>
         </div>
         {error && (
@@ -299,6 +312,10 @@ export default function DeployFromGitForm({
                     disabled={!!defaultValues?.url}
                     onChange={(e) => {
                       void onUrlChange(e);
+                      const nextRepo = repositoriesData?.find(
+                        (repo) => repo.clone_url === e.target.value,
+                      );
+                      setValue("branch", nextRepo?.default_branch ?? "");
                       setValue("projectDirectoryPath", "");
                       setValue("dockerfilePath", "");
                       replace([]);
@@ -314,6 +331,39 @@ export default function DeployFromGitForm({
                         {repo.owner}/{repo.name}
                       </option>
                     ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                    <ChevronDown width={15} className="stroke-mauve-10" />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm">Connected Branch</p>
+            <div className="flex gap-2">
+              {isBranchesLoading ? (
+                <Skeleton className="h-10 w-full" />
+              ) : (
+                <div className="relative w-full">
+                  <select
+                    {...register("branch", { required: true })}
+                    value={branchInput}
+                    disabled={!selectedRepository}
+                    className={cn(
+                      "h-10 w-full cursor-pointer appearance-none rounded-md border-1 border-mauve-6 bg-gray-2 p-2 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] hover:bg-gray-3 disabled:bg-gray-2 disabled:hover:cursor-not-allowed",
+                      branchInput ? "text-mauve-12" : "text-mauve-11",
+                    )}
+                  >
+                    {!branchInput && <option value="">Select branch*</option>}
+                    {branchesData?.map((branch) => (
+                      <option key={branch} value={branch}>
+                        {branch}
+                      </option>
+                    ))}
+                    {branchInput && !branchesData?.includes(branchInput) && (
+                      <option value={branchInput}>{branchInput}</option>
+                    )}
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
                     <ChevronDown width={15} className="stroke-mauve-10" />

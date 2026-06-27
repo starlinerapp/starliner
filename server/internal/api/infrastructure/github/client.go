@@ -75,16 +75,56 @@ func (c *Client) ListRepositories(ctx context.Context, installationId int64) ([]
 
 		for _, r := range repos.Repositories {
 			all = append(all, &port.Repository{
-				Id:          r.ID,
-				Name:        r.Name,
-				FullName:    r.FullName,
-				Owner:       r.Owner.Login,
-				Description: r.Description,
-				CreatedAt:   r.CreatedAt.GetTime(),
-				PushedAt:    r.PushedAt.GetTime(),
-				UpdatedAt:   r.UpdatedAt.GetTime(),
-				CloneURL:    r.CloneURL,
+				Id:            r.ID,
+				Name:          r.Name,
+				FullName:      r.FullName,
+				Owner:         r.Owner.Login,
+				Description:   r.Description,
+				CreatedAt:     r.CreatedAt.GetTime(),
+				PushedAt:      r.PushedAt.GetTime(),
+				UpdatedAt:     r.UpdatedAt.GetTime(),
+				CloneURL:      r.CloneURL,
+				DefaultBranch: r.DefaultBranch,
 			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+
+	return all, nil
+}
+
+func (c *Client) ListBranches(
+	ctx context.Context,
+	installationId int64,
+	owner string,
+	repository string,
+) ([]string, error) {
+	gh, err := c.installationClient(installationId)
+	if err != nil {
+		return nil, err
+	}
+
+	var all []string
+	opts := &github.BranchListOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+
+	for {
+		branches, resp, err := gh.Repositories.ListBranches(ctx, owner, repository, opts)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, b := range branches {
+			if b.Name != nil {
+				all = append(all, *b.Name)
+			}
 		}
 
 		if resp.NextPage == 0 {

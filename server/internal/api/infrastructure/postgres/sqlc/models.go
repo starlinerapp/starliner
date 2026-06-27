@@ -267,12 +267,13 @@ type Environment struct {
 }
 
 type GitDeployment struct {
-	DeploymentID   int64
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	DeploymentID    int64
+	Url             string
+	ProjectPath     string
+	DockerfilePath  string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	ConnectedBranch string
 }
 
 type GitDeploymentArg struct {

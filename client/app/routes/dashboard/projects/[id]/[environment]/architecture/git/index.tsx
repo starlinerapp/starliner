@@ -42,6 +42,7 @@ export default function Git() {
         serviceName: data.serviceName,
         port: data.port,
         gitUrl: data.url,
+        connectedBranch: data.branch,
         dockerfilePath: data.dockerfilePath,
         projectRepositoryPath: data.projectDirectoryPath,
         envs: data.envs,

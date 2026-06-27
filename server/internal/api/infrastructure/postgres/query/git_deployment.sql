@@ -15,11 +15,13 @@ new_git_deployment AS (
     deployment_id,
     url,
     project_path,
-    dockerfile_path)
+    dockerfile_path,
+    connected_branch)
   SELECT id,
     $4,
     $5,
-    $6
+    $6,
+    $7
   FROM new_deployment
   RETURNING *
 )
@@ -29,7 +31,8 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.dockerfile_path,
-  gd.project_path
+  gd.project_path,
+  gd.connected_branch
 FROM new_deployment d
   INNER JOIN new_git_deployment gd ON d.id = gd.deployment_id;
 
@@ -69,7 +72,8 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.project_path,
-  gd.dockerfile_path
+  gd.dockerfile_path,
+  gd.connected_branch
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -85,7 +89,8 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.project_path,
-  gd.dockerfile_path
+  gd.dockerfile_path,
+  gd.connected_branch
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
 WHERE gd.url = @repository_url
@@ -99,7 +104,8 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.project_path,
-  gd.dockerfile_path
+  gd.dockerfile_path,
+  gd.connected_branch
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
 WHERE d.id = @deployment_id

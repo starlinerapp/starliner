@@ -25,6 +25,7 @@ export const deploymentRouter = {
         serviceName: z.string(),
         port: z.number(),
         gitUrl: z.string(),
+        connectedBranch: z.string(),
         dockerfilePath: z.string(),
         projectRepositoryPath: z.string(),
         envs: z
@@ -53,6 +54,7 @@ export const deploymentRouter = {
           serviceName: input.serviceName,
           port: input.port,
           gitUrl: input.gitUrl,
+          connectedBranch: input.connectedBranch,
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
           envs: input.envs,
@@ -78,6 +80,7 @@ export const deploymentRouter = {
         id: z.number(),
         deploymentId: z.number(),
         port: z.number(),
+        connectedBranch: z.string(),
         dockerfilePath: z.string(),
         projectRepositoryPath: z.string(),
         envs: z
@@ -104,6 +107,7 @@ export const deploymentRouter = {
         .updateDeployFromGitRepository(userId, input.deploymentId, {
           environmentId: input.id,
           port: input.port,
+          connectedBranch: input.connectedBranch,
           dockerfilePath: input.dockerfilePath,
           projectRepositoryPath: input.projectRepositoryPath,
           envs: input.envs,

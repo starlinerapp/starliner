@@ -14,6 +14,7 @@ import (
 
 type RedeployGitConfig struct {
 	Port                  string
+	ConnectedBranch       string
 	ProjectRepositoryPath string
 	DockerfilePath        string
 	Envs                  []*value.EnvVar
@@ -72,6 +73,7 @@ func (s *GitDeploymentService) Redeploy(
 		existing.Name,
 		config.Port,
 		existing.GitUrl,
+		config.ConnectedBranch,
 		config.ProjectRepositoryPath,
 		config.DockerfilePath,
 		config.Envs,
@@ -173,6 +175,7 @@ func (s *GitDeploymentService) RedeployAndBuildForPush(
 
 	newDeployment, err := s.Redeploy(ctx, existing, RedeployGitConfig{
 		Port:                  existing.Port,
+		ConnectedBranch:       branch,
 		ProjectRepositoryPath: existing.ProjectRepositoryPath,
 		DockerfilePath:        existing.DockerfilePath,
 		Envs:                  envs,

@@ -30,6 +30,7 @@ type GitDeployment struct {
 	Status                string   `json:"status" binding:"required"`
 	Port                  string   `json:"port" binding:"required"`
 	GitUrl                string   `json:"gitUrl" binding:"required"`
+	ConnectedBranch       string   `json:"connectedBranch" binding:"required"`
 	ProjectRepositoryPath string   `json:"projectRepositoryPath" binding:"required"`
 	DockerfilePath        string   `json:"dockerfilePath" binding:"required"`
 	EnvVars               []EnvVar `json:"envVars" binding:"required"`
@@ -44,6 +45,7 @@ func NewGitDeployment(gitDeployment *value.GitDeployment) GitDeployment {
 		Status:                gitDeployment.Status,
 		Port:                  gitDeployment.Port,
 		GitUrl:                gitDeployment.GitUrl,
+		ConnectedBranch:       gitDeployment.ConnectedBranch,
 		ProjectRepositoryPath: gitDeployment.ProjectRepositoryPath,
 		DockerfilePath:        gitDeployment.DockerfilePath,
 		EnvVars:               mapEnvVarsFromValue(gitDeployment.EnvVars),

@@ -267,6 +267,12 @@ export interface RequestDeployFromGit {
    * @type {string}
    * @memberof RequestDeployFromGit
    */
+  connectedBranch: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestDeployFromGit
+   */
   dockerfilePath: string;
   /**
    *
@@ -598,6 +604,12 @@ export interface RequestUpdateDeployFromGit {
    * @memberof RequestUpdateDeployFromGit
    */
   args?: Array<RequestArg>;
+  /**
+   *
+   * @type {string}
+   * @memberof RequestUpdateDeployFromGit
+   */
+  connectedBranch: string;
   /**
    *
    * @type {string}
@@ -1027,6 +1039,12 @@ export interface ResponseGitDeployment {
    * @memberof ResponseGitDeployment
    */
   args: Array<ResponseArg>;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseGitDeployment
+   */
+  connectedBranch: string;
   /**
    *
    * @type {string}
@@ -1542,6 +1560,12 @@ export interface ResponseRepository {
    * @memberof ResponseRepository
    */
   created_at: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponseRepository
+   */
+  default_branch?: string;
   /**
    *
    * @type {string}
@@ -5413,6 +5437,75 @@ export const GithubApiAxiosParamCreator = function (
     },
     /**
      *
+     * @summary Get Repository Branches
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getRepositoryBranches: async (
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'xUserID' is not null or undefined
+      assertParamExists("getRepositoryBranches", "xUserID", xUserID);
+      // verify required parameter 'organizationId' is not null or undefined
+      assertParamExists(
+        "getRepositoryBranches",
+        "organizationId",
+        organizationId,
+      );
+      // verify required parameter 'owner' is not null or undefined
+      assertParamExists("getRepositoryBranches", "owner", owner);
+      // verify required parameter 'repository' is not null or undefined
+      assertParamExists("getRepositoryBranches", "repository", repository);
+      const localVarPath =
+        `/github/repositories/{organizationId}/{owner}/{repository}/branches`
+          .replace(
+            `{${"organizationId"}}`,
+            encodeURIComponent(String(organizationId)),
+          )
+          .replace(`{${"owner"}}`, encodeURIComponent(String(owner)))
+          .replace(`{${"repository"}}`, encodeURIComponent(String(repository)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "GET",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (xUserID != null) {
+        localVarHeaderParameter["X-User-ID"] = String(xUserID);
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @summary Get Repository Content
      * @param {string} xUserID User ID
      * @param {number} organizationId Organization ID
@@ -5616,6 +5709,46 @@ export const GithubApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Get Repository Branches
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getRepositoryBranches(
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.getRepositoryBranches(
+          xUserID,
+          organizationId,
+          owner,
+          repository,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["GithubApi.getRepositoryBranches"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
      * @summary Get Repository Content
      * @param {string} xUserID User ID
      * @param {number} organizationId Organization ID
@@ -5740,6 +5873,33 @@ export const GithubApiFactory = function (
     },
     /**
      *
+     * @summary Get Repository Branches
+     * @param {string} xUserID User ID
+     * @param {number} organizationId Organization ID
+     * @param {string} owner Repository owner (user or org)
+     * @param {string} repository Repository name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getRepositoryBranches(
+      xUserID: string,
+      organizationId: number,
+      owner: string,
+      repository: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<Array<string>> {
+      return localVarFp
+        .getRepositoryBranches(
+          xUserID,
+          organizationId,
+          owner,
+          repository,
+          options,
+        )
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Repository Content
      * @param {string} xUserID User ID
      * @param {number} organizationId Organization ID
@@ -5838,6 +5998,35 @@ export class GithubApi extends BaseAPI {
   ) {
     return GithubApiFp(this.configuration)
       .getRepositories(xUserID, organizationId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Get Repository Branches
+   * @param {string} xUserID User ID
+   * @param {number} organizationId Organization ID
+   * @param {string} owner Repository owner (user or org)
+   * @param {string} repository Repository name
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof GithubApi
+   */
+  public getRepositoryBranches(
+    xUserID: string,
+    organizationId: number,
+    owner: string,
+    repository: string,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return GithubApiFp(this.configuration)
+      .getRepositoryBranches(
+        xUserID,
+        organizationId,
+        owner,
+        repository,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 

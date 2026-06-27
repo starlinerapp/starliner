@@ -27,13 +27,15 @@ new_git_deployment AS (
     deployment_id,
     url,
     project_path,
-    dockerfile_path)
+    dockerfile_path,
+    connected_branch)
   SELECT id,
     $4,
     $5,
-    $6
+    $6,
+    $7
   FROM new_deployment
-  RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at
+  RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at, connected_branch
 )
 SELECT d.id AS deployment_id,
   d.name,
@@ -41,28 +43,31 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.dockerfile_path,
-  gd.project_path
+  gd.project_path,
+  gd.connected_branch
 FROM new_deployment d
   INNER JOIN new_git_deployment gd ON d.id = gd.deployment_id
 `
 
 type CreateGitDeploymentParams struct {
-	Name           string
-	Port           string
-	EnvironmentID  sql.NullInt64
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
+	Name            string
+	Port            string
+	EnvironmentID   sql.NullInt64
+	Url             string
+	ProjectPath     string
+	DockerfilePath  string
+	ConnectedBranch string
 }
 
 type CreateGitDeploymentRow struct {
-	DeploymentID   int64
-	Name           string
-	Port           string
-	EnvironmentID  sql.NullInt64
-	Url            string
-	DockerfilePath string
-	ProjectPath    string
+	DeploymentID    int64
+	Name            string
+	Port            string
+	EnvironmentID   sql.NullInt64
+	Url             string
+	DockerfilePath  string
+	ProjectPath     string
+	ConnectedBranch string
 }
 
 func (q *Queries) CreateGitDeployment(ctx context.Context, arg CreateGitDeploymentParams) (CreateGitDeploymentRow, error) {
@@ -73,6 +78,7 @@ func (q *Queries) CreateGitDeployment(ctx context.Context, arg CreateGitDeployme
 		arg.Url,
 		arg.ProjectPath,
 		arg.DockerfilePath,
+		arg.ConnectedBranch,
 	)
 	var i CreateGitDeploymentRow
 	err := row.Scan(
@@ -83,6 +89,7 @@ func (q *Queries) CreateGitDeployment(ctx context.Context, arg CreateGitDeployme
 		&i.Url,
 		&i.DockerfilePath,
 		&i.ProjectPath,
+		&i.ConnectedBranch,
 	)
 	return i, err
 }
@@ -95,7 +102,8 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.project_path,
-  gd.dockerfile_path
+  gd.dockerfile_path,
+  gd.connected_branch
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
   INNER JOIN environments ON d.environment_id = environments.id
@@ -105,14 +113,15 @@ ORDER BY d.id DESC
 `
 
 type GetEnvironmentGitDeploymentsRow struct {
-	DeploymentID   int64
-	Name           string
-	Port           string
-	Status         DeploymentStatus
-	EnvironmentID  sql.NullInt64
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
+	DeploymentID    int64
+	Name            string
+	Port            string
+	Status          DeploymentStatus
+	EnvironmentID   sql.NullInt64
+	Url             string
+	ProjectPath     string
+	DockerfilePath  string
+	ConnectedBranch string
 }
 
 func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, environmentID sql.NullInt64) ([]GetEnvironmentGitDeploymentsRow, error) {
@@ -133,6 +142,7 @@ func (q *Queries) GetEnvironmentGitDeployments(ctx context.Context, environmentI
 			&i.Url,
 			&i.ProjectPath,
 			&i.DockerfilePath,
+			&i.ConnectedBranch,
 		); err != nil {
 			return nil, err
 		}
@@ -155,7 +165,8 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.project_path,
-  gd.dockerfile_path
+  gd.dockerfile_path,
+  gd.connected_branch
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
 WHERE d.id = $1
@@ -163,14 +174,15 @@ WHERE d.id = $1
 `
 
 type GetGitDeploymentByIdRow struct {
-	DeploymentID   int64
-	Name           string
-	Port           string
-	Status         DeploymentStatus
-	EnvironmentID  sql.NullInt64
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
+	DeploymentID    int64
+	Name            string
+	Port            string
+	Status          DeploymentStatus
+	EnvironmentID   sql.NullInt64
+	Url             string
+	ProjectPath     string
+	DockerfilePath  string
+	ConnectedBranch string
 }
 
 func (q *Queries) GetGitDeploymentById(ctx context.Context, deploymentID int64) (GetGitDeploymentByIdRow, error) {
@@ -185,6 +197,7 @@ func (q *Queries) GetGitDeploymentById(ctx context.Context, deploymentID int64) 
 		&i.Url,
 		&i.ProjectPath,
 		&i.DockerfilePath,
+		&i.ConnectedBranch,
 	)
 	return i, err
 }
@@ -197,7 +210,8 @@ SELECT d.id AS deployment_id,
   d.environment_id,
   gd.url,
   gd.project_path,
-  gd.dockerfile_path
+  gd.dockerfile_path,
+  gd.connected_branch
 FROM deployments d
   INNER JOIN git_deployments gd ON d.id = gd.deployment_id
 WHERE gd.url = $1
@@ -205,14 +219,15 @@ WHERE gd.url = $1
 `
 
 type GetGitDeploymentsByRepositoryUrlRow struct {
-	DeploymentID   int64
-	Name           string
-	Port           string
-	Status         DeploymentStatus
-	EnvironmentID  sql.NullInt64
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
+	DeploymentID    int64
+	Name            string
+	Port            string
+	Status          DeploymentStatus
+	EnvironmentID   sql.NullInt64
+	Url             string
+	ProjectPath     string
+	DockerfilePath  string
+	ConnectedBranch string
 }
 
 func (q *Queries) GetGitDeploymentsByRepositoryUrl(ctx context.Context, repositoryUrl string) ([]GetGitDeploymentsByRepositoryUrlRow, error) {
@@ -233,6 +248,7 @@ func (q *Queries) GetGitDeploymentsByRepositoryUrl(ctx context.Context, reposito
 			&i.Url,
 			&i.ProjectPath,
 			&i.DockerfilePath,
+			&i.ConnectedBranch,
 		); err != nil {
 			return nil, err
 		}
@@ -262,7 +278,7 @@ updated_git_deployment AS (
   SET project_path = $3,
     dockerfile_path = $4
   WHERE deployment_id = $2
-  RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at
+  RETURNING deployment_id, url, project_path, dockerfile_path, created_at, updated_at, connected_branch
 )
 SELECT d.id AS deployment_id,
   d.status,

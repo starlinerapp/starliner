@@ -14,6 +14,7 @@ type DeploymentRepository interface {
 		serviceName string,
 		port string,
 		gitUrl string,
+		connectedBranch string,
 		projectRepositoryPath string,
 		dockerfilePath string,
 		envs []*value.EnvVar,

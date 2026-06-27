@@ -149,6 +149,26 @@ func (ga *GitHubApplication) GetAllRepositories(ctx context.Context, userId int6
 	return value.NewRepositories(repos), nil
 }
 
+// TODO maybe check if the user has permissions to access that repo
+func (ga *GitHubApplication) GetRepositoryBranches(ctx context.Context, userId int64, organizationId int64, owner string, repository string) ([]string, error) {
+	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	ghApp, err := ga.githubAppRepository.GetOrganizationGithubApp(ctx, organizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	branches, err := ga.gitHub.ListBranches(ctx, ghApp.InstallationID, owner, repository)
+	if err != nil {
+		return nil, err
+	}
+
+	return branches, nil
+}
+
 func (ga *GitHubApplication) GetRepositoryContents(ctx context.Context, userId int64, organizationId int64, owner string, repository string, repositoryPath string) ([]*value.RepositoryFile, error) {
 	err := ga.organizationService.ValidateUserInOrg(ctx, organizationId, userId)
 	if err != nil {
@@ -188,6 +208,7 @@ func (ga *GitHubApplication) HandleGithubWebhook(ctx context.Context, eventType 
 	}
 }
 
+// TODO has to do with preview env logic check this out
 func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, repositoryUrl string, branch string) error {
 	deployments, err := ga.deploymentRepository.GetGitDeploymentsByRepositoryUrl(ctx, repositoryUrl)
 	if err != nil {
@@ -202,12 +223,7 @@ func (ga *GitHubApplication) triggerBuildsForRepository(ctx context.Context, rep
 			continue
 		}
 
-		environmentBranch, err := ga.environmentRepository.GetEnvironmentBranch(ctx, *deployment.EnvironmentId)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-		if environmentBranch != branch {
+		if deployment.ConnectedBranch != branch {
 			continue
 		}
 

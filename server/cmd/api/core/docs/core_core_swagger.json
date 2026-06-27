@@ -1005,6 +1005,56 @@
                 }
             }
         },
+        "/github/repositories/{organizationId}/{owner}/{repository}/branches": {
+            "get": {
+                "tags": [
+                    "github"
+                ],
+                "summary": "Get Repository Branches",
+                "operationId": "getRepositoryBranches",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "X-User-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organizationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository owner (user or org)",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Repository name",
+                        "name": "repository",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/github/repositories/{organizationId}/{owner}/{repository}/contents": {
             "get": {
                 "tags": [
@@ -2497,6 +2547,7 @@
         "request.DeployFromGit": {
             "type": "object",
             "required": [
+                "connectedBranch",
                 "dockerfilePath",
                 "environmentId",
                 "envs",
@@ -2511,6 +2562,9 @@
                     "items": {
                         "$ref": "#/definitions/request.Arg"
                     }
+                },
+                "connectedBranch": {
+                    "type": "string"
                 },
                 "dockerfilePath": {
                     "type": "string"
@@ -2769,6 +2823,7 @@
         "request.UpdateDeployFromGit": {
             "type": "object",
             "required": [
+                "connectedBranch",
                 "dockerfilePath",
                 "environmentId",
                 "envs",
@@ -2781,6 +2836,9 @@
                     "items": {
                         "$ref": "#/definitions/request.Arg"
                     }
+                },
+                "connectedBranch": {
+                    "type": "string"
                 },
                 "dockerfilePath": {
                     "type": "string"
@@ -3127,6 +3185,7 @@
             "type": "object",
             "required": [
                 "args",
+                "connectedBranch",
                 "dockerfilePath",
                 "envVars",
                 "gitUrl",
@@ -3143,6 +3202,9 @@
                     "items": {
                         "$ref": "#/definitions/response.Arg"
                     }
+                },
+                "connectedBranch": {
+                    "type": "string"
                 },
                 "dockerfilePath": {
                     "type": "string"
@@ -3526,6 +3588,9 @@
                     "type": "string"
                 },
                 "created_at": {
+                    "type": "string"
+                },
+                "default_branch": {
                     "type": "string"
                 },
                 "description": {

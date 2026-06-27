@@ -41,6 +41,7 @@ export default function UpdateGitDeployment() {
         id: currentEnvironment.id,
         deploymentId: Number(deploymentId),
         port: data.port,
+        connectedBranch: data.branch,
         dockerfilePath: data.dockerfilePath,
         projectRepositoryPath: data.projectDirectoryPath,
         envs: data.envs,
@@ -83,6 +84,7 @@ export default function UpdateGitDeployment() {
           defaultValues={{
             serviceName: gitDeployment?.serviceName ?? "",
             url: gitDeployment?.gitUrl ?? "",
+            branch: gitDeployment?.connectedBranch ?? "",
             dockerfilePath: gitDeployment?.dockerfilePath ?? "",
             projectDirectoryPath: gitDeployment?.projectRepositoryPath ?? "",
             port: gitDeployment ? Number(gitDeployment?.port) : null,

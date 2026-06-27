@@ -30,6 +30,7 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 	serviceName string,
 	port string,
 	gitUrl string,
+	connectedBranch string,
 	projectRepositoryPath string,
 	dockerfilePath string,
 	envs []*value.EnvVar,
@@ -46,12 +47,13 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 	qtx := dr.queries.WithTx(tx)
 
 	d, err := qtx.CreateGitDeployment(ctx, sqlc.CreateGitDeploymentParams{
-		Name:           serviceName,
-		Port:           port,
-		EnvironmentID:  mapper.ToNullInt64FromPtr(&environmentId),
-		Url:            gitUrl,
-		ProjectPath:    projectRepositoryPath,
-		DockerfilePath: dockerfilePath,
+		Name:            serviceName,
+		Port:            port,
+		EnvironmentID:   mapper.ToNullInt64FromPtr(&environmentId),
+		Url:             gitUrl,
+		ConnectedBranch: connectedBranch,
+		ProjectPath:     projectRepositoryPath,
+		DockerfilePath:  dockerfilePath,
 	})
 	if err != nil {
 		return nil, err
@@ -101,6 +103,7 @@ func (dr *DeploymentRepository) CreateGitDeployment(
 		Port:                  d.Port,
 		EnvironmentId:         mapper.ToPtrFromNullInt64(d.EnvironmentID),
 		GitUrl:                d.Url,
+		ConnectedBranch:       d.ConnectedBranch,
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               vars,
@@ -692,6 +695,7 @@ func (dr *DeploymentRepository) GetGitDeploymentsByRepositoryUrl(ctx context.Con
 			Port:                  d.Port,
 			EnvironmentId:         mapper.ToPtrFromNullInt64(d.EnvironmentID),
 			GitUrl:                d.Url,
+			ConnectedBranch:       d.ConnectedBranch,
 			ProjectRepositoryPath: d.ProjectPath,
 			DockerfilePath:        d.DockerfilePath,
 			EnvVars:               envVars,
@@ -714,26 +718,28 @@ func (dr *DeploymentRepository) GetGitDeploymentById(
 	}
 
 	return dr.mapGitDeploymentRow(ctx, gitDeploymentRow{
-		DeploymentID:   row.DeploymentID,
-		Name:           row.Name,
-		Port:           row.Port,
-		Status:         row.Status,
-		EnvironmentID:  row.EnvironmentID,
-		Url:            row.Url,
-		ProjectPath:    row.ProjectPath,
-		DockerfilePath: row.DockerfilePath,
+		DeploymentID:    row.DeploymentID,
+		Name:            row.Name,
+		Port:            row.Port,
+		Status:          row.Status,
+		EnvironmentID:   row.EnvironmentID,
+		Url:             row.Url,
+		ConnectedBranch: row.ConnectedBranch,
+		ProjectPath:     row.ProjectPath,
+		DockerfilePath:  row.DockerfilePath,
 	})
 }
 
 type gitDeploymentRow struct {
-	DeploymentID   int64
-	Name           string
-	Port           string
-	Status         sqlc.DeploymentStatus
-	EnvironmentID  sql.NullInt64
-	Url            string
-	ProjectPath    string
-	DockerfilePath string
+	DeploymentID    int64
+	Name            string
+	Port            string
+	Status          sqlc.DeploymentStatus
+	EnvironmentID   sql.NullInt64
+	Url             string
+	ConnectedBranch string
+	ProjectPath     string
+	DockerfilePath  string
 }
 
 func (dr *DeploymentRepository) mapGitDeploymentRow(
@@ -773,6 +779,7 @@ func (dr *DeploymentRepository) mapGitDeploymentRow(
 		Port:                  d.Port,
 		EnvironmentId:         mapper.ToPtrFromNullInt64(d.EnvironmentID),
 		GitUrl:                d.Url,
+		ConnectedBranch:       d.ConnectedBranch,
 		ProjectRepositoryPath: d.ProjectPath,
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               envVars,

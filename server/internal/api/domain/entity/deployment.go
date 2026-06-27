@@ -70,6 +70,7 @@ type GitDeployment struct {
 	Port                  string
 	EnvironmentId         *int64
 	GitUrl                string
+	ConnectedBranch       string
 	ProjectRepositoryPath string
 	DockerfilePath        string
 	EnvVars               []*EnvVar

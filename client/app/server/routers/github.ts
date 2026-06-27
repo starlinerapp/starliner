@@ -63,6 +63,24 @@ export const githubRouter = {
       );
       return res.data;
     }),
+  getRepositoryBranches: protectedProcedure
+    .input(
+      z.object({
+        organizationId: z.number(),
+        owner: z.string(),
+        repo: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      const res = await githubApiFactory.getRepositoryBranches(
+        userId,
+        input.organizationId,
+        input.owner,
+        input.repo,
+      );
+      return res.data;
+    }),
   getRepositoryFileContent: protectedProcedure
     .input(
       z.object({

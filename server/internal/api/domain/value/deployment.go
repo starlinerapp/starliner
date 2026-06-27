@@ -31,6 +31,7 @@ type GitDeployment struct {
 	Port                  string
 	Status                string
 	GitUrl                string
+	ConnectedBranch       string
 	ProjectRepositoryPath string
 	DockerfilePath        string
 	EnvVars               []*EnvVar
@@ -45,6 +46,7 @@ func NewGitDeployment(d *entity.GitDeployment, internalEndpoint string) *GitDepl
 		Status:                d.Status,
 		Port:                  d.Port,
 		GitUrl:                d.GitUrl,
+		ConnectedBranch:       d.ConnectedBranch,
 		ProjectRepositoryPath: d.ProjectRepositoryPath,
 		DockerfilePath:        d.DockerfilePath,
 		EnvVars:               mapEnvVars(d.EnvVars),

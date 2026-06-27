@@ -168,6 +168,7 @@ func NewServer(
 		githubRoutes.GET("/repositories/:organizationId", githubHandler.GetRepositories)
 		githubRoutes.GET("/all-repositories/:organizationId", githubHandler.GetAllRepositories)
 		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/contents", githubHandler.GetRepositoryContents)
+		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/branches", githubHandler.GetRepositoryBranches)
 		githubRoutes.GET("/repositories/:organizationId/:owner/:repository/file", githubHandler.GetFileContent)
 	}
 
