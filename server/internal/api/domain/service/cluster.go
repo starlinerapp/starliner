@@ -23,7 +23,7 @@ const (
 type ClusterService struct {
 	clusterRepository      interfaces.ClusterRepository
 	organizationRepository interfaces.OrganizationRepository
-	acquireLimiter         corePort.AcquireLimiter
+	lease                  corePort.Lease
 	queue                  port.Queue
 	crypto                 corePort.Crypto
 }
@@ -31,14 +31,14 @@ type ClusterService struct {
 func NewClusterService(
 	clusterRepository interfaces.ClusterRepository,
 	organizationRepository interfaces.OrganizationRepository,
-	acquireLimiter corePort.AcquireLimiter,
+	lease corePort.Lease,
 	queue port.Queue,
 	crypto corePort.Crypto,
 ) *ClusterService {
 	return &ClusterService{
 		clusterRepository:      clusterRepository,
 		organizationRepository: organizationRepository,
-		acquireLimiter:         acquireLimiter,
+		lease:                  lease,
 		queue:                  queue,
 		crypto:                 crypto,
 	}
@@ -98,7 +98,7 @@ func (cs *ClusterService) requestReconcile(ctx context.Context, req *coreValue.R
 	}
 
 	key := fmt.Sprintf(clusterReconcileKeyFmt, req.ClusterId)
-	allowed, err := cs.acquireLimiter.TryAcquire(ctx, key, clusterReconcileCooldown)
+	allowed, err := cs.lease.TryLease(ctx, key, clusterReconcileCooldown)
 	if err != nil {
 		log.Printf("reconcile cooldown check failed for cluster %d: %v\n", req.ClusterId, err)
 		return

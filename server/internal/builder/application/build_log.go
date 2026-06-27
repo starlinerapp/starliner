@@ -16,14 +16,14 @@ import (
 const buildLogPollInterval = 100 * time.Millisecond
 
 type BuildLogApplication struct {
-	streams corePort.KVStore
+	stream corePort.Stream
 }
 
 var _ port.LogPublisher = (*BuildLogApplication)(nil)
 
-func NewBuildLogApplication(streams corePort.KVStore) *BuildLogApplication {
+func NewBuildLogApplication(stream corePort.Stream) *BuildLogApplication {
 	return &BuildLogApplication{
-		streams: streams,
+		stream: stream,
 	}
 }
 
@@ -46,7 +46,7 @@ func (a *BuildLogApplication) StreamBuildLogs(ctx context.Context, buildId int64
 			default:
 			}
 
-			entries, err := a.streams.ReadStream(ctx, streamName, lastID)
+			entries, err := a.stream.ReadStream(ctx, streamName, lastID)
 			if err != nil {
 				if isBuildLogStreamNotReady(err) {
 					if wait(ctx, buildLogPollInterval) {
@@ -93,7 +93,7 @@ func (a *BuildLogApplication) PublishLogChunk(buildId int64, data []byte) error 
 		return nil
 	}
 
-	return a.streams.AppendToStream(
+	return a.stream.AppendToStream(
 		context.Background(),
 		fmt.Sprintf("build:%d:logs", buildId),
 		map[string][]byte{
@@ -106,7 +106,7 @@ func (a *BuildLogApplication) PublishLogEnd(buildId int64) error {
 	ctx := context.Background()
 	streamName := fmt.Sprintf("build:%d:logs", buildId)
 
-	return a.streams.AppendToStream(ctx, streamName, map[string][]byte{
+	return a.stream.AppendToStream(ctx, streamName, map[string][]byte{
 		"end": []byte("1"),
 	})
 }

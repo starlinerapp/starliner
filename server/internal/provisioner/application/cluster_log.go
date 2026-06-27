@@ -10,16 +10,16 @@ import (
 )
 
 type ClusterLogApplication struct {
-	streams corePort.KVStore
+	stream corePort.Stream
 }
 
 var _ port.LogPublisher = (*ClusterLogApplication)(nil)
 
 func NewClusterLogApplication(
-	streams corePort.KVStore,
+	stream corePort.Stream,
 ) *ClusterLogApplication {
 	return &ClusterLogApplication{
-		streams: streams,
+		stream: stream,
 	}
 }
 
@@ -44,7 +44,7 @@ func (a *ClusterLogApplication) StreamProvisioningLogs(
 			default:
 			}
 
-			entries, err := a.streams.ReadStream(
+			entries, err := a.stream.ReadStream(
 				ctx,
 				clusterLogStream(clusterId),
 				lastId,
@@ -77,7 +77,7 @@ func (a *ClusterLogApplication) PublishLogChunk(ctx context.Context, clusterId i
 		return nil
 	}
 
-	return a.streams.AppendToStream(
+	return a.stream.AppendToStream(
 		ctx,
 		clusterLogStream(clusterId),
 		map[string][]byte{

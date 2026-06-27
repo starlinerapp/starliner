@@ -4,17 +4,17 @@ import (
 	"context"
 	"errors"
 
-	corePort "starliner.app/internal/core/domain/port"
+	"starliner.app/internal/builder/domain/port"
 	"starliner.app/internal/core/domain/value"
 )
 
 var ErrNoEligibleRunner = errors.New("no eligible runner")
 
 type RunnerService struct {
-	runnerStore corePort.RunnerStore
+	runnerStore port.RunnerStore
 }
 
-func NewRunnerService(runnerStore corePort.RunnerStore) *RunnerService {
+func NewRunnerService(runnerStore port.RunnerStore) *RunnerService {
 	return &RunnerService{
 		runnerStore: runnerStore,
 	}
@@ -85,7 +85,7 @@ func (s *RunnerService) selectBestRunner(
 func (s *RunnerService) eligibleRunner(
 	ctx context.Context,
 	runnerId int64,
-) (*corePort.RunnerRuntimeState, bool, error) {
+) (*port.RunnerRuntimeState, bool, error) {
 	deleted, err := s.runnerStore.IsRunnerDeleted(ctx, runnerId)
 	if err != nil {
 		return nil, false, err
@@ -116,6 +116,6 @@ func (s *RunnerService) eligibleRunner(
 	return state, true, nil
 }
 
-func runnerLoad(state *corePort.RunnerRuntimeState) float64 {
+func runnerLoad(state *port.RunnerRuntimeState) float64 {
 	return float64(state.ActiveJobs) / float64(state.MaxConcurrentJobs)
 }

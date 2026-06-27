@@ -15,7 +15,7 @@ import (
 
 type DeploymentStatusApplication struct {
 	deploymentStatus port.DeploymentStatus
-	streams          corePort.KVStore
+	stream           corePort.Stream
 	queue            port.Queue
 	activePolls      sync.Map
 }
@@ -24,12 +24,12 @@ var _ port.LogPublisher = (*DeploymentStatusApplication)(nil)
 
 func NewDeploymentStatusApplication(
 	deploymentStatus port.DeploymentStatus,
-	streams corePort.KVStore,
+	stream corePort.Stream,
 	queue port.Queue,
 ) *DeploymentStatusApplication {
 	return &DeploymentStatusApplication{
 		deploymentStatus: deploymentStatus,
-		streams:          streams,
+		stream:           stream,
 		queue:            queue,
 	}
 }
@@ -131,7 +131,7 @@ func (a *DeploymentStatusApplication) streamLogs(ctx context.Context, streamName
 			default:
 			}
 
-			entries, err := a.streams.ReadStream(ctx, streamName, lastId)
+			entries, err := a.stream.ReadStream(ctx, streamName, lastId)
 			if err != nil {
 				_ = pw.CloseWithError(err)
 				return
@@ -165,7 +165,7 @@ func (a *DeploymentStatusApplication) publishLogChunk(ctx context.Context, strea
 		return nil
 	}
 
-	return a.streams.AppendToStream(
+	return a.stream.AppendToStream(
 		ctx,
 		streamName,
 		map[string][]byte{

@@ -6,15 +6,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"starliner.app/internal/builder/domain/port"
-	corePort "starliner.app/internal/core/domain/port"
 )
 
 type RunnerApplication struct {
 	authClient  port.AuthClient
-	runnerStore corePort.RunnerStore
+	runnerStore port.RunnerStore
 }
 
-func NewRunnerApplication(authClient port.AuthClient, runnerStore corePort.RunnerStore) *RunnerApplication {
+func NewRunnerApplication(authClient port.AuthClient, runnerStore port.RunnerStore) *RunnerApplication {
 	return &RunnerApplication{
 		authClient:  authClient,
 		runnerStore: runnerStore,
