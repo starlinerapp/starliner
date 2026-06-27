@@ -18,7 +18,7 @@ env:
   INFRASTRUCTURE_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.infrastructure_branch || 'main' }}
 jobs:
   build-auth:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -46,7 +46,7 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/auth:cache,mode=max
 
   build-client:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -74,7 +74,7 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/client:cache,mode=max
 
   build-server-api:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -101,7 +101,7 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/server-api:cache,mode=max
 
   build-server-builder:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -128,7 +128,7 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/server-builder:cache,mode=max
 
   build-server-cluster:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -155,7 +155,7 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/server-cluster:cache,mode=max
 
   build-server-provisioner:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -189,7 +189,7 @@ jobs:
       - build-server-builder
       - build-server-cluster
       - build-server-provisioner
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     steps:
       - name: Trigger Deployment
         uses: peter-evans/repository-dispatch@v4

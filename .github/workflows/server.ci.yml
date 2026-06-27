@@ -6,8 +6,7 @@ on:
 
 jobs:
   server-lint:
-    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
